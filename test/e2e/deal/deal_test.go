@@ -148,7 +148,7 @@ func TestTake(t *testing.T) {
 			Deal:   bigDeal.ID,
 			ProcID: closer.ID,
 			Term: step.CloseSpec{
-				A: closer.ID,
+				X: closer.ID,
 			},
 		}
 		// when
@@ -163,7 +163,7 @@ func TestTake(t *testing.T) {
 			Term: step.WaitSpec{
 				X: closer.ID,
 				Cont: step.CloseSpec{
-					A: waiter.ID,
+					X: waiter.ID,
 				},
 			},
 		}
@@ -288,7 +288,7 @@ func TestTake(t *testing.T) {
 				Cont: step.WaitSpec{
 					X: message.ID,
 					Cont: step.CloseSpec{
-						A: receiver.ID,
+						X: receiver.ID,
 					},
 				},
 			},
@@ -303,8 +303,8 @@ func TestTake(t *testing.T) {
 			Deal:   bigDeal.ID,
 			ProcID: sender.ID,
 			Term: step.SendSpec{
-				A: receiver.ID,
-				B: message.ID,
+				X: receiver.ID,
+				Y: message.ID,
 			},
 		}
 		// and
@@ -406,7 +406,7 @@ func TestTake(t *testing.T) {
 				X: follower.ID,
 				Conts: map[core.Label]step.Term{
 					label: step.CloseSpec{
-						A: follower.ID,
+						X: follower.ID,
 					},
 				},
 			},
@@ -421,7 +421,7 @@ func TestTake(t *testing.T) {
 			Deal:   bigDeal.ID,
 			ProcID: decider.ID,
 			Term: step.LabSpec{
-				A: follower.ID,
+				X: follower.ID,
 				L: label,
 			},
 		}
@@ -536,7 +536,7 @@ func TestTake(t *testing.T) {
 				Cont: step.WaitSpec{
 					X: z,
 					Cont: step.CloseSpec{
-						A: spawner.ID,
+						X: spawner.ID,
 					},
 				},
 				Sig: oneSig3.ID,
@@ -655,7 +655,7 @@ func TestTake(t *testing.T) {
 			Deal:   bigDeal.ID,
 			ProcID: closer.ID,
 			Term: step.CloseSpec{
-				A: closer.ID,
+				X: closer.ID,
 			},
 		}
 		err = dealAPI.Take(closeSpec)
@@ -683,7 +683,7 @@ func TestTake(t *testing.T) {
 			Term: step.WaitSpec{
 				X: forwarder.ID,
 				Cont: step.CloseSpec{
-					A: waiter.ID,
+					X: waiter.ID,
 				},
 			},
 		}

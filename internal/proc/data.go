@@ -24,5 +24,5 @@ type bndData struct {
 // goverter:extend smecalculus/rolevod/lib/id:Convert.*
 var (
 	DataFromMod func(Mod) modData
-	DataFromBnd func(Binding) bndData
+	DataFromBnd func(Bnd) bndData
 )

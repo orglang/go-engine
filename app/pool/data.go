@@ -61,5 +61,5 @@ var (
 	DataFromSubSnap  func(SubSnap) subSnapData
 	DataFromAssetMod func(AssetMod) assetModData
 	DataToAssetSnap  func(assetSnapData) (AssetSnap, error)
-	DataToEPs        func([]epData) ([]proc.EP, error)
+	DataToEPs        func([]epData) ([]proc.Chnl, error)
 )

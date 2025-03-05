@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"log/slog"
+	"reflect"
 
 	"github.com/jackc/pgx/v5"
 
@@ -45,13 +46,13 @@ func (r *repoPgx) Insert(source data.Source, root Root) (err error) {
 		r.log.Error("execution failed", slog.String("q", insertRoot))
 		return err
 	}
-	r.log.Log(ds.Ctx, core.LevelTrace, "entity insertion succeeded", slog.Any("dto", dto))
+	r.log.Debug("insertion succeeded", slog.Any("poolID", root.PoolID))
 	return nil
 }
 
 func (r *repoPgx) SelectAssets(source data.Source, poolID id.ADT) (AssetSnap, error) {
 	ds := data.MustConform[data.SourcePgx](source)
-	idAttr := slog.Any("id", poolID)
+	idAttr := slog.Any("poolID", poolID)
 	rows, err := ds.Conn.Query(ds.Ctx, selectAssetSnap, poolID.String())
 	if err != nil {
 		r.log.Error("execution failed", idAttr, slog.String("q", selectAssetSnap))
@@ -60,10 +61,10 @@ func (r *repoPgx) SelectAssets(source data.Source, poolID id.ADT) (AssetSnap, er
 	defer rows.Close()
 	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[assetSnapData])
 	if err != nil {
-		r.log.Error("row collection failed", idAttr)
+		r.log.Error("collection failed", idAttr, slog.Any("t", reflect.TypeOf(dto)))
 		return AssetSnap{}, err
 	}
-	r.log.Log(ds.Ctx, core.LevelTrace, "entity selection succeeded", slog.Any("dto", dto))
+	r.log.Debug("selection succeeded", idAttr)
 	return DataToAssetSnap(dto)
 }
 
@@ -78,7 +79,7 @@ func (r *repoPgx) SelectProc(source data.Source, procID id.ADT) (proc.Snap, erro
 	defer epRows.Close()
 	epDtos, err := pgx.CollectRows(epRows, pgx.RowToStructByName[epData])
 	if err != nil {
-		r.log.Error("rows collection failed", idAttr)
+		r.log.Error("collection failed", idAttr, slog.Any("t", reflect.TypeOf(epDtos)))
 		return proc.Snap{}, err
 	}
 	eps, err := DataToEPs(epDtos)
@@ -94,7 +95,7 @@ func (r *repoPgx) SelectProc(source data.Source, procID id.ADT) (proc.Snap, erro
 	defer stepRows.Close()
 	stepDtos, err := pgx.CollectRows(stepRows, pgx.RowToStructByName[step.RootData])
 	if err != nil {
-		r.log.Error("rows collection failed", idAttr)
+		r.log.Error("collection failed", idAttr, slog.Any("t", reflect.TypeOf(stepDtos)))
 		return proc.Snap{}, err
 	}
 	steps, err := step.DataToRoots(stepDtos)
@@ -104,15 +105,14 @@ func (r *repoPgx) SelectProc(source data.Source, procID id.ADT) (proc.Snap, erro
 	}
 	r.log.Debug("selection succeeded", idAttr)
 	return proc.Snap{
-		ProcID: procID,
-		EPs:    core.IndexBy(proc.ProcPH, eps),
-		Steps:  core.IndexBy(step.ChnlID, steps),
+		Chnls: core.IndexBy(proc.ChnlPH, eps),
+		Steps: core.IndexBy(step.ChnlID, steps),
 	}, nil
 }
 
 func (r *repoPgx) UpdateProc(source data.Source, mod proc.Mod) (err error) {
 	ds := data.MustConform[data.SourcePgx](source)
-	idAttr := slog.Any("id", mod.PoolID)
+	idAttr := slog.Any("poolID", mod.PoolID)
 	dto := proc.DataFromMod(mod)
 	// bindings
 	bndReq := pgx.Batch{}
@@ -167,7 +167,7 @@ func (r *repoPgx) UpdateProc(source data.Source, mod proc.Mod) (err error) {
 	args := pgx.NamedArgs{
 		"pool_id": dto.PoolID,
 		"rev":     dto.Rev,
-		"k":       procRev,
+		"k":       procLock,
 	}
 	ct, err := ds.Conn.Exec(ds.Ctx, updateRoot, args)
 	if err != nil {
@@ -178,7 +178,7 @@ func (r *repoPgx) UpdateProc(source data.Source, mod proc.Mod) (err error) {
 		r.log.Error("update failed", idAttr)
 		return errOptimisticUpdate(mod.Rev)
 	}
-	r.log.Log(ds.Ctx, core.LevelTrace, "update succeeded", idAttr)
+	r.log.Debug("update succeeded", idAttr)
 	return nil
 }
 
@@ -230,38 +230,20 @@ func (r *repoPgx) UpdateAssets(source data.Source, mod AssetMod) (err error) {
 
 func (r *repoPgx) SelectSubs(source data.Source, poolID id.ADT) (SubSnap, error) {
 	ds := data.MustConform[data.SourcePgx](source)
-	idAttr := slog.Any("id", poolID)
+	idAttr := slog.Any("poolID", poolID)
 	rows, err := ds.Conn.Query(ds.Ctx, selectOrgSnap, poolID.String())
 	if err != nil {
-		r.log.Error("query execution failed", idAttr, slog.String("q", selectOrgSnap))
+		r.log.Error("execution failed", idAttr, slog.String("q", selectOrgSnap))
 		return SubSnap{}, err
 	}
 	defer rows.Close()
 	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[subSnapData])
 	if err != nil {
-		r.log.Error("row collection failed", idAttr)
+		r.log.Error("collection failed", idAttr, slog.Any("t", reflect.TypeOf(dto)))
 		return SubSnap{}, err
 	}
-	r.log.Log(ds.Ctx, core.LevelTrace, "entity selection succeeded", slog.Any("dto", dto))
+	r.log.Debug("selection succeeded", idAttr)
 	return DataToSubSnap(dto)
-}
-
-func (r *repoPgx) SelectEPsByProcID(source data.Source, procID id.ADT) ([]proc.EP, error) {
-	ds := data.MustConform[data.SourcePgx](source)
-	idAttr := slog.Any("id", procID)
-	rows, err := ds.Conn.Query(ds.Ctx, selectEPs, procID.String())
-	if err != nil {
-		r.log.Error("query execution failed", idAttr, slog.String("q", selectEPs))
-		return nil, err
-	}
-	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[epData])
-	if err != nil {
-		r.log.Error("rows collection failed", idAttr)
-		return nil, err
-	}
-	r.log.Log(ds.Ctx, core.LevelTrace, "entity selection succeeded", slog.Any("dtos", dtos))
-	return DataToEPs(dtos)
 }
 
 func (r *repoPgx) SelectRefs(source data.Source) ([]Ref, error) {
@@ -272,13 +254,13 @@ func (r *repoPgx) SelectRefs(source data.Source) ([]Ref, error) {
 		from pool_roots`
 	rows, err := ds.Conn.Query(ds.Ctx, query)
 	if err != nil {
-		r.log.Error("query execution failed", slog.String("q", query))
+		r.log.Error("execution failed", slog.String("q", query))
 		return nil, err
 	}
 	defer rows.Close()
 	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[refData])
 	if err != nil {
-		r.log.Error("rows collection failed")
+		r.log.Error("collection failed", slog.Any("t", reflect.TypeOf(dtos)))
 		return nil, err
 	}
 	return DataToRefs(dtos)

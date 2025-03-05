@@ -242,7 +242,7 @@ func MsgFromTerm(t Term) TermMsg {
 		return TermMsg{
 			K: Close,
 			Close: &CloseMsg{
-				A: ph.MsgFromPH(term.A),
+				A: ph.MsgFromPH(term.X),
 			},
 		}
 	case WaitSpec:
@@ -257,8 +257,8 @@ func MsgFromTerm(t Term) TermMsg {
 		return TermMsg{
 			K: Send,
 			Send: &SendMsg{
-				A: ph.MsgFromPH(term.A),
-				B: ph.MsgFromPH(term.B),
+				A: ph.MsgFromPH(term.X),
+				B: ph.MsgFromPH(term.Y),
 			},
 		}
 	case RecvSpec:
@@ -274,7 +274,7 @@ func MsgFromTerm(t Term) TermMsg {
 		return TermMsg{
 			K: Lab,
 			Lab: &LabMsg{
-				A:     ph.MsgFromPH(term.A),
+				A:     ph.MsgFromPH(term.X),
 				Label: string(term.L),
 			},
 		}
@@ -335,7 +335,7 @@ func MsgToTerm(dto TermMsg) (Term, error) {
 		if err != nil {
 			return nil, err
 		}
-		return CloseSpec{A: a}, nil
+		return CloseSpec{X: a}, nil
 	case Wait:
 		x, err := ph.MsgToPH(dto.Wait.X)
 		if err != nil {
@@ -355,7 +355,7 @@ func MsgToTerm(dto TermMsg) (Term, error) {
 		if err != nil {
 			return nil, err
 		}
-		return SendSpec{A: a, B: b}, nil
+		return SendSpec{X: a, Y: b}, nil
 	case Recv:
 		x, err := ph.MsgToPH(dto.Recv.X)
 		if err != nil {
@@ -375,7 +375,7 @@ func MsgToTerm(dto TermMsg) (Term, error) {
 		if err != nil {
 			return nil, err
 		}
-		return LabSpec{A: a, L: core.Label(dto.Lab.Label)}, nil
+		return LabSpec{X: a, L: core.Label(dto.Lab.Label)}, nil
 	case Case:
 		x, err := ph.MsgToPH(dto.Case.X)
 		if err != nil {

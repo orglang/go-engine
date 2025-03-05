@@ -498,6 +498,10 @@ func ErrMissingInCfg(want ID) error {
 	return fmt.Errorf("root missing in cfg: %v", want)
 }
 
+func ErrMissingInCtx(want ph.ADT) error {
+	return fmt.Errorf("root missing in ctx: %v", want)
+}
+
 func ErrRootTypeUnexpected(got Root) error {
 	return fmt.Errorf("root type unexpected: %T", got)
 }

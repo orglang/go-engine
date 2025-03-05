@@ -385,9 +385,9 @@ func (s *service) takeProcWith(
 ) (err error) {
 	switch term := proc.Term.(type) {
 	case step.CloseSpec:
-		viaID, ok := term.A.(chnl.ID)
+		viaID, ok := term.X.(chnl.ID)
 		if !ok {
-			err := chnl.ErrNotAnID(term.A)
+			err := chnl.ErrNotAnID(term.X)
 			s.log.Error("transition taking failed",
 				slog.Any("reason", err),
 			)
@@ -571,9 +571,9 @@ func (s *service) takeProcWith(
 		s.log.Debug("transition taking succeeded")
 		return s.takeProc(newProc)
 	case step.SendSpec:
-		viaID, ok := term.A.(chnl.ID)
+		viaID, ok := term.X.(chnl.ID)
 		if !ok {
-			err := chnl.ErrNotAnID(term.A)
+			err := chnl.ErrNotAnID(term.X)
 			s.log.Error("transition taking failed",
 				slog.Any("reason", err),
 			)
@@ -654,9 +654,9 @@ func (s *service) takeProcWith(
 			)
 			return err
 		}
-		bID, ok := term.B.(chnl.ID)
+		bID, ok := term.Y.(chnl.ID)
 		if !ok {
-			err := chnl.ErrNotAnID(term.B)
+			err := chnl.ErrNotAnID(term.Y)
 			s.log.Error("transition taking failed",
 				slog.Any("reason", err),
 			)
@@ -773,9 +773,9 @@ func (s *service) takeProcWith(
 			)
 			return err
 		}
-		bID, ok := send.B.(chnl.ID)
+		bID, ok := send.Y.(chnl.ID)
 		if !ok {
-			err := chnl.ErrNotAnID(send.B)
+			err := chnl.ErrNotAnID(send.Y)
 			s.log.Error("transition taking failed",
 				slog.Any("reason", err),
 			)
@@ -809,9 +809,9 @@ func (s *service) takeProcWith(
 		}
 		return s.takeProc(newProc)
 	case step.LabSpec:
-		viaID, ok := term.A.(chnl.ID)
+		viaID, ok := term.X.(chnl.ID)
 		if !ok {
-			err := chnl.ErrNotAnID(term.A)
+			err := chnl.ErrNotAnID(term.X)
 			s.log.Error("transition taking failed",
 				slog.Any("reason", err),
 			)
@@ -1290,9 +1290,9 @@ func (s *service) checkProvider(
 			return err
 		}
 		// check value
-		gotB, ok := ctx.Linear[term.B]
+		gotB, ok := ctx.Linear[term.Y]
 		if !ok {
-			err := chnl.ErrMissingInCtx(term.B)
+			err := chnl.ErrMissingInCtx(term.Y)
 			s.log.Error("type checking failed", viaAttr)
 			return err
 		}
@@ -1302,7 +1302,7 @@ func (s *service) checkProvider(
 			return err
 		}
 		// no cont to check
-		delete(ctx.Linear, term.B)
+		delete(ctx.Linear, term.Y)
 		pe.C = wantSt.C
 		return nil
 	case step.RecvSpec:
@@ -1429,9 +1429,9 @@ func (s *service) checkClient(
 		return s.checkState(env, ctx, pe, got.Cont)
 	case step.SendSpec:
 		// check via
-		gotA, ok := ctx.Linear[got.A]
+		gotA, ok := ctx.Linear[got.X]
 		if !ok {
-			err := chnl.ErrMissingInCtx(got.A)
+			err := chnl.ErrMissingInCtx(got.X)
 			s.log.Error("type checking failed", viaAttr)
 			return err
 		}
@@ -1442,9 +1442,9 @@ func (s *service) checkClient(
 			return err
 		}
 		// check value
-		gotB, ok := ctx.Linear[got.B]
+		gotB, ok := ctx.Linear[got.Y]
 		if !ok {
-			err := chnl.ErrMissingInCtx(got.B)
+			err := chnl.ErrMissingInCtx(got.Y)
 			s.log.Error("type checking failed", viaAttr)
 			return err
 		}
@@ -1454,8 +1454,8 @@ func (s *service) checkClient(
 			return err
 		}
 		// no cont to check
-		delete(ctx.Linear, got.B)
-		ctx.Linear[got.A] = wantSt.Z
+		delete(ctx.Linear, got.Y)
+		ctx.Linear[got.X] = wantSt.Z
 		return nil
 	case step.RecvSpec:
 		// check via
@@ -1489,9 +1489,9 @@ func (s *service) checkClient(
 		return s.checkState(env, ctx, pe, got.Cont)
 	case step.LabSpec:
 		// check via
-		gotA, ok := ctx.Linear[got.A]
+		gotA, ok := ctx.Linear[got.X]
 		if !ok {
-			err := chnl.ErrMissingInCtx(got.A)
+			err := chnl.ErrMissingInCtx(got.X)
 			s.log.Error("type checking failed", viaAttr)
 			return err
 		}

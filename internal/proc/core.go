@@ -11,34 +11,44 @@ import (
 
 // aka Configuration
 type Snap struct {
-	ProcID id.ADT
-	EPs    map[ph.ADT]EP
-	Steps  map[chnl.ID]step.Root
-}
-
-type EP struct {
-	ProcID   id.ADT
-	ChnlPH   ph.ADT
-	ChnlID   id.ADT
-	StateID  id.ADT
-	PrvdID   id.ADT
-	PrvdRevs []rev.ADT
-	ClntID   id.ADT
-	ClntRevs []rev.ADT
-}
-
-func ProcPH(ep EP) ph.ADT { return ep.ChnlPH }
-
-type Mod struct {
 	PoolID id.ADT
-	Bnds   []Binding
-	Steps  []step.Root
+	ProcID id.ADT
+	Chnls  map[ph.ADT]Chnl
+	Steps  map[chnl.ID]step.Root
 	Rev    rev.ADT
 }
 
-type Binding struct {
+type Chnl struct {
+	ChnlID  id.ADT
+	StateID id.ADT
+	// Provider Side
+	PS EP
+	// Client Side
+	CS EP
+}
+
+type EP struct {
+	PoolID id.ADT
+	ProcID id.ADT
+	Rev    rev.ADT
+}
+
+func ChnlPH(ch Chnl) ph.ADT { return ch.ChnlPH }
+
+type Lock struct {
+	PoolID id.ADT
+	Rev    rev.ADT
+}
+
+type Mod struct {
+	Bnds  []Bnd
+	Steps []step.Root
+	Locks []Lock
+}
+
+type Bnd struct {
 	ProcID  id.ADT
-	ProcPH  ph.ADT
+	ChnlPH  ph.ADT
 	ChnlID  id.ADT
 	StateID id.ADT
 	Rev     rev.ADT

@@ -265,17 +265,17 @@ func dataFromValue(v Value) specData {
 	case CloseSpec:
 		return specData{
 			K:     close,
-			Close: &closeData{ph.DataFromPH(val.A)},
+			Close: &closeData{ph.DataFromPH(val.X)},
 		}
 	case SendSpec:
 		return specData{
 			K:    send,
-			Send: &sendData{ph.DataFromPH(val.A), ph.DataFromPH(val.B)},
+			Send: &sendData{ph.DataFromPH(val.X), ph.DataFromPH(val.Y)},
 		}
 	case LabSpec:
 		return specData{
 			K:   lab,
-			Lab: &labData{ph.DataFromPH(val.A), string(val.L)},
+			Lab: &labData{ph.DataFromPH(val.X), string(val.L)},
 		}
 	case FwdSpec:
 		return specData{
@@ -297,7 +297,7 @@ func dataToValue(dto specData) (Value, error) {
 		if err != nil {
 			return nil, err
 		}
-		return CloseSpec{A: a}, nil
+		return CloseSpec{X: a}, nil
 	case send:
 		a, err := ph.DataToPH(dto.Send.A)
 		if err != nil {
@@ -307,13 +307,13 @@ func dataToValue(dto specData) (Value, error) {
 		if err != nil {
 			return nil, err
 		}
-		return SendSpec{A: a, B: b}, nil
+		return SendSpec{X: a, Y: b}, nil
 	case lab:
 		a, err := ph.DataToPH(dto.Lab.A)
 		if err != nil {
 			return nil, err
 		}
-		return LabSpec{A: a, L: core.Label(dto.Lab.L)}, nil
+		return LabSpec{X: a, L: core.Label(dto.Lab.L)}, nil
 	case fwd:
 		c, err := ph.DataToPH(dto.Fwd.C)
 		if err != nil {

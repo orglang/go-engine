@@ -68,9 +68,9 @@ CREATE TABLE pool_deps (
 -- передачи каналов (провайдерская сторона)
 -- по истории передач определяем текущего провайдера
 CREATE TABLE pool_liabs (
-	pool_id varchar(36),
 	proc_id varchar(36),
-	proc_ph varchar(36),
+	chnl_ph varchar(36),
+	pool_id varchar(36),
 	ex_pool_id varchar(36),
 	rev integer
 );
@@ -78,9 +78,9 @@ CREATE TABLE pool_liabs (
 -- передачи каналов (потребительская сторона)
 -- по истории передач определяем текущих потребителей
 CREATE TABLE pool_assets (
-	pool_id varchar(36),
 	proc_id varchar(36),
-	proc_ph varchar(36),
+	chnl_ph varchar(36),
+	pool_id varchar(36),
 	ex_pool_id varchar(36),
 	rev integer
 );
@@ -88,7 +88,7 @@ CREATE TABLE pool_assets (
 -- подстановки каналов в процесс
 CREATE TABLE proc_bnds (
 	proc_id varchar(36),
-	proc_ph varchar(36),
+	chnl_ph varchar(36),
 	chnl_id varchar(36),
 	state_id varchar(36),
 	rev integer

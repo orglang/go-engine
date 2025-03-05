@@ -8,6 +8,7 @@ import (
 	"smecalculus/rolevod/lib/data"
 	"smecalculus/rolevod/lib/id"
 	"smecalculus/rolevod/lib/ph"
+	"smecalculus/rolevod/lib/rev"
 	"smecalculus/rolevod/lib/sym"
 
 	"smecalculus/rolevod/internal/chnl"
@@ -63,9 +64,11 @@ type MsgRoot struct {
 func (r MsgRoot) step() chnl.ID { return r.VID }
 
 type MsgRoot2 struct {
+	PoolID id.ADT
 	ProcID id.ADT
 	ChnlID id.ADT
-	Val    Value
+	Val    Val
+	Rev    rev.ADT
 }
 
 func (r MsgRoot2) step() chnl.ID { return r.ChnlID }
@@ -79,13 +82,15 @@ type SrvRoot struct {
 
 func (r SrvRoot) step() chnl.ID { return r.VID }
 
-type SrvRoot2 struct {
+type SvcRoot2 struct {
+	PoolID id.ADT
 	ProcID id.ADT
 	ChnlID id.ADT
-	Cont   Continuation
+	Cont   Cont
+	Rev    rev.ADT
 }
 
-func (r SrvRoot2) step() chnl.ID { return r.ChnlID }
+func (r SvcRoot2) step() chnl.ID { return r.ChnlID }
 
 type TbdRoot struct {
 	ID  id.ADT
@@ -107,9 +112,17 @@ type Value interface {
 	val()
 }
 
+type Val interface {
+	val2()
+}
+
 type Continuation interface {
 	Term
 	cont()
+}
+
+type Cont interface {
+	cont2()
 }
 
 type Action interface {
@@ -118,12 +131,12 @@ type Action interface {
 }
 
 type CloseSpec struct {
-	A ph.ADT
+	X ph.ADT
 }
 
 func (CloseSpec) val() {}
 
-func (s CloseSpec) Via() ph.ADT { return s.A }
+func (s CloseSpec) Via() ph.ADT { return s.X }
 
 type WaitSpec struct {
 	X    ph.ADT
@@ -135,18 +148,18 @@ func (WaitSpec) cont() {}
 func (s WaitSpec) Via() ph.ADT { return s.X }
 
 type SendSpec struct {
-	A ph.ADT // via
-	B ph.ADT // value
+	X ph.ADT // via
+	Y ph.ADT // val
 	// Cont  Term
 }
 
 func (SendSpec) val() {}
 
-func (s SendSpec) Via() ph.ADT { return s.A }
+func (s SendSpec) Via() ph.ADT { return s.X }
 
 type RecvSpec struct {
 	X    ph.ADT // via
-	Y    ph.ADT // value
+	Y    ph.ADT // val
 	Cont Term
 }
 
@@ -155,14 +168,14 @@ func (RecvSpec) cont() {}
 func (s RecvSpec) Via() ph.ADT { return s.X }
 
 type LabSpec struct {
-	A ph.ADT
+	X ph.ADT
 	L core.Label
 	// Cont Term
 }
 
 func (LabSpec) val() {}
 
-func (s LabSpec) Via() ph.ADT { return s.A }
+func (s LabSpec) Via() ph.ADT { return s.X }
 
 type CaseSpec struct {
 	X     ph.ADT
@@ -212,6 +225,56 @@ type SpawnSpec struct {
 
 func (s SpawnSpec) Via() ph.ADT { return s.PE }
 
+type CloseImpl struct {
+}
+
+func (CloseImpl) val2() {}
+
+type WaitImpl struct {
+	Cont Term
+}
+
+func (WaitImpl) cont2() {}
+
+type SendImpl struct {
+	X ph.ADT
+	A id.ADT
+	B id.ADT
+}
+
+func (SendImpl) val2() {}
+
+type RecvImpl struct {
+	X    ph.ADT
+	A    id.ADT
+	Y    ph.ADT
+	Cont Term
+}
+
+func (RecvImpl) cont2() {}
+
+type LabImpl struct {
+	X ph.ADT
+	A id.ADT
+	L core.Label
+}
+
+func (LabImpl) val2() {}
+
+type CaseImpl struct {
+	X     ph.ADT
+	A     id.ADT
+	Conts map[core.Label]Term
+}
+
+func (CaseImpl) cont2() {}
+
+type FwdImpl struct {
+	ChnlID id.ADT
+}
+
+func (FwdImpl) val2() {}
+
 type Repo interface {
 	Insert(data.Source, ...Root) error
 	SelectAll(data.Source) ([]Ref, error)
@@ -253,11 +316,11 @@ func collectCEsRec(pe chnl.ID, t Term, ces []chnl.ID) []chnl.ID {
 		}
 		return collectCEsRec(pe, term.Cont, ces)
 	case SendSpec:
-		a, ok := term.A.(chnl.ID)
+		a, ok := term.X.(chnl.ID)
 		if ok && a != pe {
 			ces = append(ces, a)
 		}
-		b, ok := term.B.(chnl.ID)
+		b, ok := term.Y.(chnl.ID)
 		if ok {
 			ces = append(ces, b)
 		}
@@ -273,7 +336,7 @@ func collectCEsRec(pe chnl.ID, t Term, ces []chnl.ID) []chnl.ID {
 		}
 		return collectCEsRec(pe, term.Cont, ces)
 	case LabSpec:
-		a, ok := term.A.(chnl.ID)
+		a, ok := term.X.(chnl.ID)
 		if ok && a != pe {
 			ces = append(ces, a)
 		}
@@ -306,8 +369,8 @@ func Subst(t Term, ph ph.ADT, val chnl.ID) Term {
 	}
 	switch term := t.(type) {
 	case CloseSpec:
-		if ph == term.A {
-			term.A = val
+		if ph == term.X {
+			term.X = val
 		}
 		return term
 	case WaitSpec:
@@ -317,11 +380,11 @@ func Subst(t Term, ph ph.ADT, val chnl.ID) Term {
 		term.Cont = Subst(term.Cont, ph, val)
 		return term
 	case SendSpec:
-		if ph == term.A {
-			term.A = val
+		if ph == term.X {
+			term.X = val
 		}
-		if ph == term.B {
-			term.B = val
+		if ph == term.Y {
+			term.Y = val
 		}
 		return term
 	default:
@@ -357,7 +420,15 @@ func ErrValTypeUnexpected(got Value) error {
 	return fmt.Errorf("value type unexpected: %T", got)
 }
 
+func ErrValTypeUnexpected2(got Val) error {
+	return fmt.Errorf("value type unexpected: %T", got)
+}
+
 func ErrContTypeUnexpected(got Continuation) error {
+	return fmt.Errorf("continuation type unexpected: %T", got)
+}
+
+func ErrContTypeUnexpected2(got Cont) error {
 	return fmt.Errorf("continuation type unexpected: %T", got)
 }
 

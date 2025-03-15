@@ -139,6 +139,10 @@ type OneRoot struct {
 	ID id.ADT
 }
 
+// type EP struct {
+
+// }
+
 func (OneRoot) spec() {}
 
 func (r OneRoot) Ident() id.ADT { return r.ID }
@@ -236,13 +240,19 @@ func (r DownRoot) Ident() id.ADT { return r.ID }
 func (r DownRoot) Pol() pol.ADT { return pol.Zero }
 
 type Context struct {
-	Linear map[ph.ADT]Root
+	Assets map[ph.ADT]Root
+	Liabs  map[ph.ADT]Root
 }
 
 // Endpoint aka ChanTp
 type EP struct {
 	Z ph.ADT
 	C Root
+}
+
+type EP2 struct {
+	ChnlPH  ph.ADT
+	StateID id.ADT
 }
 
 type Repo interface {

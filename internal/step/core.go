@@ -235,6 +235,12 @@ type SpawnSpec struct {
 
 func (s SpawnSpec) Via() ph.ADT { return s.X }
 
+type EP struct {
+	ChnlPH  ph.ADT
+	ChnlID  id.ADT
+	StateID id.ADT
+}
+
 type CloseImpl struct {
 	X ph.ADT
 }
@@ -260,6 +266,7 @@ type SendImpl struct {
 	X ph.ADT
 	A id.ADT
 	B id.ADT
+	S id.ADT
 }
 
 func (i SendImpl) Via() ph.ADT { return i.X }
@@ -297,6 +304,7 @@ type CaseImpl struct {
 	X     ph.ADT
 	A     id.ADT
 	Conts map[core.Label]Term
+	// States map[core.Label]state.ID
 }
 
 func (i CaseImpl) Via() ph.ADT { return i.X }

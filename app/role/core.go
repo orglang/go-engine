@@ -283,6 +283,10 @@ var (
 	ConvertSnapToRef func(Snap) Ref
 )
 
+func ErrMissingInEnv(want QN) error {
+	return fmt.Errorf("root missing in env: %v", want)
+}
+
 func errConcurrentModification(got rev.ADT, want rev.ADT) error {
 	return fmt.Errorf("entity concurrent modification: want revision %v, got revision %v", want, got)
 }

@@ -1270,8 +1270,8 @@ func (s *service) checkProvider(
 	switch term := t.(type) {
 	case step.CloseSpec:
 		// check ctx
-		if len(ctx.Linear) > 0 {
-			err := fmt.Errorf("context mismatch: want 0 items, got %v items", len(ctx.Linear))
+		if len(ctx.Assets) > 0 {
+			err := fmt.Errorf("context mismatch: want 0 items, got %v items", len(ctx.Assets))
 			s.log.Error("type checking failed", viaAttr)
 			return err
 		}
@@ -1290,7 +1290,7 @@ func (s *service) checkProvider(
 			return err
 		}
 		// check value
-		gotB, ok := ctx.Linear[term.Y]
+		gotB, ok := ctx.Assets[term.Y]
 		if !ok {
 			err := chnl.ErrMissingInCtx(term.Y)
 			s.log.Error("type checking failed", viaAttr)
@@ -1302,7 +1302,7 @@ func (s *service) checkProvider(
 			return err
 		}
 		// no cont to check
-		delete(ctx.Linear, term.Y)
+		delete(ctx.Assets, term.Y)
 		pe.C = wantSt.C
 		return nil
 	case step.RecvSpec:
@@ -1314,7 +1314,7 @@ func (s *service) checkProvider(
 			return err
 		}
 		// check value
-		gotY, ok := ctx.Linear[term.Y]
+		gotY, ok := ctx.Assets[term.Y]
 		if !ok {
 			err := chnl.ErrMissingInCtx(term.Y)
 			s.log.Error("type checking failed", viaAttr)
@@ -1326,7 +1326,7 @@ func (s *service) checkProvider(
 			return err
 		}
 		// check cont
-		ctx.Linear[term.Y] = wantSt.Y
+		ctx.Assets[term.Y] = wantSt.Y
 		pe.C = wantSt.Z
 		return s.checkState(env, ctx, pe, term.Cont)
 	case step.LabSpec:
@@ -1376,12 +1376,12 @@ func (s *service) checkProvider(
 		}
 		return nil
 	case step.FwdSpec:
-		if len(ctx.Linear) != 1 {
-			err := fmt.Errorf("context mismatch: want 1 item, got %v items", len(ctx.Linear))
+		if len(ctx.Assets) != 1 {
+			err := fmt.Errorf("context mismatch: want 1 item, got %v items", len(ctx.Assets))
 			s.log.Error("type checking failed", viaAttr)
 			return err
 		}
-		gotD, ok := ctx.Linear[term.Y]
+		gotD, ok := ctx.Assets[term.Y]
 		if !ok {
 			err := chnl.ErrMissingInCtx(term.Y)
 			s.log.Error("type checking failed", viaAttr)
@@ -1399,20 +1399,20 @@ func (s *service) checkProvider(
 }
 
 func (s *service) checkClient(
-	env Environment,
-	ctx state.Context,
+	procEnv Environment,
+	procCtx state.Context,
 	pe state.EP,
-	t step.Term,
+	ts step.Term,
 ) error {
-	viaAttr := slog.Any("via", t.Via())
-	switch got := t.(type) {
+	viaAttr := slog.Any("via", ts.Via())
+	switch got := ts.(type) {
 	case step.CloseSpec:
-		err := step.ErrTermTypeMismatch(t, step.WaitSpec{})
+		err := step.ErrTermTypeMismatch(ts, step.WaitSpec{})
 		s.log.Error("type checking failed", viaAttr)
 		return err
 	case step.WaitSpec:
 		// check via
-		gotX, ok := ctx.Linear[got.X]
+		gotX, ok := procCtx.Assets[got.X]
 		if !ok {
 			err := chnl.ErrMissingInCtx(got.X)
 			s.log.Error("type checking failed", viaAttr)
@@ -1425,11 +1425,11 @@ func (s *service) checkClient(
 			return err
 		}
 		// check cont
-		delete(ctx.Linear, got.X)
-		return s.checkState(env, ctx, pe, got.Cont)
+		delete(procCtx.Assets, got.X)
+		return s.checkState(procEnv, procCtx, pe, got.Cont)
 	case step.SendSpec:
 		// check via
-		gotA, ok := ctx.Linear[got.X]
+		gotA, ok := procCtx.Assets[got.X]
 		if !ok {
 			err := chnl.ErrMissingInCtx(got.X)
 			s.log.Error("type checking failed", viaAttr)
@@ -1442,7 +1442,7 @@ func (s *service) checkClient(
 			return err
 		}
 		// check value
-		gotB, ok := ctx.Linear[got.Y]
+		gotB, ok := procCtx.Assets[got.Y]
 		if !ok {
 			err := chnl.ErrMissingInCtx(got.Y)
 			s.log.Error("type checking failed", viaAttr)
@@ -1454,12 +1454,12 @@ func (s *service) checkClient(
 			return err
 		}
 		// no cont to check
-		delete(ctx.Linear, got.Y)
-		ctx.Linear[got.X] = wantSt.Z
+		delete(procCtx.Assets, got.Y)
+		procCtx.Assets[got.X] = wantSt.Z
 		return nil
 	case step.RecvSpec:
 		// check via
-		gotX, ok := ctx.Linear[got.X]
+		gotX, ok := procCtx.Assets[got.X]
 		if !ok {
 			err := chnl.ErrMissingInCtx(got.X)
 			s.log.Error("type checking failed", viaAttr)
@@ -1472,7 +1472,7 @@ func (s *service) checkClient(
 			return err
 		}
 		// check value
-		gotY, ok := ctx.Linear[got.Y]
+		gotY, ok := procCtx.Assets[got.Y]
 		if !ok {
 			err := chnl.ErrMissingInCtx(got.Y)
 			s.log.Error("type checking failed", viaAttr)
@@ -1484,12 +1484,12 @@ func (s *service) checkClient(
 			return err
 		}
 		// check cont
-		ctx.Linear[got.Y] = wantSt.B
+		procCtx.Assets[got.Y] = wantSt.B
 		pe.C = wantSt.C
-		return s.checkState(env, ctx, pe, got.Cont)
+		return s.checkState(procEnv, procCtx, pe, got.Cont)
 	case step.LabSpec:
 		// check via
-		gotA, ok := ctx.Linear[got.X]
+		gotA, ok := procCtx.Assets[got.X]
 		if !ok {
 			err := chnl.ErrMissingInCtx(got.X)
 			s.log.Error("type checking failed", viaAttr)
@@ -1512,7 +1512,7 @@ func (s *service) checkClient(
 		return nil
 	case step.CaseSpec:
 		// check via
-		gotX, ok := ctx.Linear[got.X]
+		gotX, ok := procCtx.Assets[got.X]
 		if !ok {
 			err := chnl.ErrMissingInCtx(got.X)
 			s.log.Error("type checking failed", viaAttr)
@@ -1537,8 +1537,8 @@ func (s *service) checkClient(
 				s.log.Error("type checking failed", viaAttr)
 				return err
 			}
-			ctx.Linear[got.X] = wantChoice
-			err := s.checkState(env, ctx, pe, gotCont)
+			procCtx.Assets[got.X] = wantChoice
+			err := s.checkState(procEnv, procCtx, pe, gotCont)
 			if err != nil {
 				s.log.Error("type checking failed", viaAttr)
 				return err
@@ -1546,12 +1546,12 @@ func (s *service) checkClient(
 		}
 		return nil
 	case step.SpawnSpec:
-		if !env.Contains(got.SigID) {
+		if !procEnv.Contains(got.SigID) {
 			err := sig.ErrRootMissingInEnv(got.SigID)
 			s.log.Error("type checking failed", viaAttr)
 			return err
 		}
-		wantCEs := env.LookupCEs(got.SigID)
+		wantCEs := procEnv.LookupCEs(got.SigID)
 		if len(got.Ys2) != len(wantCEs) {
 			err := fmt.Errorf("context mismatch: want %v items, got %v items", len(wantCEs), len(got.Ys2))
 			s.log.Error("type checking failed", viaAttr, slog.Any("want", wantCEs), slog.Any("got", got.Ys2))
@@ -1561,18 +1561,18 @@ func (s *service) checkClient(
 			return nil
 		}
 		for i, gotCE := range got.Ys2 {
-			gotSt := ctx.Linear[gotCE]
+			gotSt := procCtx.Assets[gotCE]
 			err := state.CheckRoot(gotSt, wantCEs[i].C)
 			if err != nil {
 				s.log.Error("type checking failed", viaAttr, slog.Any("want", wantCEs[i]), slog.Any("got", gotCE))
 				return err
 			}
-			delete(ctx.Linear, gotCE)
+			delete(procCtx.Assets, gotCE)
 		}
-		ctx.Linear[got.X] = env.LookupPE(got.SigID).C
-		return s.checkState(env, ctx, pe, got.Cont)
+		procCtx.Assets[got.X] = procEnv.LookupPE(got.SigID).C
+		return s.checkState(procEnv, procCtx, pe, got.Cont)
 	default:
-		panic(step.ErrTermTypeUnexpected(t))
+		panic(step.ErrTermTypeUnexpected(ts))
 	}
 }
 
@@ -1589,5 +1589,5 @@ func convertToCtx(chnls []chnl.Root, states map[state.ID]state.Root) state.Conte
 	for _, ch := range chnls {
 		linear[ch.ID] = states[*ch.StateID]
 	}
-	return state.Context{Linear: linear}
+	return state.Context{Assets: linear}
 }

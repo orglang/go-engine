@@ -103,34 +103,6 @@ type TranSpec struct {
 	Term   step.Term
 }
 
-type Environment struct {
-	Sigs   map[sig.ID]sig.Root
-	Roles  map[role.QN]role.Root
-	States map[state.ID]state.Root
-	Locks  map[sym.ADT]proc.Lock
-}
-
-func (e Environment) Contains(id sig.ID) bool {
-	_, ok := e.Sigs[id]
-	return ok
-}
-
-func (e Environment) LookupPE(id sig.ID) state.EP {
-	decl := e.Sigs[id]
-	role := e.Roles[decl.X2.Link]
-	return state.EP{Z: decl.X2.Link, C: e.States[role.StateID]}
-}
-
-func (e Environment) LookupCEs(id sig.ID) []state.EP {
-	decl := e.Sigs[id]
-	ces := []state.EP{}
-	for _, ce := range decl.Ys2 {
-		role := e.Roles[decl.X2.Link]
-		ces = append(ces, state.EP{Z: ce.Link, C: e.States[role.StateID]})
-	}
-	return ces
-}
-
 // Port
 type API interface {
 	Create(Spec) (Root, error)
@@ -233,7 +205,7 @@ func (s *service) Take(spec TranSpec) (err error) {
 			s.log.Error("taking failed", procAttr, slog.Any("env", envIDs), slog.Any("ctx", ctxIDs))
 			return err
 		}
-		procEnv := Environment{Sigs: sigs, Roles: roles, States: states}
+		procEnv := proc.Env{Sigs: sigs, Roles: roles, States: states}
 		procCtx := convertToCtx(poolID, maps.Values(procSnap.Chnls), states)
 		// type checking
 		err = s.checkState(poolID, procEnv, procCtx, procSnap, termSpec)
@@ -242,7 +214,7 @@ func (s *service) Take(spec TranSpec) (err error) {
 			return err
 		}
 		// step taking
-		nextSpec, procMod, err := s.takeWith(procCtx, procEnv, procSnap, termSpec)
+		nextSpec, procMod, err := s.takeWith(procEnv, procSnap, termSpec)
 		if err != nil {
 			s.log.Error("taking failed", procAttr)
 			return err
@@ -268,8 +240,7 @@ func (s *service) Take(spec TranSpec) (err error) {
 }
 
 func (s *service) takeWith(
-	procCtx state.Context,
-	procEnv Environment,
+	procEnv proc.Env,
 	procCfg proc.Snap,
 	ts step.Term,
 ) (
@@ -297,14 +268,6 @@ func (s *service) takeWith(
 			s.log.Error("taking failed", viaAttr)
 			return TranSpec{}, proc.Mod{}, err
 		}
-		sndrViaBnd := proc.Bnd{
-			ChnlPH:  termSpec.X,
-			ChnlID:  viaChnl.ChnlID,
-			StateID: viaChnl.StateID,
-			ProcID:  procCfg.ProcID,
-			Rev:     -procCfg.Rev - 1,
-		}
-		procMod.Bnds = append(procMod.Bnds, sndrViaBnd)
 		if rcvrStep == nil {
 			sndrStep := step.MsgRoot2{
 				PoolID: procCfg.PoolID,
@@ -325,6 +288,18 @@ func (s *service) takeWith(
 		}
 		switch termImpl := svcStep.Cont.(type) {
 		case step.WaitImpl:
+			sndrViaBnd := proc.Bnd{
+				ProcID: procCfg.ProcID,
+				ChnlPH: termSpec.X,
+				Rev:    -procCfg.Rev - 1,
+			}
+			procMod.Bnds = append(procMod.Bnds, sndrViaBnd)
+			rcvrViaBnd := proc.Bnd{
+				ProcID: svcStep.ProcID,
+				ChnlPH: termImpl.X,
+				Rev:    -svcStep.Rev - 1,
+			}
+			procMod.Bnds = append(procMod.Bnds, rcvrViaBnd)
 			tranSpec = TranSpec{
 				PoolID: svcStep.PoolID,
 				ProcID: svcStep.ProcID,
@@ -355,18 +330,11 @@ func (s *service) takeWith(
 			return TranSpec{}, proc.Mod{}, err
 		}
 		if sndrStep == nil {
-			rcvrViaBnd := proc.Bnd{
-				ProcID:  procCfg.ProcID,
-				ChnlPH:  termSpec.X,
-				ChnlID:  viaChnl.ChnlID,
-				StateID: viaChnl.StateID,
-				Rev:     -procCfg.Rev - 1,
-			}
-			procMod.Bnds = append(procMod.Bnds, rcvrViaBnd)
 			rcvrStep := step.SvcRoot2{
 				PoolID: procCfg.PoolID,
 				ProcID: procCfg.ProcID,
 				ChnlID: viaChnl.ChnlID,
+				Rev:    procCfg.Rev + 1,
 				Cont: step.WaitImpl{
 					X:    termSpec.X,
 					Cont: termSpec.Cont,
@@ -382,14 +350,25 @@ func (s *service) takeWith(
 		}
 		switch termImpl := msgStep.Val.(type) {
 		case step.CloseImpl:
+			sndrViaBnd := proc.Bnd{
+				ProcID: msgStep.ProcID,
+				ChnlPH: termImpl.X,
+				Rev:    -msgStep.Rev - 1,
+			}
+			procMod.Bnds = append(procMod.Bnds, sndrViaBnd)
 			rcvrViaBnd := proc.Bnd{
-				ProcID:  procCfg.ProcID,
-				ChnlPH:  termSpec.X,
-				ChnlID:  viaChnl.ChnlID,
-				StateID: viaChnl.StateID,
-				Rev:     -procCfg.Rev - 1,
+				ProcID: procCfg.ProcID,
+				ChnlPH: termSpec.X,
+				Rev:    -procCfg.Rev - 1,
 			}
 			procMod.Bnds = append(procMod.Bnds, rcvrViaBnd)
+			tranSpec = TranSpec{
+				PoolID: procCfg.PoolID,
+				ProcID: procCfg.ProcID,
+				Term:   termSpec.Cont,
+			}
+			s.log.Debug("taking succeeded", viaAttr)
+			return tranSpec, procMod, nil
 		case step.FwdImpl:
 			rcvrViaBnd := proc.Bnd{
 				ProcID:  procCfg.ProcID,
@@ -409,13 +388,6 @@ func (s *service) takeWith(
 		default:
 			panic(step.ErrValTypeUnexpected2(msgStep.Val))
 		}
-		tranSpec = TranSpec{
-			PoolID: procCfg.PoolID,
-			ProcID: procCfg.ProcID,
-			Term:   termSpec.Cont,
-		}
-		s.log.Debug("taking succeeded", viaAttr)
-		return tranSpec, procMod, nil
 	case step.SendSpec:
 		viaChnl, ok := procCfg.Chnls[termSpec.X]
 		if !ok {
@@ -435,6 +407,13 @@ func (s *service) takeWith(
 			s.log.Error("taking failed", viaAttr)
 			return TranSpec{}, proc.Mod{}, err
 		}
+		viaState, ok := procEnv.States[viaChnl.StateID]
+		if !ok {
+			err := state.ErrMissingInEnv(viaChnl.StateID)
+			s.log.Error("taking failed", viaAttr)
+			return TranSpec{}, proc.Mod{}, err
+		}
+		viaStateID := viaState.(state.Prod).Next()
 		valChnl, ok := procCfg.Chnls[termSpec.Y]
 		if !ok {
 			err := chnl.ErrMissingInCfg(termSpec.Y)
@@ -442,23 +421,31 @@ func (s *service) takeWith(
 			return TranSpec{}, proc.Mod{}, err
 		}
 		sndrValBnd := proc.Bnd{
-			ProcID:  procCfg.ProcID,
-			ChnlPH:  termSpec.Y,
-			ChnlID:  id.Nil,
-			StateID: id.Nil,
-			Rev:     -procCfg.Rev - 1,
+			ProcID: procCfg.ProcID,
+			ChnlPH: termSpec.Y,
+			Rev:    -procCfg.Rev - 1,
 		}
 		procMod.Bnds = append(procMod.Bnds, sndrValBnd)
 		if rcvrStep == nil {
+			newChnlID := id.New()
+			sndrViaBnd := proc.Bnd{
+				ProcID:  procCfg.ProcID,
+				ChnlPH:  termSpec.X,
+				ChnlID:  newChnlID,
+				StateID: viaStateID,
+				Rev:     procCfg.Rev + 1,
+			}
+			procMod.Bnds = append(procMod.Bnds, sndrViaBnd)
 			sndrStep := step.MsgRoot2{
 				PoolID: procCfg.PoolID,
 				ProcID: procCfg.ProcID,
 				ChnlID: viaChnl.ChnlID,
-				Rev:    procCfg.Rev,
+				Rev:    procCfg.Rev + 1,
 				Val: step.SendImpl{
 					X: termSpec.X,
-					A: id.New(),
+					A: newChnlID,
 					B: valChnl.ChnlID,
+					S: valChnl.StateID,
 				},
 			}
 			procMod.Steps = append(procMod.Steps, sndrStep)
@@ -469,23 +456,8 @@ func (s *service) takeWith(
 		if !ok {
 			panic(step.ErrRootTypeUnexpected(rcvrStep))
 		}
-		viaState, ok := procCtx.Linear[termSpec.X]
-		if !ok {
-			err := state.ErrMissingInCtx(termSpec.X)
-			s.log.Error("taking failed", viaAttr)
-			return TranSpec{}, proc.Mod{}, err
-		}
-		viaStateID := viaState.(state.Prod).Next()
 		switch termImpl := svcStep.Cont.(type) {
 		case step.RecvImpl:
-			rcvrViaBnd := proc.Bnd{
-				ProcID:  svcStep.ProcID,
-				ChnlPH:  termImpl.X,
-				ChnlID:  termImpl.A,
-				StateID: viaStateID,
-				Rev:     svcStep.Rev + 1,
-			}
-			procMod.Bnds = append(procMod.Bnds, rcvrViaBnd)
 			sndrViaBnd := proc.Bnd{
 				ProcID:  procCfg.ProcID,
 				ChnlPH:  termSpec.X,
@@ -494,6 +466,14 @@ func (s *service) takeWith(
 				Rev:     procCfg.Rev + 1,
 			}
 			procMod.Bnds = append(procMod.Bnds, sndrViaBnd)
+			rcvrViaBnd := proc.Bnd{
+				ProcID:  svcStep.ProcID,
+				ChnlPH:  termImpl.X,
+				ChnlID:  termImpl.A,
+				StateID: viaStateID,
+				Rev:     svcStep.Rev + 1,
+			}
+			procMod.Bnds = append(procMod.Bnds, rcvrViaBnd)
 			rcvrValBnd := proc.Bnd{
 				ProcID:  svcStep.ProcID,
 				ChnlPH:  termImpl.Y,
@@ -536,10 +516,11 @@ func (s *service) takeWith(
 				PoolID: procCfg.PoolID,
 				ProcID: procCfg.ProcID,
 				ChnlID: viaChnl.ChnlID,
-				Rev:    procCfg.Rev,
+				Rev:    procCfg.Rev + 1,
 				Cont: step.RecvImpl{
 					X:    termSpec.X,
 					A:    id.New(),
+					Y:    termSpec.Y,
 					Cont: termSpec.Cont,
 				},
 			}
@@ -551,34 +532,19 @@ func (s *service) takeWith(
 		if !ok {
 			panic(step.ErrRootTypeUnexpected(sndrStep))
 		}
-		viaState, ok := procCtx.Linear[termSpec.X]
-		if !ok {
-			err := state.ErrMissingInCtx(termSpec.X)
-			s.log.Error("taking failed", viaAttr)
-			return TranSpec{}, proc.Mod{}, err
-		}
-		viaStateID := viaState.(state.Prod).Next()
-		valState, ok := procCtx.Linear[termSpec.Y]
-		if !ok {
-			err := state.ErrMissingInCtx(termSpec.Y)
-			s.log.Error("taking failed", viaAttr)
-			return TranSpec{}, proc.Mod{}, err
-		}
 		switch termImpl := msgStep.Val.(type) {
 		case step.SendImpl:
-			sndrViaBnd := proc.Bnd{
-				ProcID:  msgStep.ProcID,
-				ChnlPH:  termImpl.X,
-				ChnlID:  termImpl.A,
-				StateID: viaStateID,
-				Rev:     msgStep.Rev + 1,
+			viaState, ok := procEnv.States[viaChnl.StateID]
+			if !ok {
+				err := state.ErrMissingInEnv(viaChnl.StateID)
+				s.log.Error("taking failed", viaAttr)
+				return TranSpec{}, proc.Mod{}, err
 			}
-			procMod.Bnds = append(procMod.Bnds, sndrViaBnd)
 			rcvrViaBnd := proc.Bnd{
 				ProcID:  procCfg.ProcID,
 				ChnlPH:  termSpec.X,
 				ChnlID:  termImpl.A,
-				StateID: viaStateID,
+				StateID: viaState.(state.Prod).Next(),
 				Rev:     procCfg.Rev + 1,
 			}
 			procMod.Bnds = append(procMod.Bnds, rcvrViaBnd)
@@ -586,7 +552,7 @@ func (s *service) takeWith(
 				ProcID:  procCfg.ProcID,
 				ChnlPH:  termSpec.Y,
 				ChnlID:  termImpl.B,
-				StateID: valState.Ident(),
+				StateID: termImpl.S,
 				Rev:     procCfg.Rev + 1,
 			}
 			procMod.Bnds = append(procMod.Bnds, rcvrValBnd)
@@ -619,18 +585,19 @@ func (s *service) takeWith(
 			s.log.Error("taking failed", viaAttr)
 			return TranSpec{}, proc.Mod{}, err
 		}
-		viaState, ok := procCtx.Linear[termSpec.X]
+		viaState, ok := procEnv.States[viaChnl.StateID]
 		if !ok {
-			err := state.ErrMissingInCtx(termSpec.X)
+			err := state.ErrMissingInEnv(viaChnl.StateID)
 			s.log.Error("taking failed", viaAttr)
 			return TranSpec{}, proc.Mod{}, err
 		}
 		viaStateID := viaState.(state.Sum).Next(termSpec.L)
 		if rcvrStep == nil {
+			newViaID := id.New()
 			sndrViaBnd := proc.Bnd{
 				ProcID:  procCfg.ProcID,
 				ChnlPH:  termSpec.X,
-				ChnlID:  id.New(),
+				ChnlID:  newViaID,
 				StateID: viaStateID,
 				Rev:     procCfg.Rev + 1,
 			}
@@ -642,7 +609,7 @@ func (s *service) takeWith(
 				Rev:    procCfg.Rev + 1,
 				Val: step.LabImpl{
 					X: termSpec.X,
-					A: sndrViaBnd.ChnlID,
+					A: newViaID,
 					L: termSpec.L,
 				},
 			}
@@ -656,6 +623,14 @@ func (s *service) takeWith(
 		}
 		switch termImpl := svcStep.Cont.(type) {
 		case step.CaseImpl:
+			sndrViaBnd := proc.Bnd{
+				ProcID:  procCfg.ProcID,
+				ChnlPH:  termSpec.X,
+				ChnlID:  termImpl.A,
+				StateID: viaStateID,
+				Rev:     procCfg.Rev + 1,
+			}
+			procMod.Bnds = append(procMod.Bnds, sndrViaBnd)
 			rcvrViaBnd := proc.Bnd{
 				ProcID:  svcStep.ProcID,
 				ChnlPH:  termImpl.X,
@@ -715,26 +690,17 @@ func (s *service) takeWith(
 		}
 		switch termImpl := msgStep.Val.(type) {
 		case step.LabImpl:
-			viaState, ok := procCtx.Linear[termSpec.X]
+			viaState, ok := procEnv.States[viaChnl.StateID]
 			if !ok {
-				err := state.ErrMissingInCtx(termSpec.X)
+				err := state.ErrMissingInEnv(viaChnl.StateID)
 				s.log.Error("taking failed", viaAttr)
 				return TranSpec{}, proc.Mod{}, err
 			}
-			viaStateID := viaState.(state.Sum).Next(termImpl.L)
-			// sndrViaBnd := proc.Bnd{
-			// 	ProcID:  msgStep.ProcID,
-			// 	ChnlPH:  termImpl.X,
-			// 	ChnlID:  termImpl.A,
-			// 	StateID: viaStateID,
-			// 	Rev:     msgStep.Rev + 1,
-			// }
-			// procMod.Bnds = append(procMod.Bnds, sndrViaBnd)
 			rcvrViaBnd := proc.Bnd{
 				ProcID:  procCfg.ProcID,
 				ChnlPH:  termSpec.X,
 				ChnlID:  termImpl.A,
-				StateID: viaStateID,
+				StateID: viaState.(state.Sum).Next(termImpl.L),
 				Rev:     procCfg.Rev + 1,
 			}
 			procMod.Bnds = append(procMod.Bnds, rcvrViaBnd)
@@ -773,10 +739,11 @@ func (s *service) takeWith(
 			s.log.Error("taking failed")
 			return TranSpec{}, proc.Mod{}, err
 		}
+		newViaID := id.New()
 		sndrViaBnd := proc.Bnd{
 			ProcID:  procCfg.ProcID,
 			ChnlPH:  termSpec.X,
-			ChnlID:  id.New(),
+			ChnlID:  newViaID,
 			StateID: rcvrRole.StateID,
 			Rev:     procCfg.Rev + 1,
 		}
@@ -784,7 +751,7 @@ func (s *service) takeWith(
 		rcvrViaBnd := proc.Bnd{
 			ProcID:  rcvrLiab.ProcID,
 			ChnlPH:  rcvrSig.X.ChnlPH,
-			ChnlID:  sndrViaBnd.ChnlID,
+			ChnlID:  newViaID,
 			StateID: rcvrRole.StateID,
 			Rev:     rcvrSnap.Rev + 1,
 		}
@@ -797,11 +764,9 @@ func (s *service) takeWith(
 				return TranSpec{}, proc.Mod{}, err
 			}
 			sndrValBnd := proc.Bnd{
-				ProcID:  procCfg.ProcID,
-				ChnlPH:  chnlPH,
-				ChnlID:  valChnl.ChnlID,
-				StateID: valChnl.StateID,
-				Rev:     -procCfg.Rev - 1,
+				ProcID: procCfg.ProcID,
+				ChnlPH: chnlPH,
+				Rev:    -procCfg.Rev - 1,
 			}
 			procMod.Bnds = append(procMod.Bnds, sndrValBnd)
 			rcvrValBnd := proc.Bnd{
@@ -828,9 +793,9 @@ func (s *service) takeWith(
 			return TranSpec{}, proc.Mod{}, err
 		}
 		viaAttr := slog.Any("chnlID", viaChnl.ChnlID)
-		viaState, ok := procCtx.Linear[termSpec.X]
+		viaState, ok := procEnv.States[viaChnl.StateID]
 		if !ok {
-			err := state.ErrMissingInCtx(termSpec.X)
+			err := state.ErrMissingInEnv(viaChnl.StateID)
 			s.log.Error("taking failed", viaAttr)
 			return TranSpec{}, proc.Mod{}, err
 		}
@@ -883,26 +848,22 @@ func (s *service) takeWith(
 				return tranSpec, procMod, nil
 			case nil:
 				xBnd := proc.Bnd{
-					ProcID:  procCfg.ProcID,
-					ChnlPH:  termSpec.X,
-					ChnlID:  viaChnl.ChnlID,
-					StateID: id.Nil,
-					Rev:     -procCfg.Rev - 1,
+					ProcID: procCfg.ProcID,
+					ChnlPH: termSpec.X,
+					Rev:    -procCfg.Rev - 1,
 				}
 				procMod.Bnds = append(procMod.Bnds, xBnd)
 				yBnd := proc.Bnd{
-					ProcID:  procCfg.ProcID,
-					ChnlPH:  termSpec.Y,
-					ChnlID:  valChnl.ChnlID,
-					StateID: id.Nil,
-					Rev:     -procCfg.Rev - 1,
+					ProcID: procCfg.ProcID,
+					ChnlPH: termSpec.Y,
+					Rev:    -procCfg.Rev - 1,
 				}
 				procMod.Bnds = append(procMod.Bnds, yBnd)
 				msgStep := step.MsgRoot2{
 					PoolID: procCfg.PoolID,
 					ProcID: procCfg.ProcID,
 					ChnlID: viaChnl.ChnlID,
-					Rev:    procCfg.Rev,
+					Rev:    procCfg.Rev + 1,
 					Val: step.FwdImpl{
 						B: valChnl.ChnlID,
 					},
@@ -952,7 +913,7 @@ func (s *service) takeWith(
 					PoolID: procCfg.PoolID,
 					ProcID: procCfg.ProcID,
 					ChnlID: viaChnl.ChnlID,
-					Rev:    procCfg.Rev,
+					Rev:    procCfg.Rev + 1,
 					Cont: step.FwdImpl{
 						B: valChnl.ChnlID,
 					},
@@ -1000,51 +961,432 @@ func CollectCtx(chnls []proc.Chnl) []state.ID {
 }
 
 func convertToCtx(poolID id.ADT, chnls []proc.Chnl, states map[state.ID]state.Root) state.Context {
-	linear := make(map[ph.ADT]state.Root, len(chnls))
+	assets := make(map[ph.ADT]state.Root, len(chnls)-1)
+	liabs := make(map[ph.ADT]state.Root, 1)
 	for _, ch := range chnls {
-		if poolID != ch.PoolID {
-			linear[ch.ChnlPH] = states[ch.StateID]
+		if poolID == ch.PoolID {
+			liabs[ch.ChnlPH] = states[ch.StateID]
+		} else {
+			assets[ch.ChnlPH] = states[ch.StateID]
 		}
 	}
-	return state.Context{Linear: linear}
+	return state.Context{Assets: assets, Liabs: liabs}
 }
 
 func (s *service) checkState(
 	poolID id.ADT,
-	procEnv Environment,
+	procEnv proc.Env,
 	procCtx state.Context,
-	procSnap proc.Snap,
+	procCfg proc.Snap,
 	termSpec step.Term,
 ) error {
-	ch, ok := procSnap.Chnls[termSpec.Via()]
+	ch, ok := procCfg.Chnls[termSpec.Via()]
 	if !ok {
 		panic("no via in proc snap")
 	}
 	if poolID == ch.PoolID {
-		return s.checkProvider(poolID, procEnv, procCtx, procSnap, termSpec)
+		return s.checkProvider(poolID, procEnv, procCtx, procCfg, termSpec)
 	} else {
-		return s.checkClient(poolID, procEnv, procCtx, procSnap, termSpec)
+		return s.checkClient(poolID, procEnv, procCtx, procCfg, termSpec)
 	}
 }
 
 func (s *service) checkProvider(
 	poolID id.ADT,
-	procEnv Environment,
+	procEnv proc.Env,
 	procCtx state.Context,
-	procSnap proc.Snap,
-	termSpec step.Term,
+	procCfg proc.Snap,
+	ts step.Term,
 ) error {
-	return nil
+	switch termSpec := ts.(type) {
+	case step.CloseSpec:
+		// check ctx
+		if len(procCtx.Assets) > 0 {
+			err := fmt.Errorf("context mismatch: want 0 items, got %v items", len(procCtx.Assets))
+			s.log.Error("checking failed")
+			return err
+		}
+		// check via
+		gotVia, ok := procCtx.Liabs[termSpec.X]
+		if !ok {
+			err := state.ErrMissingInCtx(termSpec.X)
+			s.log.Error("checking failed")
+			return err
+		}
+		err := state.CheckRoot(gotVia, state.OneRoot{})
+		if err != nil {
+			s.log.Error("checking failed")
+			return err
+		}
+		// no cont to check
+		delete(procCtx.Liabs, termSpec.X)
+		return nil
+	case step.WaitSpec:
+		err := step.ErrTermTypeMismatch(ts, step.CloseSpec{})
+		s.log.Error("checking failed")
+		return err
+	case step.SendSpec:
+		// check via
+		gotVia, ok := procCtx.Liabs[termSpec.X]
+		if !ok {
+			err := state.ErrMissingInCtx(termSpec.X)
+			s.log.Error("checking failed")
+			return err
+		}
+		wantVia, ok := gotVia.(state.TensorRoot)
+		if !ok {
+			err := state.ErrRootTypeMismatch(gotVia, wantVia)
+			s.log.Error("checking failed")
+			return err
+		}
+		// check value
+		gotVal, ok := procCtx.Assets[termSpec.Y]
+		if !ok {
+			err := chnl.ErrMissingInCtx(termSpec.Y)
+			s.log.Error("checking failed")
+			return err
+		}
+		err := state.CheckRoot(gotVal, wantVia.B)
+		if err != nil {
+			s.log.Error("checking failed")
+			return err
+		}
+		// no cont to check
+		procCtx.Liabs[termSpec.X] = wantVia.C
+		delete(procCtx.Assets, termSpec.Y)
+		return nil
+	case step.RecvSpec:
+		// check via
+		gotVia, ok := procCtx.Liabs[termSpec.X]
+		if !ok {
+			err := state.ErrMissingInCtx(termSpec.X)
+			s.log.Error("checking failed")
+			return err
+		}
+		wantVia, ok := gotVia.(state.LolliRoot)
+		if !ok {
+			err := state.ErrRootTypeMismatch(gotVia, wantVia)
+			s.log.Error("checking failed")
+			return err
+		}
+		// check value
+		gotVal, ok := procCtx.Assets[termSpec.Y]
+		if !ok {
+			err := chnl.ErrMissingInCtx(termSpec.Y)
+			s.log.Error("checking failed")
+			return err
+		}
+		err := state.CheckRoot(gotVal, wantVia.Y)
+		if err != nil {
+			s.log.Error("checking failed")
+			return err
+		}
+		// check cont
+		procCtx.Liabs[termSpec.X] = wantVia.Z
+		procCtx.Assets[termSpec.Y] = wantVia.Y
+		return s.checkState(poolID, procEnv, procCtx, procCfg, termSpec.Cont)
+	case step.LabSpec:
+		// check via
+		gotVia, ok := procCtx.Liabs[termSpec.X]
+		if !ok {
+			err := state.ErrMissingInCtx(termSpec.X)
+			s.log.Error("checking failed")
+			return err
+		}
+		wantVia, ok := gotVia.(state.PlusRoot)
+		if !ok {
+			err := state.ErrRootTypeMismatch(gotVia, wantVia)
+			s.log.Error("checking failed")
+			return err
+		}
+		// check label
+		choice, ok := wantVia.Choices[termSpec.L]
+		if !ok {
+			err := fmt.Errorf("label mismatch: want %v, got %q", maps.Keys(wantVia.Choices), termSpec.L)
+			s.log.Error("checking failed")
+			return err
+		}
+		// no cont to check
+		procCtx.Liabs[termSpec.X] = choice
+		return nil
+	case step.CaseSpec:
+		// check via
+		gotVia, ok := procCtx.Liabs[termSpec.X]
+		if !ok {
+			err := state.ErrMissingInCtx(termSpec.X)
+			s.log.Error("checking failed")
+			return err
+		}
+		wantVia, ok := gotVia.(state.WithRoot)
+		if !ok {
+			err := state.ErrRootTypeMismatch(gotVia, wantVia)
+			s.log.Error("checking failed")
+			return err
+		}
+		// check conts
+		if len(termSpec.Conts) != len(wantVia.Choices) {
+			err := fmt.Errorf("state mismatch: want %v choices, got %v conts", len(wantVia.Choices), len(termSpec.Conts))
+			s.log.Error("checking failed")
+			return err
+		}
+		for label, choice := range wantVia.Choices {
+			cont, ok := termSpec.Conts[label]
+			if !ok {
+				err := fmt.Errorf("label mismatch: want %q, got nothing", label)
+				s.log.Error("checking failed")
+				return err
+			}
+			procCtx.Liabs[termSpec.X] = choice
+			err := s.checkState(poolID, procEnv, procCtx, procCfg, cont)
+			if err != nil {
+				s.log.Error("checking failed")
+				return err
+			}
+		}
+		return nil
+	case step.FwdSpec:
+		if len(procCtx.Assets) != 1 {
+			err := fmt.Errorf("context mismatch: want 1 item, got %v items", len(procCtx.Assets))
+			s.log.Error("checking failed")
+			return err
+		}
+		viaSt, ok := procCtx.Liabs[termSpec.X]
+		if !ok {
+			err := state.ErrMissingInCtx(termSpec.X)
+			s.log.Error("checking failed")
+			return err
+		}
+		fwdSt, ok := procCtx.Assets[termSpec.Y]
+		if !ok {
+			err := chnl.ErrMissingInCtx(termSpec.Y)
+			s.log.Error("checking failed")
+			return err
+		}
+		if fwdSt.Pol() != viaSt.Pol() {
+			err := state.ErrPolarityMismatch(fwdSt, viaSt)
+			s.log.Error("checking failed")
+			return err
+		}
+		err := state.CheckRoot(fwdSt, viaSt)
+		if err != nil {
+			s.log.Error("checking failed")
+			return err
+		}
+		delete(procCtx.Liabs, termSpec.X)
+		delete(procCtx.Assets, termSpec.Y)
+		return nil
+	default:
+		panic(step.ErrTermTypeUnexpected(ts))
+	}
 }
 
 func (s *service) checkClient(
 	poolID id.ADT,
-	procEnv Environment,
+	procEnv proc.Env,
 	procCtx state.Context,
-	procSnap proc.Snap,
-	termSpec step.Term,
+	procCfg proc.Snap,
+	ts step.Term,
 ) error {
-	return nil
+	switch termSpec := ts.(type) {
+	case step.CloseSpec:
+		err := step.ErrTermTypeMismatch(ts, step.WaitSpec{})
+		s.log.Error("checking failed")
+		return err
+	case step.WaitSpec:
+		// check via
+		gotVia, ok := procCtx.Assets[termSpec.X]
+		if !ok {
+			err := chnl.ErrMissingInCtx(termSpec.X)
+			s.log.Error("checking failed")
+			return err
+		}
+		wantVia, ok := gotVia.(state.OneRoot)
+		if !ok {
+			err := state.ErrRootTypeMismatch(gotVia, wantVia)
+			s.log.Error("checking failed")
+			return err
+		}
+		// check cont
+		delete(procCtx.Assets, termSpec.X)
+		return s.checkState(poolID, procEnv, procCtx, procCfg, termSpec.Cont)
+	case step.SendSpec:
+		// check via
+		gotVia, ok := procCtx.Assets[termSpec.X]
+		if !ok {
+			err := chnl.ErrMissingInCtx(termSpec.X)
+			s.log.Error("checking failed")
+			return err
+		}
+		wantVia, ok := gotVia.(state.LolliRoot)
+		if !ok {
+			err := state.ErrRootTypeMismatch(gotVia, wantVia)
+			s.log.Error("checking failed")
+			return err
+		}
+		// check value
+		gotVal, ok := procCtx.Assets[termSpec.Y]
+		if !ok {
+			err := chnl.ErrMissingInCtx(termSpec.Y)
+			s.log.Error("checking failed")
+			return err
+		}
+		err := state.CheckRoot(gotVal, wantVia.Y)
+		if err != nil {
+			s.log.Error("checking failed")
+			return err
+		}
+		procCtx.Assets[termSpec.X] = wantVia.Z
+		delete(procCtx.Assets, termSpec.Y)
+		return nil
+	case step.RecvSpec:
+		// check via
+		gotVia, ok := procCtx.Assets[termSpec.X]
+		if !ok {
+			err := chnl.ErrMissingInCtx(termSpec.X)
+			s.log.Error("checking failed")
+			return err
+		}
+		wantVia, ok := gotVia.(state.TensorRoot)
+		if !ok {
+			err := state.ErrRootTypeMismatch(gotVia, wantVia)
+			s.log.Error("checking failed")
+			return err
+		}
+		// check value
+		gotVal, ok := procCtx.Assets[termSpec.Y]
+		if !ok {
+			err := chnl.ErrMissingInCtx(termSpec.Y)
+			s.log.Error("checking failed")
+			return err
+		}
+		err := state.CheckRoot(gotVal, wantVia.B)
+		if err != nil {
+			s.log.Error("checking failed")
+			return err
+		}
+		// check cont
+		procCtx.Assets[termSpec.X] = wantVia.C
+		procCtx.Assets[termSpec.Y] = wantVia.B
+		return s.checkState(poolID, procEnv, procCtx, procCfg, termSpec.Cont)
+	case step.LabSpec:
+		// check via
+		gotVia, ok := procCtx.Assets[termSpec.X]
+		if !ok {
+			err := chnl.ErrMissingInCtx(termSpec.X)
+			s.log.Error("checking failed")
+			return err
+		}
+		wantVia, ok := gotVia.(state.WithRoot)
+		if !ok {
+			err := state.ErrRootTypeMismatch(gotVia, wantVia)
+			s.log.Error("checking failed")
+			return err
+		}
+		// check label
+		choice, ok := wantVia.Choices[termSpec.L]
+		if !ok {
+			err := fmt.Errorf("label mismatch: want %v, got %q", maps.Keys(wantVia.Choices), termSpec.L)
+			s.log.Error("checking failed")
+			return err
+		}
+		procCtx.Assets[termSpec.X] = choice
+		return nil
+	case step.CaseSpec:
+		// check via
+		gotVia, ok := procCtx.Assets[termSpec.X]
+		if !ok {
+			err := chnl.ErrMissingInCtx(termSpec.X)
+			s.log.Error("checking failed")
+			return err
+		}
+		wantVia, ok := gotVia.(state.PlusRoot)
+		if !ok {
+			err := state.ErrRootTypeMismatch(gotVia, wantVia)
+			s.log.Error("checking failed")
+			return err
+		}
+		// check conts
+		if len(termSpec.Conts) != len(wantVia.Choices) {
+			err := fmt.Errorf("state mismatch: want %v choices, got %v conts", len(wantVia.Choices), len(termSpec.Conts))
+			s.log.Error("checking failed")
+			return err
+		}
+		for label, choice := range wantVia.Choices {
+			cont, ok := termSpec.Conts[label]
+			if !ok {
+				err := fmt.Errorf("label mismatch: want %q, got nothing", label)
+				s.log.Error("checking failed")
+				return err
+			}
+			procCtx.Assets[termSpec.X] = choice
+			err := s.checkState(poolID, procEnv, procCtx, procCfg, cont)
+			if err != nil {
+				s.log.Error("checking failed")
+				return err
+			}
+		}
+		return nil
+	case step.SpawnSpec:
+		procSig, ok := procEnv.Sigs[termSpec.SigID]
+		if !ok {
+			err := sig.ErrRootMissingInEnv(termSpec.SigID)
+			s.log.Error("checking failed")
+			return err
+		}
+		// check vals
+		if len(termSpec.Ys) != len(procSig.Ys) {
+			err := fmt.Errorf("context mismatch: want %v items, got %v items", len(procSig.Ys), len(termSpec.Ys2))
+			s.log.Error("checking failed", slog.Any("want", procSig.Ys), slog.Any("got", termSpec.Ys))
+			return err
+		}
+		if len(termSpec.Ys) == 0 {
+			return nil
+		}
+		for i, ep := range procSig.Ys {
+			valRole, ok := procEnv.Roles[ep.RoleQN]
+			if !ok {
+				err := role.ErrMissingInEnv(ep.RoleQN)
+				s.log.Error("checking failed")
+				return err
+			}
+			wantVal, ok := procEnv.States[valRole.StateID]
+			if !ok {
+				err := state.ErrMissingInEnv(valRole.StateID)
+				s.log.Error("checking failed")
+				return err
+			}
+			gotVal, ok := procCtx.Assets[termSpec.Ys[i]]
+			if !ok {
+				err := chnl.ErrMissingInCtx(ep.ChnlPH)
+				s.log.Error("checking failed")
+				return err
+			}
+			err := state.CheckRoot(gotVal, wantVal)
+			if err != nil {
+				s.log.Error("checking failed", slog.Any("want", wantVal), slog.Any("got", gotVal))
+				return err
+			}
+			delete(procCtx.Assets, termSpec.Ys[i])
+		}
+		// check via
+		viaRole, ok := procEnv.Roles[procSig.X.RoleQN]
+		if !ok {
+			err := role.ErrMissingInEnv(procSig.X.RoleQN)
+			s.log.Error("checking failed")
+			return err
+		}
+		viaSt, ok := procEnv.States[viaRole.StateID]
+		if !ok {
+			err := state.ErrMissingInEnv(viaRole.StateID)
+			s.log.Error("checking failed")
+			return err
+		}
+		// check cont
+		procCtx.Assets[termSpec.X] = viaSt
+		return s.checkState(poolID, procEnv, procCtx, procCfg, termSpec.Cont)
+	default:
+		panic(step.ErrTermTypeUnexpected(ts))
+	}
 }
 
 // Port

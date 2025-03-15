@@ -2,11 +2,16 @@ package proc
 
 import (
 	"fmt"
+
+	"smecalculus/rolevod/app/role"
+	"smecalculus/rolevod/app/sig"
 	"smecalculus/rolevod/lib/id"
 	"smecalculus/rolevod/lib/ph"
 	"smecalculus/rolevod/lib/rev"
+	"smecalculus/rolevod/lib/sym"
 
 	"smecalculus/rolevod/internal/chnl"
+	"smecalculus/rolevod/internal/state"
 	"smecalculus/rolevod/internal/step"
 )
 
@@ -19,12 +24,25 @@ type Snap struct {
 	Rev    rev.ADT
 }
 
+type Env struct {
+	Sigs   map[sig.ID]sig.Root
+	Roles  map[role.QN]role.Root
+	States map[state.ID]state.Root
+	Locks  map[sym.ADT]Lock
+}
+
 type Chnl struct {
 	ChnlPH  ph.ADT
 	ChnlID  id.ADT
 	StateID id.ADT
 	// provider
 	PoolID id.ADT
+}
+
+type EP struct {
+	ChnlPH  ph.ADT
+	ChnlID  id.ADT
+	StateID id.ADT
 }
 
 type Lock struct {

@@ -156,8 +156,9 @@ func (s *service) Modify(newSnap Snap) (_ Snap, err error) {
 	idAttr := slog.Any("id", newSnap.ID)
 	s.log.Debug("modification started", idAttr)
 	var curRoot Root
-	s.operator.Implicit(ctx, func(ds data.Source) {
+	s.operator.Implicit(ctx, func(ds data.Source) error {
 		curRoot, err = s.roles.SelectByID(ds, newSnap.ID)
+		return err
 	})
 	if err != nil {
 		s.log.Error("modification failed", idAttr)
@@ -203,8 +204,9 @@ func (s *service) Modify(newSnap Snap) (_ Snap, err error) {
 func (s *service) Retrieve(rid ID) (_ Snap, err error) {
 	ctx := context.Background()
 	var root Root
-	s.operator.Implicit(ctx, func(ds data.Source) {
+	s.operator.Implicit(ctx, func(ds data.Source) error {
 		root, err = s.roles.SelectByID(ds, rid)
+		return err
 	})
 	if err != nil {
 		s.log.Error("retrieval failed", slog.Any("id", rid))
@@ -215,8 +217,9 @@ func (s *service) Retrieve(rid ID) (_ Snap, err error) {
 
 func (s *service) RetrieveRoot(rid ID) (root Root, err error) {
 	ctx := context.Background()
-	s.operator.Implicit(ctx, func(ds data.Source) {
+	s.operator.Implicit(ctx, func(ds data.Source) error {
 		root, err = s.roles.SelectByID(ds, rid)
+		return err
 	})
 	if err != nil {
 		s.log.Error("retrieval failed", slog.Any("id", rid))
@@ -228,8 +231,9 @@ func (s *service) RetrieveRoot(rid ID) (root Root, err error) {
 func (s *service) RetrieveSnap(root Root) (_ Snap, err error) {
 	ctx := context.Background()
 	var curState state.Root
-	s.operator.Implicit(ctx, func(ds data.Source) {
+	s.operator.Implicit(ctx, func(ds data.Source) error {
 		curState, err = s.states.SelectByID(ds, root.StateID)
+		return err
 	})
 	if err != nil {
 		s.log.Error("retrieval failed", slog.Any("id", root.ID))
@@ -245,8 +249,9 @@ func (s *service) RetrieveSnap(root Root) (_ Snap, err error) {
 
 func (s *service) RetreiveRefs() (refs []Ref, err error) {
 	ctx := context.Background()
-	s.operator.Implicit(ctx, func(ds data.Source) {
+	s.operator.Implicit(ctx, func(ds data.Source) error {
 		refs, err = s.roles.SelectRefs(ds)
+		return err
 	})
 	if err != nil {
 		s.log.Error("retrieval failed")

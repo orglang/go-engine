@@ -28,28 +28,26 @@ type Spec struct {
 }
 
 type Ref struct {
-	ID    id.ADT
-	Rev   rev.ADT
+	SigID id.ADT
 	Title string
+	Rev   rev.ADT
 }
 
 type Snap struct {
-	ID    id.ADT
-	Rev   rev.ADT
+	SigID id.ADT
 	Title string
-	CEs   []chnl.Spec
-	PE    chnl.Spec
+	Ys    []chnl.Spec
+	X     chnl.Spec
+	Rev   rev.ADT
 }
 
 // aka ExpDec or ExpDecDef without expression
 type Root struct {
 	SigID id.ADT
-	Rev   rev.ADT
 	Title string
-	Ys2   []chnl.Spec
-	X2    chnl.Spec
-	Ys    []EP
-	X     EP
+	Ys    []chnl.Spec
+	X     chnl.Spec
+	Rev   rev.ADT
 }
 
 // aka ChanTp
@@ -113,10 +111,10 @@ func (s *service) Create(spec Spec) (_ Root, err error) {
 	s.log.Debug("creation started", fqnAttr, slog.Any("spec", spec))
 	root := Root{
 		SigID: id.New(),
-		Rev:   rev.Initial(),
 		Title: spec.QN.Name(),
-		X2:    spec.X,
-		Ys2:   spec.Ys,
+		Ys:    spec.Ys,
+		X:     spec.X,
+		Rev:   rev.Initial(),
 	}
 	s.operator.Explicit(ctx, func(ds data.Source) error {
 		err = s.sigs.Insert(ds, root)
@@ -135,8 +133,9 @@ func (s *service) Create(spec Spec) (_ Root, err error) {
 
 func (s *service) Retrieve(rid ID) (root Root, err error) {
 	ctx := context.Background()
-	s.operator.Implicit(ctx, func(ds data.Source) {
+	s.operator.Implicit(ctx, func(ds data.Source) error {
 		root, err = s.sigs.SelectByID(ds, rid)
+		return err
 	})
 	if err != nil {
 		s.log.Error("retrieval failed", slog.Any("id", rid))
@@ -147,8 +146,9 @@ func (s *service) Retrieve(rid ID) (root Root, err error) {
 
 func (s *service) RetreiveRefs() (refs []Ref, err error) {
 	ctx := context.Background()
-	s.operator.Implicit(ctx, func(ds data.Source) {
+	s.operator.Implicit(ctx, func(ds data.Source) error {
 		refs, err = s.sigs.SelectAll(ds)
+		return err
 	})
 	if err != nil {
 		s.log.Error("retrieval failed")
@@ -166,14 +166,14 @@ type Repo interface {
 }
 
 func CollectEnv(sigs []Root) []role.QN {
-	roleFQNs := []role.QN{}
+	roleQNs := []role.QN{}
 	for _, sig := range sigs {
-		roleFQNs = append(roleFQNs, sig.X2.RoleQN)
-		for _, ce := range sig.Ys2 {
-			roleFQNs = append(roleFQNs, ce.RoleQN)
+		roleQNs = append(roleQNs, sig.X.RoleQN)
+		for _, ce := range sig.Ys {
+			roleQNs = append(roleQNs, ce.RoleQN)
 		}
 	}
-	return roleFQNs
+	return roleQNs
 }
 
 // goverter:variables

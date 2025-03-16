@@ -18,32 +18,25 @@ import (
 // aka Configuration
 type Cfg struct {
 	ProcID id.ADT
-	Chnls  map[ph.ADT]Chnl
+	Chnls  map[ph.ADT]EP
 	Steps  map[chnl.ID]step.Root
 	PoolID id.ADT
 	Rev    rev.ADT
 }
 
 type Env struct {
-	Sigs   map[sig.ID]sig.Root
+	Sigs   map[id.ADT]sig.Root
 	Roles  map[role.QN]role.Root
 	States map[state.ID]state.Root
 	Locks  map[sym.ADT]Lock
-}
-
-type Chnl struct {
-	ChnlPH  ph.ADT
-	ChnlID  id.ADT
-	StateID id.ADT
-	// provider
-	PoolID id.ADT
-	ProcID id.ADT
 }
 
 type EP struct {
 	ChnlPH  ph.ADT
 	ChnlID  id.ADT
 	StateID id.ADT
+	// provider
+	PoolID id.ADT
 }
 
 type Lock struct {
@@ -51,15 +44,15 @@ type Lock struct {
 	Rev    rev.ADT
 }
 
-func ChnlPH(ch Chnl) ph.ADT { return ch.ChnlPH }
+func ChnlPH(ch EP) ph.ADT { return ch.ChnlPH }
 
-func ChnlID(ch Chnl) id.ADT { return ch.ChnlID }
+func ChnlID(ch EP) id.ADT { return ch.ChnlID }
 
 // ответственность за процесс
 type Liab struct {
 	ProcID id.ADT
 	PoolID id.ADT
-	// позитивное значение при возникновении
+	// позитивное значение при вручении
 	// негативное значение при лишении
 	Rev rev.ADT
 }

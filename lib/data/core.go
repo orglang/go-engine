@@ -22,7 +22,7 @@ func (SourcePgx) source() {}
 
 type Operator interface {
 	Explicit(context.Context, func(Source) error) error
-	Implicit(context.Context, func(Source))
+	Implicit(context.Context, func(Source) error) error
 }
 
 type OperatorPgx struct {

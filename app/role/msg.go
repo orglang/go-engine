@@ -11,13 +11,13 @@ import (
 )
 
 type SpecMsg struct {
-	FQN   string        `json:"fqn"`
+	QN    string        `json:"qn"`
 	State state.SpecMsg `json:"state"`
 }
 
 func (dto SpecMsg) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.FQN, sym.Required...),
+		validation.Field(&dto.QN, sym.Required...),
 		validation.Field(&dto.State, validation.Required),
 	)
 }
@@ -49,7 +49,7 @@ type SnapMsg struct {
 	ID    string        `json:"id" param:"id"`
 	Rev   int64         `json:"rev" query:"rev"`
 	Title string        `json:"title"`
-	FQN   string        `json:"fqn"`
+	QN    string        `json:"qn"`
 	State state.SpecMsg `json:"state"`
 }
 

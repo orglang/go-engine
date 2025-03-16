@@ -81,7 +81,7 @@ func (p *presenterEcho) GetOne(c echo.Context) error {
 		p.log.Error("dto validation failed")
 		return err
 	}
-	id, err := id.ConvertFromString(dto.ID)
+	id, err := id.ConvertFromString(dto.SigID)
 	if err != nil {
 		p.log.Error("dto mapping failed")
 		return err

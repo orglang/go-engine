@@ -42,7 +42,7 @@ func (r *repoPgx) Insert(source data.Source, root Root) error {
 			@sig_id, @rev, @title
 		)`
 	rootArgs := pgx.NamedArgs{
-		"sig_id": dto.ID,
+		"sig_id": dto.SigID,
 		"rev":    dto.Rev,
 		"title":  dto.Title,
 	}
@@ -58,11 +58,11 @@ func (r *repoPgx) Insert(source data.Source, root Root) error {
 			@sig_id, @rev_from, @rev_to, @chnl_key, @role_fqn
 		)`
 	peArgs := pgx.NamedArgs{
-		"sig_id":   dto.ID,
+		"sig_id":   dto.SigID,
 		"rev_from": dto.Rev,
 		"rev_to":   math.MaxInt64,
-		"chnl_key": dto.PE.Key,
-		"role_fqn": dto.PE.Link,
+		"chnl_key": dto.X.ChnlPH,
+		"role_fqn": dto.X.RoleQN,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertPE, peArgs)
 	if err != nil {
@@ -76,13 +76,13 @@ func (r *repoPgx) Insert(source data.Source, root Root) error {
 			@sig_id, @rev_from, @rev_to, @chnl_key, @role_fqn
 		)`
 	batch := pgx.Batch{}
-	for _, ce := range dto.CEs {
+	for _, ce := range dto.Ys {
 		args := pgx.NamedArgs{
-			"sig_id":   dto.ID,
+			"sig_id":   dto.SigID,
 			"rev_from": dto.Rev,
 			"rev_to":   math.MaxInt64,
-			"chnl_key": ce.Key,
-			"role_fqn": ce.Link,
+			"chnl_key": ce.ChnlPH,
+			"role_fqn": ce.RoleQN,
 		}
 		batch.Queue(insertCE, args)
 	}
@@ -90,7 +90,7 @@ func (r *repoPgx) Insert(source data.Source, root Root) error {
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	for range dto.CEs {
+	for range dto.Ys {
 		_, err = br.Exec()
 		if err != nil {
 			r.log.Error("query execution failed", idAttr, slog.String("q", insertCE))

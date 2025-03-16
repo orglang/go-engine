@@ -52,7 +52,7 @@ func (h *handlerEcho) GetOne(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	id, err := id.ConvertFromString(dto.ID)
+	id, err := id.ConvertFromString(dto.SigID)
 	if err != nil {
 		return err
 	}

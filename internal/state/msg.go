@@ -33,12 +33,12 @@ func (dto SpecMsg) Validate() error {
 }
 
 type LinkMsg struct {
-	FQN string `json:"fqn"`
+	QN string `json:"qn"`
 }
 
 func (dto LinkMsg) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.FQN, sym.Required...),
+		validation.Field(&dto.QN, sym.Required...),
 	)
 }
 
@@ -124,7 +124,7 @@ func MsgFromSpec(s Spec) SpecMsg {
 	case LinkSpec:
 		return SpecMsg{
 			K:    Link,
-			Link: &LinkMsg{FQN: sym.ConvertToString(spec.Role)}}
+			Link: &LinkMsg{QN: sym.ConvertToString(spec.Role)}}
 	case TensorSpec:
 		return SpecMsg{
 			K: Tensor,
@@ -163,7 +163,7 @@ func MsgToSpec(dto SpecMsg) (Spec, error) {
 	case One:
 		return OneSpec{}, nil
 	case Link:
-		return LinkSpec{Role: sym.CovertFromString(dto.Link.FQN)}, nil
+		return LinkSpec{Role: sym.CovertFromString(dto.Link.QN)}, nil
 	case Tensor:
 		v, err := MsgToSpec(dto.Tensor.Value)
 		if err != nil {

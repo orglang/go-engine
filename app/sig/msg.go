@@ -11,55 +11,55 @@ import (
 )
 
 type SpecMsg struct {
-	FQN string         `json:"fqn"`
-	PE  chnl.SpecMsg   `json:"pe"`
-	CEs []chnl.SpecMsg `json:"ces"`
+	QN string         `json:"qn"`
+	X  chnl.SpecMsg   `json:"x"`
+	Ys []chnl.SpecMsg `json:"ys"`
 }
 
 func (dto SpecMsg) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.FQN, sym.Required...),
-		validation.Field(&dto.PE, validation.Required),
-		validation.Field(&dto.CEs, core.CtxOptional...),
+		validation.Field(&dto.QN, sym.Required...),
+		validation.Field(&dto.X, validation.Required),
+		validation.Field(&dto.Ys, core.CtxOptional...),
 	)
 }
 
 type IdentMsg struct {
-	ID string `json:"id" param:"id"`
+	SigID string `json:"id" param:"id"`
 }
 
 func (dto IdentMsg) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.ID, id.Required...),
+		validation.Field(&dto.SigID, id.Required...),
 	)
 }
 
 type RefMsg struct {
-	ID    string `json:"id" param:"id"`
+	SigID string `json:"id" param:"id"`
 	Rev   int64  `json:"rev"`
 	Title string `json:"title"`
 }
 
 func (dto RefMsg) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.ID, id.Required...),
+		validation.Field(&dto.SigID, id.Required...),
 	)
 }
 
 type RootMsg struct {
-	ID    string         `json:"id"`
+	SigID string         `json:"id"`
 	Rev   int64          `json:"rev"`
 	Title string         `json:"title"`
-	PE    chnl.SpecMsg   `json:"pe"`
-	CEs   []chnl.SpecMsg `json:"ces"`
+	X     chnl.SpecMsg   `json:"pe"`
+	Ys    []chnl.SpecMsg `json:"ces"`
 }
 
 type SnapMsg struct {
-	ID    string         `json:"id"`
+	SigID string         `json:"id"`
 	Rev   int64          `json:"rev"`
 	Title string         `json:"title"`
-	PE    chnl.SpecMsg   `json:"pe"`
-	CEs   []chnl.SpecMsg `json:"ces"`
+	X     chnl.SpecMsg   `json:"pe"`
+	Ys    []chnl.SpecMsg `json:"ces"`
 }
 
 // goverter:variables

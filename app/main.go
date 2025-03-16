@@ -10,7 +10,6 @@ import (
 	"smecalculus/rolevod/lib/msg"
 
 	"smecalculus/rolevod/internal/alias"
-	"smecalculus/rolevod/internal/chnl"
 	"smecalculus/rolevod/internal/state"
 	"smecalculus/rolevod/internal/step"
 
@@ -28,7 +27,6 @@ func main() {
 		msg.Module,
 		// internal
 		alias.Module,
-		chnl.Module,
 		state.Module,
 		step.Module,
 		// app

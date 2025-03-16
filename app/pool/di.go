@@ -30,10 +30,10 @@ var Module = fx.Module("app/pool",
 )
 
 //go:embed *.html
-var viesFs embed.FS
+var viewsFs embed.FS
 
 func newRenderer(l *slog.Logger) (*msg.RendererStdlib, error) {
-	t, err := template.New("pool").Funcs(sprig.FuncMap()).ParseFS(viesFs, "*.html")
+	t, err := template.New("pool").Funcs(sprig.FuncMap()).ParseFS(viewsFs, "*.html")
 	if err != nil {
 		return nil, err
 	}

@@ -107,7 +107,7 @@ func (r *repoPgx) execute(source data.Source, query string, arg string) (Root, e
 		r.log.Error("row collection failed")
 		return nil, err
 	}
-	root, err := dataToRoot(&dto)
+	root, err := dataToRoot(dto)
 	if err != nil {
 		r.log.Error("model mapping failed")
 		return nil, err

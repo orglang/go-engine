@@ -91,15 +91,6 @@ type SvcRoot2 struct {
 
 func (r SvcRoot2) step() chnl.ID { return r.ChnlID }
 
-type TbdRoot struct {
-	ID  id.ADT
-	PID chnl.ID
-	VID chnl.ID
-	Act Action
-}
-
-func (TbdRoot) step() {}
-
 // aka Expression
 type Term interface {
 	Via() ph.ADT
@@ -194,17 +185,17 @@ func (CaseSpec) cont() {}
 
 // aka ExpName
 type LinkSpec struct {
-	PE    chnl.ID
-	CEs   []chnl.ID
 	SigQN sym.ADT
+	X     chnl.ID
+	Ys    []chnl.ID
 }
 
 func (s LinkSpec) Via() ph.ADT { return "" }
 
 // аналог SendSpec, но без продолжения с новым via
 type FwdSpec struct {
-	X ph.ADT // from
-	Y ph.ADT // to
+	X ph.ADT // via (from)
+	Y ph.ADT // val (to)
 }
 
 func (s FwdSpec) Via() ph.ADT { return s.X }
@@ -213,7 +204,7 @@ func (FwdSpec) val() {}
 
 func (FwdSpec) cont() {}
 
-// аналог балкового SendSpec
+// аналог SendSpec, но значения пересылаются балком
 type SpawnSpec struct {
 	X      ph.ADT
 	Ys     []ph.ADT

@@ -12,7 +12,7 @@ type modData struct {
 
 type lockData struct {
 	PoolID string
-	Rev    int
+	Rev    int64
 }
 
 type bndData struct {
@@ -20,13 +20,15 @@ type bndData struct {
 	ChnlPH  string
 	ChnlID  string
 	StateID string
-	Rev     int
+	Rev     int64
 }
 
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend smecalculus/rolevod/lib/id:Convert.*
+// goverter:extend smecalculus/rolevod/lib/rev:Convert.*
+// goverter:extend smecalculus/rolevod/internal/step:Data.*
 var (
-	DataFromMod func(Mod) modData
+	DataFromMod func(Mod) (modData, error)
 	DataFromBnd func(Bnd) bndData
 )

@@ -21,29 +21,29 @@ func (dto SpecView) Validate() error {
 }
 
 type RefView struct {
-	ID    string `form:"id" json:"id" param:"id"`
+	SigID string `form:"id" json:"id" param:"id"`
 	Rev   int64  `form:"rev" json:"rev"`
 	Title string `form:"name" json:"title"`
 }
 
 func (dto RefView) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.ID, id.Required...),
+		validation.Field(&dto.SigID, id.Required...),
 		// validation.Field(&dto.Rev, rev.Optional...),
 		validation.Field(&dto.Title, sym.Required...),
 	)
 }
 
 type RootView struct {
-	ID    string         `json:"id"`
+	SigID string         `json:"id"`
 	Rev   int64          `json:"rev"`
 	Title string         `json:"title"`
-	PE    chnl.SpecMsg   `json:"pe"`
-	CEs   []chnl.SpecMsg `json:"ces"`
+	X     chnl.SpecMsg   `json:"pe"`
+	Ys    []chnl.SpecMsg `json:"ces"`
 }
 
 type SnapView struct {
-	ID    string `json:"id"`
+	SigID string `json:"id"`
 	Rev   int64  `json:"rev"`
 	Title string `json:"title"`
 }

@@ -12,12 +12,17 @@ import (
 var Module = fx.Module("lib/data",
 	fx.Provide(
 		newPgx,
+		fx.Annotate(newOperator, fx.As(new(Operator))),
 	),
 	fx.Provide(
 		fx.Private,
 		newCfg,
 	),
 )
+
+func newOperator(pool *pgxpool.Pool) Operator {
+	return &OperatorPgx{pool}
+}
 
 func newCfg(k core.Keeper) (*props, error) {
 	props := &props{}

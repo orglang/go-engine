@@ -51,8 +51,12 @@ func (cl *clientResty) RetreiveRefs() ([]Ref, error) {
 	return refs, nil
 }
 
-func (cl *clientResty) Involve(PartSpec) (proc.Chnl, error) {
-	return proc.Chnl{}, nil
+func (cl *clientResty) Involve(PartSpec) (proc.EP, error) {
+	return proc.EP{}, nil
+}
+
+func (cl *clientResty) Spawn(TranSpec) (id.ADT, error) {
+	return id.Nil, nil
 }
 
 func (cl *clientResty) Take(TranSpec) error {

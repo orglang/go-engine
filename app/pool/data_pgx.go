@@ -1,7 +1,6 @@
 package pool
 
 import (
-	"database/sql"
 	"errors"
 	"log/slog"
 	"reflect"
@@ -13,7 +12,6 @@ import (
 	"smecalculus/rolevod/lib/id"
 	"smecalculus/rolevod/lib/rev"
 
-	"smecalculus/rolevod/internal/chnl"
 	"smecalculus/rolevod/internal/proc"
 	"smecalculus/rolevod/internal/step"
 )
@@ -40,7 +38,7 @@ func (r *repoPgx) Insert(source data.Source, root Root) (err error) {
 		"pool_id":     dto.PoolID,
 		"title":       dto.Title,
 		"sup_pool_id": dto.SupID,
-		"revs":        dto.Revs,
+		"rev":         dto.Rev,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertRoot, args)
 	if err != nil {
@@ -49,24 +47,6 @@ func (r *repoPgx) Insert(source data.Source, root Root) (err error) {
 	}
 	r.log.Debug("insertion succeeded", slog.Any("poolID", root.PoolID))
 	return nil
-}
-
-func (r *repoPgx) SelectAssets(source data.Source, poolID id.ADT) (AssetSnap, error) {
-	ds := data.MustConform[data.SourcePgx](source)
-	idAttr := slog.Any("poolID", poolID)
-	rows, err := ds.Conn.Query(ds.Ctx, selectAssetSnap, poolID.String())
-	if err != nil {
-		r.log.Error("execution failed", idAttr, slog.String("q", selectAssetSnap))
-		return AssetSnap{}, err
-	}
-	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[assetSnapData])
-	if err != nil {
-		r.log.Error("collection failed", idAttr, slog.Any("t", reflect.TypeOf(dto)))
-		return AssetSnap{}, err
-	}
-	r.log.Debug("selection succeeded", idAttr)
-	return DataToAssetSnap(dto)
 }
 
 func (r *repoPgx) SelectProc(source data.Source, procID id.ADT) (proc.Cfg, error) {
@@ -113,7 +93,11 @@ func (r *repoPgx) SelectProc(source data.Source, procID id.ADT) (proc.Cfg, error
 
 func (r *repoPgx) UpdateProc(source data.Source, mod proc.Mod) (err error) {
 	ds := data.MustConform[data.SourcePgx](source)
-	dto := proc.DataFromMod(mod)
+	dto, err := proc.DataFromMod(mod)
+	if err != nil {
+		r.log.Error("mapping failed")
+		return err
+	}
 	// bindings
 	bndReq := pgx.Batch{}
 	for _, dto := range dto.Bnds {
@@ -194,52 +178,6 @@ func (r *repoPgx) UpdateProc(source data.Source, mod proc.Mod) (err error) {
 	return nil
 }
 
-func (r *repoPgx) UpdateAssets(source data.Source, mod AssetMod) (err error) {
-	ds := data.MustConform[data.SourcePgx](source)
-	idAttr := slog.Any("id", mod.OutPoolID)
-	dto := DataFromAssetMod(mod)
-	batch := pgx.Batch{}
-	for _, ep := range dto.EPs {
-		args := pgx.NamedArgs{
-			"pool_id": dto.InPoolID,
-			// proc_id ???
-			"chnl_id":    ep.ChnlID,
-			"state_id":   ep.StateID,
-			"ex_pool_id": dto.OutPoolID,
-			"rev":        dto.Rev,
-		}
-		batch.Queue(insertAsset, args)
-	}
-	br := ds.Conn.SendBatch(ds.Ctx, &batch)
-	defer func() {
-		err = errors.Join(err, br.Close())
-	}()
-	for _, ep := range dto.EPs {
-		_, err := br.Exec()
-		if err != nil {
-			r.log.Error("execution failed", idAttr, slog.String("q", insertAsset), slog.Any("ep", ep))
-		}
-	}
-	if err != nil {
-		return err
-	}
-	args := pgx.NamedArgs{
-		"pool_id": dto.OutPoolID,
-		"rev":     dto.Rev,
-	}
-	ct, err := ds.Conn.Exec(ds.Ctx, updateRoot, args)
-	if err != nil {
-		r.log.Error("execution failed", idAttr, slog.String("q", updateRoot))
-		return err
-	}
-	if ct.RowsAffected() == 0 {
-		r.log.Error("update failed", idAttr)
-		return errOptimisticUpdate(mod.Rev)
-	}
-	r.log.Log(ds.Ctx, core.LevelTrace, "update succeeded", idAttr)
-	return nil
-}
-
 func (r *repoPgx) SelectSubs(source data.Source, poolID id.ADT) (SubSnap, error) {
 	ds := data.MustConform[data.SourcePgx](source)
 	idAttr := slog.Any("poolID", poolID)
@@ -276,43 +214,6 @@ func (r *repoPgx) SelectRefs(source data.Source) ([]Ref, error) {
 		return nil, err
 	}
 	return DataToRefs(dtos)
-}
-
-func (r *repoPgx) Transfer(source data.Source, giver id.ADT, taker id.ADT, pids []chnl.ID) (err error) {
-	ds := data.MustConform[data.SourcePgx](source)
-	query := `
-		insert into consumers (
-			giver_id, taker_id, chnl_id
-		) values (
-			@giver_id, @taker_id, @chnl_id
-		)`
-	batch := pgx.Batch{}
-	for _, pid := range pids {
-		args := pgx.NamedArgs{
-			"giver_id": sql.NullString{String: giver.String(), Valid: !giver.IsEmpty()},
-			"taker_id": taker.String(),
-			"chnl_id":  pid.String(),
-		}
-		batch.Queue(query, args)
-	}
-	br := ds.Conn.SendBatch(ds.Ctx, &batch)
-	defer func() {
-		err = errors.Join(err, br.Close())
-	}()
-	for _, pid := range pids {
-		_, err := br.Exec()
-		if err != nil {
-			r.log.Error("query execution failed",
-				slog.Any("reason", err),
-				slog.Any("id", pid),
-			)
-		}
-	}
-	if err != nil {
-		return err
-	}
-	r.log.Log(ds.Ctx, core.LevelTrace, "context transfer succeeded")
-	return nil
 }
 
 const (

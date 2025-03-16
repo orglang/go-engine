@@ -5,17 +5,17 @@ import (
 )
 
 type refData struct {
-	ID    string `db:"sig_id"`
+	SigID string `db:"sig_id"`
 	Rev   int64  `db:"rev"`
 	Title string `db:"title"`
 }
 
 type rootData struct {
-	ID    string          `db:"sig_id"`
-	Rev   int64           `db:"rev"`
+	SigID string          `db:"sig_id"`
 	Title string          `db:"title"`
-	CEs   []chnl.SpecData `db:"ces"`
-	PE    chnl.SpecData   `db:"pe"`
+	Ys    []chnl.SpecData `db:"ys"`
+	X     chnl.SpecData   `db:"x"`
+	Rev   int64           `db:"rev"`
 }
 
 // goverter:variables

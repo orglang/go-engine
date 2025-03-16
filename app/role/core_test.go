@@ -83,5 +83,6 @@ type operatorStub struct {
 func (o *operatorStub) Explicit(ctx context.Context, op func(data.Source) error) error {
 	return nil
 }
-func (o *operatorStub) Implicit(ctx context.Context, op func(data.Source)) {
+func (o *operatorStub) Implicit(ctx context.Context, op func(data.Source) error) error {
+	return nil
 }

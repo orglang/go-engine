@@ -113,18 +113,18 @@ var (
 	DataFromConts  func([]Continuation) ([]specData, error)
 )
 
-func dataFromRoot(r Root) (*RootData, error) {
+func dataFromRoot(r Root) (RootData, error) {
 	if r == nil {
-		return nil, nil
+		return RootData{}, nil
 	}
 	switch root := r.(type) {
 	case ProcRoot:
 		pid := id.ConvertToNullString(root.PID)
 		spec, err := dataFromTerm(root.Term)
 		if err != nil {
-			return nil, err
+			return RootData{}, err
 		}
-		return &RootData{
+		return RootData{
 			K:    proc,
 			ID:   root.ID.String(),
 			PID:  pid,
@@ -133,7 +133,7 @@ func dataFromRoot(r Root) (*RootData, error) {
 	case MsgRoot:
 		pid := id.ConvertToNullString(root.PID)
 		vid := id.ConvertToNullString(root.VID)
-		return &RootData{
+		return RootData{
 			K:    msg,
 			ID:   root.ID.String(),
 			PID:  pid,
@@ -145,9 +145,9 @@ func dataFromRoot(r Root) (*RootData, error) {
 		vid := id.ConvertToNullString(root.VID)
 		spec, err := dataFromCont(root.Cont)
 		if err != nil {
-			return nil, err
+			return RootData{}, err
 		}
-		return &RootData{
+		return RootData{
 			K:    srv,
 			ID:   root.ID.String(),
 			PID:  pid,
@@ -159,8 +159,9 @@ func dataFromRoot(r Root) (*RootData, error) {
 	}
 }
 
-func dataToRoot(dto *RootData) (Root, error) {
-	if dto == nil {
+func dataToRoot(dto RootData) (Root, error) {
+	var nilData RootData
+	if dto == nilData {
 		return nil, nil
 	}
 	ident, err := id.ConvertFromString(dto.ID)

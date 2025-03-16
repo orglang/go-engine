@@ -22,15 +22,15 @@ type Spec struct {
 
 // aka Z
 type Ref struct {
-	ID    id.ADT
-	Title string
+	ID     id.ADT
+	ChnlPH string
 }
 
 type Root struct {
 	ID      id.ADT
-	Title   string
-	StateID *id.ADT
-	PoolID  *id.ADT
+	ChnlPH  string
+	StateID id.ADT
+	PoolID  id.ADT
 	Revs    []rev.ADT
 }
 

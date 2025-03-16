@@ -19,26 +19,26 @@ func (dto SpecMsg) Validate() error {
 }
 
 type IdentMsg struct {
-	ID string `json:"id" param:"id"`
+	PoolID string `json:"id" param:"id"`
 }
 
 type RefMsg struct {
-	ID    string `json:"id" param:"id"`
-	Rev   int64  `json:"rev"`
-	Title string `json:"title"`
+	PoolID string `json:"id" param:"id"`
+	Title  string `json:"title"`
 }
 
 type SnapMsg struct {
-	ID    string   `json:"id"`
-	Title string   `json:"title"`
-	Subs  []RefMsg `json:"subs"`
+	PoolID string   `json:"id"`
+	Title  string   `json:"title"`
+	Subs   []RefMsg `json:"subs"`
 }
 
 type RootMsg struct {
-	ID    string `json:"id"`
-	Rev   int64  `json:"rev"`
-	Title string `json:"title"`
-	SupID string `json:"sup_id"`
+	PoolID string `json:"id"`
+	ProcID string `json:"proc_id"`
+	Title  string `json:"title"`
+	SupID  string `json:"sup_id"`
+	Rev    int64  `json:"rev"`
 }
 
 // goverter:variables

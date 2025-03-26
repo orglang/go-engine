@@ -33,10 +33,19 @@ func (dto Msg) Validate() error {
 	)
 }
 
-func MsgFromPH(ph ADT) string {
+func ConvertToString(ph ADT) string {
 	return string(ph)
 }
 
-func MsgToPH(dto string) (ADT, error) {
+func ConvertFromString(dto string) (ADT, error) {
 	return ADT(dto), nil
 }
+
+// goverter:variables
+// goverter:output:format assign-variable
+// goverter:extend ConvertFromString
+// goverter:extend ConvertToString
+var (
+	ConvertFromStrings func([]string) ([]ADT, error)
+	ConvertToStrings   func([]ADT) []string
+)

@@ -37,15 +37,33 @@ func (r *repoPgx) Insert(source data.Source, root Root) (err error) {
 	args := pgx.NamedArgs{
 		"pool_id":     dto.PoolID,
 		"title":       dto.Title,
+		"proc_id":     dto.ProcID,
 		"sup_pool_id": dto.SupID,
 		"rev":         dto.Rev,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertRoot, args)
 	if err != nil {
-		r.log.Error("execution failed", slog.String("q", insertRoot))
+		r.log.Error("execution failed")
 		return err
 	}
 	r.log.Debug("insertion succeeded", slog.Any("poolID", root.PoolID))
+	return nil
+}
+
+func (r *repoPgx) InsertLiab(source data.Source, liab proc.Liab) (err error) {
+	ds := data.MustConform[data.SourcePgx](source)
+	dto := DataFromLiab(liab)
+	args := pgx.NamedArgs{
+		"pool_id": dto.PoolID,
+		"proc_id": dto.ProcID,
+		"rev":     dto.Rev,
+	}
+	_, err = ds.Conn.Exec(ds.Ctx, insertLiab, args)
+	if err != nil {
+		r.log.Error("execution failed")
+		return err
+	}
+	r.log.Debug("insertion succeeded", slog.Any("poolID", liab.PoolID))
 	return nil
 }
 
@@ -54,7 +72,7 @@ func (r *repoPgx) SelectProc(source data.Source, procID id.ADT) (proc.Cfg, error
 	idAttr := slog.Any("procID", procID)
 	chnlRows, err := ds.Conn.Query(ds.Ctx, selectChnls, procID.String())
 	if err != nil {
-		r.log.Error("execution failed", idAttr, slog.String("q", selectChnls))
+		r.log.Error("execution failed", idAttr)
 		return proc.Cfg{}, err
 	}
 	defer chnlRows.Close()
@@ -70,7 +88,7 @@ func (r *repoPgx) SelectProc(source data.Source, procID id.ADT) (proc.Cfg, error
 	}
 	stepRows, err := ds.Conn.Query(ds.Ctx, selectSteps, procID.String())
 	if err != nil {
-		r.log.Error("execution failed", idAttr, slog.String("q", selectSteps))
+		r.log.Error("execution failed", idAttr)
 		return proc.Cfg{}, err
 	}
 	defer stepRows.Close()
@@ -92,6 +110,9 @@ func (r *repoPgx) SelectProc(source data.Source, procID id.ADT) (proc.Cfg, error
 }
 
 func (r *repoPgx) UpdateProc(source data.Source, mod proc.Mod) (err error) {
+	if len(mod.Locks) == 0 {
+		panic("empty locks")
+	}
 	ds := data.MustConform[data.SourcePgx](source)
 	dto, err := proc.DataFromMod(mod)
 	if err != nil {
@@ -110,18 +131,20 @@ func (r *repoPgx) UpdateProc(source data.Source, mod proc.Mod) (err error) {
 		}
 		bndReq.Queue(insertBnd, args)
 	}
-	bndRes := ds.Conn.SendBatch(ds.Ctx, &bndReq)
-	defer func() {
-		err = errors.Join(err, bndRes.Close())
-	}()
-	for _, dto := range dto.Bnds {
-		_, err := bndRes.Exec()
-		if err != nil {
-			r.log.Error("execution failed", slog.String("q", insertBnd), slog.Any("sto", dto))
+	if bndReq.Len() > 0 {
+		bndRes := ds.Conn.SendBatch(ds.Ctx, &bndReq)
+		defer func() {
+			err = errors.Join(err, bndRes.Close())
+		}()
+		for _, dto := range dto.Bnds {
+			_, err = bndRes.Exec()
+			if err != nil {
+				r.log.Error("execution failed", slog.Any("dto", dto))
+			}
 		}
-	}
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
 	}
 	// steps
 	stepReq := pgx.Batch{}
@@ -134,18 +157,20 @@ func (r *repoPgx) UpdateProc(source data.Source, mod proc.Mod) (err error) {
 		}
 		stepReq.Queue(insertStep, args)
 	}
-	stepRes := ds.Conn.SendBatch(ds.Ctx, &stepReq)
-	defer func() {
-		err = errors.Join(err, bndRes.Close())
-	}()
-	for _, dto := range dto.Steps {
-		_, err := stepRes.Exec()
-		if err != nil {
-			r.log.Error("execution failed", slog.String("q", insertStep), slog.Any("dto", dto))
+	if stepReq.Len() > 0 {
+		stepRes := ds.Conn.SendBatch(ds.Ctx, &stepReq)
+		defer func() {
+			err = errors.Join(err, stepRes.Close())
+		}()
+		for _, dto := range dto.Steps {
+			_, err = stepRes.Exec()
+			if err != nil {
+				r.log.Error("execution failed", slog.Any("dto", dto))
+			}
 		}
-	}
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
 	}
 	// roots
 	rootReq := pgx.Batch{}
@@ -153,7 +178,6 @@ func (r *repoPgx) UpdateProc(source data.Source, mod proc.Mod) (err error) {
 		args := pgx.NamedArgs{
 			"pool_id": dto.PoolID,
 			"rev":     dto.Rev,
-			"k":       procRev,
 		}
 		rootReq.Queue(updateRoot, args)
 	}
@@ -164,7 +188,7 @@ func (r *repoPgx) UpdateProc(source data.Source, mod proc.Mod) (err error) {
 	for _, dto := range dto.Locks {
 		ct, err := rootRes.Exec()
 		if err != nil {
-			r.log.Error("execution failed", slog.String("q", updateRoot), slog.Any("dto", dto))
+			r.log.Error("execution failed", slog.Any("dto", dto))
 		}
 		if ct.RowsAffected() == 0 {
 			r.log.Error("update failed")
@@ -183,7 +207,7 @@ func (r *repoPgx) SelectSubs(source data.Source, poolID id.ADT) (SubSnap, error)
 	idAttr := slog.Any("poolID", poolID)
 	rows, err := ds.Conn.Query(ds.Ctx, selectOrgSnap, poolID.String())
 	if err != nil {
-		r.log.Error("execution failed", idAttr, slog.String("q", selectOrgSnap))
+		r.log.Error("execution failed", idAttr)
 		return SubSnap{}, err
 	}
 	defer rows.Close()
@@ -192,8 +216,13 @@ func (r *repoPgx) SelectSubs(source data.Source, poolID id.ADT) (SubSnap, error)
 		r.log.Error("collection failed", idAttr, slog.Any("t", reflect.TypeOf(dto)))
 		return SubSnap{}, err
 	}
+	snap, err := DataToSubSnap(dto)
+	if err != nil {
+		r.log.Error("mapping failed")
+		return SubSnap{}, err
+	}
 	r.log.Debug("selection succeeded", idAttr)
-	return DataToSubSnap(dto)
+	return snap, nil
 }
 
 func (r *repoPgx) SelectRefs(source data.Source) ([]Ref, error) {
@@ -213,15 +242,27 @@ func (r *repoPgx) SelectRefs(source data.Source) ([]Ref, error) {
 		r.log.Error("collection failed", slog.Any("t", reflect.TypeOf(dtos)))
 		return nil, err
 	}
-	return DataToRefs(dtos)
+	refs, err := DataToRefs(dtos)
+	if err != nil {
+		r.log.Error("mapping failed")
+		return nil, err
+	}
+	return refs, nil
 }
 
 const (
 	insertRoot = `
 		insert into pool_roots (
-			pool_id, revs, title, sup_pool_id
+			pool_id, title, proc_id, sup_pool_id, rev
 		) values (
-			@pool_id, @revs, @title, @sup_pool_id
+			@pool_id, @title, @proc_id, @sup_pool_id, @rev
+		)`
+
+	insertLiab = `
+		insert into pool_liabs (
+			pool_id, proc_id, rev
+		) values (
+			@pool_id, @proc_id, @rev
 		)`
 
 	insertAsset = `
@@ -247,9 +288,9 @@ const (
 
 	updateRoot = `
 		update pool_roots
-		set revs[@k] = @rev + 1
+		set rev = @rev + 1
 		where pool_id = @pool_id
-			and revs[@k] = @rev`
+			and rev = @rev`
 
 	selectOrgSnap = `
 		select

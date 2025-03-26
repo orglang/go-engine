@@ -109,7 +109,7 @@ type API interface {
 	Create(Spec) (Root, error)
 	Retrieve(id.ADT) (SubSnap, error)
 	RetreiveRefs() ([]Ref, error)
-	Spawn(TranSpec) (id.ADT, error)
+	Spawn(TranSpec) (proc.Ref, error)
 	Take(TranSpec) error
 }
 
@@ -139,7 +139,7 @@ func newService(
 	return &service{pools, sigs, roles, states, operator, l.With(name)}
 }
 
-func (s *service) Create(spec Spec) (_ Root, err error) {
+func (s *service) Create(spec Spec) (Root, error) {
 	ctx := context.Background()
 	s.log.Debug("creation started", slog.Any("spec", spec))
 	root := Root{
@@ -154,14 +154,13 @@ func (s *service) Create(spec Spec) (_ Root, err error) {
 		ProcID: root.ProcID,
 		Rev:    root.Rev,
 	}
-	mod := proc.Mod{Liabs: []proc.Liab{liab}}
-	s.operator.Explicit(ctx, func(ds data.Source) error {
-		err = s.pools.Insert(ds, root)
+	err := s.operator.Explicit(ctx, func(ds data.Source) error {
+		err := s.pools.Insert(ds, root)
 		if err != nil {
 			s.log.Error("creation failed")
 			return err
 		}
-		err = s.pools.UpdateProc(ds, mod)
+		err = s.pools.InsertLiab(ds, liab)
 		if err != nil {
 			s.log.Error("creation failed")
 			return err
@@ -172,12 +171,14 @@ func (s *service) Create(spec Spec) (_ Root, err error) {
 		s.log.Error("creation failed")
 		return Root{}, err
 	}
-	s.log.Debug("creation succeeded", slog.Any("id", root.PoolID))
+	s.log.Debug("creation succeeded", slog.Any("poolID", root.PoolID))
 	return root, nil
 }
 
-func (s *service) Spawn(spec TranSpec) (id.ADT, error) {
-	return id.Nil, nil
+func (s *service) Spawn(spec TranSpec) (_ proc.Ref, err error) {
+	procAttr := slog.Any("procID", spec.ProcID)
+	s.log.Debug("spawning started", procAttr)
+	return proc.Ref{}, nil
 }
 
 func (s *service) Take(spec TranSpec) (err error) {
@@ -189,22 +190,21 @@ func (s *service) Take(spec TranSpec) (err error) {
 	procID := spec.ProcID
 	termSpec := spec.Term
 	for termSpec != nil {
-		var procSnap proc.Cfg
-		s.operator.Implicit(ctx, func(ds data.Source) error {
-			procSnap, err = s.pools.SelectProc(ds, procID)
+		var procCfg proc.Cfg
+		err = s.operator.Implicit(ctx, func(ds data.Source) error {
+			procCfg, err = s.pools.SelectProc(ds, procID)
 			return err
 		})
 		if err != nil {
 			s.log.Error("taking failed", procAttr)
 			return err
 		}
-		if len(procSnap.Chnls) == 0 {
-			s.log.Error("taking failed", procAttr)
-			return err
+		if len(procCfg.Chnls) == 0 {
+			panic("zero channels")
 		}
 		sigIDs := step.CollectEnv(termSpec)
 		var sigs map[sig.ID]sig.Root
-		s.operator.Implicit(ctx, func(ds data.Source) error {
+		err = s.operator.Implicit(ctx, func(ds data.Source) error {
 			sigs, err = s.sigs.SelectEnv(ds, sigIDs)
 			return err
 		})
@@ -214,7 +214,7 @@ func (s *service) Take(spec TranSpec) (err error) {
 		}
 		roleQNs := sig.CollectEnv(maps.Values(sigs))
 		var roles map[role.QN]role.Root
-		s.operator.Implicit(ctx, func(ds data.Source) error {
+		err = s.operator.Implicit(ctx, func(ds data.Source) error {
 			roles, err = s.roles.SelectEnv(ds, roleQNs)
 			return err
 		})
@@ -223,9 +223,9 @@ func (s *service) Take(spec TranSpec) (err error) {
 			return err
 		}
 		envIDs := role.CollectEnv(maps.Values(roles))
-		ctxIDs := CollectCtx(maps.Values(procSnap.Chnls))
+		ctxIDs := CollectCtx(maps.Values(procCfg.Chnls))
 		var states map[state.ID]state.Root
-		s.operator.Implicit(ctx, func(ds data.Source) error {
+		err = s.operator.Implicit(ctx, func(ds data.Source) error {
 			states, err = s.states.SelectEnv(ds, append(envIDs, ctxIDs...))
 			return err
 		})
@@ -234,20 +234,20 @@ func (s *service) Take(spec TranSpec) (err error) {
 			return err
 		}
 		procEnv := proc.Env{Sigs: sigs, Roles: roles, States: states}
-		procCtx := convertToCtx(poolID, maps.Values(procSnap.Chnls), states)
+		procCtx := convertToCtx(poolID, maps.Values(procCfg.Chnls), states)
 		// type checking
-		err = s.checkState(poolID, procEnv, procCtx, procSnap, termSpec)
+		err = s.checkState(poolID, procEnv, procCtx, procCfg, termSpec)
 		if err != nil {
 			s.log.Error("taking failed", procAttr)
 			return err
 		}
 		// step taking
-		nextSpec, procMod, err := s.takeWith(procEnv, procSnap, termSpec)
+		nextSpec, procMod, err := s.takeWith(procEnv, procCfg, termSpec)
 		if err != nil {
 			s.log.Error("taking failed", procAttr)
 			return err
 		}
-		s.operator.Explicit(ctx, func(ds data.Source) error {
+		err = s.operator.Explicit(ctx, func(ds data.Source) error {
 			err = s.pools.UpdateProc(ds, procMod)
 			if err != nil {
 				s.log.Error("taking failed", procAttr)
@@ -933,7 +933,7 @@ func (s *service) Retrieve(poolID id.ADT) (snap SubSnap, err error) {
 		return err
 	})
 	if err != nil {
-		s.log.Error("retrieval failed", slog.Any("id", poolID))
+		s.log.Error("retrieval failed", slog.Any("poolID", poolID))
 		return SubSnap{}, err
 	}
 	return snap, nil
@@ -1388,6 +1388,7 @@ func (s *service) checkClient(
 // Port
 type Repo interface {
 	Insert(data.Source, Root) error
+	InsertLiab(data.Source, proc.Liab) error
 	SelectRefs(data.Source) ([]Ref, error)
 	SelectSubs(data.Source, id.ADT) (SubSnap, error)
 	SelectProc(data.Source, id.ADT) (proc.Cfg, error)

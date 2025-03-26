@@ -25,6 +25,12 @@ type rootData struct {
 	Rev    int64          `db:"rev"`
 }
 
+type liabData struct {
+	PoolID string `db:"pool_id"`
+	ProcID string `db:"proc_id"`
+	Rev    int64  `db:"rev"`
+}
+
 type epData struct {
 	ProcID   string  `db:"proc_id"`
 	ChnlPH   string  `db:"chnl_ph"`
@@ -47,6 +53,8 @@ var (
 	DataFromRefs    func([]Ref) []refData
 	DataToRoot      func(rootData) (Root, error)
 	DataFromRoot    func(Root) rootData
+	DataToLiab      func(liabData) (proc.Liab, error)
+	DataFromLiab    func(proc.Liab) liabData
 	DataToSubSnap   func(subSnapData) (SubSnap, error)
 	DataFromSubSnap func(SubSnap) subSnapData
 	DataToEPs       func([]epData) ([]proc.EP, error)

@@ -208,7 +208,6 @@ func (FwdSpec) cont() {}
 type SpawnSpec struct {
 	X      ph.ADT
 	Ys     []ph.ADT
-	Ys2    []chnl.ID
 	SigID  id.ADT // TODO ссылаться по QN
 	PoolQN sym.ADT
 	Cont   Term

@@ -21,11 +21,13 @@ var Module = fx.Module("app/pool",
 	fx.Provide(
 		fx.Private,
 		newHandlerEcho,
+		newStepHandlerEcho,
 		fx.Annotate(newRepoPgx, fx.As(new(Repo))),
 		fx.Annotate(newRenderer, fx.As(new(msg.Renderer))),
 	),
 	fx.Invoke(
 		cfgEcho,
+		cfgStepEcho,
 	),
 )
 
@@ -43,5 +45,10 @@ func newRenderer(l *slog.Logger) (*msg.RendererStdlib, error) {
 func cfgEcho(e *echo.Echo, h *handlerEcho) error {
 	e.POST("/api/v1/pools", h.PostOne)
 	e.GET("/api/v1/pools/:id", h.GetOne)
+	return nil
+}
+
+func cfgStepEcho(e *echo.Echo, h *stepHandlerEcho) error {
+	e.POST("/api/v1/pools/:id/steps", h.ApiPostOne)
 	return nil
 }

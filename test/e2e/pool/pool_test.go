@@ -63,10 +63,10 @@ type testCase struct {
 func (tc *testCase) Setup(t *testing.T) {
 	tables := []string{
 		"aliases",
-		"pool_roots",
+		"pool_roots", "pool_liabs", "proc_bnds", "proc_steps",
 		"sig_roots", "sig_pes", "sig_ces",
 		"role_roots", "role_states",
-		"states", "channels", "steps", "clientships"}
+		"states"}
 	for _, table := range tables {
 		_, err := tc.db.Exec(fmt.Sprintf("truncate table %v", table))
 		if err != nil {
@@ -160,7 +160,7 @@ func TestTaking(t *testing.T) {
 				X:     closerPH,
 			},
 		}
-		closerID, err := poolAPI.Spawn(closerSpec)
+		closer, err := poolAPI.Spawn(closerSpec)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -175,14 +175,14 @@ func TestTaking(t *testing.T) {
 				X:     waiterPH,
 			},
 		}
-		waiterID, err := poolAPI.Spawn(waiterSpec)
+		waiter, err := poolAPI.Spawn(waiterSpec)
 		if err != nil {
 			t.Fatal(err)
 		}
 		// and
 		closeSpec := pool.TranSpec{
 			PoolID: poolImpl.PoolID,
-			ProcID: closerID,
+			ProcID: closer.ProcID,
 			Term: step.CloseSpec{
 				X: closerPH,
 			},
@@ -195,7 +195,7 @@ func TestTaking(t *testing.T) {
 		// and
 		waitSpec := pool.TranSpec{
 			PoolID: poolImpl.PoolID,
-			ProcID: waiterID,
+			ProcID: waiter.ProcID,
 			Term: step.WaitSpec{
 				X: closerPH,
 				Cont: step.CloseSpec{
@@ -283,7 +283,7 @@ func TestTaking(t *testing.T) {
 		}
 		// and
 		receiverPH := ph.New("receiver")
-		receiverID, err := poolAPI.Spawn(
+		receiver, err := poolAPI.Spawn(
 			pool.TranSpec{
 				PoolID: poolImpl.PoolID,
 				ProcID: poolImpl.ProcID,
@@ -313,7 +313,7 @@ func TestTaking(t *testing.T) {
 		}
 		// and
 		senderPH := ph.New("sender")
-		senderID, err := poolAPI.Spawn(
+		sender, err := poolAPI.Spawn(
 			pool.TranSpec{
 				PoolID: poolImpl.PoolID,
 				ProcID: poolImpl.ProcID,
@@ -330,7 +330,7 @@ func TestTaking(t *testing.T) {
 		// and
 		recvSpec := pool.TranSpec{
 			PoolID: poolImpl.PoolID,
-			ProcID: receiverID,
+			ProcID: receiver.ProcID,
 			Term: step.RecvSpec{
 				X: receiverPH,
 				Y: messagePH,
@@ -350,7 +350,7 @@ func TestTaking(t *testing.T) {
 		// and
 		sendSpec := pool.TranSpec{
 			PoolID: poolImpl.PoolID,
-			ProcID: senderID,
+			ProcID: sender.ProcID,
 			Term: step.SendSpec{
 				X: receiverPH,
 				Y: messagePH,
@@ -426,7 +426,7 @@ func TestTaking(t *testing.T) {
 		}
 		// and
 		followerPH := ph.New("follower")
-		followerID, err := poolAPI.Spawn(
+		follower, err := poolAPI.Spawn(
 			pool.TranSpec{
 				PoolID: poolImpl.PoolID,
 				ProcID: poolImpl.ProcID,
@@ -441,7 +441,7 @@ func TestTaking(t *testing.T) {
 		}
 		// and
 		deciderPH := ph.New("decider")
-		deciderID, err := poolAPI.Spawn(
+		decider, err := poolAPI.Spawn(
 			pool.TranSpec{
 				PoolID: poolImpl.PoolID,
 				ProcID: poolImpl.ProcID,
@@ -458,7 +458,7 @@ func TestTaking(t *testing.T) {
 		// and
 		caseSpec := pool.TranSpec{
 			PoolID: poolImpl.PoolID,
-			ProcID: followerID,
+			ProcID: follower.ProcID,
 			Term: step.CaseSpec{
 				X: followerPH,
 				Conts: map[core.Label]step.Term{
@@ -476,7 +476,7 @@ func TestTaking(t *testing.T) {
 		// and
 		labSpec := pool.TranSpec{
 			PoolID: poolImpl.PoolID,
-			ProcID: deciderID,
+			ProcID: decider.ProcID,
 			Term: step.LabSpec{
 				X: followerPH,
 				L: label,
@@ -570,7 +570,7 @@ func TestTaking(t *testing.T) {
 		}
 		// and
 		spawnerPH := ph.New("spawner")
-		spawnerID, err := poolAPI.Spawn(
+		spawner, err := poolAPI.Spawn(
 			pool.TranSpec{
 				PoolID: poolImpl.PoolID,
 				ProcID: poolImpl.ProcID,
@@ -588,7 +588,7 @@ func TestTaking(t *testing.T) {
 		x := ph.New("x")
 		spawnSpec := pool.TranSpec{
 			PoolID: poolImpl.PoolID,
-			ProcID: spawnerID,
+			ProcID: spawner.ProcID,
 			Term: step.SpawnSpec{
 				SigID: oneSig3.SigID,
 				Ys:    []ph.ADT{injecteePH},
@@ -682,7 +682,7 @@ func TestTaking(t *testing.T) {
 				X:     closerPH,
 			},
 		}
-		closerID, err := poolAPI.Spawn(closerSpec)
+		closer, err := poolAPI.Spawn(closerSpec)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -697,7 +697,7 @@ func TestTaking(t *testing.T) {
 				X:     forwarderPH,
 			},
 		}
-		forwarderID, err := poolAPI.Spawn(forwarderSpec)
+		forwarder, err := poolAPI.Spawn(forwarderSpec)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -712,14 +712,14 @@ func TestTaking(t *testing.T) {
 				X:     waiterPH,
 			},
 		}
-		waiterID, err := poolAPI.Spawn(waiterSpec)
+		waiter, err := poolAPI.Spawn(waiterSpec)
 		if err != nil {
 			t.Fatal(err)
 		}
 		// and
 		closeSpec := pool.TranSpec{
 			PoolID: poolImpl.PoolID,
-			ProcID: closerID,
+			ProcID: closer.ProcID,
 			Term: step.CloseSpec{
 				X: closerPH,
 			},
@@ -731,7 +731,7 @@ func TestTaking(t *testing.T) {
 		// when
 		fwdSpec := pool.TranSpec{
 			PoolID: poolImpl.PoolID,
-			ProcID: forwarderID,
+			ProcID: forwarder.ProcID,
 			Term: step.FwdSpec{
 				X: forwarderPH,
 				Y: closerPH,
@@ -744,7 +744,7 @@ func TestTaking(t *testing.T) {
 		// and
 		waitSpec := pool.TranSpec{
 			PoolID: poolImpl.PoolID,
-			ProcID: waiterID,
+			ProcID: waiter.ProcID,
 			Term: step.WaitSpec{
 				X: forwarderPH,
 				Cont: step.CloseSpec{

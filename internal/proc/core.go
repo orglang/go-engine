@@ -15,6 +15,10 @@ import (
 	"smecalculus/rolevod/internal/step"
 )
 
+type Ref struct {
+	ProcID id.ADT
+}
+
 // aka Configuration
 type Cfg struct {
 	ProcID id.ADT
@@ -50,8 +54,8 @@ func ChnlID(ch EP) id.ADT { return ch.ChnlID }
 
 // ответственность за процесс
 type Liab struct {
-	ProcID id.ADT
 	PoolID id.ADT
+	ProcID id.ADT
 	// позитивное значение при вручении
 	// негативное значение при лишении
 	Rev rev.ADT

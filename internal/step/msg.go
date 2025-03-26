@@ -175,30 +175,30 @@ func (dto BranchMsg) Validate() error {
 }
 
 type SpawnMsg struct {
-	PE   string   `json:"pe"`
-	CEs  []string `json:"ces"`
-	Cont TermMsg  `json:"cont"`
-	Sig  string   `json:"sig_id"`
+	SigID string   `json:"sig_id"`
+	X     string   `json:"pe"`
+	Ys    []string `json:"ces"`
+	Cont  *TermMsg `json:"cont"`
 }
 
 func (dto SpawnMsg) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.PE, validation.Required),
-		validation.Field(&dto.CEs, core.CtxOptional...),
-		validation.Field(&dto.Cont, validation.Required),
-		validation.Field(&dto.Sig, id.Required...),
+		validation.Field(&dto.SigID, id.Required...),
+		validation.Field(&dto.X, validation.Required),
+		validation.Field(&dto.Ys, core.CtxOptional...),
+		// validation.Field(&dto.Cont, validation.Required),
 	)
 }
 
 type FwdMsg struct {
-	C string `json:"c"`
-	D string `json:"d"`
+	X string `json:"c"`
+	Y string `json:"d"`
 }
 
 func (dto FwdMsg) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.C, validation.Required),
-		validation.Field(&dto.D, validation.Required),
+		validation.Field(&dto.X, validation.Required),
+		validation.Field(&dto.Y, validation.Required),
 	)
 }
 
@@ -241,14 +241,14 @@ func MsgFromTerm(t Term) TermMsg {
 		return TermMsg{
 			K: Close,
 			Close: &CloseMsg{
-				A: ph.MsgFromPH(term.X),
+				A: ph.ConvertToString(term.X),
 			},
 		}
 	case WaitSpec:
 		return TermMsg{
 			K: Wait,
 			Wait: &WaitMsg{
-				X:    ph.MsgFromPH(term.X),
+				X:    ph.ConvertToString(term.X),
 				Cont: MsgFromTerm(term.Cont),
 			},
 		}
@@ -256,16 +256,16 @@ func MsgFromTerm(t Term) TermMsg {
 		return TermMsg{
 			K: Send,
 			Send: &SendMsg{
-				A: ph.MsgFromPH(term.X),
-				B: ph.MsgFromPH(term.Y),
+				A: ph.ConvertToString(term.X),
+				B: ph.ConvertToString(term.Y),
 			},
 		}
 	case RecvSpec:
 		return TermMsg{
 			K: Recv,
 			Recv: &RecvMsg{
-				X:    ph.MsgFromPH(term.X),
-				Y:    ph.MsgFromPH(term.Y),
+				X:    ph.ConvertToString(term.X),
+				Y:    ph.ConvertToString(term.Y),
 				Cont: MsgFromTerm(term.Cont),
 			},
 		}
@@ -273,7 +273,7 @@ func MsgFromTerm(t Term) TermMsg {
 		return TermMsg{
 			K: Lab,
 			Lab: &LabMsg{
-				A:     ph.MsgFromPH(term.X),
+				A:     ph.ConvertToString(term.X),
 				Label: string(term.L),
 			},
 		}
@@ -285,7 +285,7 @@ func MsgFromTerm(t Term) TermMsg {
 		return TermMsg{
 			K: Case,
 			Case: &CaseMsg{
-				X:   ph.MsgFromPH(term.X),
+				X:   ph.ConvertToString(term.X),
 				Brs: brs,
 			},
 		}
@@ -293,22 +293,22 @@ func MsgFromTerm(t Term) TermMsg {
 		return TermMsg{
 			K: Spawn,
 			Spawn: &SpawnMsg{
-				PE:   ph.MsgFromPH(term.X),
-				CEs:  id.ConvertToStrings(term.Ys2),
-				Cont: MsgFromTerm(term.Cont),
-				Sig:  term.SigID.String(),
+				SigID: id.ConvertToString(term.SigID),
+				X:     ph.ConvertToString(term.X),
+				Ys:    ph.ConvertToStrings(term.Ys),
+				Cont:  MsgFromTermNilable(term.Cont),
 			},
 		}
 	case FwdSpec:
 		return TermMsg{
 			K: Fwd,
 			Fwd: &FwdMsg{
-				C: ph.MsgFromPH(term.X),
-				D: ph.MsgFromPH(term.Y),
+				X: ph.ConvertToString(term.X),
+				Y: ph.ConvertToString(term.Y),
 			},
 		}
 	default:
-		panic(ErrTermTypeUnexpected(term))
+		panic(ErrTermTypeUnexpected(t))
 	}
 }
 
@@ -322,13 +322,13 @@ func MsgToTermNilable(dto *TermMsg) (Term, error) {
 func MsgToTerm(dto TermMsg) (Term, error) {
 	switch dto.K {
 	case Close:
-		a, err := ph.MsgToPH(dto.Close.A)
+		a, err := ph.ConvertFromString(dto.Close.A)
 		if err != nil {
 			return nil, err
 		}
 		return CloseSpec{X: a}, nil
 	case Wait:
-		x, err := ph.MsgToPH(dto.Wait.X)
+		x, err := ph.ConvertFromString(dto.Wait.X)
 		if err != nil {
 			return nil, err
 		}
@@ -338,21 +338,21 @@ func MsgToTerm(dto TermMsg) (Term, error) {
 		}
 		return WaitSpec{X: x, Cont: cont}, nil
 	case Send:
-		a, err := ph.MsgToPH(dto.Send.A)
+		a, err := ph.ConvertFromString(dto.Send.A)
 		if err != nil {
 			return nil, err
 		}
-		b, err := ph.MsgToPH(dto.Send.B)
+		b, err := ph.ConvertFromString(dto.Send.B)
 		if err != nil {
 			return nil, err
 		}
 		return SendSpec{X: a, Y: b}, nil
 	case Recv:
-		x, err := ph.MsgToPH(dto.Recv.X)
+		x, err := ph.ConvertFromString(dto.Recv.X)
 		if err != nil {
 			return nil, err
 		}
-		y, err := ph.MsgToPH(dto.Recv.Y)
+		y, err := ph.ConvertFromString(dto.Recv.Y)
 		if err != nil {
 			return nil, err
 		}
@@ -362,13 +362,13 @@ func MsgToTerm(dto TermMsg) (Term, error) {
 		}
 		return RecvSpec{X: x, Y: y, Cont: cont}, nil
 	case Lab:
-		a, err := ph.MsgToPH(dto.Lab.A)
+		a, err := ph.ConvertFromString(dto.Lab.A)
 		if err != nil {
 			return nil, err
 		}
 		return LabSpec{X: a, L: core.Label(dto.Lab.Label)}, nil
 	case Case:
-		x, err := ph.MsgToPH(dto.Case.X)
+		x, err := ph.ConvertFromString(dto.Case.X)
 		if err != nil {
 			return nil, err
 		}
@@ -382,29 +382,29 @@ func MsgToTerm(dto TermMsg) (Term, error) {
 		}
 		return CaseSpec{X: x, Conts: conts}, nil
 	case Spawn:
-		pe, err := ph.MsgToPH(dto.Spawn.PE)
+		pe, err := ph.ConvertFromString(dto.Spawn.X)
 		if err != nil {
 			return nil, err
 		}
-		ces, err := id.ConvertFromStrings(dto.Spawn.CEs)
+		ces, err := ph.ConvertFromStrings(dto.Spawn.Ys)
 		if err != nil {
 			return nil, err
 		}
-		cont, err := MsgToTerm(dto.Spawn.Cont)
+		cont, err := MsgToTermNilable(dto.Spawn.Cont)
 		if err != nil {
 			return nil, err
 		}
-		sigID, err := id.ConvertFromString(dto.Spawn.Sig)
+		sigID, err := id.ConvertFromString(dto.Spawn.SigID)
 		if err != nil {
 			return nil, err
 		}
-		return SpawnSpec{X: pe, Ys2: ces, Cont: cont, SigID: sigID}, nil
+		return SpawnSpec{X: pe, Ys: ces, Cont: cont, SigID: sigID}, nil
 	case Fwd:
-		c, err := ph.MsgToPH(dto.Fwd.C)
+		c, err := ph.ConvertFromString(dto.Fwd.X)
 		if err != nil {
 			return nil, err
 		}
-		d, err := ph.MsgToPH(dto.Fwd.D)
+		d, err := ph.ConvertFromString(dto.Fwd.Y)
 		if err != nil {
 			return nil, err
 		}

@@ -50,7 +50,9 @@ CREATE TABLE sig_subs (
 CREATE TABLE pool_roots (
 	pool_id varchar(36),
 	title varchar(64),
-	revs integer[] -- org=1, steps=2, assets=3
+	proc_id varchar(36),
+	sup_pool_id varchar(36),
+	rev integer
 );
 
 CREATE TABLE pool_caps (
@@ -69,19 +71,7 @@ CREATE TABLE pool_deps (
 -- по истории передач определяем текущего провайдера
 CREATE TABLE pool_liabs (
 	proc_id varchar(36),
-	chnl_ph varchar(36),
 	pool_id varchar(36),
-	ex_pool_id varchar(36),
-	rev integer
-);
-
--- передачи каналов (потребительская сторона)
--- по истории передач определяем текущих потребителей
-CREATE TABLE pool_assets (
-	proc_id varchar(36),
-	chnl_ph varchar(36),
-	pool_id varchar(36),
-	ex_pool_id varchar(36),
 	rev integer
 );
 
@@ -102,19 +92,10 @@ CREATE TABLE proc_steps (
 	rev integer
 );
 
-CREATE TABLE pool_allocs (
-	pool_id varchar(36)
-);
-
 CREATE TABLE pool_sups (
 	pool_id varchar(36),
 	sup_pool_id varchar(36),
 	rev integer
-);
-
-CREATE TABLE deals (
-	id varchar(36),
-	name varchar(64)
 );
 
 CREATE TABLE states (
@@ -124,37 +105,12 @@ CREATE TABLE states (
 	spec jsonb
 );
 
-CREATE TABLE channels (
-	id varchar(36),
-	name varchar(64),
-	pre_id varchar(36),
-	state_id varchar(36)
-);
-
 CREATE TABLE steps (
 	id varchar(36),
 	kind smallint,
 	pid varchar(36),
 	vid varchar(36),
 	spec jsonb
-);
-
-CREATE TABLE producers (
-	giver_id varchar(36),
-	taker_id varchar(36),
-	proc_id varchar(36)
-);
-
-CREATE TABLE consumers (
-	giver_id varchar(36),
-	taker_id varchar(36),
-	proc_id varchar(36)
-);
-
-CREATE TABLE clientships (
-	from_id varchar(36),
-	to_id varchar(36),
-	pid varchar(36)
 );
 
 CREATE TABLE aliases (

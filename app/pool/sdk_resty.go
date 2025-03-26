@@ -51,14 +51,20 @@ func (cl *clientResty) RetreiveRefs() ([]Ref, error) {
 	return refs, nil
 }
 
-func (cl *clientResty) Involve(PartSpec) (proc.EP, error) {
-	return proc.EP{}, nil
+func (cl *clientResty) Spawn(spec TranSpec) (proc.Ref, error) {
+	req := MsgFromTranSpec(spec)
+	var res proc.RefMsg
+	_, err := cl.resty.R().
+		SetResult(&res).
+		SetBody(&req).
+		SetPathParam("procID", spec.ProcID.String()).
+		Post("/pools/{procID}/steps")
+	if err != nil {
+		return proc.Ref{}, err
+	}
+	return proc.MsgToRef(res)
 }
 
-func (cl *clientResty) Spawn(TranSpec) (id.ADT, error) {
-	return id.Nil, nil
-}
-
-func (cl *clientResty) Take(TranSpec) error {
+func (cl *clientResty) Take(spec TranSpec) error {
 	return nil
 }

@@ -275,7 +275,7 @@ func (s *service) takeWith(
 			s.log.Debug("taking succeeded", viaAttr)
 			return tranSpec, procMod, nil
 		default:
-			panic(procdef.ErrContTypeUnexpected2(svcStep.Cont))
+			panic(procdef.ErrRecTypeUnexpected(svcStep.Cont))
 		}
 	case procdef.WaitSpec:
 		viaChnl, ok := procCfg.Chnls[termSpec.X]
@@ -348,7 +348,7 @@ func (s *service) takeWith(
 			s.log.Debug("taking succeeded", viaAttr)
 			return tranSpec, procMod, nil
 		default:
-			panic(procdef.ErrValTypeUnexpected2(msgStep.Val))
+			panic(procdef.ErrRecTypeUnexpected(msgStep.Val))
 		}
 	case procdef.SendSpec:
 		viaChnl, ok := procCfg.Chnls[termSpec.X]
@@ -447,7 +447,7 @@ func (s *service) takeWith(
 			s.log.Debug("taking succeeded", viaAttr)
 			return tranSpec, procMod, nil
 		default:
-			panic(procdef.ErrContTypeUnexpected2(svcStep.Cont))
+			panic(procdef.ErrRecTypeUnexpected(svcStep.Cont))
 		}
 	case procdef.RecvSpec:
 		viaChnl, ok := procCfg.Chnls[termSpec.X]
@@ -516,7 +516,7 @@ func (s *service) takeWith(
 			s.log.Debug("taking succeeded", viaAttr)
 			return tranSpec, procMod, nil
 		default:
-			panic(procdef.ErrValTypeUnexpected2(sndrMsgRec.Val))
+			panic(procdef.ErrRecTypeUnexpected(sndrMsgRec.Val))
 		}
 	case procdef.LabSpec:
 		viaChnl, ok := procCfg.Chnls[termSpec.X]
@@ -594,7 +594,7 @@ func (s *service) takeWith(
 			s.log.Debug("taking succeeded", viaAttr)
 			return tranSpec, procMod, nil
 		default:
-			panic(procdef.ErrContTypeUnexpected2(svcStep.Cont))
+			panic(procdef.ErrRecTypeUnexpected(svcStep.Cont))
 		}
 	case procdef.CaseSpec:
 		viaChnl, ok := procCfg.Chnls[termSpec.X]
@@ -654,7 +654,7 @@ func (s *service) takeWith(
 			s.log.Debug("taking succeeded", viaAttr)
 			return tranSpec, procMod, nil
 		default:
-			panic(procdef.ErrValTypeUnexpected2(msgStep.Val))
+			panic(procdef.ErrRecTypeUnexpected(msgStep.Val))
 		}
 	case procdef.SpawnSpec:
 		rcvrSnap, ok := procEnv.Locks[termSpec.PoolQN]

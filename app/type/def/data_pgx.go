@@ -27,9 +27,9 @@ func newRepo() TermRepo {
 	return &repoPgx{}
 }
 
-func (r *repoPgx) Insert(source data.Source, root TermRec) (err error) {
+func (r *repoPgx) InsertTerm(source data.Source, rec TermRec) (err error) {
 	ds := data.MustConform[data.SourcePgx](source)
-	dto := dataFromTermRec(root)
+	dto := dataFromTermRec(rec)
 	query := `
 		INSERT INTO states (
 			id, kind, from_id, spec
@@ -53,7 +53,7 @@ func (r *repoPgx) Insert(source data.Source, root TermRec) (err error) {
 	for range dto.States {
 		_, err = br.Exec()
 		if err != nil {
-			r.log.Error("query execution failed", slog.Any("id", root.Ident()), slog.String("q", query))
+			r.log.Error("query execution failed", slog.Any("id", rec.Ident()), slog.String("q", query))
 		}
 	}
 	if err != nil {
@@ -62,27 +62,9 @@ func (r *repoPgx) Insert(source data.Source, root TermRec) (err error) {
 	return nil
 }
 
-func (r *repoPgx) SelectAll(source data.Source) ([]TermRef, error) {
+func (r *repoPgx) SelectTermByID(source data.Source, recID id.ADT) (TermRec, error) {
 	ds := data.MustConform[data.SourcePgx](source)
-	query := `
-		SELECT
-			kind, id
-		FROM states`
-	rows, err := ds.Conn.Query(ds.Ctx, query)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[*TermRefData])
-	if err != nil {
-		return nil, err
-	}
-	return DataToTermRefs(dtos)
-}
-
-func (r *repoPgx) SelectByID(source data.Source, typeID id.ADT) (TermRec, error) {
-	ds := data.MustConform[data.SourcePgx](source)
-	idAttr := slog.Any("id", typeID)
+	idAttr := slog.Any("id", recID)
 	query := `
 		WITH RECURSIVE top_states AS (
 			SELECT
@@ -96,7 +78,7 @@ func (r *repoPgx) SelectByID(source data.Source, typeID id.ADT) (TermRec, error)
 			WHERE bs.from_id = ts.id
 		)
 		SELECT * FROM top_states`
-	rows, err := ds.Conn.Query(ds.Ctx, query, typeID.String())
+	rows, err := ds.Conn.Query(ds.Ctx, query, recID.String())
 	if err != nil {
 		r.log.Error("query execution failed", idAttr, slog.String("q", query))
 		return nil, err
@@ -116,34 +98,34 @@ func (r *repoPgx) SelectByID(source data.Source, typeID id.ADT) (TermRec, error)
 	for _, dto := range dtos {
 		states[dto.ID] = dto
 	}
-	return statesToTermRec(states, states[typeID.String()])
+	return statesToTermRec(states, states[recID.String()])
 }
 
-func (r *repoPgx) SelectEnv(source data.Source, ids []id.ADT) (map[id.ADT]TermRec, error) {
-	states, err := r.SelectByIDs(source, ids)
+func (r *repoPgx) SelectEnv(source data.Source, recIDs []id.ADT) (map[id.ADT]TermRec, error) {
+	recs, err := r.SelectByIDs(source, recIDs)
 	if err != nil {
 		return nil, err
 	}
-	env := make(map[id.ADT]TermRec, len(states))
-	for _, st := range states {
-		env[st.Ident()] = st
+	env := make(map[id.ADT]TermRec, len(recs))
+	for _, rec := range recs {
+		env[rec.Ident()] = rec
 	}
 	return env, nil
 }
 
-func (r *repoPgx) SelectByIDs(source data.Source, ids []id.ADT) (_ []TermRec, err error) {
+func (r *repoPgx) SelectByIDs(source data.Source, recIDs []id.ADT) (_ []TermRec, err error) {
 	ds := data.MustConform[data.SourcePgx](source)
 	batch := pgx.Batch{}
-	for _, rid := range ids {
+	for _, rid := range recIDs {
 		batch.Queue(selectByID, rid.String())
 	}
 	br := ds.Conn.SendBatch(ds.Ctx, &batch)
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	var roots []TermRec
-	for _, rid := range ids {
-		idAttr := slog.Any("id", rid)
+	var recs []TermRec
+	for _, recID := range recIDs {
+		idAttr := slog.Any("id", recID)
 		rows, err := br.Query()
 		if err != nil {
 			r.log.Error("query execution failed", idAttr, slog.String("q", selectByID))
@@ -154,20 +136,18 @@ func (r *repoPgx) SelectByIDs(source data.Source, ids []id.ADT) (_ []TermRec, er
 			r.log.Error("rows collection failed", idAttr)
 		}
 		if len(dtos) == 0 {
-			err = ErrDoesNotExist(rid)
 			r.log.Error("entity selection failed", idAttr)
+			return nil, ErrDoesNotExist(recID)
 		}
-		root, err := dataToTermRec(&termRecData{rid.String(), dtos})
+		rec, err := dataToTermRec(&termRecData{recID.String(), dtos})
 		if err != nil {
 			r.log.Error("model mapping failed", idAttr)
+			return nil, err
 		}
-		roots = append(roots, root)
+		recs = append(recs, rec)
 	}
-	if err != nil {
-		return nil, err
-	}
-	r.log.Log(ds.Ctx, core.LevelTrace, "entities selection succeeded", slog.Any("roots", roots))
-	return roots, err
+	r.log.Log(ds.Ctx, core.LevelTrace, "entities selection succeeded", slog.Any("recs", recs))
+	return recs, err
 }
 
 const (

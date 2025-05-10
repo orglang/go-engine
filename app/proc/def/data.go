@@ -9,11 +9,11 @@ import (
 )
 
 type SemRecData struct {
-	ID    string         `db:"id"`
-	K     semKind        `db:"kind"`
-	PID   sql.NullString `db:"pid"`
-	VID   sql.NullString `db:"vid"`
-	SemTR TermRecData    `db:"spec"`
+	ID  string         `db:"id"`
+	K   semKind        `db:"kind"`
+	PID sql.NullString `db:"pid"`
+	VID sql.NullString `db:"vid"`
+	TR  TermRecData    `db:"spec"`
 }
 
 type semKind int
@@ -153,10 +153,6 @@ var (
 	DataFromTermSpecs func([]TermSpec) ([]TermRecData, error)
 	DataToTermRecs    func([]TermRecData) ([]TermRec, error)
 	DataFromTermRecs  func([]TermRec) ([]TermRecData, error)
-	DataToTermVals    func([]TermRecData) ([]Value, error)
-	DataFromTermVals  func([]Value) []TermRecData
-	DataToTermConts   func([]TermRecData) ([]Continuation, error)
-	DataFromTermConts func([]Continuation) ([]TermRecData, error)
 )
 
 func dataFromSemRec(r SemRec) (SemRecData, error) {
@@ -165,18 +161,22 @@ func dataFromSemRec(r SemRec) (SemRecData, error) {
 	}
 	switch rec := r.(type) {
 	case MsgRec:
-		return SemRecData{
-			K:     msgKind,
-			SemTR: dataFromTermVal(rec.Val),
-		}, nil
-	case SvcRec:
-		cont, err := dataFromTermCont(rec.Cont)
+		msgVal, err := dataFromTermRec(rec.Val)
 		if err != nil {
 			return SemRecData{}, err
 		}
 		return SemRecData{
-			K:     svcKind,
-			SemTR: cont,
+			K:  msgKind,
+			TR: msgVal,
+		}, nil
+	case SvcRec:
+		svcCont, err := dataFromTermRec(rec.Cont)
+		if err != nil {
+			return SemRecData{}, err
+		}
+		return SemRecData{
+			K:  svcKind,
+			TR: svcCont,
 		}, nil
 	default:
 		panic(ErrRootTypeUnexpected(rec))
@@ -190,13 +190,13 @@ func dataToSemRec(dto SemRecData) (SemRec, error) {
 	}
 	switch dto.K {
 	case msgKind:
-		val, err := dataToTermVal(dto.SemTR)
+		val, err := dataToTermRec(dto.TR)
 		if err != nil {
 			return nil, err
 		}
 		return MsgRec{Val: val}, nil
 	case svcKind:
-		cont, err := dataToTermCont(dto.SemTR)
+		cont, err := dataToTermRec(dto.TR)
 		if err != nil {
 			return nil, err
 		}
@@ -209,148 +209,52 @@ func dataToSemRec(dto SemRecData) (SemRec, error) {
 func dataFromTermRec(r TermRec) (TermRecData, error) {
 	switch rec := r.(type) {
 	case CloseRec:
-		return dataFromTermVal(rec), nil
-	case WaitRec:
-		return dataFromTermCont(rec)
-	case SendRec:
-		return dataFromTermVal(rec), nil
-	case RecvRec:
-		return dataFromTermCont(rec)
-	case LabRec:
-		return dataFromTermVal(rec), nil
-	case CaseRec:
-		return dataFromTermCont(rec)
-	case FwdRec:
-		return dataFromTermVal(rec), nil
-	default:
-		panic(ErrTermTypeUnexpected(rec))
-	}
-}
-
-func dataToTermRec(dto TermRecData) (TermRec, error) {
-	switch dto.K {
-	case closeKind:
-		return dataToTermVal(dto)
-	case waitKind:
-		return dataToTermCont(dto)
-	case sendKind:
-		return dataToTermVal(dto)
-	case recvKind:
-		return dataToTermCont(dto)
-	case labKind:
-		return dataToTermVal(dto)
-	case caseKind:
-		return dataToTermCont(dto)
-	case fwdKind:
-		return dataToTermVal(dto)
-	default:
-		panic(errUnexpectedTermKind(dto.K))
-	}
-}
-
-func dataFromTermVal(v TermVal) TermRecData {
-	switch val := v.(type) {
-	case CloseRec:
 		return TermRecData{
 			K:     closeKind,
-			Close: &closeRecData{sym.ConvertToString(val.X)},
-		}
-	case SendRec:
-		return TermRecData{
-			K: sendKind,
-			Send: &sendRecData{
-				X: sym.ConvertToString(val.X),
-				A: id.ConvertToString(val.A),
-				B: id.ConvertToString(val.B),
-			},
-		}
-	case LabRec:
-		return TermRecData{
-			K:   labKind,
-			Lab: &labRecData{sym.ConvertToString(val.X), string(val.Label)},
-		}
-	case FwdRec:
-		return TermRecData{
-			K: fwdKind,
-			Fwd: &fwdRecData{
-				X: sym.ConvertToString(val.X),
-				B: id.ConvertToString(val.B),
-			},
-		}
-	default:
-		panic(ErrValTypeUnexpected2(val))
-	}
-}
-
-func dataToTermVal(dto TermRecData) (TermVal, error) {
-	switch dto.K {
-	case closeKind:
-		a, err := sym.ConvertFromString(dto.Close.X)
-		if err != nil {
-			return nil, err
-		}
-		return CloseRec{X: a}, nil
-	case sendKind:
-		x, err := sym.ConvertFromString(dto.Send.X)
-		if err != nil {
-			return nil, err
-		}
-		a, err := id.ConvertFromString(dto.Send.A)
-		if err != nil {
-			return nil, err
-		}
-		return SendRec{X: x, A: a}, nil
-	case labKind:
-		a, err := sym.ConvertFromString(dto.Lab.X)
-		if err != nil {
-			return nil, err
-		}
-		return LabRec{X: a, Label: sym.ADT(dto.Lab.Label)}, nil
-	case fwdKind:
-		x, err := sym.ConvertFromString(dto.Fwd.X)
-		if err != nil {
-			return nil, err
-		}
-		b, err := id.ConvertFromString(dto.Fwd.B)
-		if err != nil {
-			return nil, err
-		}
-		return FwdRec{X: x, B: b}, nil
-	default:
-		panic(errUnexpectedTermKind(dto.K))
-	}
-}
-
-func dataFromTermCont(c TermCont) (TermRecData, error) {
-	switch cont := c.(type) {
+			Close: &closeRecData{sym.ConvertToString(rec.X)},
+		}, nil
 	case WaitRec:
-		dto, err := dataFromTermSpec(cont.Cont)
+		dto, err := dataFromTermSpec(rec.Cont)
 		if err != nil {
 			return TermRecData{}, err
 		}
 		return TermRecData{
 			K: waitKind,
 			Wait: &waitRecData{
-				X:    sym.ConvertToString(cont.X),
+				X:    sym.ConvertToString(rec.X),
 				Cont: dto,
 			},
 		}, nil
+	case SendRec:
+		return TermRecData{
+			K: sendKind,
+			Send: &sendRecData{
+				X: sym.ConvertToString(rec.X),
+				A: id.ConvertToString(rec.A),
+				B: id.ConvertToString(rec.B),
+			},
+		}, nil
 	case RecvRec:
-		dto, err := dataFromTermSpec(cont.Cont)
+		dto, err := dataFromTermSpec(rec.Cont)
 		if err != nil {
 			return TermRecData{}, err
 		}
 		return TermRecData{
 			K: recvKind,
 			Recv: &recvRecData{
-				X:    sym.ConvertToString(cont.X),
-				Y:    sym.ConvertToString(cont.Y),
+				X:    sym.ConvertToString(rec.X),
+				Y:    sym.ConvertToString(rec.Y),
 				Cont: dto,
 			},
 		}, nil
+	case LabRec:
+		return TermRecData{
+			K:   labKind,
+			Lab: &labRecData{sym.ConvertToString(rec.X), string(rec.Label)},
+		}, nil
 	case CaseRec:
 		brs := []branchRecData{}
-		for l, cont := range cont.Conts {
+		for l, cont := range rec.Conts {
 			dto, err := dataFromTermSpec(cont)
 			if err != nil {
 				return TermRecData{}, err
@@ -360,7 +264,7 @@ func dataFromTermCont(c TermCont) (TermRecData, error) {
 		return TermRecData{
 			K: caseKind,
 			Case: &caseRecData{
-				X:        sym.ConvertToString(cont.X),
+				X:        sym.ConvertToString(rec.X),
 				Branches: brs,
 			},
 		}, nil
@@ -368,17 +272,23 @@ func dataFromTermCont(c TermCont) (TermRecData, error) {
 		return TermRecData{
 			K: fwdKind,
 			Fwd: &fwdRecData{
-				X: sym.ConvertToString(cont.X),
-				B: id.ConvertToString(cont.B),
+				X: sym.ConvertToString(rec.X),
+				B: id.ConvertToString(rec.B),
 			},
 		}, nil
 	default:
-		panic(ErrContTypeUnexpected2(cont))
+		panic(ErrTermTypeUnexpected(rec))
 	}
 }
 
-func dataToTermCont(dto TermRecData) (TermCont, error) {
+func dataToTermRec(dto TermRecData) (TermRec, error) {
 	switch dto.K {
+	case closeKind:
+		a, err := sym.ConvertFromString(dto.Close.X)
+		if err != nil {
+			return nil, err
+		}
+		return CloseRec{X: a}, nil
 	case waitKind:
 		x, err := sym.ConvertFromString(dto.Wait.X)
 		if err != nil {
@@ -389,6 +299,16 @@ func dataToTermCont(dto TermRecData) (TermCont, error) {
 			return nil, err
 		}
 		return WaitRec{X: x, Cont: cont}, nil
+	case sendKind:
+		x, err := sym.ConvertFromString(dto.Send.X)
+		if err != nil {
+			return nil, err
+		}
+		a, err := id.ConvertFromString(dto.Send.A)
+		if err != nil {
+			return nil, err
+		}
+		return SendRec{X: x, A: a}, nil
 	case recvKind:
 		x, err := sym.ConvertFromString(dto.Recv.X)
 		if err != nil {
@@ -403,6 +323,12 @@ func dataToTermCont(dto TermRecData) (TermCont, error) {
 			return nil, err
 		}
 		return RecvRec{X: x, Y: y, Cont: cont}, nil
+	case labKind:
+		a, err := sym.ConvertFromString(dto.Lab.X)
+		if err != nil {
+			return nil, err
+		}
+		return LabRec{X: a, Label: sym.ADT(dto.Lab.Label)}, nil
 	case caseKind:
 		x, err := sym.ConvertFromString(dto.Case.X)
 		if err != nil {

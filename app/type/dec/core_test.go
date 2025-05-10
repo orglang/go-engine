@@ -20,7 +20,7 @@ func TestKinshipEstalish(t *testing.T) {
 type roleRepoStub struct {
 }
 
-func (r *roleRepoStub) Insert(source data.Source, root TypeRec) error {
+func (r *roleRepoStub) InsertType(source data.Source, root TypeRec) error {
 	return nil
 }
 func (r *roleRepoStub) Update(source data.Source, root TypeRec) error {
@@ -54,13 +54,13 @@ func (r *roleRepoStub) SelectParts(id id.ADT) ([]TypeRef, error) {
 type stateRepoStub struct {
 }
 
-func (r *stateRepoStub) Insert(source data.Source, root typedef.TermRec) error {
+func (r *stateRepoStub) InsertTerm(source data.Source, root typedef.TermRec) error {
 	return nil
 }
 func (r *stateRepoStub) SelectAll(source data.Source) ([]typedef.TermRef, error) {
 	return []typedef.TermRef{}, nil
 }
-func (r *stateRepoStub) SelectByID(source data.Source, sid id.ADT) (typedef.TermRec, error) {
+func (r *stateRepoStub) SelectTermByID(source data.Source, sid id.ADT) (typedef.TermRec, error) {
 	return nil, nil
 }
 func (r *stateRepoStub) SelectEnv(source data.Source, ids []id.ADT) (map[id.ADT]typedef.TermRec, error) {

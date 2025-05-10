@@ -27,7 +27,7 @@ func newRepo() Repo {
 	return &repoPgx{}
 }
 
-func (r *repoPgx) Insert(source data.Source, rec TypeRec) error {
+func (r *repoPgx) InsertType(source data.Source, rec TypeRec) error {
 	ds := data.MustConform[data.SourcePgx](source)
 	idAttr := slog.Any("id", rec.TypeID)
 	r.log.Log(ds.Ctx, core.LevelTrace, "entity insertion started", idAttr)

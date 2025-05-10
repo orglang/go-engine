@@ -291,7 +291,7 @@ func statesFromTermRec(from string, r TermRec, dto *termRecData) (string, error)
 		dto.States = append(dto.States, st)
 		return stID, nil
 	default:
-		panic(ErrSnapTypeUnexpected(r))
+		panic(ErrRecTypeUnexpected(r))
 	}
 }
 

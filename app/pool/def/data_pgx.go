@@ -151,7 +151,7 @@ func (r *repoPgx) UpdateProc(source data.Source, mod proceval.Mod) (err error) {
 			"proc_id": dto.PID,
 			"chnl_id": dto.VID,
 			"kind":    dto.K,
-			"spec":    dto.SemTR,
+			"spec":    dto.TR,
 		}
 		stepReq.Queue(insertStep, args)
 	}

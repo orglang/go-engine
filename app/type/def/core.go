@@ -236,9 +236,8 @@ type Context struct {
 }
 
 type TermRepo interface {
-	Insert(data.Source, TermRec) error
-	SelectAll(data.Source) ([]TermRef, error)
-	SelectByID(data.Source, id.ADT) (TermRec, error)
+	InsertTerm(data.Source, TermRec) error
+	SelectTermByID(data.Source, id.ADT) (TermRec, error)
 	SelectByIDs(data.Source, []id.ADT) ([]TermRec, error)
 	SelectEnv(data.Source, []id.ADT) (map[id.ADT]TermRec, error)
 }
@@ -272,8 +271,8 @@ func ConvertSpecToRec(s TermSpec) TermRec {
 		return WithRec{TermID: id.New(), Choices: choices}
 	case PlusSpec:
 		choices := make(map[sym.ADT]TermRec, len(spec.Choices))
-		for lab, st := range spec.Choices {
-			choices[lab] = ConvertSpecToRec(st)
+		for lab, rec := range spec.Choices {
+			choices[lab] = ConvertSpecToRec(rec)
 		}
 		return PlusRec{TermID: id.New(), Choices: choices}
 	default:
@@ -302,8 +301,8 @@ func ConvertRecToSpec(r TermRec) TermSpec {
 		}
 	case WithRec:
 		choices := make(map[sym.ADT]TermSpec, len(rec.Choices))
-		for lab, st := range rec.Choices {
-			choices[lab] = ConvertRecToSpec(st)
+		for lab, rec := range rec.Choices {
+			choices[lab] = ConvertRecToSpec(rec)
 		}
 		return WithSpec{Choices: choices}
 	case PlusRec:
@@ -313,7 +312,7 @@ func ConvertRecToSpec(r TermRec) TermSpec {
 		}
 		return PlusSpec{Choices: choices}
 	default:
-		panic(ErrSnapTypeUnexpected(rec))
+		panic(ErrRecTypeUnexpected(rec))
 	}
 }
 
@@ -464,7 +463,7 @@ func CheckRec(got, want TermRec) error {
 		}
 		return nil
 	default:
-		panic(ErrSnapTypeUnexpected(want))
+		panic(ErrRecTypeUnexpected(want))
 	}
 }
 
@@ -492,8 +491,8 @@ func ErrMissingInCtx(want sym.ADT) error {
 	return fmt.Errorf("root missing in ctx: %v", want)
 }
 
-func ErrSnapTypeUnexpected(got TermRec) error {
-	return fmt.Errorf("root type unexpected: %T", got)
+func ErrRecTypeUnexpected(got TermRec) error {
+	return fmt.Errorf("rec type unexpected: %T", got)
 }
 
 func ErrSpecTypeMismatch(got, want TermSpec) error {

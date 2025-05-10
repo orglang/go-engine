@@ -19,7 +19,7 @@ type MsgRec struct {
 	PoolID id.ADT
 	ProcID id.ADT
 	ChnlID id.ADT
-	Val    TermVal
+	Val    TermRec
 	PoolRN rn.ADT
 	ProcRN rn.ADT
 }
@@ -30,7 +30,7 @@ type SvcRec struct {
 	PoolID id.ADT
 	ProcID id.ADT
 	ChnlID id.ADT
-	Cont   TermCont
+	Cont   TermRec
 	PoolRN rn.ADT
 }
 
@@ -40,24 +40,11 @@ type TermSpec interface {
 	Via() sym.ADT
 }
 
-// aka ast.Msg
-type Value interface {
-	TermSpec
-	val()
-}
-
-type Continuation interface {
-	TermSpec
-	cont()
-}
-
 type CloseSpec struct {
 	X sym.ADT
 }
 
 func (s CloseSpec) Via() sym.ADT { return s.X }
-
-func (CloseSpec) val() {}
 
 type WaitSpec struct {
 	X    sym.ADT
@@ -66,16 +53,12 @@ type WaitSpec struct {
 
 func (s WaitSpec) Via() sym.ADT { return s.X }
 
-func (WaitSpec) cont() {}
-
 type SendSpec struct {
 	X sym.ADT // via
 	Y sym.ADT // val
 }
 
 func (s SendSpec) Via() sym.ADT { return s.X }
-
-func (SendSpec) val() {}
 
 type RecvSpec struct {
 	X    sym.ADT // via
@@ -85,8 +68,6 @@ type RecvSpec struct {
 
 func (s RecvSpec) Via() sym.ADT { return s.X }
 
-func (RecvSpec) cont() {}
-
 type LabSpec struct {
 	X     sym.ADT
 	Label sym.ADT
@@ -94,16 +75,12 @@ type LabSpec struct {
 
 func (s LabSpec) Via() sym.ADT { return s.X }
 
-func (LabSpec) val() {}
-
 type CaseSpec struct {
 	X     sym.ADT
 	Conts map[sym.ADT]TermSpec
 }
 
 func (s CaseSpec) Via() sym.ADT { return s.X }
-
-func (CaseSpec) cont() {}
 
 // aka ExpName
 type LinkSpec struct {
@@ -120,10 +97,6 @@ type FwdSpec struct {
 }
 
 func (s FwdSpec) Via() sym.ADT { return s.X }
-
-func (FwdSpec) val() {}
-
-func (FwdSpec) cont() {}
 
 // аналог SendSpec, но значения отправляются балком
 type CallSpec struct {
@@ -157,16 +130,6 @@ func (s SpawnSpec2) Via() sym.ADT { return s.SigPH }
 type TermRec interface {
 	TermSpec
 	impl()
-}
-
-type TermVal interface {
-	TermRec
-	val2()
-}
-
-type TermCont interface {
-	TermRec
-	cont2()
 }
 
 type CloseRec struct {
@@ -254,10 +217,10 @@ func (FwdRec) val2() {}
 func (FwdRec) cont2() {}
 
 type SemRepo interface {
-	Insert(data.Source, ...SemRec) error
-	SelectByID(data.Source, id.ADT) (SemRec, error)
-	SelectByPID(data.Source, id.ADT) (SemRec, error)
-	SelectByVID(data.Source, id.ADT) (SemRec, error)
+	InsertSem(data.Source, ...SemRec) error
+	SelectSemByID(data.Source, id.ADT) (SemRec, error)
+	SelectSemByPID(data.Source, id.ADT) (SemRec, error)
+	SelectSemByVID(data.Source, id.ADT) (SemRec, error)
 }
 
 func CollectEnv(spec TermSpec) []id.ADT {
@@ -281,47 +244,31 @@ func collectEnvRec(s TermSpec, env []id.ADT) []id.ADT {
 }
 
 func ErrDoesNotExist(want id.ADT) error {
-	return fmt.Errorf("root doesn't exist: %v", want)
+	return fmt.Errorf("rec doesn't exist: %v", want)
 }
 
 func ErrRootTypeUnexpected(got SemRec) error {
-	return fmt.Errorf("root type unexpected: %T", got)
+	return fmt.Errorf("sem rec unexpected: %T", got)
 }
 
 func ErrRootTypeMismatch(got, want SemRec) error {
-	return fmt.Errorf("root type mismatch: want %T, got %T", want, got)
+	return fmt.Errorf("sem rec mismatch: want %T, got %T", want, got)
 }
 
 func ErrTermTypeUnexpected(got TermSpec) error {
-	return fmt.Errorf("term type unexpected: %T", got)
+	return fmt.Errorf("term spec unexpected: %T", got)
 }
 
-func ErrImplTypeUnexpected(got TermRec) error {
-	return fmt.Errorf("impl type unexpected: %T", got)
+func ErrRecTypeUnexpected(got TermRec) error {
+	return fmt.Errorf("term rec unexpected: %T", got)
 }
 
 func ErrTermTypeMismatch(got, want TermSpec) error {
-	return fmt.Errorf("term type mismatch: want %T, got %T", want, got)
+	return fmt.Errorf("term spec mismatch: want %T, got %T", want, got)
 }
 
 func ErrTermValueNil(pid id.ADT) error {
 	return fmt.Errorf("proc %q term is nil", pid)
-}
-
-func ErrValTypeUnexpected(got Value) error {
-	return fmt.Errorf("value type unexpected: %T", got)
-}
-
-func ErrValTypeUnexpected2(got TermVal) error {
-	return fmt.Errorf("value type unexpected: %T", got)
-}
-
-func ErrContTypeUnexpected(got Continuation) error {
-	return fmt.Errorf("continuation type unexpected: %T", got)
-}
-
-func ErrContTypeUnexpected2(got TermCont) error {
-	return fmt.Errorf("continuation type unexpected: %T", got)
 }
 
 func ErrMissingInCfg(want sym.ADT) error {

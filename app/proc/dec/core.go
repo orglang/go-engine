@@ -14,16 +14,16 @@ import (
 )
 
 // aka ChanTp
-type BndSpec struct {
+type ChnlSpec struct {
 	ChnlPH sym.ADT // may be blank
 	TypeQN sym.ADT
 }
 
 type SigSpec struct {
-	X     BndSpec // via
+	X     ChnlSpec // via
 	SigNS sym.ADT
 	SigSN sym.ADT
-	Ys    []BndSpec // vals
+	Ys    []ChnlSpec // vals
 }
 
 type SigRef struct {
@@ -33,18 +33,18 @@ type SigRef struct {
 }
 
 type SigRec struct {
-	X     BndSpec
+	X     ChnlSpec
 	SigID id.ADT
-	Ys    []BndSpec
+	Ys    []ChnlSpec
 	Title string
 	SigRN rn.ADT
 }
 
 // aka ExpDec or ExpDecDef without expression
 type SigSnap struct {
-	X     BndSpec
+	X     ChnlSpec
 	SigID id.ADT
-	Ys    []BndSpec
+	Ys    []ChnlSpec
 	Title string
 	SigRN rn.ADT
 }
@@ -76,8 +76,8 @@ func (s *service) Incept(sigQN sym.ADT) (_ SigRef, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("sigQN", sigQN)
 	s.log.Debug("inception started", qnAttr)
-	newAlias := alias.Root{Sym: sigQN, ID: id.New(), RN: rn.Initial()}
-	newMod := SigRec{SigID: newAlias.ID, SigRN: newAlias.RN, Title: newAlias.Sym.SN()}
+	newAlias := alias.Root{QN: sigQN, ID: id.New(), RN: rn.Initial()}
+	newMod := SigRec{SigID: newAlias.ID, SigRN: newAlias.RN, Title: newAlias.QN.SN()}
 	s.operator.Explicit(ctx, func(ds data.Source) error {
 		err = s.aliases.Insert(ds, newAlias)
 		if err != nil {

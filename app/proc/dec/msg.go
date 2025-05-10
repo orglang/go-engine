@@ -24,8 +24,8 @@ func (dto BndSpecMsg) Validate() error {
 // goverter:output:format assign-variable
 // goverter:extend smecalculus/rolevod/lib/sym:Convert.*
 var (
-	MsgToBndSpec   func(BndSpecMsg) (BndSpec, error)
-	MsgFromBndSpec func(BndSpec) BndSpecMsg
+	MsgToBndSpec   func(BndSpecMsg) (ChnlSpec, error)
+	MsgFromBndSpec func(ChnlSpec) BndSpecMsg
 )
 
 type SigSpecMsg struct {

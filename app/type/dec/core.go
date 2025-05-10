@@ -79,14 +79,14 @@ func (s *service) Incept(qn sym.ADT) (_ TypeRef, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("roleQN", qn)
 	s.log.Debug("inception started", qnAttr)
-	newAlias := alias.Root{Sym: qn, ID: id.New(), RN: rn.Initial()}
-	newType := TypeRec{TypeID: newAlias.ID, TypeRN: newAlias.RN, Title: newAlias.Sym.SN()}
+	newAlias := alias.Root{QN: qn, ID: id.New(), RN: rn.Initial()}
+	newType := TypeRec{TypeID: newAlias.ID, TypeRN: newAlias.RN, Title: newAlias.QN.SN()}
 	s.operator.Explicit(ctx, func(ds data.Source) error {
 		err = s.aliases.Insert(ds, newAlias)
 		if err != nil {
 			return err
 		}
-		err = s.roles.Insert(ds, newType)
+		err = s.roles.InsertType(ds, newType)
 		if err != nil {
 			return err
 		}
@@ -100,28 +100,28 @@ func (s *service) Incept(qn sym.ADT) (_ TypeRef, err error) {
 	return ConvertRecToRef(newType), nil
 }
 
-func (s *service) Create(ts TypeSpec) (_ TypeSnap, err error) {
+func (s *service) Create(spec TypeSpec) (_ TypeSnap, err error) {
 	ctx := context.Background()
-	qnAttr := slog.Any("roleQN", ts.TypeSN)
-	s.log.Debug("creation started", qnAttr, slog.Any("spec", ts))
-	newAlias := alias.Root{Sym: ts.TypeSN, ID: id.New(), RN: rn.Initial()}
-	newState := def.ConvertSpecToRec(ts.TypeTS)
-	newRoot := TypeRec{
+	qnAttr := slog.Any("typeQN", spec.TypeSN)
+	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
+	newAlias := alias.Root{QN: spec.TypeSN, ID: id.New(), RN: rn.Initial()}
+	newTerm := def.ConvertSpecToRec(spec.TypeTS)
+	newType := TypeRec{
 		TypeID: newAlias.ID,
 		TypeRN: newAlias.RN,
-		Title:  newAlias.Sym.SN(),
-		TermID: newState.Ident(),
+		Title:  newAlias.QN.SN(),
+		TermID: newTerm.Ident(),
 	}
 	s.operator.Explicit(ctx, func(ds data.Source) error {
 		err = s.aliases.Insert(ds, newAlias)
 		if err != nil {
 			return err
 		}
-		err = s.states.Insert(ds, newState)
+		err = s.states.InsertTerm(ds, newTerm)
 		if err != nil {
 			return err
 		}
-		err = s.roles.Insert(ds, newRoot)
+		err = s.roles.InsertType(ds, newType)
 		if err != nil {
 			return err
 		}
@@ -131,52 +131,52 @@ func (s *service) Create(ts TypeSpec) (_ TypeSnap, err error) {
 		s.log.Error("creation failed", qnAttr)
 		return TypeSnap{}, err
 	}
-	s.log.Debug("creation succeeded", qnAttr, slog.Any("roleID", newRoot.TypeID))
+	s.log.Debug("creation succeeded", qnAttr, slog.Any("typeID", newType.TypeID))
 	return TypeSnap{
-		TypeID: newRoot.TypeID,
-		TypeRN: newRoot.TypeRN,
-		Title:  newRoot.Title,
-		TypeQN: newAlias.Sym,
-		TypeTS: def.ConvertRecToSpec(newState),
+		TypeID: newType.TypeID,
+		TypeRN: newType.TypeRN,
+		Title:  newType.Title,
+		TypeQN: newAlias.QN,
+		TypeTS: def.ConvertRecToSpec(newTerm),
 	}, nil
 }
 
-func (s *service) Modify(newSnap TypeSnap) (_ TypeSnap, err error) {
+func (s *service) Modify(snap TypeSnap) (_ TypeSnap, err error) {
 	ctx := context.Background()
-	idAttr := slog.Any("roleID", newSnap.TypeID)
+	idAttr := slog.Any("typeID", snap.TypeID)
 	s.log.Debug("modification started", idAttr)
-	var curRoot TypeRec
+	var rec TypeRec
 	s.operator.Implicit(ctx, func(ds data.Source) error {
-		curRoot, err = s.roles.SelectByID(ds, newSnap.TypeID)
+		rec, err = s.roles.SelectByID(ds, snap.TypeID)
 		return err
 	})
 	if err != nil {
 		s.log.Error("modification failed", idAttr)
 		return TypeSnap{}, err
 	}
-	if newSnap.TypeRN != curRoot.TypeRN {
+	if snap.TypeRN != rec.TypeRN {
 		s.log.Error("modification failed", idAttr)
-		return TypeSnap{}, errConcurrentModification(newSnap.TypeRN, curRoot.TypeRN)
+		return TypeSnap{}, errConcurrentModification(snap.TypeRN, rec.TypeRN)
 	} else {
-		newSnap.TypeRN = rn.Next(newSnap.TypeRN)
+		snap.TypeRN = rn.Next(snap.TypeRN)
 	}
-	curSnap, err := s.retrieveSnap(curRoot)
+	curSnap, err := s.retrieveSnap(rec)
 	if err != nil {
 		s.log.Error("modification failed", idAttr)
 		return TypeSnap{}, err
 	}
 	s.operator.Explicit(ctx, func(ds data.Source) error {
-		if def.CheckSpec(newSnap.TypeTS, curSnap.TypeTS) != nil {
-			newState := def.ConvertSpecToRec(newSnap.TypeTS)
-			err = s.states.Insert(ds, newState)
+		if def.CheckSpec(snap.TypeTS, curSnap.TypeTS) != nil {
+			newTerm := def.ConvertSpecToRec(snap.TypeTS)
+			err = s.states.InsertTerm(ds, newTerm)
 			if err != nil {
 				return err
 			}
-			curRoot.TermID = newState.Ident()
-			curRoot.TypeRN = newSnap.TypeRN
+			rec.TermID = newTerm.Ident()
+			rec.TypeRN = snap.TypeRN
 		}
-		if curRoot.TypeRN == newSnap.TypeRN {
-			err = s.roles.Update(ds, curRoot)
+		if rec.TypeRN == snap.TypeRN {
+			err = s.roles.Update(ds, rec)
 			if err != nil {
 				return err
 			}
@@ -188,52 +188,52 @@ func (s *service) Modify(newSnap TypeSnap) (_ TypeSnap, err error) {
 		return TypeSnap{}, err
 	}
 	s.log.Debug("modification succeeded", idAttr)
-	return newSnap, nil
+	return snap, nil
 }
 
-func (s *service) Retrieve(typeID id.ADT) (_ TypeSnap, err error) {
+func (s *service) Retrieve(recID id.ADT) (_ TypeSnap, err error) {
 	ctx := context.Background()
 	var root TypeRec
 	s.operator.Implicit(ctx, func(ds data.Source) error {
-		root, err = s.roles.SelectByID(ds, typeID)
+		root, err = s.roles.SelectByID(ds, recID)
 		return err
 	})
 	if err != nil {
-		s.log.Error("retrieval failed", slog.Any("roleID", typeID))
+		s.log.Error("retrieval failed", slog.Any("roleID", recID))
 		return TypeSnap{}, err
 	}
 	return s.retrieveSnap(root)
 }
 
-func (s *service) RetrieveImpl(typeID id.ADT) (enty TypeRec, err error) {
+func (s *service) RetrieveImpl(recID id.ADT) (enty TypeRec, err error) {
 	ctx := context.Background()
 	s.operator.Implicit(ctx, func(ds data.Source) error {
-		enty, err = s.roles.SelectByID(ds, typeID)
+		enty, err = s.roles.SelectByID(ds, recID)
 		return err
 	})
 	if err != nil {
-		s.log.Error("retrieval failed", slog.Any("roleID", typeID))
+		s.log.Error("retrieval failed", slog.Any("roleID", recID))
 		return TypeRec{}, err
 	}
 	return enty, nil
 }
 
-func (s *service) retrieveSnap(enty TypeRec) (_ TypeSnap, err error) {
+func (s *service) retrieveSnap(typeRec TypeRec) (_ TypeSnap, err error) {
 	ctx := context.Background()
-	var curState def.TermRec
+	var termRec def.TermRec
 	s.operator.Implicit(ctx, func(ds data.Source) error {
-		curState, err = s.states.SelectByID(ds, enty.TermID)
+		termRec, err = s.states.SelectTermByID(ds, typeRec.TermID)
 		return err
 	})
 	if err != nil {
-		s.log.Error("retrieval failed", slog.Any("roleID", enty.TypeID))
+		s.log.Error("retrieval failed", slog.Any("roleID", typeRec.TypeID))
 		return TypeSnap{}, err
 	}
 	return TypeSnap{
-		TypeID: enty.TypeID,
-		TypeRN: enty.TypeRN,
-		Title:  enty.Title,
-		TypeTS: def.ConvertRecToSpec(curState),
+		TypeID: typeRec.TypeID,
+		TypeRN: typeRec.TypeRN,
+		Title:  typeRec.Title,
+		TypeTS: def.ConvertRecToSpec(termRec),
 	}, nil
 }
 
@@ -259,7 +259,7 @@ func CollectEnv(roots []TypeRec) []id.ADT {
 }
 
 type Repo interface {
-	Insert(data.Source, TypeRec) error
+	InsertType(data.Source, TypeRec) error
 	Update(data.Source, TypeRec) error
 	SelectRefs(data.Source) ([]TypeRef, error)
 	SelectByID(data.Source, id.ADT) (TypeRec, error)

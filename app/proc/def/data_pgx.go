@@ -26,7 +26,7 @@ func newRepo() SemRepo {
 	return &repoPgx{}
 }
 
-func (r *repoPgx) Insert(source data.Source, roots ...SemRec) error {
+func (r *repoPgx) InsertSem(source data.Source, roots ...SemRec) error {
 	ds := data.MustConform[data.SourcePgx](source)
 	dtos, err := DataFromSemRecs(roots)
 	if err != nil {
@@ -40,7 +40,7 @@ func (r *repoPgx) Insert(source data.Source, roots ...SemRec) error {
 			"kind": dto.K,
 			"pid":  dto.PID,
 			"vid":  dto.VID,
-			"spec": dto.SemTR,
+			"spec": dto.TR,
 		}
 		batch.Queue(insertRoot, args)
 	}
@@ -60,7 +60,7 @@ func (r *repoPgx) Insert(source data.Source, roots ...SemRec) error {
 	return nil
 }
 
-func (r *repoPgx) SelectByID(source data.Source, rid id.ADT) (SemRec, error) {
+func (r *repoPgx) SelectSemByID(source data.Source, rid id.ADT) (SemRec, error) {
 	query := `
 		SELECT
 			id, kind, pid, vid, spec
@@ -69,7 +69,7 @@ func (r *repoPgx) SelectByID(source data.Source, rid id.ADT) (SemRec, error) {
 	return r.execute(source, query, rid.String())
 }
 
-func (r *repoPgx) SelectByPID(source data.Source, pid id.ADT) (SemRec, error) {
+func (r *repoPgx) SelectSemByPID(source data.Source, pid id.ADT) (SemRec, error) {
 	query := `
 		SELECT
 			id, kind, pid, vid, spec
@@ -78,7 +78,7 @@ func (r *repoPgx) SelectByPID(source data.Source, pid id.ADT) (SemRec, error) {
 	return r.execute(source, query, pid.String())
 }
 
-func (r *repoPgx) SelectByVID(source data.Source, vid id.ADT) (SemRec, error) {
+func (r *repoPgx) SelectSemByVID(source data.Source, vid id.ADT) (SemRec, error) {
 	query := `
 		SELECT
 			id, kind, pid, vid, spec

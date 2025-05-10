@@ -150,7 +150,7 @@ func TestTaking(t *testing.T) {
 		}
 		// and
 		closerSigSpec := procdec.SigSpec{
-			X: procdec.BndSpec{
+			X: procdec.ChnlSpec{
 				ChnlPH: sym.New("x"),
 				TypeQN: oneRoleSN,
 			},
@@ -162,9 +162,9 @@ func TestTaking(t *testing.T) {
 		}
 		// and
 		waiterSigSpec := procdec.SigSpec{
-			X:     procdec.BndSpec{ChnlPH: sym.Blank, TypeQN: oneRoleSN},
+			X:     procdec.ChnlSpec{ChnlPH: sym.Blank, TypeQN: oneRoleSN},
 			SigSN: waiterSigSN,
-			Ys: []procdec.BndSpec{
+			Ys: []procdec.ChnlSpec{
 				{ChnlPH: sym.New("y"), TypeQN: oneRoleSN},
 			},
 		}
@@ -285,7 +285,7 @@ func TestTaking(t *testing.T) {
 		// and
 		lolliSigSpec := procdec.SigSpec{
 			SigSN: "sig-1",
-			X: procdec.BndSpec{
+			X: procdec.ChnlSpec{
 				ChnlPH: "chnl-1",
 				TypeQN: lolliRole.TypeQN,
 			},
@@ -297,7 +297,7 @@ func TestTaking(t *testing.T) {
 		// and
 		oneSigSpec1 := procdec.SigSpec{
 			SigSN: "sig-2",
-			X: procdec.BndSpec{
+			X: procdec.ChnlSpec{
 				ChnlPH: "chnl-2",
 				TypeQN: oneRole.TypeQN,
 			},
@@ -309,8 +309,8 @@ func TestTaking(t *testing.T) {
 		// and
 		oneSigSpec2 := procdec.SigSpec{
 			SigSN: "sig-3",
-			Ys:    []procdec.BndSpec{lolliSigSpec.X, oneSig1.X},
-			X: procdec.BndSpec{
+			Ys:    []procdec.ChnlSpec{lolliSigSpec.X, oneSig1.X},
+			X: procdec.ChnlSpec{
 				ChnlPH: "chnl-3",
 				TypeQN: oneRole.TypeQN,
 			},
@@ -441,7 +441,7 @@ func TestTaking(t *testing.T) {
 		// and
 		withSigSpec := procdec.SigSpec{
 			SigSN: "sig-1",
-			X: procdec.BndSpec{
+			X: procdec.ChnlSpec{
 				ChnlPH: "chnl-1",
 				TypeQN: withRole.TypeQN,
 			},
@@ -453,8 +453,8 @@ func TestTaking(t *testing.T) {
 		// and
 		oneSigSpec := procdec.SigSpec{
 			SigSN: "sig-2",
-			Ys:    []procdec.BndSpec{withSig.X},
-			X: procdec.BndSpec{
+			Ys:    []procdec.ChnlSpec{withSig.X},
+			X: procdec.ChnlSpec{
 				ChnlPH: "chnl-2",
 				TypeQN: oneRole.TypeQN,
 			},
@@ -554,7 +554,7 @@ func TestTaking(t *testing.T) {
 		oneSig1, err := procSigAPI.Create(
 			procdec.SigSpec{
 				SigSN: "sig-1",
-				X: procdec.BndSpec{
+				X: procdec.ChnlSpec{
 					ChnlPH: "chnl-1",
 					TypeQN: oneRole.TypeQN,
 				},
@@ -567,8 +567,8 @@ func TestTaking(t *testing.T) {
 		_, err = procSigAPI.Create(
 			procdec.SigSpec{
 				SigSN: "sig-2",
-				Ys:    []procdec.BndSpec{oneSig1.X},
-				X: procdec.BndSpec{
+				Ys:    []procdec.ChnlSpec{oneSig1.X},
+				X: procdec.ChnlSpec{
 					ChnlPH: "chnl-2",
 					TypeQN: oneRole.TypeQN,
 				},
@@ -581,8 +581,8 @@ func TestTaking(t *testing.T) {
 		oneSig3, err := procSigAPI.Create(
 			procdec.SigSpec{
 				SigSN: "sig-3",
-				Ys:    []procdec.BndSpec{oneSig1.X},
-				X: procdec.BndSpec{
+				Ys:    []procdec.ChnlSpec{oneSig1.X},
+				X: procdec.ChnlSpec{
 					ChnlPH: "chnl-3",
 					TypeQN: oneRole.TypeQN,
 				},
@@ -673,7 +673,7 @@ func TestTaking(t *testing.T) {
 		oneSig1, err := procSigAPI.Create(
 			procdec.SigSpec{
 				SigSN: "sig-1",
-				X: procdec.BndSpec{
+				X: procdec.ChnlSpec{
 					ChnlPH: "chnl-1",
 					TypeQN: oneRole.TypeQN,
 				},
@@ -686,8 +686,8 @@ func TestTaking(t *testing.T) {
 		_, err = procSigAPI.Create(
 			procdec.SigSpec{
 				SigSN: "sig-2",
-				Ys:    []procdec.BndSpec{oneSig1.X},
-				X: procdec.BndSpec{
+				Ys:    []procdec.ChnlSpec{oneSig1.X},
+				X: procdec.ChnlSpec{
 					ChnlPH: "chnl-2",
 					TypeQN: oneRole.TypeQN,
 				},
@@ -700,8 +700,8 @@ func TestTaking(t *testing.T) {
 		_, err = procSigAPI.Create(
 			procdec.SigSpec{
 				SigSN: "sig-3",
-				Ys:    []procdec.BndSpec{oneSig1.X},
-				X: procdec.BndSpec{
+				Ys:    []procdec.ChnlSpec{oneSig1.X},
+				X: procdec.ChnlSpec{
 					ChnlPH: "chnl-3",
 					TypeQN: oneRole.TypeQN,
 				},

@@ -8,6 +8,6 @@ import (
 
 var Module = fx.Module("internal/step",
 	fx.Provide(
-		fx.Annotate(newRepoPgx, fx.As(new(SemRepo))),
+		fx.Annotate(newRepoPgx, fx.As(new(Repo))),
 	),
 )

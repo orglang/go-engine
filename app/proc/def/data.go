@@ -1,27 +1,10 @@
 package def
 
 import (
-	"database/sql"
 	"fmt"
 
 	"smecalculus/rolevod/lib/id"
 	"smecalculus/rolevod/lib/sym"
-)
-
-type SemRecData struct {
-	ID  string         `db:"id"`
-	K   semKind        `db:"kind"`
-	PID sql.NullString `db:"pid"`
-	VID sql.NullString `db:"vid"`
-	TR  TermRecData    `db:"spec"`
-}
-
-type semKind int
-
-const (
-	nonsem = semKind(iota)
-	msgKind
-	svcKind
 )
 
 type TermRecData struct {
@@ -145,68 +128,16 @@ type fwdRecData struct {
 
 // goverter:variables
 // goverter:output:format assign-variable
+// goverter:extend Data.*
 // goverter:extend data.*
 var (
-	DataToSemRecs     func([]SemRecData) ([]SemRec, error)
-	DataFromSemRecs   func([]SemRec) ([]SemRecData, error)
 	DataToTermSpecs   func([]TermRecData) ([]TermSpec, error)
 	DataFromTermSpecs func([]TermSpec) ([]TermRecData, error)
 	DataToTermRecs    func([]TermRecData) ([]TermRec, error)
 	DataFromTermRecs  func([]TermRec) ([]TermRecData, error)
 )
 
-func dataFromSemRec(r SemRec) (SemRecData, error) {
-	if r == nil {
-		return SemRecData{}, nil
-	}
-	switch rec := r.(type) {
-	case MsgRec:
-		msgVal, err := dataFromTermRec(rec.Val)
-		if err != nil {
-			return SemRecData{}, err
-		}
-		return SemRecData{
-			K:  msgKind,
-			TR: msgVal,
-		}, nil
-	case SvcRec:
-		svcCont, err := dataFromTermRec(rec.Cont)
-		if err != nil {
-			return SemRecData{}, err
-		}
-		return SemRecData{
-			K:  svcKind,
-			TR: svcCont,
-		}, nil
-	default:
-		panic(ErrRootTypeUnexpected(rec))
-	}
-}
-
-func dataToSemRec(dto SemRecData) (SemRec, error) {
-	var nilData SemRecData
-	if dto == nilData {
-		return nil, nil
-	}
-	switch dto.K {
-	case msgKind:
-		val, err := dataToTermRec(dto.TR)
-		if err != nil {
-			return nil, err
-		}
-		return MsgRec{Val: val}, nil
-	case svcKind:
-		cont, err := dataToTermRec(dto.TR)
-		if err != nil {
-			return nil, err
-		}
-		return SvcRec{Cont: cont}, nil
-	default:
-		panic(errUnexpectedStepKind(dto.K))
-	}
-}
-
-func dataFromTermRec(r TermRec) (TermRecData, error) {
+func DataFromTermRec(r TermRec) (TermRecData, error) {
 	switch rec := r.(type) {
 	case CloseRec:
 		return TermRecData{
@@ -281,7 +212,7 @@ func dataFromTermRec(r TermRec) (TermRecData, error) {
 	}
 }
 
-func dataToTermRec(dto TermRecData) (TermRec, error) {
+func DataToTermRec(dto TermRecData) (TermRec, error) {
 	switch dto.K {
 	case closeKind:
 		a, err := sym.ConvertFromString(dto.Close.X)
@@ -511,8 +442,4 @@ func dataToTermSpec(dto TermSpecData) (TermSpec, error) {
 
 func errUnexpectedTermKind(k termKind) error {
 	return fmt.Errorf("unexpected term kind: %v", k)
-}
-
-func errUnexpectedStepKind(k semKind) error {
-	return fmt.Errorf("unexpected step kind: %v", k)
 }

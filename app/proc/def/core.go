@@ -3,38 +3,9 @@ package def
 import (
 	"fmt"
 
-	"smecalculus/rolevod/lib/data"
 	"smecalculus/rolevod/lib/id"
-	"smecalculus/rolevod/lib/rn"
 	"smecalculus/rolevod/lib/sym"
 )
-
-type SemRec interface {
-	step() id.ADT
-}
-
-func ChnlID(r SemRec) id.ADT { return r.step() }
-
-type MsgRec struct {
-	PoolID id.ADT
-	ProcID id.ADT
-	ChnlID id.ADT
-	Val    TermRec
-	PoolRN rn.ADT
-	ProcRN rn.ADT
-}
-
-func (r MsgRec) step() id.ADT { return r.ChnlID }
-
-type SvcRec struct {
-	PoolID id.ADT
-	ProcID id.ADT
-	ChnlID id.ADT
-	Cont   TermRec
-	PoolRN rn.ADT
-}
-
-func (r SvcRec) step() id.ADT { return r.ChnlID }
 
 type TermSpec interface {
 	Via() sym.ADT
@@ -140,8 +111,6 @@ func (r CloseRec) Via() sym.ADT { return r.X }
 
 func (CloseRec) impl() {}
 
-func (CloseRec) val2() {}
-
 type WaitRec struct {
 	X    sym.ADT
 	Cont TermSpec
@@ -150,8 +119,6 @@ type WaitRec struct {
 func (r WaitRec) Via() sym.ADT { return r.X }
 
 func (WaitRec) impl() {}
-
-func (WaitRec) cont2() {}
 
 type SendRec struct {
 	X      sym.ADT
@@ -164,8 +131,6 @@ func (r SendRec) Via() sym.ADT { return r.X }
 
 func (SendRec) impl() {}
 
-func (SendRec) val2() {}
-
 type RecvRec struct {
 	X    sym.ADT
 	A    id.ADT
@@ -177,8 +142,6 @@ func (r RecvRec) Via() sym.ADT { return r.X }
 
 func (RecvRec) impl() {}
 
-func (RecvRec) cont2() {}
-
 type LabRec struct {
 	X     sym.ADT
 	A     id.ADT
@@ -188,8 +151,6 @@ type LabRec struct {
 func (r LabRec) Via() sym.ADT { return r.X }
 
 func (LabRec) impl() {}
-
-func (LabRec) val2() {}
 
 type CaseRec struct {
 	X     sym.ADT
@@ -201,8 +162,6 @@ func (r CaseRec) Via() sym.ADT { return r.X }
 
 func (CaseRec) impl() {}
 
-func (CaseRec) cont2() {}
-
 type FwdRec struct {
 	X sym.ADT
 	B id.ADT // to
@@ -212,19 +171,11 @@ func (r FwdRec) Via() sym.ADT { return r.X }
 
 func (FwdRec) impl() {}
 
-func (FwdRec) val2() {}
-
-func (FwdRec) cont2() {}
-
-type SemRepo interface {
-	InsertSem(data.Source, ...SemRec) error
-	SelectSemByID(data.Source, id.ADT) (SemRec, error)
-	SelectSemByPID(data.Source, id.ADT) (SemRec, error)
-	SelectSemByVID(data.Source, id.ADT) (SemRec, error)
-}
-
 func CollectEnv(spec TermSpec) []id.ADT {
 	return collectEnvRec(spec, []id.ADT{})
+}
+
+type Repo interface {
 }
 
 func collectEnvRec(s TermSpec, env []id.ADT) []id.ADT {
@@ -245,14 +196,6 @@ func collectEnvRec(s TermSpec, env []id.ADT) []id.ADT {
 
 func ErrDoesNotExist(want id.ADT) error {
 	return fmt.Errorf("rec doesn't exist: %v", want)
-}
-
-func ErrRootTypeUnexpected(got SemRec) error {
-	return fmt.Errorf("sem rec unexpected: %T", got)
-}
-
-func ErrRootTypeMismatch(got, want SemRec) error {
-	return fmt.Errorf("sem rec mismatch: want %T, got %T", want, got)
 }
 
 func ErrTermTypeUnexpected(got TermSpec) error {

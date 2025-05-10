@@ -236,7 +236,7 @@ func (s *service) takeWith(
 		procMod.Locks = append(procMod.Locks, sndrLock)
 		rcvrStep := procCfg.Steps[viaChnl.ChnlID]
 		if rcvrStep == nil {
-			sndrStep := procdef.MsgRec{
+			sndrStep := proceval.MsgRec{
 				PoolID: procCfg.PoolID,
 				ProcID: procCfg.ProcID,
 				ChnlID: viaChnl.ChnlID,
@@ -249,9 +249,9 @@ func (s *service) takeWith(
 			s.log.Debug("taking half done", viaAttr)
 			return tranSpec, procMod, nil
 		}
-		svcStep, ok := rcvrStep.(procdef.SvcRec)
+		svcStep, ok := rcvrStep.(proceval.SvcRec)
 		if !ok {
-			panic(procdef.ErrRootTypeUnexpected(rcvrStep))
+			panic(proceval.ErrRootTypeUnexpected(rcvrStep))
 		}
 		switch termImpl := svcStep.Cont.(type) {
 		case procdef.WaitRec:
@@ -292,7 +292,7 @@ func (s *service) takeWith(
 		procMod.Locks = append(procMod.Locks, rcvrLock)
 		sndrStep := procCfg.Steps[viaChnl.ChnlID]
 		if sndrStep == nil {
-			rcvrStep := procdef.SvcRec{
+			rcvrStep := proceval.SvcRec{
 				PoolID: procCfg.PoolID,
 				ProcID: procCfg.ProcID,
 				ChnlID: viaChnl.ChnlID,
@@ -306,9 +306,9 @@ func (s *service) takeWith(
 			s.log.Debug("taking half done", viaAttr)
 			return tranSpec, procMod, nil
 		}
-		msgStep, ok := sndrStep.(procdef.MsgRec)
+		msgStep, ok := sndrStep.(proceval.MsgRec)
 		if !ok {
-			panic(procdef.ErrRootTypeUnexpected(sndrStep))
+			panic(proceval.ErrRootTypeUnexpected(sndrStep))
 		}
 		switch termImpl := msgStep.Val.(type) {
 		case procdef.CloseRec:
@@ -393,7 +393,7 @@ func (s *service) takeWith(
 				PoolRN: procCfg.PoolRN.Next(),
 			}
 			procMod.Bnds = append(procMod.Bnds, sndrViaBnd)
-			sndrStep := procdef.MsgRec{
+			sndrStep := proceval.MsgRec{
 				PoolID: procCfg.PoolID,
 				ProcID: procCfg.ProcID,
 				ChnlID: viaChnl.ChnlID,
@@ -409,9 +409,9 @@ func (s *service) takeWith(
 			s.log.Debug("taking half done", viaAttr)
 			return tranSpec, procMod, nil
 		}
-		svcStep, ok := rcvrStep.(procdef.SvcRec)
+		svcStep, ok := rcvrStep.(proceval.SvcRec)
 		if !ok {
-			panic(procdef.ErrRootTypeUnexpected(rcvrStep))
+			panic(proceval.ErrRootTypeUnexpected(rcvrStep))
 		}
 		switch termImpl := svcStep.Cont.(type) {
 		case procdef.RecvRec:
@@ -464,7 +464,7 @@ func (s *service) takeWith(
 		procMod.Locks = append(procMod.Locks, rcvrLock)
 		sndrSemRec := procCfg.Steps[viaChnl.ChnlID]
 		if sndrSemRec == nil {
-			rcvrSemRec := procdef.SvcRec{
+			rcvrSemRec := proceval.SvcRec{
 				PoolID: procCfg.PoolID,
 				ProcID: procCfg.ProcID,
 				ChnlID: viaChnl.ChnlID,
@@ -480,9 +480,9 @@ func (s *service) takeWith(
 			s.log.Debug("taking half done", viaAttr)
 			return tranSpec, procMod, nil
 		}
-		sndrMsgRec, ok := sndrSemRec.(procdef.MsgRec)
+		sndrMsgRec, ok := sndrSemRec.(proceval.MsgRec)
 		if !ok {
-			panic(procdef.ErrRootTypeUnexpected(sndrSemRec))
+			panic(proceval.ErrRootTypeUnexpected(sndrSemRec))
 		}
 		switch termRec := sndrMsgRec.Val.(type) {
 		case procdef.SendRec:
@@ -549,7 +549,7 @@ func (s *service) takeWith(
 				PoolRN: procCfg.PoolRN.Next(),
 			}
 			procMod.Bnds = append(procMod.Bnds, sndrViaBnd)
-			sndrStep := procdef.MsgRec{
+			sndrStep := proceval.MsgRec{
 				PoolID: procCfg.PoolID,
 				ProcID: procCfg.ProcID,
 				ChnlID: viaChnl.ChnlID,
@@ -564,9 +564,9 @@ func (s *service) takeWith(
 			s.log.Debug("taking half done", viaAttr)
 			return tranSpec, procMod, nil
 		}
-		svcStep, ok := rcvrStep.(procdef.SvcRec)
+		svcStep, ok := rcvrStep.(proceval.SvcRec)
 		if !ok {
-			panic(procdef.ErrRootTypeUnexpected(rcvrStep))
+			panic(proceval.ErrRootTypeUnexpected(rcvrStep))
 		}
 		switch termImpl := svcStep.Cont.(type) {
 		case procdef.CaseRec:
@@ -611,7 +611,7 @@ func (s *service) takeWith(
 		procMod.Locks = append(procMod.Locks, rcvrLock)
 		sndrStep := procCfg.Steps[viaChnl.ChnlID]
 		if sndrStep == nil {
-			rcvrStep := procdef.SvcRec{
+			rcvrStep := proceval.SvcRec{
 				PoolID: procCfg.PoolID,
 				ProcID: procCfg.ProcID,
 				ChnlID: viaChnl.ChnlID,
@@ -626,9 +626,9 @@ func (s *service) takeWith(
 			s.log.Debug("taking half done", viaAttr)
 			return tranSpec, procMod, nil
 		}
-		msgStep, ok := sndrStep.(procdef.MsgRec)
+		msgStep, ok := sndrStep.(proceval.MsgRec)
 		if !ok {
-			panic(procdef.ErrRootTypeUnexpected(sndrStep))
+			panic(proceval.ErrRootTypeUnexpected(sndrStep))
 		}
 		switch termImpl := msgStep.Val.(type) {
 		case procdef.LabRec:
@@ -751,7 +751,7 @@ func (s *service) takeWith(
 		switch viaState.Pol() {
 		case pol.Pos:
 			switch viaStep := vs.(type) {
-			case procdef.SvcRec:
+			case proceval.SvcRec:
 				xBnd := proceval.Bnd{
 					ProcID: viaStep.ProcID,
 					ChnlPH: viaStep.Cont.Via(),
@@ -767,7 +767,7 @@ func (s *service) takeWith(
 				}
 				s.log.Debug("taking succeeded", viaAttr)
 				return tranSpec, procMod, nil
-			case procdef.MsgRec:
+			case proceval.MsgRec:
 				yBnd := proceval.Bnd{
 					ProcID: viaStep.ProcID,
 					ChnlPH: viaStep.Val.Via(),
@@ -796,7 +796,7 @@ func (s *service) takeWith(
 					PoolRN: -procCfg.PoolRN.Next(),
 				}
 				procMod.Bnds = append(procMod.Bnds, yBnd)
-				msgStep := procdef.MsgRec{
+				msgStep := proceval.MsgRec{
 					PoolID: procCfg.PoolID,
 					ProcID: procCfg.ProcID,
 					ChnlID: viaChnl.ChnlID,
@@ -809,11 +809,11 @@ func (s *service) takeWith(
 				s.log.Debug("taking half done", viaAttr)
 				return tranSpec, procMod, nil
 			default:
-				panic(procdef.ErrRootTypeUnexpected(vs))
+				panic(proceval.ErrRootTypeUnexpected(vs))
 			}
 		case pol.Neg:
 			switch viaStep := vs.(type) {
-			case procdef.SvcRec:
+			case proceval.SvcRec:
 				yBnd := proceval.Bnd{
 					ProcID: viaStep.ProcID,
 					ChnlPH: viaStep.Cont.Via(),
@@ -829,7 +829,7 @@ func (s *service) takeWith(
 				}
 				s.log.Debug("taking succeeded", viaAttr)
 				return tranSpec, procMod, nil
-			case procdef.MsgRec:
+			case proceval.MsgRec:
 				xBnd := proceval.Bnd{
 					ProcID: viaStep.ProcID,
 					ChnlPH: viaStep.Val.Via(),
@@ -846,7 +846,7 @@ func (s *service) takeWith(
 				s.log.Debug("taking succeeded", viaAttr)
 				return tranSpec, procMod, nil
 			case nil:
-				svcStep := procdef.SvcRec{
+				svcStep := proceval.SvcRec{
 					PoolID: procCfg.PoolID,
 					ProcID: procCfg.ProcID,
 					ChnlID: viaChnl.ChnlID,
@@ -859,7 +859,7 @@ func (s *service) takeWith(
 				s.log.Debug("taking half done", viaAttr)
 				return tranSpec, procMod, nil
 			default:
-				panic(procdef.ErrRootTypeUnexpected(vs))
+				panic(proceval.ErrRootTypeUnexpected(vs))
 			}
 		default:
 			panic(typedef.ErrPolarityUnexpected(viaState))

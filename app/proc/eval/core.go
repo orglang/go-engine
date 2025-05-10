@@ -17,6 +17,33 @@ import (
 	typedef "smecalculus/rolevod/app/type/def"
 )
 
+type SemRec interface {
+	step() id.ADT
+}
+
+func ChnlID(r SemRec) id.ADT { return r.step() }
+
+type MsgRec struct {
+	PoolID id.ADT
+	ProcID id.ADT
+	ChnlID id.ADT
+	Val    procdef.TermRec
+	PoolRN rn.ADT
+	ProcRN rn.ADT
+}
+
+func (r MsgRec) step() id.ADT { return r.ChnlID }
+
+type SvcRec struct {
+	PoolID id.ADT
+	ProcID id.ADT
+	ChnlID id.ADT
+	Cont   procdef.TermRec
+	PoolRN rn.ADT
+}
+
+func (r SvcRec) step() id.ADT { return r.ChnlID }
+
 type Spec struct {
 	PoolID id.ADT
 	ProcID id.ADT
@@ -43,7 +70,7 @@ type MainCfg struct {
 type Cfg struct {
 	ProcID id.ADT
 	Chnls  map[sym.ADT]EP
-	Steps  map[id.ADT]procdef.SemRec
+	Steps  map[id.ADT]SemRec
 	PoolID id.ADT
 	PoolRN rn.ADT
 	ProcRN rn.ADT
@@ -90,7 +117,7 @@ type Liab struct {
 type Mod struct {
 	Locks []Lock
 	Bnds  []Bnd
-	Steps []procdef.SemRec
+	Steps []SemRec
 	Liabs []Liab
 }
 
@@ -257,6 +284,13 @@ type repo interface {
 	UpdateMain(data.Source, MainMod) error
 }
 
+type SemRepo interface {
+	InsertSem(data.Source, ...SemRec) error
+	SelectSemByID(data.Source, id.ADT) (SemRec, error)
+	SelectSemByPID(data.Source, id.ADT) (SemRec, error)
+	SelectSemByVID(data.Source, id.ADT) (SemRec, error)
+}
+
 func ErrMissingChnl(want sym.ADT) error {
 	return fmt.Errorf("channel missing in cfg: %v", want)
 }
@@ -271,4 +305,12 @@ func errMissingSig(want id.ADT) error {
 
 func errMissingRole(want sym.ADT) error {
 	return fmt.Errorf("role missing in env: %v", want)
+}
+
+func ErrRootTypeUnexpected(got SemRec) error {
+	return fmt.Errorf("sem rec unexpected: %T", got)
+}
+
+func ErrRootTypeMismatch(got, want SemRec) error {
+	return fmt.Errorf("sem rec mismatch: want %T, got %T", want, got)
 }

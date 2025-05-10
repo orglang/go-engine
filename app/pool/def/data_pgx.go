@@ -12,7 +12,6 @@ import (
 	"smecalculus/rolevod/lib/id"
 	"smecalculus/rolevod/lib/rn"
 
-	procdef "smecalculus/rolevod/app/proc/def"
 	proceval "smecalculus/rolevod/app/proc/eval"
 )
 
@@ -90,12 +89,12 @@ func (r *repoPgx) SelectProc(source data.Source, procID id.ADT) (proceval.Cfg, e
 		return proceval.Cfg{}, err
 	}
 	defer stepRows.Close()
-	stepDtos, err := pgx.CollectRows(stepRows, pgx.RowToStructByName[procdef.SemRecData])
+	stepDtos, err := pgx.CollectRows(stepRows, pgx.RowToStructByName[proceval.SemRecData])
 	if err != nil {
 		r.log.Error("collection failed", idAttr, slog.Any("t", reflect.TypeOf(stepDtos)))
 		return proceval.Cfg{}, err
 	}
-	steps, err := procdef.DataToSemRecs(stepDtos)
+	steps, err := proceval.DataToSemRecs(stepDtos)
 	if err != nil {
 		r.log.Error("mapping failed", idAttr)
 		return proceval.Cfg{}, err
@@ -103,7 +102,7 @@ func (r *repoPgx) SelectProc(source data.Source, procID id.ADT) (proceval.Cfg, e
 	r.log.Debug("selection succeeded", idAttr)
 	return proceval.Cfg{
 		Chnls: core.IndexBy(proceval.ChnlPH, chnls),
-		Steps: core.IndexBy(procdef.ChnlID, steps),
+		Steps: core.IndexBy(proceval.ChnlID, steps),
 	}, nil
 }
 

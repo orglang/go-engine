@@ -45,9 +45,9 @@ type SigSnapView struct {
 // goverter:extend smecalculus/rolevod/app/type/def:Msg.*
 // goverter:extend Msg.*
 var (
-	ViewFromSigRef  func(SigRef) SigRefView
-	ViewToSigRef    func(SigRefView) (SigRef, error)
-	ViewFromSigRefs func([]SigRef) []SigRefView
-	ViewToSigRefs   func([]SigRefView) ([]SigRef, error)
-	ViewFromSigSnap func(SigSnap) SigSnapView
+	ViewFromSigRef  func(ProcRef) SigRefView
+	ViewToSigRef    func(SigRefView) (ProcRef, error)
+	ViewFromSigRefs func([]ProcRef) []SigRefView
+	ViewToSigRefs   func([]SigRefView) ([]ProcRef, error)
+	ViewFromSigSnap func(ProcSnap) SigSnapView
 )

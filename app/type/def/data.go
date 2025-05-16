@@ -188,7 +188,7 @@ func statesToTermRec(states map[string]stateData, st stateData) (TermRec, error)
 		if err != nil {
 			return nil, err
 		}
-		return TensorRec{TermID: stID, B: b, C: c}, nil
+		return TensorRec{TermID: stID, Y: b, Z: c}, nil
 	case lolliKind:
 		y, err := statesToTermRec(states, states[st.Spec.Lolli.Val])
 		if err != nil {
@@ -208,7 +208,7 @@ func statesToTermRec(states map[string]stateData, st stateData) (TermRec, error)
 			}
 			choices[sym.ADT(ch.Lab)] = choice
 		}
-		return PlusRec{TermID: stID, Choices: choices}, nil
+		return PlusRec{TermID: stID, Zs: choices}, nil
 	case withKind:
 		choices := make(map[sym.ADT]TermRec, len(st.Spec.With))
 		for _, ch := range st.Spec.With {
@@ -218,7 +218,7 @@ func statesToTermRec(states map[string]stateData, st stateData) (TermRec, error)
 			}
 			choices[sym.ADT(ch.Lab)] = choice
 		}
-		return WithRec{TermID: stID, Choices: choices}, nil
+		return WithRec{TermID: stID, Zs: choices}, nil
 	default:
 		panic(errUnexpectedKind(st.K))
 	}
@@ -247,11 +247,11 @@ func statesFromTermRec(from string, r TermRec, dto *termRecData) (string, error)
 		dto.States = append(dto.States, st)
 		return stID, nil
 	case TensorRec:
-		val, err := statesFromTermRec(stID, root.B, dto)
+		val, err := statesFromTermRec(stID, root.Y, dto)
 		if err != nil {
 			return "", err
 		}
-		cont, err := statesFromTermRec(stID, root.C, dto)
+		cont, err := statesFromTermRec(stID, root.Z, dto)
 		if err != nil {
 			return "", err
 		}
@@ -286,7 +286,7 @@ func statesFromTermRec(from string, r TermRec, dto *termRecData) (string, error)
 		return stID, nil
 	case PlusRec:
 		var choices []sumData
-		for label, choice := range root.Choices {
+		for label, choice := range root.Zs {
 			cont, err := statesFromTermRec(stID, choice, dto)
 			if err != nil {
 				return "", err
@@ -303,7 +303,7 @@ func statesFromTermRec(from string, r TermRec, dto *termRecData) (string, error)
 		return stID, nil
 	case WithRec:
 		var choices []sumData
-		for label, choice := range root.Choices {
+		for label, choice := range root.Zs {
 			cont, err := statesFromTermRec(stID, choice, dto)
 			if err != nil {
 				return "", err

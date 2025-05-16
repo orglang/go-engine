@@ -1,4 +1,4 @@
-package eval
+package exec
 
 import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -39,10 +39,10 @@ type SnapMsg struct {
 // goverter:extend smecalculus/rolevod/lib/id:Convert.*
 // goverter:extend smecalculus/rolevod/app/proc/def:Msg.*
 var (
-	MsgFromSpec func(Spec) SpecMsg
-	MsgToSpec   func(SpecMsg) (Spec, error)
-	MsgToRef    func(RefMsg) (Ref, error)
-	MsgFromRef  func(Ref) RefMsg
-	MsgToSnap   func(SnapMsg) (Snap, error)
-	MsgFromSnap func(Snap) SnapMsg
+	MsgFromSpec func(ProgSpec) SpecMsg
+	MsgToSpec   func(SpecMsg) (ProgSpec, error)
+	MsgToRef    func(RefMsg) (ProcRef, error)
+	MsgFromRef  func(ProcRef) RefMsg
+	MsgToSnap   func(SnapMsg) (ProcSnap, error)
+	MsgFromSnap func(ProcSnap) SnapMsg
 )

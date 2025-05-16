@@ -1,4 +1,4 @@
-package eval
+package exec
 
 import (
 	"github.com/go-resty/resty/v2"
@@ -20,28 +20,28 @@ func NewAPI() API {
 	return newClientResty()
 }
 
-func (cl *clientResty) Create(spec Spec) (Ref, error) {
+func (cl *clientResty) Create(spec ProgSpec) (ProcRef, error) {
 	req := MsgFromSpec(spec)
 	var res RefMsg
 	_, err := cl.resty.R().
-		SetPathParam("id", spec.ProcID.String()).
+		SetPathParam("id", spec.ExecID.String()).
 		SetBody(&req).
 		SetResult(&res).
 		Post("/procs/{id}/calls")
 	if err != nil {
-		return Ref{}, err
+		return ProcRef{}, err
 	}
 	return MsgToRef(res)
 }
 
-func (cl *clientResty) Retrieve(procID id.ADT) (Snap, error) {
+func (cl *clientResty) Retrieve(procID id.ADT) (ProcSnap, error) {
 	var res SnapMsg
 	_, err := cl.resty.R().
 		SetPathParam("id", procID.String()).
 		SetResult(&res).
 		Get("/procs/{id}")
 	if err != nil {
-		return Snap{}, err
+		return ProcSnap{}, err
 	}
 	return MsgToSnap(res)
 }

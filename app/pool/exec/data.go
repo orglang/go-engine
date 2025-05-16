@@ -1,9 +1,9 @@
-package def
+package exec
 
 import (
 	"database/sql"
 
-	proceval "smecalculus/rolevod/app/proc/eval"
+	procexec "smecalculus/rolevod/app/proc/exec"
 )
 
 type poolRefData struct {
@@ -52,9 +52,9 @@ var (
 	DataFromPoolRefs func([]PoolRef) []poolRefData
 	DataToPoolRec    func(poolRecData) (PoolRec, error)
 	DataFromPoolRec  func(PoolRec) poolRecData
-	DataToLiab       func(liabData) (proceval.Liab, error)
-	DataFromLiab     func(proceval.Liab) liabData
+	DataToLiab       func(liabData) (procexec.Liab, error)
+	DataFromLiab     func(procexec.Liab) liabData
 	DataToPoolSnap   func(poolSnapData) (PoolSnap, error)
 	DataFromPoolSnap func(PoolSnap) poolSnapData
-	DataToEPs        func([]epData) ([]proceval.EP, error)
+	DataToEPs        func([]epData) ([]procexec.EP, error)
 )

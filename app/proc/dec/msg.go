@@ -77,11 +77,11 @@ type SigSnapMsg struct {
 // goverter:extend smecalculus/rolevod/lib/id:Convert.*
 // goverter:extend smecalculus/rolevod/app/type/def:Msg.*
 var (
-	MsgToSigSpec    func(SigSpecMsg) (SigSpec, error)
-	MsgFromSigSpec  func(SigSpec) SigSpecMsg
-	MsgToSigRef     func(SigRefMsg) (SigRef, error)
-	MsgFromSigRef   func(SigRef) SigRefMsg
-	MsgToSigSnap    func(SigSnapMsg) (SigSnap, error)
-	MsgFromSigSnap  func(SigSnap) SigSnapMsg
-	MsgFromSigSnaps func([]SigSnap) []SigSnapMsg
+	MsgToSigSpec    func(SigSpecMsg) (ProcSpec, error)
+	MsgFromSigSpec  func(ProcSpec) SigSpecMsg
+	MsgToSigRef     func(SigRefMsg) (ProcRef, error)
+	MsgFromSigRef   func(ProcRef) SigRefMsg
+	MsgToSigSnap    func(SigSnapMsg) (ProcSnap, error)
+	MsgFromSigSnap  func(ProcSnap) SigSnapMsg
+	MsgFromSigSnaps func([]ProcSnap) []SigSnapMsg
 )

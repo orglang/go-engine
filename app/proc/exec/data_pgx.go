@@ -1,4 +1,4 @@
-package eval
+package exec
 
 import (
 	"errors"
@@ -82,24 +82,6 @@ func (r *repoPgx2) SelectSemByID(source data.Source, rid id.ADT) (SemRec, error)
 		FROM steps
 		WHERE id = $1`
 	return r.execute(source, query, rid.String())
-}
-
-func (r *repoPgx2) SelectSemByPID(source data.Source, pid id.ADT) (SemRec, error) {
-	query := `
-		SELECT
-			id, kind, pid, vid, spec
-		FROM steps
-		WHERE pid = $1`
-	return r.execute(source, query, pid.String())
-}
-
-func (r *repoPgx2) SelectSemByVID(source data.Source, vid id.ADT) (SemRec, error) {
-	query := `
-		SELECT
-			id, kind, pid, vid, spec
-		FROM steps
-		WHERE vid = $1`
-	return r.execute(source, query, vid.String())
 }
 
 func (r *repoPgx2) execute(source data.Source, query string, arg string) (SemRec, error) {

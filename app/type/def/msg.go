@@ -199,8 +199,8 @@ func MsgFromTermSpec(s TermSpec) TermSpecMsg {
 		return TermSpecMsg{
 			K: TensorKind,
 			Tensor: &ProdSpecMsg{
-				Value: MsgFromTermSpec(spec.B),
-				Cont:  MsgFromTermSpec(spec.C),
+				Value: MsgFromTermSpec(spec.Y),
+				Cont:  MsgFromTermSpec(spec.Z),
 			},
 		}
 	case LolliSpec:
@@ -212,15 +212,15 @@ func MsgFromTermSpec(s TermSpec) TermSpecMsg {
 			},
 		}
 	case WithSpec:
-		choices := make([]ChoiceSpecMsg, len(spec.Choices))
-		for i, l := range maps.Keys(spec.Choices) {
-			choices[i] = ChoiceSpecMsg{Label: string(l), Cont: MsgFromTermSpec(spec.Choices[l])}
+		choices := make([]ChoiceSpecMsg, len(spec.Zs))
+		for i, l := range maps.Keys(spec.Zs) {
+			choices[i] = ChoiceSpecMsg{Label: string(l), Cont: MsgFromTermSpec(spec.Zs[l])}
 		}
 		return TermSpecMsg{K: WithKind, With: &SumSpecMsg{Choices: choices}}
 	case PlusSpec:
-		choices := make([]ChoiceSpecMsg, len(spec.Choices))
-		for i, l := range maps.Keys(spec.Choices) {
-			choices[i] = ChoiceSpecMsg{Label: string(l), Cont: MsgFromTermSpec(spec.Choices[l])}
+		choices := make([]ChoiceSpecMsg, len(spec.Zs))
+		for i, l := range maps.Keys(spec.Zs) {
+			choices[i] = ChoiceSpecMsg{Label: string(l), Cont: MsgFromTermSpec(spec.Zs[l])}
 		}
 		return TermSpecMsg{K: PlusKind, Plus: &SumSpecMsg{Choices: choices}}
 	default:
@@ -247,7 +247,7 @@ func MsgToTermSpec(dto TermSpecMsg) (TermSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return TensorSpec{B: v, C: s}, nil
+		return TensorSpec{Y: v, Z: s}, nil
 	case LolliKind:
 		v, err := MsgToTermSpec(dto.Lolli.Value)
 		if err != nil {
@@ -267,7 +267,7 @@ func MsgToTermSpec(dto TermSpecMsg) (TermSpec, error) {
 			}
 			choices[sym.ADT(ch.Label)] = choice
 		}
-		return PlusSpec{Choices: choices}, nil
+		return PlusSpec{Zs: choices}, nil
 	case WithKind:
 		choices := make(map[sym.ADT]TermSpec, len(dto.With.Choices))
 		for _, ch := range dto.With.Choices {
@@ -277,7 +277,7 @@ func MsgToTermSpec(dto TermSpecMsg) (TermSpec, error) {
 			}
 			choices[sym.ADT(ch.Label)] = choice
 		}
-		return WithSpec{Choices: choices}, nil
+		return WithSpec{Zs: choices}, nil
 	default:
 		panic(errKindUnexpected(dto.K))
 	}

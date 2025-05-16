@@ -1,4 +1,4 @@
-package def
+package exec
 
 import (
 	"log/slog"
@@ -11,7 +11,7 @@ import (
 	"smecalculus/rolevod/lib/id"
 	"smecalculus/rolevod/lib/msg"
 
-	proceval "smecalculus/rolevod/app/proc/eval"
+	procexec "smecalculus/rolevod/app/proc/exec"
 )
 
 // Adapter
@@ -106,7 +106,7 @@ func newStepHandlerEcho(a API, r msg.Renderer, l *slog.Logger) *stepHandlerEcho 
 }
 
 func (h *stepHandlerEcho) PostOne(c echo.Context) error {
-	var dto proceval.SpecMsg
+	var dto procexec.SpecMsg
 	err := c.Bind(&dto)
 	if err != nil {
 		h.log.Error("binding failed")
@@ -119,7 +119,7 @@ func (h *stepHandlerEcho) PostOne(c echo.Context) error {
 		h.log.Error("validation failed", slog.Any("dto", dto))
 		return err
 	}
-	spec, err := proceval.MsgToSpec(dto)
+	spec, err := procexec.MsgToSpec(dto)
 	if err != nil {
 		h.log.Error("mapping failed", slog.Any("dto", dto))
 		return err
@@ -128,5 +128,5 @@ func (h *stepHandlerEcho) PostOne(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, proceval.MsgFromRef(ref))
+	return c.JSON(http.StatusOK, procexec.MsgFromRef(ref))
 }

@@ -312,20 +312,20 @@ func dataFromTermSpec(s TermSpec) (TermSpecData, error) {
 		return TermSpecData{
 			K: sendKind,
 			Send: &sendSpecData{
-				X: sym.ConvertToString(spec.X),
-				Y: sym.ConvertToString(spec.Y),
+				X: sym.ConvertToString(spec.CommPH),
+				Y: sym.ConvertToString(spec.ValPH),
 			},
 		}, nil
 	case RecvSpec:
-		dto, err := dataFromTermSpec(spec.Cont)
+		dto, err := dataFromTermSpec(spec.ContTS)
 		if err != nil {
 			return TermSpecData{}, err
 		}
 		return TermSpecData{
 			K: recvKind,
 			Recv: &recvSpecData{
-				X:    sym.ConvertToString(spec.X),
-				Y:    sym.ConvertToString(spec.Y),
+				X:    sym.ConvertToString(spec.CommPH),
+				Y:    sym.ConvertToString(spec.BindPH),
 				Cont: dto,
 			},
 		}, nil
@@ -390,7 +390,7 @@ func dataToTermSpec(dto TermSpecData) (TermSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return SendSpec{X: x, Y: y}, nil
+		return SendSpec{CommPH: x, ValPH: y}, nil
 	case recvKind:
 		x, err := sym.ConvertFromString(dto.Recv.X)
 		if err != nil {
@@ -404,7 +404,7 @@ func dataToTermSpec(dto TermSpecData) (TermSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return RecvSpec{X: x, Y: y, Cont: cont}, nil
+		return RecvSpec{CommPH: x, BindPH: y, ContTS: cont}, nil
 	case labKind:
 		x, err := sym.ConvertFromString(dto.Lab.X)
 		if err != nil {

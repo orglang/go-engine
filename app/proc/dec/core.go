@@ -13,47 +13,47 @@ import (
 	"smecalculus/rolevod/internal/alias"
 )
 
+type ProcSpec struct {
+	X      ChnlSpec // via
+	ProcNS sym.ADT
+	ProcSN sym.ADT
+	Ys     []ChnlSpec // vals
+}
+
 // aka ChanTp
 type ChnlSpec struct {
-	ChnlPH sym.ADT // may be blank
+	CommPH sym.ADT // may be blank
 	TypeQN sym.ADT
 }
 
-type SigSpec struct {
-	X     ChnlSpec // via
-	SigNS sym.ADT
-	SigSN sym.ADT
-	Ys    []ChnlSpec // vals
-}
-
-type SigRef struct {
-	SigID id.ADT
+type ProcRef struct {
+	DecID id.ADT
 	Title string
-	SigRN rn.ADT
+	DecRN rn.ADT
 }
 
-type SigRec struct {
+type ProcRec struct {
 	X     ChnlSpec
-	SigID id.ADT
+	DecID id.ADT
 	Ys    []ChnlSpec
 	Title string
-	SigRN rn.ADT
+	DecRN rn.ADT
 }
 
 // aka ExpDec or ExpDecDef without expression
-type SigSnap struct {
+type ProcSnap struct {
 	X     ChnlSpec
-	SigID id.ADT
+	DecID id.ADT
 	Ys    []ChnlSpec
 	Title string
-	SigRN rn.ADT
+	DecRN rn.ADT
 }
 
 type API interface {
-	Incept(sym.ADT) (SigRef, error)
-	Create(SigSpec) (SigSnap, error)
-	Retrieve(id.ADT) (SigSnap, error)
-	RetreiveRefs() ([]SigRef, error)
+	Incept(sym.ADT) (ProcRef, error)
+	Create(ProcSpec) (ProcSnap, error)
+	Retrieve(id.ADT) (ProcSnap, error)
+	RetreiveRefs() ([]ProcRef, error)
 }
 
 type service struct {
@@ -63,8 +63,8 @@ type service struct {
 	log      *slog.Logger
 }
 
-func newService(sigs Repo, aliases alias.Repo, operator data.Operator, l *slog.Logger) *service {
-	return &service{sigs, aliases, operator, l}
+func newService(procs Repo, aliases alias.Repo, operator data.Operator, l *slog.Logger) *service {
+	return &service{procs, aliases, operator, l}
 }
 
 // for compilation purposes
@@ -72,12 +72,12 @@ func newAPI() API {
 	return &service{}
 }
 
-func (s *service) Incept(sigQN sym.ADT) (_ SigRef, err error) {
+func (s *service) Incept(procQN sym.ADT) (_ ProcRef, err error) {
 	ctx := context.Background()
-	qnAttr := slog.Any("sigQN", sigQN)
+	qnAttr := slog.Any("procQN", procQN)
 	s.log.Debug("inception started", qnAttr)
-	newAlias := alias.Root{QN: sigQN, ID: id.New(), RN: rn.Initial()}
-	newRec := SigRec{SigID: newAlias.ID, SigRN: newAlias.RN, Title: newAlias.QN.SN()}
+	newAlias := alias.Root{QN: procQN, ID: id.New(), RN: rn.Initial()}
+	newRec := ProcRec{DecID: newAlias.ID, DecRN: newAlias.RN, Title: newAlias.QN.SN()}
 	s.operator.Explicit(ctx, func(ds data.Source) error {
 		err = s.aliases.Insert(ds, newAlias)
 		if err != nil {
@@ -91,21 +91,21 @@ func (s *service) Incept(sigQN sym.ADT) (_ SigRef, err error) {
 	})
 	if err != nil {
 		s.log.Error("inception failed", qnAttr)
-		return SigRef{}, err
+		return ProcRef{}, err
 	}
-	s.log.Debug("inception succeeded", qnAttr, slog.Any("sigId", newRec.SigID))
+	s.log.Debug("inception succeeded", qnAttr, slog.Any("sigID", newRec.DecID))
 	return ConvertRecToRef(newRec), nil
 }
 
-func (s *service) Create(spec SigSpec) (_ SigSnap, err error) {
+func (s *service) Create(spec ProcSpec) (_ ProcSnap, err error) {
 	ctx := context.Background()
-	qnAttr := slog.Any("sigQN", spec.SigSN)
+	qnAttr := slog.Any("sigQN", spec.ProcSN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
-	newRec := SigRec{
+	newRec := ProcRec{
 		X:     spec.X,
-		SigID: id.New(),
+		DecID: id.New(),
 		Ys:    spec.Ys,
-		SigRN: rn.Initial(),
+		DecRN: rn.Initial(),
 	}
 	s.operator.Explicit(ctx, func(ds data.Source) error {
 		err = s.procs.Insert(ds, newRec)
@@ -116,26 +116,26 @@ func (s *service) Create(spec SigSpec) (_ SigSnap, err error) {
 	})
 	if err != nil {
 		s.log.Error("creation failed", qnAttr)
-		return SigSnap{}, err
+		return ProcSnap{}, err
 	}
-	s.log.Debug("creation succeeded", qnAttr, slog.Any("sigId", newRec.SigID))
+	s.log.Debug("creation succeeded", qnAttr, slog.Any("sigID", newRec.DecID))
 	return ConvertRecToSnap(newRec), nil
 }
 
-func (s *service) Retrieve(sigID id.ADT) (snap SigSnap, err error) {
+func (s *service) Retrieve(sigID id.ADT) (snap ProcSnap, err error) {
 	ctx := context.Background()
 	s.operator.Implicit(ctx, func(ds data.Source) error {
 		snap, err = s.procs.SelectByID(ds, sigID)
 		return err
 	})
 	if err != nil {
-		s.log.Error("retrieval failed", slog.Any("sigId", sigID))
-		return SigSnap{}, err
+		s.log.Error("retrieval failed", slog.Any("sigID", sigID))
+		return ProcSnap{}, err
 	}
 	return snap, nil
 }
 
-func (s *service) RetreiveRefs() (refs []SigRef, err error) {
+func (s *service) RetreiveRefs() (refs []ProcRef, err error) {
 	ctx := context.Background()
 	s.operator.Implicit(ctx, func(ds data.Source) error {
 		refs, err = s.procs.SelectAll(ds)
@@ -149,18 +149,18 @@ func (s *service) RetreiveRefs() (refs []SigRef, err error) {
 }
 
 type Repo interface {
-	Insert(data.Source, SigRec) error
-	SelectAll(data.Source) ([]SigRef, error)
-	SelectByID(data.Source, id.ADT) (SigSnap, error)
-	SelectByIDs(data.Source, []id.ADT) ([]SigRec, error)
-	SelectEnv(data.Source, []id.ADT) (map[id.ADT]SigRec, error)
+	Insert(data.Source, ProcRec) error
+	SelectAll(data.Source) ([]ProcRef, error)
+	SelectByID(data.Source, id.ADT) (ProcSnap, error)
+	SelectByIDs(data.Source, []id.ADT) ([]ProcRec, error)
+	SelectEnv(data.Source, []id.ADT) (map[id.ADT]ProcRec, error)
 }
 
-func CollectEnv(sigs []SigRec) []sym.ADT {
+func CollectEnv(recs []ProcRec) []sym.ADT {
 	typeQNs := []sym.ADT{}
-	for _, sig := range sigs {
-		typeQNs = append(typeQNs, sig.X.TypeQN)
-		for _, y := range sig.Ys {
+	for _, rec := range recs {
+		typeQNs = append(typeQNs, rec.X.TypeQN)
+		for _, y := range rec.Ys {
 			typeQNs = append(typeQNs, y.TypeQN)
 		}
 	}
@@ -171,9 +171,9 @@ func CollectEnv(sigs []SigRec) []sym.ADT {
 // goverter:output:format assign-variable
 // goverter:extend smecalculus/rolevod/lib/id:Convert.*
 var (
-	ConvertSnapToRef func(SigSnap) SigRef
-	ConvertRecToRef  func(SigRec) SigRef
-	ConvertRecToSnap func(SigRec) SigSnap
+	ConvertSnapToRef func(ProcSnap) ProcRef
+	ConvertRecToRef  func(ProcRec) ProcRef
+	ConvertRecToSnap func(ProcRec) ProcSnap
 )
 
 func ErrRootMissingInEnv(rid id.ADT) error {

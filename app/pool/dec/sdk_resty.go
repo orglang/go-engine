@@ -18,6 +18,6 @@ func NewAPI() API {
 	return newClientResty()
 }
 
-func (cl *clientResty) Create(spec SigSpec) (SigRef, error) {
-	return SigRef{}, nil
+func (cl *clientResty) Create(spec PoolSpec) (PoolRef, error) {
+	return PoolRef{}, nil
 }

@@ -58,41 +58,41 @@ type LinkSpec struct {
 func (LinkSpec) spec() {}
 
 type TensorSpec struct {
-	B TermSpec
-	C TermSpec
+	Y TermSpec // val to send
+	Z TermSpec // cont
 }
 
 func (TensorSpec) spec() {}
 
 type LolliSpec struct {
-	Y TermSpec
-	Z TermSpec
+	Y TermSpec // val to receive
+	Z TermSpec // cont
 }
 
 func (LolliSpec) spec() {}
 
 // aka Internal Choice
 type PlusSpec struct {
-	Choices map[sym.ADT]TermSpec
+	Zs map[sym.ADT]TermSpec // conts
 }
 
 func (PlusSpec) spec() {}
 
 // aka External Choice
 type WithSpec struct {
-	Choices map[sym.ADT]TermSpec
+	Zs map[sym.ADT]TermSpec // conts
 }
 
 func (WithSpec) spec() {}
 
 type UpSpec struct {
-	X TermSpec
+	Z TermSpec // cont
 }
 
 func (UpSpec) spec() {}
 
 type DownSpec struct {
-	X TermSpec
+	Z TermSpec // cont
 }
 
 func (DownSpec) spec() {}
@@ -187,50 +187,50 @@ func (LinkRec) Pol() pol.ADT { return pol.Zero }
 
 // aka Internal Choice
 type PlusRec struct {
-	TermID  id.ADT
-	Choices map[sym.ADT]TermRec
+	TermID id.ADT
+	Zs     map[sym.ADT]TermRec
 }
 
 func (PlusRec) spec() {}
 
 func (r PlusRec) Ident() id.ADT { return r.TermID }
 
-func (r PlusRec) Next(l sym.ADT) id.ADT { return r.Choices[l].Ident() }
+func (r PlusRec) Next(l sym.ADT) id.ADT { return r.Zs[l].Ident() }
 
 func (PlusRec) Pol() pol.ADT { return pol.Pos }
 
 // aka External Choice
 type WithRec struct {
-	TermID  id.ADT
-	Choices map[sym.ADT]TermRec
+	TermID id.ADT
+	Zs     map[sym.ADT]TermRec
 }
 
 func (WithRec) spec() {}
 
 func (r WithRec) Ident() id.ADT { return r.TermID }
 
-func (r WithRec) Next(l sym.ADT) id.ADT { return r.Choices[l].Ident() }
+func (r WithRec) Next(l sym.ADT) id.ADT { return r.Zs[l].Ident() }
 
 func (WithRec) Pol() pol.ADT { return pol.Neg }
 
 type TensorRec struct {
 	TermID id.ADT
-	B      TermRec // value
-	C      TermRec // cont
+	Y      TermRec
+	Z      TermRec
 }
 
 func (TensorRec) spec() {}
 
 func (r TensorRec) Ident() id.ADT { return r.TermID }
 
-func (r TensorRec) Next() id.ADT { return r.C.Ident() }
+func (r TensorRec) Next() id.ADT { return r.Z.Ident() }
 
 func (TensorRec) Pol() pol.ADT { return pol.Pos }
 
 type LolliRec struct {
 	TermID id.ADT
-	Y      TermRec // value
-	Z      TermRec // cont
+	Y      TermRec
+	Z      TermRec
 }
 
 func (LolliRec) spec() {}
@@ -243,7 +243,7 @@ func (LolliRec) Pol() pol.ADT { return pol.Neg }
 
 type UpRec struct {
 	TermID id.ADT
-	X      TermRec
+	Z      TermRec
 }
 
 func (UpRec) spec() {}
@@ -254,7 +254,7 @@ func (UpRec) Pol() pol.ADT { return pol.Zero }
 
 type DownRec struct {
 	TermID id.ADT
-	X      TermRec
+	Z      TermRec
 }
 
 func (DownRec) spec() {}
@@ -517,8 +517,8 @@ func ConvertSpecToRec(s TermSpec) TermRec {
 	case TensorSpec:
 		return TensorRec{
 			TermID: id.New(),
-			B:      ConvertSpecToRec(spec.B),
-			C:      ConvertSpecToRec(spec.C),
+			Y:      ConvertSpecToRec(spec.Y),
+			Z:      ConvertSpecToRec(spec.Z),
 		}
 	case LolliSpec:
 		return LolliRec{
@@ -527,17 +527,17 @@ func ConvertSpecToRec(s TermSpec) TermRec {
 			Z:      ConvertSpecToRec(spec.Z),
 		}
 	case WithSpec:
-		choices := make(map[sym.ADT]TermRec, len(spec.Choices))
-		for lab, st := range spec.Choices {
+		choices := make(map[sym.ADT]TermRec, len(spec.Zs))
+		for lab, st := range spec.Zs {
 			choices[lab] = ConvertSpecToRec(st)
 		}
-		return WithRec{TermID: id.New(), Choices: choices}
+		return WithRec{TermID: id.New(), Zs: choices}
 	case PlusSpec:
-		choices := make(map[sym.ADT]TermRec, len(spec.Choices))
-		for lab, rec := range spec.Choices {
+		choices := make(map[sym.ADT]TermRec, len(spec.Zs))
+		for lab, rec := range spec.Zs {
 			choices[lab] = ConvertSpecToRec(rec)
 		}
-		return PlusRec{TermID: id.New(), Choices: choices}
+		return PlusRec{TermID: id.New(), Zs: choices}
 	default:
 		panic(ErrSpecTypeUnexpected(spec))
 	}
@@ -554,8 +554,8 @@ func ConvertRecToSpec(r TermRec) TermSpec {
 		return LinkSpec{TypeQN: rec.TypeQN}
 	case TensorRec:
 		return TensorSpec{
-			B: ConvertRecToSpec(rec.B),
-			C: ConvertRecToSpec(rec.C),
+			Y: ConvertRecToSpec(rec.Y),
+			Z: ConvertRecToSpec(rec.Z),
 		}
 	case LolliRec:
 		return LolliSpec{
@@ -563,17 +563,17 @@ func ConvertRecToSpec(r TermRec) TermSpec {
 			Z: ConvertRecToSpec(rec.Z),
 		}
 	case WithRec:
-		choices := make(map[sym.ADT]TermSpec, len(rec.Choices))
-		for lab, rec := range rec.Choices {
+		choices := make(map[sym.ADT]TermSpec, len(rec.Zs))
+		for lab, rec := range rec.Zs {
 			choices[lab] = ConvertRecToSpec(rec)
 		}
-		return WithSpec{Choices: choices}
+		return WithSpec{Zs: choices}
 	case PlusRec:
-		choices := make(map[sym.ADT]TermSpec, len(rec.Choices))
-		for lab, st := range rec.Choices {
+		choices := make(map[sym.ADT]TermSpec, len(rec.Zs))
+		for lab, st := range rec.Zs {
 			choices[lab] = ConvertRecToSpec(st)
 		}
-		return PlusSpec{Choices: choices}
+		return PlusSpec{Zs: choices}
 	default:
 		panic(ErrRecTypeUnexpected(rec))
 	}
@@ -600,11 +600,11 @@ func CheckSpec(got, want TermSpec) error {
 		if !ok {
 			return ErrSpecTypeMismatch(got, want)
 		}
-		err := CheckSpec(gotSt.B, wantSt.B)
+		err := CheckSpec(gotSt.Y, wantSt.Y)
 		if err != nil {
 			return err
 		}
-		return CheckSpec(gotSt.C, wantSt.C)
+		return CheckSpec(gotSt.Z, wantSt.Z)
 	case LolliSpec:
 		gotSt, ok := got.(LolliSpec)
 		if !ok {
@@ -620,11 +620,11 @@ func CheckSpec(got, want TermSpec) error {
 		if !ok {
 			return ErrSpecTypeMismatch(got, want)
 		}
-		if len(gotSt.Choices) != len(wantSt.Choices) {
-			return fmt.Errorf("choices mismatch: want %v items, got %v items", len(wantSt.Choices), len(gotSt.Choices))
+		if len(gotSt.Zs) != len(wantSt.Zs) {
+			return fmt.Errorf("choices mismatch: want %v items, got %v items", len(wantSt.Zs), len(gotSt.Zs))
 		}
-		for wantLab, wantChoice := range wantSt.Choices {
-			gotChoice, ok := gotSt.Choices[wantLab]
+		for wantLab, wantChoice := range wantSt.Zs {
+			gotChoice, ok := gotSt.Zs[wantLab]
 			if !ok {
 				return fmt.Errorf("label mismatch: want %q, got nothing", wantLab)
 			}
@@ -639,11 +639,11 @@ func CheckSpec(got, want TermSpec) error {
 		if !ok {
 			return ErrSpecTypeMismatch(got, want)
 		}
-		if len(gotSt.Choices) != len(wantSt.Choices) {
-			return fmt.Errorf("choices mismatch: want %v items, got %v items", len(wantSt.Choices), len(gotSt.Choices))
+		if len(gotSt.Zs) != len(wantSt.Zs) {
+			return fmt.Errorf("choices mismatch: want %v items, got %v items", len(wantSt.Zs), len(gotSt.Zs))
 		}
-		for wantLab, wantChoice := range wantSt.Choices {
-			gotChoice, ok := gotSt.Choices[wantLab]
+		for wantLab, wantChoice := range wantSt.Zs {
+			gotChoice, ok := gotSt.Zs[wantLab]
 			if !ok {
 				return fmt.Errorf("label mismatch: want %q, got nothing", wantLab)
 			}
@@ -672,11 +672,11 @@ func CheckRec(got, want TermRec) error {
 		if !ok {
 			return ErrSnapTypeMismatch(got, want)
 		}
-		err := CheckRec(gotSt.B, wantSt.B)
+		err := CheckRec(gotSt.Y, wantSt.Y)
 		if err != nil {
 			return err
 		}
-		return CheckRec(gotSt.C, wantSt.C)
+		return CheckRec(gotSt.Z, wantSt.Z)
 	case LolliRec:
 		gotSt, ok := got.(LolliRec)
 		if !ok {
@@ -692,11 +692,11 @@ func CheckRec(got, want TermRec) error {
 		if !ok {
 			return ErrSnapTypeMismatch(got, want)
 		}
-		if len(gotSt.Choices) != len(wantSt.Choices) {
-			return fmt.Errorf("choices mismatch: want %v items, got %v items", len(wantSt.Choices), len(gotSt.Choices))
+		if len(gotSt.Zs) != len(wantSt.Zs) {
+			return fmt.Errorf("choices mismatch: want %v items, got %v items", len(wantSt.Zs), len(gotSt.Zs))
 		}
-		for wantLab, wantChoice := range wantSt.Choices {
-			gotChoice, ok := gotSt.Choices[wantLab]
+		for wantLab, wantChoice := range wantSt.Zs {
+			gotChoice, ok := gotSt.Zs[wantLab]
 			if !ok {
 				return fmt.Errorf("label mismatch: want %q, got nothing", wantLab)
 			}
@@ -711,11 +711,11 @@ func CheckRec(got, want TermRec) error {
 		if !ok {
 			return ErrSnapTypeMismatch(got, want)
 		}
-		if len(gotSt.Choices) != len(wantSt.Choices) {
-			return fmt.Errorf("choices mismatch: want %v items, got %v items", len(wantSt.Choices), len(gotSt.Choices))
+		if len(gotSt.Zs) != len(wantSt.Zs) {
+			return fmt.Errorf("choices mismatch: want %v items, got %v items", len(wantSt.Zs), len(gotSt.Zs))
 		}
-		for wantLab, wantChoice := range wantSt.Choices {
-			gotChoice, ok := gotSt.Choices[wantLab]
+		for wantLab, wantChoice := range wantSt.Zs {
+			gotChoice, ok := gotSt.Zs[wantLab]
 			if !ok {
 				return fmt.Errorf("label mismatch: want %q, got nothing", wantLab)
 			}

@@ -23,11 +23,11 @@ func NewAPI() API {
 	return newClientResty()
 }
 
-func (cl *clientResty) Incept(sigQN sym.ADT) (SigRef, error) {
-	return SigRef{}, nil
+func (cl *clientResty) Incept(sigQN sym.ADT) (ProcRef, error) {
+	return ProcRef{}, nil
 }
 
-func (cl *clientResty) Create(spec SigSpec) (SigSnap, error) {
+func (cl *clientResty) Create(spec ProcSpec) (ProcSnap, error) {
 	req := MsgFromSigSpec(spec)
 	var res SigSnapMsg
 	resp, err := cl.resty.R().
@@ -35,30 +35,30 @@ func (cl *clientResty) Create(spec SigSpec) (SigSnap, error) {
 		SetBody(&req).
 		Post("/signatures")
 	if err != nil {
-		return SigSnap{}, err
+		return ProcSnap{}, err
 	}
 	if resp.IsError() {
-		return SigSnap{}, fmt.Errorf("received: %v", string(resp.Body()))
+		return ProcSnap{}, fmt.Errorf("received: %v", string(resp.Body()))
 	}
 	return MsgToSigSnap(res)
 }
 
-func (c *clientResty) Retrieve(id id.ADT) (SigSnap, error) {
+func (c *clientResty) Retrieve(id id.ADT) (ProcSnap, error) {
 	var res SigSnapMsg
 	resp, err := c.resty.R().
 		SetResult(&res).
 		SetPathParam("id", id.String()).
 		Get("/signatures/{id}")
 	if err != nil {
-		return SigSnap{}, err
+		return ProcSnap{}, err
 	}
 	if resp.IsError() {
-		return SigSnap{}, fmt.Errorf("received: %v", string(resp.Body()))
+		return ProcSnap{}, fmt.Errorf("received: %v", string(resp.Body()))
 	}
 	return MsgToSigSnap(res)
 }
 
-func (c *clientResty) RetreiveRefs() ([]SigRef, error) {
-	refs := []SigRef{}
+func (c *clientResty) RetreiveRefs() ([]ProcRef, error) {
+	refs := []ProcRef{}
 	return refs, nil
 }

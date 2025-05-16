@@ -1,4 +1,4 @@
-package def
+package exec
 
 import (
 	"errors"
@@ -12,7 +12,7 @@ import (
 	"smecalculus/rolevod/lib/id"
 	"smecalculus/rolevod/lib/rn"
 
-	proceval "smecalculus/rolevod/app/proc/eval"
+	procexec "smecalculus/rolevod/app/proc/exec"
 )
 
 // Adapter
@@ -47,7 +47,7 @@ func (r *repoPgx) Insert(source data.Source, root PoolRec) (err error) {
 	return nil
 }
 
-func (r *repoPgx) InsertLiab(source data.Source, liab proceval.Liab) (err error) {
+func (r *repoPgx) InsertLiab(source data.Source, liab procexec.Liab) (err error) {
 	ds := data.MustConform[data.SourcePgx](source)
 	dto := DataFromLiab(liab)
 	args := pgx.NamedArgs{
@@ -64,54 +64,54 @@ func (r *repoPgx) InsertLiab(source data.Source, liab proceval.Liab) (err error)
 	return nil
 }
 
-func (r *repoPgx) SelectProc(source data.Source, procID id.ADT) (proceval.Cfg, error) {
+func (r *repoPgx) SelectProc(source data.Source, procID id.ADT) (procexec.Cfg, error) {
 	ds := data.MustConform[data.SourcePgx](source)
 	idAttr := slog.Any("procID", procID)
 	chnlRows, err := ds.Conn.Query(ds.Ctx, selectChnls, procID.String())
 	if err != nil {
 		r.log.Error("execution failed", idAttr)
-		return proceval.Cfg{}, err
+		return procexec.Cfg{}, err
 	}
 	defer chnlRows.Close()
 	chnlDtos, err := pgx.CollectRows(chnlRows, pgx.RowToStructByName[epData])
 	if err != nil {
 		r.log.Error("collection failed", idAttr, slog.Any("t", reflect.TypeOf(chnlDtos)))
-		return proceval.Cfg{}, err
+		return procexec.Cfg{}, err
 	}
 	chnls, err := DataToEPs(chnlDtos)
 	if err != nil {
 		r.log.Error("mapping failed", idAttr)
-		return proceval.Cfg{}, err
+		return procexec.Cfg{}, err
 	}
 	stepRows, err := ds.Conn.Query(ds.Ctx, selectSteps, procID.String())
 	if err != nil {
 		r.log.Error("execution failed", idAttr)
-		return proceval.Cfg{}, err
+		return procexec.Cfg{}, err
 	}
 	defer stepRows.Close()
-	stepDtos, err := pgx.CollectRows(stepRows, pgx.RowToStructByName[proceval.SemRecData])
+	stepDtos, err := pgx.CollectRows(stepRows, pgx.RowToStructByName[procexec.SemRecData])
 	if err != nil {
 		r.log.Error("collection failed", idAttr, slog.Any("t", reflect.TypeOf(stepDtos)))
-		return proceval.Cfg{}, err
+		return procexec.Cfg{}, err
 	}
-	steps, err := proceval.DataToSemRecs(stepDtos)
+	steps, err := procexec.DataToSemRecs(stepDtos)
 	if err != nil {
 		r.log.Error("mapping failed", idAttr)
-		return proceval.Cfg{}, err
+		return procexec.Cfg{}, err
 	}
 	r.log.Debug("selection succeeded", idAttr)
-	return proceval.Cfg{
-		Chnls: core.IndexBy(proceval.ChnlPH, chnls),
-		Steps: core.IndexBy(proceval.ChnlID, steps),
+	return procexec.Cfg{
+		Chnls: core.IndexBy(procexec.ChnlPH, chnls),
+		Steps: core.IndexBy(procexec.ChnlID, steps),
 	}, nil
 }
 
-func (r *repoPgx) UpdateProc(source data.Source, mod proceval.Mod) (err error) {
+func (r *repoPgx) UpdateProc(source data.Source, mod procexec.Mod) (err error) {
 	if len(mod.Locks) == 0 {
 		panic("empty locks")
 	}
 	ds := data.MustConform[data.SourcePgx](source)
-	dto, err := proceval.DataFromMod(mod)
+	dto, err := procexec.DataFromMod(mod)
 	if err != nil {
 		r.log.Error("mapping failed")
 		return err

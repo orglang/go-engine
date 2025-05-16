@@ -1,11 +1,11 @@
-package def
+package exec
 
 import (
 	"github.com/go-resty/resty/v2"
 
 	"smecalculus/rolevod/lib/id"
 
-	proceval "smecalculus/rolevod/app/proc/eval"
+	procexec "smecalculus/rolevod/app/proc/exec"
 )
 
 // Adapter
@@ -52,23 +52,23 @@ func (cl *clientResty) RetreiveRefs() ([]PoolRef, error) {
 	return refs, nil
 }
 
-func (cl *clientResty) Spawn(spec proceval.Spec) (proceval.Ref, error) {
-	req := proceval.MsgFromSpec(spec)
-	var res proceval.RefMsg
+func (cl *clientResty) Spawn(spec procexec.ProgSpec) (procexec.ProcRef, error) {
+	req := procexec.MsgFromSpec(spec)
+	var res procexec.RefMsg
 	_, err := cl.resty.R().
 		SetResult(&res).
 		SetBody(&req).
 		SetPathParam("poolID", spec.PoolID.String()).
 		Post("/pools/{poolID}/procs")
 	if err != nil {
-		return proceval.Ref{}, err
+		return procexec.ProcRef{}, err
 	}
-	return proceval.MsgToRef(res)
+	return procexec.MsgToRef(res)
 }
 
 func (cl *clientResty) Take(spec StepSpec) error {
 	req := MsgFromStepSpec(spec)
-	var res proceval.RefMsg
+	var res procexec.RefMsg
 	_, err := cl.resty.R().
 		SetResult(&res).
 		SetBody(&req).

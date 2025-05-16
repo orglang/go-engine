@@ -32,16 +32,16 @@ type sigSnapData struct {
 // goverter:extend smecalculus/rolevod/lib/id:Convert.*
 // goverter:extend smecalculus/rolevod/app/type/def:Data.*
 var (
-	DataToSigRef     func(sigRefData) (SigRef, error)
-	DataFromSigRef   func(SigRef) sigRefData
-	DataToSigRefs    func([]sigRefData) ([]SigRef, error)
-	DataFromSigRefs  func([]SigRef) []sigRefData
-	DataToSigRec     func(sigRecData) (SigRec, error)
-	DataFromSigRec   func(SigRec) (sigRecData, error)
-	DataToSigRecs    func([]sigRecData) ([]SigRec, error)
-	DataFromSigRecs  func([]SigRec) ([]sigRecData, error)
-	DataToSigSnap    func(sigSnapData) (SigSnap, error)
-	DataFromSigSnap  func(SigSnap) (sigSnapData, error)
-	DataToSigSnaps   func([]sigSnapData) ([]SigSnap, error)
-	DataFromSigSnaps func([]SigSnap) ([]sigSnapData, error)
+	DataToSigRef     func(sigRefData) (ProcRef, error)
+	DataFromSigRef   func(ProcRef) sigRefData
+	DataToSigRefs    func([]sigRefData) ([]ProcRef, error)
+	DataFromSigRefs  func([]ProcRef) []sigRefData
+	DataToSigRec     func(sigRecData) (ProcRec, error)
+	DataFromSigRec   func(ProcRec) (sigRecData, error)
+	DataToSigRecs    func([]sigRecData) ([]ProcRec, error)
+	DataFromSigRecs  func([]ProcRec) ([]sigRecData, error)
+	DataToSigSnap    func(sigSnapData) (ProcSnap, error)
+	DataFromSigSnap  func(ProcSnap) (sigSnapData, error)
+	DataToSigSnaps   func([]sigSnapData) ([]ProcSnap, error)
+	DataFromSigSnaps func([]ProcSnap) ([]sigSnapData, error)
 )

@@ -2,10 +2,29 @@ package def
 
 import (
 	"fmt"
+	"log/slog"
 
+	"smecalculus/rolevod/lib/data"
 	"smecalculus/rolevod/lib/id"
 	"smecalculus/rolevod/lib/sym"
 )
+
+type ProcSpec struct {
+	ProcQN sym.ADT // or dec.ProcID
+	ProcTS TermSpec
+}
+
+type ProcRef struct {
+	ProcID id.ADT
+}
+
+type ProcRec struct {
+	ProcID id.ADT
+}
+
+type ProcSnap struct {
+	ProcID id.ADT
+}
 
 type TermSpec interface {
 	Via() sym.ADT
@@ -25,23 +44,24 @@ type WaitSpec struct {
 func (s WaitSpec) Via() sym.ADT { return s.X }
 
 type SendSpec struct {
-	X sym.ADT // via
-	Y sym.ADT // val
+	CommPH sym.ADT // via
+	ValPH  sym.ADT // val
 }
 
-func (s SendSpec) Via() sym.ADT { return s.X }
+func (s SendSpec) Via() sym.ADT { return s.CommPH }
 
 type RecvSpec struct {
-	X    sym.ADT // via
-	Y    sym.ADT // val
-	Cont TermSpec
+	CommPH sym.ADT // via
+	BindPH sym.ADT // val
+	ContTS TermSpec
 }
 
-func (s RecvSpec) Via() sym.ADT { return s.X }
+func (s RecvSpec) Via() sym.ADT { return s.CommPH }
 
 type LabSpec struct {
 	X     sym.ADT
 	Label sym.ADT
+	Cont  TermSpec
 }
 
 func (s LabSpec) Via() sym.ADT { return s.X }
@@ -55,9 +75,9 @@ func (s CaseSpec) Via() sym.ADT { return s.X }
 
 // aka ExpName
 type LinkSpec struct {
-	SigQN sym.ADT
-	X     id.ADT
-	Ys    []id.ADT
+	ProcQN sym.ADT
+	X      id.ADT
+	Ys     []id.ADT
 }
 
 func (s LinkSpec) Via() sym.ADT { return "" }
@@ -78,6 +98,16 @@ type CallSpec struct {
 
 func (s CallSpec) Via() sym.ADT { return s.SigPH }
 
+// аналог LabSpec, но отправляем тегированный балк каналов
+type CallSpec2 struct {
+	CommPH sym.ADT
+	ProcSN sym.ADT   // aka label
+	ValPHs []sym.ADT // channel bulk
+	ContTS TermSpec
+}
+
+func (s CallSpec2) Via() sym.ADT { return s.CommPH }
+
 // аналог RecvSpec, но значения принимаются балком
 type SpawnSpec struct {
 	X      sym.ADT
@@ -97,6 +127,38 @@ type SpawnSpec2 struct {
 }
 
 func (s SpawnSpec2) Via() sym.ADT { return s.SigPH }
+
+// аналог CaseSpec, но принимаем тегированный балк каналов
+type SpawnSpec3 struct {
+	PoolPH sym.ADT
+}
+
+func (s SpawnSpec3) Via() sym.ADT { return s.PoolPH }
+
+type AcqureSpec struct {
+	CommPH sym.ADT
+	ContTS TermSpec
+}
+
+func (s AcqureSpec) Via() sym.ADT { return s.CommPH }
+
+type AcceptSpec struct {
+	X sym.ADT
+}
+
+func (s AcceptSpec) Via() sym.ADT { return s.X }
+
+type DetachSpec struct {
+	X sym.ADT
+}
+
+func (s DetachSpec) Via() sym.ADT { return s.X }
+
+type ReleaseSpec struct {
+	X sym.ADT
+}
+
+func (s ReleaseSpec) Via() sym.ADT { return s.X }
 
 type TermRec interface {
 	TermSpec
@@ -175,13 +237,46 @@ func CollectEnv(spec TermSpec) []id.ADT {
 	return collectEnvRec(spec, []id.ADT{})
 }
 
+type API interface {
+	Create(ProcSpec) (ProcRef, error)
+	Retrieve(id.ADT) (ProcRec, error)
+}
+
+// for compilation purposes
+func newAPI() API {
+	return &service{}
+}
+
+type service struct {
+	procs    Repo
+	operator data.Operator
+	log      *slog.Logger
+}
+
+func newService(
+	procs Repo,
+	operator data.Operator,
+	l *slog.Logger,
+) *service {
+	return &service{procs, operator, l}
+}
+
+func (s *service) Create(spec ProcSpec) (ProcRef, error) {
+	return ProcRef{}, nil
+}
+
+func (s *service) Retrieve(recID id.ADT) (ProcRec, error) {
+	return ProcRec{}, nil
+}
+
 type Repo interface {
+	InsertProc(data.Source, ProcRec) error
 }
 
 func collectEnvRec(s TermSpec, env []id.ADT) []id.ADT {
 	switch spec := s.(type) {
 	case RecvSpec:
-		return collectEnvRec(spec.Cont, env)
+		return collectEnvRec(spec.ContTS, env)
 	case CaseSpec:
 		for _, cont := range spec.Conts {
 			env = collectEnvRec(cont, env)

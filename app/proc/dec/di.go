@@ -14,7 +14,7 @@ import (
 	"smecalculus/rolevod/lib/msg"
 )
 
-var Module = fx.Module("app/sig",
+var Module = fx.Module("proc/dec",
 	fx.Provide(
 		fx.Annotate(newService, fx.As(new(API))),
 		fx.Annotate(newRepoPgx, fx.As(new(Repo))),

@@ -1,6 +1,6 @@
 //go:build !goverter
 
-package eval
+package exec
 
 import (
 	"github.com/labstack/echo/v4"

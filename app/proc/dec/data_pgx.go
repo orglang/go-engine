@@ -26,9 +26,9 @@ func newRepo() Repo {
 	return &repoPgx{}
 }
 
-func (r *repoPgx) Insert(source data.Source, mod SigRec) error {
+func (r *repoPgx) Insert(source data.Source, mod ProcRec) error {
 	ds := data.MustConform[data.SourcePgx](source)
-	idAttr := slog.Any("id", mod.SigID)
+	idAttr := slog.Any("id", mod.DecID)
 	dto, err := DataFromSigRec(mod)
 	if err != nil {
 		r.log.Error("model mapping failed", idAttr)
@@ -101,40 +101,40 @@ func (r *repoPgx) Insert(source data.Source, mod SigRec) error {
 	return nil
 }
 
-func (r *repoPgx) SelectByID(source data.Source, rid id.ADT) (SigSnap, error) {
+func (r *repoPgx) SelectByID(source data.Source, rid id.ADT) (ProcSnap, error) {
 	ds := data.MustConform[data.SourcePgx](source)
 	idAttr := slog.Any("id", rid)
 	rows, err := ds.Conn.Query(ds.Ctx, selectById, rid.String())
 	if err != nil {
 		r.log.Error("query execution failed", idAttr, slog.String("q", selectById))
-		return SigSnap{}, err
+		return ProcSnap{}, err
 	}
 	defer rows.Close()
 	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[sigSnapData])
 	if err != nil {
 		r.log.Error("row collection failed", idAttr)
-		return SigSnap{}, err
+		return ProcSnap{}, err
 	}
 	r.log.Log(ds.Ctx, core.LevelTrace, "entitiy selection succeeded", slog.Any("dto", dto))
 	return DataToSigSnap(dto)
 }
 
-func (r *repoPgx) SelectEnv(source data.Source, ids []id.ADT) (map[id.ADT]SigRec, error) {
+func (r *repoPgx) SelectEnv(source data.Source, ids []id.ADT) (map[id.ADT]ProcRec, error) {
 	sigs, err := r.SelectByIDs(source, ids)
 	if err != nil {
 		return nil, err
 	}
-	env := make(map[id.ADT]SigRec, len(sigs))
+	env := make(map[id.ADT]ProcRec, len(sigs))
 	for _, s := range sigs {
-		env[s.SigID] = s
+		env[s.DecID] = s
 	}
 	return env, nil
 }
 
-func (r *repoPgx) SelectByIDs(source data.Source, ids []id.ADT) (_ []SigRec, err error) {
+func (r *repoPgx) SelectByIDs(source data.Source, ids []id.ADT) (_ []ProcRec, err error) {
 	ds := data.MustConform[data.SourcePgx](source)
 	if len(ids) == 0 {
-		return []SigRec{}, nil
+		return []ProcRec{}, nil
 	}
 	batch := pgx.Batch{}
 	for _, rid := range ids {
@@ -167,7 +167,7 @@ func (r *repoPgx) SelectByIDs(source data.Source, ids []id.ADT) (_ []SigRec, err
 	return DataToSigRecs(dtos)
 }
 
-func (r *repoPgx) SelectAll(source data.Source) ([]SigRef, error) {
+func (r *repoPgx) SelectAll(source data.Source) ([]ProcRef, error) {
 	ds := data.MustConform[data.SourcePgx](source)
 	query := `
 		select

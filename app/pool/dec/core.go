@@ -8,28 +8,28 @@ import (
 	"smecalculus/rolevod/lib/sym"
 )
 
-type BndSpec struct {
-	ChnlPH sym.ADT // may be blank
+type PoolSpec struct {
+	X      ChnlSpec // export
+	PoolNS sym.ADT
+	PoolSN sym.ADT    // label
+	Ys     []ChnlSpec // imports
+}
+
+type ChnlSpec struct {
+	CommPH sym.ADT // may be blank
 	TypeQN sym.ADT
 }
 
-type SigSpec struct {
-	X     BndSpec // export
-	SigNS sym.ADT
-	SigSN sym.ADT   // label
-	Ys    []BndSpec // imports
+type PoolRef struct {
+	DecID id.ADT
 }
 
-type SigRef struct {
-	SigID id.ADT
-}
-
-type sigRec struct {
-	SigID id.ADT
+type poolRec struct {
+	DecID id.ADT
 }
 
 type API interface {
-	Create(SigSpec) (SigRef, error)
+	Create(PoolSpec) (PoolRef, error)
 }
 
 // for compilation purposes
@@ -43,11 +43,11 @@ type service struct {
 	log      *slog.Logger
 }
 
-func (s *service) Create(spec SigSpec) (SigRef, error) {
-	return SigRef{}, nil
+func (s *service) Create(spec PoolSpec) (PoolRef, error) {
+	return PoolRef{}, nil
 }
 
 // Port
 type repo interface {
-	Insert(data.Source, sigRec) error
+	Insert(data.Source, poolRec) error
 }

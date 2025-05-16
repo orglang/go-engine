@@ -1,4 +1,4 @@
-package eval
+package exec
 
 import (
 	"context"
@@ -10,7 +10,6 @@ import (
 	"smecalculus/rolevod/lib/rn"
 	"smecalculus/rolevod/lib/sym"
 
-	poolxact "smecalculus/rolevod/app/pool/xact"
 	procdec "smecalculus/rolevod/app/proc/dec"
 	procdef "smecalculus/rolevod/app/proc/def"
 	typedef "smecalculus/rolevod/app/type/def"
@@ -43,24 +42,24 @@ type SvcRec struct {
 
 func (r SvcRec) step() id.ADT { return r.ChnlID }
 
-type Spec struct {
+type ProgSpec struct {
 	PoolID id.ADT
-	ProcID id.ADT
-	Term   poolxact.TermSpec
+	ExecID id.ADT
+	ProcTS procdef.TermSpec
 }
 
-type Ref struct {
-	ProcID id.ADT
+type ProcRef struct {
+	ExecID id.ADT
 }
 
-type Snap struct {
-	ProcID id.ADT
+type ProcSnap struct {
+	ExecID id.ADT
 }
 
 type MainCfg struct {
 	ProcID id.ADT
 	Bnds   map[sym.ADT]EP2
-	Acts   map[id.ADT]poolxact.SemRec
+	Acts   map[id.ADT]SemRec
 	PoolID id.ADT
 	ProcRN rn.ADT
 }
@@ -76,7 +75,7 @@ type Cfg struct {
 }
 
 type Env struct {
-	ProcSigs  map[id.ADT]procdec.SigRec
+	ProcSigs  map[id.ADT]procdec.ProcRec
 	Types     map[sym.ADT]typedef.TypeRec
 	TypeTerms map[id.ADT]typedef.TermRec
 	Locks     map[sym.ADT]Lock
@@ -102,7 +101,7 @@ type Lock struct {
 	PoolRN rn.ADT
 }
 
-func ChnlPH(ch EP) sym.ADT { return ch.ChnlPH }
+func ChnlPH(rec EP) sym.ADT { return rec.ChnlPH }
 
 // ответственность за процесс
 type Liab struct {
@@ -122,7 +121,7 @@ type Mod struct {
 
 type MainMod struct {
 	Bnds []Bnd
-	Acts []poolxact.SemRec
+	Acts []SemRec
 }
 
 type Bnd struct {
@@ -135,8 +134,8 @@ type Bnd struct {
 }
 
 type API interface {
-	Create(Spec) (Ref, error)
-	Retrieve(id.ADT) (Snap, error)
+	Create(ProgSpec) (ProcRef, error)
+	Retrieve(id.ADT) (ProcSnap, error)
 }
 
 // for compilation purposes
@@ -158,29 +157,29 @@ func newService(
 	return &service{procs, operator, l}
 }
 
-func (s *service) Create(spec Spec) (_ Ref, err error) {
-	idAttr := slog.Any("procID", spec.ProcID)
+func (s *service) Create(spec ProgSpec) (_ ProcRef, err error) {
+	idAttr := slog.Any("procID", spec.ExecID)
 	s.log.Debug("creation started", idAttr)
 	ctx := context.Background()
 	var mainCfg MainCfg
 	err = s.operator.Implicit(ctx, func(ds data.Source) error {
-		mainCfg, err = s.procs.SelectMain(ds, spec.ProcID)
+		mainCfg, err = s.procs.SelectMain(ds, spec.ExecID)
 		return err
 	})
 	if err != nil {
 		s.log.Error("creation failed", idAttr)
-		return Ref{}, err
+		return ProcRef{}, err
 	}
 	var mainEnv Env
-	err = s.checkType(spec.PoolID, mainEnv, mainCfg, spec.Term)
+	err = s.checkType(spec.PoolID, mainEnv, mainCfg, spec.ProcTS)
 	if err != nil {
 		s.log.Error("creation failed", idAttr)
-		return Ref{}, err
+		return ProcRef{}, err
 	}
-	mainMod, err := s.createWith(mainEnv, mainCfg, spec.Term)
+	mainMod, err := s.createWith(mainEnv, mainCfg, spec.ProcTS)
 	if err != nil {
 		s.log.Error("creation failed", idAttr)
-		return Ref{}, err
+		return ProcRef{}, err
 	}
 	err = s.operator.Explicit(ctx, func(ds data.Source) error {
 		err = s.procs.UpdateMain(ds, mainMod)
@@ -192,22 +191,22 @@ func (s *service) Create(spec Spec) (_ Ref, err error) {
 	})
 	if err != nil {
 		s.log.Error("creation failed", idAttr)
-		return Ref{}, err
+		return ProcRef{}, err
 	}
-	return Ref{}, nil
+	return ProcRef{}, nil
 }
 
-func (s *service) Retrieve(procID id.ADT) (_ Snap, err error) {
-	return Snap{}, nil
+func (s *service) Retrieve(procID id.ADT) (_ ProcSnap, err error) {
+	return ProcSnap{}, nil
 }
 
 func (s *service) checkType(
 	poolID id.ADT,
 	mainEnv Env,
 	mainCfg MainCfg,
-	termSpec poolxact.TermSpec,
+	termSpec procdef.TermSpec,
 ) error {
-	imp, ok := mainCfg.Bnds[termSpec.ConnPH()]
+	imp, ok := mainCfg.Bnds[termSpec.Via()]
 	if !ok {
 		panic("no via in main cfg")
 	}
@@ -222,7 +221,7 @@ func (s *service) checkProvider(
 	poolID id.ADT,
 	mainEnv Env,
 	mainCfg MainCfg,
-	ts poolxact.TermSpec,
+	ts procdef.TermSpec,
 ) error {
 	return nil
 }
@@ -231,7 +230,7 @@ func (s *service) checkClient(
 	poolID id.ADT,
 	mainEnv Env,
 	mainCfg MainCfg,
-	ts poolxact.TermSpec,
+	ts procdef.TermSpec,
 ) error {
 	return nil
 }
@@ -239,13 +238,13 @@ func (s *service) checkClient(
 func (s *service) createWith(
 	mainEnv Env,
 	procCfg MainCfg,
-	ts poolxact.TermSpec,
+	ts procdef.TermSpec,
 ) (
 	procMod MainMod,
 	_ error,
 ) {
 	switch termSpec := ts.(type) {
-	case poolxact.CallSpec:
+	case procdef.CallSpec:
 		viaCord, ok := procCfg.Bnds[termSpec.X]
 		if !ok {
 			err := procdef.ErrMissingInCfg(termSpec.X)
@@ -263,18 +262,18 @@ func (s *service) createWith(
 		}
 		rcvrAct := procCfg.Acts[viaCord.CordID]
 		if rcvrAct == nil {
-			sndrAct := poolxact.MsgRec{}
+			sndrAct := MsgRec{}
 			procMod.Acts = append(procMod.Acts, sndrAct)
 			s.log.Debug("coordination half done", viaAttr)
 			return procMod, nil
 		}
 		s.log.Debug("coordination succeeded")
 		return procMod, nil
-	case poolxact.SpawnSpec:
+	case procdef.SpawnSpec:
 		s.log.Debug("coordination succeeded")
 		return procMod, nil
 	default:
-		panic(poolxact.ErrTermTypeUnexpected(ts))
+		panic(procdef.ErrTermTypeUnexpected(ts))
 	}
 }
 
@@ -286,8 +285,6 @@ type repo interface {
 type SemRepo interface {
 	InsertSem(data.Source, ...SemRec) error
 	SelectSemByID(data.Source, id.ADT) (SemRec, error)
-	SelectSemByPID(data.Source, id.ADT) (SemRec, error)
-	SelectSemByVID(data.Source, id.ADT) (SemRec, error)
 }
 
 func ErrMissingChnl(want sym.ADT) error {

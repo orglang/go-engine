@@ -10,14 +10,13 @@ import (
 	"smecalculus/rolevod/lib/msg"
 
 	"smecalculus/rolevod/internal/alias"
-	"smecalculus/rolevod/internal/chnl"
-	"smecalculus/rolevod/internal/state"
-	"smecalculus/rolevod/internal/step"
 
-	"smecalculus/rolevod/app/deal"
-	"smecalculus/rolevod/app/pool"
-	"smecalculus/rolevod/app/role"
-	"smecalculus/rolevod/app/sig"
+	poolexec "smecalculus/rolevod/app/pool/exec"
+	procdec "smecalculus/rolevod/app/proc/dec"
+	procdef "smecalculus/rolevod/app/proc/def"
+	procexec "smecalculus/rolevod/app/proc/exec"
+	typedef "smecalculus/rolevod/app/type/def"
+
 	"smecalculus/rolevod/app/web"
 )
 
@@ -27,16 +26,13 @@ func main() {
 		core.Module,
 		data.Module,
 		msg.Module,
-		// internal
 		alias.Module,
-		chnl.Module,
-		state.Module,
-		step.Module,
 		// app
-		deal.Module,
-		pool.Module,
-		role.Module,
-		sig.Module,
+		procdef.Module,
+		poolexec.Module,
+		typedef.Module,
+		procexec.Module,
+		procdec.Module,
 		web.Module,
 	).Run()
 }

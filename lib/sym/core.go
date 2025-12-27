@@ -4,43 +4,57 @@ import (
 	"strings"
 )
 
+var (
+	Nil   ADT
+	Blank ADT
+)
+
 type Symbolizable interface {
 	Sym() ADT
 }
 
 type ADT string
 
-func (ADT) PH() {}
-
-func New(name string) ADT {
-	return ADT(name)
+func New(s string) ADT {
+	return ADT(s)
 }
 
-func (ns ADT) New(name string) ADT {
-	return ADT(strings.Join([]string{string(ns), name}, sep))
+func (ns ADT) New(sn string) ADT {
+	return ADT(strings.Join([]string{string(ns), sn}, sep))
 }
 
-func (s ADT) Name() string {
+// simple name
+func (s ADT) SN() string {
 	sym := string(s)
 	return sym[strings.LastIndex(sym, sep)+1:]
 }
 
+// namespace
 func (s ADT) NS() ADT {
 	sym := string(s)
 	return ADT(sym[0:strings.LastIndex(sym, sep)])
 }
 
-func ConvertToSame(a ADT) ADT {
-	return a
+func ConvertToSame(s ADT) ADT {
+	return s
 }
 
-func CovertFromString(s string) ADT {
-	return ADT(s)
+func ConvertFromString(s string) (ADT, error) {
+	return ADT(s), nil
 }
 
-func ConvertToString(a ADT) string {
-	return string(a)
+func ConvertToString(s ADT) string {
+	return string(s)
 }
+
+// goverter:variables
+// goverter:output:format assign-variable
+// goverter:extend ConvertToString
+// goverter:extend ConvertFromString
+var (
+	ConvertFromStrings func([]string) ([]ADT, error)
+	ConvertToStrings   func([]ADT) []string
+)
 
 const (
 	sep = "."

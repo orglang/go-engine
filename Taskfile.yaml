@@ -16,7 +16,7 @@ includes:
 
 tasks:
   component:binaries:
-    aliases: [cbs]
+    aliases: [app:bins, cbs]
     cmds:
       - task: app:binary
 

@@ -131,7 +131,7 @@ func (r *repoPgx) SelectTypeRefs(source data.Source) ([]TypeRef, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[typeRefData])
+	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[typeRefDS])
 	if err != nil {
 		r.log.Error("rows collection failed")
 		return nil, err
@@ -149,7 +149,7 @@ func (r *repoPgx) SelectTypeRecByID(source data.Source, recID id.ADT) (TypeRec, 
 		return TypeRec{}, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[typeRecData])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[typeRecDS])
 	if err != nil {
 		r.log.Error("row collection failed", idAttr)
 		return TypeRec{}, err
@@ -167,7 +167,7 @@ func (r *repoPgx) SelectTypeRecByQN(source data.Source, recQN sym.ADT) (TypeRec,
 		return TypeRec{}, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[typeRecData])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[typeRecDS])
 	if err != nil {
 		r.log.Error("row collection failed", fqnAttr)
 		return TypeRec{}, err
@@ -197,14 +197,14 @@ func (r *repoPgx) SelectTypeRecsByIDs(source data.Source, recIDs []id.ADT) (_ []
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	var dtos []typeRecData
+	var dtos []typeRecDS
 	for _, rid := range recIDs {
 		rows, err := br.Query()
 		if err != nil {
 			r.log.Error("query execution failed", slog.Any("id", rid), slog.String("q", query))
 		}
 		defer rows.Close()
-		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[typeRecData])
+		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[typeRecDS])
 		if err != nil {
 			r.log.Error("row collection failed", slog.Any("id", rid))
 		}
@@ -242,14 +242,14 @@ func (r *repoPgx) SelectTypeRecsByQNs(source data.Source, recQNs []sym.ADT) (_ [
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	var dtos []typeRecData
+	var dtos []typeRecDS
 	for _, fqn := range recQNs {
 		rows, err := br.Query()
 		if err != nil {
 			r.log.Error("query execution failed", slog.Any("fqn", fqn), slog.String("q", selectByFQN))
 		}
 		defer rows.Close()
-		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[typeRecData])
+		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[typeRecDS])
 		if err != nil {
 			r.log.Error("row collection failed", slog.Any("fqn", fqn))
 		}
@@ -319,7 +319,7 @@ func (r *repoPgx) SelectTermRecByID(source data.Source, recID id.ADT) (TermRec, 
 		return nil, err
 	}
 	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[stateData])
+	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[stateDS])
 	if err != nil {
 		r.log.Error("row collection failed", idAttr)
 		return nil, err
@@ -329,7 +329,7 @@ func (r *repoPgx) SelectTermRecByID(source data.Source, recID id.ADT) (TermRec, 
 		return nil, fmt.Errorf("no rows selected")
 	}
 	r.log.Log(ds.Ctx, core.LevelTrace, "entity selection succeeded", slog.Any("dtos", dtos))
-	states := make(map[string]stateData, len(dtos))
+	states := make(map[string]stateDS, len(dtos))
 	for _, dto := range dtos {
 		states[dto.ID] = dto
 	}
@@ -366,7 +366,7 @@ func (r *repoPgx) SelectTermRecsByIDs(source data.Source, recIDs []id.ADT) (_ []
 			r.log.Error("query execution failed", idAttr, slog.String("q", selectByID))
 		}
 		defer rows.Close()
-		dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[stateData])
+		dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[stateDS])
 		if err != nil {
 			r.log.Error("rows collection failed", idAttr)
 		}
@@ -374,7 +374,7 @@ func (r *repoPgx) SelectTermRecsByIDs(source data.Source, recIDs []id.ADT) (_ []
 			r.log.Error("entity selection failed", idAttr)
 			return nil, ErrDoesNotExist(recID)
 		}
-		rec, err := dataToTermRec(&termRecData{recID.String(), dtos})
+		rec, err := dataToTermRec(&termRecDS{recID.String(), dtos})
 		if err != nil {
 			r.log.Error("model mapping failed", idAttr)
 			return nil, err

@@ -12,7 +12,7 @@ import (
 	"orglang/orglang/avt/core"
 )
 
-var Module = fx.Module("lib/msg",
+var Module = fx.Module("avt/msg",
 	fx.Provide(
 		newEcho,
 	),

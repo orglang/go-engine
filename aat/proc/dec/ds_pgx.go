@@ -110,7 +110,7 @@ func (r *repoPgx) SelectByID(source data.Source, rid id.ADT) (ProcSnap, error) {
 		return ProcSnap{}, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[sigSnapData])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[sigSnapDS])
 	if err != nil {
 		r.log.Error("row collection failed", idAttr)
 		return ProcSnap{}, err
@@ -147,14 +147,14 @@ func (r *repoPgx) SelectByIDs(source data.Source, ids []id.ADT) (_ []ProcRec, er
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	var dtos []sigRecData
+	var dtos []sigRecDS
 	for _, rid := range ids {
 		rows, err := br.Query()
 		if err != nil {
 			r.log.Error("query execution failed", slog.Any("id", rid), slog.String("q", selectById))
 		}
 		defer rows.Close()
-		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[sigRecData])
+		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[sigRecDS])
 		if err != nil {
 			r.log.Error("row collection failed", slog.Any("id", rid))
 		}
@@ -179,7 +179,7 @@ func (r *repoPgx) SelectAll(source data.Source) ([]ProcRef, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[sigRefData])
+	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[sigRefDS])
 	if err != nil {
 		r.log.Error("rows collection failed")
 		return nil, err

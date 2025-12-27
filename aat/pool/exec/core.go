@@ -20,6 +20,16 @@ import (
 	typedef "orglang/orglang/aat/type/def"
 )
 
+// Port
+type API interface {
+	Create(PoolSpec) (PoolRef, error)
+	Retrieve(id.ADT) (PoolSnap, error)
+	RetreiveRefs() ([]PoolRef, error)
+	Spawn(procexec.ProcSpec) (procexec.ProcRef, error)
+	Take(StepSpec) error
+	Poll(PollSpec) (procexec.ProcRef, error)
+}
+
 type PoolSpec struct {
 	PoolQN sym.ADT
 	SupID  id.ADT
@@ -54,27 +64,17 @@ type PollSpec struct {
 	PoolTS pooldef.TermSpec
 }
 
-// Port
-type API interface {
-	Create(PoolSpec) (PoolRef, error)
-	Retrieve(id.ADT) (PoolSnap, error)
-	RetreiveRefs() ([]PoolRef, error)
-	Spawn(procexec.ProcSpec) (procexec.ProcRef, error)
-	Take(StepSpec) error
-	Poll(PollSpec) (procexec.ProcRef, error)
-}
-
-// for compilation purposes
-func newAPI() API {
-	return &service{}
-}
-
 type service struct {
 	pools    Repo
 	procs    procdec.Repo
 	types    typedef.Repo
 	operator data.Operator
 	log      *slog.Logger
+}
+
+// for compilation purposes
+func newAPI() API {
+	return &service{}
 }
 
 func newService(
@@ -1339,23 +1339,6 @@ func (s *service) checkClient(
 		panic(procdef.ErrTermTypeUnexpected(ts))
 	}
 }
-
-// Port
-type Repo interface {
-	Insert(data.Source, PoolRec) error
-	InsertLiab(data.Source, procexec.Liab) error
-	SelectRefs(data.Source) ([]PoolRef, error)
-	SelectSubs(data.Source, id.ADT) (PoolSnap, error)
-	SelectProc(data.Source, id.ADT) (procexec.Cfg, error)
-	UpdateProc(data.Source, procexec.Mod) error
-}
-
-// goverter:variables
-// goverter:output:format assign-variable
-// goverter:extend orglang/orglang/avt/id:Convert.*
-var (
-	ConvertRecToRef func(PoolRec) PoolRef
-)
 
 func errOptimisticUpdate(got rn.ADT) error {
 	return fmt.Errorf("entity concurrent modification: got revision %v", got)

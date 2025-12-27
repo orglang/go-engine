@@ -6,4 +6,4 @@ messaging:
 storage:
   protocol:
     postgres:
-      url: postgres://rolevod:rolevod@localhost:5432/rolevod
+      url: postgres://orglang:orglang@localhost:5432/orglang

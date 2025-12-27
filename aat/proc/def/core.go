@@ -9,6 +9,11 @@ import (
 	"orglang/orglang/avt/sym"
 )
 
+type API interface {
+	Create(ProcSpec) (ProcRef, error)
+	Retrieve(id.ADT) (ProcRec, error)
+}
+
 type ProcSpec struct {
 	ProcQN sym.ADT // or dec.ProcID
 	ProcTS TermSpec
@@ -230,20 +235,15 @@ func CollectEnv(spec TermSpec) []id.ADT {
 	return collectEnvRec(spec, []id.ADT{})
 }
 
-type API interface {
-	Create(ProcSpec) (ProcRef, error)
-	Retrieve(id.ADT) (ProcRec, error)
+type service struct {
+	procs    Repo
+	operator data.Operator
+	log      *slog.Logger
 }
 
 // for compilation purposes
 func newAPI() API {
 	return &service{}
-}
-
-type service struct {
-	procs    Repo
-	operator data.Operator
-	log      *slog.Logger
 }
 
 func newService(
@@ -260,10 +260,6 @@ func (s *service) Create(spec ProcSpec) (ProcRef, error) {
 
 func (s *service) Retrieve(recID id.ADT) (ProcRec, error) {
 	return ProcRec{}, nil
-}
-
-type Repo interface {
-	InsertProc(data.Source, ProcRec) error
 }
 
 func collectEnvRec(s TermSpec, env []id.ADT) []id.ADT {

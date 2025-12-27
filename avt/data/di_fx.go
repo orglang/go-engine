@@ -9,7 +9,7 @@ import (
 	"orglang/orglang/avt/core"
 )
 
-var Module = fx.Module("lib/data",
+var Module = fx.Module("avt/data",
 	fx.Provide(
 		newPgx,
 		fx.Annotate(newOperator, fx.As(new(Operator))),

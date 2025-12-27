@@ -73,7 +73,7 @@ func (r *repoPgx) SelectProc(source data.Source, procID id.ADT) (procexec.Cfg, e
 		return procexec.Cfg{}, err
 	}
 	defer chnlRows.Close()
-	chnlDtos, err := pgx.CollectRows(chnlRows, pgx.RowToStructByName[epData])
+	chnlDtos, err := pgx.CollectRows(chnlRows, pgx.RowToStructByName[epDS])
 	if err != nil {
 		r.log.Error("collection failed", idAttr, slog.Any("t", reflect.TypeOf(chnlDtos)))
 		return procexec.Cfg{}, err
@@ -89,7 +89,7 @@ func (r *repoPgx) SelectProc(source data.Source, procID id.ADT) (procexec.Cfg, e
 		return procexec.Cfg{}, err
 	}
 	defer stepRows.Close()
-	stepDtos, err := pgx.CollectRows(stepRows, pgx.RowToStructByName[procexec.SemRecData])
+	stepDtos, err := pgx.CollectRows(stepRows, pgx.RowToStructByName[procexec.SemRecDS])
 	if err != nil {
 		r.log.Error("collection failed", idAttr, slog.Any("t", reflect.TypeOf(stepDtos)))
 		return procexec.Cfg{}, err
@@ -208,7 +208,7 @@ func (r *repoPgx) SelectSubs(source data.Source, poolID id.ADT) (PoolSnap, error
 		return PoolSnap{}, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[poolSnapData])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[poolSnapDS])
 	if err != nil {
 		r.log.Error("collection failed", idAttr, slog.Any("struct", reflect.TypeOf(dto)))
 		return PoolSnap{}, err
@@ -234,7 +234,7 @@ func (r *repoPgx) SelectRefs(source data.Source) ([]PoolRef, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[poolRefData])
+	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[poolRefDS])
 	if err != nil {
 		r.log.Error("collection failed", slog.Any("t", reflect.TypeOf(dtos)))
 		return nil, err

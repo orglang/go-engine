@@ -1,71 +1,32 @@
 package exec
 
 import (
-	validation "github.com/go-ozzo/ozzo-validation/v4"
-
-	"orglang/orglang/avt/id"
-
 	procdef "orglang/orglang/aat/proc/def"
 )
 
-type PoolSpecMsg struct {
+type PoolSpecME struct {
 	SigQN   string   `json:"sig_qn"`
 	ProcIDs []string `json:"proc_ids"`
-	SupID   string   `json:"suo_id"`
+	SupID   string   `json:"sup_id"`
 }
 
-func (dto PoolSpecMsg) Validate() error {
-	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.SupID, id.Optional...),
-	)
-}
-
-type IdentMsg struct {
+type IdentME struct {
 	PoolID string `json:"id" param:"id"`
 }
 
-type PoolRefMsg struct {
+type PoolRefME struct {
 	PoolID string `json:"pool_id"`
 	ProcID string `json:"proc_id"`
 }
 
-type PoolSnapMsg struct {
-	PoolID string       `json:"id"`
-	Title  string       `json:"title"`
-	Subs   []PoolRefMsg `json:"subs"`
+type PoolSnapME struct {
+	PoolID string      `json:"id"`
+	Title  string      `json:"title"`
+	Subs   []PoolRefME `json:"subs"`
 }
 
-// goverter:variables
-// goverter:output:format assign-variable
-// goverter:extend orglang/orglang/avt/id:Convert.*
-var (
-	MsgToPoolSpec   func(PoolSpecMsg) (PoolSpec, error)
-	MsgFromPoolSpec func(PoolSpec) PoolSpecMsg
-	MsgToPoolRef    func(PoolRefMsg) (PoolRef, error)
-	MsgFromPoolRef  func(PoolRef) PoolRefMsg
-	MsgToPoolSnap   func(PoolSnapMsg) (PoolSnap, error)
-	MsgFromPoolSnap func(PoolSnap) PoolSnapMsg
-)
-
-type StepSpecMsg struct {
-	PoolID string              `json:"pool_id"`
-	ProcID string              `json:"proc_id"`
-	Term   procdef.TermSpecMsg `json:"term"`
+type StepSpecME struct {
+	PoolID string             `json:"pool_id"`
+	ProcID string             `json:"proc_id"`
+	Term   procdef.TermSpecME `json:"term"`
 }
-
-func (dto StepSpecMsg) Validate() error {
-	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.PoolID, id.Required...),
-		validation.Field(&dto.ProcID, id.Required...),
-		validation.Field(&dto.Term, validation.Required),
-	)
-}
-
-// goverter:variables
-// goverter:output:format assign-variable
-// goverter:extend orglang/orglang/avt/id:Convert.*
-// goverter:extend orglang/orglang/aat/proc/def:Msg.*
-var (
-	MsgFromStepSpec func(StepSpec) StepSpecMsg
-	MsgToStepSpec   func(StepSpecMsg) (StepSpec, error)
-)

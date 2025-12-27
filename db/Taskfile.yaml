@@ -2,7 +2,7 @@ version: '3'
 
 vars:
   REPO_MODE: n/a  # n/a, ro, rw
-  IMAGE: rolevod/postgres
+  IMAGE: orglang/postgres
   CID:
     sh: >-
       find postgres -type f -exec md5sum {} +

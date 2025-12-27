@@ -12,7 +12,7 @@ const (
 	LevelTrace = slog.Level(-8)
 )
 
-var Module = fx.Module("lib/core",
+var Module = fx.Module("avt/core",
 	fx.Provide(
 		newLogger,
 		fx.Annotate(newKeeper, fx.As(new(Keeper))),

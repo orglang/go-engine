@@ -20,7 +20,7 @@ func newHandlerEcho(a API, l *slog.Logger) *handlerEcho {
 }
 
 func (h *handlerEcho) GetSnap(c echo.Context) error {
-	var dto IdentMsg
+	var dto IdentME
 	err := c.Bind(&dto)
 	if err != nil {
 		return err
@@ -39,7 +39,7 @@ func (h *handlerEcho) GetSnap(c echo.Context) error {
 }
 
 func (h *handlerEcho) PostCall(c echo.Context) error {
-	var dto SpecMsg
+	var dto SpecME
 	err := c.Bind(&dto)
 	if err != nil {
 		return err

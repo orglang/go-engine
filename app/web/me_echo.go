@@ -8,17 +8,17 @@ import (
 
 	"orglang/orglang/avt/msg"
 
-	role "orglang/orglang/aat/type/def"
+	typedef "orglang/orglang/aat/type/def"
 )
 
 // Adapter
 type handlerEcho struct {
-	api role.API
+	api typedef.API
 	ssr msg.Renderer
 	log *slog.Logger
 }
 
-func newHandlerEcho(a role.API, r msg.Renderer, l *slog.Logger) *handlerEcho {
+func newHandlerEcho(a typedef.API, r msg.Renderer, l *slog.Logger) *handlerEcho {
 	name := slog.String("name", "webHandlerEcho")
 	return &handlerEcho{a, r, l.With(name)}
 }
@@ -28,7 +28,7 @@ func (h *handlerEcho) Home(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	html, err := h.ssr.Render("home.html", role.MsgFromTypeRefs(refs))
+	html, err := h.ssr.Render("home.html", typedef.MsgFromTypeRefs(refs))
 	if err != nil {
 		return err
 	}

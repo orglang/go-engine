@@ -13,6 +13,13 @@ import (
 	"orglang/orglang/aet/alias"
 )
 
+type API interface {
+	Incept(sym.ADT) (ProcRef, error)
+	Create(ProcSpec) (ProcSnap, error)
+	Retrieve(id.ADT) (ProcSnap, error)
+	RetreiveRefs() ([]ProcRef, error)
+}
+
 type ProcSpec struct {
 	ProcNS sym.ADT
 	ProcSN sym.ADT
@@ -51,13 +58,6 @@ type ProcSnap struct {
 	DecRN rn.ADT
 }
 
-type API interface {
-	Incept(sym.ADT) (ProcRef, error)
-	Create(ProcSpec) (ProcSnap, error)
-	Retrieve(id.ADT) (ProcSnap, error)
-	RetreiveRefs() ([]ProcRef, error)
-}
-
 type service struct {
 	procs    Repo
 	aliases  alias.Repo
@@ -65,13 +65,13 @@ type service struct {
 	log      *slog.Logger
 }
 
-func newService(procs Repo, aliases alias.Repo, operator data.Operator, l *slog.Logger) *service {
-	return &service{procs, aliases, operator, l}
-}
-
 // for compilation purposes
 func newAPI() API {
 	return &service{}
+}
+
+func newService(procs Repo, aliases alias.Repo, operator data.Operator, l *slog.Logger) *service {
+	return &service{procs, aliases, operator, l}
 }
 
 func (s *service) Incept(procQN sym.ADT) (_ ProcRef, err error) {
@@ -150,14 +150,6 @@ func (s *service) RetreiveRefs() (refs []ProcRef, err error) {
 	return refs, nil
 }
 
-type Repo interface {
-	Insert(data.Source, ProcRec) error
-	SelectAll(data.Source) ([]ProcRef, error)
-	SelectByID(data.Source, id.ADT) (ProcSnap, error)
-	SelectByIDs(data.Source, []id.ADT) ([]ProcRec, error)
-	SelectEnv(data.Source, []id.ADT) (map[id.ADT]ProcRec, error)
-}
-
 func CollectEnv(recs []ProcRec) []sym.ADT {
 	typeQNs := []sym.ADT{}
 	for _, rec := range recs {
@@ -168,15 +160,6 @@ func CollectEnv(recs []ProcRec) []sym.ADT {
 	}
 	return typeQNs
 }
-
-// goverter:variables
-// goverter:output:format assign-variable
-// goverter:extend orglang/orglang/avt/id:Convert.*
-var (
-	ConvertSnapToRef func(ProcSnap) ProcRef
-	ConvertRecToRef  func(ProcRec) ProcRef
-	ConvertRecToSnap func(ProcRec) ProcSnap
-)
 
 func ErrRootMissingInEnv(rid id.ADT) error {
 	return fmt.Errorf("root missing in env: %v", rid)

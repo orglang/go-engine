@@ -15,6 +15,11 @@ import (
 	typedef "orglang/orglang/aat/type/def"
 )
 
+type API interface {
+	Run(ProcSpec) error
+	Retrieve(id.ADT) (ProcSnap, error)
+}
+
 type SemRec interface {
 	step() id.ADT
 }
@@ -133,20 +138,15 @@ type Bnd struct {
 	ProcRN rn.ADT
 }
 
-type API interface {
-	Run(ProcSpec) error
-	Retrieve(id.ADT) (ProcSnap, error)
+type service struct {
+	procs    repo
+	operator data.Operator
+	log      *slog.Logger
 }
 
 // for compilation purposes
 func newAPI() API {
 	return &service{}
-}
-
-type service struct {
-	procs    repo
-	operator data.Operator
-	log      *slog.Logger
 }
 
 func newService(
@@ -275,16 +275,6 @@ func (s *service) createWith(
 	default:
 		panic(procdef.ErrTermTypeUnexpected(ts))
 	}
-}
-
-type repo interface {
-	SelectMain(data.Source, id.ADT) (MainCfg, error)
-	UpdateMain(data.Source, MainMod) error
-}
-
-type SemRepo interface {
-	InsertSem(data.Source, ...SemRec) error
-	SelectSemByID(data.Source, id.ADT) (SemRec, error)
 }
 
 func ErrMissingChnl(want sym.ADT) error {

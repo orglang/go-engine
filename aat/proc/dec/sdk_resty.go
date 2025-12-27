@@ -29,7 +29,7 @@ func (cl *clientResty) Incept(sigQN sym.ADT) (ProcRef, error) {
 
 func (cl *clientResty) Create(spec ProcSpec) (ProcSnap, error) {
 	req := MsgFromSigSpec(spec)
-	var res SigSnapMsg
+	var res SigSnapME
 	resp, err := cl.resty.R().
 		SetResult(&res).
 		SetBody(&req).
@@ -44,7 +44,7 @@ func (cl *clientResty) Create(spec ProcSpec) (ProcSnap, error) {
 }
 
 func (c *clientResty) Retrieve(id id.ADT) (ProcSnap, error) {
-	var res SigSnapMsg
+	var res SigSnapME
 	resp, err := c.resty.R().
 		SetResult(&res).
 		SetPathParam("id", id.String()).

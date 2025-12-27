@@ -9,7 +9,7 @@ func (With) tp()   {}
 func (Tensor) tp() {}
 func (Lolli) tp()  {}
 func (One) tp()    {}
-func (TpName) tp()    {}
+func (TpName) tp() {}
 
 type Plus struct {
 	Choices

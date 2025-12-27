@@ -42,7 +42,7 @@ type testSuite struct {
 }
 
 func (ts *testSuite) Setup() *testCase {
-	db, err := sql.Open("pgx", "postgres://rolevod:rolevod@localhost:5432/rolevod")
+	db, err := sql.Open("pgx", "postgres://orglang:orglang@localhost:5432/orglang")
 	if err != nil {
 		panic(err)
 	}

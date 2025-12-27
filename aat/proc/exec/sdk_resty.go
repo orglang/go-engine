@@ -22,7 +22,7 @@ func NewAPI() API {
 
 func (cl *clientResty) Run(spec ProcSpec) error {
 	req := MsgFromSpec(spec)
-	var res RefMsg
+	var res RefME
 	_, err := cl.resty.R().
 		SetPathParam("id", spec.ExecID.String()).
 		SetBody(&req).
@@ -35,7 +35,7 @@ func (cl *clientResty) Run(spec ProcSpec) error {
 }
 
 func (cl *clientResty) Retrieve(procID id.ADT) (ProcSnap, error) {
-	var res SnapMsg
+	var res SnapME
 	_, err := cl.resty.R().
 		SetPathParam("id", procID.String()).
 		SetResult(&res).

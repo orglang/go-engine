@@ -4,7 +4,7 @@ WORKDIR /build
 
 COPY . .
 
-RUN go build -o rolevod app/main.go
+RUN go build -o orglang app/main.go
 
 FROM alpine
 
@@ -12,6 +12,6 @@ WORKDIR /app
 
 COPY app/reference.yaml .
 
-COPY --from=builder /build/rolevod .
+COPY --from=builder /build/orglang .
 
-ENTRYPOINT ["/app/rolevod"]
+ENTRYPOINT ["/app/orglang"]

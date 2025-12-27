@@ -27,7 +27,7 @@ func newHandlerEcho(a API, r msg.Renderer, l *slog.Logger) *handlerEcho {
 }
 
 func (h *handlerEcho) PostOne(c echo.Context) error {
-	var dto PoolSpecMsg
+	var dto PoolSpecME
 	err := c.Bind(&dto)
 	if err != nil {
 		h.log.Error("binding failed", slog.Any("struct", reflect.TypeOf(dto)))
@@ -52,7 +52,7 @@ func (h *handlerEcho) PostOne(c echo.Context) error {
 }
 
 func (h *handlerEcho) GetOne(c echo.Context) error {
-	var dto IdentMsg
+	var dto IdentME
 	err := c.Bind(&dto)
 	if err != nil {
 		return err
@@ -69,7 +69,7 @@ func (h *handlerEcho) GetOne(c echo.Context) error {
 }
 
 func (h *handlerEcho) PostProc(c echo.Context) error {
-	var dto PoolSpecMsg
+	var dto PoolSpecME
 	err := c.Bind(&dto)
 	if err != nil {
 		h.log.Error("binding failed", slog.Any("struct", reflect.TypeOf(dto)))
@@ -106,7 +106,7 @@ func newStepHandlerEcho(a API, r msg.Renderer, l *slog.Logger) *stepHandlerEcho 
 }
 
 func (h *stepHandlerEcho) PostOne(c echo.Context) error {
-	var dto procexec.SpecMsg
+	var dto procexec.SpecME
 	err := c.Bind(&dto)
 	if err != nil {
 		h.log.Error("binding failed")

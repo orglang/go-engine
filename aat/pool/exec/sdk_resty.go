@@ -24,7 +24,7 @@ func NewAPI() API {
 
 func (cl *clientResty) Create(spec PoolSpec) (PoolRef, error) {
 	req := MsgFromPoolSpec(spec)
-	var res PoolRefMsg
+	var res PoolRefME
 	_, err := cl.resty.R().
 		SetResult(&res).
 		SetBody(&req).
@@ -40,7 +40,7 @@ func (cl *clientResty) Poll(spec PollSpec) (procexec.ProcRef, error) {
 }
 
 func (cl *clientResty) Retrieve(poolID id.ADT) (PoolSnap, error) {
-	var res PoolSnapMsg
+	var res PoolSnapME
 	_, err := cl.resty.R().
 		SetResult(&res).
 		SetPathParam("id", poolID.String()).
@@ -58,7 +58,7 @@ func (cl *clientResty) RetreiveRefs() ([]PoolRef, error) {
 
 func (cl *clientResty) Spawn(spec procexec.ProcSpec) (procexec.ProcRef, error) {
 	req := procexec.MsgFromSpec(spec)
-	var res procexec.RefMsg
+	var res procexec.RefME
 	_, err := cl.resty.R().
 		SetResult(&res).
 		SetBody(&req).
@@ -72,7 +72,7 @@ func (cl *clientResty) Spawn(spec procexec.ProcSpec) (procexec.ProcRef, error) {
 
 func (cl *clientResty) Take(spec StepSpec) error {
 	req := MsgFromStepSpec(spec)
-	var res procexec.RefMsg
+	var res procexec.RefME
 	_, err := cl.resty.R().
 		SetResult(&res).
 		SetBody(&req).

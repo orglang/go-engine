@@ -22,17 +22,19 @@ import (
 
 func main() {
 	fx.New(
-		// lib
+		// avt
 		core.Module,
 		data.Module,
 		msg.Module,
+		// aet
 		alias.Module,
-		// app
+		// aat
 		procdef.Module,
 		poolexec.Module,
 		typedef.Module,
 		procexec.Module,
 		procdec.Module,
+		// app
 		web.Module,
 	).Run()
 }

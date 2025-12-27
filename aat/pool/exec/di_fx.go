@@ -14,7 +14,7 @@ import (
 	"orglang/orglang/avt/msg"
 )
 
-var Module = fx.Module("app/pool",
+var Module = fx.Module("aat/pool",
 	fx.Provide(
 		fx.Annotate(newService, fx.As(new(API))),
 	),

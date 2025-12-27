@@ -35,10 +35,10 @@ func (dto TypeRefView) Validate() error {
 }
 
 type TypeSnapView struct {
-	RoleID string      `json:"id"`
-	RoleRN int64       `json:"rev"`
-	Title  string      `json:"title"`
-	State  TermSpecMsg `json:"state"`
+	RoleID string     `json:"id"`
+	RoleRN int64      `json:"rev"`
+	Title  string     `json:"title"`
+	State  TermSpecME `json:"state"`
 }
 
 // goverter:variables

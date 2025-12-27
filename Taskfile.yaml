@@ -15,6 +15,13 @@ includes:
     internal: true
 
 tasks:
+  sources:
+    aliases: [src]
+    cmds:
+      # - go run github.com/jmattheis/goverter/cmd/goverter gen ./...
+      - go fmt ./...
+      - go build ./...
+
   component:binaries:
     aliases: [app:bins, cbs]
     cmds:

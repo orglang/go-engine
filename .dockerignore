@@ -1,6 +1,7 @@
 *
 !app
-!lib
-!internal
+!aat
+!aet
+!avt
 !go.mod
 !go.sum

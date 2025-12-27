@@ -23,7 +23,7 @@ func newHandlerEcho(a API, r msg.Renderer, l *slog.Logger) *handlerEcho {
 }
 
 func (h *handlerEcho) PostOne(c echo.Context) error {
-	var dto SigSpecMsg
+	var dto SigSpecME
 	err := c.Bind(&dto)
 	if err != nil {
 		h.log.Error("dto binding failed", slog.Any("reason", err))
@@ -47,7 +47,7 @@ func (h *handlerEcho) PostOne(c echo.Context) error {
 }
 
 func (h *handlerEcho) GetOne(c echo.Context) error {
-	var dto IdentMsg
+	var dto IdentME
 	err := c.Bind(&dto)
 	if err != nil {
 		return err

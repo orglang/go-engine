@@ -1,5 +1,5 @@
 ---
-name: rolevod
+name: orglang
 
 networks:
   product:
@@ -26,10 +26,10 @@ services:
       timeout: 5s
       retries: 5
     labels:
-      image.key: rolevod/postgres
+      image.key: orglang/postgres
 
   database:
-    image: rolevod/postgres:latest
+    image: orglang/postgres:latest
     networks:
       - product
     depends_on:
@@ -45,14 +45,14 @@ services:
       --username=postgres
       --password=password
       update
-      -Ddatabase.name=rolevod
-      -Downer.username=rolevod
-      -Downer.password=rolevod
+      -Ddatabase.name=orglang
+      -Downer.username=orglang
+      -Downer.password=orglang
     labels:
-      image.key: rolevod/postgres
+      image.key: orglang/postgres
 
   schema:
-    image: rolevod/postgres:latest
+    image: orglang/postgres:latest
     networks:
       - product
     depends_on:
@@ -62,18 +62,18 @@ services:
       --show-banner=false
       --classpath=/liquibase/changelog
       --changelog-file=owner/changelog.yaml
-      --url=jdbc:postgresql://storage:5432/rolevod
+      --url=jdbc:postgresql://storage:5432/orglang
       --liquibase-schema-name=public
-      --default-schema-name=rolevod
-      --username=rolevod
-      --password=rolevod
+      --default-schema-name=orglang
+      --username=orglang
+      --password=orglang
       update
-      -Dschema.name=rolevod
+      -Dschema.name=orglang
     labels:
-      image.key: rolevod/postgres
+      image.key: orglang/postgres
 
   # app:
-  #   image: rolevod/app:latest
+  #   image: orglang/app:latest
   #   networks:
   #     - product
   #   depends_on:
@@ -85,5 +85,5 @@ services:
   #     - source: product
   #       target: /app/application.yaml
   #   labels:
-  #     image.key: rolevod/app
+  #     image.key: orglang/app
  

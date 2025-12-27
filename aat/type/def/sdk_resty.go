@@ -29,7 +29,7 @@ func (cl *clientResty) Incept(roleQN sym.ADT) (TypeRef, error) {
 
 func (cl *clientResty) Create(spec TypeSpec) (TypeSnap, error) {
 	req := MsgFromTypeSpec(spec)
-	var res TypeSnapMsg
+	var res TypeSnapME
 	resp, err := cl.resty.R().
 		SetResult(&res).
 		SetBody(&req).

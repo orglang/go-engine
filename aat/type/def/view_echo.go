@@ -72,7 +72,7 @@ func (p *presenterEcho) GetMany(c echo.Context) error {
 }
 
 func (p *presenterEcho) GetOne(c echo.Context) error {
-	var dto IdentMsg
+	var dto IdentME
 	err := c.Bind(&dto)
 	if err != nil {
 		p.log.Error("dto binding failed")

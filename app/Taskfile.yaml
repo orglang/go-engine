@@ -2,10 +2,10 @@ version: '3'
 
 vars:
   REPO_MODE: n/a  # n/a, ro, rw
-  IMAGE: rolevod/app
+  IMAGE: orglang/app
   CID:
     sh: >-
-      find ../lib .
+      find ../avt .
       -name "*.go" -exec md5sum {} + -o
       -name "Dockerfile" -exec md5sum {} +
       | LC_ALL=C sort -k 2
@@ -14,8 +14,8 @@ vars:
 
 tasks:
   binary:
-    aliases: [bin]
-    cmd: go build -o rolevod main.go
+    aliases: [bin, build]
+    cmd: go build -o orglang main.go
 
   process:
     aliases: [proc, run]
@@ -25,7 +25,8 @@ tasks:
       - go run github.com/jmattheis/goverter/cmd/goverter gen ../...
       - go run main.go
 
-  image:
+  package:
+    aliases: [image, pack]
     status:
       - docker image inspect {{.IMAGE}}:{{.CID}}
     cmds:

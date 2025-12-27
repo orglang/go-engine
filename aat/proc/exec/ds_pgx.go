@@ -92,7 +92,7 @@ func (r *repoPgx2) execute(source data.Source, query string, arg string) (SemRec
 		return nil, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[SemRecData])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[SemRecDS])
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}

@@ -8,6 +8,16 @@ import (
 	"orglang/orglang/avt/sym"
 )
 
+// Port
+type API interface {
+	Create(PoolSpec) (PoolRef, error)
+}
+
+// for compilation purposes
+func newAPI() API {
+	return &service{}
+}
+
 type PoolSpec struct {
 	PoolNS sym.ADT
 	PoolSN sym.ADT
@@ -34,15 +44,6 @@ type poolRec struct {
 	DecID id.ADT
 }
 
-type API interface {
-	Create(PoolSpec) (PoolRef, error)
-}
-
-// for compilation purposes
-func newAPI() API {
-	return &service{}
-}
-
 type service struct {
 	sigs     repo
 	operator data.Operator
@@ -51,9 +52,4 @@ type service struct {
 
 func (s *service) Create(spec PoolSpec) (PoolRef, error) {
 	return PoolRef{}, nil
-}
-
-// Port
-type repo interface {
-	Insert(data.Source, poolRec) error
 }

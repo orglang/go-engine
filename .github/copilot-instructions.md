@@ -42,22 +42,26 @@ This a visual programming language to support organization development and manag
 
 ### Framework agnostic
 
-- `me.go`: Pure message exchange (ME) logic
-    - Exchange specific DTO's (borderline models)
-    - Message validation harness
-    - Message to domain mapping and vice versa
 - `core.go`: Pure domain logic
     - Domain models (core models)
     - API interfaces (primary ports)
     - Service structs (core behaviors)
+- `me.go`: Pure message exchange (ME) logic
+    - Exchange specific DTO's (borderline models)
+    - Message validation harness
+    - Message to domain mapping and vice versa
 - `ds.go`: Pure data storage (DS) logic
     - Storage specific DTO's (borderline models)
     - Repository interfaces (secondary ports)
     - Domain to data mapping and vice versa
+- `iv.go`: Pure input validation (IV) logic
+- `tc.go`: Pure type conversion (TC) logic
 
 ### Framework specific
 
+- `di_fx.go`: Fx (dependency injection system) specific component definitions
 - `me_echo.go`: Echo (web framework) specific controllers (primary adapters)
 - `ds_pgx.go`: pgx (PostgreSQL Driver and Toolkit) specific repository iplementations (secondary adapters for internal use)
 - `sdk_resty.go`: Resty (HTTP client) specific API implementations (secondary adapters for external use)
-- `di_fx.go`: Fx (dependency injection system) specific component definitions
+- `iv_ozzo.go`: Ozzo (validation library) specific validation methods
+- `tc_goverter.go`: Goverter (tool for creating type-safe converters) specific conversion methods

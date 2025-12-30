@@ -9,7 +9,7 @@ type Repo interface {
 }
 
 type TermRecDS struct {
-	K     termKind    `json:"k"`
+	K     termKindDS  `json:"k"`
 	Close *closeRecDS `json:"close,omitempty"`
 	Wait  *waitRecDS  `json:"wait,omitempty"`
 	Send  *sendRecDS  `json:"send,omitempty"`
@@ -20,7 +20,7 @@ type TermRecDS struct {
 }
 
 type TermSpecDS struct {
-	K     termKind     `json:"k"`
+	K     termKindDS   `json:"k"`
 	Close *closeSpecDS `json:"close,omitempty"`
 	Wait  *waitSpecDS  `json:"wait,omitempty"`
 	Send  *sendSpecDS  `json:"send,omitempty"`
@@ -30,10 +30,10 @@ type TermSpecDS struct {
 	Fwd   *fwdSpecDS   `json:"fwd,omitempty"`
 }
 
-type termKind int
+type termKindDS int
 
 const (
-	nonterm = termKind(iota)
+	nonterm = termKindDS(iota)
 	closeKind
 	waitKind
 	sendKind

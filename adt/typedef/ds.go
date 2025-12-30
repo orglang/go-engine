@@ -38,10 +38,10 @@ type typeRecDS struct {
 	TypeRN int64  `db:"rev"`
 }
 
-type termKind int
+type termKindDS int
 
 const (
-	nonterm termKind = iota
+	nonterm termKindDS = iota
 	oneKind
 	linkKind
 	tensorKind
@@ -51,8 +51,8 @@ const (
 )
 
 type TermRefDS struct {
-	ID string   `db:"id" json:"id"`
-	K  termKind `db:"kind" json:"kind"`
+	ID string     `db:"id" json:"id"`
+	K  termKindDS `db:"kind" json:"kind"`
 }
 
 type termRecDS struct {
@@ -62,7 +62,7 @@ type termRecDS struct {
 
 type stateDS struct {
 	ID     string         `db:"id"`
-	K      termKind       `db:"kind"`
+	K      termKindDS     `db:"kind"`
 	FromID sql.NullString `db:"from_id"`
 	Spec   specDS         `db:"spec"`
 }

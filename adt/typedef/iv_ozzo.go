@@ -3,7 +3,6 @@ package typedef
 import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 
-	"orglang/orglang/adt/core"
 	"orglang/orglang/adt/identity"
 	"orglang/orglang/adt/qualsym"
 	"orglang/orglang/adt/revnum"
@@ -73,7 +72,7 @@ func (dto SumSpecME) Validate() error {
 
 func (dto ChoiceSpecME) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.Label, core.NameRequired...),
+		validation.Field(&dto.Label, qualsym.Required...),
 		validation.Field(&dto.Cont, validation.Required),
 	)
 }

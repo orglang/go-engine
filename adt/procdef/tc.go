@@ -217,11 +217,11 @@ func MsgToTermSpec(dto TermSpecME) (TermSpec, error) {
 	}
 }
 
-func ErrUnexpectedTermKind(k TermKind) error {
+func ErrUnexpectedTermKind(k termKindME) error {
 	return fmt.Errorf("unexpected term kind: %v", k)
 }
 
-func ErrUnexpectedSemKind(k SemKind) error {
+func ErrUnexpectedSemKind(k semKindME) error {
 	return fmt.Errorf("unexpected sem kind: %v", k)
 }
 
@@ -528,6 +528,6 @@ func dataToTermSpec(dto TermSpecDS) (TermSpec, error) {
 	}
 }
 
-func errUnexpectedTermKind(k termKind) error {
+func errUnexpectedTermKind(k termKindDS) error {
 	return fmt.Errorf("unexpected term kind: %v", k)
 }

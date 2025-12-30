@@ -24,7 +24,7 @@ type TypeSnapME struct {
 }
 
 type TermSpecME struct {
-	K      TermKind    `json:"kind"`
+	K      termKindME  `json:"kind"`
 	Link   *LinkSpecME `json:"link,omitempty"`
 	Tensor *ProdSpecME `json:"tensor,omitempty"`
 	Lolli  *ProdSpecME `json:"lolli,omitempty"`
@@ -51,17 +51,17 @@ type ChoiceSpecME struct {
 }
 
 type TermRefME struct {
-	ID string   `json:"id" param:"id"`
-	K  TermKind `json:"kind"`
+	ID string     `json:"id" param:"id"`
+	K  termKindME `json:"kind"`
 }
 
-type TermKind string
+type termKindME string
 
 const (
-	OneKind    = TermKind("one")
-	LinkKind   = TermKind("link")
-	TensorKind = TermKind("tensor")
-	LolliKind  = TermKind("lolli")
-	PlusKind   = TermKind("plus")
-	WithKind   = TermKind("with")
+	OneKind    = termKindME("one")
+	LinkKind   = termKindME("link")
+	TensorKind = termKindME("tensor")
+	LolliKind  = termKindME("lolli")
+	PlusKind   = termKindME("plus")
+	WithKind   = termKindME("with")
 )

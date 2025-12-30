@@ -223,7 +223,7 @@ func MsgToTermRef(dto TermRefME) (TermRef, error) {
 	}
 }
 
-func errKindUnexpected(got TermKind) error {
+func errKindUnexpected(got termKindME) error {
 	return fmt.Errorf("kind unexpected: %v", got)
 }
 
@@ -454,6 +454,6 @@ func statesFromTermRec(from string, r TermRec, dto *termRecDS) (string, error) {
 	}
 }
 
-func errUnexpectedKind(k termKind) error {
+func errUnexpectedKind(k termKindDS) error {
 	return fmt.Errorf("unexpected kind %q", k)
 }

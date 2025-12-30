@@ -6,7 +6,7 @@ import (
 	"go.uber.org/fx"
 )
 
-var Module = fx.Module("aat/pool",
+var Module = fx.Module("adt/poolexec",
 	fx.Provide(
 		fx.Annotate(newService, fx.As(new(API))),
 	),

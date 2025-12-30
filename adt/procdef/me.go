@@ -1,34 +1,34 @@
 package procdef
 
-type SemKind string
+type semKindME string
 
 const (
-	Msg = SemKind("msg")
-	Svc = SemKind("svc")
+	Msg = semKindME("msg")
+	Svc = semKindME("svc")
 )
 
 type RootME struct {
-	ID string  `json:"id"`
-	K  SemKind `json:"kind"`
+	ID string    `json:"id"`
+	K  semKindME `json:"kind"`
 }
 
-type TermKind string
+type termKindME string
 
 const (
-	Close = TermKind("close")
-	Wait  = TermKind("wait")
-	Send  = TermKind("send")
-	Recv  = TermKind("recv")
-	Lab   = TermKind("lab")
-	Case  = TermKind("case")
-	Call  = TermKind("call")
-	Link  = TermKind("link")
-	Spawn = TermKind("spawn")
-	Fwd   = TermKind("fwd")
+	Close = termKindME("close")
+	Wait  = termKindME("wait")
+	Send  = termKindME("send")
+	Recv  = termKindME("recv")
+	Lab   = termKindME("lab")
+	Case  = termKindME("case")
+	Call  = termKindME("call")
+	Link  = termKindME("link")
+	Spawn = termKindME("spawn")
+	Fwd   = termKindME("fwd")
 )
 
 type TermSpecME struct {
-	K     TermKind     `json:"kind"`
+	K     termKindME   `json:"kind"`
 	Close *CloseSpecME `json:"close,omitempty"`
 	Wait  *WaitSpecME  `json:"wait,omitempty"`
 	Send  *SendSpecME  `json:"send,omitempty"`

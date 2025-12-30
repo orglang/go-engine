@@ -8,7 +8,7 @@ import (
 	"orglang/orglang/lib/te"
 )
 
-var Module = fx.Module("proc/dec",
+var Module = fx.Module("adt/procdecl",
 	fx.Provide(
 		fx.Annotate(newService, fx.As(new(API))),
 		fx.Annotate(newDaoPgx, fx.As(new(Repo))),

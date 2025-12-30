@@ -15,6 +15,7 @@ This a visual programming language to support organization development and manag
   - `pooldecl`: Pool declaration aggregate
   - `pooldef`: Pool definition entity
   - `poolexec`: Pool execution aggregate
+  - `chanctx`: Resource context value object
   - `identity`: Identification value object
   - `polarity`: Polarization value object
   - `qualsym`: Qualified symbol value object

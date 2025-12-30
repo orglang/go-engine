@@ -1,6 +1,4 @@
-package core
-
-type Label string
+package chanctx
 
 func IndexBy[K comparable, V any](getKey func(V) K, vals []V) map[K]V {
 	indexed := make(map[K]V)

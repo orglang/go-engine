@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	typedef "orglang/orglang/aat/type/def"
+	"orglang/orglang/adt/typedef"
 )
 
 var (

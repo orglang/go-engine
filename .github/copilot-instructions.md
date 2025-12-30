@@ -6,9 +6,19 @@ This a visual programming language to support organization development and manag
 
 - `app`: Runnable application definitions
   - `web`: Web application definitions
-- `aat`: Reusable aggregate definitions
-- `aet`: Reusable entity definitions
-- `avt`: Reusable value definitions
+- `adt`: Reusable abstract data types
+  - `typedef`: Type definition aggregate
+  - `typealias`: Type alias entity
+  - `procdecl`: Process declaration aggregate
+  - `procdef`: Process definition entity
+  - `procexec`: Process execution aggregate
+  - `pooldecl`: Pool declaration aggregate
+  - `pooldef`: Pool definition entity
+  - `poolexec`: Pool execution aggregate
+  - `identity`: Identification value object
+  - `polarity`: Polarization value object
+  - `qualsym`: Qualified symbol value object
+  - `revnum`: Revision number value object
 - `lib`: Reusable behavior definitions
   - `cs`: Configuration source harness
   - `lf`: Logging framework harness
@@ -25,19 +35,19 @@ This a visual programming language to support organization development and manag
 
 ## Abstraction layers
 
-### Definition abstractions
+### Abstract data types
 
-- `aat`: Abstract aggregate types
+- `aggregates`: Abstract aggregate types (AAT)
     - Consumed by controller adapters
     - Specified by `API` interfaces
     - Implemented by `Service` structs
-- `aet`: Abstract entity types
-    - Consumed by `Service` structs of `aat` types
+- `entities`: Abstract entity types (AET)
+    - Consumed by `Service` structs of `aggregate` types
     - Specified by `Repo` interfaces
     - Implemented by DAO adapters
-- `avt`: Abstract value types
-    - Specified by `ADT` types or interfaces
-    - Used in `aet` or `aat` types
+- `values`: Abstract value types (AVT)
+    - Specified by `ADT` types and/or interfaces
+    - Used in `entity` or `aggregate` types
 
 ### Artifact abstractions
 

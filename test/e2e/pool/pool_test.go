@@ -9,21 +9,21 @@ import (
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 
-	"orglang/orglang/avt/sym"
+	"orglang/orglang/adt/qualsym"
 
-	pooldec "orglang/orglang/aat/pool/dec"
-	pooldef "orglang/orglang/aat/pool/def"
-	poolexec "orglang/orglang/aat/pool/exec"
-	procdec "orglang/orglang/aat/proc/dec"
-	procdef "orglang/orglang/aat/proc/def"
-	procexec "orglang/orglang/aat/proc/exec"
-	typedef "orglang/orglang/aat/type/def"
+	pooldec "orglang/orglang/adt/pooldecl"
+	"orglang/orglang/adt/pooldef"
+	poolexec "orglang/orglang/adt/poolexec"
+	"orglang/orglang/adt/procdecl"
+	"orglang/orglang/adt/procdef"
+	"orglang/orglang/adt/procexec"
+	"orglang/orglang/adt/typedef"
 )
 
 var (
 	poolDecAPI  = pooldec.NewAPI()
 	poolExecAPI = poolexec.NewAPI()
-	procDecAPI  = procdec.NewAPI()
+	procDecAPI  = procdecl.NewAPI()
 	procExecAPI = procexec.NewAPI()
 	typeDefAPI  = typedef.NewAPI()
 	tc          *testCase
@@ -109,14 +109,14 @@ func TestTaking(t *testing.T) {
 	t.Run("WaitClose", func(t *testing.T) {
 		tc.Setup(t)
 		// given
-		mainTypeSN := sym.New("main-type-sn")
-		closerProcSN := sym.New("closer-proc-sn")
-		waiterProcSN := sym.New("waiter-proc-sn")
+		mainTypeSN := qualsym.New("main-type-sn")
+		closerProcSN := qualsym.New("closer-proc-sn")
+		waiterProcSN := qualsym.New("waiter-proc-sn")
 		_, err := typeDefAPI.Create(typedef.TypeSpec{
 			TypeSN: mainTypeSN,
 			TypeTS: typedef.UpSpec{
 				Z: typedef.XactSpec{
-					Zs: map[sym.ADT]typedef.TermSpec{
+					Zs: map[qualsym.ADT]typedef.TermSpec{
 						closerProcSN: typedef.DownSpec{
 							Z: typedef.LinkSpec{TypeQN: mainTypeSN},
 						},
@@ -131,9 +131,9 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		mainPoolSN := sym.New("main-pool-sn")
-		mainProvisionPH := sym.New("main-provision-ph")
-		mainReceptionPH := sym.New("main-reception-ph")
+		mainPoolSN := qualsym.New("main-pool-sn")
+		mainProvisionPH := qualsym.New("main-provision-ph")
+		mainReceptionPH := qualsym.New("main-reception-ph")
 		_, err = poolDecAPI.Create(pooldec.PoolSpec{
 			PoolSN: mainPoolSN,
 			InsiderProvisionEP: pooldec.ChnlSpec{
@@ -156,7 +156,7 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		oneTypeSN := sym.New("one-type-sn")
+		oneTypeSN := qualsym.New("one-type-sn")
 		_, err = typeDefAPI.Create(typedef.TypeSpec{
 			TypeSN: oneTypeSN,
 			TypeTS: typedef.OneSpec{},
@@ -165,10 +165,10 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		closerDecSpec := procdec.ProcSpec{
+		closerDecSpec := procdecl.ProcSpec{
 			ProcSN: closerProcSN,
-			ProvisionEP: procdec.ChnlSpec{
-				CommPH: sym.New("closer-provision-ph"),
+			ProvisionEP: procdecl.ChnlSpec{
+				CommPH: qualsym.New("closer-provision-ph"),
 				TypeQN: oneTypeSN,
 			},
 		}
@@ -177,7 +177,7 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		closerProcPH := sym.New("closer-proc-ph")
+		closerProcPH := qualsym.New("closer-proc-ph")
 		err = procExecAPI.Run(procexec.ProcSpec{
 			PoolID: mainExecRef.ExecID,
 			ExecID: mainExecRef.ProcID,
@@ -223,11 +223,11 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		waiterDecSpec := procdec.ProcSpec{
+		waiterDecSpec := procdecl.ProcSpec{
 			ProcSN:      waiterProcSN,
-			ProvisionEP: procdec.ChnlSpec{CommPH: sym.New("waiter-provision-ph"), TypeQN: oneTypeSN},
-			ReceptionEPs: []procdec.ChnlSpec{
-				{CommPH: sym.New("closer-reception-ph"), TypeQN: oneTypeSN},
+			ProvisionEP: procdecl.ChnlSpec{CommPH: qualsym.New("waiter-provision-ph"), TypeQN: oneTypeSN},
+			ReceptionEPs: []procdecl.ChnlSpec{
+				{CommPH: qualsym.New("closer-reception-ph"), TypeQN: oneTypeSN},
 			},
 		}
 		_, err = procDecAPI.Create(waiterDecSpec)
@@ -242,9 +242,9 @@ func TestTaking(t *testing.T) {
 				CommPH: mainProvisionPH,
 				ContTS: procdef.CallSpec{
 					CommPH: mainProvisionPH,
-					BindPH: sym.New("waiter-proc-ph"),
+					BindPH: qualsym.New("waiter-proc-ph"),
 					ProcSN: waiterProcSN,
-					ValPHs: []sym.ADT{closerProcPH},
+					ValPHs: []qualsym.ADT{closerProcPH},
 					ContTS: procdef.ReleaseSpec{
 						CommPH: mainProvisionPH,
 					},
@@ -312,15 +312,15 @@ func TestTaking(t *testing.T) {
 	t.Run("RecvSend", func(t *testing.T) {
 		tc.Setup(t)
 		// given
-		mainTypeSN := sym.New("main-type-sn")
-		senderProcSN := sym.New("sender-proc-sn")
-		receiverProcSN := sym.New("receiver-proc-sn")
-		messageProcSN := sym.New("message-proc-sn")
+		mainTypeSN := qualsym.New("main-type-sn")
+		senderProcSN := qualsym.New("sender-proc-sn")
+		receiverProcSN := qualsym.New("receiver-proc-sn")
+		messageProcSN := qualsym.New("message-proc-sn")
 		_, err := typeDefAPI.Create(typedef.TypeSpec{
 			TypeSN: mainTypeSN,
 			TypeTS: typedef.UpSpec{
 				Z: typedef.XactSpec{
-					Zs: map[sym.ADT]typedef.TermSpec{
+					Zs: map[qualsym.ADT]typedef.TermSpec{
 						senderProcSN: typedef.DownSpec{
 							Z: typedef.LinkSpec{TypeQN: mainTypeSN},
 						},
@@ -338,9 +338,9 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		mainPoolSN := sym.New("main-pool-sn")
-		mainProvisionPH := sym.New("main-provision-ph")
-		mainReceptionPH := sym.New("main-reception-ph")
+		mainPoolSN := qualsym.New("main-pool-sn")
+		mainProvisionPH := qualsym.New("main-provision-ph")
+		mainReceptionPH := qualsym.New("main-reception-ph")
 		_, err = poolDecAPI.Create(pooldec.PoolSpec{
 			PoolSN: mainPoolSN,
 			InsiderProvisionEP: pooldec.ChnlSpec{
@@ -363,7 +363,7 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		lolliTypeSN := sym.New("lolli-type-sn")
+		lolliTypeSN := qualsym.New("lolli-type-sn")
 		_, err = typeDefAPI.Create(typedef.TypeSpec{
 			TypeSN: lolliTypeSN,
 			TypeTS: typedef.LolliSpec{
@@ -375,7 +375,7 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		oneTypeSN := sym.New("one-type-sn")
+		oneTypeSN := qualsym.New("one-type-sn")
 		_, err = typeDefAPI.Create(typedef.TypeSpec{
 			TypeSN: oneTypeSN,
 			TypeTS: typedef.OneSpec{},
@@ -384,10 +384,10 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		receiverDecSpec := procdec.ProcSpec{
+		receiverDecSpec := procdecl.ProcSpec{
 			ProcSN: receiverProcSN,
-			ProvisionEP: procdec.ChnlSpec{
-				CommPH: sym.New("receiver-provision-ph"),
+			ProvisionEP: procdecl.ChnlSpec{
+				CommPH: qualsym.New("receiver-provision-ph"),
 				TypeQN: lolliTypeSN,
 			},
 		}
@@ -396,10 +396,10 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		messageDecSpec := procdec.ProcSpec{
+		messageDecSpec := procdecl.ProcSpec{
 			ProcSN: messageProcSN,
-			ProvisionEP: procdec.ChnlSpec{
-				CommPH: sym.New("message-provision-ph"),
+			ProvisionEP: procdecl.ChnlSpec{
+				CommPH: qualsym.New("message-provision-ph"),
 				TypeQN: oneTypeSN,
 			},
 		}
@@ -408,15 +408,15 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		senderDecSpec := procdec.ProcSpec{
+		senderDecSpec := procdecl.ProcSpec{
 			ProcSN: senderProcSN,
-			ProvisionEP: procdec.ChnlSpec{
-				CommPH: sym.New("sender-provision-ph"),
+			ProvisionEP: procdecl.ChnlSpec{
+				CommPH: qualsym.New("sender-provision-ph"),
 				TypeQN: oneTypeSN,
 			},
-			ReceptionEPs: []procdec.ChnlSpec{
-				{CommPH: sym.New("receiver-reception-ph"), TypeQN: lolliTypeSN},
-				{CommPH: sym.New("message-reception-ph"), TypeQN: oneTypeSN},
+			ReceptionEPs: []procdecl.ChnlSpec{
+				{CommPH: qualsym.New("receiver-reception-ph"), TypeQN: lolliTypeSN},
+				{CommPH: qualsym.New("message-reception-ph"), TypeQN: oneTypeSN},
 			},
 		}
 		_, err = procDecAPI.Create(senderDecSpec)
@@ -424,7 +424,7 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		receiverProcPH := sym.New("receiver-proc-ph")
+		receiverProcPH := qualsym.New("receiver-proc-ph")
 		err = procExecAPI.Run(procexec.ProcSpec{
 			PoolID: mainExecRef.ExecID,
 			ExecID: mainExecRef.ProcID,
@@ -438,7 +438,7 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		messageProcPH := sym.New("message-proc-ph")
+		messageProcPH := qualsym.New("message-proc-ph")
 		err = procExecAPI.Run(procexec.ProcSpec{
 			PoolID: mainExecRef.ExecID,
 			ExecID: mainExecRef.ProcID,
@@ -452,7 +452,7 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		senderProcPH := sym.New("sender-proc-ph")
+		senderProcPH := qualsym.New("sender-proc-ph")
 		err = procExecAPI.Run(procexec.ProcSpec{
 			PoolID: mainExecRef.ExecID,
 			ExecID: mainExecRef.ProcID,
@@ -460,7 +460,7 @@ func TestTaking(t *testing.T) {
 				CommPH: mainReceptionPH,
 				BindPH: senderProcPH,
 				ProcSN: senderProcSN,
-				ValPHs: []sym.ADT{receiverProcPH, messageProcPH},
+				ValPHs: []qualsym.ADT{receiverProcPH, messageProcPH},
 			},
 		})
 		if err != nil {
@@ -480,7 +480,7 @@ func TestTaking(t *testing.T) {
 			ExecID: receiverExecRef.ExecID,
 			ProcTS: procdef.RecvSpec{
 				CommPH: receiverDecSpec.ProvisionEP.CommPH,
-				BindPH: sym.New("message-reception-ph"),
+				BindPH: qualsym.New("message-reception-ph"),
 			},
 		})
 		if err != nil {
@@ -513,7 +513,7 @@ func TestTaking(t *testing.T) {
 	t.Run("CaseLab", func(t *testing.T) {
 		tc.Setup(t)
 		// given
-		mainPoolSN := sym.New("main-pool-sn")
+		mainPoolSN := qualsym.New("main-pool-sn")
 		mainExecRef, err := poolExecAPI.Create(poolexec.PoolSpec{
 			PoolQN: mainPoolSN,
 		})
@@ -521,12 +521,12 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		label := sym.ADT("label-1")
+		label := qualsym.ADT("label-1")
 		// and
 		withRoleSpec := typedef.TypeSpec{
 			TypeSN: "with-role",
 			TypeTS: typedef.WithSpec{
-				Zs: map[sym.ADT]typedef.TermSpec{
+				Zs: map[qualsym.ADT]typedef.TermSpec{
 					label: typedef.OneSpec{},
 				},
 			},
@@ -545,9 +545,9 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		withSigSpec := procdec.ProcSpec{
+		withSigSpec := procdecl.ProcSpec{
 			ProcSN: "sig-1",
-			ProvisionEP: procdec.ChnlSpec{
+			ProvisionEP: procdecl.ChnlSpec{
 				CommPH: "chnl-1",
 				TypeQN: withRole.TypeQN,
 			},
@@ -557,10 +557,10 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		oneSigSpec := procdec.ProcSpec{
+		oneSigSpec := procdecl.ProcSpec{
 			ProcSN:       "sig-2",
-			ReceptionEPs: []procdec.ChnlSpec{withSig.X},
-			ProvisionEP: procdec.ChnlSpec{
+			ReceptionEPs: []procdecl.ChnlSpec{withSig.X},
+			ProvisionEP: procdecl.ChnlSpec{
 				CommPH: "chnl-2",
 				TypeQN: oneRole.TypeQN,
 			},
@@ -570,7 +570,7 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		followerPH := sym.New("follower")
+		followerPH := qualsym.New("follower")
 		err = procExecAPI.Run(procexec.ProcSpec{
 			PoolID: mainExecRef.ExecID,
 			ExecID: mainExecRef.ProcID,
@@ -583,14 +583,14 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		deciderPH := sym.New("decider")
+		deciderPH := qualsym.New("decider")
 		err = procExecAPI.Run(procexec.ProcSpec{
 			PoolID: mainExecRef.ExecID,
 			ExecID: mainExecRef.ProcID,
 			ProcTS: procdef.CallSpec{
 				CommPH: deciderPH,
 				ProcSN: "tbd",
-				ValPHs: []sym.ADT{followerPH},
+				ValPHs: []qualsym.ADT{followerPH},
 			},
 		})
 		if err != nil {
@@ -610,7 +610,7 @@ func TestTaking(t *testing.T) {
 			ExecID: followerExecRef.ExecID,
 			ProcTS: procdef.CaseSpec{
 				CommPH: followerPH,
-				Conts: map[sym.ADT]procdef.TermSpec{
+				Conts: map[qualsym.ADT]procdef.TermSpec{
 					label: procdef.CloseSpec{
 						CommPH: followerPH,
 					},
@@ -647,7 +647,7 @@ func TestTaking(t *testing.T) {
 	t.Run("Spawn", func(t *testing.T) {
 		tc.Setup(t)
 		// given
-		mainPoolSN := sym.New("main-pool-sn")
+		mainPoolSN := qualsym.New("main-pool-sn")
 		mainExecRef, err := poolExecAPI.Create(poolexec.PoolSpec{
 			PoolQN: mainPoolSN,
 		})
@@ -665,9 +665,9 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		oneSig1, err := procDecAPI.Create(procdec.ProcSpec{
+		oneSig1, err := procDecAPI.Create(procdecl.ProcSpec{
 			ProcSN: "sig-1",
-			ProvisionEP: procdec.ChnlSpec{
+			ProvisionEP: procdecl.ChnlSpec{
 				CommPH: "chnl-1",
 				TypeQN: oneRole.TypeQN,
 			},
@@ -676,10 +676,10 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		_, err = procDecAPI.Create(procdec.ProcSpec{
+		_, err = procDecAPI.Create(procdecl.ProcSpec{
 			ProcSN:       "sig-2",
-			ReceptionEPs: []procdec.ChnlSpec{oneSig1.X},
-			ProvisionEP: procdec.ChnlSpec{
+			ReceptionEPs: []procdecl.ChnlSpec{oneSig1.X},
+			ProvisionEP: procdecl.ChnlSpec{
 				CommPH: "chnl-2",
 				TypeQN: oneRole.TypeQN,
 			},
@@ -688,10 +688,10 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		oneSig3, err := procDecAPI.Create(procdec.ProcSpec{
+		oneSig3, err := procDecAPI.Create(procdecl.ProcSpec{
 			ProcSN:       "sig-3",
-			ReceptionEPs: []procdec.ChnlSpec{oneSig1.X},
-			ProvisionEP: procdec.ChnlSpec{
+			ReceptionEPs: []procdecl.ChnlSpec{oneSig1.X},
+			ProvisionEP: procdecl.ChnlSpec{
 				CommPH: "chnl-3",
 				TypeQN: oneRole.TypeQN,
 			},
@@ -707,7 +707,7 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		injecteePH := sym.New("injectee")
+		injecteePH := qualsym.New("injectee")
 		err = procExecAPI.Run(procexec.ProcSpec{
 			PoolID: poolImpl.ExecID,
 			ExecID: poolImpl.ProcID,
@@ -720,21 +720,21 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		spawnerPH := sym.New("spawner")
+		spawnerPH := qualsym.New("spawner")
 		err = procExecAPI.Run(procexec.ProcSpec{
 			PoolID: poolImpl.ExecID,
 			ExecID: poolImpl.ProcID,
 			ProcTS: procdef.CallSpec{
 				CommPH: spawnerPH,
 				ProcSN: "tbd",
-				ValPHs: []sym.ADT{injecteePH},
+				ValPHs: []qualsym.ADT{injecteePH},
 			},
 		})
 		if err != nil {
 			t.Fatal(err)
 		}
 		// and
-		x := sym.New("x")
+		x := qualsym.New("x")
 		// and
 		spawnerExecRef, err := poolExecAPI.Poll(poolexec.PollSpec{
 			PoolID: mainExecRef.ExecID,
@@ -749,7 +749,7 @@ func TestTaking(t *testing.T) {
 			ExecID: spawnerExecRef.ExecID,
 			ProcTS: procdef.SpawnSpecOld{
 				SigID: oneSig3.DecID,
-				Ys:    []sym.ADT{injecteePH},
+				Ys:    []qualsym.ADT{injecteePH},
 				X:     x,
 				Cont: procdef.WaitSpec{
 					CommPH: x,
@@ -769,7 +769,7 @@ func TestTaking(t *testing.T) {
 	t.Run("Fwd", func(t *testing.T) {
 		tc.Setup(t)
 		// given
-		mainPoolSN := sym.New("main-pool-sn")
+		mainPoolSN := qualsym.New("main-pool-sn")
 		mainExecRef, err := poolExecAPI.Create(poolexec.PoolSpec{
 			PoolQN: mainPoolSN,
 		})
@@ -785,9 +785,9 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		oneSig1, err := procDecAPI.Create(procdec.ProcSpec{
+		oneSig1, err := procDecAPI.Create(procdecl.ProcSpec{
 			ProcSN: "sig-1",
-			ProvisionEP: procdec.ChnlSpec{
+			ProvisionEP: procdecl.ChnlSpec{
 				CommPH: "chnl-1",
 				TypeQN: oneRole.TypeQN,
 			},
@@ -796,10 +796,10 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		_, err = procDecAPI.Create(procdec.ProcSpec{
+		_, err = procDecAPI.Create(procdecl.ProcSpec{
 			ProcSN:       "sig-2",
-			ReceptionEPs: []procdec.ChnlSpec{oneSig1.X},
-			ProvisionEP: procdec.ChnlSpec{
+			ReceptionEPs: []procdecl.ChnlSpec{oneSig1.X},
+			ProvisionEP: procdecl.ChnlSpec{
 				CommPH: "chnl-2",
 				TypeQN: oneRole.TypeQN,
 			},
@@ -808,10 +808,10 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		_, err = procDecAPI.Create(procdec.ProcSpec{
+		_, err = procDecAPI.Create(procdecl.ProcSpec{
 			ProcSN:       "sig-3",
-			ReceptionEPs: []procdec.ChnlSpec{oneSig1.X},
-			ProvisionEP: procdec.ChnlSpec{
+			ReceptionEPs: []procdecl.ChnlSpec{oneSig1.X},
+			ProvisionEP: procdecl.ChnlSpec{
 				CommPH: "chnl-3",
 				TypeQN: oneRole.TypeQN,
 			},
@@ -820,7 +820,7 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		closerChnlPH := sym.New("closer")
+		closerChnlPH := qualsym.New("closer")
 		err = procExecAPI.Run(procexec.ProcSpec{
 			PoolID: mainExecRef.ExecID,
 			ExecID: mainExecRef.ProcID,
@@ -833,28 +833,28 @@ func TestTaking(t *testing.T) {
 			t.Fatal(err)
 		}
 		// and
-		forwarderChnlPH := sym.New("forwarder")
+		forwarderChnlPH := qualsym.New("forwarder")
 		err = procExecAPI.Run(procexec.ProcSpec{
 			PoolID: mainExecRef.ExecID,
 			ExecID: mainExecRef.ProcID,
 			ProcTS: procdef.CallSpec{
 				CommPH: forwarderChnlPH,
 				ProcSN: "tbd",
-				ValPHs: []sym.ADT{closerChnlPH},
+				ValPHs: []qualsym.ADT{closerChnlPH},
 			},
 		})
 		if err != nil {
 			t.Fatal(err)
 		}
 		// and
-		waiterChnlPH := sym.New("waiter")
+		waiterChnlPH := qualsym.New("waiter")
 		err = procExecAPI.Run(procexec.ProcSpec{
 			PoolID: mainExecRef.ExecID,
 			ExecID: mainExecRef.ProcID,
 			ProcTS: procdef.CallSpec{
 				CommPH: waiterChnlPH,
 				ProcSN: "tbd",
-				ValPHs: []sym.ADT{forwarderChnlPH},
+				ValPHs: []qualsym.ADT{forwarderChnlPH},
 			},
 		})
 		if err != nil {

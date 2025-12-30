@@ -7,7 +7,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	typedef "orglang/orglang/aat/type/def"
+	"orglang/orglang/adt/typedef"
 	"orglang/orglang/lib/te"
 )
 

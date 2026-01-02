@@ -3,9 +3,9 @@ package procdef
 import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 
-	"orglang/orglang/adt/expctx"
 	"orglang/orglang/adt/identity"
 	"orglang/orglang/adt/qualsym"
+	"orglang/orglang/adt/termctx"
 )
 
 var semKindRequired = []validation.Rule{
@@ -90,7 +90,7 @@ func (dto CallSpecME) Validate() error {
 	return validation.ValidateStruct(&dto,
 		validation.Field(&dto.X, validation.Required),
 		validation.Field(&dto.SigPH, identity.Required...),
-		validation.Field(&dto.Ys, expctx.Optional...),
+		validation.Field(&dto.Ys, termctx.Optional...),
 	)
 }
 
@@ -98,7 +98,7 @@ func (dto SpawnSpecME) Validate() error {
 	return validation.ValidateStruct(&dto,
 		validation.Field(&dto.X, validation.Required),
 		validation.Field(&dto.SigID, identity.Required...),
-		validation.Field(&dto.Ys, expctx.Optional...),
+		validation.Field(&dto.Ys, termctx.Optional...),
 		// validation.Field(&dto.Cont, validation.Required),
 	)
 }

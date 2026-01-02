@@ -107,7 +107,7 @@ func (s CallSpecOld) Via() qualsym.ADT { return s.SigPH }
 type CallSpec struct {
 	CommPH qualsym.ADT
 	BindPH qualsym.ADT
-	ProcSN qualsym.ADT   // label
+	ProcSN qualsym.ADT
 	ValPHs []qualsym.ADT // channel bulk
 	ContTS TermSpec
 }

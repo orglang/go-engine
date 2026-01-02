@@ -8,18 +8,18 @@ This a visual programming language to support organization development and manag
   - `web`: Web application definitions
 - `adt`: Reusable abstract data types
   - `typedef`: Type definition aggregate
-  - `typealias`: Type alias entity
-  - `procdecl`: Process declaration aggregate
+  - `procdec`: Process declaration aggregate
   - `procdef`: Process definition entity
-  - `procexec`: Process execution aggregate
-  - `pooldecl`: Pool declaration aggregate
+  - `procxec`: Process execution aggregate
+  - `pooldec`: Pool declaration aggregate
   - `pooldef`: Pool definition entity
-  - `poolexec`: Pool execution aggregate
-  - `expctx`: Expression context value object
-  - `identity`: Identification value object
-  - `polarity`: Polarization value object
-  - `qualsym`: Qualified symbol value object
-  - `revnum`: Revision number value object
+  - `poolxec`: Pool execution aggregate
+  - `termctx`: Term context value
+  - `termsyn`: Term synonym value
+  - `identity`: Identification value
+  - `polarity`: Polarization value
+  - `qualsym`: Qualified symbol value
+  - `revnum`: Revision number value
 - `lib`: Reusable behavior definitions
   - `ck`: Configuration keeper harness
   - `lf`: Logging framework harness

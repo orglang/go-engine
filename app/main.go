@@ -9,12 +9,11 @@ import (
 	"orglang/orglang/lib/sd"
 	"orglang/orglang/lib/ws"
 
-	"orglang/orglang/adt/expalias"
-
-	poolexec "orglang/orglang/adt/poolexec"
-	"orglang/orglang/adt/procdecl"
+	"orglang/orglang/adt/poolxec"
+	"orglang/orglang/adt/procdec"
 	"orglang/orglang/adt/procdef"
-	"orglang/orglang/adt/procexec"
+	"orglang/orglang/adt/procxec"
+	"orglang/orglang/adt/termsyn"
 	"orglang/orglang/adt/typedef"
 
 	"orglang/orglang/app/web"
@@ -26,14 +25,13 @@ func main() {
 		ws.Module,
 		sd.Module,
 		lf.Module,
-		// aet
-		expalias.Module,
-		// aat
-		procdef.Module,
-		poolexec.Module,
+		// adt
+		termsyn.Module,
+		poolxec.Module,
 		typedef.Module,
-		procexec.Module,
-		procdecl.Module,
+		procdef.Module,
+		procdec.Module,
+		procxec.Module,
 		// app
 		web.Module,
 	).Run()

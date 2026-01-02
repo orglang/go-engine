@@ -4,11 +4,11 @@ import (
 	"os"
 	"testing"
 
-	"orglang/orglang/adt/procdecl"
+	"orglang/orglang/adt/procdec"
 )
 
 var (
-	api = procdecl.NewAPI()
+	api = procdec.NewAPI()
 )
 
 func TestMain(m *testing.M) {

@@ -24,9 +24,9 @@ func newHandlerEcho(a API, l *slog.Logger) *handlerEcho {
 }
 
 func cfgHandlerEcho(e *echo.Echo, h *handlerEcho) error {
-	e.POST("/api/v1/roles", h.PostOne)
-	e.GET("/api/v1/roles/:id", h.GetOne)
-	e.PATCH("/api/v1/roles/:id", h.PatchOne)
+	e.POST("/api/v1/types", h.PostOne)
+	e.GET("/api/v1/types/:id", h.GetOne)
+	e.PATCH("/api/v1/types/:id", h.PatchOne)
 	return nil
 }
 

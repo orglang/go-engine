@@ -23,7 +23,7 @@ func NewAPI() API {
 	return newSdkResty()
 }
 
-func (cl *sdkResty) Incept(roleQN qualsym.ADT) (DefRef, error) {
+func (cl *sdkResty) Incept(typeQN qualsym.ADT) (DefRef, error) {
 	return DefRef{}, nil
 }
 
@@ -33,7 +33,7 @@ func (cl *sdkResty) Create(spec DefSpec) (DefSnap, error) {
 	resp, err := cl.resty.R().
 		SetResult(&res).
 		SetBody(&req).
-		Post("/roles")
+		Post("/types")
 	if err != nil {
 		return DefSnap{}, err
 	}
@@ -47,11 +47,11 @@ func (c *sdkResty) Modify(snap DefSnap) (DefSnap, error) {
 	return DefSnap{}, nil
 }
 
-func (c *sdkResty) Retrieve(rid identity.ADT) (DefSnap, error) {
+func (c *sdkResty) Retrieve(defID identity.ADT) (DefSnap, error) {
 	return DefSnap{}, nil
 }
 
-func (c *sdkResty) retrieveSnap(entity DefRec) (DefSnap, error) {
+func (c *sdkResty) retrieveSnap(rec DefRec) (DefSnap, error) {
 	return DefSnap{}, nil
 }
 

@@ -1,4 +1,4 @@
-package poolxec
+package poolexec
 
 import (
 	"errors"
@@ -13,7 +13,7 @@ import (
 	"orglang/orglang/adt/revnum"
 	"orglang/orglang/adt/termctx"
 
-	"orglang/orglang/adt/procxec"
+	"orglang/orglang/adt/procexec"
 )
 
 // Adapter
@@ -48,7 +48,7 @@ func (d *daoPgx) Insert(source sd.Source, root ExecRec) (err error) {
 	return nil
 }
 
-func (d *daoPgx) InsertLiab(source sd.Source, liab procxec.Liab) (err error) {
+func (d *daoPgx) InsertLiab(source sd.Source, liab procexec.Liab) (err error) {
 	ds := sd.MustConform[sd.SourcePgx](source)
 	dto := DataFromLiab(liab)
 	args := pgx.NamedArgs{
@@ -65,54 +65,54 @@ func (d *daoPgx) InsertLiab(source sd.Source, liab procxec.Liab) (err error) {
 	return nil
 }
 
-func (d *daoPgx) SelectProc(source sd.Source, procID identity.ADT) (procxec.Cfg, error) {
+func (d *daoPgx) SelectProc(source sd.Source, procID identity.ADT) (procexec.Cfg, error) {
 	ds := sd.MustConform[sd.SourcePgx](source)
 	idAttr := slog.Any("procID", procID)
 	chnlRows, err := ds.Conn.Query(ds.Ctx, selectChnls, procID.String())
 	if err != nil {
 		d.log.Error("execution failed", idAttr)
-		return procxec.Cfg{}, err
+		return procexec.Cfg{}, err
 	}
 	defer chnlRows.Close()
 	chnlDtos, err := pgx.CollectRows(chnlRows, pgx.RowToStructByName[epDS])
 	if err != nil {
 		d.log.Error("collection failed", idAttr, slog.Any("t", reflect.TypeOf(chnlDtos)))
-		return procxec.Cfg{}, err
+		return procexec.Cfg{}, err
 	}
 	chnls, err := DataToEPs(chnlDtos)
 	if err != nil {
 		d.log.Error("mapping failed", idAttr)
-		return procxec.Cfg{}, err
+		return procexec.Cfg{}, err
 	}
 	stepRows, err := ds.Conn.Query(ds.Ctx, selectSteps, procID.String())
 	if err != nil {
 		d.log.Error("execution failed", idAttr)
-		return procxec.Cfg{}, err
+		return procexec.Cfg{}, err
 	}
 	defer stepRows.Close()
-	stepDtos, err := pgx.CollectRows(stepRows, pgx.RowToStructByName[procxec.SemRecDS])
+	stepDtos, err := pgx.CollectRows(stepRows, pgx.RowToStructByName[procexec.SemRecDS])
 	if err != nil {
 		d.log.Error("collection failed", idAttr, slog.Any("t", reflect.TypeOf(stepDtos)))
-		return procxec.Cfg{}, err
+		return procexec.Cfg{}, err
 	}
-	steps, err := procxec.DataToSemRecs(stepDtos)
+	steps, err := procexec.DataToSemRecs(stepDtos)
 	if err != nil {
 		d.log.Error("mapping failed", idAttr)
-		return procxec.Cfg{}, err
+		return procexec.Cfg{}, err
 	}
 	d.log.Debug("selection succeed", idAttr)
-	return procxec.Cfg{
-		Chnls: termctx.IndexBy(procxec.ChnlPH, chnls),
-		Steps: termctx.IndexBy(procxec.ChnlID, steps),
+	return procexec.Cfg{
+		Chnls: termctx.IndexBy(procexec.ChnlPH, chnls),
+		Steps: termctx.IndexBy(procexec.ChnlID, steps),
 	}, nil
 }
 
-func (d *daoPgx) UpdateProc(source sd.Source, mod procxec.Mod) (err error) {
+func (d *daoPgx) UpdateProc(source sd.Source, mod procexec.Mod) (err error) {
 	if len(mod.Locks) == 0 {
 		panic("empty locks")
 	}
 	ds := sd.MustConform[sd.SourcePgx](source)
-	dto, err := procxec.DataFromMod(mod)
+	dto, err := procexec.DataFromMod(mod)
 	if err != nil {
 		d.log.Error("mapping failed")
 		return err

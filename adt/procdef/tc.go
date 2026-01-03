@@ -29,7 +29,7 @@ func MsgFromTermSpec(t TermSpec) TermSpecME {
 			K: Wait,
 			Wait: &WaitSpecME{
 				X:    qualsym.ConvertToString(term.CommPH),
-				Cont: MsgFromTermSpec(term.ContTS),
+				Cont: MsgFromTermSpec(term.ContES),
 			},
 		}
 	case SendSpec:
@@ -46,7 +46,7 @@ func MsgFromTermSpec(t TermSpec) TermSpecME {
 			Recv: &RecvSpecME{
 				X:    qualsym.ConvertToString(term.CommPH),
 				Y:    qualsym.ConvertToString(term.CommPH),
-				Cont: MsgFromTermSpec(term.ContTS),
+				Cont: MsgFromTermSpec(term.ContES),
 			},
 		}
 	case LabSpec:
@@ -59,7 +59,7 @@ func MsgFromTermSpec(t TermSpec) TermSpecME {
 		}
 	case CaseSpec:
 		brs := []BranchSpecME{}
-		for l, t := range term.ContTSs {
+		for l, t := range term.ContESs {
 			brs = append(brs, BranchSpecME{Label: string(l), Cont: MsgFromTermSpec(t)})
 		}
 		return TermSpecME{
@@ -76,7 +76,7 @@ func MsgFromTermSpec(t TermSpec) TermSpecME {
 				X:     qualsym.ConvertToString(term.X),
 				SigID: identity.ConvertToString(term.SigID),
 				Ys:    qualsym.ConvertToStrings(term.Ys),
-				Cont:  MsgFromTermSpecNilable(term.ContTS),
+				Cont:  MsgFromTermSpecNilable(term.ContES),
 			},
 		}
 	case CallSpecOld:
@@ -125,7 +125,7 @@ func MsgToTermSpec(dto TermSpecME) (TermSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return WaitSpec{CommPH: x, ContTS: cont}, nil
+		return WaitSpec{CommPH: x, ContES: cont}, nil
 	case Send:
 		x, err := qualsym.ConvertFromString(dto.Send.X)
 		if err != nil {
@@ -149,7 +149,7 @@ func MsgToTermSpec(dto TermSpecME) (TermSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return RecvSpec{CommPH: x, BindPH: y, ContTS: cont}, nil
+		return RecvSpec{CommPH: x, BindPH: y, ContES: cont}, nil
 	case Lab:
 		x, err := qualsym.ConvertFromString(dto.Lab.X)
 		if err != nil {
@@ -169,7 +169,7 @@ func MsgToTermSpec(dto TermSpecME) (TermSpec, error) {
 			}
 			conts[qualsym.ADT(b.Label)] = cont
 		}
-		return CaseSpec{CommPH: x, ContTSs: conts}, nil
+		return CaseSpec{CommPH: x, ContESs: conts}, nil
 	case Spawn:
 		x, err := qualsym.ConvertFromString(dto.Spawn.X)
 		if err != nil {
@@ -187,7 +187,7 @@ func MsgToTermSpec(dto TermSpecME) (TermSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return SpawnSpecOld{X: x, SigID: sigID, Ys: ys, ContTS: cont}, nil
+		return SpawnSpecOld{X: x, SigID: sigID, Ys: ys, ContES: cont}, nil
 	case Call:
 		x, err := qualsym.ConvertFromString(dto.Call.X)
 		if err != nil {
@@ -233,7 +233,7 @@ func DataFromTermRec(r TermRec) (TermRecDS, error) {
 			Close: &closeRecDS{qualsym.ConvertToString(rec.X)},
 		}, nil
 	case WaitRec:
-		dto, err := dataFromTermSpec(rec.ContTS)
+		dto, err := dataFromTermSpec(rec.ContES)
 		if err != nil {
 			return TermRecDS{}, err
 		}
@@ -254,7 +254,7 @@ func DataFromTermRec(r TermRec) (TermRecDS, error) {
 			},
 		}, nil
 	case RecvRec:
-		dto, err := dataFromTermSpec(rec.ContTS)
+		dto, err := dataFromTermSpec(rec.ContES)
 		if err != nil {
 			return TermRecDS{}, err
 		}
@@ -273,7 +273,7 @@ func DataFromTermRec(r TermRec) (TermRecDS, error) {
 		}, nil
 	case CaseRec:
 		brs := []branchRecDS{}
-		for l, cont := range rec.ContTSs {
+		for l, cont := range rec.ContESs {
 			dto, err := dataFromTermSpec(cont)
 			if err != nil {
 				return TermRecDS{}, err
@@ -317,7 +317,7 @@ func DataToTermRec(dto TermRecDS) (TermRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return WaitRec{X: x, ContTS: cont}, nil
+		return WaitRec{X: x, ContES: cont}, nil
 	case sendKind:
 		x, err := qualsym.ConvertFromString(dto.Send.X)
 		if err != nil {
@@ -341,7 +341,7 @@ func DataToTermRec(dto TermRecDS) (TermRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return RecvRec{X: x, Y: y, ContTS: cont}, nil
+		return RecvRec{X: x, Y: y, ContES: cont}, nil
 	case labKind:
 		a, err := qualsym.ConvertFromString(dto.Lab.X)
 		if err != nil {
@@ -361,7 +361,7 @@ func DataToTermRec(dto TermRecDS) (TermRec, error) {
 			}
 			conts[qualsym.ADT(branch.Label)] = cont
 		}
-		return CaseRec{X: x, ContTSs: conts}, nil
+		return CaseRec{X: x, ContESs: conts}, nil
 	case fwdKind:
 		x, err := qualsym.ConvertFromString(dto.Fwd.X)
 		if err != nil {
@@ -385,7 +385,7 @@ func dataFromTermSpec(s TermSpec) (TermSpecDS, error) {
 			Close: &closeSpecDS{qualsym.ConvertToString(spec.CommPH)},
 		}, nil
 	case WaitSpec:
-		dto, err := dataFromTermSpec(spec.ContTS)
+		dto, err := dataFromTermSpec(spec.ContES)
 		if err != nil {
 			return TermSpecDS{}, err
 		}
@@ -405,7 +405,7 @@ func dataFromTermSpec(s TermSpec) (TermSpecDS, error) {
 			},
 		}, nil
 	case RecvSpec:
-		dto, err := dataFromTermSpec(spec.ContTS)
+		dto, err := dataFromTermSpec(spec.ContES)
 		if err != nil {
 			return TermSpecDS{}, err
 		}
@@ -424,7 +424,7 @@ func dataFromTermSpec(s TermSpec) (TermSpecDS, error) {
 		}, nil
 	case CaseSpec:
 		brs := []branchSpecDS{}
-		for l, cont := range spec.ContTSs {
+		for l, cont := range spec.ContESs {
 			dto, err := dataFromTermSpec(cont)
 			if err != nil {
 				return TermSpecDS{}, err
@@ -468,7 +468,7 @@ func dataToTermSpec(dto TermSpecDS) (TermSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return WaitSpec{CommPH: x, ContTS: cont}, nil
+		return WaitSpec{CommPH: x, ContES: cont}, nil
 	case sendKind:
 		x, err := qualsym.ConvertFromString(dto.Send.X)
 		if err != nil {
@@ -492,7 +492,7 @@ func dataToTermSpec(dto TermSpecDS) (TermSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return RecvSpec{CommPH: x, BindPH: y, ContTS: cont}, nil
+		return RecvSpec{CommPH: x, BindPH: y, ContES: cont}, nil
 	case labKind:
 		x, err := qualsym.ConvertFromString(dto.Lab.X)
 		if err != nil {
@@ -512,7 +512,7 @@ func dataToTermSpec(dto TermSpecDS) (TermSpec, error) {
 			}
 			conts[qualsym.ADT(b.Label)] = cont
 		}
-		return CaseSpec{CommPH: x, ContTSs: conts}, nil
+		return CaseSpec{CommPH: x, ContESs: conts}, nil
 	case fwdKind:
 		x, err := qualsym.ConvertFromString(dto.Fwd.X)
 		if err != nil {

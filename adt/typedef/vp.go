@@ -1,5 +1,7 @@
 package typedef
 
+import "orglang/orglang/adt/typeexp"
+
 type DefSpecVP struct {
 	TypeNS string `form:"ns" json:"ns"`
 	TypeSN string `form:"name" json:"name"`
@@ -12,8 +14,8 @@ type DefRefVP struct {
 }
 
 type DefSnapVP struct {
-	DefID  string     `json:"def_id"`
-	DefRN  int64      `json:"def_rn"`
-	Title  string     `json:"title"`
-	TypeTS TermSpecME `json:"type_ts"`
+	DefID  string            `json:"def_id"`
+	DefRN  int64             `json:"def_rn"`
+	Title  string            `json:"title"`
+	TypeES typeexp.ExpSpecME `json:"type_es"`
 }

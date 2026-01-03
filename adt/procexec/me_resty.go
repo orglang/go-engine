@@ -1,4 +1,4 @@
-package procxec
+package procexec
 
 import (
 	"github.com/go-resty/resty/v2"

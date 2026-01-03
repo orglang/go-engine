@@ -8,10 +8,10 @@ import (
 	"orglang/orglang/lib/sd"
 
 	"orglang/orglang/adt/identity"
-	"orglang/orglang/adt/polarity"
 	"orglang/orglang/adt/qualsym"
 	"orglang/orglang/adt/revnum"
 	"orglang/orglang/adt/syndec"
+	"orglang/orglang/adt/typeexp"
 )
 
 type API interface {
@@ -25,7 +25,7 @@ type API interface {
 
 type DefSpec struct {
 	TypeQN qualsym.ADT
-	TypeTS TermSpec
+	TypeES typeexp.ExpSpec
 }
 
 type DefRef struct {
@@ -35,255 +35,29 @@ type DefRef struct {
 
 // aka TpDef
 type DefRec struct {
-	DefID  identity.ADT
-	Title  string
-	TermID identity.ADT
-	DefRN  revnum.ADT
+	DefID identity.ADT
+	Title string
+	ExpID identity.ADT
+	DefRN revnum.ADT
 }
 
 type DefSnap struct {
 	DefID  identity.ADT
 	Title  string
 	TypeQN qualsym.ADT
-	TypeTS TermSpec
+	TypeES typeexp.ExpSpec
 	DefRN  revnum.ADT
 }
 
-type TermSpec interface {
-	spec()
-}
-
-type OneSpec struct{}
-
-func (OneSpec) spec() {}
-
-// aka TpName
-type LinkSpec struct {
-	TypeQN qualsym.ADT
-}
-
-func (LinkSpec) spec() {}
-
-type TensorSpec struct {
-	Y TermSpec // val to send
-	Z TermSpec // cont
-}
-
-func (TensorSpec) spec() {}
-
-type LolliSpec struct {
-	Y TermSpec // val to receive
-	Z TermSpec // cont
-}
-
-func (LolliSpec) spec() {}
-
-// aka Internal Choice
-type PlusSpec struct {
-	Zs map[qualsym.ADT]TermSpec // conts
-}
-
-func (PlusSpec) spec() {}
-
-// aka External Choice
-type WithSpec struct {
-	Zs map[qualsym.ADT]TermSpec // conts
-}
-
-func (WithSpec) spec() {}
-
-type UpSpec struct {
-	Z TermSpec // cont
-}
-
-func (UpSpec) spec() {}
-
-type DownSpec struct {
-	Z TermSpec // cont
-}
-
-func (DownSpec) spec() {}
-
-type XactSpec struct {
-	Zs map[qualsym.ADT]TermSpec // conts
-}
-
-func (XactSpec) spec() {}
-
-type TermRef interface {
-	identity.Identifiable
-}
-
-type OneRef struct {
-	TermID identity.ADT
-}
-
-func (r OneRef) Ident() identity.ADT { return r.TermID }
-
-type LinkRef struct {
-	TermID identity.ADT
-}
-
-func (r LinkRef) Ident() identity.ADT { return r.TermID }
-
-type PlusRef struct {
-	TermID identity.ADT
-}
-
-func (r PlusRef) Ident() identity.ADT { return r.TermID }
-
-type WithRef struct {
-	TermID identity.ADT
-}
-
-func (r WithRef) Ident() identity.ADT { return r.TermID }
-
-type TensorRef struct {
-	TermID identity.ADT
-}
-
-func (r TensorRef) Ident() identity.ADT { return r.TermID }
-
-type LolliRef struct {
-	TermID identity.ADT
-}
-
-func (r LolliRef) Ident() identity.ADT { return r.TermID }
-
-type UpRef struct {
-	TermID identity.ADT
-}
-
-func (r UpRef) Ident() identity.ADT { return r.TermID }
-
-type DownRef struct {
-	TermID identity.ADT
-}
-
-func (r DownRef) Ident() identity.ADT { return r.TermID }
-
-// aka Stype
-type TermRec interface {
-	identity.Identifiable
-	polarity.Polarizable
-}
-
-type ProdRec interface {
-	Next() identity.ADT
-}
-
-type SumRec interface {
-	Next(qualsym.ADT) identity.ADT
-}
-
-type OneRec struct {
-	TermID identity.ADT
-}
-
-func (OneRec) spec() {}
-
-func (r OneRec) Ident() identity.ADT { return r.TermID }
-
-func (OneRec) Pol() polarity.ADT { return polarity.Pos }
-
-// aka TpName
-type LinkRec struct {
-	TermID identity.ADT
-	TypeQN qualsym.ADT
-}
-
-func (LinkRec) spec() {}
-
-func (r LinkRec) Ident() identity.ADT { return r.TermID }
-
-func (LinkRec) Pol() polarity.ADT { return polarity.Zero }
-
-// aka Internal Choice
-type PlusRec struct {
-	TermID identity.ADT
-	Zs     map[qualsym.ADT]TermRec
-}
-
-func (PlusRec) spec() {}
-
-func (r PlusRec) Ident() identity.ADT { return r.TermID }
-
-func (r PlusRec) Next(l qualsym.ADT) identity.ADT { return r.Zs[l].Ident() }
-
-func (PlusRec) Pol() polarity.ADT { return polarity.Pos }
-
-// aka External Choice
-type WithRec struct {
-	TermID identity.ADT
-	Zs     map[qualsym.ADT]TermRec
-}
-
-func (WithRec) spec() {}
-
-func (r WithRec) Ident() identity.ADT { return r.TermID }
-
-func (r WithRec) Next(l qualsym.ADT) identity.ADT { return r.Zs[l].Ident() }
-
-func (WithRec) Pol() polarity.ADT { return polarity.Neg }
-
-type TensorRec struct {
-	TermID identity.ADT
-	Y      TermRec
-	Z      TermRec
-}
-
-func (TensorRec) spec() {}
-
-func (r TensorRec) Ident() identity.ADT { return r.TermID }
-
-func (r TensorRec) Next() identity.ADT { return r.Z.Ident() }
-
-func (TensorRec) Pol() polarity.ADT { return polarity.Pos }
-
-type LolliRec struct {
-	TermID identity.ADT
-	Y      TermRec
-	Z      TermRec
-}
-
-func (LolliRec) spec() {}
-
-func (r LolliRec) Ident() identity.ADT { return r.TermID }
-
-func (r LolliRec) Next() identity.ADT { return r.Z.Ident() }
-
-func (LolliRec) Pol() polarity.ADT { return polarity.Neg }
-
-type UpRec struct {
-	TermID identity.ADT
-	Z      TermRec
-}
-
-func (UpRec) spec() {}
-
-func (r UpRec) Ident() identity.ADT { return r.TermID }
-
-func (UpRec) Pol() polarity.ADT { return polarity.Zero }
-
-type DownRec struct {
-	TermID identity.ADT
-	Z      TermRec
-}
-
-func (DownRec) spec() {}
-
-func (r DownRec) Ident() identity.ADT { return r.TermID }
-
-func (DownRec) Pol() polarity.ADT { return polarity.Zero }
-
 type Context struct {
-	Assets map[qualsym.ADT]TermRec
-	Liabs  map[qualsym.ADT]TermRec
+	Assets map[qualsym.ADT]typeexp.ExpRec
+	Liabs  map[qualsym.ADT]typeexp.ExpRec
 }
 
 type service struct {
-	types    Repo
-	aliases  syndec.Repo
+	typeDefs Repo
+	typeExps typeexp.Repo
+	synDecs  syndec.Repo
 	operator sd.Operator
 	log      *slog.Logger
 }
@@ -294,26 +68,27 @@ func newAPI() API {
 }
 
 func newService(
-	types Repo,
-	aliases syndec.Repo,
+	typeDefs Repo,
+	typeExps typeexp.Repo,
+	synDecs syndec.Repo,
 	operator sd.Operator,
 	l *slog.Logger,
 ) *service {
-	return &service{types, aliases, operator, l}
+	return &service{typeDefs, typeExps, synDecs, operator, l}
 }
 
-func (s *service) Incept(qn qualsym.ADT) (_ DefRef, err error) {
+func (s *service) Incept(typeQN qualsym.ADT) (_ DefRef, err error) {
 	ctx := context.Background()
-	qnAttr := slog.Any("roleQN", qn)
+	qnAttr := slog.Any("typeQN", typeQN)
 	s.log.Debug("inception started", qnAttr)
-	newAlias := syndec.DecRec{DecQN: qn, DecID: identity.New(), DecRN: revnum.Initial()}
+	newAlias := syndec.DecRec{DecQN: typeQN, DecID: identity.New(), DecRN: revnum.Initial()}
 	newType := DefRec{DefID: newAlias.DecID, DefRN: newAlias.DecRN, Title: newAlias.DecQN.SN()}
 	s.operator.Explicit(ctx, func(ds sd.Source) error {
-		err = s.aliases.Insert(ds, newAlias)
+		err = s.synDecs.Insert(ds, newAlias)
 		if err != nil {
 			return err
 		}
-		err = s.types.InsertType(ds, newType)
+		err = s.typeDefs.Insert(ds, newType)
 		if err != nil {
 			return err
 		}
@@ -323,7 +98,7 @@ func (s *service) Incept(qn qualsym.ADT) (_ DefRef, err error) {
 		s.log.Error("inception failed", qnAttr)
 		return DefRef{}, err
 	}
-	s.log.Debug("inception succeed", qnAttr, slog.Any("roleID", newType.DefID))
+	s.log.Debug("inception succeed", qnAttr, slog.Any("defID", newType.DefID))
 	return ConvertRecToRef(newType), nil
 }
 
@@ -332,23 +107,23 @@ func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 	qnAttr := slog.Any("typeQN", spec.TypeQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	newAlias := syndec.DecRec{DecQN: spec.TypeQN, DecID: identity.New(), DecRN: revnum.Initial()}
-	newTerm := ConvertSpecToRec(spec.TypeTS)
+	newTerm := typeexp.ConvertSpecToRec(spec.TypeES)
 	newType := DefRec{
-		DefID:  newAlias.DecID,
-		DefRN:  newAlias.DecRN,
-		Title:  newAlias.DecQN.SN(),
-		TermID: newTerm.Ident(),
+		DefID: newAlias.DecID,
+		DefRN: newAlias.DecRN,
+		Title: newAlias.DecQN.SN(),
+		ExpID: newTerm.Ident(),
 	}
 	s.operator.Explicit(ctx, func(ds sd.Source) error {
-		err = s.aliases.Insert(ds, newAlias)
+		err = s.synDecs.Insert(ds, newAlias)
 		if err != nil {
 			return err
 		}
-		err = s.types.InsertTerm(ds, newTerm)
+		err = s.typeExps.Insert(ds, newTerm)
 		if err != nil {
 			return err
 		}
-		err = s.types.InsertType(ds, newType)
+		err = s.typeDefs.Insert(ds, newType)
 		if err != nil {
 			return err
 		}
@@ -358,23 +133,23 @@ func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 		s.log.Error("creation failed", qnAttr)
 		return DefSnap{}, err
 	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("typeID", newType.DefID))
+	s.log.Debug("creation succeed", qnAttr, slog.Any("defID", newType.DefID))
 	return DefSnap{
 		DefID:  newType.DefID,
 		DefRN:  newType.DefRN,
 		Title:  newType.Title,
 		TypeQN: newAlias.DecQN,
-		TypeTS: ConvertRecToSpec(newTerm),
+		TypeES: typeexp.ConvertRecToSpec(newTerm),
 	}, nil
 }
 
 func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 	ctx := context.Background()
-	idAttr := slog.Any("typeID", snap.DefID)
+	idAttr := slog.Any("defID", snap.DefID)
 	s.log.Debug("modification started", idAttr)
 	var rec DefRec
 	s.operator.Implicit(ctx, func(ds sd.Source) error {
-		rec, err = s.types.SelectTypeRecByID(ds, snap.DefID)
+		rec, err = s.typeDefs.SelectRecByID(ds, snap.DefID)
 		return err
 	})
 	if err != nil {
@@ -393,17 +168,17 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 		return DefSnap{}, err
 	}
 	s.operator.Explicit(ctx, func(ds sd.Source) error {
-		if CheckSpec(snap.TypeTS, curSnap.TypeTS) != nil {
-			newTerm := ConvertSpecToRec(snap.TypeTS)
-			err = s.types.InsertTerm(ds, newTerm)
+		if typeexp.CheckSpec(snap.TypeES, curSnap.TypeES) != nil {
+			newTerm := typeexp.ConvertSpecToRec(snap.TypeES)
+			err = s.typeExps.Insert(ds, newTerm)
 			if err != nil {
 				return err
 			}
-			rec.TermID = newTerm.Ident()
+			rec.ExpID = newTerm.Ident()
 			rec.DefRN = snap.DefRN
 		}
 		if rec.DefRN == snap.DefRN {
-			err = s.types.UpdateType(ds, rec)
+			err = s.typeDefs.Update(ds, rec)
 			if err != nil {
 				return err
 			}
@@ -418,43 +193,43 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 	return snap, nil
 }
 
-func (s *service) Retrieve(recID identity.ADT) (_ DefSnap, err error) {
+func (s *service) Retrieve(defID identity.ADT) (_ DefSnap, err error) {
 	ctx := context.Background()
 	var root DefRec
 	s.operator.Implicit(ctx, func(ds sd.Source) error {
-		root, err = s.types.SelectTypeRecByID(ds, recID)
+		root, err = s.typeDefs.SelectRecByID(ds, defID)
 		return err
 	})
 	if err != nil {
-		s.log.Error("retrieval failed", slog.Any("roleID", recID))
+		s.log.Error("retrieval failed", slog.Any("defID", defID))
 		return DefSnap{}, err
 	}
 	return s.retrieveSnap(root)
 }
 
-func (s *service) retrieveSnap(typeRec DefRec) (_ DefSnap, err error) {
+func (s *service) retrieveSnap(rec DefRec) (_ DefSnap, err error) {
 	ctx := context.Background()
-	var termRec TermRec
+	var termRec typeexp.ExpRec
 	s.operator.Implicit(ctx, func(ds sd.Source) error {
-		termRec, err = s.types.SelectTermRecByID(ds, typeRec.TermID)
+		termRec, err = s.typeExps.SelectRecByID(ds, rec.ExpID)
 		return err
 	})
 	if err != nil {
-		s.log.Error("retrieval failed", slog.Any("roleID", typeRec.DefID))
+		s.log.Error("retrieval failed", slog.Any("defID", rec.DefID))
 		return DefSnap{}, err
 	}
 	return DefSnap{
-		DefID:  typeRec.DefID,
-		DefRN:  typeRec.DefRN,
-		Title:  typeRec.Title,
-		TypeTS: ConvertRecToSpec(termRec),
+		DefID:  rec.DefID,
+		DefRN:  rec.DefRN,
+		Title:  rec.Title,
+		TypeES: typeexp.ConvertRecToSpec(termRec),
 	}, nil
 }
 
 func (s *service) RetreiveRefs() (refs []DefRef, err error) {
 	ctx := context.Background()
 	s.operator.Implicit(ctx, func(ds sd.Source) error {
-		refs, err = s.types.SelectTypeRefs(ds)
+		refs, err = s.typeDefs.SelectRefs(ds)
 		return err
 	})
 	if err != nil {
@@ -467,7 +242,7 @@ func (s *service) RetreiveRefs() (refs []DefRef, err error) {
 func CollectEnv(recs []DefRec) []identity.ADT {
 	termIDs := []identity.ADT{}
 	for _, r := range recs {
-		termIDs = append(termIDs, r.TermID)
+		termIDs = append(termIDs, r.ExpID)
 	}
 	return termIDs
 }
@@ -484,165 +259,6 @@ func errOptimisticUpdate(got revnum.ADT) error {
 	return fmt.Errorf("entity concurrent modification: got revision %v", got)
 }
 
-func CheckRef(got, want identity.ADT) error {
-	if got != want {
-		return fmt.Errorf("type mismatch: want %+v, got %+v", want, got)
-	}
-	return nil
-}
-
-// aka eqtp
-func CheckSpec(got, want TermSpec) error {
-	switch wantSt := want.(type) {
-	case OneSpec:
-		_, ok := got.(OneSpec)
-		if !ok {
-			return ErrSpecTypeMismatch(got, want)
-		}
-		return nil
-	case TensorSpec:
-		gotSt, ok := got.(TensorSpec)
-		if !ok {
-			return ErrSpecTypeMismatch(got, want)
-		}
-		err := CheckSpec(gotSt.Y, wantSt.Y)
-		if err != nil {
-			return err
-		}
-		return CheckSpec(gotSt.Z, wantSt.Z)
-	case LolliSpec:
-		gotSt, ok := got.(LolliSpec)
-		if !ok {
-			return ErrSpecTypeMismatch(got, want)
-		}
-		err := CheckSpec(gotSt.Y, wantSt.Y)
-		if err != nil {
-			return err
-		}
-		return CheckSpec(gotSt.Z, wantSt.Z)
-	case PlusSpec:
-		gotSt, ok := got.(PlusSpec)
-		if !ok {
-			return ErrSpecTypeMismatch(got, want)
-		}
-		if len(gotSt.Zs) != len(wantSt.Zs) {
-			return fmt.Errorf("choices mismatch: want %v items, got %v items", len(wantSt.Zs), len(gotSt.Zs))
-		}
-		for wantLab, wantChoice := range wantSt.Zs {
-			gotChoice, ok := gotSt.Zs[wantLab]
-			if !ok {
-				return fmt.Errorf("label mismatch: want %q, got nothing", wantLab)
-			}
-			err := CheckSpec(gotChoice, wantChoice)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	case WithSpec:
-		gotSt, ok := got.(WithSpec)
-		if !ok {
-			return ErrSpecTypeMismatch(got, want)
-		}
-		if len(gotSt.Zs) != len(wantSt.Zs) {
-			return fmt.Errorf("choices mismatch: want %v items, got %v items", len(wantSt.Zs), len(gotSt.Zs))
-		}
-		for wantLab, wantChoice := range wantSt.Zs {
-			gotChoice, ok := gotSt.Zs[wantLab]
-			if !ok {
-				return fmt.Errorf("label mismatch: want %q, got nothing", wantLab)
-			}
-			err := CheckSpec(gotChoice, wantChoice)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	default:
-		panic(ErrSpecTypeUnexpected(want))
-	}
-}
-
-// aka eqtp
-func CheckRec(got, want TermRec) error {
-	switch wantSt := want.(type) {
-	case OneRec:
-		_, ok := got.(OneRec)
-		if !ok {
-			return ErrSnapTypeMismatch(got, want)
-		}
-		return nil
-	case TensorRec:
-		gotSt, ok := got.(TensorRec)
-		if !ok {
-			return ErrSnapTypeMismatch(got, want)
-		}
-		err := CheckRec(gotSt.Y, wantSt.Y)
-		if err != nil {
-			return err
-		}
-		return CheckRec(gotSt.Z, wantSt.Z)
-	case LolliRec:
-		gotSt, ok := got.(LolliRec)
-		if !ok {
-			return ErrSnapTypeMismatch(got, want)
-		}
-		err := CheckRec(gotSt.Y, wantSt.Y)
-		if err != nil {
-			return err
-		}
-		return CheckRec(gotSt.Z, wantSt.Z)
-	case PlusRec:
-		gotSt, ok := got.(PlusRec)
-		if !ok {
-			return ErrSnapTypeMismatch(got, want)
-		}
-		if len(gotSt.Zs) != len(wantSt.Zs) {
-			return fmt.Errorf("choices mismatch: want %v items, got %v items", len(wantSt.Zs), len(gotSt.Zs))
-		}
-		for wantLab, wantChoice := range wantSt.Zs {
-			gotChoice, ok := gotSt.Zs[wantLab]
-			if !ok {
-				return fmt.Errorf("label mismatch: want %q, got nothing", wantLab)
-			}
-			err := CheckRec(gotChoice, wantChoice)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	case WithRec:
-		gotSt, ok := got.(WithRec)
-		if !ok {
-			return ErrSnapTypeMismatch(got, want)
-		}
-		if len(gotSt.Zs) != len(wantSt.Zs) {
-			return fmt.Errorf("choices mismatch: want %v items, got %v items", len(wantSt.Zs), len(gotSt.Zs))
-		}
-		for wantLab, wantChoice := range wantSt.Zs {
-			gotChoice, ok := gotSt.Zs[wantLab]
-			if !ok {
-				return fmt.Errorf("label mismatch: want %q, got nothing", wantLab)
-			}
-			err := CheckRec(gotChoice, wantChoice)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	default:
-		panic(ErrRecTypeUnexpected(want))
-	}
-}
-
-func ErrSpecTypeUnexpected(got TermSpec) error {
-	return fmt.Errorf("spec type unexpected: %T", got)
-}
-
-func ErrRefTypeUnexpected(got TermRef) error {
-	return fmt.Errorf("ref type unexpected: %T", got)
-}
-
 func ErrDoesNotExist(want identity.ADT) error {
 	return fmt.Errorf("root doesn't exist: %v", want)
 }
@@ -657,24 +273,4 @@ func ErrMissingInCfg(want identity.ADT) error {
 
 func ErrMissingInCtx(want qualsym.ADT) error {
 	return fmt.Errorf("root missing in ctx: %v", want)
-}
-
-func ErrRecTypeUnexpected(got TermRec) error {
-	return fmt.Errorf("rec type unexpected: %T", got)
-}
-
-func ErrSpecTypeMismatch(got, want TermSpec) error {
-	return fmt.Errorf("spec type mismatch: want %T, got %T", want, got)
-}
-
-func ErrSnapTypeMismatch(got, want TermRec) error {
-	return fmt.Errorf("root type mismatch: want %T, got %T", want, got)
-}
-
-func ErrPolarityUnexpected(got TermRec) error {
-	return fmt.Errorf("root polarity unexpected: %v", got.Pol())
-}
-
-func ErrPolarityMismatch(a, b TermRec) error {
-	return fmt.Errorf("root polarity mismatch: %v != %v", a.Pol(), b.Pol())
 }

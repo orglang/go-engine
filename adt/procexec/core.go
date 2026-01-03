@@ -1,4 +1,4 @@
-package procxec
+package procexec
 
 import (
 	"context"
@@ -8,12 +8,12 @@ import (
 	"orglang/orglang/lib/sd"
 
 	"orglang/orglang/adt/identity"
-	"orglang/orglang/adt/qualsym"
-	"orglang/orglang/adt/revnum"
-
 	"orglang/orglang/adt/procdec"
 	"orglang/orglang/adt/procdef"
+	"orglang/orglang/adt/qualsym"
+	"orglang/orglang/adt/revnum"
 	"orglang/orglang/adt/typedef"
+	"orglang/orglang/adt/typeexp"
 )
 
 type API interface {
@@ -83,14 +83,14 @@ type Cfg struct {
 type Env struct {
 	ProcDecs  map[identity.ADT]procdec.DecRec
 	TypeDefs  map[qualsym.ADT]typedef.DefRec
-	TypeTerms map[identity.ADT]typedef.TermRec
+	TypeTerms map[identity.ADT]typeexp.ExpRec
 	Locks     map[qualsym.ADT]Lock
 }
 
 type EP struct {
 	ChnlPH qualsym.ADT
 	ChnlID identity.ADT
-	TermID identity.ADT
+	ExpID  identity.ADT
 	// provider
 	PoolID identity.ADT
 }
@@ -134,7 +134,7 @@ type Bnd struct {
 	ProcID identity.ADT
 	ChnlPH qualsym.ADT
 	ChnlID identity.ADT
-	TermID identity.ADT
+	ExpID  identity.ADT
 	PoolRN revnum.ADT
 	ProcRN revnum.ADT
 }

@@ -1,4 +1,4 @@
-package poolxec
+package poolexec
 
 import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"

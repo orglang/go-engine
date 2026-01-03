@@ -1,4 +1,4 @@
-package procxec
+package procexec
 
 // goverter:variables
 // goverter:output:format assign-variable

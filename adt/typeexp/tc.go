@@ -1,4 +1,4 @@
-package typedef
+package typeexp
 
 import (
 	"database/sql"
@@ -10,45 +10,45 @@ import (
 	"orglang/orglang/adt/qualsym"
 )
 
-func ConvertSpecToRec(s TermSpec) TermRec {
+func ConvertSpecToRec(s ExpSpec) ExpRec {
 	if s == nil {
 		return nil
 	}
 	switch spec := s.(type) {
 	case OneSpec:
-		return OneRec{TermID: identity.New()}
+		return OneRec{ExpID: identity.New()}
 	case LinkSpec:
-		return LinkRec{TermID: identity.New(), TypeQN: spec.TypeQN}
+		return LinkRec{ExpID: identity.New(), TypeQN: spec.TypeQN}
 	case TensorSpec:
 		return TensorRec{
-			TermID: identity.New(),
-			Y:      ConvertSpecToRec(spec.Y),
-			Z:      ConvertSpecToRec(spec.Z),
+			ExpID: identity.New(),
+			Y:     ConvertSpecToRec(spec.Y),
+			Z:     ConvertSpecToRec(spec.Z),
 		}
 	case LolliSpec:
 		return LolliRec{
-			TermID: identity.New(),
-			Y:      ConvertSpecToRec(spec.Y),
-			Z:      ConvertSpecToRec(spec.Z),
+			ExpID: identity.New(),
+			Y:     ConvertSpecToRec(spec.Y),
+			Z:     ConvertSpecToRec(spec.Z),
 		}
 	case WithSpec:
-		choices := make(map[qualsym.ADT]TermRec, len(spec.Zs))
+		choices := make(map[qualsym.ADT]ExpRec, len(spec.Zs))
 		for lab, st := range spec.Zs {
 			choices[lab] = ConvertSpecToRec(st)
 		}
-		return WithRec{TermID: identity.New(), Zs: choices}
+		return WithRec{ExpID: identity.New(), Zs: choices}
 	case PlusSpec:
-		choices := make(map[qualsym.ADT]TermRec, len(spec.Zs))
+		choices := make(map[qualsym.ADT]ExpRec, len(spec.Zs))
 		for lab, rec := range spec.Zs {
 			choices[lab] = ConvertSpecToRec(rec)
 		}
-		return PlusRec{TermID: identity.New(), Zs: choices}
+		return PlusRec{ExpID: identity.New(), Zs: choices}
 	default:
 		panic(ErrSpecTypeUnexpected(spec))
 	}
 }
 
-func ConvertRecToSpec(r TermRec) TermSpec {
+func ConvertRecToSpec(r ExpRec) ExpSpec {
 	if r == nil {
 		return nil
 	}
@@ -68,13 +68,13 @@ func ConvertRecToSpec(r TermRec) TermSpec {
 			Z: ConvertRecToSpec(rec.Z),
 		}
 	case WithRec:
-		choices := make(map[qualsym.ADT]TermSpec, len(rec.Zs))
+		choices := make(map[qualsym.ADT]ExpSpec, len(rec.Zs))
 		for lab, rec := range rec.Zs {
 			choices[lab] = ConvertRecToSpec(rec)
 		}
 		return WithSpec{Zs: choices}
 	case PlusRec:
-		choices := make(map[qualsym.ADT]TermSpec, len(rec.Zs))
+		choices := make(map[qualsym.ADT]ExpSpec, len(rec.Zs))
 		for lab, st := range rec.Zs {
 			choices[lab] = ConvertRecToSpec(st)
 		}
@@ -84,48 +84,48 @@ func ConvertRecToSpec(r TermRec) TermSpec {
 	}
 }
 
-func MsgFromTermSpec(s TermSpec) TermSpecME {
+func MsgFromTermSpec(s ExpSpec) ExpSpecME {
 	switch spec := s.(type) {
 	case OneSpec:
-		return TermSpecME{K: OneKind}
+		return ExpSpecME{K: OneKind}
 	case LinkSpec:
-		return TermSpecME{
+		return ExpSpecME{
 			K:    LinkKind,
 			Link: &LinkSpecME{TypeQN: qualsym.ConvertToString(spec.TypeQN)}}
 	case TensorSpec:
-		return TermSpecME{
+		return ExpSpecME{
 			K: TensorKind,
 			Tensor: &ProdSpecME{
-				ValTS:  MsgFromTermSpec(spec.Y),
-				ContTS: MsgFromTermSpec(spec.Z),
+				ValES:  MsgFromTermSpec(spec.Y),
+				ContES: MsgFromTermSpec(spec.Z),
 			},
 		}
 	case LolliSpec:
-		return TermSpecME{
+		return ExpSpecME{
 			K: LolliKind,
 			Lolli: &ProdSpecME{
-				ValTS:  MsgFromTermSpec(spec.Y),
-				ContTS: MsgFromTermSpec(spec.Z),
+				ValES:  MsgFromTermSpec(spec.Y),
+				ContES: MsgFromTermSpec(spec.Z),
 			},
 		}
 	case WithSpec:
 		choices := make([]ChoiceSpecME, len(spec.Zs))
 		for i, l := range maps.Keys(spec.Zs) {
-			choices[i] = ChoiceSpecME{Label: string(l), ContTS: MsgFromTermSpec(spec.Zs[l])}
+			choices[i] = ChoiceSpecME{Label: string(l), ContES: MsgFromTermSpec(spec.Zs[l])}
 		}
-		return TermSpecME{K: WithKind, With: &SumSpecME{Choices: choices}}
+		return ExpSpecME{K: WithKind, With: &SumSpecME{Choices: choices}}
 	case PlusSpec:
 		choices := make([]ChoiceSpecME, len(spec.Zs))
 		for i, l := range maps.Keys(spec.Zs) {
-			choices[i] = ChoiceSpecME{Label: string(l), ContTS: MsgFromTermSpec(spec.Zs[l])}
+			choices[i] = ChoiceSpecME{Label: string(l), ContES: MsgFromTermSpec(spec.Zs[l])}
 		}
-		return TermSpecME{K: PlusKind, Plus: &SumSpecME{Choices: choices}}
+		return ExpSpecME{K: PlusKind, Plus: &SumSpecME{Choices: choices}}
 	default:
 		panic(ErrSpecTypeUnexpected(s))
 	}
 }
 
-func MsgToTermSpec(dto TermSpecME) (TermSpec, error) {
+func MsgToTermSpec(dto ExpSpecME) (ExpSpec, error) {
 	switch dto.K {
 	case OneKind:
 		return OneSpec{}, nil
@@ -136,29 +136,29 @@ func MsgToTermSpec(dto TermSpecME) (TermSpec, error) {
 		}
 		return LinkSpec{TypeQN: roleQN}, nil
 	case TensorKind:
-		v, err := MsgToTermSpec(dto.Tensor.ValTS)
+		v, err := MsgToTermSpec(dto.Tensor.ValES)
 		if err != nil {
 			return nil, err
 		}
-		s, err := MsgToTermSpec(dto.Tensor.ContTS)
+		s, err := MsgToTermSpec(dto.Tensor.ContES)
 		if err != nil {
 			return nil, err
 		}
 		return TensorSpec{Y: v, Z: s}, nil
 	case LolliKind:
-		v, err := MsgToTermSpec(dto.Lolli.ValTS)
+		v, err := MsgToTermSpec(dto.Lolli.ValES)
 		if err != nil {
 			return nil, err
 		}
-		s, err := MsgToTermSpec(dto.Lolli.ContTS)
+		s, err := MsgToTermSpec(dto.Lolli.ContES)
 		if err != nil {
 			return nil, err
 		}
 		return LolliSpec{Y: v, Z: s}, nil
 	case PlusKind:
-		choices := make(map[qualsym.ADT]TermSpec, len(dto.Plus.Choices))
+		choices := make(map[qualsym.ADT]ExpSpec, len(dto.Plus.Choices))
 		for _, ch := range dto.Plus.Choices {
-			choice, err := MsgToTermSpec(ch.ContTS)
+			choice, err := MsgToTermSpec(ch.ContES)
 			if err != nil {
 				return nil, err
 			}
@@ -166,9 +166,9 @@ func MsgToTermSpec(dto TermSpecME) (TermSpec, error) {
 		}
 		return PlusSpec{Zs: choices}, nil
 	case WithKind:
-		choices := make(map[qualsym.ADT]TermSpec, len(dto.With.Choices))
+		choices := make(map[qualsym.ADT]ExpSpec, len(dto.With.Choices))
 		for _, ch := range dto.With.Choices {
-			choice, err := MsgToTermSpec(ch.ContTS)
+			choice, err := MsgToTermSpec(ch.ContES)
 			if err != nil {
 				return nil, err
 			}
@@ -180,28 +180,28 @@ func MsgToTermSpec(dto TermSpecME) (TermSpec, error) {
 	}
 }
 
-func MsgFromTermRef(r TermRef) TermRefME {
+func MsgFromTermRef(r ExpRef) ExpRefME {
 	ident := r.Ident().String()
 	switch r.(type) {
 	case OneRef, OneRec:
-		return TermRefME{K: OneKind, TermID: ident}
+		return ExpRefME{K: OneKind, ExpID: ident}
 	case LinkRef, LinkRec:
-		return TermRefME{K: LinkKind, TermID: ident}
+		return ExpRefME{K: LinkKind, ExpID: ident}
 	case TensorRef, TensorRec:
-		return TermRefME{K: TensorKind, TermID: ident}
+		return ExpRefME{K: TensorKind, ExpID: ident}
 	case LolliRef, LolliRec:
-		return TermRefME{K: LolliKind, TermID: ident}
+		return ExpRefME{K: LolliKind, ExpID: ident}
 	case PlusRef, PlusRec:
-		return TermRefME{K: PlusKind, TermID: ident}
+		return ExpRefME{K: PlusKind, ExpID: ident}
 	case WithRef, WithRec:
-		return TermRefME{K: WithKind, TermID: ident}
+		return ExpRefME{K: WithKind, ExpID: ident}
 	default:
 		panic(ErrRefTypeUnexpected(r))
 	}
 }
 
-func MsgToTermRef(dto TermRefME) (TermRef, error) {
-	rid, err := identity.ConvertFromString(dto.TermID)
+func MsgToTermRef(dto ExpRefME) (ExpRef, error) {
+	rid, err := identity.ConvertFromString(dto.ExpID)
 	if err != nil {
 		return nil, err
 	}
@@ -227,34 +227,34 @@ func errKindUnexpected(got termKindME) error {
 	return fmt.Errorf("kind unexpected: %v", got)
 }
 
-func DataFromTermRef(ref TermRef) *TermRefDS {
+func DataFromTermRef(ref ExpRef) *ExpRefDS {
 	if ref == nil {
 		return nil
 	}
 	rid := ref.Ident().String()
 	switch ref.(type) {
 	case OneRef, OneRec:
-		return &TermRefDS{K: oneKind, TermID: rid}
+		return &ExpRefDS{K: oneKind, ExpID: rid}
 	case LinkRef, LinkRec:
-		return &TermRefDS{K: linkKind, TermID: rid}
+		return &ExpRefDS{K: linkKind, ExpID: rid}
 	case TensorRef, TensorRec:
-		return &TermRefDS{K: tensorKind, TermID: rid}
+		return &ExpRefDS{K: tensorKind, ExpID: rid}
 	case LolliRef, LolliRec:
-		return &TermRefDS{K: lolliKind, TermID: rid}
+		return &ExpRefDS{K: lolliKind, ExpID: rid}
 	case PlusRef, PlusRec:
-		return &TermRefDS{K: plusKind, TermID: rid}
+		return &ExpRefDS{K: plusKind, ExpID: rid}
 	case WithRef, WithRec:
-		return &TermRefDS{K: withKind, TermID: rid}
+		return &ExpRefDS{K: withKind, ExpID: rid}
 	default:
 		panic(ErrRefTypeUnexpected(ref))
 	}
 }
 
-func DataToTermRef(dto *TermRefDS) (TermRef, error) {
+func DataToTermRef(dto *ExpRefDS) (ExpRef, error) {
 	if dto == nil {
 		return nil, nil
 	}
-	rid, err := identity.ConvertFromString(dto.TermID)
+	rid, err := identity.ConvertFromString(dto.ExpID)
 	if err != nil {
 		return nil, err
 	}
@@ -276,86 +276,86 @@ func DataToTermRef(dto *TermRefDS) (TermRef, error) {
 	}
 }
 
-func dataToTermRec(dto *termRecDS) (TermRec, error) {
+func DataToTermRec(dto *expRecDS) (ExpRec, error) {
 	states := make(map[string]stateDS, len(dto.States))
 	for _, dto := range dto.States {
-		states[dto.TermID] = dto
+		states[dto.ExpID] = dto
 	}
-	return statesToTermRec(states, states[dto.TermID])
+	return statesToTermRec(states, states[dto.ExpID])
 }
 
-func dataFromTermRec(root TermRec) *termRecDS {
+func DataFromTermRec(root ExpRec) *expRecDS {
 	if root == nil {
 		return nil
 	}
-	dto := &termRecDS{
-		TermID: root.Ident().String(),
+	dto := &expRecDS{
+		ExpID:  root.Ident().String(),
 		States: nil,
 	}
 	statesFromTermRec("", root, dto)
 	return dto
 }
 
-func statesToTermRec(states map[string]stateDS, st stateDS) (TermRec, error) {
-	stID, err := identity.ConvertFromString(st.TermID)
+func statesToTermRec(states map[string]stateDS, st stateDS) (ExpRec, error) {
+	stID, err := identity.ConvertFromString(st.ExpID)
 	if err != nil {
 		return nil, err
 	}
 	switch st.K {
 	case oneKind:
-		return OneRec{TermID: stID}, nil
+		return OneRec{ExpID: stID}, nil
 	case linkKind:
 		roleQN, err := qualsym.ConvertFromString(st.Spec.Link)
 		if err != nil {
 			return nil, err
 		}
-		return LinkRec{TermID: stID, TypeQN: roleQN}, nil
+		return LinkRec{ExpID: stID, TypeQN: roleQN}, nil
 	case tensorKind:
-		b, err := statesToTermRec(states, states[st.Spec.Tensor.Val])
+		b, err := statesToTermRec(states, states[st.Spec.Tensor.ValES])
 		if err != nil {
 			return nil, err
 		}
-		c, err := statesToTermRec(states, states[st.Spec.Tensor.Cont])
+		c, err := statesToTermRec(states, states[st.Spec.Tensor.ContES])
 		if err != nil {
 			return nil, err
 		}
-		return TensorRec{TermID: stID, Y: b, Z: c}, nil
+		return TensorRec{ExpID: stID, Y: b, Z: c}, nil
 	case lolliKind:
-		y, err := statesToTermRec(states, states[st.Spec.Lolli.Val])
+		y, err := statesToTermRec(states, states[st.Spec.Lolli.ValES])
 		if err != nil {
 			return nil, err
 		}
-		z, err := statesToTermRec(states, states[st.Spec.Lolli.Cont])
+		z, err := statesToTermRec(states, states[st.Spec.Lolli.ContES])
 		if err != nil {
 			return nil, err
 		}
-		return LolliRec{TermID: stID, Y: y, Z: z}, nil
+		return LolliRec{ExpID: stID, Y: y, Z: z}, nil
 	case plusKind:
-		choices := make(map[qualsym.ADT]TermRec, len(st.Spec.Plus))
+		choices := make(map[qualsym.ADT]ExpRec, len(st.Spec.Plus))
 		for _, ch := range st.Spec.Plus {
-			choice, err := statesToTermRec(states, states[ch.Cont])
+			choice, err := statesToTermRec(states, states[ch.ContES])
 			if err != nil {
 				return nil, err
 			}
 			choices[qualsym.ADT(ch.Lab)] = choice
 		}
-		return PlusRec{TermID: stID, Zs: choices}, nil
+		return PlusRec{ExpID: stID, Zs: choices}, nil
 	case withKind:
-		choices := make(map[qualsym.ADT]TermRec, len(st.Spec.With))
+		choices := make(map[qualsym.ADT]ExpRec, len(st.Spec.With))
 		for _, ch := range st.Spec.With {
-			choice, err := statesToTermRec(states, states[ch.Cont])
+			choice, err := statesToTermRec(states, states[ch.ContES])
 			if err != nil {
 				return nil, err
 			}
 			choices[qualsym.ADT(ch.Lab)] = choice
 		}
-		return WithRec{TermID: stID, Zs: choices}, nil
+		return WithRec{ExpID: stID, Zs: choices}, nil
 	default:
 		panic(errUnexpectedKind(st.K))
 	}
 }
 
-func statesFromTermRec(from string, r TermRec, dto *termRecDS) (string, error) {
+func statesFromTermRec(from string, r ExpRec, dto *expRecDS) (string, error) {
 	var fromID sql.NullString
 	if len(from) > 0 {
 		fromID = sql.NullString{String: from, Valid: true}
@@ -363,15 +363,15 @@ func statesFromTermRec(from string, r TermRec, dto *termRecDS) (string, error) {
 	stID := r.Ident().String()
 	switch root := r.(type) {
 	case OneRec:
-		st := stateDS{TermID: stID, K: oneKind, FromID: fromID}
+		st := stateDS{ExpID: stID, K: oneKind, FromID: fromID}
 		dto.States = append(dto.States, st)
 		return stID, nil
 	case LinkRec:
 		st := stateDS{
-			TermID: stID,
+			ExpID:  stID,
 			K:      linkKind,
 			FromID: fromID,
-			Spec: termSpecDS{
+			Spec: expSpecDS{
 				Link: qualsym.ConvertToString(root.TypeQN),
 			},
 		}
@@ -387,10 +387,10 @@ func statesFromTermRec(from string, r TermRec, dto *termRecDS) (string, error) {
 			return "", err
 		}
 		st := stateDS{
-			TermID: stID,
+			ExpID:  stID,
 			K:      tensorKind,
 			FromID: fromID,
-			Spec: termSpecDS{
+			Spec: expSpecDS{
 				Tensor: &prodDS{val, cont},
 			},
 		}
@@ -406,10 +406,10 @@ func statesFromTermRec(from string, r TermRec, dto *termRecDS) (string, error) {
 			return "", err
 		}
 		st := stateDS{
-			TermID: stID,
+			ExpID:  stID,
 			K:      lolliKind,
 			FromID: fromID,
-			Spec: termSpecDS{
+			Spec: expSpecDS{
 				Lolli: &prodDS{val, cont},
 			},
 		}
@@ -425,10 +425,10 @@ func statesFromTermRec(from string, r TermRec, dto *termRecDS) (string, error) {
 			choices = append(choices, sumDS{string(label), cont})
 		}
 		st := stateDS{
-			TermID: stID,
+			ExpID:  stID,
 			K:      plusKind,
 			FromID: fromID,
-			Spec:   termSpecDS{Plus: choices},
+			Spec:   expSpecDS{Plus: choices},
 		}
 		dto.States = append(dto.States, st)
 		return stID, nil
@@ -442,10 +442,10 @@ func statesFromTermRec(from string, r TermRec, dto *termRecDS) (string, error) {
 			choices = append(choices, sumDS{string(label), cont})
 		}
 		st := stateDS{
-			TermID: stID,
+			ExpID:  stID,
 			K:      withKind,
 			FromID: fromID,
-			Spec:   termSpecDS{With: choices},
+			Spec:   expSpecDS{With: choices},
 		}
 		dto.States = append(dto.States, st)
 		return stID, nil
@@ -454,6 +454,6 @@ func statesFromTermRec(from string, r TermRec, dto *termRecDS) (string, error) {
 	}
 }
 
-func errUnexpectedKind(k termKindDS) error {
+func errUnexpectedKind(k expKindDS) error {
 	return fmt.Errorf("unexpected kind %q", k)
 }

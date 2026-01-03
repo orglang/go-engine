@@ -1,8 +1,6 @@
 package pooldef
 
-import (
-	"orglang/orglang/adt/typedef"
-)
+import "orglang/orglang/adt/typeexp"
 
 type TermSpec interface {
 	poolDef()
@@ -17,13 +15,13 @@ type WaitSpec struct{}
 func (s WaitSpec) poolDef() {}
 
 type SendSpec struct {
-	TypeTS typedef.TermSpec
+	TypeES typeexp.ExpSpec
 }
 
 func (s SendSpec) poolDef() {}
 
 type RecvSpec struct {
-	TypeTS typedef.TermSpec
+	TypeES typeexp.ExpSpec
 }
 
 func (s RecvSpec) poolDef() {}

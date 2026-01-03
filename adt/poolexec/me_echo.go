@@ -1,4 +1,4 @@
-package poolxec
+package poolexec
 
 import (
 	"log/slog"
@@ -11,7 +11,7 @@ import (
 	"orglang/orglang/lib/lf"
 	"orglang/orglang/lib/te"
 
-	"orglang/orglang/adt/procxec"
+	"orglang/orglang/adt/procexec"
 )
 
 // Server-side primary adapter
@@ -118,7 +118,7 @@ func cfgStepHandlerEcho(e *echo.Echo, h *stepHandlerEcho) error {
 }
 
 func (h *stepHandlerEcho) PostOne(c echo.Context) error {
-	var dto procxec.ExecSpecME
+	var dto procexec.ExecSpecME
 	err := c.Bind(&dto)
 	if err != nil {
 		h.log.Error("binding failed")
@@ -131,7 +131,7 @@ func (h *stepHandlerEcho) PostOne(c echo.Context) error {
 		h.log.Error("validation failed", slog.Any("dto", dto))
 		return err
 	}
-	spec, err := procxec.MsgToExecSpec(dto)
+	spec, err := procexec.MsgToExecSpec(dto)
 	if err != nil {
 		h.log.Error("mapping failed", slog.Any("dto", dto))
 		return err
@@ -140,5 +140,5 @@ func (h *stepHandlerEcho) PostOne(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, procxec.MsgFromExecRef(ref))
+	return c.JSON(http.StatusOK, procexec.MsgFromExecRef(ref))
 }

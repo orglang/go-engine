@@ -1,23 +1,21 @@
 //go:build !goverter
 
-package poolxec
+package procexec
 
 import (
 	"go.uber.org/fx"
 )
 
-var Module = fx.Module("adt/poolxec",
+var Module = fx.Module("adt/procexec",
 	fx.Provide(
 		fx.Annotate(newService, fx.As(new(API))),
 	),
 	fx.Provide(
 		fx.Private,
 		newHandlerEcho,
-		newStepHandlerEcho,
-		fx.Annotate(newDaoPgx, fx.As(new(Repo))),
+		fx.Annotate(newDaoPgx, fx.As(new(execRepo))),
 	),
 	fx.Invoke(
 		cfgHandlerEcho,
-		cfgStepHandlerEcho,
 	),
 )

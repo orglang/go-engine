@@ -16,7 +16,7 @@ import (
 var teFs embed.FS
 
 func newRendererStdlib(l *slog.Logger) (*te.RendererStdlib, error) {
-	t, err := template.New("type/def").Funcs(sprig.FuncMap()).ParseFS(teFs, "vp/bs5/*.html")
+	t, err := template.New("typedef").Funcs(sprig.FuncMap()).ParseFS(teFs, "vp/bs5/*.html")
 	if err != nil {
 		return nil, err
 	}

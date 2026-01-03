@@ -26,8 +26,6 @@ var (
 	MsgToDefSnap    func(DefSnapME) (DefSnap, error)
 	MsgFromDefSnaps func([]DefSnap) []DefSnapME
 	MsgToDefSnaps   func([]DefSnapME) ([]DefSnap, error)
-	MsgFromTermRefs func([]TermRef) []TermRefME
-	MsgToTermRefs   func([]TermRefME) ([]TermRef, error)
 )
 
 // goverter:variables
@@ -52,16 +50,12 @@ var (
 // goverter:extend DataToTermRef
 // goverter:extend DataFromTermRef
 var (
-	DataToDefRef      func(defRefDS) (DefRef, error)
-	DataFromDefRef    func(DefRef) (defRefDS, error)
-	DataToDefRefs     func([]defRefDS) ([]DefRef, error)
-	DataFromDefRefs   func([]DefRef) ([]defRefDS, error)
-	DataToDefRec      func(defRecDS) (DefRec, error)
-	DataFromDefRec    func(DefRec) (defRecDS, error)
-	DataToDefRecs     func([]defRecDS) ([]DefRec, error)
-	DataFromDefRecs   func([]DefRec) ([]defRecDS, error)
-	DataToTermRefs    func([]*TermRefDS) ([]TermRef, error)
-	DataFromTermRefs  func([]TermRef) []*TermRefDS
-	DataToTermRoots   func([]*termRecDS) ([]TermRec, error)
-	DataFromTermRoots func([]TermRec) []*termRecDS
+	DataToDefRef    func(defRefDS) (DefRef, error)
+	DataFromDefRef  func(DefRef) (defRefDS, error)
+	DataToDefRefs   func([]defRefDS) ([]DefRef, error)
+	DataFromDefRefs func([]DefRef) ([]defRefDS, error)
+	DataToDefRec    func(defRecDS) (DefRec, error)
+	DataFromDefRec  func(DefRec) (defRecDS, error)
+	DataToDefRecs   func([]defRecDS) ([]DefRec, error)
+	DataFromDefRecs func([]DefRec) ([]defRecDS, error)
 )

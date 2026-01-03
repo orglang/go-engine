@@ -1,11 +1,11 @@
-package poolxec
+package poolexec
 
 import (
 	"github.com/go-resty/resty/v2"
 
 	"orglang/orglang/adt/identity"
 
-	"orglang/orglang/adt/procxec"
+	"orglang/orglang/adt/procexec"
 )
 
 // Client-side secondary adapter
@@ -35,8 +35,8 @@ func (cl *sdkResty) Create(spec ExecSpec) (ExecRef, error) {
 	return MsgToExecRef(res)
 }
 
-func (cl *sdkResty) Poll(spec PollSpec) (procxec.ExecRef, error) {
-	return procxec.ExecRef{}, nil
+func (cl *sdkResty) Poll(spec PollSpec) (procexec.ExecRef, error) {
+	return procexec.ExecRef{}, nil
 }
 
 func (cl *sdkResty) Retrieve(poolID identity.ADT) (ExecSnap, error) {
@@ -56,23 +56,23 @@ func (cl *sdkResty) RetreiveRefs() ([]ExecRef, error) {
 	return refs, nil
 }
 
-func (cl *sdkResty) Spawn(spec procxec.ExecSpec) (procxec.ExecRef, error) {
-	req := procxec.MsgFromExecSpec(spec)
-	var res procxec.ExecRefME
+func (cl *sdkResty) Spawn(spec procexec.ExecSpec) (procexec.ExecRef, error) {
+	req := procexec.MsgFromExecSpec(spec)
+	var res procexec.ExecRefME
 	_, err := cl.resty.R().
 		SetResult(&res).
 		SetBody(&req).
 		SetPathParam("poolID", spec.PoolID.String()).
 		Post("/pools/{poolID}/procs")
 	if err != nil {
-		return procxec.ExecRef{}, err
+		return procexec.ExecRef{}, err
 	}
-	return procxec.MsgToExecRef(res)
+	return procexec.MsgToExecRef(res)
 }
 
 func (cl *sdkResty) Take(spec StepSpec) error {
 	req := MsgFromStepSpec(spec)
-	var res procxec.ExecRefME
+	var res procexec.ExecRefME
 	_, err := cl.resty.R().
 		SetResult(&res).
 		SetBody(&req).

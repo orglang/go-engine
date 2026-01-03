@@ -44,7 +44,7 @@ func (s CloseSpec) Via() qualsym.ADT { return s.CommPH }
 
 type WaitSpec struct {
 	CommPH qualsym.ADT
-	ContTS TermSpec
+	ContES TermSpec
 }
 
 func (s WaitSpec) Via() qualsym.ADT { return s.CommPH }
@@ -59,7 +59,7 @@ func (s SendSpec) Via() qualsym.ADT { return s.CommPH }
 type RecvSpec struct {
 	CommPH qualsym.ADT
 	BindPH qualsym.ADT
-	ContTS TermSpec
+	ContES TermSpec
 }
 
 func (s RecvSpec) Via() qualsym.ADT { return s.CommPH }
@@ -67,14 +67,14 @@ func (s RecvSpec) Via() qualsym.ADT { return s.CommPH }
 type LabSpec struct {
 	CommPH qualsym.ADT
 	Label  qualsym.ADT
-	ContTS TermSpec
+	ContES TermSpec
 }
 
 func (s LabSpec) Via() qualsym.ADT { return s.CommPH }
 
 type CaseSpec struct {
 	CommPH  qualsym.ADT
-	ContTSs map[qualsym.ADT]TermSpec
+	ContESs map[qualsym.ADT]TermSpec
 }
 
 func (s CaseSpec) Via() qualsym.ADT { return s.CommPH }
@@ -109,7 +109,7 @@ type CallSpec struct {
 	BindPH qualsym.ADT
 	ProcSN qualsym.ADT
 	ValPHs []qualsym.ADT // channel bulk
-	ContTS TermSpec
+	ContES TermSpec
 }
 
 func (s CallSpec) Via() qualsym.ADT { return s.CommPH }
@@ -120,7 +120,7 @@ type SpawnSpecOld struct {
 	SigID  identity.ADT
 	Ys     []qualsym.ADT
 	PoolQN qualsym.ADT
-	ContTS TermSpec
+	ContES TermSpec
 }
 
 func (s SpawnSpecOld) Via() qualsym.ADT { return s.X }
@@ -128,21 +128,21 @@ func (s SpawnSpecOld) Via() qualsym.ADT { return s.X }
 type SpawnSpec struct {
 	CommPH qualsym.ADT
 	ProcSN qualsym.ADT
-	ContTS TermSpec
+	ContES TermSpec
 }
 
 func (s SpawnSpec) Via() qualsym.ADT { return s.CommPH }
 
 type AcqureSpec struct {
 	CommPH qualsym.ADT
-	ContTS TermSpec
+	ContES TermSpec
 }
 
 func (s AcqureSpec) Via() qualsym.ADT { return s.CommPH }
 
 type AcceptSpec struct {
 	CommPH qualsym.ADT
-	ContTS TermSpec
+	ContES TermSpec
 }
 
 func (s AcceptSpec) Via() qualsym.ADT { return s.CommPH }
@@ -174,7 +174,7 @@ func (CloseRec) impl() {}
 
 type WaitRec struct {
 	X      qualsym.ADT
-	ContTS TermSpec
+	ContES TermSpec
 }
 
 func (r WaitRec) Via() qualsym.ADT { return r.X }
@@ -182,10 +182,10 @@ func (r WaitRec) Via() qualsym.ADT { return r.X }
 func (WaitRec) impl() {}
 
 type SendRec struct {
-	X      qualsym.ADT
-	A      identity.ADT
-	B      identity.ADT
-	TermID identity.ADT
+	X     qualsym.ADT
+	A     identity.ADT
+	B     identity.ADT
+	ExpID identity.ADT
 }
 
 func (r SendRec) Via() qualsym.ADT { return r.X }
@@ -196,7 +196,7 @@ type RecvRec struct {
 	X      qualsym.ADT
 	A      identity.ADT
 	Y      qualsym.ADT
-	ContTS TermSpec
+	ContES TermSpec
 }
 
 func (r RecvRec) Via() qualsym.ADT { return r.X }
@@ -216,7 +216,7 @@ func (LabRec) impl() {}
 type CaseRec struct {
 	X       qualsym.ADT
 	A       identity.ADT
-	ContTSs map[qualsym.ADT]TermSpec
+	ContESs map[qualsym.ADT]TermSpec
 }
 
 func (r CaseRec) Via() qualsym.ADT { return r.X }
@@ -266,14 +266,14 @@ func (s *service) Retrieve(recID identity.ADT) (DefRec, error) {
 func collectEnvRec(s TermSpec, env []identity.ADT) []identity.ADT {
 	switch spec := s.(type) {
 	case RecvSpec:
-		return collectEnvRec(spec.ContTS, env)
+		return collectEnvRec(spec.ContES, env)
 	case CaseSpec:
-		for _, cont := range spec.ContTSs {
+		for _, cont := range spec.ContESs {
 			env = collectEnvRec(cont, env)
 		}
 		return env
 	case SpawnSpecOld:
-		return collectEnvRec(spec.ContTS, append(env, spec.SigID))
+		return collectEnvRec(spec.ContES, append(env, spec.SigID))
 	default:
 		return env
 	}

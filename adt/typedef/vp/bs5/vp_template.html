@@ -5,7 +5,7 @@
             {{range .}}
                 <tr>
                     <td>
-                        <a href="/ssr/roles/{{ .ID }}" hx-target="#roles" hx-swap="outerHTML" hx-boost="true">{{ .Title }}</a>
+                        <a href="/ssr/types/{{ .ID }}" hx-target="#roles" hx-swap="outerHTML" hx-boost="true">{{ .Title }}</a>
                     </td>
                 </tr>
             {{end}}
@@ -20,7 +20,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                 <div class="modal-body">
-                    <form id="newRoleForm" hx-post="/ssr/roles" hx-target="#roles" hx-swap="outerHTML" hx-boost="true">
+                    <form id="newRoleForm" hx-post="/ssr/types" hx-target="#roles" hx-swap="outerHTML" hx-boost="true">
                         <div class="mb-3">
                             <input class="form-control" name="ns" placeholder="Namespace">
                         </div>
@@ -46,7 +46,7 @@
             dto: {{.}},
 
             save() {
-                fetch('/api/v1/roles/{{.ID}}', {
+                fetch('/api/v1/types/{{.ID}}', {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(this.dto)
@@ -192,7 +192,7 @@
             </li>
         </ul>
     {{else if eq .St.K "link"}}
-        <a x-text="{{.Path}}.fqn" href="/ssr/roles/{{.St.ID}}" hx-target="#role" hx-swap="outerHTML" hx-boost="true"></a>
+        <a x-text="{{.Path}}.fqn" href="/ssr/types/{{.St.ID}}" hx-target="#role" hx-swap="outerHTML" hx-boost="true"></a>
     {{end}}
     {{range $k := without $kinds "one" (trim (toString .St.K))}}
         <template x-if="{{$.Path}}.kind == '{{$k}}'">

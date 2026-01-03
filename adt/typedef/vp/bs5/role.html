@@ -4,7 +4,7 @@
             dto: {{.}},
 
             save() {
-                fetch('/api/v1/roles/{{.ID}}', {
+                fetch('/api/v1/types/{{.ID}}', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(this.dto)
@@ -77,7 +77,7 @@
         {{if eq .St.ID .Root}}
             <span x-text="dto.name"></span>
         {{else}}
-            <a x-text="{{printf "%v.name" .Path}}" href="/ssr/roles/{{.St.ID}}" hx-target="#role" hx-swap="outerHTML" hx-boost="true"></a>
+            <a x-text="{{printf "%v.name" .Path}}" href="/ssr/types/{{.St.ID}}" hx-target="#role" hx-swap="outerHTML" hx-boost="true"></a>
         {{end}}
     {{else}}
         <div class="col-1">

@@ -58,7 +58,7 @@
         {{if eq .St.ID .Root}}
             <span x-text="tp.name"></span>
         {{else}}
-            <a x-text="{{printf "%v.name" .Path}}" href="/ssr/roles/{{.St.ID}}" hx-target="#role" hx-swap="outerHTML" hx-boost="true"></a>
+            <a x-text="{{printf "%v.name" .Path}}" href="/ssr/types/{{.St.ID}}" hx-target="#role" hx-swap="outerHTML" hx-boost="true"></a>
         {{end}}
     {{else}}
         <div class="col-auto ms-4">

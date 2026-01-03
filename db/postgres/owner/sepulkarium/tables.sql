@@ -4,8 +4,8 @@ CREATE TABLE type_def_roots (
 	def_rn bigint
 );
 
-CREATE TABLE type_def_states (
-	term_id varchar(36),
+CREATE TABLE type_term_states (
+	exp_id varchar(36),
 	from_id varchar(36),
 	kind smallint,
 	spec jsonb

@@ -9,10 +9,10 @@ import (
 	"orglang/orglang/lib/sd"
 	"orglang/orglang/lib/ws"
 
-	"orglang/orglang/adt/poolxec"
+	"orglang/orglang/adt/poolexec"
 	"orglang/orglang/adt/procdec"
 	"orglang/orglang/adt/procdef"
-	"orglang/orglang/adt/procxec"
+	"orglang/orglang/adt/procexec"
 	"orglang/orglang/adt/syndec"
 	"orglang/orglang/adt/typedef"
 
@@ -27,11 +27,11 @@ func main() {
 		lf.Module,
 		// adt
 		syndec.Module,
-		poolxec.Module,
+		poolexec.Module,
 		typedef.Module,
 		procdef.Module,
 		procdec.Module,
-		procxec.Module,
+		procexec.Module,
 		// app
 		web.Module,
 	).Run()

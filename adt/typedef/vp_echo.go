@@ -7,10 +7,12 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"orglang/orglang/adt/identity"
-	"orglang/orglang/adt/qualsym"
 	"orglang/orglang/lib/lf"
 	"orglang/orglang/lib/te"
+
+	"orglang/orglang/adt/identity"
+	"orglang/orglang/adt/qualsym"
+	"orglang/orglang/adt/typeexp"
 )
 
 // Adapter
@@ -26,9 +28,9 @@ func newPresenterEcho(a API, r te.Renderer, l *slog.Logger) *presenterEcho {
 }
 
 func cfgPresenterEcho(e *echo.Echo, p *presenterEcho) error {
-	e.POST("/ssr/roles", p.PostOne)
-	e.GET("/ssr/roles", p.GetMany)
-	e.GET("/ssr/roles/:id", p.GetOne)
+	e.POST("/ssr/types", p.PostOne)
+	e.GET("/ssr/types", p.GetMany)
+	e.GET("/ssr/types/:id", p.GetOne)
 	return nil
 }
 
@@ -51,7 +53,7 @@ func (p *presenterEcho) PostOne(c echo.Context) error {
 		p.log.Error("dto parsing failed")
 		return err
 	}
-	snap, err := p.api.Create(DefSpec{TypeQN: ns.New(dto.TypeSN), TypeTS: OneSpec{}})
+	snap, err := p.api.Create(DefSpec{TypeQN: ns.New(dto.TypeSN), TypeES: typeexp.OneSpec{}})
 	if err != nil {
 		p.log.Error("role creation failed")
 		return err

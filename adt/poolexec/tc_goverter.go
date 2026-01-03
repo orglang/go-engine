@@ -1,7 +1,7 @@
-package poolxec
+package poolexec
 
 import (
-	"orglang/orglang/adt/procxec"
+	"orglang/orglang/adt/procexec"
 )
 
 // goverter:variables
@@ -36,9 +36,9 @@ var (
 	DataFromExecRefs func([]ExecRef) []execRefDS
 	DataToExecRec    func(execRecDS) (ExecRec, error)
 	DataFromExecRec  func(ExecRec) execRecDS
-	DataToLiab       func(liabDS) (procxec.Liab, error)
-	DataFromLiab     func(procxec.Liab) liabDS
+	DataToLiab       func(liabDS) (procexec.Liab, error)
+	DataFromLiab     func(procexec.Liab) liabDS
 	DataToExecSnap   func(execSnapDS) (ExecSnap, error)
 	DataFromExecSnap func(ExecSnap) execSnapDS
-	DataToEPs        func([]epDS) ([]procxec.EP, error)
+	DataToEPs        func([]epDS) ([]procexec.EP, error)
 )

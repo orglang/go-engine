@@ -1,4 +1,4 @@
-package procxec
+package procexec
 
 import (
 	"orglang/orglang/adt/procdef"

@@ -11,7 +11,7 @@
         <div class="container">
             <ul class="nav">
                 <li class="nav-item">
-                  <a class="nav-link active" href="/ssr/roles" hx-target="#entitites" hx-swap="innerHTML" hx-boost="true">Roles</a>
+                  <a class="nav-link active" href="/ssr/types" hx-target="#entitites" hx-swap="innerHTML" hx-boost="true">Roles</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="/ssr/declarations" hx-target="#entitites" hx-swap="innerHTML" hx-boost="true">Signatures</a>
@@ -27,7 +27,7 @@
                         {{range .}}
                             <tr>
                                 <td>
-                                    <a href="/ssr/roles/{{ .ID }}" hx-target="#roles" hx-swap="outerHTML" hx-boost="true">{{ .Title }}</a>
+                                    <a href="/ssr/types/{{ .ID }}" hx-target="#roles" hx-swap="outerHTML" hx-boost="true">{{ .Title }}</a>
                                 </td>
                             </tr>
                         {{end}}
@@ -42,7 +42,7 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
                             <div class="modal-body">
-                                <form id="newRoleForm" hx-post="/ssr/roles" hx-target="#roles" hx-swap="outerHTML" hx-boost="true">
+                                <form id="newRoleForm" hx-post="/ssr/types" hx-target="#roles" hx-swap="outerHTML" hx-boost="true">
                                     <div class="mb-3">
                                         <input class="form-control" name="ns" placeholder="Namespace">
                                     </div>

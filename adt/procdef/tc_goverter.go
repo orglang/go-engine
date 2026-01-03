@@ -5,8 +5,8 @@ package procdef
 // goverter:extend Data.*
 // goverter:extend data.*
 var (
-	DataToTermSpecs   func([]TermRecDS) ([]TermSpec, error)
-	DataFromTermSpecs func([]TermSpec) ([]TermRecDS, error)
+	DataToTermSpecs   func([]TermSpecDS) ([]TermSpec, error)
+	DataFromTermSpecs func([]TermSpec) ([]TermSpecDS, error)
 	DataToTermRecs    func([]TermRecDS) ([]TermRec, error)
 	DataFromTermRecs  func([]TermRec) ([]TermRecDS, error)
 )

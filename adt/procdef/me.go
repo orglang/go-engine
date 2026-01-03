@@ -7,7 +7,7 @@ const (
 	Svc = semKindME("svc")
 )
 
-type RootME struct {
+type DefRecME struct {
 	ID string    `json:"id"`
 	K  semKindME `json:"kind"`
 }

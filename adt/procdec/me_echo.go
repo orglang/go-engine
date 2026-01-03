@@ -7,9 +7,9 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"orglang/orglang/adt/identity"
-
 	"orglang/orglang/lib/te"
+
+	"orglang/orglang/adt/identity"
 )
 
 // Server-side primary adapter
@@ -25,13 +25,13 @@ func newHandlerEcho(a API, r te.Renderer, l *slog.Logger) *handlerEcho {
 }
 
 func cfgHandlerEcho(e *echo.Echo, h *handlerEcho) error {
-	e.POST("/api/v1/signatures", h.PostOne)
-	e.GET("/api/v1/signatures/:id", h.GetOne)
+	e.POST("/api/v1/declarations", h.PostOne)
+	e.GET("/api/v1/declarations/:id", h.GetOne)
 	return nil
 }
 
 func (h *handlerEcho) PostOne(c echo.Context) error {
-	var dto SigSpecME
+	var dto DecSpecME
 	err := c.Bind(&dto)
 	if err != nil {
 		h.log.Error("dto binding failed", slog.Any("reason", err))
@@ -42,7 +42,7 @@ func (h *handlerEcho) PostOne(c echo.Context) error {
 		h.log.Error("dto validation failed", slog.Any("reason", err), slog.Any("dto", dto))
 		return err
 	}
-	spec, err := MsgToSigSpec(dto)
+	spec, err := MsgToDecSpec(dto)
 	if err != nil {
 		h.log.Error("dto conversion failed", slog.Any("reason", err), slog.Any("dto", dto))
 		return err
@@ -51,7 +51,7 @@ func (h *handlerEcho) PostOne(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusCreated, MsgFromSigSnap(snap))
+	return c.JSON(http.StatusCreated, MsgFromDecSnap(snap))
 }
 
 func (h *handlerEcho) GetOne(c echo.Context) error {
@@ -60,7 +60,7 @@ func (h *handlerEcho) GetOne(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	id, err := identity.ConvertFromString(dto.SigID)
+	id, err := identity.ConvertFromString(dto.DecID)
 	if err != nil {
 		return err
 	}
@@ -68,5 +68,5 @@ func (h *handlerEcho) GetOne(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, MsgFromSigSnap(snap))
+	return c.JSON(http.StatusOK, MsgFromDecSnap(snap))
 }

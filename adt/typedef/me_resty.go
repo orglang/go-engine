@@ -23,38 +23,38 @@ func NewAPI() API {
 	return newSdkResty()
 }
 
-func (cl *sdkResty) Incept(roleQN qualsym.ADT) (TypeRef, error) {
-	return TypeRef{}, nil
+func (cl *sdkResty) Incept(roleQN qualsym.ADT) (DefRef, error) {
+	return DefRef{}, nil
 }
 
-func (cl *sdkResty) Create(spec TypeSpec) (TypeSnap, error) {
-	req := MsgFromTypeSpec(spec)
-	var res TypeSnapME
+func (cl *sdkResty) Create(spec DefSpec) (DefSnap, error) {
+	req := MsgFromDefSpec(spec)
+	var res DefSnapME
 	resp, err := cl.resty.R().
 		SetResult(&res).
 		SetBody(&req).
 		Post("/roles")
 	if err != nil {
-		return TypeSnap{}, err
+		return DefSnap{}, err
 	}
 	if resp.IsError() {
-		return TypeSnap{}, fmt.Errorf("received: %v", string(resp.Body()))
+		return DefSnap{}, fmt.Errorf("received: %v", string(resp.Body()))
 	}
-	return MsgToTypeSnap(res)
+	return MsgToDefSnap(res)
 }
 
-func (c *sdkResty) Modify(snap TypeSnap) (TypeSnap, error) {
-	return TypeSnap{}, nil
+func (c *sdkResty) Modify(snap DefSnap) (DefSnap, error) {
+	return DefSnap{}, nil
 }
 
-func (c *sdkResty) Retrieve(rid identity.ADT) (TypeSnap, error) {
-	return TypeSnap{}, nil
+func (c *sdkResty) Retrieve(rid identity.ADT) (DefSnap, error) {
+	return DefSnap{}, nil
 }
 
-func (c *sdkResty) retrieveSnap(entity TypeRec) (TypeSnap, error) {
-	return TypeSnap{}, nil
+func (c *sdkResty) retrieveSnap(entity DefRec) (DefSnap, error) {
+	return DefSnap{}, nil
 }
 
-func (c *sdkResty) RetreiveRefs() ([]TypeRef, error) {
-	return []TypeRef{}, nil
+func (c *sdkResty) RetreiveRefs() ([]DefRef, error) {
+	return []DefRef{}, nil
 }

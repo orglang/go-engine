@@ -1,18 +1,18 @@
 package procdec
 
-type SigSpecVP struct {
-	SigNS string `form:"ns" json:"ns"`
-	SigSN string `form:"sn" json:"sn"`
+type DecSpecVP struct {
+	ProcNS string `form:"ns" json:"ns"`
+	ProcSN string `form:"sn" json:"sn"`
+	Title  string `form:"name" json:"title"`
 }
 
-type SigRefVP struct {
-	SigID string `form:"sig_id" json:"sig_id" param:"id"`
-	SigRN int64  `form:"sig_rn" json:"sig_rn"`
-	Title string `form:"name" json:"title"`
+type DecRefVP struct {
+	DecID string `form:"dec_id" json:"dec_id" param:"id"`
+	DecRN int64  `form:"dec_rn" json:"dec_rn"`
 }
 
-type SigSnapVP struct {
-	SigID string `json:"sig_id"`
-	SigRN int64  `json:"sig_rn"`
+type DecSnapVP struct {
+	DecID string `json:"dec_id"`
+	DecRN int64  `json:"dec_rn"`
 	Title string `json:"title"`
 }

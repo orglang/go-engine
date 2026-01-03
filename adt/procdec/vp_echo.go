@@ -27,14 +27,14 @@ func newPresenterEcho(a API, r te.Renderer, l *slog.Logger) *presenterEcho {
 }
 
 func cfgPresenterEcho(e *echo.Echo, p *presenterEcho) error {
-	e.POST("/ssr/signatures", p.PostOne)
-	e.GET("/ssr/signatures", p.GetMany)
-	e.GET("/ssr/signatures/:id", p.GetOne)
+	e.POST("/ssr/declarations", p.PostOne)
+	e.GET("/ssr/declarations", p.GetMany)
+	e.GET("/ssr/declarations/:id", p.GetOne)
 	return nil
 }
 
 func (p *presenterEcho) PostOne(c echo.Context) error {
-	var dto SigSpecVP
+	var dto DecSpecVP
 	err := c.Bind(&dto)
 	if err != nil {
 		p.log.Error("dto binding failed")
@@ -47,17 +47,17 @@ func (p *presenterEcho) PostOne(c echo.Context) error {
 		p.log.Error("dto validation failed")
 		return err
 	}
-	ns, err := qualsym.ConvertFromString(dto.SigNS)
+	ns, err := qualsym.ConvertFromString(dto.ProcNS)
 	if err != nil {
 		p.log.Error("dto parsing failed")
 		return err
 	}
-	ref, err := p.api.Incept(ns.New(dto.SigSN))
+	ref, err := p.api.Incept(ns.New(dto.ProcSN))
 	if err != nil {
 		p.log.Error("root creation failed")
 		return err
 	}
-	html, err := p.ssr.Render("view-one", ViewFromSigRef(ref))
+	html, err := p.ssr.Render("view-one", ViewFromDecRef(ref))
 	if err != nil {
 		p.log.Error("view rendering failed")
 		return err
@@ -72,7 +72,7 @@ func (p *presenterEcho) GetMany(c echo.Context) error {
 		p.log.Error("refs retrieval failed")
 		return err
 	}
-	html, err := p.ssr.Render("view-many", ViewFromSigRefs(refs))
+	html, err := p.ssr.Render("view-many", ViewFromDecRefs(refs))
 	if err != nil {
 		p.log.Error("view rendering failed")
 		return err
@@ -94,7 +94,7 @@ func (p *presenterEcho) GetOne(c echo.Context) error {
 		p.log.Error("dto validation failed")
 		return err
 	}
-	id, err := identity.ConvertFromString(dto.SigID)
+	id, err := identity.ConvertFromString(dto.DecID)
 	if err != nil {
 		p.log.Error("dto mapping failed")
 		return err
@@ -104,7 +104,7 @@ func (p *presenterEcho) GetOne(c echo.Context) error {
 		p.log.Error("snap retrieval failed")
 		return err
 	}
-	html, err := p.ssr.Render("view-one", ViewFromSigSnap(snap))
+	html, err := p.ssr.Render("view-one", ViewFromDecSnap(snap))
 	if err != nil {
 		p.log.Error("view rendering failed")
 		return err

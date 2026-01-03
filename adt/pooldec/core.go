@@ -12,7 +12,7 @@ import (
 
 // Port
 type API interface {
-	Create(PoolSpec) (PoolRef, error)
+	Create(DecSpec) (DecRef, error)
 }
 
 // for compilation purposes
@@ -20,7 +20,7 @@ func newAPI() API {
 	return &service{}
 }
 
-type PoolSpec struct {
+type DecSpec struct {
 	PoolNS qualsym.ADT
 	PoolSN qualsym.ADT
 	// endpoint where pool acts as a provider for insiders
@@ -33,11 +33,11 @@ type PoolSpec struct {
 	OutsiderReceptionEPs []termctx.BindClaim
 }
 
-type PoolRef struct {
+type DecRef struct {
 	DecID identity.ADT
 }
 
-type poolRec struct {
+type decRec struct {
 	DecID identity.ADT
 }
 
@@ -47,6 +47,6 @@ type service struct {
 	log      *slog.Logger
 }
 
-func (s *service) Create(spec PoolSpec) (PoolRef, error) {
-	return PoolRef{}, nil
+func (s *service) Create(spec DecSpec) (DecRef, error) {
+	return DecRef{}, nil
 }

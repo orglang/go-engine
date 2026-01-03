@@ -57,6 +57,6 @@ func dataToSemRec(dto SemRecDS) (SemRec, error) {
 	}
 }
 
-func errUnexpectedStepKind(k semKind) error {
+func errUnexpectedStepKind(k semKindDS) error {
 	return fmt.Errorf("unexpected step kind: %v", k)
 }

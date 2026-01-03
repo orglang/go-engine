@@ -10,33 +10,31 @@ import (
 	"orglang/orglang/adt/identity"
 	"orglang/orglang/adt/qualsym"
 	"orglang/orglang/adt/revnum"
+	"orglang/orglang/adt/syndec"
 	"orglang/orglang/adt/termctx"
-	"orglang/orglang/adt/termsyn"
 )
 
 type API interface {
-	Incept(qualsym.ADT) (ProcRef, error)
-	Create(ProcSpec) (ProcSnap, error)
-	Retrieve(identity.ADT) (ProcSnap, error)
-	RetreiveRefs() ([]ProcRef, error)
+	Incept(qualsym.ADT) (DecRef, error)
+	Create(DecSpec) (DecSnap, error)
+	Retrieve(identity.ADT) (DecSnap, error)
+	RetreiveRefs() ([]DecRef, error)
 }
 
-type ProcSpec struct {
-	ProcNS qualsym.ADT
-	ProcSN qualsym.ADT
+type DecSpec struct {
+	ProcQN qualsym.ADT
 	// endpoint where process acts as a provider
 	ProvisionEP termctx.BindClaim
 	// endpoints where process acts as a client
 	ReceptionEPs []termctx.BindClaim
 }
 
-type ProcRef struct {
+type DecRef struct {
 	DecID identity.ADT
-	Title string
 	DecRN revnum.ADT
 }
 
-type ProcRec struct {
+type DecRec struct {
 	X     termctx.BindClaim
 	DecID identity.ADT
 	Ys    []termctx.BindClaim
@@ -45,7 +43,7 @@ type ProcRec struct {
 }
 
 // aka ExpDec or ExpDecDef without expression
-type ProcSnap struct {
+type DecSnap struct {
 	X     termctx.BindClaim
 	DecID identity.ADT
 	Ys    []termctx.BindClaim
@@ -55,7 +53,7 @@ type ProcSnap struct {
 
 type service struct {
 	procs    Repo
-	aliases  termsyn.Repo
+	aliases  syndec.Repo
 	operator sd.Operator
 	log      *slog.Logger
 }
@@ -65,16 +63,16 @@ func newAPI() API {
 	return &service{}
 }
 
-func newService(procs Repo, aliases termsyn.Repo, operator sd.Operator, l *slog.Logger) *service {
+func newService(procs Repo, aliases syndec.Repo, operator sd.Operator, l *slog.Logger) *service {
 	return &service{procs, aliases, operator, l}
 }
 
-func (s *service) Incept(procQN qualsym.ADT) (_ ProcRef, err error) {
+func (s *service) Incept(procQN qualsym.ADT) (_ DecRef, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("procQN", procQN)
 	s.log.Debug("inception started", qnAttr)
-	newAlias := termsyn.Root{QN: procQN, ID: identity.New(), RN: revnum.Initial()}
-	newRec := ProcRec{DecID: newAlias.ID, DecRN: newAlias.RN, Title: newAlias.QN.SN()}
+	newAlias := syndec.DecRec{DecQN: procQN, DecID: identity.New(), DecRN: revnum.Initial()}
+	newRec := DecRec{DecID: newAlias.DecID, DecRN: newAlias.DecRN, Title: newAlias.DecQN.SN()}
 	s.operator.Explicit(ctx, func(ds sd.Source) error {
 		err = s.aliases.Insert(ds, newAlias)
 		if err != nil {
@@ -88,17 +86,17 @@ func (s *service) Incept(procQN qualsym.ADT) (_ ProcRef, err error) {
 	})
 	if err != nil {
 		s.log.Error("inception failed", qnAttr)
-		return ProcRef{}, err
+		return DecRef{}, err
 	}
-	s.log.Debug("inception succeed", qnAttr, slog.Any("sigID", newRec.DecID))
+	s.log.Debug("inception succeed", qnAttr, slog.Any("decID", newRec.DecID))
 	return ConvertRecToRef(newRec), nil
 }
 
-func (s *service) Create(spec ProcSpec) (_ ProcSnap, err error) {
+func (s *service) Create(spec DecSpec) (_ DecSnap, err error) {
 	ctx := context.Background()
-	qnAttr := slog.Any("sigQN", spec.ProcSN)
+	qnAttr := slog.Any("procQN", spec.ProcQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
-	newRec := ProcRec{
+	newRec := DecRec{
 		X:     spec.ProvisionEP,
 		DecID: identity.New(),
 		Ys:    spec.ReceptionEPs,
@@ -113,26 +111,26 @@ func (s *service) Create(spec ProcSpec) (_ ProcSnap, err error) {
 	})
 	if err != nil {
 		s.log.Error("creation failed", qnAttr)
-		return ProcSnap{}, err
+		return DecSnap{}, err
 	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("sigID", newRec.DecID))
+	s.log.Debug("creation succeed", qnAttr, slog.Any("decID", newRec.DecID))
 	return ConvertRecToSnap(newRec), nil
 }
 
-func (s *service) Retrieve(sigID identity.ADT) (snap ProcSnap, err error) {
+func (s *service) Retrieve(decID identity.ADT) (snap DecSnap, err error) {
 	ctx := context.Background()
 	s.operator.Implicit(ctx, func(ds sd.Source) error {
-		snap, err = s.procs.SelectByID(ds, sigID)
+		snap, err = s.procs.SelectByID(ds, decID)
 		return err
 	})
 	if err != nil {
-		s.log.Error("retrieval failed", slog.Any("sigID", sigID))
-		return ProcSnap{}, err
+		s.log.Error("retrieval failed", slog.Any("decID", decID))
+		return DecSnap{}, err
 	}
 	return snap, nil
 }
 
-func (s *service) RetreiveRefs() (refs []ProcRef, err error) {
+func (s *service) RetreiveRefs() (refs []DecRef, err error) {
 	ctx := context.Background()
 	s.operator.Implicit(ctx, func(ds sd.Source) error {
 		refs, err = s.procs.SelectAll(ds)
@@ -145,7 +143,7 @@ func (s *service) RetreiveRefs() (refs []ProcRef, err error) {
 	return refs, nil
 }
 
-func CollectEnv(recs []ProcRec) []qualsym.ADT {
+func CollectEnv(recs []DecRec) []qualsym.ADT {
 	typeQNs := []qualsym.ADT{}
 	for _, rec := range recs {
 		typeQNs = append(typeQNs, rec.X.TypeQN)

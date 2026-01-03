@@ -8,7 +8,7 @@ import (
 	"orglang/orglang/adt/revnum"
 )
 
-func (dto TypeSpecME) Validate() error {
+func (dto DefSpecME) Validate() error {
 	return validation.ValidateStruct(&dto,
 		validation.Field(&dto.TypeQN, qualsym.Required...),
 		validation.Field(&dto.TypeTS, validation.Required),
@@ -17,21 +17,21 @@ func (dto TypeSpecME) Validate() error {
 
 func (dto IdentME) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.ID, identity.Required...),
+		validation.Field(&dto.DefID, identity.Required...),
 	)
 }
 
-func (dto TypeRefME) Validate() error {
+func (dto DefRefME) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.TypeID, identity.Required...),
-		validation.Field(&dto.TypeRN, revnum.Optional...),
+		validation.Field(&dto.DefID, identity.Required...),
+		validation.Field(&dto.DefRN, revnum.Optional...),
 	)
 }
 
-func (dto TypeSnapME) Validate() error {
+func (dto DefSnapME) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.TypeID, identity.Required...),
-		validation.Field(&dto.TypeRN, revnum.Optional...),
+		validation.Field(&dto.DefID, identity.Required...),
+		validation.Field(&dto.DefRN, revnum.Optional...),
 		validation.Field(&dto.TypeTS, validation.Required),
 	)
 }
@@ -49,14 +49,14 @@ func (dto TermSpecME) Validate() error {
 
 func (dto LinkSpecME) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.QN, qualsym.Required...),
+		validation.Field(&dto.TypeQN, qualsym.Required...),
 	)
 }
 
 func (dto ProdSpecME) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.Value, validation.Required),
-		validation.Field(&dto.Cont, validation.Required),
+		validation.Field(&dto.ValTS, validation.Required),
+		validation.Field(&dto.ContTS, validation.Required),
 	)
 }
 
@@ -73,13 +73,13 @@ func (dto SumSpecME) Validate() error {
 func (dto ChoiceSpecME) Validate() error {
 	return validation.ValidateStruct(&dto,
 		validation.Field(&dto.Label, qualsym.Required...),
-		validation.Field(&dto.Cont, validation.Required),
+		validation.Field(&dto.ContTS, validation.Required),
 	)
 }
 
 func (dto TermRefME) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.ID, identity.Required...),
+		validation.Field(&dto.TermID, identity.Required...),
 		validation.Field(&dto.K, kindRequired...),
 	)
 }
@@ -89,17 +89,17 @@ var kindRequired = []validation.Rule{
 	validation.In(OneKind, LinkKind, TensorKind, LolliKind, PlusKind, WithKind),
 }
 
-func (dto TypeSpecVP) Validate() error {
+func (dto DefSpecVP) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.NS, qualsym.Required...),
-		validation.Field(&dto.Name, qualsym.Required...),
+		validation.Field(&dto.TypeNS, qualsym.Required...),
+		validation.Field(&dto.TypeSN, qualsym.Required...),
 	)
 }
 
-func (dto TypeRefVP) Validate() error {
+func (dto DefRefVP) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.RoleID, identity.Required...),
-		validation.Field(&dto.RoleRN, revnum.Optional...),
+		validation.Field(&dto.DefID, identity.Required...),
+		validation.Field(&dto.DefRN, revnum.Optional...),
 		validation.Field(&dto.Title, qualsym.Required...),
 	)
 }

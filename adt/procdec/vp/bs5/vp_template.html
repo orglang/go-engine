@@ -1,18 +1,18 @@
 {{define "view-many"}}
-    <div id="signatures">
+    <div id="declarations">
         <table class="table">
             <tbody>
                 {{range .}}
                 <tr>
                     <td>
-                        <a href="/ssr/signatures/{{ .ID }}" hx-target="#signatures" hx-swap="outerHTML" hx-boost="true">{{ .Title }}</a>
+                        <a href="/ssr/declarations/{{ .ID }}" hx-target="#declarations" hx-swap="outerHTML" hx-boost="true">{{ .Title }}</a>
                     </td>
                 </tr>
             {{end}}
             </tbody>
         </table>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newSigModal">New</button>
-        <div class="modal fade" id="newSigModal" tabindex="-1">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newDecModal">New</button>
+        <div class="modal fade" id="newDecModal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -20,7 +20,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                 <div class="modal-body">
-                    <form id="newSigForm" hx-post="/ssr/signatures" hx-target="#signatures" hx-swap="outerHTML" hx-boost="true">
+                    <form id="newDecForm" hx-post="/ssr/declarations" hx-target="#declarations" hx-swap="outerHTML" hx-boost="true">
                         <div class="mb-3">
                             <input class="form-control" name="ns" placeholder="Namespace">
                         </div>
@@ -31,7 +31,7 @@
                 </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" form="newSigForm" class="btn btn-primary" data-bs-dismiss="modal">Create</button>
+                        <button type="submit" form="newDecForm" class="btn btn-primary" data-bs-dismiss="modal">Create</button>
                     </div>
                 </div>
             </div>
@@ -45,7 +45,7 @@
             dto: {{.}},
 
             save() {
-                fetch('/api/v1/signatures/{{.ID}}', {
+                fetch('/api/v1/declarations/{{.ID}}', {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(this.dto)

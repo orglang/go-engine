@@ -8,31 +8,30 @@ import (
 )
 
 type Repo interface {
-	Insert(sd.Source, ProcRec) error
-	SelectAll(sd.Source) ([]ProcRef, error)
-	SelectByID(sd.Source, identity.ADT) (ProcSnap, error)
-	SelectByIDs(sd.Source, []identity.ADT) ([]ProcRec, error)
-	SelectEnv(sd.Source, []identity.ADT) (map[identity.ADT]ProcRec, error)
+	Insert(sd.Source, DecRec) error
+	SelectAll(sd.Source) ([]DecRef, error)
+	SelectByID(sd.Source, identity.ADT) (DecSnap, error)
+	SelectByIDs(sd.Source, []identity.ADT) ([]DecRec, error)
+	SelectEnv(sd.Source, []identity.ADT) (map[identity.ADT]DecRec, error)
 }
 
-type sigRefDS struct {
-	SigID string `db:"sig_id"`
-	SigRN int64  `db:"rev"`
-	Title string `db:"title"`
+type decRefDS struct {
+	DecID string `db:"dec_id"`
+	DecRN int64  `db:"dec_rn"`
 }
 
-type sigRecDS struct {
-	SigID string                `db:"sig_id"`
+type decRecDS struct {
+	DecID string                `db:"dec_id"`
 	Title string                `db:"title"`
 	Ys    []termctx.BindClaimDS `db:"ys"`
 	X     termctx.BindClaimDS   `db:"x"`
-	SigRN int64                 `db:"rev"`
+	DecRN int64                 `db:"dec_rn"`
 }
 
-type sigSnapDS struct {
-	SigID string                `db:"sig_id"`
+type decSnapDS struct {
+	DecID string                `db:"dec_id"`
 	Title string                `db:"title"`
 	Ys    []termctx.BindClaimDS `db:"ys"`
 	X     termctx.BindClaimDS   `db:"x"`
-	SigRN int64                 `db:"rev"`
+	DecRN int64                 `db:"dec_rn"`
 }

@@ -6,5 +6,5 @@ import (
 
 // Port
 type repo interface {
-	Insert(sd.Source, poolRec) error
+	Insert(sd.Source, decRec) error
 }

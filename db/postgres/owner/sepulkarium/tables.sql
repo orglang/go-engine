@@ -1,21 +1,21 @@
-CREATE TABLE role_roots (
-	role_id varchar(36),
+CREATE TABLE type_def_roots (
+	def_id varchar(36),
 	title varchar(64),
-	rev bigint
+	def_rn bigint
 );
 
-CREATE TABLE role_states (
-	role_id varchar(36),
-	state_id varchar(36),
-	rev_from bigint,
-	rev_to bigint
+CREATE TABLE type_def_states (
+	term_id varchar(36),
+	from_id varchar(36),
+	kind smallint,
+	spec jsonb
 );
 
 CREATE TABLE role_subs (
 	role_id varchar(36),
 	role_fqn ltree,
-	rev_from bigint,
-	rev_to bigint
+	from_rn bigint,
+	to_rn bigint
 );
 
 CREATE TABLE sig_roots (
@@ -28,23 +28,23 @@ CREATE TABLE sig_pes (
 	sig_id varchar(36),
 	chnl_key varchar(64),
 	role_fqn ltree,
-	rev_from bigint,
-	rev_to bigint
+	from_rn bigint,
+	to_rn bigint
 );
 
 CREATE TABLE sig_ces (
 	sig_id varchar(36),
 	chnl_key varchar(64),
 	role_fqn ltree,
-	rev_from bigint,
-	rev_to bigint
+	from_rn bigint,
+	to_rn bigint
 );
 
 CREATE TABLE sig_subs (
 	sig_id varchar(36),
 	sig_fqn ltree,
-	rev_from bigint,
-	rev_to bigint
+	from_rn bigint,
+	to_rn bigint
 );
 
 CREATE TABLE pool_roots (
@@ -98,13 +98,6 @@ CREATE TABLE pool_sups (
 	rev integer
 );
 
-CREATE TABLE states (
-	id varchar(36),
-	from_id varchar(36),
-	kind smallint,
-	spec jsonb
-);
-
 CREATE TABLE steps (
 	id varchar(36),
 	kind smallint,
@@ -114,10 +107,10 @@ CREATE TABLE steps (
 );
 
 CREATE TABLE aliases (
-	id varchar(36),
-	sym ltree UNIQUE,
-	rev_from bigint,
-	rev_to bigint,
+	dec_id varchar(36),
+	dec_qn ltree UNIQUE,
+	from_rn bigint,
+	to_rn bigint,
 	kind smallint
 );
 

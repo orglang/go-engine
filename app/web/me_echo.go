@@ -32,7 +32,7 @@ func (h *handlerEcho) Home(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	html, err := h.ssr.Render("home.html", typedef.MsgFromTypeRefs(refs))
+	html, err := h.ssr.Render("home.html", typedef.MsgFromDefRefs(refs))
 	if err != nil {
 		return err
 	}

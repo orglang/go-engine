@@ -33,7 +33,7 @@ func cfgPresenterEcho(e *echo.Echo, p *presenterEcho) error {
 }
 
 func (p *presenterEcho) PostOne(c echo.Context) error {
-	var dto TypeSpecVP
+	var dto DefSpecVP
 	err := c.Bind(&dto)
 	if err != nil {
 		p.log.Error("dto binding failed")
@@ -46,17 +46,17 @@ func (p *presenterEcho) PostOne(c echo.Context) error {
 		p.log.Error("dto validation failed")
 		return err
 	}
-	ns, err := qualsym.ConvertFromString(dto.NS)
+	ns, err := qualsym.ConvertFromString(dto.TypeNS)
 	if err != nil {
 		p.log.Error("dto parsing failed")
 		return err
 	}
-	snap, err := p.api.Create(TypeSpec{TypeSN: ns.New(dto.Name), TypeTS: OneSpec{}})
+	snap, err := p.api.Create(DefSpec{TypeQN: ns.New(dto.TypeSN), TypeTS: OneSpec{}})
 	if err != nil {
 		p.log.Error("role creation failed")
 		return err
 	}
-	html, err := p.ssr.Render("view-one", ViewFromTypeSnap(snap))
+	html, err := p.ssr.Render("view-one", ViewFromDefSnap(snap))
 	if err != nil {
 		p.log.Error("view rendering failed")
 		return err
@@ -71,7 +71,7 @@ func (p *presenterEcho) GetMany(c echo.Context) error {
 		p.log.Error("refs retrieval failed")
 		return err
 	}
-	html, err := p.ssr.Render("view-many", ViewFromTypeRefs(refs))
+	html, err := p.ssr.Render("view-many", ViewFromDefRefs(refs))
 	if err != nil {
 		p.log.Error("view rendering failed")
 		return err
@@ -93,7 +93,7 @@ func (p *presenterEcho) GetOne(c echo.Context) error {
 		p.log.Error("dto validation failed")
 		return err
 	}
-	id, err := identity.ConvertFromString(dto.ID)
+	id, err := identity.ConvertFromString(dto.DefID)
 	if err != nil {
 		p.log.Error("dto mapping failed")
 		return err
@@ -103,11 +103,11 @@ func (p *presenterEcho) GetOne(c echo.Context) error {
 		p.log.Error("root retrieval failed")
 		return err
 	}
-	html, err := p.ssr.Render("view-one", ViewFromTypeSnap(snap))
+	html, err := p.ssr.Render("view-one", ViewFromDefSnap(snap))
 	if err != nil {
 		p.log.Error("view rendering failed")
 		return err
 	}
-	p.log.Log(ctx, lf.LevelTrace, "root getting succeed", slog.Any("id", snap.TypeID))
+	p.log.Log(ctx, lf.LevelTrace, "root getting succeed", slog.Any("id", snap.DefID))
 	return c.HTMLBlob(http.StatusOK, html)
 }

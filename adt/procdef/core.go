@@ -11,25 +11,25 @@ import (
 )
 
 type API interface {
-	Create(ProcSpec) (ProcRef, error)
-	Retrieve(identity.ADT) (ProcRec, error)
+	Create(DefSpec) (DefRef, error)
+	Retrieve(identity.ADT) (DefRec, error)
 }
 
-type ProcSpec struct {
+type DefSpec struct {
 	ProcQN qualsym.ADT // or dec.ProcID
 	ProcTS TermSpec
 }
 
-type ProcRef struct {
-	ProcID identity.ADT
+type DefRef struct {
+	DefID identity.ADT
 }
 
-type ProcRec struct {
-	ProcID identity.ADT
+type DefRec struct {
+	DefID identity.ADT
 }
 
-type ProcSnap struct {
-	ProcID identity.ADT
+type DefSnap struct {
+	DefID identity.ADT
 }
 
 type TermSpec interface {
@@ -73,8 +73,8 @@ type LabSpec struct {
 func (s LabSpec) Via() qualsym.ADT { return s.CommPH }
 
 type CaseSpec struct {
-	CommPH qualsym.ADT
-	Conts  map[qualsym.ADT]TermSpec
+	CommPH  qualsym.ADT
+	ContTSs map[qualsym.ADT]TermSpec
 }
 
 func (s CaseSpec) Via() qualsym.ADT { return s.CommPH }
@@ -120,7 +120,7 @@ type SpawnSpecOld struct {
 	SigID  identity.ADT
 	Ys     []qualsym.ADT
 	PoolQN qualsym.ADT
-	Cont   TermSpec
+	ContTS TermSpec
 }
 
 func (s SpawnSpecOld) Via() qualsym.ADT { return s.X }
@@ -173,8 +173,8 @@ func (r CloseRec) Via() qualsym.ADT { return r.X }
 func (CloseRec) impl() {}
 
 type WaitRec struct {
-	X    qualsym.ADT
-	Cont TermSpec
+	X      qualsym.ADT
+	ContTS TermSpec
 }
 
 func (r WaitRec) Via() qualsym.ADT { return r.X }
@@ -193,10 +193,10 @@ func (r SendRec) Via() qualsym.ADT { return r.X }
 func (SendRec) impl() {}
 
 type RecvRec struct {
-	X    qualsym.ADT
-	A    identity.ADT
-	Y    qualsym.ADT
-	Cont TermSpec
+	X      qualsym.ADT
+	A      identity.ADT
+	Y      qualsym.ADT
+	ContTS TermSpec
 }
 
 func (r RecvRec) Via() qualsym.ADT { return r.X }
@@ -214,9 +214,9 @@ func (r LabRec) Via() qualsym.ADT { return r.X }
 func (LabRec) impl() {}
 
 type CaseRec struct {
-	X     qualsym.ADT
-	A     identity.ADT
-	Conts map[qualsym.ADT]TermSpec
+	X       qualsym.ADT
+	A       identity.ADT
+	ContTSs map[qualsym.ADT]TermSpec
 }
 
 func (r CaseRec) Via() qualsym.ADT { return r.X }
@@ -255,12 +255,12 @@ func newService(
 	return &service{procs, operator, l}
 }
 
-func (s *service) Create(spec ProcSpec) (ProcRef, error) {
-	return ProcRef{}, nil
+func (s *service) Create(spec DefSpec) (DefRef, error) {
+	return DefRef{}, nil
 }
 
-func (s *service) Retrieve(recID identity.ADT) (ProcRec, error) {
-	return ProcRec{}, nil
+func (s *service) Retrieve(recID identity.ADT) (DefRec, error) {
+	return DefRec{}, nil
 }
 
 func collectEnvRec(s TermSpec, env []identity.ADT) []identity.ADT {
@@ -268,12 +268,12 @@ func collectEnvRec(s TermSpec, env []identity.ADT) []identity.ADT {
 	case RecvSpec:
 		return collectEnvRec(spec.ContTS, env)
 	case CaseSpec:
-		for _, cont := range spec.Conts {
+		for _, cont := range spec.ContTSs {
 			env = collectEnvRec(cont, env)
 		}
 		return env
 	case SpawnSpecOld:
-		return collectEnvRec(spec.Cont, append(env, spec.SigID))
+		return collectEnvRec(spec.ContTS, append(env, spec.SigID))
 	default:
 		return env
 	}

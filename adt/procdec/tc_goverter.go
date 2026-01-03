@@ -4,9 +4,9 @@ package procdec
 // goverter:output:format assign-variable
 // goverter:extend orglang/orglang/adt/identity:Convert.*
 var (
-	ConvertSnapToRef func(ProcSnap) ProcRef
-	ConvertRecToRef  func(ProcRec) ProcRef
-	ConvertRecToSnap func(ProcRec) ProcSnap
+	ConvertSnapToRef func(DecSnap) DecRef
+	ConvertRecToRef  func(DecRec) DecRef
+	ConvertRecToSnap func(DecRec) DecSnap
 )
 
 // goverter:variables
@@ -15,13 +15,13 @@ var (
 // goverter:extend orglang/orglang/adt/termctx:Msg.*
 // goverter:extend orglang/orglang/adt/typedef:Msg.*
 var (
-	MsgToSigSpec    func(SigSpecME) (ProcSpec, error)
-	MsgFromSigSpec  func(ProcSpec) SigSpecME
-	MsgToSigRef     func(SigRefME) (ProcRef, error)
-	MsgFromSigRef   func(ProcRef) SigRefME
-	MsgToSigSnap    func(SigSnapME) (ProcSnap, error)
-	MsgFromSigSnap  func(ProcSnap) SigSnapME
-	MsgFromSigSnaps func([]ProcSnap) []SigSnapME
+	MsgToDecSpec    func(DecSpecME) (DecSpec, error)
+	MsgFromDecSpec  func(DecSpec) DecSpecME
+	MsgToDecRef     func(DecRefME) (DecRef, error)
+	MsgFromDecRef   func(DecRef) DecRefME
+	MsgToDecSnap    func(DecSnapME) (DecSnap, error)
+	MsgFromDecSnap  func(DecSnap) DecSnapME
+	MsgFromDecSnaps func([]DecSnap) []DecSnapME
 )
 
 // goverter:variables
@@ -31,11 +31,11 @@ var (
 // goverter:extend orglang/orglang/adt/typedef:Msg.*
 // goverter:extend Msg.*
 var (
-	ViewFromSigRef  func(ProcRef) SigRefVP
-	ViewToSigRef    func(SigRefVP) (ProcRef, error)
-	ViewFromSigRefs func([]ProcRef) []SigRefVP
-	ViewToSigRefs   func([]SigRefVP) ([]ProcRef, error)
-	ViewFromSigSnap func(ProcSnap) SigSnapVP
+	ViewFromDecRef  func(DecRef) DecRefVP
+	ViewToDecRef    func(DecRefVP) (DecRef, error)
+	ViewFromDecRefs func([]DecRef) []DecRefVP
+	ViewToDecRefs   func([]DecRefVP) ([]DecRef, error)
+	ViewFromDecSnap func(DecSnap) DecSnapVP
 )
 
 // goverter:variables
@@ -44,16 +44,16 @@ var (
 // goverter:extend orglang/orglang/adt/termctx:Data.*
 // goverter:extend orglang/orglang/adt/typedef:Data.*
 var (
-	DataToSigRef     func(sigRefDS) (ProcRef, error)
-	DataFromSigRef   func(ProcRef) sigRefDS
-	DataToSigRefs    func([]sigRefDS) ([]ProcRef, error)
-	DataFromSigRefs  func([]ProcRef) []sigRefDS
-	DataToSigRec     func(sigRecDS) (ProcRec, error)
-	DataFromSigRec   func(ProcRec) (sigRecDS, error)
-	DataToSigRecs    func([]sigRecDS) ([]ProcRec, error)
-	DataFromSigRecs  func([]ProcRec) ([]sigRecDS, error)
-	DataToSigSnap    func(sigSnapDS) (ProcSnap, error)
-	DataFromSigSnap  func(ProcSnap) (sigSnapDS, error)
-	DataToSigSnaps   func([]sigSnapDS) ([]ProcSnap, error)
-	DataFromSigSnaps func([]ProcSnap) ([]sigSnapDS, error)
+	DataToDecRef     func(decRefDS) (DecRef, error)
+	DataFromDecRef   func(DecRef) decRefDS
+	DataToDecRefs    func([]decRefDS) ([]DecRef, error)
+	DataFromDecRefs  func([]DecRef) []decRefDS
+	DataToDecRec     func(decRecDS) (DecRec, error)
+	DataFromDecRec   func(DecRec) (decRecDS, error)
+	DataToDecRecs    func([]decRecDS) ([]DecRec, error)
+	DataFromDecRecs  func([]DecRec) ([]decRecDS, error)
+	DataToDecSnap    func(decSnapDS) (DecSnap, error)
+	DataFromDecSnap  func(DecSnap) (decSnapDS, error)
+	DataToDecSnaps   func([]decSnapDS) ([]DecSnap, error)
+	DataFromDecSnaps func([]DecSnap) ([]decSnapDS, error)
 )

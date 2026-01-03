@@ -20,9 +20,9 @@ func NewAPI() API {
 	return newSdkResty()
 }
 
-func (cl *sdkResty) Run(spec ProcSpec) error {
-	req := MsgFromSpec(spec)
-	var res RefME
+func (cl *sdkResty) Run(spec ExecSpec) error {
+	req := MsgFromExecSpec(spec)
+	var res ExecRefME
 	_, err := cl.resty.R().
 		SetPathParam("id", spec.ExecID.String()).
 		SetBody(&req).
@@ -34,14 +34,14 @@ func (cl *sdkResty) Run(spec ProcSpec) error {
 	return nil
 }
 
-func (cl *sdkResty) Retrieve(procID identity.ADT) (ProcSnap, error) {
-	var res SnapME
+func (cl *sdkResty) Retrieve(procID identity.ADT) (ExecSnap, error) {
+	var res ExecSnapME
 	_, err := cl.resty.R().
 		SetPathParam("id", procID.String()).
 		SetResult(&res).
 		Get("/procs/{id}")
 	if err != nil {
-		return ProcSnap{}, err
+		return ExecSnap{}, err
 	}
-	return MsgToSnap(res)
+	return MsgToExecSnap(res)
 }

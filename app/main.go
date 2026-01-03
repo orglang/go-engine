@@ -13,7 +13,7 @@ import (
 	"orglang/orglang/adt/procdec"
 	"orglang/orglang/adt/procdef"
 	"orglang/orglang/adt/procxec"
-	"orglang/orglang/adt/termsyn"
+	"orglang/orglang/adt/syndec"
 	"orglang/orglang/adt/typedef"
 
 	"orglang/orglang/app/web"
@@ -26,7 +26,7 @@ func main() {
 		sd.Module,
 		lf.Module,
 		// adt
-		termsyn.Module,
+		syndec.Module,
 		poolxec.Module,
 		typedef.Module,
 		procdef.Module,

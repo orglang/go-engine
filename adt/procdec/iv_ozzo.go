@@ -8,36 +8,35 @@ import (
 	"orglang/orglang/adt/termctx"
 )
 
-func (dto SigSpecME) Validate() error {
+func (dto DecSpecME) Validate() error {
 	return validation.ValidateStruct(&dto,
 		validation.Field(&dto.X, validation.Required),
-		validation.Field(&dto.SigQN, qualsym.Required...),
+		validation.Field(&dto.ProcQN, qualsym.Required...),
 		validation.Field(&dto.Ys, termctx.Optional...),
 	)
 }
 
 func (dto IdentME) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.SigID, identity.Required...),
+		validation.Field(&dto.DecID, identity.Required...),
 	)
 }
 
-func (dto SigRefME) Validate() error {
+func (dto DecRefME) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.SigID, identity.Required...),
+		validation.Field(&dto.DecID, identity.Required...),
 	)
 }
 
-func (dto SigSpecVP) Validate() error {
+func (dto DecSpecVP) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.SigNS, qualsym.Required...),
-		validation.Field(&dto.SigSN, qualsym.Required...),
+		validation.Field(&dto.ProcNS, qualsym.Required...),
+		validation.Field(&dto.ProcSN, qualsym.Required...),
 	)
 }
 
-func (dto SigRefVP) Validate() error {
+func (dto DecRefVP) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.SigID, identity.Required...),
-		validation.Field(&dto.Title, qualsym.Required...),
+		validation.Field(&dto.DecID, identity.Required...),
 	)
 }

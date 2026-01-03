@@ -31,7 +31,7 @@ func cfgHandlerEcho(e *echo.Echo, h *handlerEcho) error {
 }
 
 func (h *handlerEcho) PostOne(c echo.Context) error {
-	var dto TypeSpecME
+	var dto DefSpecME
 	err := c.Bind(&dto)
 	if err != nil {
 		h.log.Error("dto binding failed")
@@ -44,7 +44,7 @@ func (h *handlerEcho) PostOne(c echo.Context) error {
 		h.log.Error("dto validation failed")
 		return err
 	}
-	spec, err := MsgToTypeSpec(dto)
+	spec, err := MsgToDefSpec(dto)
 	if err != nil {
 		h.log.Error("dto mapping failed")
 		return err
@@ -54,8 +54,8 @@ func (h *handlerEcho) PostOne(c echo.Context) error {
 		h.log.Error("role creation failed")
 		return err
 	}
-	h.log.Log(ctx, lf.LevelTrace, "role posting succeed", slog.Any("id", snap.TypeID))
-	return c.JSON(http.StatusCreated, MsgFromTypeSnap(snap))
+	h.log.Log(ctx, lf.LevelTrace, "role posting succeed", slog.Any("id", snap.DefID))
+	return c.JSON(http.StatusCreated, MsgFromDefSnap(snap))
 }
 
 func (h *handlerEcho) GetOne(c echo.Context) error {
@@ -70,7 +70,7 @@ func (h *handlerEcho) GetOne(c echo.Context) error {
 		h.log.Error("dto validation failed")
 		return err
 	}
-	id, err := identity.ConvertFromString(dto.ID)
+	id, err := identity.ConvertFromString(dto.DefID)
 	if err != nil {
 		h.log.Error("dto mapping failed")
 		return err
@@ -80,11 +80,11 @@ func (h *handlerEcho) GetOne(c echo.Context) error {
 		h.log.Error("root retrieval failed")
 		return err
 	}
-	return c.JSON(http.StatusOK, MsgFromTypeSnap(snap))
+	return c.JSON(http.StatusOK, MsgFromDefSnap(snap))
 }
 
 func (h *handlerEcho) PatchOne(c echo.Context) error {
-	var dto TypeSnapME
+	var dto DefSnapME
 	err := c.Bind(&dto)
 	if err != nil {
 		h.log.Error("dto binding failed")
@@ -97,7 +97,7 @@ func (h *handlerEcho) PatchOne(c echo.Context) error {
 		h.log.Error("dto validation failed")
 		return err
 	}
-	reqSnap, err := MsgToTypeSnap(dto)
+	reqSnap, err := MsgToDefSnap(dto)
 	if err != nil {
 		h.log.Error("dto mapping failed")
 		return err
@@ -108,5 +108,5 @@ func (h *handlerEcho) PatchOne(c echo.Context) error {
 		return err
 	}
 	h.log.Log(ctx, lf.LevelTrace, "role patching succeed", slog.Any("ref", ConvertSnapToRef(resSnap)))
-	return c.JSON(http.StatusOK, MsgFromTypeSnap(resSnap))
+	return c.JSON(http.StatusOK, MsgFromDefSnap(resSnap))
 }

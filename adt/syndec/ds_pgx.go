@@ -1,4 +1,4 @@
-package termsyn
+package syndec
 
 import (
 	"log/slog"
@@ -10,7 +10,6 @@ import (
 	"orglang/orglang/lib/sd"
 )
 
-// Adapter
 type daoPgx struct {
 	log *slog.Logger
 }
@@ -25,29 +24,29 @@ func newRepo() Repo {
 	return &daoPgx{}
 }
 
-func (r *daoPgx) Insert(source sd.Source, root Root) error {
+func (d *daoPgx) Insert(source sd.Source, root DecRec) error {
 	ds := sd.MustConform[sd.SourcePgx](source)
-	idAttr := slog.Any("id", root.ID)
-	dto, err := DataFromRoot(root)
+	idAttr := slog.Any("id", root.DecID)
+	dto, err := DataFromDecRec(root)
 	if err != nil {
-		r.log.Error("model mapping failed", idAttr)
+		d.log.Error("model mapping failed", idAttr)
 		return err
 	}
 	query := `
 		insert into aliases (
-			id, rev_from, rev_to, sym
+			id, from_rn, to_rn, sym
 		) values (
-			@id, @rev_from, @rev_to, @sym
+			@id, @from_rn, @to_rn, @sym
 		)`
 	args := pgx.NamedArgs{
-		"id":       dto.ID,
-		"rev_from": dto.RN,
-		"rev_to":   math.MaxInt64,
-		"sym":      dto.Sym,
+		"id":      dto.DecID,
+		"from_rn": dto.DecRN,
+		"to_rn":   math.MaxInt64,
+		"sym":     dto.DecQN,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, query, args)
 	if err != nil {
-		r.log.Error("query execution failed", idAttr, slog.String("q", query))
+		d.log.Error("query execution failed", idAttr, slog.String("q", query))
 		return err
 	}
 	return nil

@@ -17,8 +17,8 @@ import (
 )
 
 type API interface {
-	Run(ProcSpec) error
-	Retrieve(identity.ADT) (ProcSnap, error)
+	Run(ExecSpec) error
+	Retrieve(identity.ADT) (ExecSnap, error)
 }
 
 type SemRec interface {
@@ -48,41 +48,41 @@ type SvcRec struct {
 
 func (r SvcRec) step() identity.ADT { return r.ChnlID }
 
-type ProcSpec struct {
+type ExecSpec struct {
 	PoolID identity.ADT
 	ExecID identity.ADT
 	ProcTS procdef.TermSpec
 }
 
-type ProcRef struct {
+type ExecRef struct {
 	ExecID identity.ADT
 }
 
-type ProcSnap struct {
+type ExecSnap struct {
 	ExecID identity.ADT
 }
 
 type MainCfg struct {
-	ProcID identity.ADT
+	ExecID identity.ADT
 	Bnds   map[qualsym.ADT]EP2
 	Acts   map[identity.ADT]SemRec
 	PoolID identity.ADT
-	ProcRN revnum.ADT
+	ExecRN revnum.ADT
 }
 
 // aka Configuration
 type Cfg struct {
-	ProcID identity.ADT
+	ExecID identity.ADT
 	Chnls  map[qualsym.ADT]EP
 	Steps  map[identity.ADT]SemRec
 	PoolID identity.ADT
 	PoolRN revnum.ADT
-	ProcRN revnum.ADT
+	ExecRN revnum.ADT
 }
 
 type Env struct {
-	ProcSigs  map[identity.ADT]procdec.ProcRec
-	Types     map[qualsym.ADT]typedef.TypeRec
+	ProcDecs  map[identity.ADT]procdec.DecRec
+	TypeDefs  map[qualsym.ADT]typedef.DefRec
 	TypeTerms map[identity.ADT]typedef.TermRec
 	Locks     map[qualsym.ADT]Lock
 }
@@ -140,7 +140,7 @@ type Bnd struct {
 }
 
 type service struct {
-	procs    repo
+	procs    execRepo
 	operator sd.Operator
 	log      *slog.Logger
 }
@@ -151,14 +151,14 @@ func newAPI() API {
 }
 
 func newService(
-	procs repo,
+	procs execRepo,
 	operator sd.Operator,
 	l *slog.Logger,
 ) *service {
 	return &service{procs, operator, l}
 }
 
-func (s *service) Run(spec ProcSpec) (err error) {
+func (s *service) Run(spec ExecSpec) (err error) {
 	idAttr := slog.Any("procID", spec.ExecID)
 	s.log.Debug("creation started", idAttr)
 	ctx := context.Background()
@@ -197,8 +197,8 @@ func (s *service) Run(spec ProcSpec) (err error) {
 	return nil
 }
 
-func (s *service) Retrieve(procID identity.ADT) (_ ProcSnap, err error) {
-	return ProcSnap{}, nil
+func (s *service) Retrieve(procID identity.ADT) (_ ExecSnap, err error) {
+	return ExecSnap{}, nil
 }
 
 func (s *service) checkType(
@@ -255,9 +255,9 @@ func (s *service) createWith(
 		viaAttr := slog.Any("cordID", viaCord.CordID)
 		for _, chnlPH := range termSpec.Ys {
 			sndrValBnd := Bnd{
-				ProcID: procCfg.ProcID,
+				ProcID: procCfg.ExecID,
 				ChnlPH: chnlPH,
-				ProcRN: -procCfg.ProcRN.Next(),
+				ProcRN: -procCfg.ExecRN.Next(),
 			}
 			procMod.Bnds = append(procMod.Bnds, sndrValBnd)
 		}

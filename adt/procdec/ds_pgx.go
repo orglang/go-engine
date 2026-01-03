@@ -27,60 +27,60 @@ func newRepo() Repo {
 	return &daoPgx{}
 }
 
-func (r *daoPgx) Insert(source sd.Source, mod ProcRec) error {
+func (d *daoPgx) Insert(source sd.Source, mod DecRec) error {
 	ds := sd.MustConform[sd.SourcePgx](source)
 	idAttr := slog.Any("id", mod.DecID)
-	dto, err := DataFromSigRec(mod)
+	dto, err := DataFromDecRec(mod)
 	if err != nil {
-		r.log.Error("model mapping failed", idAttr)
+		d.log.Error("model mapping failed", idAttr)
 		return err
 	}
 	insertRoot := `
-		insert into sig_roots (
-			sig_id, rev, title
+		insert into dec_roots (
+			dec_id, rev, title
 		) VALUES (
-			@sig_id, @rev, @title
+			@dec_id, @rev, @title
 		)`
 	rootArgs := pgx.NamedArgs{
-		"sig_id": dto.SigID,
-		"rev":    dto.SigRN,
+		"dec_id": dto.DecID,
+		"rev":    dto.DecRN,
 		"title":  dto.Title,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertRoot, rootArgs)
 	if err != nil {
-		r.log.Error("query execution failed", idAttr, slog.String("q", insertRoot))
+		d.log.Error("query execution failed", idAttr, slog.String("q", insertRoot))
 		return err
 	}
 	insertPE := `
-		insert into sig_pes (
-			sig_id, rev_from, rev_to, chnl_key, role_fqn
+		insert into dec_pes (
+			dec_id, from_rn, to_rn, chnl_key, role_fqn
 		) VALUES (
-			@sig_id, @rev_from, @rev_to, @chnl_key, @role_fqn
+			@dec_id, @from_rn, @to_rn, @chnl_key, @role_fqn
 		)`
 	peArgs := pgx.NamedArgs{
-		"sig_id":   dto.SigID,
-		"rev_from": dto.SigRN,
-		"rev_to":   math.MaxInt64,
+		"dec_id":   dto.DecID,
+		"from_rn":  dto.DecRN,
+		"to_rn":    math.MaxInt64,
 		"chnl_key": dto.X.BindPH,
 		"role_fqn": dto.X.TypeQN,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertPE, peArgs)
 	if err != nil {
-		r.log.Error("query execution failed", idAttr, slog.String("q", insertPE))
+		d.log.Error("query execution failed", idAttr, slog.String("q", insertPE))
 		return err
 	}
 	insertCE := `
-		insert into sig_ces (
-			sig_id, rev_from, rev_to, chnl_key, role_fqn
+		insert into dec_ces (
+			dec_id, from_rn, to_rn, chnl_key, role_fqn
 		) VALUES (
-			@sig_id, @rev_from, @rev_to, @chnl_key, @role_fqn
+			@dec_id, @from_rn, @to_rn, @chnl_key, @role_fqn
 		)`
 	batch := pgx.Batch{}
 	for _, ce := range dto.Ys {
 		args := pgx.NamedArgs{
-			"sig_id":   dto.SigID,
-			"rev_from": dto.SigRN,
-			"rev_to":   math.MaxInt64,
+			"dec_id":   dto.DecID,
+			"from_rn":  dto.DecRN,
+			"to_rn":    math.MaxInt64,
 			"chnl_key": ce.BindPH,
 			"role_fqn": ce.TypeQN,
 		}
@@ -93,7 +93,7 @@ func (r *daoPgx) Insert(source sd.Source, mod ProcRec) error {
 	for range dto.Ys {
 		_, err = br.Exec()
 		if err != nil {
-			r.log.Error("query execution failed", idAttr, slog.String("q", insertCE))
+			d.log.Error("query execution failed", idAttr, slog.String("q", insertCE))
 		}
 	}
 	if err != nil {
@@ -102,40 +102,40 @@ func (r *daoPgx) Insert(source sd.Source, mod ProcRec) error {
 	return nil
 }
 
-func (r *daoPgx) SelectByID(source sd.Source, rid identity.ADT) (ProcSnap, error) {
+func (d *daoPgx) SelectByID(source sd.Source, rid identity.ADT) (DecSnap, error) {
 	ds := sd.MustConform[sd.SourcePgx](source)
 	idAttr := slog.Any("id", rid)
 	rows, err := ds.Conn.Query(ds.Ctx, selectById, rid.String())
 	if err != nil {
-		r.log.Error("query execution failed", idAttr, slog.String("q", selectById))
-		return ProcSnap{}, err
+		d.log.Error("query execution failed", idAttr, slog.String("q", selectById))
+		return DecSnap{}, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[sigSnapDS])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[decSnapDS])
 	if err != nil {
-		r.log.Error("row collection failed", idAttr)
-		return ProcSnap{}, err
+		d.log.Error("row collection failed", idAttr)
+		return DecSnap{}, err
 	}
-	r.log.Log(ds.Ctx, lf.LevelTrace, "entitiy selection succeed", slog.Any("dto", dto))
-	return DataToSigSnap(dto)
+	d.log.Log(ds.Ctx, lf.LevelTrace, "entitiy selection succeed", slog.Any("dto", dto))
+	return DataToDecSnap(dto)
 }
 
-func (r *daoPgx) SelectEnv(source sd.Source, ids []identity.ADT) (map[identity.ADT]ProcRec, error) {
-	sigs, err := r.SelectByIDs(source, ids)
+func (d *daoPgx) SelectEnv(source sd.Source, ids []identity.ADT) (map[identity.ADT]DecRec, error) {
+	decs, err := d.SelectByIDs(source, ids)
 	if err != nil {
 		return nil, err
 	}
-	env := make(map[identity.ADT]ProcRec, len(sigs))
-	for _, s := range sigs {
+	env := make(map[identity.ADT]DecRec, len(decs))
+	for _, s := range decs {
 		env[s.DecID] = s
 	}
 	return env, nil
 }
 
-func (r *daoPgx) SelectByIDs(source sd.Source, ids []identity.ADT) (_ []ProcRec, err error) {
+func (d *daoPgx) SelectByIDs(source sd.Source, ids []identity.ADT) (_ []DecRec, err error) {
 	ds := sd.MustConform[sd.SourcePgx](source)
 	if len(ids) == 0 {
-		return []ProcRec{}, nil
+		return []DecRec{}, nil
 	}
 	batch := pgx.Batch{}
 	for _, rid := range ids {
@@ -148,63 +148,63 @@ func (r *daoPgx) SelectByIDs(source sd.Source, ids []identity.ADT) (_ []ProcRec,
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	var dtos []sigRecDS
+	var dtos []decRecDS
 	for _, rid := range ids {
 		rows, err := br.Query()
 		if err != nil {
-			r.log.Error("query execution failed", slog.Any("id", rid), slog.String("q", selectById))
+			d.log.Error("query execution failed", slog.Any("id", rid), slog.String("q", selectById))
 		}
 		defer rows.Close()
-		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[sigRecDS])
+		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[decRecDS])
 		if err != nil {
-			r.log.Error("row collection failed", slog.Any("id", rid))
+			d.log.Error("row collection failed", slog.Any("id", rid))
 		}
 		dtos = append(dtos, dto)
 	}
 	if err != nil {
 		return nil, err
 	}
-	r.log.Log(ds.Ctx, lf.LevelTrace, "entities selection succeed", slog.Any("dtos", dtos))
-	return DataToSigRecs(dtos)
+	d.log.Log(ds.Ctx, lf.LevelTrace, "entities selection succeed", slog.Any("dtos", dtos))
+	return DataToDecRecs(dtos)
 }
 
-func (r *daoPgx) SelectAll(source sd.Source) ([]ProcRef, error) {
+func (d *daoPgx) SelectAll(source sd.Source) ([]DecRef, error) {
 	ds := sd.MustConform[sd.SourcePgx](source)
 	query := `
 		select
-			sig_id, rev, title
-		from sig_roots`
+			dec_id, rev, title
+		from dec_roots`
 	rows, err := ds.Conn.Query(ds.Ctx, query)
 	if err != nil {
-		r.log.Error("query execution failed", slog.String("q", query))
+		d.log.Error("query execution failed", slog.String("q", query))
 		return nil, err
 	}
 	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[sigRefDS])
+	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[decRefDS])
 	if err != nil {
-		r.log.Error("rows collection failed")
+		d.log.Error("rows collection failed")
 		return nil, err
 	}
-	return DataToSigRefs(dtos)
+	return DataToDecRefs(dtos)
 }
 
 const (
 	selectById = `
 		select
-			sr.sig_id,
+			sr.dec_id,
 			sr.rev,
 			(array_agg(sr.title))[1] as title,
 			(jsonb_agg(to_jsonb((select ep from (select sp.chnl_key, sp.role_fqn) ep))))[0] as pe,
-			jsonb_agg(to_jsonb((select ep from (select sc.chnl_key, sc.role_fqn) ep))) filter (where sc.sig_id is not null) as ces
-		from sig_roots sr
-		left join sig_pes sp
-			on sp.sig_id = sr.sig_id
-			and sp.rev_from >= sr.rev
-			and sp.rev_to > sr.rev
-		left join sig_ces sc
-			on sc.sig_id = sr.sig_id
-			and sc.rev_from >= sr.rev
-			and sc.rev_to > sr.rev
-		where sr.sig_id = $1
-		group by sr.sig_id, sr.rev`
+			jsonb_agg(to_jsonb((select ep from (select sc.chnl_key, sc.role_fqn) ep))) filter (where sc.dec_id is not null) as ces
+		from dec_roots sr
+		left join dec_pes sp
+			on sp.dec_id = sr.dec_id
+			and sp.from_rn >= sr.rev
+			and sp.to_rn > sr.rev
+		left join dec_ces sc
+			on sc.dec_id = sr.dec_id
+			and sc.from_rn >= sr.rev
+			and sc.to_rn > sr.rev
+		where sr.dec_id = $1
+		group by sr.dec_id, sr.rev`
 )

@@ -6,11 +6,10 @@ import (
 	"orglang/orglang/lib/sd"
 
 	"orglang/orglang/adt/identity"
-
 	"orglang/orglang/adt/procdef"
 )
 
-type repo interface {
+type execRepo interface {
 	SelectMain(sd.Source, identity.ADT) (MainCfg, error)
 	UpdateMain(sd.Source, MainMod) error
 }
@@ -41,16 +40,16 @@ type bndDS struct {
 
 type SemRecDS struct {
 	ID  string            `db:"id"`
-	K   semKind           `db:"kind"`
+	K   semKindDS         `db:"kind"`
 	PID sql.NullString    `db:"pid"`
 	VID sql.NullString    `db:"vid"`
 	TR  procdef.TermRecDS `db:"spec"`
 }
 
-type semKind int
+type semKindDS int
 
 const (
-	nonsem = semKind(iota)
+	nonsem = semKindDS(iota)
 	msgKind
 	svcKind
 )

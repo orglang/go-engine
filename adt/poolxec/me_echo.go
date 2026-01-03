@@ -34,7 +34,7 @@ func cfgHandlerEcho(e *echo.Echo, h *handlerEcho) error {
 }
 
 func (h *handlerEcho) PostOne(c echo.Context) error {
-	var dto PoolSpecME
+	var dto ExecSpecME
 	err := c.Bind(&dto)
 	if err != nil {
 		h.log.Error("binding failed", slog.Any("struct", reflect.TypeOf(dto)))
@@ -46,7 +46,7 @@ func (h *handlerEcho) PostOne(c echo.Context) error {
 		h.log.Error("validation failed", qnAttr)
 		return err
 	}
-	spec, err := MsgToPoolSpec(dto)
+	spec, err := MsgToExecSpec(dto)
 	if err != nil {
 		h.log.Error("mapping failed", qnAttr)
 		return err
@@ -55,7 +55,7 @@ func (h *handlerEcho) PostOne(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusCreated, MsgFromPoolRef(ref))
+	return c.JSON(http.StatusCreated, MsgFromExecRef(ref))
 }
 
 func (h *handlerEcho) GetOne(c echo.Context) error {
@@ -72,11 +72,11 @@ func (h *handlerEcho) GetOne(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, MsgFromPoolSnap(snap))
+	return c.JSON(http.StatusOK, MsgFromExecSnap(snap))
 }
 
 func (h *handlerEcho) PostProc(c echo.Context) error {
-	var dto PoolSpecME
+	var dto ExecSpecME
 	err := c.Bind(&dto)
 	if err != nil {
 		h.log.Error("binding failed", slog.Any("struct", reflect.TypeOf(dto)))
@@ -88,7 +88,7 @@ func (h *handlerEcho) PostProc(c echo.Context) error {
 		h.log.Error("validation failed", qnAttr)
 		return err
 	}
-	spec, err := MsgToPoolSpec(dto)
+	spec, err := MsgToExecSpec(dto)
 	if err != nil {
 		h.log.Error("mapping failed", qnAttr)
 		return err
@@ -97,7 +97,7 @@ func (h *handlerEcho) PostProc(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusCreated, MsgFromPoolRef(ref))
+	return c.JSON(http.StatusCreated, MsgFromExecRef(ref))
 }
 
 // Adapter
@@ -118,7 +118,7 @@ func cfgStepHandlerEcho(e *echo.Echo, h *stepHandlerEcho) error {
 }
 
 func (h *stepHandlerEcho) PostOne(c echo.Context) error {
-	var dto procxec.SpecME
+	var dto procxec.ExecSpecME
 	err := c.Bind(&dto)
 	if err != nil {
 		h.log.Error("binding failed")
@@ -131,7 +131,7 @@ func (h *stepHandlerEcho) PostOne(c echo.Context) error {
 		h.log.Error("validation failed", slog.Any("dto", dto))
 		return err
 	}
-	spec, err := procxec.MsgToSpec(dto)
+	spec, err := procxec.MsgToExecSpec(dto)
 	if err != nil {
 		h.log.Error("mapping failed", slog.Any("dto", dto))
 		return err
@@ -140,5 +140,5 @@ func (h *stepHandlerEcho) PostOne(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, procxec.MsgFromRef(ref))
+	return c.JSON(http.StatusOK, procxec.MsgFromExecRef(ref))
 }

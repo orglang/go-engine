@@ -23,42 +23,42 @@ func NewAPI() API {
 	return newSdkResty()
 }
 
-func (cl *sdkResty) Incept(sigQN qualsym.ADT) (ProcRef, error) {
-	return ProcRef{}, nil
+func (cl *sdkResty) Incept(decQN qualsym.ADT) (DecRef, error) {
+	return DecRef{}, nil
 }
 
-func (cl *sdkResty) Create(spec ProcSpec) (ProcSnap, error) {
-	req := MsgFromSigSpec(spec)
-	var res SigSnapME
+func (cl *sdkResty) Create(spec DecSpec) (DecSnap, error) {
+	req := MsgFromDecSpec(spec)
+	var res DecSnapME
 	resp, err := cl.resty.R().
 		SetResult(&res).
 		SetBody(&req).
-		Post("/signatures")
+		Post("/declarations")
 	if err != nil {
-		return ProcSnap{}, err
+		return DecSnap{}, err
 	}
 	if resp.IsError() {
-		return ProcSnap{}, fmt.Errorf("received: %v", string(resp.Body()))
+		return DecSnap{}, fmt.Errorf("received: %v", string(resp.Body()))
 	}
-	return MsgToSigSnap(res)
+	return MsgToDecSnap(res)
 }
 
-func (c *sdkResty) Retrieve(id identity.ADT) (ProcSnap, error) {
-	var res SigSnapME
+func (c *sdkResty) Retrieve(id identity.ADT) (DecSnap, error) {
+	var res DecSnapME
 	resp, err := c.resty.R().
 		SetResult(&res).
 		SetPathParam("id", id.String()).
-		Get("/signatures/{id}")
+		Get("/declarations/{id}")
 	if err != nil {
-		return ProcSnap{}, err
+		return DecSnap{}, err
 	}
 	if resp.IsError() {
-		return ProcSnap{}, fmt.Errorf("received: %v", string(resp.Body()))
+		return DecSnap{}, fmt.Errorf("received: %v", string(resp.Body()))
 	}
-	return MsgToSigSnap(res)
+	return MsgToDecSnap(res)
 }
 
-func (c *sdkResty) RetreiveRefs() ([]ProcRef, error) {
-	refs := []ProcRef{}
+func (c *sdkResty) RetreiveRefs() ([]DecRef, error) {
+	refs := []DecRef{}
 	return refs, nil
 }

@@ -1,4 +1,4 @@
-package termsyn
+package syndec
 
 import (
 	"orglang/orglang/adt/identity"
@@ -6,8 +6,8 @@ import (
 	"orglang/orglang/adt/revnum"
 )
 
-type Root struct {
-	ID identity.ADT
-	RN revnum.ADT
-	QN qualsym.ADT
+type DecRec struct {
+	DecID identity.ADT
+	DecRN revnum.ADT
+	DecQN qualsym.ADT
 }

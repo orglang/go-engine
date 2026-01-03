@@ -22,57 +22,57 @@ func NewAPI() API {
 	return newSdkResty()
 }
 
-func (cl *sdkResty) Create(spec PoolSpec) (PoolRef, error) {
-	req := MsgFromPoolSpec(spec)
-	var res PoolRefME
+func (cl *sdkResty) Create(spec ExecSpec) (ExecRef, error) {
+	req := MsgFromExecSpec(spec)
+	var res ExecRefME
 	_, err := cl.resty.R().
 		SetResult(&res).
 		SetBody(&req).
 		Post("/pools")
 	if err != nil {
-		return PoolRef{}, err
+		return ExecRef{}, err
 	}
-	return MsgToPoolRef(res)
+	return MsgToExecRef(res)
 }
 
-func (cl *sdkResty) Poll(spec PollSpec) (procxec.ProcRef, error) {
-	return procxec.ProcRef{}, nil
+func (cl *sdkResty) Poll(spec PollSpec) (procxec.ExecRef, error) {
+	return procxec.ExecRef{}, nil
 }
 
-func (cl *sdkResty) Retrieve(poolID identity.ADT) (PoolSnap, error) {
-	var res PoolSnapME
+func (cl *sdkResty) Retrieve(poolID identity.ADT) (ExecSnap, error) {
+	var res ExecSnapME
 	_, err := cl.resty.R().
 		SetResult(&res).
 		SetPathParam("id", poolID.String()).
 		Get("/pools/{id}")
 	if err != nil {
-		return PoolSnap{}, err
+		return ExecSnap{}, err
 	}
-	return MsgToPoolSnap(res)
+	return MsgToExecSnap(res)
 }
 
-func (cl *sdkResty) RetreiveRefs() ([]PoolRef, error) {
-	refs := []PoolRef{}
+func (cl *sdkResty) RetreiveRefs() ([]ExecRef, error) {
+	refs := []ExecRef{}
 	return refs, nil
 }
 
-func (cl *sdkResty) Spawn(spec procxec.ProcSpec) (procxec.ProcRef, error) {
-	req := procxec.MsgFromSpec(spec)
-	var res procxec.RefME
+func (cl *sdkResty) Spawn(spec procxec.ExecSpec) (procxec.ExecRef, error) {
+	req := procxec.MsgFromExecSpec(spec)
+	var res procxec.ExecRefME
 	_, err := cl.resty.R().
 		SetResult(&res).
 		SetBody(&req).
 		SetPathParam("poolID", spec.PoolID.String()).
 		Post("/pools/{poolID}/procs")
 	if err != nil {
-		return procxec.ProcRef{}, err
+		return procxec.ExecRef{}, err
 	}
-	return procxec.MsgToRef(res)
+	return procxec.MsgToExecRef(res)
 }
 
 func (cl *sdkResty) Take(spec StepSpec) error {
 	req := MsgFromStepSpec(spec)
-	var res procxec.RefME
+	var res procxec.ExecRefME
 	_, err := cl.resty.R().
 		SetResult(&res).
 		SetBody(&req).

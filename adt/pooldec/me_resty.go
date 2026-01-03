@@ -18,6 +18,6 @@ func NewAPI() API {
 	return newSdkResty()
 }
 
-func (cl *sdkResty) Create(spec PoolSpec) (PoolRef, error) {
-	return PoolRef{}, nil
+func (cl *sdkResty) Create(spec DecSpec) (DecRef, error) {
+	return DecRef{}, nil
 }

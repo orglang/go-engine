@@ -6,7 +6,7 @@ import (
 	"orglang/orglang/adt/identity"
 )
 
-func (dto SpecME) Validate() error {
+func (dto ExecSpecME) Validate() error {
 	return validation.ValidateStruct(&dto,
 		validation.Field(&dto.ProcID, identity.Required...),
 		validation.Field(&dto.PoolID, identity.Required...),

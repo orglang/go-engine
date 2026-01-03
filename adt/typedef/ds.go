@@ -10,14 +10,14 @@ import (
 )
 
 type Repo interface {
-	InsertType(sd.Source, TypeRec) error
-	UpdateType(sd.Source, TypeRec) error
-	SelectTypeRefs(sd.Source) ([]TypeRef, error)
-	SelectTypeRecByID(sd.Source, identity.ADT) (TypeRec, error)
-	SelectTypeRecsByIDs(sd.Source, []identity.ADT) ([]TypeRec, error)
-	SelectTypeRecByQN(sd.Source, qualsym.ADT) (TypeRec, error)
-	SelectTypeRecsByQNs(sd.Source, []qualsym.ADT) ([]TypeRec, error)
-	SelectTypeEnv(sd.Source, []qualsym.ADT) (map[qualsym.ADT]TypeRec, error)
+	InsertType(sd.Source, DefRec) error
+	UpdateType(sd.Source, DefRec) error
+	SelectTypeRefs(sd.Source) ([]DefRef, error)
+	SelectTypeRecByID(sd.Source, identity.ADT) (DefRec, error)
+	SelectTypeRecsByIDs(sd.Source, []identity.ADT) ([]DefRec, error)
+	SelectTypeRecByQN(sd.Source, qualsym.ADT) (DefRec, error)
+	SelectTypeRecsByQNs(sd.Source, []qualsym.ADT) ([]DefRec, error)
+	SelectTypeEnv(sd.Source, []qualsym.ADT) (map[qualsym.ADT]DefRec, error)
 
 	InsertTerm(sd.Source, TermRec) error
 	SelectTermRecByID(sd.Source, identity.ADT) (TermRec, error)
@@ -25,17 +25,16 @@ type Repo interface {
 	SelectTermEnv(sd.Source, []identity.ADT) (map[identity.ADT]TermRec, error)
 }
 
-type typeRefDS struct {
-	TypeID string `db:"role_id"`
-	TypeRN int64  `db:"rev"`
-	Title  string `db:"title"`
+type defRefDS struct {
+	DefID string `db:"def_id"`
+	DefRN int64  `db:"def_rn"`
 }
 
-type typeRecDS struct {
-	TypeID string `db:"role_id"`
+type defRecDS struct {
+	DefID  string `db:"def_id"`
 	Title  string `db:"title"`
-	TermID string `db:"state_id"`
-	TypeRN int64  `db:"rev"`
+	TermID string `db:"term_id"`
+	DefRN  int64  `db:"def_rn"`
 }
 
 type termKindDS int
@@ -51,23 +50,23 @@ const (
 )
 
 type TermRefDS struct {
-	ID string     `db:"id" json:"id"`
-	K  termKindDS `db:"kind" json:"kind"`
+	TermID string     `db:"term_id" json:"term_id"`
+	K      termKindDS `db:"kind" json:"kind"`
 }
 
 type termRecDS struct {
-	ID     string
+	TermID string
 	States []stateDS
 }
 
 type stateDS struct {
-	ID     string         `db:"id"`
+	TermID string         `db:"term_id"`
 	K      termKindDS     `db:"kind"`
 	FromID sql.NullString `db:"from_id"`
-	Spec   specDS         `db:"spec"`
+	Spec   termSpecDS     `db:"spec"`
 }
 
-type specDS struct {
+type termSpecDS struct {
 	Link   string  `json:"link,omitempty"`
 	Tensor *prodDS `json:"tensor,omitempty"`
 	Lolli  *prodDS `json:"lolli,omitempty"`

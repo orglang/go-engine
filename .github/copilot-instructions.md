@@ -14,8 +14,8 @@ This a visual programming language to support organization development and manag
   - `pooldec`: Pool declaration aggregate
   - `pooldef`: Pool definition entity
   - `poolxec`: Pool execution aggregate
+  - `syndec`: Synonym declaration value
   - `termctx`: Term context value
-  - `termsyn`: Term synonym value
   - `identity`: Identification value
   - `polarity`: Polarization value
   - `qualsym`: Qualified symbol value

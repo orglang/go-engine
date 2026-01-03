@@ -41,17 +41,17 @@ func (h *handlerEcho) GetSnap(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, MsgFromSnap(snap))
+	return c.JSON(http.StatusOK, MsgFromExecSnap(snap))
 }
 
 func (h *handlerEcho) PostCall(c echo.Context) error {
-	var dto SpecME
+	var dto ExecSpecME
 	err := c.Bind(&dto)
 	if err != nil {
 		return err
 	}
 	idAttr := slog.Any("procID", dto.ProcID)
-	spec, err := MsgToSpec(dto)
+	spec, err := MsgToExecSpec(dto)
 	if err != nil {
 		h.log.Error("mapping failed", idAttr)
 		return err

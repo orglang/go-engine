@@ -6,32 +6,31 @@ import (
 	"orglang/orglang/lib/sd"
 
 	"orglang/orglang/adt/identity"
-
 	"orglang/orglang/adt/procxec"
 )
 
 // Port
 type Repo interface {
-	Insert(sd.Source, PoolRec) error
+	Insert(sd.Source, ExecRec) error
 	InsertLiab(sd.Source, procxec.Liab) error
-	SelectRefs(sd.Source) ([]PoolRef, error)
-	SelectSubs(sd.Source, identity.ADT) (PoolSnap, error)
+	SelectRefs(sd.Source) ([]ExecRef, error)
+	SelectSubs(sd.Source, identity.ADT) (ExecSnap, error)
 	SelectProc(sd.Source, identity.ADT) (procxec.Cfg, error)
 	UpdateProc(sd.Source, procxec.Mod) error
 }
 
-type poolRefDS struct {
+type execRefDS struct {
 	PoolID string `json:"pool_id"`
 	ProcID string `json:"proc_id"`
 }
 
-type poolSnapDS struct {
+type execSnapDS struct {
 	PoolID string      `db:"pool_id"`
 	Title  string      `db:"title"`
-	Subs   []poolRefDS `db:"subs"`
+	Subs   []execRefDS `db:"subs"`
 }
 
-type poolRecDS struct {
+type execRecDS struct {
 	PoolID string         `db:"pool_id"`
 	ProcID string         `db:"proc_id"`
 	SupID  sql.NullString `db:"sup_pool_id"`

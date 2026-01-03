@@ -4,8 +4,8 @@ import (
 	"orglang/orglang/adt/procdef"
 )
 
-type SpecME struct {
-	ProcID string             `json:"proc_id" param:"id"`
+type ExecSpecME struct {
+	ProcID string             `json:"exec_id" param:"id"`
 	PoolID string             `json:"pool_id"`
 	Term   procdef.CallSpecME `json:"term"`
 }
@@ -14,10 +14,10 @@ type IdentME struct {
 	ProcID string `param:"id"`
 }
 
-type RefME struct {
-	ProcID string `json:"proc_id"`
+type ExecRefME struct {
+	ExecID string `json:"exec_id"`
 }
 
-type SnapME struct {
-	ProcID string `json:"proc_id"`
+type ExecSnapME struct {
+	ExecID string `json:"exec_id"`
 }

@@ -5,7 +5,7 @@ import (
 )
 
 type Repo interface {
-	InsertProc(sd.Source, ProcRec) error
+	InsertProc(sd.Source, DefRec) error
 }
 
 type TermRecDS struct {

@@ -1,26 +1,25 @@
 package typedef
 
-type TypeSpecME struct {
-	TypeQN string     `json:"qn"`
-	TypeTS TermSpecME `json:"state"`
+type DefSpecME struct {
+	TypeQN string     `json:"type_qn"`
+	TypeTS TermSpecME `json:"type_ts"`
 }
 
 type IdentME struct {
-	ID string `json:"id" param:"id"`
+	DefID string `json:"def_id" param:"id"`
 }
 
-type TypeRefME struct {
-	TypeID string `json:"id" param:"id"`
-	TypeRN int64  `json:"rev" query:"rev"`
-	Title  string `json:"title"`
+type DefRefME struct {
+	DefID string `json:"def_id" param:"id"`
+	DefRN int64  `json:"def_rn" query:"rn"`
 }
 
-type TypeSnapME struct {
-	TypeID string     `json:"id" param:"id"`
-	TypeRN int64      `json:"rev" query:"rev"`
+type DefSnapME struct {
+	DefID  string     `json:"def_id" param:"id"`
+	DefRN  int64      `json:"def_rn" query:"rn"`
 	Title  string     `json:"title"`
-	TypeQN string     `json:"qn"`
-	TypeTS TermSpecME `json:"state"`
+	TypeQN string     `json:"type_qn"`
+	TypeTS TermSpecME `json:"type_ts"`
 }
 
 type TermSpecME struct {
@@ -33,12 +32,12 @@ type TermSpecME struct {
 }
 
 type LinkSpecME struct {
-	QN string `json:"qn"`
+	TypeQN string `json:"type_qn"`
 }
 
 type ProdSpecME struct {
-	Value TermSpecME `json:"value"`
-	Cont  TermSpecME `json:"cont"`
+	ValTS  TermSpecME `json:"value"`
+	ContTS TermSpecME `json:"cont"`
 }
 
 type SumSpecME struct {
@@ -46,13 +45,13 @@ type SumSpecME struct {
 }
 
 type ChoiceSpecME struct {
-	Label string     `json:"label"`
-	Cont  TermSpecME `json:"cont"`
+	Label  string     `json:"label"`
+	ContTS TermSpecME `json:"cont"`
 }
 
 type TermRefME struct {
-	ID string     `json:"id" param:"id"`
-	K  termKindME `json:"kind"`
+	TermID string     `json:"term_id" param:"id"`
+	K      termKindME `json:"kind"`
 }
 
 type termKindME string

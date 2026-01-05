@@ -1,8 +1,6 @@
 package poolexec
 
-import (
-	"orglang/orglang/adt/procdef"
-)
+import "orglang/orglang/adt/procexp"
 
 type ExecSpecME struct {
 	SigQN   string   `json:"sig_qn"`
@@ -20,13 +18,13 @@ type ExecRefME struct {
 }
 
 type ExecSnapME struct {
-	PoolID string      `json:"id"`
+	PoolID string      `json:"pool_id"`
 	Title  string      `json:"title"`
 	Subs   []ExecRefME `json:"subs"`
 }
 
 type StepSpecME struct {
-	PoolID string             `json:"pool_id"`
-	ProcID string             `json:"proc_id"`
-	Term   procdef.TermSpecME `json:"term"`
+	PoolID string            `json:"pool_id"`
+	ProcID string            `json:"proc_id"`
+	Term   procexp.ExpSpecME `json:"term"`
 }

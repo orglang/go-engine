@@ -1,17 +1,15 @@
 package procexec
 
-import (
-	"orglang/orglang/adt/procdef"
-)
+import "orglang/orglang/adt/procexp"
 
 type ExecSpecME struct {
-	ProcID string             `json:"exec_id" param:"id"`
+	ExecID string             `json:"exec_id" param:"id"`
 	PoolID string             `json:"pool_id"`
-	Term   procdef.CallSpecME `json:"term"`
+	Term   procexp.CallSpecME `json:"term"`
 }
 
 type IdentME struct {
-	ProcID string `param:"id"`
+	ExecID string `param:"id"`
 }
 
 type ExecRefME struct {

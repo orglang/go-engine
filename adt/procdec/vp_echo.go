@@ -99,7 +99,7 @@ func (p *presenterEcho) GetOne(c echo.Context) error {
 		p.log.Error("dto mapping failed")
 		return err
 	}
-	snap, err := p.api.Retrieve(id)
+	snap, err := p.api.RetrieveSnap(id)
 	if err != nil {
 		p.log.Error("snap retrieval failed")
 		return err

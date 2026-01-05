@@ -17,7 +17,7 @@ import (
 type API interface {
 	Incept(qualsym.ADT) (DecRef, error)
 	Create(DecSpec) (DecSnap, error)
-	Retrieve(identity.ADT) (DecSnap, error)
+	RetrieveSnap(identity.ADT) (DecSnap, error)
 	RetreiveRefs() ([]DecRef, error)
 }
 
@@ -52,8 +52,8 @@ type DecSnap struct {
 }
 
 type service struct {
-	procs    Repo
-	aliases  syndec.Repo
+	procDecs Repo
+	synDecs  syndec.Repo
 	operator sd.Operator
 	log      *slog.Logger
 }
@@ -71,14 +71,14 @@ func (s *service) Incept(procQN qualsym.ADT) (_ DecRef, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("procQN", procQN)
 	s.log.Debug("inception started", qnAttr)
-	newAlias := syndec.DecRec{DecQN: procQN, DecID: identity.New(), DecRN: revnum.Initial()}
-	newRec := DecRec{DecID: newAlias.DecID, DecRN: newAlias.DecRN, Title: newAlias.DecQN.SN()}
+	newSyn := syndec.DecRec{DecQN: procQN, DecID: identity.New(), DecRN: revnum.Initial()}
+	newRec := DecRec{DecID: newSyn.DecID, DecRN: newSyn.DecRN, Title: newSyn.DecQN.SN()}
 	s.operator.Explicit(ctx, func(ds sd.Source) error {
-		err = s.aliases.Insert(ds, newAlias)
+		err = s.synDecs.Insert(ds, newSyn)
 		if err != nil {
 			return err
 		}
-		err = s.procs.Insert(ds, newRec)
+		err = s.procDecs.Insert(ds, newRec)
 		if err != nil {
 			return err
 		}
@@ -103,7 +103,7 @@ func (s *service) Create(spec DecSpec) (_ DecSnap, err error) {
 		DecRN: revnum.Initial(),
 	}
 	s.operator.Explicit(ctx, func(ds sd.Source) error {
-		err = s.procs.Insert(ds, newRec)
+		err = s.procDecs.Insert(ds, newRec)
 		if err != nil {
 			return err
 		}
@@ -117,10 +117,10 @@ func (s *service) Create(spec DecSpec) (_ DecSnap, err error) {
 	return ConvertRecToSnap(newRec), nil
 }
 
-func (s *service) Retrieve(decID identity.ADT) (snap DecSnap, err error) {
+func (s *service) RetrieveSnap(decID identity.ADT) (snap DecSnap, err error) {
 	ctx := context.Background()
 	s.operator.Implicit(ctx, func(ds sd.Source) error {
-		snap, err = s.procs.SelectByID(ds, decID)
+		snap, err = s.procDecs.SelectByID(ds, decID)
 		return err
 	})
 	if err != nil {
@@ -133,7 +133,7 @@ func (s *service) Retrieve(decID identity.ADT) (snap DecSnap, err error) {
 func (s *service) RetreiveRefs() (refs []DecRef, err error) {
 	ctx := context.Background()
 	s.operator.Implicit(ctx, func(ds sd.Source) error {
-		refs, err = s.procs.SelectAll(ds)
+		refs, err = s.procDecs.SelectAll(ds)
 		return err
 	})
 	if err != nil {

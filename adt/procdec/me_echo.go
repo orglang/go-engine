@@ -64,7 +64,7 @@ func (h *handlerEcho) GetOne(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	snap, err := h.api.Retrieve(id)
+	snap, err := h.api.RetrieveSnap(id)
 	if err != nil {
 		return err
 	}

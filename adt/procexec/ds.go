@@ -6,7 +6,7 @@ import (
 	"orglang/orglang/lib/sd"
 
 	"orglang/orglang/adt/identity"
-	"orglang/orglang/adt/procdef"
+	"orglang/orglang/adt/procexp"
 )
 
 type execRepo interface {
@@ -39,11 +39,11 @@ type bndDS struct {
 }
 
 type SemRecDS struct {
-	ID  string            `db:"id"`
-	K   semKindDS         `db:"kind"`
-	PID sql.NullString    `db:"pid"`
-	VID sql.NullString    `db:"vid"`
-	TR  procdef.TermRecDS `db:"spec"`
+	ID  string           `db:"id"`
+	K   semKindDS        `db:"kind"`
+	PID sql.NullString   `db:"pid"`
+	VID sql.NullString   `db:"vid"`
+	TR  procexp.ExpRecDS `db:"spec"`
 }
 
 type semKindDS int

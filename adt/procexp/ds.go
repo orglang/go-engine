@@ -1,22 +1,11 @@
-package procdef
+package procexp
 
 import (
 	"orglang/orglang/lib/sd"
 )
 
 type Repo interface {
-	InsertProc(sd.Source, DefRec) error
-}
-
-type ExpRecDS struct {
-	K     expKindDS   `json:"k"`
-	Close *closeRecDS `json:"close,omitempty"`
-	Wait  *waitRecDS  `json:"wait,omitempty"`
-	Send  *sendRecDS  `json:"send,omitempty"`
-	Recv  *recvRecDS  `json:"recv,omitempty"`
-	Lab   *labRecDS   `json:"lab,omitempty"`
-	Case  *caseRecDS  `json:"case,omitempty"`
-	Fwd   *fwdRecDS   `json:"fwd,omitempty"`
+	Insert(sd.Source, ExpRec) error
 }
 
 type ExpSpecDS struct {
@@ -30,10 +19,21 @@ type ExpSpecDS struct {
 	Fwd   *fwdSpecDS   `json:"fwd,omitempty"`
 }
 
+type ExpRecDS struct {
+	K     expKindDS   `json:"k"`
+	Close *closeRecDS `json:"close,omitempty"`
+	Wait  *waitRecDS  `json:"wait,omitempty"`
+	Send  *sendRecDS  `json:"send,omitempty"`
+	Recv  *recvRecDS  `json:"recv,omitempty"`
+	Lab   *labRecDS   `json:"lab,omitempty"`
+	Case  *caseRecDS  `json:"case,omitempty"`
+	Fwd   *fwdRecDS   `json:"fwd,omitempty"`
+}
+
 type expKindDS int
 
 const (
-	nonterm = expKindDS(iota)
+	nonexp = expKindDS(iota)
 	closeKind
 	waitKind
 	sendKind

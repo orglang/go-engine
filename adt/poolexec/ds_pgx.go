@@ -10,10 +10,9 @@ import (
 	"orglang/orglang/lib/sd"
 
 	"orglang/orglang/adt/identity"
+	"orglang/orglang/adt/procexec"
 	"orglang/orglang/adt/revnum"
 	"orglang/orglang/adt/termctx"
-
-	"orglang/orglang/adt/procexec"
 )
 
 // Adapter

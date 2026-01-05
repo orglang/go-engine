@@ -43,7 +43,7 @@ func (cl *sdkResty) Create(spec DecSpec) (DecSnap, error) {
 	return MsgToDecSnap(res)
 }
 
-func (c *sdkResty) Retrieve(id identity.ADT) (DecSnap, error) {
+func (c *sdkResty) RetrieveSnap(id identity.ADT) (DecSnap, error) {
 	var res DecSnapME
 	resp, err := c.resty.R().
 		SetResult(&res).

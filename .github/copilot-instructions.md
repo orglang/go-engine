@@ -11,6 +11,7 @@ This a visual programming language to support organization development and manag
   - `typeexp`: Type expression entity
   - `procdec`: Process declaration aggregate
   - `procdef`: Process definition entity
+  - `procexp`: Process expression entity
   - `procexec`: Process execution aggregate
   - `pooldec`: Pool declaration aggregate
   - `pooldef`: Pool definition entity

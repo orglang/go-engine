@@ -10,6 +10,7 @@ import (
 	"orglang/orglang/adt/identity"
 	"orglang/orglang/adt/procdec"
 	"orglang/orglang/adt/procdef"
+	"orglang/orglang/adt/procexp"
 	"orglang/orglang/adt/qualsym"
 	"orglang/orglang/adt/revnum"
 	"orglang/orglang/adt/typedef"
@@ -31,7 +32,7 @@ type MsgRec struct {
 	PoolID identity.ADT
 	ProcID identity.ADT
 	ChnlID identity.ADT
-	Val    procdef.TermRec
+	Val    procexp.ExpRec
 	PoolRN revnum.ADT
 	ProcRN revnum.ADT
 }
@@ -42,7 +43,7 @@ type SvcRec struct {
 	PoolID identity.ADT
 	ProcID identity.ADT
 	ChnlID identity.ADT
-	Cont   procdef.TermRec
+	Cont   procexp.ExpRec
 	PoolRN revnum.ADT
 }
 
@@ -51,7 +52,7 @@ func (r SvcRec) step() identity.ADT { return r.ChnlID }
 type ExecSpec struct {
 	PoolID identity.ADT
 	ExecID identity.ADT
-	ProcTS procdef.TermSpec
+	ProcES procexp.ExpSpec
 }
 
 type ExecRef struct {
@@ -172,12 +173,12 @@ func (s *service) Run(spec ExecSpec) (err error) {
 		return err
 	}
 	var mainEnv Env
-	err = s.checkType(spec.PoolID, mainEnv, mainCfg, spec.ProcTS)
+	err = s.checkType(spec.PoolID, mainEnv, mainCfg, spec.ProcES)
 	if err != nil {
 		s.log.Error("creation failed", idAttr)
 		return err
 	}
-	mainMod, err := s.createWith(mainEnv, mainCfg, spec.ProcTS)
+	mainMod, err := s.createWith(mainEnv, mainCfg, spec.ProcES)
 	if err != nil {
 		s.log.Error("creation failed", idAttr)
 		return err
@@ -205,7 +206,7 @@ func (s *service) checkType(
 	poolID identity.ADT,
 	mainEnv Env,
 	mainCfg MainCfg,
-	termSpec procdef.TermSpec,
+	termSpec procexp.ExpSpec,
 ) error {
 	imp, ok := mainCfg.Bnds[termSpec.Via()]
 	if !ok {
@@ -222,7 +223,7 @@ func (s *service) checkProvider(
 	poolID identity.ADT,
 	mainEnv Env,
 	mainCfg MainCfg,
-	ts procdef.TermSpec,
+	ts procexp.ExpSpec,
 ) error {
 	return nil
 }
@@ -231,7 +232,7 @@ func (s *service) checkClient(
 	poolID identity.ADT,
 	mainEnv Env,
 	mainCfg MainCfg,
-	ts procdef.TermSpec,
+	ts procexp.ExpSpec,
 ) error {
 	return nil
 }
@@ -239,13 +240,13 @@ func (s *service) checkClient(
 func (s *service) createWith(
 	mainEnv Env,
 	procCfg MainCfg,
-	ts procdef.TermSpec,
+	ts procexp.ExpSpec,
 ) (
 	procMod MainMod,
 	_ error,
 ) {
 	switch termSpec := ts.(type) {
-	case procdef.CallSpecOld:
+	case procexp.CallSpecOld:
 		viaCord, ok := procCfg.Bnds[termSpec.X]
 		if !ok {
 			err := procdef.ErrMissingInCfg(termSpec.X)
@@ -270,11 +271,11 @@ func (s *service) createWith(
 		}
 		s.log.Debug("coordination succeed")
 		return procMod, nil
-	case procdef.SpawnSpecOld:
+	case procexp.SpawnSpecOld:
 		s.log.Debug("coordination succeed")
 		return procMod, nil
 	default:
-		panic(procdef.ErrTermTypeUnexpected(ts))
+		panic(procexp.ErrExpTypeUnexpected(ts))
 	}
 }
 

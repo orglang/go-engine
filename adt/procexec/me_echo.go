@@ -31,8 +31,8 @@ func (h *handlerEcho) GetSnap(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	idAttr := slog.Any("procID", dto.ProcID)
-	id, err := identity.ConvertFromString(dto.ProcID)
+	idAttr := slog.Any("procID", dto.ExecID)
+	id, err := identity.ConvertFromString(dto.ExecID)
 	if err != nil {
 		h.log.Error("mapping failed", idAttr)
 		return err
@@ -50,7 +50,7 @@ func (h *handlerEcho) PostCall(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	idAttr := slog.Any("procID", dto.ProcID)
+	idAttr := slog.Any("procID", dto.ExecID)
 	spec, err := MsgToExecSpec(dto)
 	if err != nil {
 		h.log.Error("mapping failed", idAttr)

@@ -3,7 +3,7 @@ package procexec
 import (
 	"fmt"
 
-	"orglang/orglang/adt/procdef"
+	"orglang/orglang/adt/procexp"
 )
 
 func dataFromSemRec(r SemRec) (SemRecDS, error) {
@@ -12,7 +12,7 @@ func dataFromSemRec(r SemRec) (SemRecDS, error) {
 	}
 	switch rec := r.(type) {
 	case MsgRec:
-		msgVal, err := procdef.DataFromTermRec(rec.Val)
+		msgVal, err := procexp.DataFromExpRec(rec.Val)
 		if err != nil {
 			return SemRecDS{}, err
 		}
@@ -21,7 +21,7 @@ func dataFromSemRec(r SemRec) (SemRecDS, error) {
 			TR: msgVal,
 		}, nil
 	case SvcRec:
-		svcCont, err := procdef.DataFromTermRec(rec.Cont)
+		svcCont, err := procexp.DataFromExpRec(rec.Cont)
 		if err != nil {
 			return SemRecDS{}, err
 		}
@@ -41,13 +41,13 @@ func dataToSemRec(dto SemRecDS) (SemRec, error) {
 	}
 	switch dto.K {
 	case msgKind:
-		val, err := procdef.DataToTermRec(dto.TR)
+		val, err := procexp.DataToExpRec(dto.TR)
 		if err != nil {
 			return nil, err
 		}
 		return MsgRec{Val: val}, nil
 	case svcKind:
-		cont, err := procdef.DataToTermRec(dto.TR)
+		cont, err := procexp.DataToExpRec(dto.TR)
 		if err != nil {
 			return nil, err
 		}

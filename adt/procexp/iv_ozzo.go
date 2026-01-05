@@ -1,4 +1,4 @@
-package procdef
+package procexp
 
 import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -8,19 +8,14 @@ import (
 	"orglang/orglang/adt/termctx"
 )
 
-var semKindRequired = []validation.Rule{
-	validation.Required,
-	validation.In(Msg, Svc),
-}
-
-var termKindRequired = []validation.Rule{
+var expKindRequired = []validation.Rule{
 	validation.Required,
 	validation.In(Close, Wait, Send, Recv, Lab, Case, Spawn, Fwd, Call),
 }
 
-func (dto TermSpecME) Validate() error {
+func (dto ExpSpecME) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.K, termKindRequired...),
+		validation.Field(&dto.K, expKindRequired...),
 		validation.Field(&dto.Close, validation.Required.When(dto.K == Close)),
 		validation.Field(&dto.Wait, validation.Required.When(dto.K == Wait)),
 		validation.Field(&dto.Send, validation.Required.When(dto.K == Send)),
@@ -42,7 +37,7 @@ func (dto CloseSpecME) Validate() error {
 func (dto WaitSpecME) Validate() error {
 	return validation.ValidateStruct(&dto,
 		validation.Field(&dto.X, validation.Required),
-		validation.Field(&dto.Cont, validation.Required),
+		validation.Field(&dto.ContES, validation.Required),
 	)
 }
 
@@ -57,7 +52,7 @@ func (dto RecvSpecME) Validate() error {
 	return validation.ValidateStruct(&dto,
 		validation.Field(&dto.X, validation.Required),
 		validation.Field(&dto.Y, validation.Required),
-		validation.Field(&dto.Cont, validation.Required),
+		validation.Field(&dto.ContES, validation.Required),
 	)
 }
 
@@ -82,14 +77,14 @@ func (dto CaseSpecME) Validate() error {
 func (dto BranchSpecME) Validate() error {
 	return validation.ValidateStruct(&dto,
 		validation.Field(&dto.Label, qualsym.Required...),
-		validation.Field(&dto.Cont, validation.Required),
+		validation.Field(&dto.ContES, validation.Required),
 	)
 }
 
 func (dto CallSpecME) Validate() error {
 	return validation.ValidateStruct(&dto,
 		validation.Field(&dto.X, validation.Required),
-		validation.Field(&dto.SigPH, identity.Required...),
+		validation.Field(&dto.ProcQN, identity.Required...),
 		validation.Field(&dto.Ys, termctx.Optional...),
 	)
 }
@@ -97,9 +92,8 @@ func (dto CallSpecME) Validate() error {
 func (dto SpawnSpecME) Validate() error {
 	return validation.ValidateStruct(&dto,
 		validation.Field(&dto.X, validation.Required),
-		validation.Field(&dto.SigID, identity.Required...),
+		validation.Field(&dto.DecID, identity.Required...),
 		validation.Field(&dto.Ys, termctx.Optional...),
-		// validation.Field(&dto.Cont, validation.Required),
 	)
 }
 

@@ -2,29 +2,31 @@
 
 This is a programming language to support organization development and management.
 
-## Design Principles
+## Design
 
-### Explicit Abstraction Elaboration
+Any software, in essence, is a pile of abstractions.
+
+### Principles
+
+Project architecture reflects following design principles.
+
+#### Explicit Abstraction Elaboration
 
 - Domain-Driven Design
 
-### Core and Periphery Separation
+#### Core and Periphery Separation
 
 - Functional Core and Imperative Shell
-- Hexagonal/Onion/Clean Architecture
+- Hexagonal/Onion Architecture
 
-### Data and Behavior Separation
+#### Data and Behavior Separation
 
 - Functional Programming
 
-### Vertical and Horizontal Slicing
+#### Vertical then Horizontal Decomposition
 
 - Vertical Slice Architecture
 - Layered Architecture
-
-## Conceptualization
-
-Any software, in essence, is a pile of abstractions.
 
 ### Kinds
 

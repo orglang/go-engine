@@ -1,6 +1,26 @@
 # Orglang
 
-This a programming language to support organization development and management.
+This is a programming language to support organization development and management.
+
+## Design Principles
+
+### Explicit Abstraction Elaboration
+
+- Domain-Driven Design
+
+### Core and Periphery Separation
+
+- Functional Core and Imperative Shell
+- Hexagonal/Onion/Clean Architecture
+
+### Data and Behavior Separation
+
+- Functional Programming
+
+### Vertical and Horizontal Slicing
+
+- Vertical Slice Architecture
+- Layered Architecture
 
 ## Conceptualization
 
@@ -53,17 +73,17 @@ Package structure reflects abstraction layers.
     - API interfaces (primary ports)
     - Service structs (core behaviors)
 - `me.go`: Pure message exchange (ME) logic
-    - Exchange specific DTO's (borderline models)
+    - Exchange specific DTO's (edge models)
 - `vp.go`: Pure view presentation (VP) logic
-    - Presentation specific DTO's (borderline models)
+    - Presentation specific DTO's (edge models)
 - `ds.go`: Pure data storage (DS) logic
-    - Storage specific DTO's (borderline models)
+    - Storage specific DTO's (edge models)
     - Repository interfaces (secondary ports)
 - `iv.go`: Pure input validation (IV) logic
     - Message validation harness
     - Props validation harness
 - `pc.go`: Pure property configuration (PC) logic
-    - Configuration specific DTO's (borderline models)
+    - Configuration specific DTO's (edge models)
 - `tc.go`: Pure type conversion (TC) logic
     - Domain to domain conversions
     - Domain to message conversions and vice versa
@@ -88,14 +108,14 @@ Code structure reflects abstraction aspects.
 
 - `aggregate`: Concurrency-aware abstraction
     - Consumed by controller adapters
-    - Specified by `API` interfaces
-    - Implemented by `Service` structs
+    - Specified by `api` interfaces
+    - Implemented by `service` structs
 - `entity`: Identity-aware abstraction
-    - Consumed by `Service` structs
-    - Specified by `Repo` interfaces
+    - Consumed by `service` structs
+    - Specified by `repo` interfaces
     - Implemented by DAO adapters
 - `value`: Classical data abstraction
-    - Consumed by `entity` or `aggregate` structs
+    - Consumed by `entity` or `aggregate` abstractions
     - Specified by `ADT` types and/or interfaces
     - Implemented by concrete types and/or structs
 

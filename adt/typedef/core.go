@@ -13,6 +13,7 @@ import (
 	"orglang/go-runtime/adt/symbol"
 	"orglang/go-runtime/adt/syndec"
 	"orglang/go-runtime/adt/typeexp"
+	"orglang/go-runtime/adt/uniqref"
 	"orglang/go-runtime/adt/uniqsym"
 )
 
@@ -20,35 +21,30 @@ type API interface {
 	Incept(uniqsym.ADT) (DefRef, error)
 	Create(DefSpec) (DefSnap, error)
 	Modify(DefSnap) (DefSnap, error)
-	Retrieve(identity.ADT) (DefSnap, error)
+	RetrieveSnap(DefRef) (DefSnap, error)
 	retrieveSnap(DefRec) (DefSnap, error)
 	RetreiveRefs() ([]DefRef, error)
 }
+
+type DefRef = uniqref.ADT
 
 type DefSpec struct {
 	TypeQN uniqsym.ADT
 	TypeES typeexp.ExpSpec
 }
 
-type DefRef struct {
-	DefID identity.ADT
-	DefRN revnum.ADT
-}
-
 // aka TpDef
 type DefRec struct {
-	DefID identity.ADT
+	ref   DefRef
 	Title string
 	ExpID identity.ADT
-	DefRN revnum.ADT
 }
 
 type DefSnap struct {
-	DefID  identity.ADT
+	ref    DefRef
 	Title  string
 	TypeQN uniqsym.ADT
 	TypeES typeexp.ExpSpec
-	DefRN  revnum.ADT
 }
 
 type Context struct {
@@ -83,8 +79,8 @@ func (s *service) Incept(typeQN uniqsym.ADT) (_ DefRef, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("typeQN", typeQN)
 	s.log.Debug("inception started", qnAttr)
-	newSyn := syndec.DecRec{DecQN: typeQN, DecID: identity.New(), DecRN: revnum.Initial()}
-	newType := DefRec{DefID: newSyn.DecID, DefRN: newSyn.DecRN, Title: symbol.ConvertToString(newSyn.DecQN.Sym())}
+	newSyn := syndec.DecRec{DecQN: typeQN, DecID: identity.New(), DecRN: revnum.New()}
+	newType := DefRec{ref: DefRef{ID: newSyn.DecID, RN: newSyn.DecRN}, Title: symbol.ConvertToString(newSyn.DecQN.Sym())}
 	s.operator.Explicit(ctx, func(ds db.Source) error {
 		err = s.synDecs.Insert(ds, newSyn)
 		if err != nil {
@@ -100,7 +96,7 @@ func (s *service) Incept(typeQN uniqsym.ADT) (_ DefRef, err error) {
 		s.log.Error("inception failed", qnAttr)
 		return DefRef{}, err
 	}
-	s.log.Debug("inception succeed", qnAttr, slog.Any("defID", newType.DefID))
+	s.log.Debug("inception succeed", qnAttr, slog.Any("defRef", newType.ref))
 	return ConvertRecToRef(newType), nil
 }
 
@@ -108,20 +104,19 @@ func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("typeQN", spec.TypeQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
-	newAlias := syndec.DecRec{DecQN: spec.TypeQN, DecID: identity.New(), DecRN: revnum.Initial()}
-	newTerm := typeexp.ConvertSpecToRec(spec.TypeES)
+	newSyn := syndec.DecRec{DecQN: spec.TypeQN, DecID: identity.New(), DecRN: revnum.New()}
+	newExp := typeexp.ConvertSpecToRec(spec.TypeES)
 	newType := DefRec{
-		DefID: newAlias.DecID,
-		DefRN: newAlias.DecRN,
-		Title: symbol.ConvertToString(newAlias.DecQN.Sym()),
-		ExpID: newTerm.Ident(),
+		ref:   DefRef{ID: newSyn.DecID, RN: newSyn.DecRN},
+		Title: symbol.ConvertToString(newSyn.DecQN.Sym()),
+		ExpID: newExp.Ident(),
 	}
 	s.operator.Explicit(ctx, func(ds db.Source) error {
-		err = s.synDecs.Insert(ds, newAlias)
+		err = s.synDecs.Insert(ds, newSyn)
 		if err != nil {
 			return err
 		}
-		err = s.typeExps.InsertRec(ds, newTerm)
+		err = s.typeExps.InsertRec(ds, newExp)
 		if err != nil {
 			return err
 		}
@@ -135,38 +130,37 @@ func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 		s.log.Error("creation failed", qnAttr)
 		return DefSnap{}, err
 	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("defID", newType.DefID))
+	s.log.Debug("creation succeed", qnAttr, slog.Any("defRef", newType.ref))
 	return DefSnap{
-		DefID:  newType.DefID,
-		DefRN:  newType.DefRN,
+		ref:    newType.ref,
 		Title:  newType.Title,
-		TypeQN: newAlias.DecQN,
-		TypeES: typeexp.ConvertRecToSpec(newTerm),
+		TypeQN: newSyn.DecQN,
+		TypeES: typeexp.ConvertRecToSpec(newExp),
 	}, nil
 }
 
 func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 	ctx := context.Background()
-	idAttr := slog.Any("defID", snap.DefID)
-	s.log.Debug("modification started", idAttr)
+	refAttr := slog.Any("defRef", snap.ref)
+	s.log.Debug("modification started", refAttr)
 	var rec DefRec
 	s.operator.Implicit(ctx, func(ds db.Source) error {
-		rec, err = s.typeDefs.SelectRecByID(ds, snap.DefID)
+		rec, err = s.typeDefs.SelectRecByID(ds, snap.ref)
 		return err
 	})
 	if err != nil {
-		s.log.Error("modification failed", idAttr)
+		s.log.Error("modification failed", refAttr)
 		return DefSnap{}, err
 	}
-	if snap.DefRN != rec.DefRN {
-		s.log.Error("modification failed", idAttr)
-		return DefSnap{}, errConcurrentModification(snap.DefRN, rec.DefRN)
+	if snap.ref.RN != rec.ref.RN {
+		s.log.Error("modification failed", refAttr)
+		return DefSnap{}, errConcurrentModification(snap.ref.RN, rec.ref.RN)
 	} else {
-		snap.DefRN = revnum.Next(snap.DefRN)
+		snap.ref.RN = revnum.Next(snap.ref.RN)
 	}
 	curSnap, err := s.retrieveSnap(rec)
 	if err != nil {
-		s.log.Error("modification failed", idAttr)
+		s.log.Error("modification failed", refAttr)
 		return DefSnap{}, err
 	}
 	s.operator.Explicit(ctx, func(ds db.Source) error {
@@ -177,9 +171,9 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 				return err
 			}
 			rec.ExpID = newTerm.Ident()
-			rec.DefRN = snap.DefRN
+			rec.ref.RN = snap.ref.RN
 		}
-		if rec.DefRN == snap.DefRN {
+		if rec.ref.RN == snap.ref.RN {
 			err = s.typeDefs.Update(ds, rec)
 			if err != nil {
 				return err
@@ -188,14 +182,14 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 		return nil
 	})
 	if err != nil {
-		s.log.Error("modification failed", idAttr)
+		s.log.Error("modification failed", refAttr)
 		return DefSnap{}, err
 	}
-	s.log.Debug("modification succeed", idAttr)
+	s.log.Debug("modification succeed", refAttr)
 	return snap, nil
 }
 
-func (s *service) Retrieve(defID identity.ADT) (_ DefSnap, err error) {
+func (s *service) RetrieveSnap(defID DefRef) (_ DefSnap, err error) {
 	ctx := context.Background()
 	var root DefRec
 	s.operator.Implicit(ctx, func(ds db.Source) error {
@@ -217,12 +211,11 @@ func (s *service) retrieveSnap(rec DefRec) (_ DefSnap, err error) {
 		return err
 	})
 	if err != nil {
-		s.log.Error("retrieval failed", slog.Any("defID", rec.DefID))
+		s.log.Error("retrieval failed", slog.Any("defRef", rec.ref))
 		return DefSnap{}, err
 	}
 	return DefSnap{
-		DefID:  rec.DefID,
-		DefRN:  rec.DefRN,
+		ref:    rec.ref,
 		Title:  rec.Title,
 		TypeES: typeexp.ConvertRecToSpec(termRec),
 	}, nil

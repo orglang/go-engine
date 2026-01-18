@@ -86,7 +86,7 @@ func (s *service) Run(spec ExecSpec) (ExecRef, error) {
 		ExecID: identity.New(),
 		ProcID: identity.New(),
 		SupID:  spec.SupID,
-		ExecRN: revnum.Initial(),
+		ExecRN: revnum.New(),
 	}
 	liab := procexec.Liab{
 		PoolID: impl.ExecID,

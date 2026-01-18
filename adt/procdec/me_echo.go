@@ -3,34 +3,33 @@ package procdec
 import (
 	"log/slog"
 	"net/http"
+	"orglang/go-runtime/adt/uniqref"
 	"reflect"
 
 	"github.com/labstack/echo/v4"
 
 	"github.com/orglang/go-sdk/adt/procdec"
-
-	"orglang/go-runtime/adt/identity"
 )
 
 // Server-side primary adapter
-type echoHandler struct {
+type echoController struct {
 	api API
 	log *slog.Logger
 }
 
-func newEchoHandler(a API, l *slog.Logger) *echoHandler {
-	name := slog.String("name", reflect.TypeFor[echoHandler]().Name())
-	return &echoHandler{a, l.With(name)}
+func newEchoController(a API, l *slog.Logger) *echoController {
+	name := slog.String("name", reflect.TypeFor[echoController]().Name())
+	return &echoController{a, l.With(name)}
 }
 
-func cfgEchoHandler(e *echo.Echo, h *echoHandler) error {
+func cfgEchoController(e *echo.Echo, h *echoController) error {
 	e.POST("/api/v1/decs", h.PostOne)
 	e.GET("/api/v1/decs/:id", h.GetOne)
 	return nil
 }
 
-func (h *echoHandler) PostOne(c echo.Context) error {
-	var dto procdec.DecSpecME
+func (h *echoController) PostOne(c echo.Context) error {
+	var dto procdec.DecSpec
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
@@ -53,19 +52,19 @@ func (h *echoHandler) PostOne(c echo.Context) error {
 	return c.JSON(http.StatusCreated, MsgFromDecSnap(snap))
 }
 
-func (h *echoHandler) GetOne(c echo.Context) error {
-	var dto procdec.IdentME
+func (h *echoController) GetOne(c echo.Context) error {
+	var dto procdec.DecRef
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
 		return bindingErr
 	}
-	id, conversionErr := identity.ConvertFromString(dto.DecID)
+	ref, conversionErr := uniqref.MsgToADT(dto)
 	if conversionErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
 		return conversionErr
 	}
-	snap, retrievalErr := h.api.RetrieveSnap(id)
+	snap, retrievalErr := h.api.RetrieveSnap(ref)
 	if retrievalErr != nil {
 		return retrievalErr
 	}

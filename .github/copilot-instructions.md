@@ -32,38 +32,41 @@ Project architecture reflects following design principles.
 
 Repository structure reflects abstraction kinds.
 
-- `app`: Runnable program abstractions
+- `app`: Runnable program abstraction
   - `web`: Web application program
-- `adt`: Reusable data abstractions
-  - `identity`: Identification value
-  - `polarity`: Polarization value
-  - `pooldec`: Pool declaration aggregate
-  - `pooldef`: Pool definition entity
-  - `poolexec`: Pool execution aggregate
-  - `procdec`: Process declaration aggregate
-  - `procdef`: Process definition entity
-  - `procexec`: Process execution aggregate
-  - `procexp`: Process expression value
-  - `qualsym`: Qualified symbol value
-  - `revnum`: Revision number value
-  - `syndec`: Synonym declaration value
-  - `termctx`: Term context value
-  - `typedef`: Type definition aggregate
-  - `typeexp`: Type expression value
-- `lib`: Reusable behavior abstractions
+- `adt`: Reusable data abstraction
+  - `identity`: Identification value type
+  - `polarity`: Polarization value type
+  - `pooldec`: Pool declaration aggregate type
+  - `poolexec`: Pool execution aggregate type
+  - `poolexp`: Pool expression value type
+  - `procdec`: Process declaration aggregate type
+  - `procdef`: Process definition entity type
+  - `procexec`: Process execution aggregate type
+  - `procexp`: Process expression value type
+  - `procstep`: Process step value type
+  - `revnum`: Revision number value type
+  - `symbol`: Symbol value type
+  - `syndec`: Synonym declaration value type
+  - `termctx`: Term context value type
+  - `typedef`: Type definition aggregate type
+  - `typeexp`: Type expression value type
+  - `uniqref`: Unique refererence value type
+  - `uniqsym`: Unique symbol value type
+- `lib`: Reusable behavior abstraction
   - `db`: Database drivers
   - `kv`: Key-value store drivers
   - `lf`: Logging framework harness
-  - `rc`: REST client harness
   - `te`: Template engine harness
   - `ws`: Web server harness
-- `db`: Storage schema definitions
-  - `postgres`: PostgreSQL specific definitions
-- `orch`: Orchestration harness definitions
-  - `task`: Task (build tool) harness definitions
+- `db`: Storage schema definition
+  - `postgres`: PostgreSQL schema
+- `orch`: Orchestration harness definition
+  - `task`: Task (build tool) harness definition
 - `proto`: Prototype endeavors
-- `stack`: System level definitions
-- `test`: End-to-end tests and harness
+- `stack`: System level definition
+- `test`: Test level harness
+  - `e2e`: End-to-end tests
 
 ### Layers
 
@@ -111,11 +114,11 @@ Code structure reflects abstraction aspects.
 
 - `aggregate`: Concurrency-aware abstraction
     - Consumed by controller adapters
-    - Specified by `api` interfaces
+    - Specified by `API` interfaces
     - Implemented by `service` structs
 - `entity`: Identity-aware abstraction
     - Consumed by `service` structs
-    - Specified by `repo` interfaces
+    - Specified by `Repo` interfaces
     - Implemented by DAO adapters
 - `value`: Classical data abstraction
     - Consumed by `entity` or `aggregate` abstractions

@@ -12,6 +12,7 @@ import (
 	"orglang/go-runtime/lib/lf"
 
 	"orglang/go-runtime/adt/identity"
+	"orglang/go-runtime/adt/uniqref"
 )
 
 // Adapter
@@ -29,12 +30,12 @@ func newRepo() Repo {
 	return &pgxDAO{}
 }
 
-func (dao *pgxDAO) Insert(source db.Source, mod DecRec) error {
+func (dao *pgxDAO) Insert(source db.Source, rec DecRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
-	idAttr := slog.Any("id", mod.DecID)
-	dto, err := DataFromDecRec(mod)
+	refAttr := slog.Any("decRef", rec.ref)
+	dto, err := DataFromDecRec(rec)
 	if err != nil {
-		dao.log.Error("model conversion failed", idAttr)
+		dao.log.Error("model conversion failed", refAttr)
 		return err
 	}
 	insertRoot := `
@@ -50,7 +51,7 @@ func (dao *pgxDAO) Insert(source db.Source, mod DecRec) error {
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertRoot, rootArgs)
 	if err != nil {
-		dao.log.Error("query execution failed", idAttr, slog.String("q", insertRoot))
+		dao.log.Error("query execution failed", refAttr, slog.String("q", insertRoot))
 		return err
 	}
 	insertPE := `
@@ -68,7 +69,7 @@ func (dao *pgxDAO) Insert(source db.Source, mod DecRec) error {
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertPE, peArgs)
 	if err != nil {
-		dao.log.Error("query execution failed", idAttr, slog.String("q", insertPE))
+		dao.log.Error("query execution failed", refAttr, slog.String("q", insertPE))
 		return err
 	}
 	insertCE := `
@@ -95,7 +96,7 @@ func (dao *pgxDAO) Insert(source db.Source, mod DecRec) error {
 	for range dto.Ys {
 		_, err = br.Exec()
 		if err != nil {
-			dao.log.Error("query execution failed", idAttr, slog.String("q", insertCE))
+			dao.log.Error("query execution failed", refAttr, slog.String("q", insertCE))
 		}
 	}
 	if err != nil {
@@ -104,10 +105,10 @@ func (dao *pgxDAO) Insert(source db.Source, mod DecRec) error {
 	return nil
 }
 
-func (dao *pgxDAO) SelectByID(source db.Source, rid identity.ADT) (DecSnap, error) {
+func (dao *pgxDAO) SelectByID(source db.Source, ref DecRef) (DecSnap, error) {
 	ds := db.MustConform[db.SourcePgx](source)
-	idAttr := slog.Any("id", rid)
-	rows, err := ds.Conn.Query(ds.Ctx, selectById, rid.String())
+	idAttr := slog.Any("id", ref)
+	rows, err := ds.Conn.Query(ds.Ctx, selectById, ref.ID.String())
 	if err != nil {
 		dao.log.Error("query execution failed", idAttr, slog.String("q", selectById))
 		return DecSnap{}, err
@@ -128,8 +129,8 @@ func (dao *pgxDAO) SelectEnv(source db.Source, ids []identity.ADT) (map[identity
 		return nil, err
 	}
 	env := make(map[identity.ADT]DecRec, len(decs))
-	for _, s := range decs {
-		env[s.DecID] = s
+	for _, dec := range decs {
+		env[dec.ref.ID] = dec
 	}
 	return env, nil
 }
@@ -187,7 +188,7 @@ func (dao *pgxDAO) SelectAll(source db.Source) ([]DecRef, error) {
 		dao.log.Error("rows collection failed")
 		return nil, err
 	}
-	return DataToDecRefs(dtos)
+	return uniqref.DataToADTs(dtos)
 }
 
 const (

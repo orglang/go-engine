@@ -15,12 +15,12 @@ var Module = fx.Module("adt/procdec",
 	),
 	fx.Provide(
 		fx.Private,
-		newEchoHandler,
+		newEchoController,
 		newEchoPresenter,
 		fx.Annotate(newRendererStdlib, fx.As(new(te.Renderer))),
 	),
 	fx.Invoke(
-		cfgEchoHandler,
+		cfgEchoController,
 		cfgEchoPresenter,
 	),
 )

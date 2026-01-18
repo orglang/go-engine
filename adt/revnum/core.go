@@ -2,7 +2,7 @@ package revnum
 
 type ADT int64
 
-func Initial() ADT {
+func New() ADT {
 	return ADT(1)
 }
 

@@ -15,12 +15,12 @@ var Module = fx.Module("adt/typedef",
 	),
 	fx.Provide(
 		fx.Private,
-		newHandlerEcho,
+		newEchoController,
 		newEchoPresenter,
 		fx.Annotate(newRendererStdlib, fx.As(new(te.Renderer))),
 	),
 	fx.Invoke(
-		cfgHandlerEcho,
+		cfgEchoController,
 		cfgEchoPresenter,
 	),
 )

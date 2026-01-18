@@ -31,11 +31,11 @@ func newRepo() Repo {
 
 func (dao *pgxDAO) Insert(source db.Source, rec DefRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
-	idAttr := slog.Any("defID", rec.DefID)
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity insertion started", idAttr)
+	refAttr := slog.Any("defRef", rec.ref)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity insertion started", refAttr)
 	dto, err := DataFromDefRec(rec)
 	if err != nil {
-		dao.log.Error("model conversion failed", idAttr)
+		dao.log.Error("model conversion failed", refAttr)
 		return err
 	}
 	insertRoot := `
@@ -51,7 +51,7 @@ func (dao *pgxDAO) Insert(source db.Source, rec DefRec) error {
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertRoot, rootArgs)
 	if err != nil {
-		dao.log.Error("query execution failed", idAttr, slog.String("q", insertRoot))
+		dao.log.Error("query execution failed", refAttr, slog.String("q", insertRoot))
 		return err
 	}
 	insertState := `
@@ -68,20 +68,20 @@ func (dao *pgxDAO) Insert(source db.Source, rec DefRec) error {
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertState, stateArgs)
 	if err != nil {
-		dao.log.Error("query execution failed", idAttr, slog.String("q", insertState))
+		dao.log.Error("query execution failed", refAttr, slog.String("q", insertState))
 		return err
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity insertion succeed", idAttr)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity insertion succeed", refAttr)
 	return nil
 }
 
 func (dao *pgxDAO) Update(source db.Source, rec DefRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
-	idAttr := slog.Any("defID", rec.DefID)
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity update started", idAttr)
+	refAttr := slog.Any("defRef", rec.ref)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity update started", refAttr)
 	dto, err := DataFromDefRec(rec)
 	if err != nil {
-		dao.log.Error("model conversion failed", idAttr)
+		dao.log.Error("model conversion failed", refAttr)
 		return err
 	}
 	updateRoot := `
@@ -104,19 +104,19 @@ func (dao *pgxDAO) Update(source db.Source, rec DefRec) error {
 	}
 	ct, err := ds.Conn.Exec(ds.Ctx, updateRoot, args)
 	if err != nil {
-		dao.log.Error("query execution failed", idAttr, slog.String("q", updateRoot))
+		dao.log.Error("query execution failed", refAttr, slog.String("q", updateRoot))
 		return err
 	}
 	if ct.RowsAffected() == 0 {
-		dao.log.Error("entity update failed", idAttr)
-		return errOptimisticUpdate(rec.DefRN - 1)
+		dao.log.Error("entity update failed", refAttr)
+		return errOptimisticUpdate(rec.ref.RN - 1)
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertSnap, args)
 	if err != nil {
-		dao.log.Error("query execution failed", idAttr, slog.String("q", insertSnap))
+		dao.log.Error("query execution failed", refAttr, slog.String("q", insertSnap))
 		return err
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity update succeed", idAttr)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity update succeed", refAttr)
 	return nil
 }
 
@@ -141,21 +141,21 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]DefRef, error) {
 	return DataToDefRefs(dtos)
 }
 
-func (dao *pgxDAO) SelectRecByID(source db.Source, defID identity.ADT) (DefRec, error) {
+func (dao *pgxDAO) SelectRecByID(source db.Source, defRef DefRef) (DefRec, error) {
 	ds := db.MustConform[db.SourcePgx](source)
-	idAttr := slog.Any("defID", defID)
-	rows, err := ds.Conn.Query(ds.Ctx, selectById, defID.String())
+	refAttr := slog.Any("defRef", defRef)
+	rows, err := ds.Conn.Query(ds.Ctx, selectById, defRef.ID.String())
 	if err != nil {
-		dao.log.Error("query execution failed", idAttr, slog.String("q", selectById))
+		dao.log.Error("query execution failed", refAttr, slog.String("q", selectById))
 		return DefRec{}, err
 	}
 	defer rows.Close()
 	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRecDS])
 	if err != nil {
-		dao.log.Error("row collection failed", idAttr)
+		dao.log.Error("row collection failed", refAttr)
 		return DefRec{}, err
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity selection succeed", idAttr)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity selection succeed", refAttr)
 	return DataToDefRec(dto)
 }
 
@@ -177,9 +177,9 @@ func (dao *pgxDAO) SelectRecByQN(source db.Source, typeQN uniqsym.ADT) (DefRec, 
 	return DataToDefRec(dto)
 }
 
-func (dao *pgxDAO) SelectRecsByIDs(source db.Source, defIDs []identity.ADT) (_ []DefRec, err error) {
+func (dao *pgxDAO) SelectRecsByIDs(source db.Source, defRefs []DefRef) (_ []DefRec, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
-	if len(defIDs) == 0 {
+	if len(defRefs) == 0 {
 		return []DefRec{}, nil
 	}
 	query := `
@@ -188,18 +188,18 @@ func (dao *pgxDAO) SelectRecsByIDs(source db.Source, defIDs []identity.ADT) (_ [
 		from type_def_roots
 		where def_id = $1`
 	batch := pgx.Batch{}
-	for _, defID := range defIDs {
-		if defID.IsEmpty() {
+	for _, defRef := range defRefs {
+		if defRef.ID.IsEmpty() {
 			return nil, identity.ErrEmpty
 		}
-		batch.Queue(query, defID.String())
+		batch.Queue(query, defRef.ID.String())
 	}
 	br := ds.Conn.SendBatch(ds.Ctx, &batch)
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
 	var dtos []defRecDS
-	for _, defID := range defIDs {
+	for _, defID := range defRefs {
 		rows, err := br.Query()
 		if err != nil {
 			dao.log.Error("query execution failed", slog.Any("defID", defID), slog.String("q", query))

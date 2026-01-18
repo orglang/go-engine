@@ -8,8 +8,8 @@ import (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-runtime/adt/qualsym:Convert.*
 var (
-	MsgToBindClaim   func(termctx.BindClaimME) (BindClaim, error)
-	MsgFromBindClaim func(BindClaim) termctx.BindClaimME
+	MsgToBindClaim   func(termctx.BindClaim) (BindClaim, error)
+	MsgFromBindClaim func(BindClaim) termctx.BindClaim
 )
 
 // goverter:variables

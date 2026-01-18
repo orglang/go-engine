@@ -2,6 +2,7 @@ package typedef
 
 import (
 	"github.com/orglang/go-sdk/adt/typeexp"
+	"github.com/orglang/go-sdk/adt/uniqref"
 )
 
 type DefSpecVP struct {
@@ -9,11 +10,7 @@ type DefSpecVP struct {
 	TypeSN string `form:"name" json:"name"`
 }
 
-type DefRefVP struct {
-	DefID string `form:"id" json:"id" param:"id"`
-	DefRN int64  `form:"def_rn" json:"def_rn"`
-	Title string `form:"name" json:"title"`
-}
+type DefRefVP = uniqref.Msg
 
 type DefSnapVP struct {
 	DefID  string            `json:"def_id"`

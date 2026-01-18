@@ -7,14 +7,14 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/orglang/go-sdk/adt/typedef"
+	sdk "github.com/orglang/go-sdk/adt/uniqref"
 
 	"orglang/go-runtime/lib/lf"
 	"orglang/go-runtime/lib/te"
 
-	"orglang/go-runtime/adt/identity"
 	"orglang/go-runtime/adt/symbol"
 	"orglang/go-runtime/adt/typeexp"
+	"orglang/go-runtime/adt/uniqref"
 	"orglang/go-runtime/adt/uniqsym"
 )
 
@@ -83,7 +83,7 @@ func (p *echoPresenter) GetMany(c echo.Context) error {
 }
 
 func (p *echoPresenter) GetOne(c echo.Context) error {
-	var dto typedef.IdentME
+	var dto sdk.Msg
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
 		p.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
@@ -96,12 +96,12 @@ func (p *echoPresenter) GetOne(c echo.Context) error {
 		p.log.Error("validation failed", slog.Any("dto", dto))
 		return validationErr
 	}
-	id, conversionErr := identity.ConvertFromString(dto.DefID)
+	ref, conversionErr := uniqref.MsgToADT(dto)
 	if conversionErr != nil {
 		p.log.Error("conversion failed", slog.Any("dto", dto))
 		return conversionErr
 	}
-	snap, retrievalErr := p.api.Retrieve(id)
+	snap, retrievalErr := p.api.RetrieveSnap(ref)
 	if retrievalErr != nil {
 		return retrievalErr
 	}

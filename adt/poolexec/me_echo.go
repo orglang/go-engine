@@ -15,25 +15,25 @@ import (
 )
 
 // Server-side primary adapter
-type echoHandler struct {
+type echoController struct {
 	api API
 	ssr te.Renderer
 	log *slog.Logger
 }
 
-func newEchoHandler(a API, r te.Renderer, l *slog.Logger) *echoHandler {
-	name := slog.String("name", reflect.TypeFor[echoHandler]().Name())
-	return &echoHandler{a, r, l.With(name)}
+func newEchoController(a API, r te.Renderer, l *slog.Logger) *echoController {
+	name := slog.String("name", reflect.TypeFor[echoController]().Name())
+	return &echoController{a, r, l.With(name)}
 }
 
-func cfgEchoHandler(e *echo.Echo, h *echoHandler) error {
+func cfgEchoController(e *echo.Echo, h *echoController) error {
 	e.POST("/api/v1/pools", h.PostOne)
 	e.GET("/api/v1/pools/:id", h.GetOne)
 	e.POST("/api/v1/pools/:id/procs", h.PostProc)
 	return nil
 }
 
-func (h *echoHandler) PostOne(c echo.Context) error {
+func (h *echoController) PostOne(c echo.Context) error {
 	var dto poolexec.ExecSpecME
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
@@ -57,7 +57,7 @@ func (h *echoHandler) PostOne(c echo.Context) error {
 	return c.JSON(http.StatusCreated, MsgFromExecRef(ref))
 }
 
-func (h *echoHandler) GetOne(c echo.Context) error {
+func (h *echoController) GetOne(c echo.Context) error {
 	var dto poolexec.IdentME
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
@@ -74,7 +74,7 @@ func (h *echoHandler) GetOne(c echo.Context) error {
 	return c.JSON(http.StatusOK, MsgFromExecSnap(snap))
 }
 
-func (h *echoHandler) PostProc(c echo.Context) error {
+func (h *echoController) PostProc(c echo.Context) error {
 	var dto poolexec.ExecSpecME
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {

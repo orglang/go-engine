@@ -1,6 +1,8 @@
 package procdec
 
-import "github.com/orglang/go-sdk/adt/procdec"
+import (
+	"github.com/orglang/go-sdk/adt/procdec"
+)
 
 // goverter:variables
 // goverter:output:format assign-variable
@@ -13,17 +15,15 @@ var (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-runtime/adt/qualsym:Convert.*
+// goverter:extend orglang/go-runtime/adt/uniqsym:Convert.*
 // goverter:extend orglang/go-runtime/adt/termctx:Msg.*
 // goverter:extend orglang/go-runtime/adt/typedef:Msg.*
 var (
-	MsgToDecSpec    func(procdec.DecSpecME) (DecSpec, error)
-	MsgFromDecSpec  func(DecSpec) procdec.DecSpecME
-	MsgToDecRef     func(procdec.DecRefME) (DecRef, error)
-	MsgFromDecRef   func(DecRef) procdec.DecRefME
-	MsgToDecSnap    func(procdec.DecSnapME) (DecSnap, error)
-	MsgFromDecSnap  func(DecSnap) procdec.DecSnapME
-	MsgFromDecSnaps func([]DecSnap) []procdec.DecSnapME
+	MsgToDecSpec    func(procdec.DecSpec) (DecSpec, error)
+	MsgFromDecSpec  func(DecSpec) procdec.DecSpec
+	MsgToDecSnap    func(procdec.DecSnap) (DecSnap, error)
+	MsgFromDecSnap  func(DecSnap) procdec.DecSnap
+	MsgFromDecSnaps func([]DecSnap) []procdec.DecSnap
 )
 
 // goverter:variables
@@ -33,10 +33,6 @@ var (
 // goverter:extend orglang/go-runtime/adt/typedef:Msg.*
 // goverter:extend Msg.*
 var (
-	ViewFromDecRef  func(DecRef) DecRefVP
-	ViewToDecRef    func(DecRefVP) (DecRef, error)
-	ViewFromDecRefs func([]DecRef) []DecRefVP
-	ViewToDecRefs   func([]DecRefVP) ([]DecRef, error)
 	ViewFromDecSnap func(DecSnap) DecSnapVP
 )
 
@@ -46,10 +42,6 @@ var (
 // goverter:extend orglang/go-runtime/adt/termctx:Data.*
 // goverter:extend orglang/go-runtime/adt/typedef:Data.*
 var (
-	DataToDecRef     func(decRefDS) (DecRef, error)
-	DataFromDecRef   func(DecRef) decRefDS
-	DataToDecRefs    func([]decRefDS) ([]DecRef, error)
-	DataFromDecRefs  func([]DecRef) []decRefDS
 	DataToDecRec     func(decRecDS) (DecRec, error)
 	DataFromDecRec   func(DecRec) (decRecDS, error)
 	DataToDecRecs    func([]decRecDS) ([]DecRec, error)

@@ -7,8 +7,8 @@ import "github.com/orglang/go-sdk/adt/procstep"
 // goverter:extend orglang/go-runtime/adt/identity:Convert.*
 // goverter:extend orglang/go-runtime/adt/procdef:Msg.*
 var (
-	MsgFromStepSpec func(StepSpec) procstep.StepSpecME
-	MsgToStepSpec   func(procstep.StepSpecME) (StepSpec, error)
+	MsgFromStepSpec func(StepSpec) procstep.StepSpec
+	MsgToStepSpec   func(procstep.StepSpec) (StepSpec, error)
 )
 
 // goverter:variables

@@ -7,7 +7,6 @@ import (
 
 	"orglang/go-runtime/lib/db"
 	"orglang/go-runtime/lib/lf"
-	"orglang/go-runtime/lib/rc"
 	"orglang/go-runtime/lib/ws"
 
 	"orglang/go-runtime/adt/poolexec"
@@ -25,7 +24,6 @@ func main() {
 		// lib
 		db.Module,
 		lf.Module,
-		rc.Module,
 		ws.Module,
 		// adt
 		syndec.Module,

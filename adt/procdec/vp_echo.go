@@ -6,17 +6,15 @@ import (
 	"reflect"
 
 	"github.com/labstack/echo/v4"
-	"github.com/orglang/go-sdk/adt/procdec"
-
-	"orglang/go-runtime/adt/identity"
-	"orglang/go-runtime/adt/symbol"
-	"orglang/go-runtime/adt/uniqsym"
 
 	"orglang/go-runtime/lib/lf"
 	"orglang/go-runtime/lib/te"
+
+	"orglang/go-runtime/adt/symbol"
+	"orglang/go-runtime/adt/uniqref"
+	"orglang/go-runtime/adt/uniqsym"
 )
 
-// Adapter
 type echoPresenter struct {
 	api API
 	ssr te.Renderer
@@ -29,13 +27,13 @@ func newEchoPresenter(a API, r te.Renderer, l *slog.Logger) *echoPresenter {
 }
 
 func cfgEchoPresenter(e *echo.Echo, p *echoPresenter) error {
-	e.POST("/ssr/decs", p.PostOne)
-	e.GET("/ssr/decs", p.GetMany)
-	e.GET("/ssr/decs/:id", p.GetOne)
+	e.POST("/ssr/decs", p.PostSpec)
+	e.GET("/ssr/decs", p.GetRefs)
+	e.GET("/ssr/decs/:id", p.GetSnap)
 	return nil
 }
 
-func (p *echoPresenter) PostOne(c echo.Context) error {
+func (p *echoPresenter) PostSpec(c echo.Context) error {
 	var dto DecSpecVP
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
@@ -58,7 +56,7 @@ func (p *echoPresenter) PostOne(c echo.Context) error {
 	if inceptionErr != nil {
 		return inceptionErr
 	}
-	html, renderingErr := p.ssr.Render("view-one", ViewFromDecRef(ref))
+	html, renderingErr := p.ssr.Render("view-one", uniqref.MsgFromADT(ref))
 	if renderingErr != nil {
 		p.log.Error("rendering failed", slog.Any("ref", ref))
 		return renderingErr
@@ -67,12 +65,12 @@ func (p *echoPresenter) PostOne(c echo.Context) error {
 	return c.HTMLBlob(http.StatusOK, html)
 }
 
-func (p *echoPresenter) GetMany(c echo.Context) error {
+func (p *echoPresenter) GetRefs(c echo.Context) error {
 	refs, retrievalErr := p.api.RetreiveRefs()
 	if retrievalErr != nil {
 		return retrievalErr
 	}
-	html, renderingErr := p.ssr.Render("view-many", ViewFromDecRefs(refs))
+	html, renderingErr := p.ssr.Render("view-many", uniqref.MsgFromADTs(refs))
 	if renderingErr != nil {
 		p.log.Error("rendering failed", slog.Any("refs", refs))
 		return renderingErr
@@ -80,8 +78,8 @@ func (p *echoPresenter) GetMany(c echo.Context) error {
 	return c.HTMLBlob(http.StatusOK, html)
 }
 
-func (p *echoPresenter) GetOne(c echo.Context) error {
-	var dto procdec.IdentME
+func (p *echoPresenter) GetSnap(c echo.Context) error {
+	var dto DecRefVP
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
 		p.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
@@ -94,12 +92,12 @@ func (p *echoPresenter) GetOne(c echo.Context) error {
 		p.log.Error("validation failed", slog.Any("dto", dto))
 		return validationErr
 	}
-	id, conversionErr := identity.ConvertFromString(dto.DecID)
+	ref, conversionErr := uniqref.MsgToADT(dto)
 	if conversionErr != nil {
 		p.log.Error("conversion failed", slog.Any("dto", dto))
 		return conversionErr
 	}
-	snap, retrievalErr := p.api.RetrieveSnap(id)
+	snap, retrievalErr := p.api.RetrieveSnap(ref)
 	if retrievalErr != nil {
 		return retrievalErr
 	}
@@ -108,6 +106,6 @@ func (p *echoPresenter) GetOne(c echo.Context) error {
 		p.log.Error("rendering failed", slog.Any("snap", snap))
 		return renderingErr
 	}
-	p.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("id", snap.DecID))
+	p.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("decRef", snap.ref))
 	return c.HTMLBlob(http.StatusOK, html)
 }

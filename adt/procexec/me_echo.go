@@ -9,6 +9,7 @@ import (
 
 	"github.com/orglang/go-sdk/adt/procexec"
 	sdk "github.com/orglang/go-sdk/adt/procstep"
+	"github.com/orglang/go-sdk/adt/uniqref"
 
 	"orglang/go-runtime/lib/lf"
 
@@ -17,30 +18,30 @@ import (
 )
 
 // Server-side primary adapter
-type echoHandler struct {
+type echoController struct {
 	api API
 	log *slog.Logger
 }
 
-func newEchoHandler(a API, l *slog.Logger) *echoHandler {
-	return &echoHandler{a, l}
+func newEchoController(a API, l *slog.Logger) *echoController {
+	return &echoController{a, l}
 }
 
-func cfgEchoHandler(e *echo.Echo, h *echoHandler) error {
+func cfgEchoController(e *echo.Echo, h *echoController) error {
 	e.GET("/api/v1/procs/:id", h.GetSnap)
 	e.POST("/api/v1/procs/:id/execs", h.PostExec)
 	e.POST("/api/v1/pools/:id/steps", h.PostStep)
 	return nil
 }
 
-func (h *echoHandler) GetSnap(c echo.Context) error {
-	var dto procexec.IdentME
+func (h *echoController) GetSnap(c echo.Context) error {
+	var dto uniqref.Msg
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", dto))
 		return bindingErr
 	}
-	id, conversionErr := identity.ConvertFromString(dto.ExecID)
+	id, conversionErr := identity.ConvertFromString(dto.ID)
 	if conversionErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
 		return conversionErr
@@ -52,8 +53,8 @@ func (h *echoHandler) GetSnap(c echo.Context) error {
 	return c.JSON(http.StatusOK, MsgFromExecSnap(snap))
 }
 
-func (h *echoHandler) PostExec(c echo.Context) error {
-	var dto procexec.ExecSpecME
+func (h *echoController) PostExec(c echo.Context) error {
+	var dto procexec.ExecSpec
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", dto))
@@ -71,8 +72,8 @@ func (h *echoHandler) PostExec(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-func (h *echoHandler) PostStep(c echo.Context) error {
-	var dto sdk.StepSpecME
+func (h *echoController) PostStep(c echo.Context) error {
+	var dto sdk.StepSpec
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))

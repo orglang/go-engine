@@ -13,15 +13,18 @@ import (
 	"orglang/go-runtime/adt/symbol"
 	"orglang/go-runtime/adt/syndec"
 	"orglang/go-runtime/adt/termctx"
+	"orglang/go-runtime/adt/uniqref"
 	"orglang/go-runtime/adt/uniqsym"
 )
 
 type API interface {
 	Incept(uniqsym.ADT) (DecRef, error)
 	Create(DecSpec) (DecSnap, error)
-	RetrieveSnap(identity.ADT) (DecSnap, error)
+	RetrieveSnap(DecRef) (DecSnap, error)
 	RetreiveRefs() ([]DecRef, error)
 }
+
+type DecRef = uniqref.ADT
 
 type DecSpec struct {
 	ProcQN uniqsym.ADT
@@ -31,26 +34,19 @@ type DecSpec struct {
 	ReceptionEPs []termctx.BindClaim
 }
 
-type DecRef struct {
-	DecID identity.ADT
-	DecRN revnum.ADT
-}
-
 type DecRec struct {
+	ref   DecRef
 	X     termctx.BindClaim
-	DecID identity.ADT
 	Ys    []termctx.BindClaim
 	Title string
-	DecRN revnum.ADT
 }
 
 // aka ExpDec or ExpDecDef without expression
 type DecSnap struct {
+	ref   DecRef
 	X     termctx.BindClaim
-	DecID identity.ADT
 	Ys    []termctx.BindClaim
 	Title string
-	DecRN revnum.ADT
 }
 
 type service struct {
@@ -73,8 +69,8 @@ func (s *service) Incept(procQN uniqsym.ADT) (_ DecRef, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("procQN", procQN)
 	s.log.Debug("inception started", qnAttr)
-	newSyn := syndec.DecRec{DecQN: procQN, DecID: identity.New(), DecRN: revnum.Initial()}
-	newRec := DecRec{DecID: newSyn.DecID, DecRN: newSyn.DecRN, Title: symbol.ConvertToString(newSyn.DecQN.Sym())}
+	newSyn := syndec.DecRec{DecQN: procQN, DecID: identity.New(), DecRN: revnum.New()}
+	newRec := DecRec{ref: DecRef{ID: newSyn.DecID, RN: newSyn.DecRN}, Title: symbol.ConvertToString(newSyn.DecQN.Sym())}
 	s.operator.Explicit(ctx, func(ds db.Source) error {
 		err = s.synDecs.Insert(ds, newSyn)
 		if err != nil {
@@ -90,7 +86,7 @@ func (s *service) Incept(procQN uniqsym.ADT) (_ DecRef, err error) {
 		s.log.Error("inception failed", qnAttr)
 		return DecRef{}, err
 	}
-	s.log.Debug("inception succeed", qnAttr, slog.Any("decID", newRec.DecID))
+	s.log.Debug("inception succeed", qnAttr, slog.Any("decRef", newRec.ref))
 	return ConvertRecToRef(newRec), nil
 }
 
@@ -99,10 +95,9 @@ func (s *service) Create(spec DecSpec) (_ DecSnap, err error) {
 	qnAttr := slog.Any("procQN", spec.ProcQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	newRec := DecRec{
-		X:     spec.ProvisionEP,
-		DecID: identity.New(),
-		Ys:    spec.ReceptionEPs,
-		DecRN: revnum.Initial(),
+		ref: DecRef{ID: identity.New(), RN: revnum.New()},
+		X:   spec.ProvisionEP,
+		Ys:  spec.ReceptionEPs,
 	}
 	s.operator.Explicit(ctx, func(ds db.Source) error {
 		err = s.procDecs.Insert(ds, newRec)
@@ -115,18 +110,18 @@ func (s *service) Create(spec DecSpec) (_ DecSnap, err error) {
 		s.log.Error("creation failed", qnAttr)
 		return DecSnap{}, err
 	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("decID", newRec.DecID))
+	s.log.Debug("creation succeed", qnAttr, slog.Any("decRef", newRec.ref))
 	return ConvertRecToSnap(newRec), nil
 }
 
-func (s *service) RetrieveSnap(decID identity.ADT) (snap DecSnap, err error) {
+func (s *service) RetrieveSnap(ref DecRef) (snap DecSnap, err error) {
 	ctx := context.Background()
 	s.operator.Implicit(ctx, func(ds db.Source) error {
-		snap, err = s.procDecs.SelectByID(ds, decID)
+		snap, err = s.procDecs.SelectByID(ds, ref)
 		return err
 	})
 	if err != nil {
-		s.log.Error("retrieval failed", slog.Any("decID", decID))
+		s.log.Error("retrieval failed", slog.Any("decRef", ref))
 		return DecSnap{}, err
 	}
 	return snap, nil

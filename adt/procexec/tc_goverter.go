@@ -7,12 +7,12 @@ import "github.com/orglang/go-sdk/adt/procexec"
 // goverter:extend orglang/go-runtime/adt/identity:Convert.*
 // goverter:extend orglang/go-runtime/adt/procdef:Msg.*
 var (
-	MsgFromExecSpec func(ExecSpec) procexec.ExecSpecME
-	MsgToExecSpec   func(procexec.ExecSpecME) (ExecSpec, error)
-	MsgToExecRef    func(procexec.ExecRefME) (ExecRef, error)
-	MsgFromExecRef  func(ExecRef) procexec.ExecRefME
-	MsgToExecSnap   func(procexec.ExecSnapME) (ExecSnap, error)
-	MsgFromExecSnap func(ExecSnap) procexec.ExecSnapME
+	MsgFromExecSpec func(ExecSpec) procexec.ExecSpec
+	MsgToExecSpec   func(procexec.ExecSpec) (ExecSpec, error)
+	MsgToExecRef    func(procexec.ExecRef) (ExecRef, error)
+	MsgFromExecRef  func(ExecRef) procexec.ExecRef
+	MsgToExecSnap   func(procexec.ExecSnap) (ExecSnap, error)
+	MsgFromExecSnap func(ExecSnap) procexec.ExecSnap
 )
 
 // goverter:variables

@@ -12,10 +12,10 @@ var Module = fx.Module("adt/poolexec",
 	),
 	fx.Provide(
 		fx.Private,
-		newEchoHandler,
+		newEchoController,
 		fx.Annotate(newPgxDAO, fx.As(new(Repo))),
 	),
 	fx.Invoke(
-		cfgEchoHandler,
+		cfgEchoController,
 	),
 )

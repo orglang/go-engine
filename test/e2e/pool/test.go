@@ -10,7 +10,8 @@ import (
 	"go.uber.org/fx"
 
 	"orglang/go-runtime/lib/e2e"
-	"orglang/go-runtime/lib/rc"
+
+	"github.com/orglang/go-sdk/lib/rc"
 
 	"github.com/orglang/go-sdk/adt/pooldec"
 	"github.com/orglang/go-sdk/adt/poolexec"
@@ -107,7 +108,7 @@ func (s *suite) waitClose(t *testing.T) {
 	mainTypeQN := "main-type-qn"
 	closerProcQN := "closer-proc-qn"
 	waiterProcQN := "waiter-proc-qn"
-	_, err := s.typeDefAPI.Create(typedef.DefSpecME{
+	_, err := s.typeDefAPI.Create(typedef.DefSpec{
 		TypeQN: mainTypeQN,
 		TypeES: typeexp.ExpSpecME{
 			K: typeexp.UpExp,
@@ -149,11 +150,11 @@ func (s *suite) waitClose(t *testing.T) {
 	mainReceptionPH := "main-reception-ph"
 	_, err = s.poolDecAPI.Create(pooldec.DecSpecME{
 		PoolSN: mainPoolQN,
-		InsiderProvisionBC: termctx.BindClaimME{
+		InsiderProvisionBC: termctx.BindClaim{
 			BindPH: mainProvisionPH,
 			TypeQN: mainTypeQN,
 		},
-		InsiderReceptionBC: termctx.BindClaimME{
+		InsiderReceptionBC: termctx.BindClaim{
 			BindPH: mainReceptionPH,
 			TypeQN: mainTypeQN,
 		},
@@ -170,7 +171,7 @@ func (s *suite) waitClose(t *testing.T) {
 	}
 	// and
 	oneTypeQN := "one-type-qn"
-	_, err = s.typeDefAPI.Create(typedef.DefSpecME{
+	_, err = s.typeDefAPI.Create(typedef.DefSpec{
 		TypeQN: oneTypeQN,
 		TypeES: typeexp.ExpSpecME{K: typeexp.OneExp},
 	})
@@ -178,9 +179,9 @@ func (s *suite) waitClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	closerDecSpec := procdec.DecSpecME{
+	closerDecSpec := procdec.DecSpec{
 		ProcQN: closerProcQN,
-		X: termctx.BindClaimME{
+		X: termctx.BindClaim{
 			BindPH: "closer-provision-ph",
 			TypeQN: oneTypeQN,
 		},
@@ -191,19 +192,19 @@ func (s *suite) waitClose(t *testing.T) {
 	}
 	// and
 	closerProcPH := "closer-proc-ph"
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: mainExecRef.ExecID,
 		ExecID: mainExecRef.ProcID,
-		ProcES: procexp.ExpSpecME{
-			Acquire: &procexp.AcqureSpecME{
+		ProcES: procexp.ExpSpec{
+			Acquire: &procexp.AcqureSpec{
 				CommPH: mainReceptionPH,
-				ContES: procexp.ExpSpecME{
-					Call: &procexp.CallSpecME{
+				ContES: procexp.ExpSpec{
+					Call: &procexp.CallSpec{
 						CommPH: mainReceptionPH,
 						BindPH: closerProcPH,
 						ProcQN: closerProcQN,
-						ContES: procexp.ExpSpecME{
-							Release: &procexp.ReleaseSpecME{
+						ContES: procexp.ExpSpec{
+							Release: &procexp.ReleaseSpec{
 								CommPH: mainReceptionPH,
 							},
 						},
@@ -216,18 +217,18 @@ func (s *suite) waitClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: mainExecRef.ExecID,
 		ExecID: mainExecRef.ProcID,
-		ProcES: procexp.ExpSpecME{
-			Accept: &procexp.AcceptSpecME{
+		ProcES: procexp.ExpSpec{
+			Accept: &procexp.AcceptSpec{
 				CommPH: mainProvisionPH,
-				ContES: procexp.ExpSpecME{
-					Spawn: &procexp.SpawnSpecME{
+				ContES: procexp.ExpSpec{
+					Spawn: &procexp.SpawnSpec{
 						CommPH: mainProvisionPH,
 						ProcQN: closerProcQN,
-						ContES: &procexp.ExpSpecME{
-							Detach: &procexp.DetachSpecME{
+						ContES: procexp.ExpSpec{
+							Detach: &procexp.DetachSpec{
 								CommPH: mainProvisionPH,
 							},
 						},
@@ -247,10 +248,10 @@ func (s *suite) waitClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	waiterDecSpec := procdec.DecSpecME{
+	waiterDecSpec := procdec.DecSpec{
 		ProcQN: waiterProcQN,
-		X:      termctx.BindClaimME{BindPH: "waiter-provision-ph", TypeQN: oneTypeQN},
-		Ys: []termctx.BindClaimME{
+		X:      termctx.BindClaim{BindPH: "waiter-provision-ph", TypeQN: oneTypeQN},
+		Ys: []termctx.BindClaim{
 			{BindPH: "closer-reception-ph", TypeQN: oneTypeQN},
 		},
 	}
@@ -259,20 +260,20 @@ func (s *suite) waitClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: mainExecRef.ExecID,
 		ExecID: mainExecRef.ProcID,
-		ProcES: procexp.ExpSpecME{
-			Acquire: &procexp.AcqureSpecME{
+		ProcES: procexp.ExpSpec{
+			Acquire: &procexp.AcqureSpec{
 				CommPH: mainProvisionPH,
-				ContES: procexp.ExpSpecME{
-					Call: &procexp.CallSpecME{
+				ContES: procexp.ExpSpec{
+					Call: &procexp.CallSpec{
 						BindPH: mainProvisionPH,
 						CommPH: "waiter-proc-ph",
 						ProcQN: waiterProcQN,
 						ValPHs: []string{closerProcPH},
-						ContES: procexp.ExpSpecME{
-							Release: &procexp.ReleaseSpecME{
+						ContES: procexp.ExpSpec{
+							Release: &procexp.ReleaseSpec{
 								CommPH: mainProvisionPH,
 							},
 						},
@@ -285,18 +286,18 @@ func (s *suite) waitClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: mainExecRef.ExecID,
 		ExecID: mainExecRef.ProcID,
-		ProcES: procexp.ExpSpecME{
-			Accept: &procexp.AcceptSpecME{
+		ProcES: procexp.ExpSpec{
+			Accept: &procexp.AcceptSpec{
 				CommPH: mainProvisionPH,
-				ContES: procexp.ExpSpecME{
-					Spawn: &procexp.SpawnSpecME{
+				ContES: procexp.ExpSpec{
+					Spawn: &procexp.SpawnSpec{
 						CommPH: mainProvisionPH,
 						ProcQN: waiterProcQN,
-						ContES: &procexp.ExpSpecME{
-							Detach: &procexp.DetachSpecME{
+						ContES: procexp.ExpSpec{
+							Detach: &procexp.DetachSpec{
 								CommPH: mainProvisionPH,
 							},
 						},
@@ -316,11 +317,11 @@ func (s *suite) waitClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	// when
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: mainExecRef.ExecID,
-		ExecID: closerExecRef.ExecID,
-		ProcES: procexp.ExpSpecME{
-			Close: &procexp.CloseSpecME{
+		ExecID: closerExecRef.ID,
+		ProcES: procexp.ExpSpec{
+			Close: &procexp.CloseSpec{
 				CommPH: closerDecSpec.X.BindPH,
 			},
 		},
@@ -329,14 +330,14 @@ func (s *suite) waitClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: mainExecRef.ExecID,
-		ExecID: waiterExecRef.ExecID,
-		ProcES: procexp.ExpSpecME{
-			Wait: &procexp.WaitSpecME{
+		ExecID: waiterExecRef.ID,
+		ProcES: procexp.ExpSpec{
+			Wait: &procexp.WaitSpec{
 				CommPH: waiterDecSpec.Ys[0].BindPH,
-				ContES: procexp.ExpSpecME{
-					Close: &procexp.CloseSpecME{
+				ContES: procexp.ExpSpec{
+					Close: &procexp.CloseSpec{
 						CommPH: waiterDecSpec.X.BindPH,
 					},
 				},
@@ -357,7 +358,7 @@ func (s *suite) recvSend(t *testing.T) {
 	senderProcQN := "sender-proc-qn"
 	receiverProcQN := "receiver-proc-qn"
 	messageProcQN := "message-proc-qn"
-	_, err := s.typeDefAPI.Create(typedef.DefSpecME{
+	_, err := s.typeDefAPI.Create(typedef.DefSpec{
 		TypeQN: mainTypeQN,
 		TypeES: typeexp.ExpSpecME{
 			K: typeexp.UpExp,
@@ -408,11 +409,11 @@ func (s *suite) recvSend(t *testing.T) {
 	mainReceptionPH := "main-reception-ph"
 	_, err = s.poolDecAPI.Create(pooldec.DecSpecME{
 		PoolSN: mainPoolQN,
-		InsiderProvisionBC: termctx.BindClaimME{
+		InsiderProvisionBC: termctx.BindClaim{
 			BindPH: mainProvisionPH,
 			TypeQN: mainPoolQN,
 		},
-		InsiderReceptionBC: termctx.BindClaimME{
+		InsiderReceptionBC: termctx.BindClaim{
 			BindPH: mainReceptionPH,
 			TypeQN: mainPoolQN,
 		},
@@ -429,7 +430,7 @@ func (s *suite) recvSend(t *testing.T) {
 	}
 	// and
 	lolliTypeQN := "lolli-type-qn"
-	_, err = s.typeDefAPI.Create(typedef.DefSpecME{
+	_, err = s.typeDefAPI.Create(typedef.DefSpec{
 		TypeQN: lolliTypeQN,
 		TypeES: typeexp.ExpSpecME{
 			K: typeexp.LolliExp,
@@ -444,7 +445,7 @@ func (s *suite) recvSend(t *testing.T) {
 	}
 	// and
 	oneTypeQN := "one-type-qn"
-	_, err = s.typeDefAPI.Create(typedef.DefSpecME{
+	_, err = s.typeDefAPI.Create(typedef.DefSpec{
 		TypeQN: oneTypeQN,
 		TypeES: typeexp.ExpSpecME{K: typeexp.OneExp},
 	})
@@ -452,9 +453,9 @@ func (s *suite) recvSend(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	receiverDecSpec := procdec.DecSpecME{
+	receiverDecSpec := procdec.DecSpec{
 		ProcQN: receiverProcQN,
-		X: termctx.BindClaimME{
+		X: termctx.BindClaim{
 			BindPH: "receiver-provision-ph",
 			TypeQN: lolliTypeQN,
 		},
@@ -464,9 +465,9 @@ func (s *suite) recvSend(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	messageDecSpec := procdec.DecSpecME{
+	messageDecSpec := procdec.DecSpec{
 		ProcQN: messageProcQN,
-		X: termctx.BindClaimME{
+		X: termctx.BindClaim{
 			BindPH: "message-provision-ph",
 			TypeQN: oneTypeQN,
 		},
@@ -476,13 +477,13 @@ func (s *suite) recvSend(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	senderDecSpec := procdec.DecSpecME{
+	senderDecSpec := procdec.DecSpec{
 		ProcQN: senderProcQN,
-		X: termctx.BindClaimME{
+		X: termctx.BindClaim{
 			BindPH: "sender-provision-ph",
 			TypeQN: oneTypeQN,
 		},
-		Ys: []termctx.BindClaimME{
+		Ys: []termctx.BindClaim{
 			{BindPH: "receiver-reception-ph", TypeQN: lolliTypeQN},
 			{BindPH: "message-reception-ph", TypeQN: oneTypeQN},
 		},
@@ -493,11 +494,11 @@ func (s *suite) recvSend(t *testing.T) {
 	}
 	// and
 	receiverProcPH := "receiver-proc-ph"
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: mainExecRef.ExecID,
 		ExecID: mainExecRef.ProcID,
-		ProcES: procexp.ExpSpecME{
-			Call: &procexp.CallSpecME{
+		ProcES: procexp.ExpSpec{
+			Call: &procexp.CallSpec{
 				BindPH: mainReceptionPH,
 				CommPH: receiverProcPH,
 				ProcQN: receiverProcQN,
@@ -509,11 +510,11 @@ func (s *suite) recvSend(t *testing.T) {
 	}
 	// and
 	messageProcPH := "message-proc-ph"
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: mainExecRef.ExecID,
 		ExecID: mainExecRef.ProcID,
-		ProcES: procexp.ExpSpecME{
-			Call: &procexp.CallSpecME{
+		ProcES: procexp.ExpSpec{
+			Call: &procexp.CallSpec{
 				BindPH: mainReceptionPH,
 				CommPH: messageProcPH,
 				ProcQN: messageProcQN,
@@ -525,11 +526,11 @@ func (s *suite) recvSend(t *testing.T) {
 	}
 	// and
 	senderProcPH := "sender-proc-ph"
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: mainExecRef.ExecID,
 		ExecID: mainExecRef.ProcID,
-		ProcES: procexp.ExpSpecME{
-			Call: &procexp.CallSpecME{
+		ProcES: procexp.ExpSpec{
+			Call: &procexp.CallSpec{
 				BindPH: mainReceptionPH,
 				CommPH: senderProcPH,
 				ProcQN: senderProcQN,
@@ -548,11 +549,11 @@ func (s *suite) recvSend(t *testing.T) {
 		t.Fatal(err)
 	}
 	// when
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: mainExecRef.ExecID,
-		ExecID: receiverExecRef.ExecID,
-		ProcES: procexp.ExpSpecME{
-			Recv: &procexp.RecvSpecME{
+		ExecID: receiverExecRef.ID,
+		ProcES: procexp.ExpSpec{
+			Recv: &procexp.RecvSpec{
 				BindPH: receiverDecSpec.X.BindPH,
 				CommPH: "message-reception-ph",
 			},
@@ -569,11 +570,11 @@ func (s *suite) recvSend(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: mainExecRef.ExecID,
-		ExecID: senderExecRef.ExecID,
-		ProcES: procexp.ExpSpecME{
-			Send: &procexp.SendSpecME{
+		ExecID: senderExecRef.ID,
+		ProcES: procexp.ExpSpec{
+			Send: &procexp.SendSpec{
 				CommPH: senderDecSpec.Ys[0].BindPH,
 				ValPH:  senderDecSpec.Ys[1].BindPH,
 			},
@@ -599,12 +600,12 @@ func (s *suite) caseLab(t *testing.T) {
 	// and
 	label := "label-1"
 	// and
-	withRoleSpec := typedef.DefSpecME{
+	withRoleSpec := typedef.DefSpec{
 		TypeQN: "with-role",
 		TypeES: typeexp.ExpSpecME{
 			With: &typeexp.SumSpecME{
 				Choices: []typeexp.ChoiceSpecME{
-					{Label: label, ContES: typeexp.ExpSpecME{K: typeexp.OneExp}},
+					{LabQN: label, ContES: typeexp.ExpSpecME{K: typeexp.OneExp}},
 				},
 			},
 		},
@@ -614,7 +615,7 @@ func (s *suite) caseLab(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	oneRoleSpec := typedef.DefSpecME{
+	oneRoleSpec := typedef.DefSpec{
 		TypeQN: "one-role",
 		TypeES: typeexp.ExpSpecME{K: typeexp.OneExp},
 	}
@@ -623,9 +624,9 @@ func (s *suite) caseLab(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	withSigSpec := procdec.DecSpecME{
+	withSigSpec := procdec.DecSpec{
 		ProcQN: "sig-1",
-		X: termctx.BindClaimME{
+		X: termctx.BindClaim{
 			BindPH: "chnl-1",
 			TypeQN: withRole.TypeQN,
 		},
@@ -635,10 +636,10 @@ func (s *suite) caseLab(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	oneSigSpec := procdec.DecSpecME{
+	oneSigSpec := procdec.DecSpec{
 		ProcQN: "sig-2",
-		Ys:     []termctx.BindClaimME{withSig.X},
-		X: termctx.BindClaimME{
+		Ys:     []termctx.BindClaim{withSig.X},
+		X: termctx.BindClaim{
 			BindPH: "chnl-2",
 			TypeQN: oneRole.TypeQN,
 		},
@@ -649,11 +650,11 @@ func (s *suite) caseLab(t *testing.T) {
 	}
 	// and
 	followerPH := "follower"
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: mainExecRef.ExecID,
 		ExecID: mainExecRef.ProcID,
-		ProcES: procexp.ExpSpecME{
-			Call: &procexp.CallSpecME{
+		ProcES: procexp.ExpSpec{
+			Call: &procexp.CallSpec{
 				BindPH: followerPH,
 				ProcQN: "tbd",
 			},
@@ -664,11 +665,11 @@ func (s *suite) caseLab(t *testing.T) {
 	}
 	// and
 	deciderPH := "decider"
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: mainExecRef.ExecID,
 		ExecID: mainExecRef.ProcID,
-		ProcES: procexp.ExpSpecME{
-			Call: &procexp.CallSpecME{
+		ProcES: procexp.ExpSpec{
+			Call: &procexp.CallSpec{
 				BindPH: deciderPH,
 				ProcQN: "tbd",
 				ValPHs: []string{followerPH},
@@ -686,17 +687,17 @@ func (s *suite) caseLab(t *testing.T) {
 		t.Fatal(err)
 	}
 	// when
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: mainExecRef.ExecID,
-		ExecID: followerExecRef.ExecID,
-		ProcES: procexp.ExpSpecME{
-			Case: &procexp.CaseSpecME{
+		ExecID: followerExecRef.ID,
+		ProcES: procexp.ExpSpec{
+			Case: &procexp.CaseSpec{
 				CommPH: followerPH,
-				ContBSs: []procexp.BranchSpecME{
-					procexp.BranchSpecME{
-						Label: label,
-						ContES: procexp.ExpSpecME{
-							Close: &procexp.CloseSpecME{
+				ContBSs: []procexp.BranchSpec{
+					procexp.BranchSpec{
+						LabQN: label,
+						ContES: procexp.ExpSpec{
+							Close: &procexp.CloseSpec{
 								CommPH: followerPH,
 							},
 						},
@@ -716,13 +717,13 @@ func (s *suite) caseLab(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: mainExecRef.ExecID,
-		ExecID: deciderExecRef.ExecID,
-		ProcES: procexp.ExpSpecME{
-			Lab: &procexp.LabSpecME{
+		ExecID: deciderExecRef.ID,
+		ProcES: procexp.ExpSpec{
+			Lab: &procexp.LabSpec{
 				CommPH: followerPH,
-				Label:  label,
+				LabQN:  label,
 			},
 		},
 	})
@@ -745,7 +746,7 @@ func (s *suite) spawnCall(t *testing.T) {
 	}
 	// and
 	oneDef, err := s.typeDefAPI.Create(
-		typedef.DefSpecME{
+		typedef.DefSpec{
 			TypeQN: "one-type",
 			TypeES: typeexp.ExpSpecME{K: typeexp.OneExp},
 		},
@@ -754,9 +755,9 @@ func (s *suite) spawnCall(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	oneDec1, err := s.procDecAPI.Create(procdec.DecSpecME{
+	oneDec1, err := s.procDecAPI.Create(procdec.DecSpec{
 		ProcQN: "one-proc-1",
-		X: termctx.BindClaimME{
+		X: termctx.BindClaim{
 			BindPH: "chnl-1",
 			TypeQN: oneDef.TypeQN,
 		},
@@ -765,10 +766,10 @@ func (s *suite) spawnCall(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	_, err = s.procDecAPI.Create(procdec.DecSpecME{
+	_, err = s.procDecAPI.Create(procdec.DecSpec{
 		ProcQN: "one-proc-2",
-		Ys:     []termctx.BindClaimME{oneDec1.X},
-		X: termctx.BindClaimME{
+		Ys:     []termctx.BindClaim{oneDec1.X},
+		X: termctx.BindClaim{
 			BindPH: "chnl-2",
 			TypeQN: oneDef.TypeQN,
 		},
@@ -777,10 +778,10 @@ func (s *suite) spawnCall(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	oneDec3, err := s.procDecAPI.Create(procdec.DecSpecME{
+	oneDec3, err := s.procDecAPI.Create(procdec.DecSpec{
 		ProcQN: "one-proc-3",
-		Ys:     []termctx.BindClaimME{oneDec1.X},
-		X: termctx.BindClaimME{
+		Ys:     []termctx.BindClaim{oneDec1.X},
+		X: termctx.BindClaim{
 			BindPH: "chnl-3",
 			TypeQN: oneDef.TypeQN,
 		},
@@ -797,11 +798,11 @@ func (s *suite) spawnCall(t *testing.T) {
 	}
 	// and
 	injecteePH := "injectee"
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: poolExecRef.ExecID,
 		ExecID: poolExecRef.ProcID,
-		ProcES: procexp.ExpSpecME{
-			Call: &procexp.CallSpecME{
+		ProcES: procexp.ExpSpec{
+			Call: &procexp.CallSpec{
 				BindPH: injecteePH,
 				ProcQN: "tbd",
 			},
@@ -812,11 +813,11 @@ func (s *suite) spawnCall(t *testing.T) {
 	}
 	// and
 	spawnerPH := "spawner"
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: poolExecRef.ExecID,
 		ExecID: poolExecRef.ProcID,
-		ProcES: procexp.ExpSpecME{
-			Call: &procexp.CallSpecME{
+		ProcES: procexp.ExpSpec{
+			Call: &procexp.CallSpec{
 				BindPH: spawnerPH,
 				ProcQN: "tbd",
 				ValPHs: []string{injecteePH},
@@ -836,19 +837,19 @@ func (s *suite) spawnCall(t *testing.T) {
 		t.Fatal(err)
 	}
 	// when
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: poolExecRef.ExecID,
-		ExecID: spawnerExecRef.ExecID,
-		ProcES: procexp.ExpSpecME{
-			Spawn: &procexp.SpawnSpecME{
+		ExecID: spawnerExecRef.ID,
+		ProcES: procexp.ExpSpec{
+			Spawn: &procexp.SpawnSpec{
 				DecID:   oneDec3.DecID,
 				BindPHs: []string{injecteePH},
 				CommPH:  x,
-				ContES: &procexp.ExpSpecME{
-					Wait: &procexp.WaitSpecME{
+				ContES: procexp.ExpSpec{
+					Wait: &procexp.WaitSpec{
 						CommPH: x,
-						ContES: procexp.ExpSpecME{
-							Close: &procexp.CloseSpecME{
+						ContES: procexp.ExpSpec{
+							Close: &procexp.CloseSpec{
 								CommPH: spawnerPH,
 							},
 						},
@@ -875,7 +876,7 @@ func (s *suite) fwd(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	oneDefSnap, err := s.typeDefAPI.Create(typedef.DefSpecME{
+	oneDefSnap, err := s.typeDefAPI.Create(typedef.DefSpec{
 		TypeQN: "one-role",
 		TypeES: typeexp.ExpSpecME{K: typeexp.OneExp},
 	})
@@ -883,9 +884,9 @@ func (s *suite) fwd(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	oneDecSnap, err := s.procDecAPI.Create(procdec.DecSpecME{
+	oneDecSnap, err := s.procDecAPI.Create(procdec.DecSpec{
 		ProcQN: "sig-1",
-		X: termctx.BindClaimME{
+		X: termctx.BindClaim{
 			BindPH: "chnl-1",
 			TypeQN: oneDefSnap.TypeQN,
 		},
@@ -894,10 +895,10 @@ func (s *suite) fwd(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	_, err = s.procDecAPI.Create(procdec.DecSpecME{
+	_, err = s.procDecAPI.Create(procdec.DecSpec{
 		ProcQN: "sig-2",
-		Ys:     []termctx.BindClaimME{oneDecSnap.X},
-		X: termctx.BindClaimME{
+		Ys:     []termctx.BindClaim{oneDecSnap.X},
+		X: termctx.BindClaim{
 			BindPH: "chnl-2",
 			TypeQN: oneDefSnap.TypeQN,
 		},
@@ -906,10 +907,10 @@ func (s *suite) fwd(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	_, err = s.procDecAPI.Create(procdec.DecSpecME{
+	_, err = s.procDecAPI.Create(procdec.DecSpec{
 		ProcQN: "sig-3",
-		Ys:     []termctx.BindClaimME{oneDecSnap.X},
-		X: termctx.BindClaimME{
+		Ys:     []termctx.BindClaim{oneDecSnap.X},
+		X: termctx.BindClaim{
 			BindPH: "chnl-3",
 			TypeQN: oneDefSnap.TypeQN,
 		},
@@ -919,11 +920,11 @@ func (s *suite) fwd(t *testing.T) {
 	}
 	// and
 	closerChnlPH := "closer"
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: mainExecRef.ExecID,
 		ExecID: mainExecRef.ProcID,
-		ProcES: procexp.ExpSpecME{
-			Call: &procexp.CallSpecME{
+		ProcES: procexp.ExpSpec{
+			Call: &procexp.CallSpec{
 				BindPH: closerChnlPH,
 				ProcQN: "tbd",
 			},
@@ -934,11 +935,11 @@ func (s *suite) fwd(t *testing.T) {
 	}
 	// and
 	forwarderChnlPH := "forwarder"
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: mainExecRef.ExecID,
 		ExecID: mainExecRef.ProcID,
-		ProcES: procexp.ExpSpecME{
-			Call: &procexp.CallSpecME{
+		ProcES: procexp.ExpSpec{
+			Call: &procexp.CallSpec{
 				BindPH: forwarderChnlPH,
 				ProcQN: "tbd",
 				ValPHs: []string{closerChnlPH},
@@ -950,11 +951,11 @@ func (s *suite) fwd(t *testing.T) {
 	}
 	// and
 	waiterChnlPH := "waiter"
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: mainExecRef.ExecID,
 		ExecID: mainExecRef.ProcID,
-		ProcES: procexp.ExpSpecME{
-			Call: &procexp.CallSpecME{
+		ProcES: procexp.ExpSpec{
+			Call: &procexp.CallSpec{
 				BindPH: waiterChnlPH,
 				ProcQN: "tbd",
 				ValPHs: []string{forwarderChnlPH},
@@ -972,11 +973,11 @@ func (s *suite) fwd(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: mainExecRef.ExecID,
-		ExecID: closerExecRef.ExecID,
-		ProcES: procexp.ExpSpecME{
-			Close: &procexp.CloseSpecME{
+		ExecID: closerExecRef.ID,
+		ProcES: procexp.ExpSpec{
+			Close: &procexp.CloseSpec{
 				CommPH: closerChnlPH,
 			},
 		},
@@ -992,13 +993,13 @@ func (s *suite) fwd(t *testing.T) {
 		t.Fatal(err)
 	}
 	// when
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: mainExecRef.ExecID,
-		ExecID: forwarderExecRef.ExecID,
-		ProcES: procexp.ExpSpecME{
-			Fwd: &procexp.FwdSpecME{
-				X: forwarderChnlPH,
-				Y: closerChnlPH,
+		ExecID: forwarderExecRef.ID,
+		ProcES: procexp.ExpSpec{
+			Fwd: &procexp.FwdSpec{
+				CommPH: forwarderChnlPH,
+				ContPH: closerChnlPH,
 			},
 		},
 	})
@@ -1013,14 +1014,14 @@ func (s *suite) fwd(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	err = s.procExecAPI.Run(procexec.ExecSpecME{
+	err = s.procExecAPI.Run(procexec.ExecSpec{
 		PoolID: mainExecRef.ExecID,
-		ExecID: waiterExecRef.ExecID,
-		ProcES: procexp.ExpSpecME{
-			Wait: &procexp.WaitSpecME{
+		ExecID: waiterExecRef.ID,
+		ProcES: procexp.ExpSpec{
+			Wait: &procexp.WaitSpec{
 				CommPH: forwarderChnlPH,
-				ContES: procexp.ExpSpecME{
-					Close: &procexp.CloseSpecME{
+				ContES: procexp.ExpSpec{
+					Close: &procexp.CloseSpec{
 						CommPH: waiterChnlPH,
 					},
 				},

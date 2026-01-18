@@ -21,7 +21,7 @@ func newPoolDecAPI(client *resty.Client) PoolDecAPI {
 type PoolExecAPI interface {
 	Retrieve(string) (poolexec.ExecSnapME, error)
 	Create(poolexec.ExecSpecME) (poolexec.ExecRefME, error)
-	Poll(poolexec.PollSpecME) (procexec.ExecRefME, error)
+	Poll(poolexec.PollSpecME) (procexec.ExecRef, error)
 }
 
 func newPoolExecAPI(client *resty.Client) PoolExecAPI {
@@ -29,7 +29,7 @@ func newPoolExecAPI(client *resty.Client) PoolExecAPI {
 }
 
 type ProcDecAPI interface {
-	Create(procdec.DecSpecME) (procdec.DecSnapME, error)
+	Create(procdec.DecSpec) (procdec.DecSnap, error)
 }
 
 func newProcDecAPI(client *resty.Client) ProcDecAPI {
@@ -37,7 +37,7 @@ func newProcDecAPI(client *resty.Client) ProcDecAPI {
 }
 
 type ProcExecAPI interface {
-	Run(procexec.ExecSpecME) error
+	Run(procexec.ExecSpec) error
 }
 
 func newProcExecAPI(client *resty.Client) ProcExecAPI {
@@ -45,7 +45,7 @@ func newProcExecAPI(client *resty.Client) ProcExecAPI {
 }
 
 type TypeDefAPI interface {
-	Create(typedef.DefSpecME) (typedef.DefSnapME, error)
+	Create(typedef.DefSpec) (typedef.DefSnap, error)
 }
 
 func newTypeDefAPI(client *resty.Client) TypeDefAPI {

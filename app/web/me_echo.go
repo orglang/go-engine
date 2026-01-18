@@ -12,22 +12,22 @@ import (
 )
 
 // Adapter
-type handlerEcho struct {
+type echoController struct {
 	api typedef.API
 	ssr te.Renderer
 	log *slog.Logger
 }
 
-func newHandlerEcho(a typedef.API, r te.Renderer, l *slog.Logger) *handlerEcho {
-	name := slog.String("name", reflect.TypeFor[handlerEcho]().Name())
-	return &handlerEcho{a, r, l.With(name)}
+func newEchoController(a typedef.API, r te.Renderer, l *slog.Logger) *echoController {
+	name := slog.String("name", reflect.TypeFor[echoController]().Name())
+	return &echoController{a, r, l.With(name)}
 }
 
-func cfgHandlerEcho(e *echo.Echo, h *handlerEcho) {
+func cfgEchoController(e *echo.Echo, h *echoController) {
 	e.GET("/", h.Home)
 }
 
-func (h *handlerEcho) Home(c echo.Context) error {
+func (h *echoController) Home(c echo.Context) error {
 	refs, err := h.api.RetreiveRefs()
 	if err != nil {
 		return err

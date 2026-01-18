@@ -20,16 +20,16 @@ var (
 // goverter:extend orglang/go-runtime/adt/typedef:Msg.*
 // goverter:extend Msg.*
 var (
-	MsgFromDefSpec  func(DefSpec) typedef.DefSpecME
-	MsgToDefSpec    func(typedef.DefSpecME) (DefSpec, error)
-	MsgFromDefRef   func(DefRef) typedef.DefRefME
-	MsgToDefRef     func(typedef.DefRefME) (DefRef, error)
-	MsgFromDefRefs  func([]DefRef) []typedef.DefRefME
-	MsgToDefRefs    func([]typedef.DefRefME) ([]DefRef, error)
-	MsgFromDefSnap  func(DefSnap) typedef.DefSnapME
-	MsgToDefSnap    func(typedef.DefSnapME) (DefSnap, error)
-	MsgFromDefSnaps func([]DefSnap) []typedef.DefSnapME
-	MsgToDefSnaps   func([]typedef.DefSnapME) ([]DefSnap, error)
+	MsgFromDefSpec  func(DefSpec) typedef.DefSpec
+	MsgToDefSpec    func(typedef.DefSpec) (DefSpec, error)
+	MsgFromDefRef   func(DefRef) typedef.DefRef
+	MsgToDefRef     func(typedef.DefRef) (DefRef, error)
+	MsgFromDefRefs  func([]DefRef) []typedef.DefRef
+	MsgToDefRefs    func([]typedef.DefRef) ([]DefRef, error)
+	MsgFromDefSnap  func(DefSnap) typedef.DefSnap
+	MsgToDefSnap    func(typedef.DefSnap) (DefSnap, error)
+	MsgFromDefSnaps func([]DefSnap) []typedef.DefSnap
+	MsgToDefSnaps   func([]typedef.DefSnap) ([]DefSnap, error)
 )
 
 // goverter:variables

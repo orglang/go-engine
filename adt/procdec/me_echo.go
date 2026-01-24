@@ -23,12 +23,12 @@ func newEchoController(a API, l *slog.Logger) *echoController {
 }
 
 func cfgEchoController(e *echo.Echo, h *echoController) error {
-	e.POST("/api/v1/decs", h.PostOne)
-	e.GET("/api/v1/decs/:id", h.GetOne)
+	e.POST("/api/v1/decs", h.PostSpec)
+	e.GET("/api/v1/decs/:id", h.GetSnap)
 	return nil
 }
 
-func (h *echoController) PostOne(c echo.Context) error {
+func (h *echoController) PostSpec(c echo.Context) error {
 	var dto procdec.DecSpec
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
@@ -52,7 +52,7 @@ func (h *echoController) PostOne(c echo.Context) error {
 	return c.JSON(http.StatusCreated, MsgFromDecSnap(snap))
 }
 
-func (h *echoController) GetOne(c echo.Context) error {
+func (h *echoController) GetSnap(c echo.Context) error {
 	var dto procdec.DecRef
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {

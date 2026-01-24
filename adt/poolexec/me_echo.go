@@ -34,7 +34,7 @@ func cfgEchoController(e *echo.Echo, h *echoController) error {
 }
 
 func (h *echoController) PostOne(c echo.Context) error {
-	var dto poolexec.ExecSpecME
+	var dto poolexec.ExecSpec
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
@@ -58,16 +58,16 @@ func (h *echoController) PostOne(c echo.Context) error {
 }
 
 func (h *echoController) GetOne(c echo.Context) error {
-	var dto poolexec.IdentME
+	var dto poolexec.ExecRef
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
 		return bindingErr
 	}
-	id, conversionErr := identity.ConvertFromString(dto.PoolID)
+	id, conversionErr := identity.ConvertFromString(dto.ID)
 	if conversionErr != nil {
 		return conversionErr
 	}
-	snap, retrievalErr := h.api.Retrieve(id)
+	snap, retrievalErr := h.api.RetrieveSnap(id)
 	if retrievalErr != nil {
 		return retrievalErr
 	}
@@ -75,7 +75,7 @@ func (h *echoController) GetOne(c echo.Context) error {
 }
 
 func (h *echoController) PostProc(c echo.Context) error {
-	var dto poolexec.ExecSpecME
+	var dto poolexec.ExecSpec
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))

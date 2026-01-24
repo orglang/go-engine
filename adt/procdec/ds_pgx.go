@@ -39,14 +39,14 @@ func (dao *pgxDAO) Insert(source db.Source, rec DecRec) error {
 		return err
 	}
 	insertRoot := `
-		insert into dec_roots (
-			dec_id, rev, title
+		insert into proc_decs (
+			dec_id, dec_rn, title
 		) VALUES (
-			@dec_id, @rev, @title
+			@dec_id, @dec_rn, @title
 		)`
 	rootArgs := pgx.NamedArgs{
 		"dec_id": dto.DecID,
-		"rev":    dto.DecRN,
+		"dec_rn": dto.DecRN,
 		"title":  dto.Title,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertRoot, rootArgs)
@@ -56,16 +56,16 @@ func (dao *pgxDAO) Insert(source db.Source, rec DecRec) error {
 	}
 	insertPE := `
 		insert into dec_pes (
-			dec_id, from_rn, to_rn, chnl_key, role_fqn
+			dec_id, from_rn, to_rn, chnl_ph, type_qn
 		) VALUES (
-			@dec_id, @from_rn, @to_rn, @chnl_key, @role_fqn
+			@dec_id, @from_rn, @to_rn, @chnl_ph, @type_qn
 		)`
 	peArgs := pgx.NamedArgs{
-		"dec_id":   dto.DecID,
-		"from_rn":  dto.DecRN,
-		"to_rn":    math.MaxInt64,
-		"chnl_key": dto.X.BindPH,
-		"role_fqn": dto.X.TypeQN,
+		"dec_id":  dto.DecID,
+		"from_rn": dto.DecRN,
+		"to_rn":   math.MaxInt64,
+		"chnl_ph": dto.X.ChnlPH,
+		"type_qn": dto.X.TypeQN,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertPE, peArgs)
 	if err != nil {
@@ -74,18 +74,18 @@ func (dao *pgxDAO) Insert(source db.Source, rec DecRec) error {
 	}
 	insertCE := `
 		insert into dec_ces (
-			dec_id, from_rn, to_rn, chnl_key, role_fqn
+			dec_id, from_rn, to_rn, chnl_ph, type_qn
 		) VALUES (
-			@dec_id, @from_rn, @to_rn, @chnl_key, @role_fqn
+			@dec_id, @from_rn, @to_rn, @chnl_ph, @type_qn
 		)`
 	batch := pgx.Batch{}
 	for _, ce := range dto.Ys {
 		args := pgx.NamedArgs{
-			"dec_id":   dto.DecID,
-			"from_rn":  dto.DecRN,
-			"to_rn":    math.MaxInt64,
-			"chnl_key": ce.BindPH,
-			"role_fqn": ce.TypeQN,
+			"dec_id":  dto.DecID,
+			"from_rn": dto.DecRN,
+			"to_rn":   math.MaxInt64,
+			"chnl_ph": ce.ChnlPH,
+			"type_qn": ce.TypeQN,
 		}
 		batch.Queue(insertCE, args)
 	}
@@ -105,7 +105,7 @@ func (dao *pgxDAO) Insert(source db.Source, rec DecRec) error {
 	return nil
 }
 
-func (dao *pgxDAO) SelectByID(source db.Source, ref DecRef) (DecSnap, error) {
+func (dao *pgxDAO) SelectSnapByRef(source db.Source, ref DecRef) (DecSnap, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	idAttr := slog.Any("id", ref)
 	rows, err := ds.Conn.Query(ds.Ctx, selectById, ref.ID.String())
@@ -171,7 +171,7 @@ func (dao *pgxDAO) SelectByIDs(source db.Source, ids []identity.ADT) (_ []DecRec
 	return DataToDecRecs(dtos)
 }
 
-func (dao *pgxDAO) SelectAll(source db.Source) ([]DecRef, error) {
+func (dao *pgxDAO) SelectRefs(source db.Source) ([]DecRef, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	query := `
 		select
@@ -197,8 +197,8 @@ const (
 			sr.dec_id,
 			sr.rev,
 			(array_agg(sr.title))[1] as title,
-			(jsonb_agg(to_jsonb((select ep from (select sp.chnl_key, sp.role_fqn) ep))))[0] as pe,
-			jsonb_agg(to_jsonb((select ep from (select sc.chnl_key, sc.role_fqn) ep))) filter (where sc.dec_id is not null) as ces
+			(jsonb_agg(to_jsonb((select ep from (select sp.chnl_key, sp.type_qn) ep))))[0] as pe,
+			jsonb_agg(to_jsonb((select ep from (select sc.chnl_key, sc.type_qn) ep))) filter (where sc.dec_id is not null) as ces
 		from dec_roots sr
 		left join dec_pes sp
 			on sp.dec_id = sr.dec_id

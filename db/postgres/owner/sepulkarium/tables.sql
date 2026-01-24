@@ -1,70 +1,63 @@
-CREATE TABLE type_def_roots (
+CREATE TABLE type_defs (
 	def_id varchar(36),
-	title varchar(64),
-	def_rn bigint
+	def_rn bigint,
+	title varchar(64)
 );
 
-CREATE TABLE type_term_states (
+CREATE TABLE type_exps (
 	exp_id varchar(36),
 	from_id varchar(36),
 	kind smallint,
 	spec jsonb
 );
 
-CREATE TABLE role_subs (
-	role_id varchar(36),
-	role_fqn ltree,
+CREATE TABLE proc_decs (
+	dec_id varchar(36),
+	dec_rn bigint,
+	title text
+);
+
+CREATE TABLE dec_pes (
+	dec_id varchar(36),
+	chnl_ph varchar(64),
+	type_qn ltree,
 	from_rn bigint,
 	to_rn bigint
 );
 
-CREATE TABLE sig_roots (
-	sig_id varchar(36),
-	title text,
-	rev bigint
-);
-
-CREATE TABLE sig_pes (
-	sig_id varchar(36),
-	chnl_key varchar(64),
-	role_fqn ltree,
+CREATE TABLE dec_ces (
+	dec_id varchar(36),
+	chnl_ph varchar(64),
+	type_qn ltree,
 	from_rn bigint,
 	to_rn bigint
 );
 
-CREATE TABLE sig_ces (
-	sig_id varchar(36),
-	chnl_key varchar(64),
-	role_fqn ltree,
+CREATE TABLE dec_subs (
+	dec_id varchar(36),
+	dec_qn ltree,
 	from_rn bigint,
 	to_rn bigint
 );
 
-CREATE TABLE sig_subs (
-	sig_id varchar(36),
-	sig_fqn ltree,
-	from_rn bigint,
-	to_rn bigint
-);
-
-CREATE TABLE pool_roots (
-	pool_id varchar(36),
+CREATE TABLE pool_execs (
+	exec_id varchar(36),
+	exec_rn bigint,
 	title varchar(64),
 	proc_id varchar(36),
-	sup_pool_id varchar(36),
-	rev integer
+	sup_exec_id varchar(36)
 );
 
 CREATE TABLE pool_caps (
 	pool_id varchar(36),
 	sig_id varchar(36),
-	rev integer
+	rev bigint
 );
 
 CREATE TABLE pool_deps (
 	pool_id varchar(36),
 	sig_id varchar(36),
-	rev integer
+	rev bigint
 );
 
 -- передачи каналов (провайдерская сторона)
@@ -72,41 +65,33 @@ CREATE TABLE pool_deps (
 CREATE TABLE pool_liabs (
 	proc_id varchar(36),
 	pool_id varchar(36),
-	rev integer
+	rev bigint
 );
 
 -- подстановки каналов в процесс
-CREATE TABLE proc_bnds (
-	proc_id varchar(36),
+CREATE TABLE proc_binds (
+	exec_id varchar(36),
 	chnl_ph varchar(36),
 	chnl_id varchar(36),
 	state_id varchar(36),
-	rev integer
+	exec_rn bigint
 );
 
 CREATE TABLE proc_steps (
-	proc_id varchar(36),
+	exec_id varchar(36),
+	exec_rn bigint,
 	chnl_id varchar(36),
 	kind smallint,
-	spec jsonb,
-	rev integer
+	proc_er jsonb
 );
 
 CREATE TABLE pool_sups (
 	pool_id varchar(36),
 	sup_pool_id varchar(36),
-	rev integer
+	rev bigint
 );
 
-CREATE TABLE steps (
-	id varchar(36),
-	kind smallint,
-	pid varchar(36),
-	vid varchar(36),
-	spec jsonb
-);
-
-CREATE TABLE aliases (
+CREATE TABLE syn_decs (
 	dec_id varchar(36),
 	dec_qn ltree UNIQUE,
 	from_rn bigint,
@@ -114,4 +99,4 @@ CREATE TABLE aliases (
 	kind smallint
 );
 
-CREATE INDEX sym_gist_idx ON aliases USING GIST (sym);
+CREATE INDEX sym_gist_idx ON syn_decs USING GIST (sym);

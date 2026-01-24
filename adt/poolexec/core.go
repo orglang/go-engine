@@ -2,7 +2,6 @@ package poolexec
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"reflect"
 
@@ -20,7 +19,7 @@ import (
 // Port
 type API interface {
 	Run(ExecSpec) (ExecRef, error) // aka Create
-	Retrieve(identity.ADT) (ExecSnap, error)
+	RetrieveSnap(identity.ADT) (ExecSnap, error)
 	RetreiveRefs() ([]ExecRef, error)
 	Spawn(procexec.ExecSpec) (procexec.ExecRef, error)
 	Poll(PollSpec) (procexec.ExecRef, error)
@@ -44,9 +43,9 @@ type ExecRec struct {
 }
 
 type ExecSnap struct {
-	ExecID identity.ADT
-	Title  string
-	Subs   []ExecRef
+	ExecID   identity.ADT
+	Title    string
+	SubExecs []ExecRef
 }
 
 type PollSpec struct {
@@ -73,28 +72,28 @@ func newService(
 	typeDefs typedef.Repo,
 	typeExps typeexp.Repo,
 	operator db.Operator,
-	l *slog.Logger,
+	log *slog.Logger,
 ) *service {
 	name := slog.String("name", reflect.TypeFor[service]().Name())
-	return &service{poolExecs, procDecs, typeDefs, typeExps, operator, l.With(name)}
+	return &service{poolExecs, procDecs, typeDefs, typeExps, operator, log.With(name)}
 }
 
 func (s *service) Run(spec ExecSpec) (ExecRef, error) {
 	ctx := context.Background()
 	s.log.Debug("creation started", slog.Any("spec", spec))
-	impl := ExecRec{
+	execRec := ExecRec{
 		ExecID: identity.New(),
 		ProcID: identity.New(),
 		SupID:  spec.SupID,
 		ExecRN: revnum.New(),
 	}
 	liab := procexec.Liab{
-		PoolID: impl.ExecID,
-		ExecID: impl.ProcID,
-		PoolRN: impl.ExecRN,
+		PoolID:  execRec.ExecID,
+		PoolRN:  execRec.ExecRN,
+		ExecRef: procexec.ExecRef{ID: execRec.ProcID},
 	}
 	err := s.operator.Explicit(ctx, func(ds db.Source) error {
-		err := s.poolExecs.Insert(ds, impl)
+		err := s.poolExecs.Insert(ds, execRec)
 		if err != nil {
 			s.log.Error("creation failed")
 			return err
@@ -110,8 +109,8 @@ func (s *service) Run(spec ExecSpec) (ExecRef, error) {
 		s.log.Error("creation failed")
 		return ExecRef{}, err
 	}
-	s.log.Debug("creation succeed", slog.Any("poolID", impl.ExecID))
-	return ConvertRecToRef(impl), nil
+	s.log.Debug("creation succeed", slog.Any("poolID", execRec.ExecID))
+	return ConvertRecToRef(execRec), nil
 }
 
 func (s *service) Poll(spec PollSpec) (procexec.ExecRef, error) {
@@ -124,7 +123,7 @@ func (s *service) Spawn(spec procexec.ExecSpec) (_ procexec.ExecRef, err error) 
 	return procexec.ExecRef{}, nil
 }
 
-func (s *service) Retrieve(execID identity.ADT) (snap ExecSnap, err error) {
+func (s *service) RetrieveSnap(execID identity.ADT) (snap ExecSnap, err error) {
 	ctx := context.Background()
 	err = s.operator.Implicit(ctx, func(ds db.Source) error {
 		snap, err = s.poolExecs.SelectSubs(ds, execID)
@@ -148,8 +147,4 @@ func (s *service) RetreiveRefs() (refs []ExecRef, err error) {
 		return nil, err
 	}
 	return refs, nil
-}
-
-func errOptimisticUpdate(got revnum.ADT) error {
-	return fmt.Errorf("entity concurrent modification: got revision %v", got)
 }

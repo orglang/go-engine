@@ -22,8 +22,7 @@ var (
 // goverter:extend orglang/go-runtime/adt/procdef:Data.*
 // goverter:extend data.*
 var (
-	DataFromMod  func(Mod) (modDS, error)
-	DataFromBnd  func(Bnd) bindDS
+	DataFromMod  func(ExecMod) (execModDS, error)
 	DataToLiab   func(liabDS) (Liab, error)
 	DataFromLiab func(Liab) liabDS
 	DataToEPs    func([]epDS) ([]EP, error)

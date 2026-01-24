@@ -9,6 +9,7 @@ import (
 	"orglang/go-runtime/adt/identity"
 	"orglang/go-runtime/adt/procexp"
 	"orglang/go-runtime/adt/symbol"
+	"orglang/go-runtime/adt/uniqref"
 	"orglang/go-runtime/adt/uniqsym"
 )
 
@@ -22,20 +23,18 @@ type DefSpec struct {
 	ProcES procexp.ExpSpec
 }
 
-type DefRef struct {
-	DefID identity.ADT
-}
+type DefRef = uniqref.ADT
 
 type DefRec struct {
-	DefID identity.ADT
+	Ref DefRef
 }
 
 type DefSnap struct {
-	DefID identity.ADT
+	Ref DefRef
 }
 
 type service struct {
-	procs    Repo
+	procDefs Repo
 	operator db.Operator
 	log      *slog.Logger
 }

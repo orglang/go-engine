@@ -27,9 +27,9 @@ func newPgxDAO(l *slog.Logger) *pgxDAO {
 	return &pgxDAO{l.With(name)}
 }
 
-func (dao *pgxDAO) InsertRecs(source db.Source, roots ...StepRec) error {
+func (dao *pgxDAO) InsertRecs(source db.Source, recs ...StepRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
-	dtos, err := DataFromSemRecs(roots)
+	dtos, err := DataFromSemRecs(recs)
 	if err != nil {
 		dao.log.Error("conversion failed")
 		return err
@@ -37,11 +37,10 @@ func (dao *pgxDAO) InsertRecs(source db.Source, roots ...StepRec) error {
 	batch := pgx.Batch{}
 	for _, dto := range dtos {
 		args := pgx.NamedArgs{
-			"id":   dto.ID,
-			"kind": dto.K,
-			"pid":  dto.PID,
-			"vid":  dto.VID,
-			"spec": dto.ProcER,
+			"kind":    dto.K,
+			"exec_id": dto.ExecID,
+			"chnl_id": dto.ChnlID,
+			"proc_er": dto.ProcER,
 		}
 		batch.Queue(insertStep, args)
 	}
@@ -52,7 +51,7 @@ func (dao *pgxDAO) InsertRecs(source db.Source, roots ...StepRec) error {
 	for _, dto := range dtos {
 		_, err = br.Exec()
 		if err != nil {
-			dao.log.Error("execution failed", slog.Any("id", dto.ID), slog.String("q", insertStep))
+			dao.log.Error("execution failed", slog.String("q", insertStep), slog.Any("dto", dto))
 		}
 	}
 	if err != nil {
@@ -61,7 +60,7 @@ func (dao *pgxDAO) InsertRecs(source db.Source, roots ...StepRec) error {
 	return nil
 }
 
-func (dao *pgxDAO) SelectRecByID(source db.Source, rid identity.ADT) (StepRec, error) {
+func (dao *pgxDAO) SelectRecs(source db.Source, rid identity.ADT) (StepRec, error) {
 	query := `
 		SELECT
 			id, kind, pid, vid, spec

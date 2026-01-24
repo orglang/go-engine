@@ -86,54 +86,54 @@ func ConvertRecToSpec(r ExpRec) ExpSpec {
 	}
 }
 
-func MsgFromExpSpec(s ExpSpec) typeexp.ExpSpecME {
+func MsgFromExpSpec(s ExpSpec) typeexp.ExpSpec {
 	switch spec := s.(type) {
 	case OneSpec:
-		return typeexp.ExpSpecME{K: typeexp.OneExp}
+		return typeexp.ExpSpec{K: typeexp.OneExp}
 	case LinkSpec:
-		return typeexp.ExpSpecME{
+		return typeexp.ExpSpec{
 			K:    typeexp.LinkExp,
-			Link: &typeexp.LinkSpecME{TypeQN: uniqsym.ConvertToString(spec.TypeQN)}}
+			Link: &typeexp.LinkSpec{TypeQN: uniqsym.ConvertToString(spec.TypeQN)}}
 	case TensorSpec:
-		return typeexp.ExpSpecME{
+		return typeexp.ExpSpec{
 			K: typeexp.TensorExp,
-			Tensor: &typeexp.ProdSpecME{
+			Tensor: &typeexp.ProdSpec{
 				ValES:  MsgFromExpSpec(spec.Y),
 				ContES: MsgFromExpSpec(spec.Z),
 			},
 		}
 	case LolliSpec:
-		return typeexp.ExpSpecME{
+		return typeexp.ExpSpec{
 			K: typeexp.LolliExp,
-			Lolli: &typeexp.ProdSpecME{
+			Lolli: &typeexp.ProdSpec{
 				ValES:  MsgFromExpSpec(spec.Y),
 				ContES: MsgFromExpSpec(spec.Z),
 			},
 		}
 	case WithSpec:
-		choices := make([]typeexp.ChoiceSpecME, len(spec.Zs))
+		choices := make([]typeexp.ChoiceSpec, len(spec.Zs))
 		for i, l := range maps.Keys(spec.Zs) {
-			choices[i] = typeexp.ChoiceSpecME{
+			choices[i] = typeexp.ChoiceSpec{
 				LabQN:  uniqsym.ConvertToString(l),
 				ContES: MsgFromExpSpec(spec.Zs[l]),
 			}
 		}
-		return typeexp.ExpSpecME{K: typeexp.WithExp, With: &typeexp.SumSpecME{Choices: choices}}
+		return typeexp.ExpSpec{K: typeexp.WithExp, With: &typeexp.SumSpec{Choices: choices}}
 	case PlusSpec:
-		choices := make([]typeexp.ChoiceSpecME, len(spec.Zs))
+		choices := make([]typeexp.ChoiceSpec, len(spec.Zs))
 		for i, l := range maps.Keys(spec.Zs) {
-			choices[i] = typeexp.ChoiceSpecME{
+			choices[i] = typeexp.ChoiceSpec{
 				LabQN:  uniqsym.ConvertToString(l),
 				ContES: MsgFromExpSpec(spec.Zs[l]),
 			}
 		}
-		return typeexp.ExpSpecME{K: typeexp.PlusExp, Plus: &typeexp.SumSpecME{Choices: choices}}
+		return typeexp.ExpSpec{K: typeexp.PlusExp, Plus: &typeexp.SumSpec{Choices: choices}}
 	default:
 		panic(ErrSpecTypeUnexpected(s))
 	}
 }
 
-func MsgToExpSpec(dto typeexp.ExpSpecME) (ExpSpec, error) {
+func MsgToExpSpec(dto typeexp.ExpSpec) (ExpSpec, error) {
 	switch dto.K {
 	case typeexp.OneExp:
 		return OneSpec{}, nil
@@ -196,27 +196,27 @@ func MsgToExpSpec(dto typeexp.ExpSpecME) (ExpSpec, error) {
 	}
 }
 
-func MsgFromExpRef(r ExpRef) typeexp.ExpRefME {
+func MsgFromExpRef(r ExpRef) typeexp.ExpRef {
 	ident := r.Ident().String()
 	switch r.(type) {
 	case OneRef, OneRec:
-		return typeexp.ExpRefME{K: typeexp.OneExp, ExpID: ident}
+		return typeexp.ExpRef{K: typeexp.OneExp, ExpID: ident}
 	case LinkRef, LinkRec:
-		return typeexp.ExpRefME{K: typeexp.LinkExp, ExpID: ident}
+		return typeexp.ExpRef{K: typeexp.LinkExp, ExpID: ident}
 	case TensorRef, TensorRec:
-		return typeexp.ExpRefME{K: typeexp.TensorExp, ExpID: ident}
+		return typeexp.ExpRef{K: typeexp.TensorExp, ExpID: ident}
 	case LolliRef, LolliRec:
-		return typeexp.ExpRefME{K: typeexp.LolliExp, ExpID: ident}
+		return typeexp.ExpRef{K: typeexp.LolliExp, ExpID: ident}
 	case PlusRef, PlusRec:
-		return typeexp.ExpRefME{K: typeexp.PlusExp, ExpID: ident}
+		return typeexp.ExpRef{K: typeexp.PlusExp, ExpID: ident}
 	case WithRef, WithRec:
-		return typeexp.ExpRefME{K: typeexp.WithExp, ExpID: ident}
+		return typeexp.ExpRef{K: typeexp.WithExp, ExpID: ident}
 	default:
 		panic(ErrRefTypeUnexpected(r))
 	}
 }
 
-func MsgToExpRef(dto typeexp.ExpRefME) (ExpRef, error) {
+func MsgToExpRef(dto typeexp.ExpRef) (ExpRef, error) {
 	expID, err := identity.ConvertFromString(dto.ExpID)
 	if err != nil {
 		return nil, err

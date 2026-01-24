@@ -11,7 +11,7 @@ import (
 )
 
 type PoolDecAPI interface {
-	Create(pooldec.DecSpecME) (pooldec.DecRefME, error)
+	Create(pooldec.DecSpec) (pooldec.DecRef, error)
 }
 
 func newPoolDecAPI(client *resty.Client) PoolDecAPI {
@@ -19,9 +19,9 @@ func newPoolDecAPI(client *resty.Client) PoolDecAPI {
 }
 
 type PoolExecAPI interface {
-	Retrieve(string) (poolexec.ExecSnapME, error)
-	Create(poolexec.ExecSpecME) (poolexec.ExecRefME, error)
-	Poll(poolexec.PollSpecME) (procexec.ExecRef, error)
+	Retrieve(string) (poolexec.ExecSnap, error)
+	Create(poolexec.ExecSpec) (poolexec.ExecRef, error)
+	Poll(poolexec.PollSpec) (procexec.ExecRef, error)
 }
 
 func newPoolExecAPI(client *resty.Client) PoolExecAPI {

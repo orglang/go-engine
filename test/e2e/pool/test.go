@@ -15,10 +15,10 @@ import (
 
 	"github.com/orglang/go-sdk/adt/pooldec"
 	"github.com/orglang/go-sdk/adt/poolexec"
+	"github.com/orglang/go-sdk/adt/procbind"
 	"github.com/orglang/go-sdk/adt/procdec"
 	"github.com/orglang/go-sdk/adt/procexec"
 	"github.com/orglang/go-sdk/adt/procexp"
-	"github.com/orglang/go-sdk/adt/termctx"
 	"github.com/orglang/go-sdk/adt/typedef"
 	"github.com/orglang/go-sdk/adt/typeexp"
 )
@@ -79,19 +79,19 @@ func (s *suite) beforeEach(t *testing.T) {
 
 func (s *suite) createRetreive(t *testing.T) {
 	// given
-	poolSpec1 := poolexec.ExecSpecME{PoolQN: "pool-1"}
+	poolSpec1 := poolexec.ExecSpec{PoolQN: "pool-1"}
 	poolRef1, err := s.poolExecAPI.Create(poolSpec1)
 	if err != nil {
 		t.Fatal(err)
 	}
 	// and
-	poolSpec2 := poolexec.ExecSpecME{PoolQN: "pool-2", SupID: poolRef1.ExecID}
+	poolSpec2 := poolexec.ExecSpec{PoolQN: "pool-2", SupID: poolRef1.ID}
 	poolRef2, err := s.poolExecAPI.Create(poolSpec2)
 	if err != nil {
 		t.Fatal(err)
 	}
 	// when
-	poolSnap1, err := s.poolExecAPI.Retrieve(poolRef1.ExecID)
+	poolSnap1, err := s.poolExecAPI.Retrieve(poolRef1.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -110,28 +110,28 @@ func (s *suite) waitClose(t *testing.T) {
 	waiterProcQN := "waiter-proc-qn"
 	_, err := s.typeDefAPI.Create(typedef.DefSpec{
 		TypeQN: mainTypeQN,
-		TypeES: typeexp.ExpSpecME{
+		TypeES: typeexp.ExpSpec{
 			K: typeexp.UpExp,
-			Up: &typeexp.FooSpecME{
-				ContES: typeexp.ExpSpecME{
+			Up: &typeexp.FooSpec{
+				ContES: typeexp.ExpSpec{
 					K: typeexp.XactExp,
-					Xact: &typeexp.XactSpecME{
-						ContESs: map[string]typeexp.ExpSpecME{
+					Xact: &typeexp.XactSpec{
+						ContESs: map[string]typeexp.ExpSpec{
 							closerProcQN: {
 								K: typeexp.DownExp,
-								Down: &typeexp.FooSpecME{
-									ContES: typeexp.ExpSpecME{
+								Down: &typeexp.FooSpec{
+									ContES: typeexp.ExpSpec{
 										K:    typeexp.LinkExp,
-										Link: &typeexp.LinkSpecME{TypeQN: mainTypeQN},
+										Link: &typeexp.LinkSpec{TypeQN: mainTypeQN},
 									},
 								},
 							},
 							waiterProcQN: {
 								K: typeexp.DownExp,
-								Down: &typeexp.FooSpecME{
-									ContES: typeexp.ExpSpecME{
+								Down: &typeexp.FooSpec{
+									ContES: typeexp.ExpSpec{
 										K:    typeexp.LinkExp,
-										Link: &typeexp.LinkSpecME{TypeQN: mainTypeQN},
+										Link: &typeexp.LinkSpec{TypeQN: mainTypeQN},
 									},
 								},
 							},
@@ -148,14 +148,14 @@ func (s *suite) waitClose(t *testing.T) {
 	mainPoolQN := "main-pool-qn"
 	mainProvisionPH := "main-provision-ph"
 	mainReceptionPH := "main-reception-ph"
-	_, err = s.poolDecAPI.Create(pooldec.DecSpecME{
+	_, err = s.poolDecAPI.Create(pooldec.DecSpec{
 		PoolSN: mainPoolQN,
-		InsiderProvisionBC: termctx.BindClaim{
-			BindPH: mainProvisionPH,
+		InsiderProvisionBC: procbind.BindSpec{
+			ChnlPH: mainProvisionPH,
 			TypeQN: mainTypeQN,
 		},
-		InsiderReceptionBC: termctx.BindClaim{
-			BindPH: mainReceptionPH,
+		InsiderReceptionBC: procbind.BindSpec{
+			ChnlPH: mainReceptionPH,
 			TypeQN: mainTypeQN,
 		},
 	})
@@ -163,7 +163,7 @@ func (s *suite) waitClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	mainExecRef, err := s.poolExecAPI.Create(poolexec.ExecSpecME{
+	mainExecRef, err := s.poolExecAPI.Create(poolexec.ExecSpec{
 		PoolQN: mainPoolQN,
 	})
 	if err != nil {
@@ -173,7 +173,7 @@ func (s *suite) waitClose(t *testing.T) {
 	oneTypeQN := "one-type-qn"
 	_, err = s.typeDefAPI.Create(typedef.DefSpec{
 		TypeQN: oneTypeQN,
-		TypeES: typeexp.ExpSpecME{K: typeexp.OneExp},
+		TypeES: typeexp.ExpSpec{K: typeexp.OneExp},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -181,8 +181,8 @@ func (s *suite) waitClose(t *testing.T) {
 	// and
 	closerDecSpec := procdec.DecSpec{
 		ProcQN: closerProcQN,
-		X: termctx.BindClaim{
-			BindPH: "closer-provision-ph",
+		X: procbind.BindSpec{
+			ChnlPH: "closer-provision-ph",
 			TypeQN: oneTypeQN,
 		},
 	}
@@ -193,8 +193,8 @@ func (s *suite) waitClose(t *testing.T) {
 	// and
 	closerProcPH := "closer-proc-ph"
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: mainExecRef.ExecID,
-		ExecID: mainExecRef.ProcID,
+		PoolID: mainExecRef.ID,
+		ExecID: mainExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Acquire: &procexp.AcqureSpec{
 				CommPH: mainReceptionPH,
@@ -218,8 +218,8 @@ func (s *suite) waitClose(t *testing.T) {
 	}
 	// and
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: mainExecRef.ExecID,
-		ExecID: mainExecRef.ProcID,
+		PoolID: mainExecRef.ID,
+		ExecID: mainExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Accept: &procexp.AcceptSpec{
 				CommPH: mainProvisionPH,
@@ -241,8 +241,8 @@ func (s *suite) waitClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	closerExecRef, err := s.poolExecAPI.Poll(poolexec.PollSpecME{
-		ExecID: mainExecRef.ExecID,
+	closerExecRef, err := s.poolExecAPI.Poll(poolexec.PollSpec{
+		ExecID: mainExecRef.ID,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -250,9 +250,9 @@ func (s *suite) waitClose(t *testing.T) {
 	// and
 	waiterDecSpec := procdec.DecSpec{
 		ProcQN: waiterProcQN,
-		X:      termctx.BindClaim{BindPH: "waiter-provision-ph", TypeQN: oneTypeQN},
-		Ys: []termctx.BindClaim{
-			{BindPH: "closer-reception-ph", TypeQN: oneTypeQN},
+		X:      procbind.BindSpec{ChnlPH: "waiter-provision-ph", TypeQN: oneTypeQN},
+		Ys: []procbind.BindSpec{
+			{ChnlPH: "closer-reception-ph", TypeQN: oneTypeQN},
 		},
 	}
 	_, err = s.procDecAPI.Create(waiterDecSpec)
@@ -261,8 +261,8 @@ func (s *suite) waitClose(t *testing.T) {
 	}
 	// and
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: mainExecRef.ExecID,
-		ExecID: mainExecRef.ProcID,
+		PoolID: mainExecRef.ID,
+		ExecID: mainExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Acquire: &procexp.AcqureSpec{
 				CommPH: mainProvisionPH,
@@ -287,8 +287,8 @@ func (s *suite) waitClose(t *testing.T) {
 	}
 	// and
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: mainExecRef.ExecID,
-		ExecID: mainExecRef.ProcID,
+		PoolID: mainExecRef.ID,
+		ExecID: mainExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Accept: &procexp.AcceptSpec{
 				CommPH: mainProvisionPH,
@@ -310,19 +310,19 @@ func (s *suite) waitClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	waiterExecRef, err := s.poolExecAPI.Poll(poolexec.PollSpecME{
-		ExecID: mainExecRef.ExecID,
+	waiterExecRef, err := s.poolExecAPI.Poll(poolexec.PollSpec{
+		ExecID: mainExecRef.ID,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	// when
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: mainExecRef.ExecID,
+		PoolID: mainExecRef.ID,
 		ExecID: closerExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Close: &procexp.CloseSpec{
-				CommPH: closerDecSpec.X.BindPH,
+				CommPH: closerDecSpec.X.ChnlPH,
 			},
 		},
 	})
@@ -331,14 +331,14 @@ func (s *suite) waitClose(t *testing.T) {
 	}
 	// and
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: mainExecRef.ExecID,
+		PoolID: mainExecRef.ID,
 		ExecID: waiterExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Wait: &procexp.WaitSpec{
-				CommPH: waiterDecSpec.Ys[0].BindPH,
+				CommPH: waiterDecSpec.Ys[0].ChnlPH,
 				ContES: procexp.ExpSpec{
 					Close: &procexp.CloseSpec{
-						CommPH: waiterDecSpec.X.BindPH,
+						CommPH: waiterDecSpec.X.ChnlPH,
 					},
 				},
 			},
@@ -360,37 +360,37 @@ func (s *suite) recvSend(t *testing.T) {
 	messageProcQN := "message-proc-qn"
 	_, err := s.typeDefAPI.Create(typedef.DefSpec{
 		TypeQN: mainTypeQN,
-		TypeES: typeexp.ExpSpecME{
+		TypeES: typeexp.ExpSpec{
 			K: typeexp.UpExp,
-			Up: &typeexp.FooSpecME{
-				ContES: typeexp.ExpSpecME{
+			Up: &typeexp.FooSpec{
+				ContES: typeexp.ExpSpec{
 					K: typeexp.XactExp,
-					Xact: &typeexp.XactSpecME{
-						ContESs: map[string]typeexp.ExpSpecME{
-							senderProcQN: typeexp.ExpSpecME{
+					Xact: &typeexp.XactSpec{
+						ContESs: map[string]typeexp.ExpSpec{
+							senderProcQN: typeexp.ExpSpec{
 								K: typeexp.DownExp,
-								Down: &typeexp.FooSpecME{
-									ContES: typeexp.ExpSpecME{
+								Down: &typeexp.FooSpec{
+									ContES: typeexp.ExpSpec{
 										K:    typeexp.LinkExp,
-										Link: &typeexp.LinkSpecME{TypeQN: mainTypeQN},
+										Link: &typeexp.LinkSpec{TypeQN: mainTypeQN},
 									},
 								},
 							},
-							receiverProcQN: typeexp.ExpSpecME{
+							receiverProcQN: typeexp.ExpSpec{
 								K: typeexp.DownExp,
-								Down: &typeexp.FooSpecME{
-									ContES: typeexp.ExpSpecME{
+								Down: &typeexp.FooSpec{
+									ContES: typeexp.ExpSpec{
 										K:    typeexp.LinkExp,
-										Link: &typeexp.LinkSpecME{TypeQN: mainTypeQN},
+										Link: &typeexp.LinkSpec{TypeQN: mainTypeQN},
 									},
 								},
 							},
-							messageProcQN: typeexp.ExpSpecME{
+							messageProcQN: typeexp.ExpSpec{
 								K: typeexp.DownExp,
-								Down: &typeexp.FooSpecME{
-									ContES: typeexp.ExpSpecME{
+								Down: &typeexp.FooSpec{
+									ContES: typeexp.ExpSpec{
 										K:    typeexp.LinkExp,
-										Link: &typeexp.LinkSpecME{TypeQN: mainTypeQN},
+										Link: &typeexp.LinkSpec{TypeQN: mainTypeQN},
 									},
 								},
 							},
@@ -407,14 +407,14 @@ func (s *suite) recvSend(t *testing.T) {
 	mainPoolQN := "main-pool-qn"
 	mainProvisionPH := "main-provision-ph"
 	mainReceptionPH := "main-reception-ph"
-	_, err = s.poolDecAPI.Create(pooldec.DecSpecME{
+	_, err = s.poolDecAPI.Create(pooldec.DecSpec{
 		PoolSN: mainPoolQN,
-		InsiderProvisionBC: termctx.BindClaim{
-			BindPH: mainProvisionPH,
+		InsiderProvisionBC: procbind.BindSpec{
+			ChnlPH: mainProvisionPH,
 			TypeQN: mainPoolQN,
 		},
-		InsiderReceptionBC: termctx.BindClaim{
-			BindPH: mainReceptionPH,
+		InsiderReceptionBC: procbind.BindSpec{
+			ChnlPH: mainReceptionPH,
 			TypeQN: mainPoolQN,
 		},
 	})
@@ -422,7 +422,7 @@ func (s *suite) recvSend(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	mainExecRef, err := s.poolExecAPI.Create(poolexec.ExecSpecME{
+	mainExecRef, err := s.poolExecAPI.Create(poolexec.ExecSpec{
 		PoolQN: mainPoolQN,
 	})
 	if err != nil {
@@ -432,11 +432,11 @@ func (s *suite) recvSend(t *testing.T) {
 	lolliTypeQN := "lolli-type-qn"
 	_, err = s.typeDefAPI.Create(typedef.DefSpec{
 		TypeQN: lolliTypeQN,
-		TypeES: typeexp.ExpSpecME{
+		TypeES: typeexp.ExpSpec{
 			K: typeexp.LolliExp,
-			Lolli: &typeexp.ProdSpecME{
-				ValES:  typeexp.ExpSpecME{K: typeexp.OneExp},
-				ContES: typeexp.ExpSpecME{K: typeexp.OneExp},
+			Lolli: &typeexp.ProdSpec{
+				ValES:  typeexp.ExpSpec{K: typeexp.OneExp},
+				ContES: typeexp.ExpSpec{K: typeexp.OneExp},
 			},
 		},
 	})
@@ -447,7 +447,7 @@ func (s *suite) recvSend(t *testing.T) {
 	oneTypeQN := "one-type-qn"
 	_, err = s.typeDefAPI.Create(typedef.DefSpec{
 		TypeQN: oneTypeQN,
-		TypeES: typeexp.ExpSpecME{K: typeexp.OneExp},
+		TypeES: typeexp.ExpSpec{K: typeexp.OneExp},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -455,8 +455,8 @@ func (s *suite) recvSend(t *testing.T) {
 	// and
 	receiverDecSpec := procdec.DecSpec{
 		ProcQN: receiverProcQN,
-		X: termctx.BindClaim{
-			BindPH: "receiver-provision-ph",
+		X: procbind.BindSpec{
+			ChnlPH: "receiver-provision-ph",
 			TypeQN: lolliTypeQN,
 		},
 	}
@@ -467,8 +467,8 @@ func (s *suite) recvSend(t *testing.T) {
 	// and
 	messageDecSpec := procdec.DecSpec{
 		ProcQN: messageProcQN,
-		X: termctx.BindClaim{
-			BindPH: "message-provision-ph",
+		X: procbind.BindSpec{
+			ChnlPH: "message-provision-ph",
 			TypeQN: oneTypeQN,
 		},
 	}
@@ -479,13 +479,13 @@ func (s *suite) recvSend(t *testing.T) {
 	// and
 	senderDecSpec := procdec.DecSpec{
 		ProcQN: senderProcQN,
-		X: termctx.BindClaim{
-			BindPH: "sender-provision-ph",
+		X: procbind.BindSpec{
+			ChnlPH: "sender-provision-ph",
 			TypeQN: oneTypeQN,
 		},
-		Ys: []termctx.BindClaim{
-			{BindPH: "receiver-reception-ph", TypeQN: lolliTypeQN},
-			{BindPH: "message-reception-ph", TypeQN: oneTypeQN},
+		Ys: []procbind.BindSpec{
+			{ChnlPH: "receiver-reception-ph", TypeQN: lolliTypeQN},
+			{ChnlPH: "message-reception-ph", TypeQN: oneTypeQN},
 		},
 	}
 	_, err = s.procDecAPI.Create(senderDecSpec)
@@ -495,8 +495,8 @@ func (s *suite) recvSend(t *testing.T) {
 	// and
 	receiverProcPH := "receiver-proc-ph"
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: mainExecRef.ExecID,
-		ExecID: mainExecRef.ProcID,
+		PoolID: mainExecRef.ID,
+		ExecID: mainExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Call: &procexp.CallSpec{
 				BindPH: mainReceptionPH,
@@ -511,8 +511,8 @@ func (s *suite) recvSend(t *testing.T) {
 	// and
 	messageProcPH := "message-proc-ph"
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: mainExecRef.ExecID,
-		ExecID: mainExecRef.ProcID,
+		PoolID: mainExecRef.ID,
+		ExecID: mainExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Call: &procexp.CallSpec{
 				BindPH: mainReceptionPH,
@@ -527,8 +527,8 @@ func (s *suite) recvSend(t *testing.T) {
 	// and
 	senderProcPH := "sender-proc-ph"
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: mainExecRef.ExecID,
-		ExecID: mainExecRef.ProcID,
+		PoolID: mainExecRef.ID,
+		ExecID: mainExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Call: &procexp.CallSpec{
 				BindPH: mainReceptionPH,
@@ -542,19 +542,19 @@ func (s *suite) recvSend(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	receiverExecRef, err := s.poolExecAPI.Poll(poolexec.PollSpecME{
-		ExecID: mainExecRef.ExecID,
+	receiverExecRef, err := s.poolExecAPI.Poll(poolexec.PollSpec{
+		ExecID: mainExecRef.ID,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	// when
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: mainExecRef.ExecID,
+		PoolID: mainExecRef.ID,
 		ExecID: receiverExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Recv: &procexp.RecvSpec{
-				BindPH: receiverDecSpec.X.BindPH,
+				BindPH: receiverDecSpec.X.ChnlPH,
 				CommPH: "message-reception-ph",
 			},
 		},
@@ -563,20 +563,20 @@ func (s *suite) recvSend(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	senderExecRef, err := s.poolExecAPI.Poll(poolexec.PollSpecME{
-		ExecID: mainExecRef.ExecID,
+	senderExecRef, err := s.poolExecAPI.Poll(poolexec.PollSpec{
+		ExecID: mainExecRef.ID,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	// and
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: mainExecRef.ExecID,
+		PoolID: mainExecRef.ID,
 		ExecID: senderExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Send: &procexp.SendSpec{
-				CommPH: senderDecSpec.Ys[0].BindPH,
-				ValPH:  senderDecSpec.Ys[1].BindPH,
+				CommPH: senderDecSpec.Ys[0].ChnlPH,
+				ValPH:  senderDecSpec.Ys[1].ChnlPH,
 			},
 		},
 	})
@@ -591,7 +591,7 @@ func (s *suite) caseLab(t *testing.T) {
 	s.beforeEach(t)
 	// given
 	mainPoolQN := "main-pool-qn"
-	mainExecRef, err := s.poolExecAPI.Create(poolexec.ExecSpecME{
+	mainExecRef, err := s.poolExecAPI.Create(poolexec.ExecSpec{
 		PoolQN: mainPoolQN,
 	})
 	if err != nil {
@@ -600,48 +600,48 @@ func (s *suite) caseLab(t *testing.T) {
 	// and
 	label := "label-1"
 	// and
-	withRoleSpec := typedef.DefSpec{
+	withTypeSpec := typedef.DefSpec{
 		TypeQN: "with-role",
-		TypeES: typeexp.ExpSpecME{
-			With: &typeexp.SumSpecME{
-				Choices: []typeexp.ChoiceSpecME{
-					{LabQN: label, ContES: typeexp.ExpSpecME{K: typeexp.OneExp}},
+		TypeES: typeexp.ExpSpec{
+			With: &typeexp.SumSpec{
+				Choices: []typeexp.ChoiceSpec{
+					{LabQN: label, ContES: typeexp.ExpSpec{K: typeexp.OneExp}},
 				},
 			},
 		},
 	}
-	withRole, err := s.typeDefAPI.Create(withRoleSpec)
+	withTypeDef, err := s.typeDefAPI.Create(withTypeSpec)
 	if err != nil {
 		t.Fatal(err)
 	}
 	// and
-	oneRoleSpec := typedef.DefSpec{
+	oneTypeSpec := typedef.DefSpec{
 		TypeQN: "one-role",
-		TypeES: typeexp.ExpSpecME{K: typeexp.OneExp},
+		TypeES: typeexp.ExpSpec{K: typeexp.OneExp},
 	}
-	oneRole, err := s.typeDefAPI.Create(oneRoleSpec)
+	oneTypeSnap, err := s.typeDefAPI.Create(oneTypeSpec)
 	if err != nil {
 		t.Fatal(err)
 	}
 	// and
-	withSigSpec := procdec.DecSpec{
+	withDecSpec := procdec.DecSpec{
 		ProcQN: "sig-1",
-		X: termctx.BindClaim{
-			BindPH: "chnl-1",
-			TypeQN: withRole.TypeQN,
+		X: procbind.BindSpec{
+			ChnlPH: "chnl-1",
+			TypeQN: withTypeDef.Spec.TypeQN,
 		},
 	}
-	withSig, err := s.procDecAPI.Create(withSigSpec)
+	withSig, err := s.procDecAPI.Create(withDecSpec)
 	if err != nil {
 		t.Fatal(err)
 	}
 	// and
 	oneSigSpec := procdec.DecSpec{
 		ProcQN: "sig-2",
-		Ys:     []termctx.BindClaim{withSig.X},
-		X: termctx.BindClaim{
-			BindPH: "chnl-2",
-			TypeQN: oneRole.TypeQN,
+		Ys:     []procbind.BindSpec{withSig.Spec.X},
+		X: procbind.BindSpec{
+			ChnlPH: "chnl-2",
+			TypeQN: oneTypeSnap.Spec.TypeQN,
 		},
 	}
 	_, err = s.procDecAPI.Create(oneSigSpec)
@@ -651,8 +651,8 @@ func (s *suite) caseLab(t *testing.T) {
 	// and
 	followerPH := "follower"
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: mainExecRef.ExecID,
-		ExecID: mainExecRef.ProcID,
+		PoolID: mainExecRef.ID,
+		ExecID: mainExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Call: &procexp.CallSpec{
 				BindPH: followerPH,
@@ -666,8 +666,8 @@ func (s *suite) caseLab(t *testing.T) {
 	// and
 	deciderPH := "decider"
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: mainExecRef.ExecID,
-		ExecID: mainExecRef.ProcID,
+		PoolID: mainExecRef.ID,
+		ExecID: mainExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Call: &procexp.CallSpec{
 				BindPH: deciderPH,
@@ -680,15 +680,15 @@ func (s *suite) caseLab(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	followerExecRef, err := s.poolExecAPI.Poll(poolexec.PollSpecME{
-		ExecID: mainExecRef.ExecID,
+	followerExecRef, err := s.poolExecAPI.Poll(poolexec.PollSpec{
+		ExecID: mainExecRef.ID,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	// when
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: mainExecRef.ExecID,
+		PoolID: mainExecRef.ID,
 		ExecID: followerExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Case: &procexp.CaseSpec{
@@ -710,15 +710,15 @@ func (s *suite) caseLab(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	deciderExecRef, err := s.poolExecAPI.Poll(poolexec.PollSpecME{
-		ExecID: mainExecRef.ExecID,
+	deciderExecRef, err := s.poolExecAPI.Poll(poolexec.PollSpec{
+		ExecID: mainExecRef.ID,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	// and
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: mainExecRef.ExecID,
+		PoolID: mainExecRef.ID,
 		ExecID: deciderExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Lab: &procexp.LabSpec{
@@ -738,7 +738,7 @@ func (s *suite) spawnCall(t *testing.T) {
 	s.beforeEach(t)
 	// given
 	mainPoolQN := "main-pool-qn"
-	mainExecRef, err := s.poolExecAPI.Create(poolexec.ExecSpecME{
+	mainExecRef, err := s.poolExecAPI.Create(poolexec.ExecSpec{
 		PoolQN: mainPoolQN,
 	})
 	if err != nil {
@@ -748,7 +748,7 @@ func (s *suite) spawnCall(t *testing.T) {
 	oneDef, err := s.typeDefAPI.Create(
 		typedef.DefSpec{
 			TypeQN: "one-type",
-			TypeES: typeexp.ExpSpecME{K: typeexp.OneExp},
+			TypeES: typeexp.ExpSpec{K: typeexp.OneExp},
 		},
 	)
 	if err != nil {
@@ -757,9 +757,9 @@ func (s *suite) spawnCall(t *testing.T) {
 	// and
 	oneDec1, err := s.procDecAPI.Create(procdec.DecSpec{
 		ProcQN: "one-proc-1",
-		X: termctx.BindClaim{
-			BindPH: "chnl-1",
-			TypeQN: oneDef.TypeQN,
+		X: procbind.BindSpec{
+			ChnlPH: "chnl-1",
+			TypeQN: oneDef.Spec.TypeQN,
 		},
 	})
 	if err != nil {
@@ -768,10 +768,10 @@ func (s *suite) spawnCall(t *testing.T) {
 	// and
 	_, err = s.procDecAPI.Create(procdec.DecSpec{
 		ProcQN: "one-proc-2",
-		Ys:     []termctx.BindClaim{oneDec1.X},
-		X: termctx.BindClaim{
-			BindPH: "chnl-2",
-			TypeQN: oneDef.TypeQN,
+		Ys:     []procbind.BindSpec{oneDec1.Spec.X},
+		X: procbind.BindSpec{
+			ChnlPH: "chnl-2",
+			TypeQN: oneDef.Spec.TypeQN,
 		},
 	})
 	if err != nil {
@@ -780,17 +780,17 @@ func (s *suite) spawnCall(t *testing.T) {
 	// and
 	oneDec3, err := s.procDecAPI.Create(procdec.DecSpec{
 		ProcQN: "one-proc-3",
-		Ys:     []termctx.BindClaim{oneDec1.X},
-		X: termctx.BindClaim{
-			BindPH: "chnl-3",
-			TypeQN: oneDef.TypeQN,
+		Ys:     []procbind.BindSpec{oneDec1.Spec.X},
+		X: procbind.BindSpec{
+			ChnlPH: "chnl-3",
+			TypeQN: oneDef.Spec.TypeQN,
 		},
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	// and
-	poolExecRef, err := s.poolExecAPI.Create(poolexec.ExecSpecME{
+	poolExecRef, err := s.poolExecAPI.Create(poolexec.ExecSpec{
 		PoolQN: "pool-1",
 	})
 	if err != nil {
@@ -799,8 +799,8 @@ func (s *suite) spawnCall(t *testing.T) {
 	// and
 	injecteePH := "injectee"
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: poolExecRef.ExecID,
-		ExecID: poolExecRef.ProcID,
+		PoolID: poolExecRef.ID,
+		ExecID: poolExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Call: &procexp.CallSpec{
 				BindPH: injecteePH,
@@ -814,8 +814,8 @@ func (s *suite) spawnCall(t *testing.T) {
 	// and
 	spawnerPH := "spawner"
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: poolExecRef.ExecID,
-		ExecID: poolExecRef.ProcID,
+		PoolID: poolExecRef.ID,
+		ExecID: poolExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Call: &procexp.CallSpec{
 				BindPH: spawnerPH,
@@ -830,19 +830,19 @@ func (s *suite) spawnCall(t *testing.T) {
 	// and
 	x := "x"
 	// and
-	spawnerExecRef, err := s.poolExecAPI.Poll(poolexec.PollSpecME{
-		ExecID: mainExecRef.ExecID,
+	spawnerExecRef, err := s.poolExecAPI.Poll(poolexec.PollSpec{
+		ExecID: mainExecRef.ID,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	// when
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: poolExecRef.ExecID,
+		PoolID: poolExecRef.ID,
 		ExecID: spawnerExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Spawn: &procexp.SpawnSpec{
-				DecID:   oneDec3.DecID,
+				DecID:   oneDec3.Ref.ID,
 				BindPHs: []string{injecteePH},
 				CommPH:  x,
 				ContES: procexp.ExpSpec{
@@ -869,7 +869,7 @@ func (s *suite) fwd(t *testing.T) {
 	s.beforeEach(t)
 	// given
 	mainPoolQN := "main-pool-qn"
-	mainExecRef, err := s.poolExecAPI.Create(poolexec.ExecSpecME{
+	mainExecRef, err := s.poolExecAPI.Create(poolexec.ExecSpec{
 		PoolQN: mainPoolQN,
 	})
 	if err != nil {
@@ -878,17 +878,17 @@ func (s *suite) fwd(t *testing.T) {
 	// and
 	oneDefSnap, err := s.typeDefAPI.Create(typedef.DefSpec{
 		TypeQN: "one-role",
-		TypeES: typeexp.ExpSpecME{K: typeexp.OneExp},
+		TypeES: typeexp.ExpSpec{K: typeexp.OneExp},
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	// and
 	oneDecSnap, err := s.procDecAPI.Create(procdec.DecSpec{
-		ProcQN: "sig-1",
-		X: termctx.BindClaim{
-			BindPH: "chnl-1",
-			TypeQN: oneDefSnap.TypeQN,
+		ProcQN: "proc-dec-1",
+		X: procbind.BindSpec{
+			ChnlPH: "chnl-1",
+			TypeQN: oneDefSnap.Spec.TypeQN,
 		},
 	})
 	if err != nil {
@@ -896,11 +896,11 @@ func (s *suite) fwd(t *testing.T) {
 	}
 	// and
 	_, err = s.procDecAPI.Create(procdec.DecSpec{
-		ProcQN: "sig-2",
-		Ys:     []termctx.BindClaim{oneDecSnap.X},
-		X: termctx.BindClaim{
-			BindPH: "chnl-2",
-			TypeQN: oneDefSnap.TypeQN,
+		ProcQN: "proc-dec-2",
+		Ys:     []procbind.BindSpec{oneDecSnap.Spec.X},
+		X: procbind.BindSpec{
+			ChnlPH: "chnl-2",
+			TypeQN: oneDefSnap.Spec.TypeQN,
 		},
 	})
 	if err != nil {
@@ -908,11 +908,11 @@ func (s *suite) fwd(t *testing.T) {
 	}
 	// and
 	_, err = s.procDecAPI.Create(procdec.DecSpec{
-		ProcQN: "sig-3",
-		Ys:     []termctx.BindClaim{oneDecSnap.X},
-		X: termctx.BindClaim{
-			BindPH: "chnl-3",
-			TypeQN: oneDefSnap.TypeQN,
+		ProcQN: "proc-dec-3",
+		Ys:     []procbind.BindSpec{oneDecSnap.Spec.X},
+		X: procbind.BindSpec{
+			ChnlPH: "chnl-3",
+			TypeQN: oneDefSnap.Spec.TypeQN,
 		},
 	})
 	if err != nil {
@@ -921,8 +921,8 @@ func (s *suite) fwd(t *testing.T) {
 	// and
 	closerChnlPH := "closer"
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: mainExecRef.ExecID,
-		ExecID: mainExecRef.ProcID,
+		PoolID: mainExecRef.ID,
+		ExecID: mainExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Call: &procexp.CallSpec{
 				BindPH: closerChnlPH,
@@ -936,8 +936,8 @@ func (s *suite) fwd(t *testing.T) {
 	// and
 	forwarderChnlPH := "forwarder"
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: mainExecRef.ExecID,
-		ExecID: mainExecRef.ProcID,
+		PoolID: mainExecRef.ID,
+		ExecID: mainExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Call: &procexp.CallSpec{
 				BindPH: forwarderChnlPH,
@@ -952,8 +952,8 @@ func (s *suite) fwd(t *testing.T) {
 	// and
 	waiterChnlPH := "waiter"
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: mainExecRef.ExecID,
-		ExecID: mainExecRef.ProcID,
+		PoolID: mainExecRef.ID,
+		ExecID: mainExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Call: &procexp.CallSpec{
 				BindPH: waiterChnlPH,
@@ -966,15 +966,15 @@ func (s *suite) fwd(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	closerExecRef, err := s.poolExecAPI.Poll(poolexec.PollSpecME{
-		ExecID: mainExecRef.ExecID,
+	closerExecRef, err := s.poolExecAPI.Poll(poolexec.PollSpec{
+		ExecID: mainExecRef.ID,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	// and
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: mainExecRef.ExecID,
+		PoolID: mainExecRef.ID,
 		ExecID: closerExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Close: &procexp.CloseSpec{
@@ -986,15 +986,15 @@ func (s *suite) fwd(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	forwarderExecRef, err := s.poolExecAPI.Poll(poolexec.PollSpecME{
-		ExecID: mainExecRef.ExecID,
+	forwarderExecRef, err := s.poolExecAPI.Poll(poolexec.PollSpec{
+		ExecID: mainExecRef.ID,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	// when
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: mainExecRef.ExecID,
+		PoolID: mainExecRef.ID,
 		ExecID: forwarderExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Fwd: &procexp.FwdSpec{
@@ -1007,15 +1007,15 @@ func (s *suite) fwd(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	waiterExecRef, err := s.poolExecAPI.Poll(poolexec.PollSpecME{
-		ExecID: mainExecRef.ExecID,
+	waiterExecRef, err := s.poolExecAPI.Poll(poolexec.PollSpec{
+		ExecID: mainExecRef.ID,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	// and
 	err = s.procExecAPI.Run(procexec.ExecSpec{
-		PoolID: mainExecRef.ExecID,
+		PoolID: mainExecRef.ID,
 		ExecID: waiterExecRef.ID,
 		ProcES: procexp.ExpSpec{
 			Wait: &procexp.WaitSpec{

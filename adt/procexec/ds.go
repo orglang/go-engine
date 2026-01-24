@@ -4,34 +4,25 @@ import (
 	"orglang/go-runtime/lib/db"
 
 	"orglang/go-runtime/adt/identity"
+	"orglang/go-runtime/adt/procbind"
 	"orglang/go-runtime/adt/procstep"
+	"orglang/go-runtime/adt/uniqref"
 )
 
 type Repo interface {
-	SelectProc(db.Source, identity.ADT) (Cfg, error)
-	UpdateProc(db.Source, Mod) error
+	SelectSnap(db.Source, ExecRef) (ExecSnap, error)
+	UpdateProc(db.Source, ExecMod) error
 	SelectMain(db.Source, identity.ADT) (MainCfg, error)
 	UpdateMain(db.Source, MainMod) error
 }
 
-type modDS struct {
-	Locks []lockDS
-	Binds []bindDS
+type execModDS struct {
+	Locks []execRefDS
+	Binds []procbind.BindRecDS
 	Steps []procstep.StepRecDS
 }
 
-type lockDS struct {
-	PoolID string
-	PoolRN int64
-}
-
-type bindDS struct {
-	ExecID  string
-	ChnlPH  string
-	ChnlID  string
-	StateID string
-	PoolRN  int64
-}
+type execRefDS = uniqref.Data
 
 type liabDS struct {
 	PoolID string `db:"pool_id"`

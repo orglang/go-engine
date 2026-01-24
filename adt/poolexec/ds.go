@@ -15,8 +15,6 @@ type Repo interface {
 	InsertLiab(db.Source, procexec.Liab) error
 	SelectRefs(db.Source) ([]ExecRef, error)
 	SelectSubs(db.Source, identity.ADT) (ExecSnap, error)
-	SelectProc(db.Source, identity.ADT) (procexec.Cfg, error)
-	UpdateProc(db.Source, procexec.Mod) error
 }
 
 type execRefDS struct {

@@ -141,7 +141,7 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]DefRef, error) {
 	return DataToDefRefs(dtos)
 }
 
-func (dao *pgxDAO) SelectRecByID(source db.Source, defRef DefRef) (DefRec, error) {
+func (dao *pgxDAO) SelectRecByRef(source db.Source, defRef DefRef) (DefRec, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("defRef", defRef)
 	rows, err := ds.Conn.Query(ds.Ctx, selectById, defRef.ID.String())
@@ -177,7 +177,7 @@ func (dao *pgxDAO) SelectRecByQN(source db.Source, typeQN uniqsym.ADT) (DefRec, 
 	return DataToDefRec(dto)
 }
 
-func (dao *pgxDAO) SelectRecsByIDs(source db.Source, defRefs []DefRef) (_ []DefRec, err error) {
+func (dao *pgxDAO) SelectRecsByRefs(source db.Source, defRefs []DefRef) (_ []DefRec, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	if len(defRefs) == 0 {
 		return []DefRec{}, nil

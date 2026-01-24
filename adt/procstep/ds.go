@@ -5,21 +5,18 @@ import (
 
 	"orglang/go-runtime/lib/db"
 
-	"orglang/go-runtime/adt/identity"
 	"orglang/go-runtime/adt/procexp"
 )
 
 type Repo interface {
 	InsertRecs(db.Source, ...StepRec) error
-	SelectRecByID(db.Source, identity.ADT) (StepRec, error)
 }
 
 type StepRecDS struct {
-	ID     string           `db:"id"`
 	K      stepKindDS       `db:"kind"`
-	PID    sql.NullString   `db:"pid"`
-	VID    sql.NullString   `db:"vid"`
-	ProcER procexp.ExpRecDS `db:"spec"`
+	ExecID sql.NullString   `db:"exec_id"`
+	ChnlID sql.NullString   `db:"chnl_id"`
+	ProcER procexp.ExpRecDS `db:"proc_er"`
 }
 
 type stepKindDS int

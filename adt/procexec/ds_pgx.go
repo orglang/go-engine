@@ -10,9 +10,9 @@ import (
 	"orglang/go-runtime/lib/db"
 
 	"orglang/go-runtime/adt/identity"
+	"orglang/go-runtime/adt/procbind"
 	"orglang/go-runtime/adt/procstep"
 	"orglang/go-runtime/adt/revnum"
-	"orglang/go-runtime/adt/termctx"
 )
 
 // Adapter
@@ -38,49 +38,49 @@ func (dao *pgxDAO) UpdateMain(db.Source, MainMod) error {
 	return nil
 }
 
-func (dao *pgxDAO) SelectProc(source db.Source, execID identity.ADT) (Cfg, error) {
+func (dao *pgxDAO) SelectSnap(source db.Source, execRef ExecRef) (ExecSnap, error) {
 	ds := db.MustConform[db.SourcePgx](source)
-	idAttr := slog.Any("procID", execID)
-	chnlRows, err := ds.Conn.Query(ds.Ctx, selectChnls, execID.String())
+	refAttr := slog.Any("execRef", execRef)
+	chnlRows, err := ds.Conn.Query(ds.Ctx, selectChnls, execRef.ID.String())
 	if err != nil {
-		dao.log.Error("execution failed", idAttr)
-		return Cfg{}, err
+		dao.log.Error("execution failed", refAttr)
+		return ExecSnap{}, err
 	}
 	defer chnlRows.Close()
 	chnlDtos, err := pgx.CollectRows(chnlRows, pgx.RowToStructByName[epDS])
 	if err != nil {
-		dao.log.Error("collection failed", idAttr, slog.Any("t", reflect.TypeOf(chnlDtos)))
-		return Cfg{}, err
+		dao.log.Error("collection failed", refAttr, slog.Any("t", reflect.TypeOf(chnlDtos)))
+		return ExecSnap{}, err
 	}
 	chnls, err := DataToEPs(chnlDtos)
 	if err != nil {
-		dao.log.Error("conversion failed", idAttr)
-		return Cfg{}, err
+		dao.log.Error("conversion failed", refAttr)
+		return ExecSnap{}, err
 	}
-	stepRows, err := ds.Conn.Query(ds.Ctx, selectSteps, execID.String())
+	stepRows, err := ds.Conn.Query(ds.Ctx, selectSteps, execRef.ID.String())
 	if err != nil {
-		dao.log.Error("execution failed", idAttr)
-		return Cfg{}, err
+		dao.log.Error("execution failed", refAttr)
+		return ExecSnap{}, err
 	}
 	defer stepRows.Close()
 	stepDtos, err := pgx.CollectRows(stepRows, pgx.RowToStructByName[procstep.StepRecDS])
 	if err != nil {
-		dao.log.Error("collection failed", idAttr, slog.Any("t", reflect.TypeOf(stepDtos)))
-		return Cfg{}, err
+		dao.log.Error("collection failed", refAttr, slog.Any("t", reflect.TypeOf(stepDtos)))
+		return ExecSnap{}, err
 	}
 	steps, err := procstep.DataToSemRecs(stepDtos)
 	if err != nil {
-		dao.log.Error("conversion failed", idAttr)
-		return Cfg{}, err
+		dao.log.Error("conversion failed", refAttr)
+		return ExecSnap{}, err
 	}
-	dao.log.Debug("selection succeed", idAttr)
-	return Cfg{
-		Chnls: termctx.IndexBy(ChnlPH, chnls),
-		Steps: termctx.IndexBy(procstep.ChnlID, steps),
+	dao.log.Debug("selection succeed", refAttr)
+	return ExecSnap{
+		Chnls:    procbind.IndexBy(ChnlPH, chnls),
+		StepRecs: procbind.IndexBy(procstep.ChnlID, steps),
 	}, nil
 }
 
-func (dao *pgxDAO) UpdateProc(source db.Source, mod Mod) (err error) {
+func (dao *pgxDAO) UpdateProc(source db.Source, mod ExecMod) (err error) {
 	if len(mod.Locks) == 0 {
 		panic("empty locks")
 	}
@@ -90,25 +90,25 @@ func (dao *pgxDAO) UpdateProc(source db.Source, mod Mod) (err error) {
 		dao.log.Error("conversion failed")
 		return err
 	}
-	// bindings
-	bndReq := pgx.Batch{}
+	// binds
+	bindReq := pgx.Batch{}
 	for _, dto := range dto.Binds {
 		args := pgx.NamedArgs{
-			"proc_id":  dto.ExecID,
+			"exec_id":  dto.ExecID,
+			"exec_rn":  dto.ExecRN,
 			"chnl_ph":  dto.ChnlPH,
 			"chnl_id":  dto.ChnlID,
 			"state_id": dto.StateID,
-			"rev":      dto.PoolRN,
 		}
-		bndReq.Queue(insertBnd, args)
+		bindReq.Queue(insertBind, args)
 	}
-	if bndReq.Len() > 0 {
-		bndRes := ds.Conn.SendBatch(ds.Ctx, &bndReq)
+	if bindReq.Len() > 0 {
+		bindRes := ds.Conn.SendBatch(ds.Ctx, &bindReq)
 		defer func() {
-			err = errors.Join(err, bndRes.Close())
+			err = errors.Join(err, bindRes.Close())
 		}()
 		for _, dto := range dto.Binds {
-			_, err = bndRes.Exec()
+			_, err = bindRes.Exec()
 			if err != nil {
 				dao.log.Error("execution failed", slog.Any("dto", dto))
 			}
@@ -121,10 +121,10 @@ func (dao *pgxDAO) UpdateProc(source db.Source, mod Mod) (err error) {
 	stepReq := pgx.Batch{}
 	for _, dto := range dto.Steps {
 		args := pgx.NamedArgs{
-			"proc_id": dto.PID,
-			"chnl_id": dto.VID,
 			"kind":    dto.K,
-			"spec":    dto.ProcER,
+			"proc_id": dto.ExecID,
+			"chnl_id": dto.ChnlID,
+			"proc_er": dto.ProcER,
 		}
 		stepReq.Queue(insertStep, args)
 	}
@@ -143,27 +143,27 @@ func (dao *pgxDAO) UpdateProc(source db.Source, mod Mod) (err error) {
 			return err
 		}
 	}
-	// roots
-	rootReq := pgx.Batch{}
+	// execs
+	execReq := pgx.Batch{}
 	for _, dto := range dto.Locks {
 		args := pgx.NamedArgs{
-			"pool_id": dto.PoolID,
-			"rev":     dto.PoolRN,
+			"exec_id": dto.ID,
+			"exec_rn": dto.RN,
 		}
-		rootReq.Queue(updateRoot, args)
+		execReq.Queue(updateExec, args)
 	}
-	rootRes := ds.Conn.SendBatch(ds.Ctx, &rootReq)
+	execRes := ds.Conn.SendBatch(ds.Ctx, &execReq)
 	defer func() {
-		err = errors.Join(err, rootRes.Close())
+		err = errors.Join(err, execRes.Close())
 	}()
 	for _, dto := range dto.Locks {
-		ct, err := rootRes.Exec()
+		ct, err := execRes.Exec()
 		if err != nil {
 			dao.log.Error("execution failed", slog.Any("dto", dto))
 		}
 		if ct.RowsAffected() == 0 {
 			dao.log.Error("update failed")
-			return errOptimisticUpdate(revnum.ADT(dto.PoolRN))
+			return errOptimisticUpdate(revnum.ADT(dto.RN))
 		}
 	}
 	if err != nil {
@@ -174,25 +174,25 @@ func (dao *pgxDAO) UpdateProc(source db.Source, mod Mod) (err error) {
 }
 
 const (
-	insertBnd = `
-		insert into pool_assets (
-			pool_id, chnl_key, state_id, ex_pool_id, rev
+	insertBind = `
+		insert into proc_binds (
+			exec_id, chnl_ph, chnl_id, state_id, exec_rn
 		) values (
-			@pool_id, @chnl_key, @state_id, @ex_pool_id, @rev
+			@exec_id, @chnl_ph, @chnl_id, @state_id, @exec_rn
 		)`
 
 	insertStep = `
-		insert into pool_steps (
-			proc_id, chnl_id, kind, spec
+		insert into proc_steps (
+			exec_id, chnl_id, kind, proc_er
 		) values (
-			@proc_id, @chnl_id, @kind, @spec
+			@exec_id, @chnl_id, @kind, @proc_er
 		)`
 
-	updateRoot = `
-		update pool_roots
-		set rev = @rev + 1
-		where pool_id = @pool_id
-			and rev = @rev`
+	updateExec = `
+		update proc_execs
+		set exec_rn = @exec_rn + 1
+		where exec_id = @exec_id
+			and exec_rn = @exec_rn`
 
 	selectChnls = `
 		with bnds as not materialized (
@@ -214,7 +214,7 @@ const (
 		from bnds bnd
 		left join liabs liab
 			on liab.proc_id = bnd.proc_id
-		left join pool_roots prvd
+		left join pool_execs prvd
 			on prvd.pool_id = liab.pool_id`
 
 	selectSteps = ``

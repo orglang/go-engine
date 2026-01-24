@@ -13,8 +13,8 @@ type DefSpecVP struct {
 type DefRefVP = uniqref.Msg
 
 type DefSnapVP struct {
-	DefID  string            `json:"def_id"`
-	DefRN  int64             `json:"def_rn"`
-	Title  string            `json:"title"`
-	TypeES typeexp.ExpSpecME `json:"type_es"`
+	DefID  string          `json:"def_id"`
+	DefRN  int64           `json:"def_rn"`
+	Title  string          `json:"title"`
+	TypeES typeexp.ExpSpec `json:"type_es"`
 }

@@ -9,10 +9,10 @@ import (
 	"orglang/go-runtime/lib/db"
 
 	"orglang/go-runtime/adt/identity"
+	"orglang/go-runtime/adt/procbind"
 	"orglang/go-runtime/adt/revnum"
 	"orglang/go-runtime/adt/symbol"
 	"orglang/go-runtime/adt/syndec"
-	"orglang/go-runtime/adt/termctx"
 	"orglang/go-runtime/adt/uniqref"
 	"orglang/go-runtime/adt/uniqsym"
 )
@@ -29,23 +29,23 @@ type DecRef = uniqref.ADT
 type DecSpec struct {
 	ProcQN uniqsym.ADT
 	// endpoint where process acts as a provider
-	ProvisionEP termctx.BindClaim
+	ProvisionEP procbind.BindSpec
 	// endpoints where process acts as a client
-	ReceptionEPs []termctx.BindClaim
+	ReceptionEPs []procbind.BindSpec
 }
 
 type DecRec struct {
 	ref   DecRef
-	X     termctx.BindClaim
-	Ys    []termctx.BindClaim
+	X     procbind.BindSpec
+	Ys    []procbind.BindSpec
 	Title string
 }
 
 // aka ExpDec or ExpDecDef without expression
 type DecSnap struct {
 	ref   DecRef
-	X     termctx.BindClaim
-	Ys    []termctx.BindClaim
+	X     procbind.BindSpec
+	Ys    []procbind.BindSpec
 	Title string
 }
 
@@ -117,7 +117,7 @@ func (s *service) Create(spec DecSpec) (_ DecSnap, err error) {
 func (s *service) RetrieveSnap(ref DecRef) (snap DecSnap, err error) {
 	ctx := context.Background()
 	s.operator.Implicit(ctx, func(ds db.Source) error {
-		snap, err = s.procDecs.SelectByID(ds, ref)
+		snap, err = s.procDecs.SelectSnapByRef(ds, ref)
 		return err
 	})
 	if err != nil {
@@ -130,7 +130,7 @@ func (s *service) RetrieveSnap(ref DecRef) (snap DecSnap, err error) {
 func (s *service) RetreiveRefs() (refs []DecRef, err error) {
 	ctx := context.Background()
 	s.operator.Implicit(ctx, func(ds db.Source) error {
-		refs, err = s.procDecs.SelectAll(ds)
+		refs, err = s.procDecs.SelectRefs(ds)
 		return err
 	})
 	if err != nil {

@@ -6,12 +6,13 @@ import (
 	"orglang/go-runtime/adt/identity"
 	"orglang/go-runtime/adt/procexp"
 	"orglang/go-runtime/adt/revnum"
+	"orglang/go-runtime/adt/uniqref"
 )
 
 type StepSpec struct {
-	ExecID identity.ADT
-	ProcID identity.ADT
-	ProcES procexp.ExpSpec
+	PoolID  identity.ADT
+	ExecRef uniqref.ADT
+	ProcES  procexp.ExpSpec
 }
 
 // aka Sem
@@ -22,22 +23,21 @@ type StepRec interface {
 func ChnlID(r StepRec) identity.ADT { return r.step() }
 
 type MsgRec struct {
-	PoolID identity.ADT
-	ExecID identity.ADT
-	ChnlID identity.ADT
-	ValER  procexp.ExpRec
-	PoolRN revnum.ADT
-	ProcRN revnum.ADT
+	PoolID  identity.ADT
+	PoolRN  revnum.ADT
+	ExecRef uniqref.ADT
+	ChnlID  identity.ADT
+	ValER   procexp.ExpRec
 }
 
 func (r MsgRec) step() identity.ADT { return r.ChnlID }
 
 type SvcRec struct {
-	PoolID identity.ADT
-	ExecID identity.ADT
-	ChnlID identity.ADT
-	ContER procexp.ExpRec
-	PoolRN revnum.ADT
+	PoolID  identity.ADT
+	PoolRN  revnum.ADT
+	ExecRef uniqref.ADT
+	ChnlID  identity.ADT
+	ContER  procexp.ExpRec
 }
 
 func (r SvcRec) step() identity.ADT { return r.ChnlID }

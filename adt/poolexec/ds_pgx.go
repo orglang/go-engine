@@ -1,7 +1,6 @@
 package poolexec
 
 import (
-	"errors"
 	"log/slog"
 	"reflect"
 
@@ -10,13 +9,11 @@ import (
 	"orglang/go-runtime/lib/db"
 
 	"orglang/go-runtime/adt/identity"
+	"orglang/go-runtime/adt/procbind"
 	"orglang/go-runtime/adt/procexec"
 	"orglang/go-runtime/adt/procstep"
-	"orglang/go-runtime/adt/revnum"
-	"orglang/go-runtime/adt/termctx"
 )
 
-// Adapter
 type pgxDAO struct {
 	log *slog.Logger
 }
@@ -66,139 +63,46 @@ func (dao *pgxDAO) InsertLiab(source db.Source, liab procexec.Liab) (err error) 
 	return nil
 }
 
-func (dao *pgxDAO) SelectProc(source db.Source, procID identity.ADT) (procexec.Cfg, error) {
+func (dao *pgxDAO) SelectProc(source db.Source, procID identity.ADT) (procexec.ExecSnap, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	idAttr := slog.Any("procID", procID)
 	chnlRows, err := ds.Conn.Query(ds.Ctx, selectChnls, procID.String())
 	if err != nil {
 		dao.log.Error("execution failed", idAttr)
-		return procexec.Cfg{}, err
+		return procexec.ExecSnap{}, err
 	}
 	defer chnlRows.Close()
 	chnlDtos, err := pgx.CollectRows(chnlRows, pgx.RowToStructByName[epDS])
 	if err != nil {
 		dao.log.Error("collection failed", idAttr, slog.Any("t", reflect.TypeOf(chnlDtos)))
-		return procexec.Cfg{}, err
+		return procexec.ExecSnap{}, err
 	}
 	chnls, err := DataToEPs(chnlDtos)
 	if err != nil {
 		dao.log.Error("conversion failed", idAttr)
-		return procexec.Cfg{}, err
+		return procexec.ExecSnap{}, err
 	}
 	stepRows, err := ds.Conn.Query(ds.Ctx, selectSteps, procID.String())
 	if err != nil {
 		dao.log.Error("execution failed", idAttr)
-		return procexec.Cfg{}, err
+		return procexec.ExecSnap{}, err
 	}
 	defer stepRows.Close()
 	stepDtos, err := pgx.CollectRows(stepRows, pgx.RowToStructByName[procstep.StepRecDS])
 	if err != nil {
 		dao.log.Error("collection failed", idAttr, slog.Any("t", reflect.TypeOf(stepDtos)))
-		return procexec.Cfg{}, err
+		return procexec.ExecSnap{}, err
 	}
 	steps, err := procstep.DataToSemRecs(stepDtos)
 	if err != nil {
 		dao.log.Error("conversion failed", idAttr)
-		return procexec.Cfg{}, err
+		return procexec.ExecSnap{}, err
 	}
 	dao.log.Debug("selection succeed", idAttr)
-	return procexec.Cfg{
-		Chnls: termctx.IndexBy(procexec.ChnlPH, chnls),
-		Steps: termctx.IndexBy(procstep.ChnlID, steps),
+	return procexec.ExecSnap{
+		Chnls:    procbind.IndexBy(procexec.ChnlPH, chnls),
+		StepRecs: procbind.IndexBy(procstep.ChnlID, steps),
 	}, nil
-}
-
-func (dao *pgxDAO) UpdateProc(source db.Source, mod procexec.Mod) (err error) {
-	if len(mod.Locks) == 0 {
-		panic("empty locks")
-	}
-	ds := db.MustConform[db.SourcePgx](source)
-	dto, err := procexec.DataFromMod(mod)
-	if err != nil {
-		dao.log.Error("conversion failed")
-		return err
-	}
-	// bindings
-	bndReq := pgx.Batch{}
-	for _, dto := range dto.Binds {
-		args := pgx.NamedArgs{
-			"proc_id":  dto.ExecID,
-			"chnl_ph":  dto.ChnlPH,
-			"chnl_id":  dto.ChnlID,
-			"state_id": dto.StateID,
-			"rev":      dto.PoolRN,
-		}
-		bndReq.Queue(insertBnd, args)
-	}
-	if bndReq.Len() > 0 {
-		bndRes := ds.Conn.SendBatch(ds.Ctx, &bndReq)
-		defer func() {
-			err = errors.Join(err, bndRes.Close())
-		}()
-		for _, dto := range dto.Binds {
-			_, err = bndRes.Exec()
-			if err != nil {
-				dao.log.Error("execution failed", slog.Any("dto", dto))
-			}
-		}
-		if err != nil {
-			return err
-		}
-	}
-	// steps
-	stepReq := pgx.Batch{}
-	for _, dto := range dto.Steps {
-		args := pgx.NamedArgs{
-			"proc_id": dto.PID,
-			"chnl_id": dto.VID,
-			"kind":    dto.K,
-			"spec":    dto.ProcER,
-		}
-		stepReq.Queue(insertStep, args)
-	}
-	if stepReq.Len() > 0 {
-		stepRes := ds.Conn.SendBatch(ds.Ctx, &stepReq)
-		defer func() {
-			err = errors.Join(err, stepRes.Close())
-		}()
-		for _, dto := range dto.Steps {
-			_, err = stepRes.Exec()
-			if err != nil {
-				dao.log.Error("execution failed", slog.Any("dto", dto))
-			}
-		}
-		if err != nil {
-			return err
-		}
-	}
-	// roots
-	rootReq := pgx.Batch{}
-	for _, dto := range dto.Locks {
-		args := pgx.NamedArgs{
-			"pool_id": dto.PoolID,
-			"rev":     dto.PoolRN,
-		}
-		rootReq.Queue(updateRoot, args)
-	}
-	rootRes := ds.Conn.SendBatch(ds.Ctx, &rootReq)
-	defer func() {
-		err = errors.Join(err, rootRes.Close())
-	}()
-	for _, dto := range dto.Locks {
-		ct, err := rootRes.Exec()
-		if err != nil {
-			dao.log.Error("execution failed", slog.Any("dto", dto))
-		}
-		if ct.RowsAffected() == 0 {
-			dao.log.Error("update failed")
-			return errOptimisticUpdate(revnum.ADT(dto.PoolRN))
-		}
-	}
-	if err != nil {
-		return err
-	}
-	dao.log.Debug("update succeed")
-	return nil
 }
 
 func (dao *pgxDAO) SelectSubs(source db.Source, poolID identity.ADT) (ExecSnap, error) {

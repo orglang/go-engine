@@ -10,8 +10,8 @@ import (
 // goverter:extend orglang/go-runtime/adt/revnum:Convert.*
 // goverter:extend Msg.*
 var (
-	MsgFromExpRefs func([]ExpRef) []typeexp.ExpRefME
-	MsgToExpRefs   func([]typeexp.ExpRefME) ([]ExpRef, error)
+	MsgFromExpRefs func([]ExpRef) []typeexp.ExpRef
+	MsgToExpRefs   func([]typeexp.ExpRef) ([]ExpRef, error)
 )
 
 // goverter:variables

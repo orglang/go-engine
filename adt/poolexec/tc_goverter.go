@@ -18,12 +18,12 @@ var (
 // goverter:extend orglang/go-runtime/adt/identity:Convert.*
 // goverter:extend orglang/go-runtime/adt/procdef:Msg.*
 var (
-	MsgToExecSpec   func(poolexec.ExecSpecME) (ExecSpec, error)
-	MsgFromExecSpec func(ExecSpec) poolexec.ExecSpecME
-	MsgToExecRef    func(poolexec.ExecRefME) (ExecRef, error)
-	MsgFromExecRef  func(ExecRef) poolexec.ExecRefME
-	MsgToExecSnap   func(poolexec.ExecSnapME) (ExecSnap, error)
-	MsgFromExecSnap func(ExecSnap) poolexec.ExecSnapME
+	MsgToExecSpec   func(poolexec.ExecSpec) (ExecSpec, error)
+	MsgFromExecSpec func(ExecSpec) poolexec.ExecSpec
+	MsgToExecRef    func(poolexec.ExecRef) (ExecRef, error)
+	MsgFromExecRef  func(ExecRef) poolexec.ExecRef
+	MsgToExecSnap   func(poolexec.ExecSnap) (ExecSnap, error)
+	MsgFromExecSnap func(ExecSnap) poolexec.ExecSnap
 )
 
 // goverter:variables

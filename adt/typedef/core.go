@@ -145,7 +145,7 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 	s.log.Debug("modification started", refAttr)
 	var rec DefRec
 	s.operator.Implicit(ctx, func(ds db.Source) error {
-		rec, err = s.typeDefs.SelectRecByID(ds, snap.ref)
+		rec, err = s.typeDefs.SelectRecByRef(ds, snap.ref)
 		return err
 	})
 	if err != nil {
@@ -193,7 +193,7 @@ func (s *service) RetrieveSnap(defID DefRef) (_ DefSnap, err error) {
 	ctx := context.Background()
 	var root DefRec
 	s.operator.Implicit(ctx, func(ds db.Source) error {
-		root, err = s.typeDefs.SelectRecByID(ds, defID)
+		root, err = s.typeDefs.SelectRecByRef(ds, defID)
 		return err
 	})
 	if err != nil {

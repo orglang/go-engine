@@ -6,7 +6,7 @@ import (
 	"orglang/go-runtime/lib/db"
 
 	"orglang/go-runtime/adt/identity"
-	"orglang/go-runtime/adt/termctx"
+	"orglang/go-runtime/adt/procbind"
 	"orglang/go-runtime/adt/uniqsym"
 )
 
@@ -23,13 +23,13 @@ func newAPI() API {
 type DecSpec struct {
 	PoolQN uniqsym.ADT
 	// Endpoints where pool acts as a provider for insiders
-	InsiderProvisionBCs []termctx.BindClaim
+	InsiderProvisionBCs []procbind.BindSpec
 	// Endpoints where pool acts as a client for insiders
-	InsiderReceptionBCs []termctx.BindClaim
+	InsiderReceptionBCs []procbind.BindSpec
 	// Endpoints where pool acts as a provider for outsiders
-	OutsiderProvisionBCs []termctx.BindClaim
+	OutsiderProvisionBCs []procbind.BindSpec
 	// Endpoints where pool acts as a client for outsiders
-	OutsiderReceptionBCs []termctx.BindClaim
+	OutsiderReceptionBCs []procbind.BindSpec
 }
 
 type DecRef struct {

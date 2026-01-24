@@ -13,6 +13,7 @@ import (
 
 	"github.com/orglang/go-sdk/lib/rc"
 
+	"github.com/orglang/go-sdk/adt/poolbind"
 	"github.com/orglang/go-sdk/adt/pooldec"
 	"github.com/orglang/go-sdk/adt/poolexec"
 	"github.com/orglang/go-sdk/adt/poolexp"
@@ -23,6 +24,8 @@ import (
 	"github.com/orglang/go-sdk/adt/procstep"
 	"github.com/orglang/go-sdk/adt/typedef"
 	"github.com/orglang/go-sdk/adt/typeexp"
+	"github.com/orglang/go-sdk/adt/xactdef"
+	"github.com/orglang/go-sdk/adt/xactexp"
 )
 
 func TestPool(t *testing.T) {
@@ -40,6 +43,7 @@ func TestPool(t *testing.T) {
 type suite struct {
 	poolDecAPI  e2e.PoolDecAPI
 	poolExecAPI e2e.PoolExecAPI
+	xactDefAPI  e2e.XactDefAPI
 	procDecAPI  e2e.ProcDecAPI
 	procExecAPI e2e.ProcExecAPI
 	typeDefAPI  e2e.TypeDefAPI
@@ -107,38 +111,24 @@ func (s *suite) createRetreive(t *testing.T) {
 func (s *suite) waitClose(t *testing.T) {
 	s.beforeEach(t)
 	// given
-	poolTypeQN := "pool-type-qn"
 	closerProcQN := "closer-proc-qn"
 	waiterProcQN := "waiter-proc-qn"
-	_, err := s.typeDefAPI.Create(typedef.DefSpec{
-		TypeQN: poolTypeQN,
-		TypeES: typeexp.ExpSpec{
-			K: typeexp.UpExp,
-			Up: &typeexp.ShiftSpec{
-				ContES: typeexp.ExpSpec{
-					K: typeexp.XactExp,
-					Xact: &typeexp.XactSpec{
-						ContESs: map[string]typeexp.ExpSpec{
-							closerProcQN: {
-								K: typeexp.DownExp,
-								Down: &typeexp.ShiftSpec{
-									ContES: typeexp.ExpSpec{
-										K:    typeexp.LinkExp,
-										Link: &typeexp.LinkSpec{TypeQN: poolTypeQN},
-									},
-								},
-							},
-							waiterProcQN: {
-								K: typeexp.DownExp,
-								Down: &typeexp.ShiftSpec{
-									ContES: typeexp.ExpSpec{
-										K:    typeexp.LinkExp,
-										Link: &typeexp.LinkSpec{TypeQN: poolTypeQN},
-									},
-								},
-							},
-						},
-					},
+	// and
+	withXactQN := "with-xact-qn"
+	_, err := s.xactDefAPI.Create(xactdef.DefSpec{
+		XactQN: withXactQN,
+		XactES: xactexp.ExpSpec{
+			K: xactexp.With,
+			With: &xactexp.SumSpec{
+				Choices: []xactexp.ChoiceSpec{
+					{TermQN: closerProcQN, ContES: xactexp.ExpSpec{
+						K:    xactexp.Link,
+						Link: &xactexp.LinkSpec{XactQN: withXactQN},
+					}},
+					{TermQN: waiterProcQN, ContES: xactexp.ExpSpec{
+						K:    xactexp.Link,
+						Link: &xactexp.LinkSpec{XactQN: withXactQN},
+					}},
 				},
 			},
 		},
@@ -152,13 +142,13 @@ func (s *suite) waitClose(t *testing.T) {
 	poolReceptionPH := "pool-reception-ph"
 	_, err = s.poolDecAPI.Create(pooldec.DecSpec{
 		PoolQN: myPoolQN,
-		InsiderProvisionBS: procbind.BindSpec{
+		ProviderBS: poolbind.BindSpec{
 			ChnlPH: poolProvisionPH,
-			TypeQN: poolTypeQN,
+			XactQN: withXactQN,
 		},
-		InsiderReceptionBS: procbind.BindSpec{
+		ClientBS: poolbind.BindSpec{
 			ChnlPH: poolReceptionPH,
-			TypeQN: poolTypeQN,
+			XactQN: withXactQN,
 		},
 	})
 	if err != nil {
@@ -175,7 +165,7 @@ func (s *suite) waitClose(t *testing.T) {
 	oneTypeQN := "one-type-qn"
 	_, err = s.typeDefAPI.Create(typedef.DefSpec{
 		TypeQN: oneTypeQN,
-		TypeES: typeexp.ExpSpec{K: typeexp.OneExp},
+		TypeES: typeexp.ExpSpec{K: typeexp.One},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -335,48 +325,29 @@ func (s *suite) waitClose(t *testing.T) {
 func (s *suite) recvSend(t *testing.T) {
 	s.beforeEach(t)
 	// given
-	poolTypeQN := "pool-type-qn"
 	senderProcQN := "sender-proc-qn"
 	receiverProcQN := "receiver-proc-qn"
 	messageProcQN := "message-proc-qn"
-	_, err := s.typeDefAPI.Create(typedef.DefSpec{
-		TypeQN: poolTypeQN,
-		TypeES: typeexp.ExpSpec{
-			K: typeexp.UpExp,
-			Up: &typeexp.ShiftSpec{
-				ContES: typeexp.ExpSpec{
-					K: typeexp.XactExp,
-					Xact: &typeexp.XactSpec{
-						ContESs: map[string]typeexp.ExpSpec{
-							senderProcQN: typeexp.ExpSpec{
-								K: typeexp.DownExp,
-								Down: &typeexp.ShiftSpec{
-									ContES: typeexp.ExpSpec{
-										K:    typeexp.LinkExp,
-										Link: &typeexp.LinkSpec{TypeQN: poolTypeQN},
-									},
-								},
-							},
-							receiverProcQN: typeexp.ExpSpec{
-								K: typeexp.DownExp,
-								Down: &typeexp.ShiftSpec{
-									ContES: typeexp.ExpSpec{
-										K:    typeexp.LinkExp,
-										Link: &typeexp.LinkSpec{TypeQN: poolTypeQN},
-									},
-								},
-							},
-							messageProcQN: typeexp.ExpSpec{
-								K: typeexp.DownExp,
-								Down: &typeexp.ShiftSpec{
-									ContES: typeexp.ExpSpec{
-										K:    typeexp.LinkExp,
-										Link: &typeexp.LinkSpec{TypeQN: poolTypeQN},
-									},
-								},
-							},
-						},
-					},
+	// and
+	withXactQN := "with-xact-qn"
+	_, err := s.xactDefAPI.Create(xactdef.DefSpec{
+		XactQN: withXactQN,
+		XactES: xactexp.ExpSpec{
+			K: xactexp.With,
+			With: &xactexp.SumSpec{
+				Choices: []xactexp.ChoiceSpec{
+					{TermQN: senderProcQN, ContES: xactexp.ExpSpec{
+						K:    xactexp.Link,
+						Link: &xactexp.LinkSpec{XactQN: withXactQN},
+					}},
+					{TermQN: receiverProcQN, ContES: xactexp.ExpSpec{
+						K:    xactexp.Link,
+						Link: &xactexp.LinkSpec{XactQN: withXactQN},
+					}},
+					{TermQN: messageProcQN, ContES: xactexp.ExpSpec{
+						K:    xactexp.Link,
+						Link: &xactexp.LinkSpec{XactQN: withXactQN},
+					}},
 				},
 			},
 		},
@@ -390,13 +361,13 @@ func (s *suite) recvSend(t *testing.T) {
 	mainReceptionPH := "pool-reception-ph"
 	_, err = s.poolDecAPI.Create(pooldec.DecSpec{
 		PoolQN: myPoolQN,
-		InsiderProvisionBS: procbind.BindSpec{
+		ProviderBS: poolbind.BindSpec{
 			ChnlPH: mainProvisionPH,
-			TypeQN: myPoolQN,
+			XactQN: withXactQN,
 		},
-		InsiderReceptionBS: procbind.BindSpec{
+		ClientBS: poolbind.BindSpec{
 			ChnlPH: mainReceptionPH,
-			TypeQN: myPoolQN,
+			XactQN: withXactQN,
 		},
 	})
 	if err != nil {
@@ -414,10 +385,10 @@ func (s *suite) recvSend(t *testing.T) {
 	_, err = s.typeDefAPI.Create(typedef.DefSpec{
 		TypeQN: lolliTypeQN,
 		TypeES: typeexp.ExpSpec{
-			K: typeexp.LolliExp,
+			K: typeexp.Lolli,
 			Lolli: &typeexp.ProdSpec{
-				ValES:  typeexp.ExpSpec{K: typeexp.OneExp},
-				ContES: typeexp.ExpSpec{K: typeexp.OneExp},
+				ValES:  typeexp.ExpSpec{K: typeexp.One},
+				ContES: typeexp.ExpSpec{K: typeexp.One},
 			},
 		},
 	})
@@ -428,7 +399,7 @@ func (s *suite) recvSend(t *testing.T) {
 	oneTypeQN := "one-type-qn"
 	_, err = s.typeDefAPI.Create(typedef.DefSpec{
 		TypeQN: oneTypeQN,
-		TypeES: typeexp.ExpSpec{K: typeexp.OneExp},
+		TypeES: typeexp.ExpSpec{K: typeexp.One},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -564,7 +535,7 @@ func (s *suite) caseLab(t *testing.T) {
 		TypeES: typeexp.ExpSpec{
 			With: &typeexp.SumSpec{
 				Choices: []typeexp.ChoiceSpec{
-					{LabQN: labelQN, ContES: typeexp.ExpSpec{K: typeexp.OneExp}},
+					{TermQN: labelQN, ContES: typeexp.ExpSpec{K: typeexp.One}},
 				},
 			},
 		},
@@ -575,7 +546,7 @@ func (s *suite) caseLab(t *testing.T) {
 	// and
 	oneType, err := s.typeDefAPI.Create(typedef.DefSpec{
 		TypeQN: "one-type-qn",
-		TypeES: typeexp.ExpSpec{K: typeexp.OneExp},
+		TypeES: typeexp.ExpSpec{K: typeexp.One},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -685,7 +656,7 @@ func (s *suite) spawnCall(t *testing.T) {
 	oneTypeDef, err := s.typeDefAPI.Create(
 		typedef.DefSpec{
 			TypeQN: "one-type-qn",
-			TypeES: typeexp.ExpSpec{K: typeexp.OneExp},
+			TypeES: typeexp.ExpSpec{K: typeexp.One},
 		},
 	)
 	if err != nil {
@@ -797,7 +768,7 @@ func (s *suite) fwd(t *testing.T) {
 	// and
 	oneType, err := s.typeDefAPI.Create(typedef.DefSpec{
 		TypeQN: "one-type-qn",
-		TypeES: typeexp.ExpSpec{K: typeexp.OneExp},
+		TypeES: typeexp.ExpSpec{K: typeexp.One},
 	})
 	if err != nil {
 		t.Fatal(err)

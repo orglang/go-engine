@@ -10,6 +10,7 @@ import (
 	"github.com/orglang/go-sdk/adt/procexec"
 	"github.com/orglang/go-sdk/adt/procstep"
 	"github.com/orglang/go-sdk/adt/typedef"
+	"github.com/orglang/go-sdk/adt/xactdef"
 )
 
 type PoolDecAPI interface {
@@ -29,6 +30,14 @@ type PoolExecAPI interface {
 
 func newPoolExecAPI(client *resty.Client) PoolExecAPI {
 	return &poolexec.RestySDK{Client: client}
+}
+
+type XactDefAPI interface {
+	Create(xactdef.DefSpec) (xactdef.DefSnap, error)
+}
+
+func newXactDefAPI(client *resty.Client) XactDefAPI {
+	return &xactdef.RestySDK{Client: client}
 }
 
 type ProcDecAPI interface {

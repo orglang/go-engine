@@ -64,12 +64,6 @@ type DownSpec struct {
 
 func (DownSpec) spec() {}
 
-type XactSpec struct {
-	Zs map[uniqsym.ADT]ExpSpec // conts
-}
-
-func (XactSpec) spec() {}
-
 type ExpRef interface {
 	identity.Identifiable
 }

@@ -72,7 +72,7 @@ type FwdSpec struct {
 func (s FwdSpec) Via() symbol.ADT { return s.CommChnlPH }
 
 type CallSpec struct {
-	CommChnlPH symbol.ADT
+	CommChnlPH symbol.ADT // TODO удалить
 	BindChnlPH symbol.ADT
 	ProcQN     uniqsym.ADT
 	ValChnlPHs []symbol.ADT // channel bulk

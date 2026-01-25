@@ -164,7 +164,7 @@ func (s *service) Take(spec procstep.StepSpec) (err error) {
 		procEnv := Env{ProcDecs: procDRs, TypeDefs: typeDefs, TypeExps: typeExps}
 		procCtx := convertToCtx(maps.Values(execSnap.ChnlBRs), typeExps)
 		// type checking
-		err = s.checkState(procEnv, procCtx, execSnap, expSpec)
+		err = s.checkType(procEnv, procCtx, execSnap, expSpec)
 		if err != nil {
 			s.log.Error("taking failed", refAttr)
 			return err
@@ -813,20 +813,20 @@ func CollectCtx(chnls iter.Seq[procbind.BindRec]) []identity.ADT {
 	return nil
 }
 
-func convertToCtx(chnlBRs iter.Seq[procbind.BindRec], typeExps map[identity.ADT]typeexp.ExpRec) typedef.Context {
+func convertToCtx(chnlBinds iter.Seq[procbind.BindRec], typeExps map[identity.ADT]typeexp.ExpRec) typedef.Context {
 	assets := make(map[symbol.ADT]typeexp.ExpRec, 1)
 	liabs := make(map[symbol.ADT]typeexp.ExpRec, 1)
-	for br := range chnlBRs {
-		if br.Kind == procbind.ProviderBind {
-			liabs[br.ChnlPH] = typeExps[br.ExpID]
+	for bind := range chnlBinds {
+		if bind.ChnlBS == procbind.ProviderSide {
+			liabs[bind.ChnlPH] = typeExps[bind.ExpID]
 		} else {
-			assets[br.ChnlPH] = typeExps[br.ExpID]
+			assets[bind.ChnlPH] = typeExps[bind.ExpID]
 		}
 	}
 	return typedef.Context{Assets: assets, Liabs: liabs}
 }
 
-func (s *service) checkState(
+func (s *service) checkType(
 	procEnv Env,
 	procCtx typedef.Context,
 	execSnap ExecSnap,
@@ -836,7 +836,7 @@ func (s *service) checkState(
 	if !ok {
 		panic("no comm chnl in proc snap")
 	}
-	if chnlBR.Kind == procbind.ProviderBind {
+	if chnlBR.ChnlBS == procbind.ProviderSide {
 		return s.checkProvider(procEnv, procCtx, execSnap, expSpec)
 	} else {
 		return s.checkClient(procEnv, procCtx, execSnap, expSpec)
@@ -935,7 +935,7 @@ func (s *service) checkProvider(
 		// check cont
 		procCtx.Liabs[expSpec.CommChnlPH] = wantVia.Z
 		procCtx.Assets[expSpec.BindChnlPH] = wantVia.Y
-		return s.checkState(procEnv, procCtx, procCfg, expSpec.ContES)
+		return s.checkType(procEnv, procCtx, procCfg, expSpec.ContES)
 	case procexp.LabSpec:
 		// check via
 		gotVia, ok := procCtx.Liabs[expSpec.CommChnlPH]
@@ -988,7 +988,7 @@ func (s *service) checkProvider(
 				return err
 			}
 			procCtx.Liabs[expSpec.CommChnlPH] = choice
-			err := s.checkState(procEnv, procCtx, procCfg, cont)
+			err := s.checkType(procEnv, procCtx, procCfg, cont)
 			if err != nil {
 				s.log.Error("checking failed")
 				return err
@@ -1058,7 +1058,7 @@ func (s *service) checkClient(
 		}
 		// check cont
 		delete(procCtx.Assets, expSpec.CommChnlPH)
-		return s.checkState(procEnv, procCtx, procCfg, expSpec.ContES)
+		return s.checkType(procEnv, procCtx, procCfg, expSpec.ContES)
 	case procexp.SendSpec:
 		// check via
 		gotVia, ok := procCtx.Assets[expSpec.CommChnlPH]
@@ -1117,7 +1117,7 @@ func (s *service) checkClient(
 		// check cont
 		procCtx.Assets[expSpec.CommChnlPH] = wantVia.Z
 		procCtx.Assets[expSpec.BindChnlPH] = wantVia.Y
-		return s.checkState(procEnv, procCtx, procCfg, expSpec.ContES)
+		return s.checkType(procEnv, procCtx, procCfg, expSpec.ContES)
 	case procexp.LabSpec:
 		// check via
 		gotVia, ok := procCtx.Assets[expSpec.CommChnlPH]
@@ -1169,7 +1169,7 @@ func (s *service) checkClient(
 				return err
 			}
 			procCtx.Assets[expSpec.CommChnlPH] = choice
-			err := s.checkState(procEnv, procCtx, procCfg, cont)
+			err := s.checkType(procEnv, procCtx, procCfg, cont)
 			if err != nil {
 				s.log.Error("checking failed")
 				return err
@@ -1233,7 +1233,7 @@ func (s *service) checkClient(
 		}
 		// check cont
 		procCtx.Assets[expSpec.X] = wantVia
-		return s.checkState(procEnv, procCtx, procCfg, expSpec.ContES)
+		return s.checkType(procEnv, procCtx, procCfg, expSpec.ContES)
 	default:
 		panic(procexp.ErrExpTypeUnexpected(es))
 	}

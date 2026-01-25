@@ -18,19 +18,19 @@ type BindSpec struct {
 type BindRec struct {
 	// процес, в рамках которого связка
 	ExecRef uniqref.ADT
-	Kind    BindKind
+	ChnlBS  bindSide
 	ChnlPH  symbol.ADT
 	ChnlID  identity.ADT
 	ExpID   identity.ADT
 	PoolRN  revnum.ADT
 }
 
-type BindKind int
+type bindSide int
 
 const (
-	nonBind = BindKind(iota)
-	ProviderBind
-	ClientBind
+	nonSide = bindSide(iota)
+	ProviderSide
+	ClientSide
 )
 
 func IndexBy[K comparable, V any](getKey func(V) K, vals []V) map[K]V {

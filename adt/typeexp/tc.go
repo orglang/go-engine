@@ -114,7 +114,7 @@ func MsgFromExpSpec(s ExpSpec) typeexp.ExpSpec {
 		choices := make([]typeexp.ChoiceSpec, len(spec.Zs))
 		for i, l := range maps.Keys(spec.Zs) {
 			choices[i] = typeexp.ChoiceSpec{
-				TermQN: uniqsym.ConvertToString(l),
+				LabQN:  uniqsym.ConvertToString(l),
 				ContES: MsgFromExpSpec(spec.Zs[l]),
 			}
 		}
@@ -123,7 +123,7 @@ func MsgFromExpSpec(s ExpSpec) typeexp.ExpSpec {
 		choices := make([]typeexp.ChoiceSpec, len(spec.Zs))
 		for i, l := range maps.Keys(spec.Zs) {
 			choices[i] = typeexp.ChoiceSpec{
-				TermQN: uniqsym.ConvertToString(l),
+				LabQN:  uniqsym.ConvertToString(l),
 				ContES: MsgFromExpSpec(spec.Zs[l]),
 			}
 		}
@@ -170,7 +170,7 @@ func MsgToExpSpec(dto typeexp.ExpSpec) (ExpSpec, error) {
 			if err != nil {
 				return nil, err
 			}
-			label, err := uniqsym.ConvertFromString(ch.TermQN)
+			label, err := uniqsym.ConvertFromString(ch.LabQN)
 			if err != nil {
 				return nil, err
 			}
@@ -184,7 +184,7 @@ func MsgToExpSpec(dto typeexp.ExpSpec) (ExpSpec, error) {
 			if err != nil {
 				return nil, err
 			}
-			label, err := uniqsym.ConvertFromString(ch.TermQN)
+			label, err := uniqsym.ConvertFromString(ch.LabQN)
 			if err != nil {
 				return nil, err
 			}

@@ -25,6 +25,7 @@ type PoolExecAPI interface {
 	Retrieve(poolexec.ExecRef) (poolexec.ExecSnap, error)
 	Create(poolexec.ExecSpec) (poolexec.ExecRef, error)
 	Take(poolstep.StepSpec) error
+	Spawn(poolstep.StepSpec) (procexec.ExecRef, error)
 	Poll(poolexec.PollSpec) (procexec.ExecRef, error)
 }
 

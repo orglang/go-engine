@@ -2,6 +2,8 @@ package poolexec
 
 import (
 	"go.uber.org/fx"
+
+	"orglang/go-runtime/lib/te"
 )
 
 var Module = fx.Module("adt/poolexec",
@@ -12,6 +14,7 @@ var Module = fx.Module("adt/poolexec",
 		fx.Private,
 		newEchoController,
 		fx.Annotate(newPgxDAO, fx.As(new(Repo))),
+		fx.Annotate(newRendererStdlib, fx.As(new(te.Renderer))),
 	),
 	fx.Invoke(
 		cfgEchoController,

@@ -2,7 +2,7 @@ version: '3'
 
 vars:
   REPO_MODE: n/a  # n/a, ro, rw
-  IMAGE: orglang/app
+  IMAGE: orglang/go-runtime
   CID:
     sh: >-
       find ../adt .
@@ -13,12 +13,12 @@ vars:
       | head -c 7
 
 tasks:
-  binary:
-    aliases: [bin, build]
+  binaries:
+    aliases: [bin]
     cmd: go build -o orglang main.go
 
   process:
-    aliases: [proc, run]
+    aliases: [proc]
     cmds:
       # -g 'useUnderlyingTypeMethods yes'
       # -g 'output:file ./generated.go'
@@ -26,7 +26,7 @@ tasks:
       - go run main.go
 
   package:
-    aliases: [image, pack]
+    aliases: [pkg, image]
     status:
       - docker image inspect {{.IMAGE}}:{{.CID}}
     cmds:

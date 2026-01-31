@@ -2,16 +2,16 @@ version: '3'
 
 includes:
   db:
-    taskfile: ./db/Taskfile.yaml
+    taskfile: ./db/taskfile.yaml
     dir: ./db
   app:
-    taskfile: ./app/Taskfile.yaml
+    taskfile: ./app/taskfile.yaml
     dir: ./app
   stack:
-    taskfile: ./stack/Taskfile.yaml
+    taskfile: ./stack/taskfile.yaml
     dir: ./stack
   image:
-    taskfile: ./orch/task/Image.yaml
+    taskfile: ./orch/task/image.yaml
     internal: true
 
 tasks:
@@ -22,19 +22,24 @@ tasks:
       - cmd: go fmt ./...
       - cmd: go build ./...
 
-  component:binaries:
-    aliases: [app:bins, cbs]
+  binaries:
+    aliases: [bin]
     cmds:
-      - task: app:binary
+      - task: app:binaries
 
-  component:packages:
-    aliases: [cps]
+  processes:
+    aliases: [proc]
+    cmds:
+      - task: app:process
+
+  packages:
+    aliases: [pkg]
     cmds:
       - task: db:images
       # - task: app:image
 
   solution:packages:
     aliases: [sps]
-    deps: [component:packages]
+    deps: [packages]
     cmds:
       - task: stack:stand

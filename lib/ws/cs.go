@@ -33,7 +33,7 @@ type serverCS struct {
 }
 
 type httpCS struct {
-	Port uint16 `mapstructure:"port"`
+	Port int `mapstructure:"port"`
 }
 
 type echoCS struct{}

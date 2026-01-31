@@ -8,6 +8,11 @@ on:
     branches-ignore: [main]
   workflow_dispatch:
 
+defaults:
+  run:
+    shell: bash
+    working-directory: ./scripts
+
 jobs:
   binaries:
     name: Make binaries
@@ -40,3 +45,4 @@ jobs:
         uses: go-task/setup-task@v1
       - name: Check sources
         run: task sources
+        working-directory: ./go-runtime

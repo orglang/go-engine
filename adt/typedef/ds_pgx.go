@@ -45,8 +45,8 @@ func (dao *pgxDAO) Insert(source db.Source, rec DefRec) error {
 			@def_id, @def_rn, @title
 		)`
 	rootArgs := pgx.NamedArgs{
-		"def_id": dto.DefID,
-		"def_rn": dto.DefRN,
+		"def_id": dto.ID,
+		"def_rn": dto.RN,
 		"title":  dto.Title,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertRoot, rootArgs)
@@ -61,8 +61,8 @@ func (dao *pgxDAO) Insert(source db.Source, rec DefRec) error {
 			@def_id, @exp_id, @from_rn, @to_rn
 		)`
 	stateArgs := pgx.NamedArgs{
-		"def_id":  dto.DefID,
-		"from_rn": dto.DefRN,
+		"def_id":  dto.ID,
+		"from_rn": dto.RN,
 		"to_rn":   math.MaxInt64,
 		"exp_id":  dto.ExpID,
 	}
@@ -97,8 +97,8 @@ func (dao *pgxDAO) Update(source db.Source, rec DefRec) error {
 			@def_id, @def_rn, @title, @exp_id
 		)`
 	args := pgx.NamedArgs{
-		"def_id": dto.DefID,
-		"def_rn": dto.DefRN,
+		"def_id": dto.ID,
+		"def_rn": dto.RN,
 		"title":  dto.Title,
 		"exp_id": dto.ExpID,
 	}
@@ -125,7 +125,7 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]DefRef, error) {
 	query := `
 		SELECT
 			def_id, def_rn, title
-		FROM type_def_roots`
+		FROM type_defs`
 	rows, err := ds.Conn.Query(ds.Ctx, query)
 	if err != nil {
 		dao.log.Error("query execution failed", slog.String("q", query))

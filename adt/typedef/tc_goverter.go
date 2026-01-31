@@ -45,15 +45,17 @@ var (
 
 // goverter:variables
 // goverter:output:format assign-variable
+// goverter:extend orglang/go-runtime/adt/identity:Convert.*
 // goverter:extend orglang/go-runtime/adt/uniqref:Data.*
 // goverter:extend orglang/go-runtime/adt/typeexp:Data.*
-// goverter:extend Data.*
 var (
 	DataToDefRef    func(defRefDS) (DefRef, error)
 	DataFromDefRef  func(DefRef) (defRefDS, error)
 	DataToDefRefs   func([]defRefDS) ([]DefRef, error)
 	DataFromDefRefs func([]DefRef) ([]defRefDS, error)
-	DataToDefRec    func(defRecDS) (DefRec, error)
+	// goverter:map . DefRef
+	DataToDefRec func(defRecDS) (DefRec, error)
+	// goverter:autoMap DefRef
 	DataFromDefRec  func(DefRec) (defRecDS, error)
 	DataToDefRecs   func([]defRecDS) ([]DefRec, error)
 	DataFromDefRecs func([]DefRec) ([]defRecDS, error)

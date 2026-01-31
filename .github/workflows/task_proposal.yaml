@@ -1,0 +1,28 @@
+---
+name: Task proposal
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches-ignore: [main]
+  workflow_dispatch:
+
+jobs:
+  sources:
+    name: Make binaries
+    timeout-minutes: 10
+    permissions:
+      checks: write
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v6
+      - name: Setup gear
+        uses: ./.github/actions/setup-gear
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check sources
+        run: task sources

@@ -3,7 +3,6 @@ package poolexec
 import (
 	"database/sql"
 
-	"orglang/go-runtime/adt/uniqref"
 	"orglang/go-runtime/lib/db"
 )
 
@@ -15,7 +14,10 @@ type Repo interface {
 	SelectSubs(db.Source, ExecRef) (ExecSnap, error)
 }
 
-type execRefDS = uniqref.Data
+type execRefDS = struct {
+	ID string `db:"exec_id"`
+	RN int64  `db:"exec_rn"`
+}
 
 type execSnapDS struct {
 	ID       string      `db:"exec_id"`

@@ -3,7 +3,6 @@ package typedef
 import (
 	"orglang/go-runtime/lib/db"
 
-	"orglang/go-runtime/adt/uniqref"
 	"orglang/go-runtime/adt/uniqsym"
 )
 
@@ -18,11 +17,14 @@ type Repo interface {
 	SelectEnv(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]DefRec, error)
 }
 
-type defRefDS = uniqref.Data
+type defRefDS struct {
+	ID string `db:"def_id"`
+	RN int64  `db:"def_rn"`
+}
 
 type defRecDS struct {
-	DefID string `db:"id"`
-	Title string `db:"title"`
+	ID    string `db:"def_id"`
+	RN    int64  `db:"def_rn"`
 	ExpID string `db:"exp_id"`
-	DefRN int64  `db:"rn"`
+	Title string `db:"title"`
 }

@@ -1,25 +1,22 @@
 version: '3'
 
 vars:
-  REPO_MODE: n/a  # n/a, ro, rw
-  IMAGE: orglang/postgres
+  DB: postgres
   CID:
     sh: >-
-      find postgres -type f -exec md5sum {} +
+      find {{.DB}} -type f -exec md5sum {} +
       | LC_ALL=C sort -k 2
       | md5sum
       | head -c 7
 
 tasks:
-  images:
-    status:
-      - docker image inspect {{.IMAGE}}:{{.CID}}
-    cmds:
-      - task: :image:clean
-        vars:
-          IMAGE_KEY: "{{.IMAGE}}"
-      - task: :image:build
-        vars:
-          IMAGE_HOME: db/postgres
-          IMAGE_NAME: "{{.IMAGE}}"
-          IMAGE_TAG: "{{.CID}}"
+  process:
+    aliases: [proc]
+    cmd: >-
+      docker compose
+      --file {{.DB}}/compose.yaml
+      up
+      --remove-orphans
+      --pull missing
+      --quiet-pull
+      --detach

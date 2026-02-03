@@ -926,7 +926,7 @@ func (s *service) checkProvider(
 		// check label
 		choice, ok := wantVia.Zs[expSpec.LabelQN]
 		if !ok {
-			err := fmt.Errorf("label mismatch: want %v, got %q", maps.Keys(wantVia.Zs), expSpec.LabelQN)
+			err := fmt.Errorf("label mismatch: want %v, got %v", maps.Keys(wantVia.Zs), expSpec.LabelQN)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -956,7 +956,7 @@ func (s *service) checkProvider(
 		for label, choice := range wantVia.Zs {
 			cont, ok := expSpec.ContESs[label]
 			if !ok {
-				err := fmt.Errorf("label mismatch: want %q, got nothing", label)
+				err := fmt.Errorf("label mismatch: want %v, got nothing", label)
 				s.log.Error("checking failed")
 				return err
 			}
@@ -1108,7 +1108,7 @@ func (s *service) checkClient(
 		// check label
 		choice, ok := wantVia.Zs[expSpec.LabelQN]
 		if !ok {
-			err := fmt.Errorf("label mismatch: want %v, got %q", maps.Keys(wantVia.Zs), expSpec.LabelQN)
+			err := fmt.Errorf("label mismatch: want %v, got %v", maps.Keys(wantVia.Zs), expSpec.LabelQN)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -1137,7 +1137,7 @@ func (s *service) checkClient(
 		for label, choice := range wantVia.Zs {
 			cont, ok := expSpec.ContESs[label]
 			if !ok {
-				err := fmt.Errorf("label mismatch: want %q, got nothing", label)
+				err := fmt.Errorf("label mismatch: want %v, got nothing", label)
 				s.log.Error("checking failed")
 				return err
 			}

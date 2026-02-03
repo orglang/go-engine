@@ -294,7 +294,7 @@ func CheckSpec(got, want ExpSpec) error {
 		for wantLab, wantChoice := range wantSt.Zs {
 			gotChoice, ok := gotSt.Zs[wantLab]
 			if !ok {
-				return fmt.Errorf("label mismatch: want %q, got nothing", wantLab)
+				return fmt.Errorf("label mismatch: want %v, got nothing", wantLab)
 			}
 			err := CheckSpec(gotChoice, wantChoice)
 			if err != nil {
@@ -313,7 +313,7 @@ func CheckSpec(got, want ExpSpec) error {
 		for wantLab, wantChoice := range wantSt.Zs {
 			gotChoice, ok := gotSt.Zs[wantLab]
 			if !ok {
-				return fmt.Errorf("label mismatch: want %q, got nothing", wantLab)
+				return fmt.Errorf("label mismatch: want %v, got nothing", wantLab)
 			}
 			err := CheckSpec(gotChoice, wantChoice)
 			if err != nil {
@@ -366,7 +366,7 @@ func CheckRec(got, want ExpRec) error {
 		for wantLab, wantChoice := range wantSt.Zs {
 			gotChoice, ok := gotSt.Zs[wantLab]
 			if !ok {
-				return fmt.Errorf("label mismatch: want %q, got nothing", wantLab)
+				return fmt.Errorf("label mismatch: want %v, got nothing", wantLab)
 			}
 			err := CheckRec(gotChoice, wantChoice)
 			if err != nil {
@@ -385,7 +385,7 @@ func CheckRec(got, want ExpRec) error {
 		for wantLab, wantChoice := range wantSt.Zs {
 			gotChoice, ok := gotSt.Zs[wantLab]
 			if !ok {
-				return fmt.Errorf("label mismatch: want %q, got nothing", wantLab)
+				return fmt.Errorf("label mismatch: want %v, got nothing", wantLab)
 			}
 			err := CheckRec(gotChoice, wantChoice)
 			if err != nil {

@@ -99,4 +99,4 @@ CREATE TABLE syn_decs (
 	kind smallint
 );
 
-CREATE INDEX sym_gist_idx ON syn_decs USING GIST (sym);
+CREATE INDEX dec_qn_gist_idx ON syn_decs USING GIST (dec_qn);

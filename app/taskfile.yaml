@@ -1,11 +1,9 @@
 version: '3'
 
 vars:
-  REPO_MODE: n/a  # n/a, ro, rw
-  IMAGE: orglang/go-runtime
   CID:
     sh: >-
-      find ../adt .
+      find ../lib ../adt .
       -name "*.go" -exec md5sum {} + -o
       -name "Dockerfile" -exec md5sum {} +
       | LC_ALL=C sort -k 2
@@ -13,29 +11,14 @@ vars:
       | head -c 7
 
 tasks:
-  binaries:
+  binary:
     aliases: [bin]
-    cmd: go build -o orglang main.go
+    cmds:
+      - cmd: go run github.com/jmattheis/goverter/cmd/goverter gen ../...
+      - cmd: go build -o engine main.go
 
   process:
     aliases: [proc]
     cmds:
-      # -g 'useUnderlyingTypeMethods yes'
-      # -g 'output:file ./generated.go'
-      - go run github.com/jmattheis/goverter/cmd/goverter gen ../...
-      - go run main.go
-
-  package:
-    aliases: [pkg, image]
-    status:
-      - docker image inspect {{.IMAGE}}:{{.CID}}
-    cmds:
-      - task: :image:clean
-        vars:
-          IMAGE_KEY: "{{.IMAGE}}"
-      - task: :image:build
-        vars:
-          IMAGE_HOME: app
-          IMAGE_CTX: ..
-          IMAGE_NAME: "{{.IMAGE}}"
-          IMAGE_TAG: "{{.CID}}"
+      - cmd: go run github.com/jmattheis/goverter/cmd/goverter gen ../...
+      - cmd: go run main.go

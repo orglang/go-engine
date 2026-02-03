@@ -7,39 +7,50 @@ includes:
   app:
     taskfile: ./app/taskfile.yaml
     dir: ./app
-  stack:
-    taskfile: ./stack/taskfile.yaml
-    dir: ./stack
-  image:
-    taskfile: ./orch/task/image.yaml
-    internal: true
+
+vars:
+  LVL: unit # unit, it, e2e
+  # process supervisor
+  PSV: shell # shell, docker
 
 tasks:
   sources:
     aliases: [src]
+    desc: Check all sources
     cmds:
       - cmd: go run github.com/jmattheis/goverter/cmd/goverter gen -global 'skipCopySameType yes' ./...
       - cmd: go fmt ./...
       - cmd: go build ./...
 
-  binaries:
-    aliases: [bin]
+  tests:
+    aliases: [test]
+    desc: Run specified tests
     cmds:
-      - task: app:binaries
+      - cmd: go test -tags=unit ./lib/... ./adt/... ./app/...
+        if: '{{eq .LVL "unit"}}'
+      - cmd: go test -run=TestIntegration ./lib/...  ./adt/... ./app/...
+        if: '{{eq .LVL "it"}}'
+      - cmd: go test ./stack/...
+        if: '{{eq .LVL "e2e"}}'
 
-  processes:
+  process:
     aliases: [proc]
+    desc: Run specified process in foreground
     cmds:
       - task: app:process
 
-  packages:
-    aliases: [pkg]
+  processes:
+    aliases: [procs]
+    desc: Start and stop all processes
     cmds:
-      - task: db:images
-      # - task: app:image
+      - task: app:process
 
-  solution:packages:
-    aliases: [sps]
-    deps: [packages]
+  binaries:
+    aliases: [bins]
+    desc: Build all binaries if checks passed
+    deps:
+      - task: tests
+        vars:
+          LVL: unit
     cmds:
-      - task: stack:stand
+      - task: app:binary

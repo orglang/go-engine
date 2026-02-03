@@ -1,20 +1,16 @@
 ---
-name: orglang
+name: postgres
 
 networks:
-  product:
-    name: product
+  orglang:
+    name: orglang
     external: false
-
-configs:
-  product:
-    file: application.yaml
 
 services:
   storage:
     image: postgres:alpine
     networks:
-      - product
+      - orglang
     ports:
       - "5432:5432"
     environment:
@@ -29,9 +25,9 @@ services:
       image.key: orglang/postgres
 
   database:
-    image: orglang/postgres:latest
+    image: orglang/pg-operator:latest
     networks:
-      - product
+      - orglang
     depends_on:
       storage:
         condition: service_healthy
@@ -52,9 +48,9 @@ services:
       image.key: orglang/postgres
 
   schema:
-    image: orglang/postgres:latest
+    image: orglang/pg-operator:latest
     networks:
-      - product
+      - orglang
     depends_on:
       database:
         condition: service_completed_successfully
@@ -71,19 +67,3 @@ services:
       -Dschema.name=orglang
     labels:
       image.key: orglang/postgres
-
-  # app:
-  #   image: orglang/app:latest
-  #   networks:
-  #     - product
-  #   depends_on:
-  #     schema:
-  #       condition: service_completed_successfully
-  #   ports:
-  #     - "8080:8080"
-  #   configs:
-  #     - source: product
-  #       target: /app/application.yaml
-  #   labels:
-  #     image.key: orglang/app
- 

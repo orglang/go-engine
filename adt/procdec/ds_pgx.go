@@ -8,11 +8,11 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-runtime/lib/db"
-	"orglang/go-runtime/lib/lf"
+	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/lf"
 
-	"orglang/go-runtime/adt/identity"
-	"orglang/go-runtime/adt/uniqref"
+	"orglang/go-engine/adt/identity"
+	"orglang/go-engine/adt/uniqref"
 )
 
 // Adapter

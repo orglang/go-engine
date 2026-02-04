@@ -11,7 +11,7 @@ on:
 defaults:
   run:
     shell: bash
-    working-directory: ./go-runtime
+    working-directory: ./go-engine
 
 jobs:
   building:
@@ -35,8 +35,8 @@ jobs:
       - name: Checkout runtime repo
         uses: actions/checkout@v6
         with:
-          repository: orglang/go-runtime
-          path: go-runtime
+          repository: orglang/go-engine
+          path: go-engine
       - name: Setup go
         uses: actions/setup-go@v6.2.0
         with:

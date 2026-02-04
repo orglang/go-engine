@@ -1,7 +1,7 @@
 package procexp
 
 import (
-	"orglang/go-runtime/lib/db"
+	"orglang/go-engine/lib/db"
 )
 
 type Repo interface {

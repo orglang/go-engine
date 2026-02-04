@@ -3,11 +3,11 @@ package pooldec
 import (
 	"log/slog"
 
-	"orglang/go-runtime/lib/db"
+	"orglang/go-engine/lib/db"
 
-	"orglang/go-runtime/adt/identity"
-	"orglang/go-runtime/adt/procbind"
-	"orglang/go-runtime/adt/uniqsym"
+	"orglang/go-engine/adt/identity"
+	"orglang/go-engine/adt/procbind"
+	"orglang/go-engine/adt/uniqsym"
 )
 
 // Port

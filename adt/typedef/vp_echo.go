@@ -9,13 +9,13 @@ import (
 
 	sdk "github.com/orglang/go-sdk/adt/uniqref"
 
-	"orglang/go-runtime/lib/lf"
-	"orglang/go-runtime/lib/te"
+	"orglang/go-engine/lib/lf"
+	"orglang/go-engine/lib/te"
 
-	"orglang/go-runtime/adt/symbol"
-	"orglang/go-runtime/adt/typeexp"
-	"orglang/go-runtime/adt/uniqref"
-	"orglang/go-runtime/adt/uniqsym"
+	"orglang/go-engine/adt/symbol"
+	"orglang/go-engine/adt/typeexp"
+	"orglang/go-engine/adt/uniqref"
+	"orglang/go-engine/adt/uniqsym"
 )
 
 // Adapter

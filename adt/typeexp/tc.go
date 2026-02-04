@@ -6,8 +6,8 @@ import (
 
 	"golang.org/x/exp/maps"
 
-	"orglang/go-runtime/adt/identity"
-	"orglang/go-runtime/adt/uniqsym"
+	"orglang/go-engine/adt/identity"
+	"orglang/go-engine/adt/uniqsym"
 
 	"github.com/orglang/go-sdk/adt/typeexp"
 )

@@ -9,7 +9,7 @@ import (
 
 	"github.com/orglang/go-sdk/adt/poolexec"
 
-	"orglang/go-runtime/lib/te"
+	"orglang/go-engine/lib/te"
 )
 
 // Server-side primary adapter

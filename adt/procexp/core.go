@@ -3,9 +3,9 @@ package procexp
 import (
 	"fmt"
 
-	"orglang/go-runtime/adt/identity"
-	"orglang/go-runtime/adt/symbol"
-	"orglang/go-runtime/adt/uniqsym"
+	"orglang/go-engine/adt/identity"
+	"orglang/go-engine/adt/symbol"
+	"orglang/go-engine/adt/uniqsym"
 )
 
 type ExpSpec interface {

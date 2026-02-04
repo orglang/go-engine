@@ -3,20 +3,20 @@ package main
 import (
 	"go.uber.org/fx"
 
-	"orglang/go-runtime/lib/db"
-	"orglang/go-runtime/lib/kv"
-	"orglang/go-runtime/lib/lf"
-	"orglang/go-runtime/lib/ws"
+	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/kv"
+	"orglang/go-engine/lib/lf"
+	"orglang/go-engine/lib/ws"
 
-	"orglang/go-runtime/adt/poolexec"
-	"orglang/go-runtime/adt/procdec"
-	"orglang/go-runtime/adt/procdef"
-	"orglang/go-runtime/adt/procexec"
-	"orglang/go-runtime/adt/syndec"
-	"orglang/go-runtime/adt/typedef"
-	"orglang/go-runtime/adt/typeexp"
+	"orglang/go-engine/adt/poolexec"
+	"orglang/go-engine/adt/procdec"
+	"orglang/go-engine/adt/procdef"
+	"orglang/go-engine/adt/procexec"
+	"orglang/go-engine/adt/syndec"
+	"orglang/go-engine/adt/typedef"
+	"orglang/go-engine/adt/typeexp"
 
-	"orglang/go-runtime/app/web"
+	"orglang/go-engine/app/web"
 )
 
 func main() {

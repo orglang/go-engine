@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"log/slog"
 
-	"orglang/go-runtime/lib/db"
+	"orglang/go-engine/lib/db"
 
-	"orglang/go-runtime/adt/identity"
-	"orglang/go-runtime/adt/procexp"
-	"orglang/go-runtime/adt/symbol"
-	"orglang/go-runtime/adt/uniqref"
-	"orglang/go-runtime/adt/uniqsym"
+	"orglang/go-engine/adt/identity"
+	"orglang/go-engine/adt/procexp"
+	"orglang/go-engine/adt/symbol"
+	"orglang/go-engine/adt/uniqref"
+	"orglang/go-engine/adt/uniqsym"
 )
 
 type API interface {

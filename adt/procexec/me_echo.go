@@ -10,10 +10,10 @@ import (
 	"github.com/orglang/go-sdk/adt/procexec"
 	sdk "github.com/orglang/go-sdk/adt/procstep"
 
-	"orglang/go-runtime/lib/lf"
+	"orglang/go-engine/lib/lf"
 
-	"orglang/go-runtime/adt/procstep"
-	"orglang/go-runtime/adt/uniqref"
+	"orglang/go-engine/adt/procstep"
+	"orglang/go-engine/adt/uniqref"
 )
 
 // Server-side primary adapter

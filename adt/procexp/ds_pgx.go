@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"reflect"
 
-	"orglang/go-runtime/lib/db"
+	"orglang/go-engine/lib/db"
 )
 
 // Adapter

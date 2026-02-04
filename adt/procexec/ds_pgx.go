@@ -7,11 +7,11 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-runtime/lib/db"
+	"orglang/go-engine/lib/db"
 
-	"orglang/go-runtime/adt/procbind"
-	"orglang/go-runtime/adt/procstep"
-	"orglang/go-runtime/adt/revnum"
+	"orglang/go-engine/adt/procbind"
+	"orglang/go-engine/adt/procstep"
+	"orglang/go-engine/adt/revnum"
 )
 
 // Adapter

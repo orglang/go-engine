@@ -6,15 +6,15 @@ import (
 	"iter"
 	"log/slog"
 
-	"orglang/go-runtime/lib/db"
+	"orglang/go-engine/lib/db"
 
-	"orglang/go-runtime/adt/identity"
-	"orglang/go-runtime/adt/revnum"
-	"orglang/go-runtime/adt/symbol"
-	"orglang/go-runtime/adt/syndec"
-	"orglang/go-runtime/adt/typeexp"
-	"orglang/go-runtime/adt/uniqref"
-	"orglang/go-runtime/adt/uniqsym"
+	"orglang/go-engine/adt/identity"
+	"orglang/go-engine/adt/revnum"
+	"orglang/go-engine/adt/symbol"
+	"orglang/go-engine/adt/syndec"
+	"orglang/go-engine/adt/typeexp"
+	"orglang/go-engine/adt/uniqref"
+	"orglang/go-engine/adt/uniqsym"
 )
 
 type API interface {

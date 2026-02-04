@@ -1,7 +1,7 @@
 package uniqsym
 
 import (
-	"orglang/go-runtime/adt/symbol"
+	"orglang/go-engine/adt/symbol"
 )
 
 type ADT struct {

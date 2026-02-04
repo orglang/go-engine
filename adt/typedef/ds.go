@@ -1,9 +1,9 @@
 package typedef
 
 import (
-	"orglang/go-runtime/lib/db"
+	"orglang/go-engine/lib/db"
 
-	"orglang/go-runtime/adt/uniqsym"
+	"orglang/go-engine/adt/uniqsym"
 )
 
 type Repo interface {

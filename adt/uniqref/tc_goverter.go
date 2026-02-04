@@ -6,8 +6,8 @@ import (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-runtime/adt/identity:Convert.*
-// goverter:extend orglang/go-runtime/adt/revnum:Convert.*
+// goverter:extend orglang/go-engine/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/adt/revnum:Convert.*
 var (
 	MsgToADT    func(uniqref.Msg) (ADT, error)
 	MsgFromADT  func(ADT) uniqref.Msg
@@ -17,8 +17,8 @@ var (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-runtime/adt/identity:Convert.*
-// goverter:extend orglang/go-runtime/adt/revnum:Convert.*
+// goverter:extend orglang/go-engine/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/adt/revnum:Convert.*
 var (
 	DataToADT    func(Data) (ADT, error)
 	DataFromADT  func(ADT) Data

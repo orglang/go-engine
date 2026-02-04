@@ -9,9 +9,9 @@ import (
 
 	"github.com/orglang/go-sdk/adt/typedef"
 
-	"orglang/go-runtime/lib/lf"
+	"orglang/go-engine/lib/lf"
 
-	"orglang/go-runtime/adt/uniqref"
+	"orglang/go-engine/adt/uniqref"
 )
 
 // Server-side primary adapter

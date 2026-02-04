@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"maps"
-	a "orglang/go-runtime/proto/rast2/ast"
+	a "orglang/go-engine/proto/rast2/ast"
 )
 
 type Proc struct {

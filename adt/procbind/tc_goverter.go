@@ -6,8 +6,8 @@ import (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-runtime/adt/symbol:Convert.*
-// goverter:extend orglang/go-runtime/adt/uniqsym:Convert.*
+// goverter:extend orglang/go-engine/adt/symbol:Convert.*
+// goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
 var (
 	MsgToBindSpec   func(procbind.BindSpec) (BindSpec, error)
 	MsgFromBindSpec func(BindSpec) procbind.BindSpec
@@ -15,8 +15,8 @@ var (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-runtime/adt/identity:Convert.*
-// goverter:extend orglang/go-runtime/adt/uniqsym:Convert.*
+// goverter:extend orglang/go-engine/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
 var (
 	DataToBindSpec   func(BindSpecDS) (BindSpec, error)
 	DataFromBindSpec func(BindSpec) BindSpecDS

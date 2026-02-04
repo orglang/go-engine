@@ -1,8 +1,8 @@
 package uniqref
 
 import (
-	"orglang/go-runtime/adt/identity"
-	"orglang/go-runtime/adt/revnum"
+	"orglang/go-engine/adt/identity"
+	"orglang/go-engine/adt/revnum"
 )
 
 type ADT struct {

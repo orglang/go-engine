@@ -6,7 +6,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-runtime/lib/db"
+	"orglang/go-engine/lib/db"
 )
 
 type pgxDAO struct {

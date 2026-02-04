@@ -1,9 +1,9 @@
 package poolstep
 
 import (
-	"orglang/go-runtime/adt/poolexp"
-	"orglang/go-runtime/adt/uniqref"
-	"orglang/go-runtime/adt/uniqsym"
+	"orglang/go-engine/adt/poolexp"
+	"orglang/go-engine/adt/uniqref"
+	"orglang/go-engine/adt/uniqsym"
 )
 
 type StepSpec struct {

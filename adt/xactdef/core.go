@@ -1,10 +1,10 @@
 package xactdef
 
 import (
-	"orglang/go-runtime/adt/identity"
-	"orglang/go-runtime/adt/uniqref"
-	"orglang/go-runtime/adt/uniqsym"
-	"orglang/go-runtime/adt/xactexp"
+	"orglang/go-engine/adt/identity"
+	"orglang/go-engine/adt/uniqref"
+	"orglang/go-engine/adt/uniqsym"
+	"orglang/go-engine/adt/xactexp"
 )
 
 type API interface {

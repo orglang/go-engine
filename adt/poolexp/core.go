@@ -1,8 +1,8 @@
 package poolexp
 
 import (
-	"orglang/go-runtime/adt/symbol"
-	"orglang/go-runtime/adt/uniqsym"
+	"orglang/go-engine/adt/symbol"
+	"orglang/go-engine/adt/uniqsym"
 )
 
 type ExpSpec interface {

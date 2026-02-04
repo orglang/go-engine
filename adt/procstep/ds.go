@@ -3,9 +3,9 @@ package procstep
 import (
 	"database/sql"
 
-	"orglang/go-runtime/lib/db"
+	"orglang/go-engine/lib/db"
 
-	"orglang/go-runtime/adt/procexp"
+	"orglang/go-engine/adt/procexp"
 )
 
 type Repo interface {

@@ -1,9 +1,9 @@
 package syndec
 
 import (
-	"orglang/go-runtime/adt/identity"
-	"orglang/go-runtime/adt/revnum"
-	"orglang/go-runtime/adt/uniqsym"
+	"orglang/go-engine/adt/identity"
+	"orglang/go-engine/adt/revnum"
+	"orglang/go-engine/adt/uniqsym"
 )
 
 type DecRec struct {

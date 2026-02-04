@@ -7,11 +7,11 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"orglang/go-runtime/lib/lf"
-	"orglang/go-runtime/lib/te"
+	"orglang/go-engine/lib/lf"
+	"orglang/go-engine/lib/te"
 
-	"orglang/go-runtime/adt/uniqref"
-	"orglang/go-runtime/adt/uniqsym"
+	"orglang/go-engine/adt/uniqref"
+	"orglang/go-engine/adt/uniqsym"
 )
 
 type echoPresenter struct {

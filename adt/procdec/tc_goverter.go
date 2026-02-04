@@ -6,9 +6,9 @@ import (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-runtime/adt/uniqsym:Convert.*
-// goverter:extend orglang/go-runtime/adt/procbind:Msg.*
-// goverter:extend orglang/go-runtime/adt/typedef:Msg.*
+// goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
+// goverter:extend orglang/go-engine/adt/procbind:Msg.*
+// goverter:extend orglang/go-engine/adt/typedef:Msg.*
 var (
 	MsgToDecSpec    func(procdec.DecSpec) (DecSpec, error)
 	MsgFromDecSpec  func(DecSpec) procdec.DecSpec
@@ -19,16 +19,16 @@ var (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-runtime/adt/uniqsym:Convert.*
-// goverter:extend orglang/go-runtime/adt/uniqref:Msg.*
+// goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
+// goverter:extend orglang/go-engine/adt/uniqref:Msg.*
 var (
 	ViewFromDecSnap func(DecSnap) DecSnapVP
 )
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-runtime/adt/identity:Convert.*
-// goverter:extend orglang/go-runtime/adt/procbind:Data.*
+// goverter:extend orglang/go-engine/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/adt/procbind:Data.*
 var (
 	// goverter:map . DecRef
 	DataToDecRec func(decRecDS) (DecRec, error)

@@ -7,7 +7,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 
-	a "orglang/go-runtime/proto/rast2/ast"
+	a "orglang/go-engine/proto/rast2/ast"
 )
 
 func setupSubtest() {

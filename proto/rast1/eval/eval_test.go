@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	a "orglang/go-runtime/proto/rast1/ast"
+	a "orglang/go-engine/proto/rast1/ast"
 
 	"github.com/google/go-cmp/cmp"
 )

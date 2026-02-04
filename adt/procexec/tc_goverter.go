@@ -4,7 +4,7 @@ import "github.com/orglang/go-sdk/adt/procexec"
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-runtime/adt/uniqref:Msg.*
+// goverter:extend orglang/go-engine/adt/uniqref:Msg.*
 var (
 	MsgToExecRef   func(procexec.ExecRef) (ExecRef, error)
 	MsgFromExecRef func(ExecRef) procexec.ExecRef
@@ -15,9 +15,9 @@ var (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-runtime/adt/uniqref:Data.*
-// goverter:extend orglang/go-runtime/adt/procbind:Data.*
-// goverter:extend orglang/go-runtime/adt/procstep:Data.*
+// goverter:extend orglang/go-engine/adt/uniqref:Data.*
+// goverter:extend orglang/go-engine/adt/procbind:Data.*
+// goverter:extend orglang/go-engine/adt/procstep:Data.*
 var (
 	DataFromMod func(ExecMod) (execModDS, error)
 )

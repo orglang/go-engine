@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"orglang/go-runtime/adt/symbol"
+	"orglang/go-engine/adt/symbol"
 )
 
 const (

@@ -3,7 +3,7 @@ package poolexec
 import (
 	"go.uber.org/fx"
 
-	"orglang/go-runtime/lib/te"
+	"orglang/go-engine/lib/te"
 )
 
 var Module = fx.Module("adt/poolexec",

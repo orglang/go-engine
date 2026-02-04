@@ -3,10 +3,10 @@ package typeexp
 import (
 	"fmt"
 
-	"orglang/go-runtime/adt/identity"
-	"orglang/go-runtime/adt/polarity"
-	"orglang/go-runtime/adt/revnum"
-	"orglang/go-runtime/adt/uniqsym"
+	"orglang/go-engine/adt/identity"
+	"orglang/go-engine/adt/polarity"
+	"orglang/go-engine/adt/revnum"
+	"orglang/go-engine/adt/uniqsym"
 )
 
 type ExpSpec interface {

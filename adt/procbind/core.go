@@ -1,10 +1,10 @@
 package procbind
 
 import (
-	"orglang/go-runtime/adt/identity"
-	"orglang/go-runtime/adt/symbol"
-	"orglang/go-runtime/adt/uniqref"
-	"orglang/go-runtime/adt/uniqsym"
+	"orglang/go-engine/adt/identity"
+	"orglang/go-engine/adt/symbol"
+	"orglang/go-engine/adt/uniqref"
+	"orglang/go-engine/adt/uniqsym"
 )
 
 type BindSpec struct {

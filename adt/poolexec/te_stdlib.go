@@ -6,7 +6,7 @@ import (
 
 	"github.com/Masterminds/sprig/v3"
 
-	"orglang/go-runtime/lib/te"
+	"orglang/go-engine/lib/te"
 )
 
 func newRendererStdlib(l *slog.Logger) (*te.RendererStdlib, error) {

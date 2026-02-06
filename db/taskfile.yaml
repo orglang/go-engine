@@ -1,10 +1,10 @@
 version: '3'
 
 vars:
-  DB: postgres
+  VENDOR: postgres
   CID:
     sh: >-
-      find {{.DB}} -type f -exec md5sum {} +
+      find {{.VENDOR}} -type f -exec md5sum {} +
       | LC_ALL=C sort -k 2
       | md5sum
       | head -c 7
@@ -14,7 +14,7 @@ tasks:
     aliases: [proc]
     cmd: >-
       docker compose
-      --file {{.DB}}/compose.yaml
+      --file {{.VENDOR}}/compose.yaml
       up
       --remove-orphans
       --pull missing

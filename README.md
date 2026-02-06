@@ -1,4 +1,4 @@
-# Orglang Runtime
+# Orglang Engine
 
 Рантайм исполнения Orglang на Go
 

@@ -151,7 +151,7 @@ Code structure reflects abstraction aspects.
 
 ### Workflow
 
-- `task sources` - before commit to task branch
-- `task binaries` - before push to task branch
-- `task distros` - before push or merge to feature branch
-- `task stacks` - before merge to main branch
+- `task sources` - before commit to branch
+- `task binaries` - before push to branch
+- `task distros` - before merge to branch
+- `task stacks` - before merge to trunk

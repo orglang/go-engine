@@ -22,26 +22,21 @@ tasks:
       - cmd: go fmt ./...
       - cmd: go build ./...
 
-  tests:
-    aliases: [test]
-    desc: Run specified tests
-    cmds:
-      - cmd: go test -tags=unit ./lib/... ./adt/... ./app/...
-        if: '{{eq .LVL "unit"}}'
-      - cmd: go test -run=TestIntegration ./lib/...  ./adt/... ./app/...
-        if: '{{eq .LVL "it"}}'
-      - cmd: go test ./stack/...
-        if: '{{eq .LVL "e2e"}}'
-
   process:
     aliases: [proc]
     desc: Run specified process in foreground
     cmds:
       - task: app:process
 
+  container:
+    aliases: [cnt]
+    desc: Start specified container in background
+    cmds:
+      - cmd: container started
+
   processes:
     aliases: [procs]
-    desc: Start and stop all processes
+    desc: Run and interrupt all processes
     cmds:
       - task: app:process
 
@@ -54,3 +49,14 @@ tasks:
           LVL: unit
     cmds:
       - task: app:binary
+
+  tests:
+    aliases: [test]
+    desc: Run specified level tests
+    cmds:
+      - cmd: go test -tags=unit ./lib/... ./adt/... ./app/...
+        if: '{{eq .LVL "unit"}}'
+      - cmd: go test -run=TestIntegration ./lib/...  ./adt/... ./app/...
+        if: '{{eq .LVL "it"}}'
+      - cmd: go test ./test/...
+        if: '{{eq .LVL "e2e"}}'

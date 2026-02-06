@@ -1,0 +1,29 @@
+---
+name: Trunk proposal
+
+on:
+  pull_request:
+    branches: [main]
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+  merge_group:
+    branches: [main]
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+    working-directory: ./engine
+
+jobs:
+  stacks:
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/checkout-repos
+      - uses: ./.github/actions/setup-tools
+      - run: task stack:commons

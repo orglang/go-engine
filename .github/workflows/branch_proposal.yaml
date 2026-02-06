@@ -1,0 +1,29 @@
+---
+name: Branch proposal
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches-ignore: [main]
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+    working-directory: ./engine
+
+jobs:
+  packages:
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/checkout-repos
+      - uses: ./.github/actions/setup-tools
+      - run: task packages

@@ -16,9 +16,9 @@ defaults:
 
 jobs:
   distros:
-    timeout-minutes: 10
+    timeout-minutes: 20
     strategy:
-      fail-fast: false
+      fail-fast: true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout workspace repo
@@ -27,5 +27,7 @@ jobs:
           ref: ${{ github.ref }}
           repository: orglang/go-workspace
       - uses: ./.github/actions/checkout-repos
+        with:
+          ref: ${{ github.ref }}
       - uses: ./.github/actions/setup-tools
       - run: task distros

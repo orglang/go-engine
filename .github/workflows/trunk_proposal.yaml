@@ -21,6 +21,9 @@ jobs:
     timeout-minutes: 30
     strategy:
       fail-fast: false
+      matrix:
+        stack:
+          - ops: commons
     runs-on: ubuntu-latest
     steps:
       - name: Checkout workspace repo
@@ -29,5 +32,7 @@ jobs:
           ref: ${{ github.ref }}
           repository: orglang/go-workspace
       - uses: ./.github/actions/checkout-repos
+        with:
+          ref: ${{ github.ref }}
       - uses: ./.github/actions/setup-tools
-      - run: task stack:commons
+      - run: task stack:${{ matrix.stack.ops }}

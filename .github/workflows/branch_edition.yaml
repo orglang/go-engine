@@ -13,7 +13,7 @@ defaults:
     shell: bash
 
 jobs:
-  packages:
+  distros:
     timeout-minutes: 10
     strategy:
       fail-fast: false
@@ -26,4 +26,4 @@ jobs:
           repository: orglang/go-workspace
       - uses: ./.github/actions/checkout-repos
       - uses: ./.github/actions/setup-tools
-      - run: task packages
+      - run: task distros

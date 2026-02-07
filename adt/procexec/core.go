@@ -70,7 +70,7 @@ type service struct {
 
 // for compilation purposes
 func newAPI() API {
-	return &service{}
+	return new(service)
 }
 
 func newService(
@@ -205,9 +205,7 @@ func (s *service) takeWith(
 					RN: execSnap.ExecRef.RN.Next(),
 				},
 				ChnlID: commChnlBR.ChnlID,
-				ValER: procexp.CloseRec{
-					CommChnlPH: expSpec.CommChnlPH,
-				},
+				ValER:  procexp.CloseRec(expSpec),
 			}
 			execMod.Steps = append(execMod.Steps, senderSR)
 			s.log.Debug("taking half done", viaAttr)
@@ -261,10 +259,7 @@ func (s *service) takeWith(
 					RN: execSnap.ExecRef.RN.Next(),
 				},
 				ChnlID: commChnlBR.ChnlID,
-				ContER: procexp.WaitRec{
-					CommChnlPH: expSpec.CommChnlPH,
-					ContES:     expSpec.ContES,
-				},
+				ContER: procexp.WaitRec(expSpec),
 			}
 			execMod.Steps = append(execMod.Steps, recieverSR)
 			s.log.Debug("taking half done", viaAttr)
@@ -811,9 +806,8 @@ func (s *service) checkType(
 	}
 	if chnlBR.ChnlBS == procbind.ProviderSide {
 		return s.checkProvider(procEnv, procCtx, execSnap, expSpec)
-	} else {
-		return s.checkClient(procEnv, procCtx, execSnap, expSpec)
 	}
+	return s.checkClient(procEnv, procCtx, execSnap, expSpec)
 }
 
 func (s *service) checkProvider(

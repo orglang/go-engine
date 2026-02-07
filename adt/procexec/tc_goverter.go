@@ -1,6 +1,8 @@
 package procexec
 
-import "github.com/orglang/go-sdk/adt/procexec"
+import (
+	"github.com/orglang/go-sdk/adt/procexec"
+)
 
 // goverter:variables
 // goverter:output:format assign-variable

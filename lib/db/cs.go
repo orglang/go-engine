@@ -5,7 +5,7 @@ import (
 )
 
 func newStorageCS(l kv.Loader) (storageCS, error) {
-	dto := &storageCS{}
+	dto := new(storageCS)
 	loadingErr := l.Load("storage", dto)
 	if loadingErr != nil {
 		return storageCS{}, loadingErr
@@ -33,19 +33,21 @@ type driverCS struct {
 }
 
 type postgresCS struct {
-	Url string `mapstructure:"url"`
+	URL string `mapstructure:"url"`
 }
 
-type pgxCS struct{}
+type pgxCS struct {
+	MaxConns uint8 `mapstructure:"max_conns"`
+}
 
 type protoModeCS string
 
 const (
-	postgresProto = protoModeCS("postgres")
+	postgresProto protoModeCS = "postgres"
 )
 
 type driverModeCS string
 
 const (
-	pgxDriver = driverModeCS("pgx")
+	pgxDriver driverModeCS = "pgx"
 )

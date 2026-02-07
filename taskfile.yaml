@@ -9,18 +9,24 @@ includes:
     dir: ./app
 
 vars:
-  LVL: unit # unit, it, e2e
   # process supervisor
   PSV: shell # shell, docker
 
 tasks:
   sources:
     aliases: [src]
-    desc: Check all sources
+    preconditions:
+      - sh: '[ "$(gofmt -s -l . | wc -l)" -eq 0 ]'
+    deps:
+      - task: linter:vet
+      - task: linter:critic
+      - task: linter:revive
+      - task: linter:errcheck
+      - task: linter:consistent
+      - task: linter:staticcheck
     cmds:
-      - cmd: go run github.com/jmattheis/goverter/cmd/goverter gen -global 'skipCopySameType yes' ./...
-      - cmd: go fmt ./...
-      - cmd: go build ./...
+      - cmd: echo success
+        silent: true
 
   process:
     aliases: [proc]
@@ -44,19 +50,35 @@ tasks:
     aliases: [bins]
     desc: Build all binaries if checks passed
     deps:
-      - task: tests
-        vars:
-          LVL: unit
+      - task: tests:unit
     cmds:
       - task: app:binary
 
-  tests:
-    aliases: [test]
-    desc: Run specified level tests
+  tests:*:
+    desc: Run tests of specified level (unit, it, e2e).
+    vars:
+      LEVEL: '{{index .MATCH 0}}'
     cmds:
       - cmd: go test -tags=unit ./lib/... ./adt/... ./app/...
-        if: '{{eq .LVL "unit"}}'
+        if: '{{eq .LEVEL "unit"}}'
       - cmd: go test -run=TestIntegration ./lib/...  ./adt/... ./app/...
-        if: '{{eq .LVL "it"}}'
+        if: '{{eq .LEVEL "it"}}'
       - cmd: go test ./test/...
-        if: '{{eq .LVL "e2e"}}'
+        if: '{{eq .LEVEL "e2e"}}'
+
+  linter:*:
+    vars:
+      TOOL: '{{index .MATCH 0}}'
+    cmds:
+      - cmd: go vet ./lib/... ./adt/... ./app/...
+        if: '{{eq .TOOL "vet"}}'
+      - cmd: go run github.com/mgechev/revive -formatter unix  -exclude ./proto/... ./...
+        if: '{{eq .TOOL "revive"}}'
+      - cmd: go run github.com/go-critic/go-critic/cmd/go-critic check ./lib/... ./adt/... ./app/...
+        if: '{{eq .TOOL "critic"}}'
+      - cmd: go run github.com/quasilyte/go-consistent ./lib/... ./adt/... ./app/...
+        if: '{{eq .TOOL "consistent"}}'
+      - cmd: go run honnef.co/go/tools/cmd/staticcheck ./lib/... ./adt/... ./app/...
+        if: '{{eq .TOOL "staticcheck"}}'
+      - cmd: go run github.com/kisielk/errcheck ./lib/... ./adt/... ./app/...
+        if: '{{eq .TOOL "errcheck"}}'

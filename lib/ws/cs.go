@@ -5,7 +5,7 @@ import (
 )
 
 func newExchangeCS(loader kv.Loader) (exchangeCS, error) {
-	dto := &exchangeCS{}
+	dto := new(exchangeCS)
 	loadingErr := loader.Load("exchange", dto)
 	if loadingErr != nil {
 		return exchangeCS{}, loadingErr
@@ -24,7 +24,7 @@ type exchangeCS struct {
 
 type protocolCS struct {
 	Modes []protoModeCS `mapstructure:"modes"`
-	Http  httpCS        `mapstructure:"http"`
+	HTTP  httpCS        `mapstructure:"http"`
 }
 
 type serverCS struct {
@@ -41,11 +41,11 @@ type echoCS struct{}
 type protoModeCS string
 
 const (
-	httpProto = protoModeCS("http")
+	httpProto protoModeCS = "http"
 )
 
 type serverModeCS string
 
 const (
-	echoServer = serverModeCS("echo")
+	echoServer serverModeCS = "echo"
 )

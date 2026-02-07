@@ -1,6 +1,8 @@
 package xactexp
 
-import "orglang/go-engine/adt/uniqsym"
+import (
+	"orglang/go-engine/adt/uniqsym"
+)
 
 type ExpSpec interface {
 	spec()

@@ -1,6 +1,8 @@
 package uniqsym
 
-import "testing"
+import (
+	"testing"
+)
 
 var sunnyTests = []struct {
 	name string
@@ -48,7 +50,7 @@ func TestConvertFromStringError(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			_, err := ConvertFromString(test.str)
 			if err == nil {
-				t.Errorf("got nil error")
+				t.Error("got nil error")
 			}
 		})
 	}

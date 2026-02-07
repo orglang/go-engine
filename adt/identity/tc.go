@@ -4,16 +4,12 @@ import (
 	"github.com/rs/xid"
 )
 
-func ConvertToSame(id ADT) ADT {
-	return id
-}
-
 func ConvertFromString(s string) (ADT, error) {
-	xid, err := xid.FromString(s)
+	id, err := xid.FromString(s)
 	if err != nil {
 		return ADT{}, err
 	}
-	return ADT(xid), nil
+	return ADT(id), nil
 }
 
 func ConvertToString(id ADT) string {

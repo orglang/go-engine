@@ -1,6 +1,8 @@
 package procstep
 
-import "github.com/orglang/go-sdk/adt/procstep"
+import (
+	"github.com/orglang/go-sdk/adt/procstep"
+)
 
 // goverter:variables
 // goverter:output:format assign-variable

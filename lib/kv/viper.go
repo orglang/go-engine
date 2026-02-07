@@ -8,15 +8,21 @@ import (
 )
 
 func newViperDriver(logger *slog.Logger) *viperDriver {
-	viper := viper.New()
-	viper.AddConfigPath(".")
-	viper.SetConfigType("yaml")
-	viper.SetConfigName("reference")
-	viper.ReadInConfig()
-	viper.SetConfigName("application")
-	viper.MergeInConfig()
+	driver := viper.New()
+	driver.AddConfigPath(".")
+	driver.SetConfigType("yaml")
+	driver.SetConfigName("reference")
+	readErr := driver.ReadInConfig()
+	if readErr != nil {
+		panic(readErr)
+	}
+	driver.SetConfigName("application")
+	mergeErr := driver.MergeInConfig()
+	if mergeErr != nil {
+		panic(mergeErr)
+	}
 	name := slog.String("name", reflect.TypeFor[viperDriver]().Name())
-	return &viperDriver{viper, logger.With(name)}
+	return &viperDriver{driver, logger.With(name)}
 }
 
 type viperDriver struct {

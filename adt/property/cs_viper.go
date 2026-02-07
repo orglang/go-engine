@@ -16,11 +16,11 @@ type viperPAO struct {
 }
 
 func newViperPAO() *viperPAO {
-	return &viperPAO{}
+	return new(viperPAO)
 }
 
 func (pao *viperPAO) Load() (ExchangeCS, error) {
-	val := &ExchangeCS{}
+	val := new(ExchangeCS)
 	err := pao.viper.UnmarshalKey(key, val)
 	if err != nil {
 		pao.log.Error("load failed", slog.String("key", key), slog.Any("reason", err))

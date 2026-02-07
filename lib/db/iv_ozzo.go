@@ -20,7 +20,7 @@ func (dto protocolCS) Validate() error {
 
 func (dto postgresCS) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.Url, validation.Required),
+		validation.Field(&dto.URL, validation.Required),
 	)
 }
 

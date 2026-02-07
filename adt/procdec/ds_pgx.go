@@ -27,7 +27,7 @@ func newPgxDAO(l *slog.Logger) *pgxDAO {
 
 // for compilation purposes
 func newRepo() Repo {
-	return &pgxDAO{}
+	return new(pgxDAO)
 }
 
 func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
@@ -107,9 +107,9 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 func (dao *pgxDAO) SelectSnap(source db.Source, ref DecRef) (DecSnap, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	idAttr := slog.Any("id", ref)
-	rows, err := ds.Conn.Query(ds.Ctx, selectById, ref.ID.String())
+	rows, err := ds.Conn.Query(ds.Ctx, selectByID, ref.ID.String())
 	if err != nil {
-		dao.log.Error("query execution failed", idAttr, slog.String("q", selectById))
+		dao.log.Error("query execution failed", idAttr, slog.String("q", selectByID))
 		return DecSnap{}, err
 	}
 	defer rows.Close()
@@ -144,7 +144,7 @@ func (dao *pgxDAO) SelectRecs(source db.Source, ids []identity.ADT) (_ []DecRec,
 		if rid.IsEmpty() {
 			return nil, identity.ErrEmpty
 		}
-		batch.Queue(selectById, rid.String())
+		batch.Queue(selectByID, rid.String())
 	}
 	br := ds.Conn.SendBatch(ds.Ctx, &batch)
 	defer func() {
@@ -154,9 +154,8 @@ func (dao *pgxDAO) SelectRecs(source db.Source, ids []identity.ADT) (_ []DecRec,
 	for _, rid := range ids {
 		rows, err := br.Query()
 		if err != nil {
-			dao.log.Error("query execution failed", slog.Any("id", rid), slog.String("q", selectById))
+			dao.log.Error("query execution failed", slog.Any("id", rid), slog.String("q", selectByID))
 		}
-		defer rows.Close()
 		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[decRecDS])
 		if err != nil {
 			dao.log.Error("row collection failed", slog.Any("id", rid))
@@ -191,7 +190,8 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]DecRef, error) {
 }
 
 const (
-	selectById = `
+	// revive:disable:line-length-limit
+	selectByID = `
 		select
 			sr.dec_id,
 			sr.rev,
@@ -209,4 +209,5 @@ const (
 			and sc.to_rn > sr.rev
 		where sr.dec_id = $1
 		group by sr.dec_id, sr.rev`
+	// revive:enable:line-length-limit
 )

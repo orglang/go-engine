@@ -17,7 +17,7 @@ type API interface {
 
 // for compilation purposes
 func newAPI() API {
-	return &service{}
+	return new(service)
 }
 
 type DecSpec struct {

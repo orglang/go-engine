@@ -21,7 +21,7 @@ func newPgxDAO(l *slog.Logger) *pgxDAO {
 
 // for compilation purposes
 func newRepo() Repo {
-	return &pgxDAO{}
+	return new(pgxDAO)
 }
 
 func (dao *pgxDAO) Insert(source db.Source, root DecRec) error {

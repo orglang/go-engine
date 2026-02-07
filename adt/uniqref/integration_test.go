@@ -2,7 +2,9 @@
 
 package uniqref
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestIntegration(t *testing.T) {
 	// do nothing

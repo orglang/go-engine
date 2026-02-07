@@ -35,5 +35,5 @@ func (id ADT) String() string {
 }
 
 var (
-	ErrEmpty = errors.New("empty id")
+	ErrEmpty error = errors.New("empty id")
 )

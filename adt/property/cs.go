@@ -3,12 +3,12 @@ package property
 type ExchangeCS struct {
 	Protocol ProtocolCS `mapstructure:"protocol"`
 	Server   ServerCS   `mapstructure:"server"`
-	Client   ServerCS   `mapstructure:"server"`
+	Client   ClientCS   `mapstructure:"client"`
 }
 
 type ProtocolCS struct {
 	Modes []ProtoModeCS `mapstructure:"modes"`
-	Http  HttpCS        `mapstructure:"http"`
+	HTTP  httpCS        `mapstructure:"http"`
 }
 
 type ServerCS struct {
@@ -21,7 +21,7 @@ type ClientCS struct {
 	Resty RestyCS      `mapstructure:"resty"`
 }
 
-type HttpCS struct {
+type httpCS struct {
 	Port uint16 `mapstructure:"port"`
 }
 
@@ -31,17 +31,17 @@ type RestyCS struct{}
 type ProtoModeCS string
 
 const (
-	HttpProto = ProtoModeCS("http")
+	HTTPProto ProtoModeCS = "http"
 )
 
 type ServerModeCS string
 
 const (
-	EchoServer = ServerModeCS("echo")
+	EchoServer ServerModeCS = "echo"
 )
 
 type ClientModeCS string
 
 const (
-	RestyClient = ClientModeCS("resty")
+	RestyClient ClientModeCS = "resty"
 )

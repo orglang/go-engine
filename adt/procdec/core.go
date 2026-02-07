@@ -55,7 +55,7 @@ type service struct {
 
 // for compilation purposes
 func newAPI() API {
-	return &service{}
+	return new(service)
 }
 
 func newService(procDecs Repo, synDecs syndec.Repo, operator db.Operator, log *slog.Logger) *service {
@@ -68,7 +68,7 @@ func (s *service) Incept(procQN uniqsym.ADT) (_ DecRef, err error) {
 	s.log.Debug("inception started", qnAttr)
 	newSyn := syndec.DecRec{DecQN: procQN, DecID: identity.New(), DecRN: revnum.New()}
 	newRec := DecRec{DecRef: DecRef{ID: newSyn.DecID, RN: newSyn.DecRN}}
-	s.operator.Explicit(ctx, func(ds db.Source) error {
+	err = s.operator.Explicit(ctx, func(ds db.Source) error {
 		err = s.synDecs.Insert(ds, newSyn)
 		if err != nil {
 			return err
@@ -96,7 +96,7 @@ func (s *service) Create(spec DecSpec) (_ DecRef, err error) {
 		ProviderBS: spec.ProviderBS,
 		ClientBSs:  spec.ClientBSs,
 	}
-	s.operator.Explicit(ctx, func(ds db.Source) error {
+	err = s.operator.Explicit(ctx, func(ds db.Source) error {
 		err = s.procDecs.InsertRec(ds, newRec)
 		if err != nil {
 			return err
@@ -113,7 +113,7 @@ func (s *service) Create(spec DecSpec) (_ DecRef, err error) {
 
 func (s *service) RetrieveSnap(ref DecRef) (snap DecSnap, err error) {
 	ctx := context.Background()
-	s.operator.Implicit(ctx, func(ds db.Source) error {
+	err = s.operator.Implicit(ctx, func(ds db.Source) error {
 		snap, err = s.procDecs.SelectSnap(ds, ref)
 		return err
 	})
@@ -126,7 +126,7 @@ func (s *service) RetrieveSnap(ref DecRef) (snap DecSnap, err error) {
 
 func (s *service) RetreiveRefs() (refs []DecRef, err error) {
 	ctx := context.Background()
-	s.operator.Implicit(ctx, func(ds db.Source) error {
+	err = s.operator.Implicit(ctx, func(ds db.Source) error {
 		refs, err = s.procDecs.SelectRefs(ds)
 		return err
 	})

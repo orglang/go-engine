@@ -13,10 +13,37 @@ require (
 )
 
 require (
+	codeberg.org/chavacava/garif v0.2.0 // indirect
 	dario.cat/mergo v1.0.2 // indirect
+	github.com/BurntSushi/toml v1.5.0 // indirect
+	github.com/cristalhq/acmd v0.12.0 // indirect
+	github.com/fatih/color v1.18.0 // indirect
+	github.com/fatih/structtag v1.2.0 // indirect
+	github.com/go-critic/go-critic v0.14.3 // indirect
+	github.com/go-toolsmith/astcast v1.1.0 // indirect
+	github.com/go-toolsmith/astcopy v1.1.0 // indirect
+	github.com/go-toolsmith/astequal v1.2.0 // indirect
+	github.com/go-toolsmith/astfmt v1.1.0 // indirect
+	github.com/go-toolsmith/astinfo v0.0.0-20180906194353-9809ff7efb21 // indirect
+	github.com/go-toolsmith/astp v1.1.0 // indirect
+	github.com/go-toolsmith/pkgload v1.2.2 // indirect
+	github.com/go-toolsmith/strparse v1.1.0 // indirect
+	github.com/go-toolsmith/typep v1.1.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
+	github.com/hashicorp/go-version v1.7.0 // indirect
 	github.com/jmattheis/goverter v1.9.3 // indirect
+	github.com/kisielk/errcheck v1.9.0 // indirect
+	github.com/kisielk/gotool v1.0.0 // indirect
+	github.com/mgechev/dots v1.0.0 // indirect
+	github.com/mgechev/revive v1.13.0 // indirect
+	github.com/quasilyte/go-consistent v0.6.2 // indirect
+	github.com/quasilyte/go-ruleguard v0.4.5 // indirect
+	github.com/quasilyte/gogrep v0.5.0 // indirect
+	github.com/quasilyte/regex/syntax v0.0.0-20210819130434-b3f0c404a727 // indirect
+	github.com/quasilyte/stdinfo v0.0.0-20220114132959-f7386bf02567 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
+	golang.org/x/exp/typeparams v0.0.0-20251023183803-a4bb9ffd2546 // indirect
+	honnef.co/go/tools v0.6.1 // indirect
 )
 
 require (
@@ -66,4 +93,11 @@ require (
 	github.com/shopspring/decimal v1.4.0 // indirect
 )
 
-tool github.com/jmattheis/goverter
+tool (
+	github.com/go-critic/go-critic/cmd/go-critic
+	github.com/jmattheis/goverter
+	github.com/kisielk/errcheck
+	github.com/mgechev/revive
+	github.com/quasilyte/go-consistent
+	honnef.co/go/tools/cmd/staticcheck
+)

@@ -26,7 +26,7 @@ func newPgxDAO(l *slog.Logger) *pgxDAO {
 
 // for compilation purposes
 func newRepo() Repo {
-	return &pgxDAO{}
+	return new(pgxDAO)
 }
 
 func (dao *pgxDAO) Insert(source db.Source, rec DefRec) error {
@@ -144,9 +144,9 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]DefRef, error) {
 func (dao *pgxDAO) SelectRecByRef(source db.Source, defRef DefRef) (DefRec, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("defRef", defRef)
-	rows, err := ds.Conn.Query(ds.Ctx, selectById, defRef.ID.String())
+	rows, err := ds.Conn.Query(ds.Ctx, selectByID, defRef.ID.String())
 	if err != nil {
-		dao.log.Error("query execution failed", refAttr, slog.String("q", selectById))
+		dao.log.Error("query execution failed", refAttr, slog.String("q", selectByID))
 		return DefRec{}, err
 	}
 	defer rows.Close()
@@ -204,7 +204,6 @@ func (dao *pgxDAO) SelectRecsByRefs(source db.Source, defRefs []DefRef) (_ []Def
 		if err != nil {
 			dao.log.Error("query execution failed", slog.Any("defID", defID), slog.String("q", query))
 		}
-		defer rows.Close()
 		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRecDS])
 		if err != nil {
 			dao.log.Error("row collection failed", slog.Any("defID", defID))
@@ -249,7 +248,6 @@ func (dao *pgxDAO) SelectRecsByQNs(source db.Source, typeQNs []uniqsym.ADT) (_ [
 		if err != nil {
 			dao.log.Error("query execution failed", slog.Any("defQN", defQN), slog.String("q", selectByFQN))
 		}
-		defer rows.Close()
 		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRecDS])
 		if err != nil {
 			dao.log.Error("row collection failed", slog.Any("defQN", defQN))
@@ -282,7 +280,7 @@ const (
 			and rs.to_rn > rr.def_rn
 		where a.sym = $1`
 
-	selectById = `
+	selectByID = `
 		select
 			rr.def_id,
 			rr.def_rn,

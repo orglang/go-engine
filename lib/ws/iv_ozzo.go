@@ -16,13 +16,18 @@ func (dto exchangeCS) Validate() error {
 func (dto protocolCS) Validate() error {
 	return validation.ValidateStruct(&dto,
 		validation.Field(&dto.Modes, validation.Required, validation.Each(validation.In(httpProto))),
-		validation.Field(&dto.Http, validation.Required.When(slices.Contains(dto.Modes, httpProto))),
+		validation.Field(&dto.HTTP, validation.Required.When(slices.Contains(dto.Modes, httpProto))),
 	)
 }
 
+const (
+	MinPort = 80
+	MaxPort = 20000
+)
+
 func (dto httpCS) Validate() error {
 	return validation.ValidateStruct(&dto,
-		validation.Field(&dto.Port, validation.Required, validation.Min(80), validation.Max(20000)),
+		validation.Field(&dto.Port, validation.Required, validation.Min(MinPort), validation.Max(MaxPort)),
 	)
 }
 

@@ -13,7 +13,7 @@ const (
 
 func ConvertFromString(str string) (ADT, error) {
 	if str == "" {
-		return empty, fmt.Errorf("invalid value")
+		return empty, fmt.Errorf("invalid value: %s", str)
 	}
 	idx := strings.LastIndex(str, sep)
 	if idx < 0 {

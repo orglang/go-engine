@@ -1,10 +1,12 @@
 package symbol
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func ConvertFromString(str string) (ADT, error) {
 	if str == "" {
-		return ADT(""), fmt.Errorf("invalid value")
+		return "", fmt.Errorf("invalid value: %s", str)
 	}
 	return ADT(str), nil
 }

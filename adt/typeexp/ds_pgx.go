@@ -2,7 +2,6 @@ package typeexp
 
 import (
 	"errors"
-	"fmt"
 	"log/slog"
 	"reflect"
 
@@ -26,13 +25,13 @@ func newPgxDAO(l *slog.Logger) *pgxDAO {
 
 // for compilation purposes
 func newRepo() Repo {
-	return &pgxDAO{}
+	return new(pgxDAO)
 }
 
 func (dao *pgxDAO) InsertRec(source db.Source, rec ExpRec) (err error) {
 	ds := db.MustConform[db.SourcePgx](source)
-	idAttr := slog.Any("termID", rec.Ident())
-	dto := DataFromExpRec(rec)
+	idAttr := slog.Any("expID", rec.Ident())
+	dto := dataFromExpRec(rec)
 	query := `
 		INSERT INTO type_term_states (
 			exp_id, kind, from_id, spec
@@ -65,9 +64,9 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec ExpRec) (err error) {
 	return nil
 }
 
-func (dao *pgxDAO) SelectRecByID(source db.Source, termID identity.ADT) (ExpRec, error) {
+func (dao *pgxDAO) SelectRecByID(source db.Source, expID identity.ADT) (ExpRec, error) {
 	ds := db.MustConform[db.SourcePgx](source)
-	idAttr := slog.Any("termID", termID)
+	idAttr := slog.Any("expID", expID)
 	query := `
 		WITH RECURSIVE top_states AS (
 			SELECT rs.*
@@ -79,7 +78,7 @@ func (dao *pgxDAO) SelectRecByID(source db.Source, termID identity.ADT) (ExpRec,
 			WHERE bs.from_id = ts.id
 		)
 		SELECT * FROM top_states`
-	rows, err := ds.Conn.Query(ds.Ctx, query, termID.String())
+	rows, err := ds.Conn.Query(ds.Ctx, query, expID.String())
 	if err != nil {
 		dao.log.Error("query execution failed", idAttr, slog.String("q", query))
 		return nil, err
@@ -90,20 +89,20 @@ func (dao *pgxDAO) SelectRecByID(source db.Source, termID identity.ADT) (ExpRec,
 		dao.log.Error("row collection failed", idAttr)
 		return nil, err
 	}
-	if len(dtos) == 0 {
+	if len(dtos) == 0 { // revive:disable-line
 		dao.log.Error("entity selection failed", idAttr)
-		return nil, fmt.Errorf("no rows selected")
+		return nil, errors.New("no rows selected")
 	}
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity selection succeed", slog.Any("dtos", dtos))
-	type_term_states := make(map[string]stateDS, len(dtos))
+	states := make(map[string]stateDS, len(dtos))
 	for _, dto := range dtos {
-		type_term_states[dto.ExpID] = dto
+		states[dto.ExpID] = dto
 	}
-	return statesToExpRec(type_term_states, type_term_states[termID.String()])
+	return statesToExpRec(states, states[expID.String()])
 }
 
-func (dao *pgxDAO) SelectEnv(source db.Source, termIDs []identity.ADT) (map[identity.ADT]ExpRec, error) {
-	recs, err := dao.SelectRecsByIDs(source, termIDs)
+func (dao *pgxDAO) SelectEnv(source db.Source, expIDs []identity.ADT) (map[identity.ADT]ExpRec, error) {
+	recs, err := dao.SelectRecsByIDs(source, expIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -114,33 +113,32 @@ func (dao *pgxDAO) SelectEnv(source db.Source, termIDs []identity.ADT) (map[iden
 	return env, nil
 }
 
-func (dao *pgxDAO) SelectRecsByIDs(source db.Source, termIDs []identity.ADT) (_ []ExpRec, err error) {
+func (dao *pgxDAO) SelectRecsByIDs(source db.Source, expIDs []identity.ADT) (_ []ExpRec, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	batch := pgx.Batch{}
-	for _, termID := range termIDs {
-		batch.Queue(selectByID, termID.String())
+	for _, expID := range expIDs {
+		batch.Queue(selectByID, expID.String())
 	}
 	br := ds.Conn.SendBatch(ds.Ctx, &batch)
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
 	var recs []ExpRec
-	for _, termID := range termIDs {
-		idAttr := slog.Any("termID", termID)
+	for _, expID := range expIDs {
+		idAttr := slog.Any("expID", expID)
 		rows, err := br.Query()
 		if err != nil {
 			dao.log.Error("query execution failed", idAttr, slog.String("q", selectByID))
 		}
-		defer rows.Close()
 		dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[stateDS])
 		if err != nil {
 			dao.log.Error("rows collection failed", idAttr)
 		}
 		if len(dtos) == 0 {
 			dao.log.Error("entity selection failed", idAttr)
-			return nil, ErrDoesNotExist(termID)
+			return nil, ErrDoesNotExist(expID)
 		}
-		rec, err := DataToExpRec(&expRecDS{termID.String(), dtos})
+		rec, err := DataToExpRec(&expRecDS{expID.String(), dtos})
 		if err != nil {
 			dao.log.Error("model conversion failed", idAttr)
 			return nil, err

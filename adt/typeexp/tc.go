@@ -296,7 +296,7 @@ func DataToExpRec(dto *expRecDS) (ExpRec, error) {
 	return statesToExpRec(states, states[dto.ExpID])
 }
 
-func DataFromExpRec(rec ExpRec) *expRecDS {
+func dataFromExpRec(rec ExpRec) *expRecDS {
 	if rec == nil {
 		return nil
 	}
@@ -309,19 +309,19 @@ func DataFromExpRec(rec ExpRec) *expRecDS {
 }
 
 func statesToExpRec(states map[string]stateDS, st stateDS) (ExpRec, error) {
-	stID, err := identity.ConvertFromString(st.ExpID)
+	expID, err := identity.ConvertFromString(st.ExpID)
 	if err != nil {
 		return nil, err
 	}
 	switch st.K {
 	case oneExp:
-		return OneRec{ExpID: stID}, nil
+		return OneRec{ExpID: expID}, nil
 	case linkExp:
-		roleQN, err := uniqsym.ConvertFromString(st.Spec.Link)
+		typeQN, err := uniqsym.ConvertFromString(st.Spec.Link)
 		if err != nil {
 			return nil, err
 		}
-		return LinkRec{ExpID: stID, TypeQN: roleQN}, nil
+		return LinkRec{ExpID: expID, TypeQN: typeQN}, nil
 	case tensorExp:
 		b, err := statesToExpRec(states, states[st.Spec.Tensor.ValES])
 		if err != nil {
@@ -331,7 +331,7 @@ func statesToExpRec(states map[string]stateDS, st stateDS) (ExpRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return TensorRec{ExpID: stID, Y: b, Z: c}, nil
+		return TensorRec{ExpID: expID, Y: b, Z: c}, nil
 	case lolliExp:
 		y, err := statesToExpRec(states, states[st.Spec.Lolli.ValES])
 		if err != nil {
@@ -341,7 +341,7 @@ func statesToExpRec(states map[string]stateDS, st stateDS) (ExpRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return LolliRec{ExpID: stID, Y: y, Z: z}, nil
+		return LolliRec{ExpID: expID, Y: y, Z: z}, nil
 	case plusExp:
 		choices := make(map[uniqsym.ADT]ExpRec, len(st.Spec.Plus))
 		for _, ch := range st.Spec.Plus {
@@ -355,7 +355,7 @@ func statesToExpRec(states map[string]stateDS, st stateDS) (ExpRec, error) {
 			}
 			choices[label] = choice
 		}
-		return PlusRec{ExpID: stID, Zs: choices}, nil
+		return PlusRec{ExpID: expID, Zs: choices}, nil
 	case withExp:
 		choices := make(map[uniqsym.ADT]ExpRec, len(st.Spec.With))
 		for _, ch := range st.Spec.With {
@@ -369,45 +369,39 @@ func statesToExpRec(states map[string]stateDS, st stateDS) (ExpRec, error) {
 			}
 			choices[label] = choice
 		}
-		return WithRec{ExpID: stID, Zs: choices}, nil
+		return WithRec{ExpID: expID, Zs: choices}, nil
 	default:
 		panic(errUnexpectedKind(st.K))
 	}
 }
 
-func statesFromExpRec(from string, r ExpRec, dto *expRecDS) (string, error) {
+func statesFromExpRec(from string, r ExpRec, dto *expRecDS) string {
 	var fromID sql.NullString
 	if len(from) > 0 {
 		fromID = sql.NullString{String: from, Valid: true}
 	}
-	stID := r.Ident().String()
-	switch root := r.(type) {
+	expID := r.Ident().String()
+	switch rec := r.(type) {
 	case OneRec:
-		st := stateDS{ExpID: stID, K: oneExp, FromID: fromID}
+		st := stateDS{ExpID: expID, K: oneExp, FromID: fromID}
 		dto.States = append(dto.States, st)
-		return stID, nil
+		return expID
 	case LinkRec:
 		st := stateDS{
-			ExpID:  stID,
+			ExpID:  expID,
 			K:      linkExp,
 			FromID: fromID,
 			Spec: expSpecDS{
-				Link: uniqsym.ConvertToString(root.TypeQN),
+				Link: uniqsym.ConvertToString(rec.TypeQN),
 			},
 		}
 		dto.States = append(dto.States, st)
-		return stID, nil
+		return expID
 	case TensorRec:
-		val, err := statesFromExpRec(stID, root.Y, dto)
-		if err != nil {
-			return "", err
-		}
-		cont, err := statesFromExpRec(stID, root.Z, dto)
-		if err != nil {
-			return "", err
-		}
+		val := statesFromExpRec(expID, rec.Y, dto)
+		cont := statesFromExpRec(expID, rec.Z, dto)
 		st := stateDS{
-			ExpID:  stID,
+			ExpID:  expID,
 			K:      tensorExp,
 			FromID: fromID,
 			Spec: expSpecDS{
@@ -415,18 +409,12 @@ func statesFromExpRec(from string, r ExpRec, dto *expRecDS) (string, error) {
 			},
 		}
 		dto.States = append(dto.States, st)
-		return stID, nil
+		return expID
 	case LolliRec:
-		val, err := statesFromExpRec(stID, root.Y, dto)
-		if err != nil {
-			return "", err
-		}
-		cont, err := statesFromExpRec(stID, root.Z, dto)
-		if err != nil {
-			return "", err
-		}
+		val := statesFromExpRec(expID, rec.Y, dto)
+		cont := statesFromExpRec(expID, rec.Z, dto)
 		st := stateDS{
-			ExpID:  stID,
+			ExpID:  expID,
 			K:      lolliExp,
 			FromID: fromID,
 			Spec: expSpecDS{
@@ -434,41 +422,35 @@ func statesFromExpRec(from string, r ExpRec, dto *expRecDS) (string, error) {
 			},
 		}
 		dto.States = append(dto.States, st)
-		return stID, nil
+		return expID
 	case PlusRec:
 		var choices []sumDS
-		for label, choice := range root.Zs {
-			cont, err := statesFromExpRec(stID, choice, dto)
-			if err != nil {
-				return "", err
-			}
+		for label, choice := range rec.Zs {
+			cont := statesFromExpRec(expID, choice, dto)
 			choices = append(choices, sumDS{uniqsym.ConvertToString(label), cont})
 		}
 		st := stateDS{
-			ExpID:  stID,
+			ExpID:  expID,
 			K:      plusExp,
 			FromID: fromID,
 			Spec:   expSpecDS{Plus: choices},
 		}
 		dto.States = append(dto.States, st)
-		return stID, nil
+		return expID
 	case WithRec:
 		var choices []sumDS
-		for label, choice := range root.Zs {
-			cont, err := statesFromExpRec(stID, choice, dto)
-			if err != nil {
-				return "", err
-			}
+		for label, choice := range rec.Zs {
+			cont := statesFromExpRec(expID, choice, dto)
 			choices = append(choices, sumDS{uniqsym.ConvertToString(label), cont})
 		}
 		st := stateDS{
-			ExpID:  stID,
+			ExpID:  expID,
 			K:      withExp,
 			FromID: fromID,
 			Spec:   expSpecDS{With: choices},
 		}
 		dto.States = append(dto.States, st)
-		return stID, nil
+		return expID
 	default:
 		panic(ErrRecTypeUnexpected(r))
 	}

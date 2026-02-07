@@ -12,23 +12,23 @@ func newOperator(pool *pgxpool.Pool) Operator {
 }
 
 func newPgxDriver(dto storageCS, lc fx.Lifecycle) (*pgxpool.Pool, error) {
-	config, err := pgxpool.ParseConfig(dto.Protocol.Postgres.Url)
+	config, err := pgxpool.ParseConfig(dto.Protocol.Postgres.URL)
 	if err != nil {
 		return nil, err
 	}
-	config.MaxConns = 2
-	pgx, err := pgxpool.NewWithConfig(context.Background(), config)
+	config.MaxConns = int32(dto.Driver.Pgx.MaxConns)
+	pool, err := pgxpool.NewWithConfig(context.Background(), config)
 	if err != nil {
 		return nil, err
 	}
 	lc.Append(
 		fx.Hook{
-			OnStart: pgx.Ping,
+			OnStart: pool.Ping,
 			OnStop: func(ctx context.Context) error {
-				go pgx.Close()
+				go pool.Close()
 				return nil
 			},
 		},
 	)
-	return pgx, nil
+	return pool, nil
 }

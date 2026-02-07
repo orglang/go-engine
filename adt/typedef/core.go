@@ -62,7 +62,7 @@ type service struct {
 
 // for compilation purposes
 func newAPI() API {
-	return &service{}
+	return new(service)
 }
 
 func newService(
@@ -80,8 +80,11 @@ func (s *service) Incept(typeQN uniqsym.ADT) (_ DefRef, err error) {
 	qnAttr := slog.Any("typeQN", typeQN)
 	s.log.Debug("inception started", qnAttr)
 	newSyn := syndec.DecRec{DecQN: typeQN, DecID: identity.New(), DecRN: revnum.New()}
-	newType := DefRec{DefRef: DefRef{ID: newSyn.DecID, RN: newSyn.DecRN}, Title: symbol.ConvertToString(newSyn.DecQN.Sym())}
-	s.operator.Explicit(ctx, func(ds db.Source) error {
+	newType := DefRec{
+		DefRef: DefRef{ID: newSyn.DecID, RN: newSyn.DecRN},
+		Title:  symbol.ConvertToString(newSyn.DecQN.Sym()),
+	}
+	err = s.operator.Explicit(ctx, func(ds db.Source) error {
 		err = s.synDecs.Insert(ds, newSyn)
 		if err != nil {
 			return err
@@ -111,7 +114,7 @@ func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 		Title:  symbol.ConvertToString(newSyn.DecQN.Sym()),
 		ExpID:  newExp.Ident(),
 	}
-	s.operator.Explicit(ctx, func(ds db.Source) error {
+	err = s.operator.Explicit(ctx, func(ds db.Source) error {
 		err = s.synDecs.Insert(ds, newSyn)
 		if err != nil {
 			return err
@@ -144,7 +147,7 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 	refAttr := slog.Any("defRef", snap.DefRef)
 	s.log.Debug("modification started", refAttr)
 	var rec DefRec
-	s.operator.Implicit(ctx, func(ds db.Source) error {
+	err = s.operator.Implicit(ctx, func(ds db.Source) error {
 		rec, err = s.typeDefs.SelectRecByRef(ds, snap.DefRef)
 		return err
 	})
@@ -155,15 +158,14 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 	if snap.DefRef.RN != rec.DefRef.RN {
 		s.log.Error("modification failed", refAttr)
 		return DefSnap{}, errConcurrentModification(snap.DefRef.RN, rec.DefRef.RN)
-	} else {
-		snap.DefRef.RN = revnum.Next(snap.DefRef.RN)
 	}
+	snap.DefRef.RN = revnum.Next(snap.DefRef.RN)
 	curSnap, err := s.retrieveSnap(rec)
 	if err != nil {
 		s.log.Error("modification failed", refAttr)
 		return DefSnap{}, err
 	}
-	s.operator.Explicit(ctx, func(ds db.Source) error {
+	err = s.operator.Explicit(ctx, func(ds db.Source) error {
 		if typeexp.CheckSpec(snap.TypeES, curSnap.TypeES) != nil {
 			newTerm := typeexp.ConvertSpecToRec(snap.TypeES)
 			err = s.typeExps.InsertRec(ds, newTerm)
@@ -189,24 +191,24 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 	return snap, nil
 }
 
-func (s *service) RetrieveSnap(defID DefRef) (_ DefSnap, err error) {
+func (s *service) RetrieveSnap(ref DefRef) (_ DefSnap, err error) {
 	ctx := context.Background()
-	var root DefRec
-	s.operator.Implicit(ctx, func(ds db.Source) error {
-		root, err = s.typeDefs.SelectRecByRef(ds, defID)
+	var rec DefRec
+	err = s.operator.Implicit(ctx, func(ds db.Source) error {
+		rec, err = s.typeDefs.SelectRecByRef(ds, ref)
 		return err
 	})
 	if err != nil {
-		s.log.Error("retrieval failed", slog.Any("defID", defID))
+		s.log.Error("retrieval failed", slog.Any("defID", ref))
 		return DefSnap{}, err
 	}
-	return s.retrieveSnap(root)
+	return s.retrieveSnap(rec)
 }
 
-func (s *service) retrieveSnap(rec DefRec) (_ DefSnap, err error) {
+func (s *service) retrieveSnap(rec DefRec) (_ DefSnap, err error) { // revive:disable-line:confusing-naming
 	ctx := context.Background()
 	var termRec typeexp.ExpRec
-	s.operator.Implicit(ctx, func(ds db.Source) error {
+	err = s.operator.Implicit(ctx, func(ds db.Source) error {
 		termRec, err = s.typeExps.SelectRecByID(ds, rec.ExpID)
 		return err
 	})
@@ -223,7 +225,7 @@ func (s *service) retrieveSnap(rec DefRec) (_ DefSnap, err error) {
 
 func (s *service) RetreiveRefs() (refs []DefRef, err error) {
 	ctx := context.Background()
-	s.operator.Implicit(ctx, func(ds db.Source) error {
+	err = s.operator.Implicit(ctx, func(ds db.Source) error {
 		refs, err = s.typeDefs.SelectRefs(ds)
 		return err
 	})

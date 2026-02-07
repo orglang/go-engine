@@ -13,8 +13,8 @@ func New(name symbol.ADT) ADT {
 	return ADT{name, nil}
 }
 
-func (space ADT) New(name symbol.ADT) ADT {
-	return ADT{name, &space}
+func (adt ADT) New(name symbol.ADT) ADT {
+	return ADT{name, &adt}
 }
 
 // symbol
@@ -30,14 +30,14 @@ func (adt ADT) NS() ADT {
 	return *adt.ns
 }
 
-func (a ADT) Equal(b ADT) bool {
-	if a.sym == b.sym && a.ns == b.ns {
+func (adt ADT) Equal(b ADT) bool {
+	if adt.sym == b.sym && adt.ns == b.ns {
 		return true
 	}
-	if a.ns == nil || b.ns == nil {
+	if adt.ns == nil || b.ns == nil {
 		return false
 	}
-	return a.ns.Equal(*b.ns)
+	return adt.ns.Equal(*b.ns)
 }
 
 var (

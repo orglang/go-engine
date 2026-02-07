@@ -17,7 +17,6 @@ import (
 	"orglang/go-engine/adt/uniqsym"
 )
 
-// Port
 type API interface {
 	Run(ExecSpec) (ExecRef, error) // aka Create
 	RetrieveSnap(ExecRef) (ExecSnap, error)
@@ -67,7 +66,7 @@ type service struct {
 
 // for compilation purposes
 func newAPI() API {
-	return &service{}
+	return new(service)
 }
 
 func newService(

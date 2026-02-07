@@ -1,4 +1,4 @@
-package pool
+package e2e
 
 import (
 	"database/sql"
@@ -37,7 +37,6 @@ func TestPool(t *testing.T) {
 	t.Run("CaseLab", s.caseLab)
 	t.Run("Call", s.call)
 	t.Run("Fwd", s.fwd)
-
 }
 
 type suite struct {
@@ -55,7 +54,12 @@ func (s *suite) beforeAll(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	t.Cleanup(func() { db.Close() })
+	t.Cleanup(func() {
+		err := db.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+	})
 	s.db = db
 	app := fx.New(rc.Module, e2e.Module,
 		fx.Populate(
@@ -66,7 +70,12 @@ func (s *suite) beforeAll(t *testing.T) {
 			s.procExecAPI,
 			s.typeDefAPI,
 		))
-	t.Cleanup(func() { app.Stop(t.Context()) })
+	t.Cleanup(func() {
+		err := app.Stop(t.Context())
+		if err != nil {
+			t.Fatal(err)
+		}
+	})
 }
 
 func (s *suite) beforeEach(t *testing.T) {

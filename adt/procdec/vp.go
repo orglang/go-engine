@@ -1,6 +1,8 @@
 package procdec
 
-import "github.com/orglang/go-sdk/adt/uniqref"
+import (
+	"github.com/orglang/go-sdk/adt/uniqref"
+)
 
 type DecRefVP = uniqref.Msg
 

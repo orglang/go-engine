@@ -34,8 +34,7 @@ func newEchoServer(dto exchangeCS, l *slog.Logger, lc fx.Lifecycle) *echo.Echo {
 	lc.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				go e.Start(fmt.Sprintf(":%v", dto.Protocol.Http.Port))
-				return nil
+				return e.Start(fmt.Sprintf(":%v", dto.Protocol.HTTP.Port))
 			},
 			OnStop: func(ctx context.Context) error {
 				return e.Shutdown(ctx)

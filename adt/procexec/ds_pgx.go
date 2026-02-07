@@ -21,7 +21,7 @@ type pgxDAO struct {
 
 // for compilation purposes
 func newRepo() Repo {
-	return &pgxDAO{}
+	return new(pgxDAO)
 }
 
 func newPgxDAO(l *slog.Logger) *pgxDAO {

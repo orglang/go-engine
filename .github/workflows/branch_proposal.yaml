@@ -2,8 +2,6 @@
 name: Branch proposal
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches-ignore: [main]
     types:

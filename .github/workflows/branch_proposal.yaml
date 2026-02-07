@@ -15,7 +15,6 @@ on:
 defaults:
   run:
     shell: bash
-    working-directory: ./engine
 
 jobs:
   packages:
@@ -24,6 +23,10 @@ jobs:
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout workspace repo
+        uses: actions/checkout@v6
+        with:
+          repository: orglang/go-workspace
       - uses: ./.github/actions/checkout-repos
       - uses: ./.github/actions/setup-tools
       - run: task packages

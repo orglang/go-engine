@@ -14,6 +14,5 @@ type DefRefVP = uniqref.Msg
 
 type DefSnapVP struct {
 	DefRef DefRefVP        `json:"ref"`
-	Title  string          `json:"title"`
 	TypeES typeexp.ExpSpec `json:"type_es"`
 }

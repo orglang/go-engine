@@ -65,7 +65,7 @@ func (p *echoPresenter) PostOne(c echo.Context) error {
 		p.log.Error("rendering failed", slog.Any("snap", snap))
 		return renderingErr
 	}
-	p.log.Log(ctx, lf.LevelTrace, "posting succeed", slog.Any("ref", ConvertSnapToRef(snap)))
+	p.log.Log(ctx, lf.LevelTrace, "posting succeed", slog.Any("ref", snap.DefRef))
 	return c.HTMLBlob(http.StatusOK, html)
 }
 
@@ -110,6 +110,6 @@ func (p *echoPresenter) GetOne(c echo.Context) error {
 		p.log.Error("rendering failed", slog.Any("snap", snap))
 		return renderingErr
 	}
-	p.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("ref", ConvertSnapToRef(snap)))
+	p.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("ref", snap.DefRef))
 	return c.HTMLBlob(http.StatusOK, html)
 }

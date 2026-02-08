@@ -1,4 +1,4 @@
-package typedef
+package xactdef
 
 import (
 	"orglang/go-engine/lib/db"
@@ -14,7 +14,6 @@ type Repo interface {
 	SelectRecsByRefs(db.Source, []DefRef) ([]DefRec, error)
 	SelectRecByQN(db.Source, uniqsym.ADT) (DefRec, error)
 	SelectRecsByQNs(db.Source, []uniqsym.ADT) ([]DefRec, error)
-	SelectEnv(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]DefRec, error)
 }
 
 type defRefDS struct {

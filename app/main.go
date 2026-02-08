@@ -15,6 +15,7 @@ import (
 	"orglang/go-engine/adt/syndec"
 	"orglang/go-engine/adt/typedef"
 	"orglang/go-engine/adt/typeexp"
+	"orglang/go-engine/adt/xactdef"
 
 	"orglang/go-engine/app/web"
 )
@@ -31,6 +32,7 @@ func main() {
 		poolexec.Module,
 		typedef.Module,
 		typeexp.Module,
+		xactdef.Module,
 		procdef.Module,
 		procdec.Module,
 		procexec.Module,

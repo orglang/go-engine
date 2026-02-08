@@ -406,6 +406,10 @@ func ErrRefTypeUnexpected(got ExpRef) error {
 	return fmt.Errorf("ref type unexpected: %T", got)
 }
 
+func ErrRecTypeUnexpected(got ExpRec) error {
+	return fmt.Errorf("rec type unexpected: %T", got)
+}
+
 func ErrDoesNotExist(want identity.ADT) error {
 	return fmt.Errorf("root doesn't exist: %v", want)
 }
@@ -420,10 +424,6 @@ func ErrMissingInCfg(want identity.ADT) error {
 
 func ErrMissingInCtx(want uniqsym.ADT) error {
 	return fmt.Errorf("root missing in ctx: %v", want)
-}
-
-func ErrRecTypeUnexpected(got ExpRec) error {
-	return fmt.Errorf("rec type unexpected: %T", got)
 }
 
 func ErrSpecTypeMismatch(got, want ExpSpec) error {

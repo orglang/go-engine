@@ -36,13 +36,11 @@ type DefSpec struct {
 // aka TpDef
 type DefRec struct {
 	DefRef DefRef
-	Title  string
 	ExpID  identity.ADT
 }
 
 type DefSnap struct {
 	DefRef DefRef
-	Title  string
 	TypeQN uniqsym.ADT
 	TypeES typeexp.ExpSpec
 }
@@ -82,7 +80,6 @@ func (s *service) Incept(typeQN uniqsym.ADT) (_ DefRef, err error) {
 	newSyn := syndec.DecRec{DecQN: typeQN, DecID: identity.New(), DecRN: revnum.New()}
 	newType := DefRec{
 		DefRef: DefRef{ID: newSyn.DecID, RN: newSyn.DecRN},
-		Title:  symbol.ConvertToString(newSyn.DecQN.Sym()),
 	}
 	err = s.operator.Explicit(ctx, func(ds db.Source) error {
 		err = s.synDecs.Insert(ds, newSyn)
@@ -100,7 +97,7 @@ func (s *service) Incept(typeQN uniqsym.ADT) (_ DefRef, err error) {
 		return DefRef{}, err
 	}
 	s.log.Debug("inception succeed", qnAttr, slog.Any("defRef", newType.DefRef))
-	return ConvertRecToRef(newType), nil
+	return newType.DefRef, nil
 }
 
 func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
@@ -111,7 +108,6 @@ func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 	newExp := typeexp.ConvertSpecToRec(spec.TypeES)
 	newType := DefRec{
 		DefRef: DefRef{ID: newSyn.DecID, RN: newSyn.DecRN},
-		Title:  symbol.ConvertToString(newSyn.DecQN.Sym()),
 		ExpID:  newExp.Ident(),
 	}
 	err = s.operator.Explicit(ctx, func(ds db.Source) error {
@@ -136,7 +132,6 @@ func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 	s.log.Debug("creation succeed", qnAttr, slog.Any("defRef", newType.DefRef))
 	return DefSnap{
 		DefRef: newType.DefRef,
-		Title:  newType.Title,
 		TypeQN: newSyn.DecQN,
 		TypeES: typeexp.ConvertRecToSpec(newExp),
 	}, nil
@@ -218,7 +213,6 @@ func (s *service) retrieveSnap(rec DefRec) (_ DefSnap, err error) { // revive:di
 	}
 	return DefSnap{
 		DefRef: rec.DefRef,
-		Title:  rec.Title,
 		TypeES: typeexp.ConvertRecToSpec(termRec),
 	}, nil
 }

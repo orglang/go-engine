@@ -62,9 +62,9 @@ func (dao *pgxDAO) InsertRecs(source db.Source, recs ...StepRec) error {
 
 func (dao *pgxDAO) SelectRecs(source db.Source, rid identity.ADT) (StepRec, error) {
 	query := `
-		SELECT
+		select
 			id, kind, pid, vid, spec
-		FROM steps
+		from steps
 		WHERE id = $1`
 	return dao.execute(source, query, rid.String())
 }

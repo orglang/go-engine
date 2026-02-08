@@ -6,15 +6,6 @@ import (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/typedef:Convert.*
-var (
-	ConvertRecToRef  func(DefRec) DefRef
-	ConvertSnapToRef func(DefSnap) DefRef
-)
-
-// goverter:variables
-// goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/uniqref:Msg.*
 // goverter:extend orglang/go-engine/adt/typeexp:Msg.*
 // goverter:extend Msg.*

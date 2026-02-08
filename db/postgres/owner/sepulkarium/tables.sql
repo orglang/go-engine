@@ -1,13 +1,30 @@
 CREATE TABLE type_defs (
 	def_id varchar(36),
 	def_rn bigint,
-	title varchar(64)
+	exp_id varchar(36)
 );
 
 CREATE TABLE type_exps (
 	exp_id varchar(36),
-	from_id varchar(36),
+	sup_exp_id varchar(36),
 	kind smallint,
+	def_id varchar(36),
+	def_rn bigint,
+	spec jsonb
+);
+
+CREATE TABLE xact_defs (
+	def_id varchar(36),
+	def_rn bigint,
+	exp_id varchar(36)
+);
+
+CREATE TABLE xact_exps (
+	exp_id varchar(36),
+	sup_exp_id varchar(36),
+	kind smallint,
+	def_id varchar(36),
+	def_rn bigint,
 	spec jsonb
 );
 
@@ -66,6 +83,11 @@ CREATE TABLE pool_liabs (
 	proc_id varchar(36),
 	pool_id varchar(36),
 	rev bigint
+);
+
+CREATE TABLE proc_execs (
+	exec_id varchar(36),
+	exec_rn bigint
 );
 
 -- подстановки каналов в процесс

@@ -32,21 +32,15 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec ExpRec) (err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	idAttr := slog.Any("expID", rec.Ident())
 	dto := dataFromExpRec(rec)
-	query := `
-		INSERT INTO type_term_states (
-			exp_id, kind, from_id, spec
-		) VALUES (
-			@exp_id, @kind, @from_id, @spec
-		)`
 	batch := pgx.Batch{}
 	for _, st := range dto.States {
 		sa := pgx.NamedArgs{
-			"exp_id":  st.ExpID,
-			"kind":    st.K,
-			"from_id": st.FromID,
-			"spec":    st.Spec,
+			"exp_id":     st.ExpID,
+			"kind":       st.K,
+			"sup_exp_id": st.SupExpID,
+			"spec":       st.Spec,
 		}
-		batch.Queue(query, sa)
+		batch.Queue(insertRec, sa)
 	}
 	br := ds.Conn.SendBatch(ds.Ctx, &batch)
 	defer func() {
@@ -55,7 +49,7 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec ExpRec) (err error) {
 	for range dto.States {
 		_, err = br.Exec()
 		if err != nil {
-			dao.log.Error("query execution failed", idAttr, slog.String("q", query))
+			dao.log.Error("query execution failed", idAttr, slog.String("q", insertRec))
 		}
 	}
 	if err != nil {
@@ -69,15 +63,15 @@ func (dao *pgxDAO) SelectRecByID(source db.Source, expID identity.ADT) (ExpRec, 
 	idAttr := slog.Any("expID", expID)
 	query := `
 		WITH RECURSIVE top_states AS (
-			SELECT rs.*
-			FROM type_term_states rs
-			WHERE id = $1
+			select te.*
+			from type_exps te
+			WHERE exp_id = $1
 			UNION ALL
-			SELECT bs.*
-			FROM type_term_states bs, top_states ts
-			WHERE bs.from_id = ts.id
+			select be.*
+			from type_exps be, top_states ts
+			WHERE be.sup_exp_id = ts.exp_id
 		)
-		SELECT * FROM top_states`
+		select * from top_states`
 	rows, err := ds.Conn.Query(ds.Ctx, query, expID.String())
 	if err != nil {
 		dao.log.Error("query execution failed", idAttr, slog.String("q", query))
@@ -138,7 +132,7 @@ func (dao *pgxDAO) SelectRecsByIDs(source db.Source, expIDs []identity.ADT) (_ [
 			dao.log.Error("entity selection failed", idAttr)
 			return nil, ErrDoesNotExist(expID)
 		}
-		rec, err := DataToExpRec(&expRecDS{expID.String(), dtos})
+		rec, err := dataToExpRec(expRecDS{expID.String(), dtos})
 		if err != nil {
 			dao.log.Error("model conversion failed", idAttr)
 			return nil, err
@@ -150,15 +144,22 @@ func (dao *pgxDAO) SelectRecsByIDs(source db.Source, expIDs []identity.ADT) (_ [
 }
 
 const (
+	insertRec = `
+		insert into type_exps (
+			exp_id, kind, sup_exp_id, spec
+		) values (
+			@exp_id, @kind, @sup_exp_id, @spec
+		)`
+
 	selectByID = `
 		WITH RECURSIVE state_tree AS (
-			SELECT root.*
-			FROM type_term_states root
+			select root.*
+			from type_exps root
 			WHERE id = $1
 			UNION ALL
-			SELECT child.*
-			FROM type_term_states child, state_tree parent
-			WHERE child.from_id = parent.id
+			select child.*
+			from type_exps child, state_tree parent
+			WHERE child.sup_exp_id = parent.id
 		)
-		SELECT * FROM state_tree`
+		select * from state_tree`
 )

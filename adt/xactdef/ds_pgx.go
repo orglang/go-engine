@@ -1,4 +1,4 @@
-package typedef
+package xactdef
 
 import (
 	"errors"
@@ -37,12 +37,12 @@ func (dao *pgxDAO) Insert(source db.Source, rec DefRec) error {
 		dao.log.Error("model conversion failed", refAttr)
 		return err
 	}
-	defArgs := pgx.NamedArgs{
+	args := pgx.NamedArgs{
 		"def_id": dto.ID,
 		"def_rn": dto.RN,
 		"exp_id": dto.ExpID,
 	}
-	_, err = ds.Conn.Exec(ds.Ctx, insertRec, defArgs)
+	_, err = ds.Conn.Exec(ds.Ctx, insertRec, args)
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("q", insertRec))
 		return err
@@ -113,10 +113,10 @@ func (dao *pgxDAO) SelectRecByRef(source db.Source, defRef DefRef) (DefRec, erro
 	return DataToDefRec(dto)
 }
 
-func (dao *pgxDAO) SelectRecByQN(source db.Source, typeQN uniqsym.ADT) (DefRec, error) {
+func (dao *pgxDAO) SelectRecByQN(source db.Source, xactQN uniqsym.ADT) (DefRec, error) {
 	ds := db.MustConform[db.SourcePgx](source)
-	qnAttr := slog.Any("typeQN", typeQN)
-	rows, err := ds.Conn.Query(ds.Ctx, selectRecByQN, uniqsym.ConvertToString(typeQN))
+	qnAttr := slog.Any("xactQN", xactQN)
+	rows, err := ds.Conn.Query(ds.Ctx, selectRecByQN, uniqsym.ConvertToString(xactQN))
 	if err != nil {
 		dao.log.Error("query execution failed", qnAttr, slog.String("q", selectRecByQN))
 		return DefRec{}, err
@@ -166,40 +166,28 @@ func (dao *pgxDAO) SelectRecsByRefs(source db.Source, defRefs []DefRef) (_ []Def
 	return DataToDefRecs(dtos)
 }
 
-func (dao *pgxDAO) SelectEnv(source db.Source, typeQNs []uniqsym.ADT) (map[uniqsym.ADT]DefRec, error) {
-	recs, err := dao.SelectRecsByQNs(source, typeQNs)
-	if err != nil {
-		return nil, err
-	}
-	env := make(map[uniqsym.ADT]DefRec, len(recs))
-	for i, root := range recs {
-		env[typeQNs[i]] = root
-	}
-	return env, nil
-}
-
-func (dao *pgxDAO) SelectRecsByQNs(source db.Source, typeQNs []uniqsym.ADT) (_ []DefRec, err error) {
+func (dao *pgxDAO) SelectRecsByQNs(source db.Source, xactQNs []uniqsym.ADT) (_ []DefRec, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
-	if len(typeQNs) == 0 {
+	if len(xactQNs) == 0 {
 		return []DefRec{}, nil
 	}
 	batch := pgx.Batch{}
-	for _, typeQN := range typeQNs {
-		batch.Queue(selectRecByQN, uniqsym.ConvertToString(typeQN))
+	for _, xactQN := range xactQNs {
+		batch.Queue(selectRecByQN, uniqsym.ConvertToString(xactQN))
 	}
 	br := ds.Conn.SendBatch(ds.Ctx, &batch)
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
 	var dtos []defRecDS
-	for _, typeQN := range typeQNs {
+	for _, xactQN := range xactQNs {
 		rows, err := br.Query()
 		if err != nil {
-			dao.log.Error("query execution failed", slog.Any("typeQN", typeQN), slog.String("q", selectRecByQN))
+			dao.log.Error("query execution failed", slog.Any("xactQN", xactQN), slog.String("q", selectRecByQN))
 		}
 		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRecDS])
 		if err != nil {
-			dao.log.Error("row collection failed", slog.Any("typeQN", typeQN))
+			dao.log.Error("row collection failed", slog.Any("xactQN", xactQN))
 		}
 		dtos = append(dtos, dto)
 	}
@@ -212,29 +200,35 @@ func (dao *pgxDAO) SelectRecsByQNs(source db.Source, typeQNs []uniqsym.ADT) (_ [
 
 const (
 	insertRec = `
-		insert into type_defs (
+		insert into xact_defs (
 			def_id, def_rn, exp_id
 		) values (
 			@def_id, @def_rn, @exp_id
 		)`
 
 	updateRec = `
-		update type_defs
+		update xact_defs
 		set def_rn = @def_rn,
 			exp_id = @exp_id
 		where def_id = @def_id
 			and def_rn = @def_rn - 1`
 
+	selectRefs = `
+		select
+			def_id,
+			def_rn
+		from xact_defs`
+
 	selectRecByQN = `
 		select
-			td.def_id,
-			td.def_rn,
-			td.exp_id
-		from type_defs td
+			xd.def_id,
+			xd.def_rn,
+			xd.exp_id
+		from xact_defs xd
 		left join syn_decs sd
-			on sd.dec_id = td.def_id
-			and sd.from_rn >= td.def_rn
-			and sd.to_rn > td.def_rn
+			on sd.dec_id = xd.def_id
+			and sd.from_rn >= xd.def_rn
+			and sd.to_rn > xd.def_rn
 		where sd.dec_qn = $1`
 
 	selectRecByID = `
@@ -242,12 +236,6 @@ const (
 			def_id,
 			def_rn,
 			exp_id
-		from type_defs
+		from xact_defs
 		where def_id = $1`
-
-	selectRefs = `
-		select
-			def_id,
-			def_rn
-		from type_defs`
 )

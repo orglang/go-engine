@@ -1,23 +1,21 @@
-package typeexp
+package xactexp
 
 import (
-	"github.com/orglang/go-sdk/adt/typeexp"
+	"github.com/orglang/go-sdk/adt/xactexp"
 )
 
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/revnum:Convert.*
-// goverter:extend Msg.*
+// goverter:extend msg.*
 var (
-	MsgFromExpRefs func([]ExpRef) []typeexp.ExpRef
-	MsgToExpRefs   func([]typeexp.ExpRef) ([]ExpRef, error)
+	MsgFromExpRefs func([]ExpRef) []xactexp.ExpRef
+	MsgToExpRefs   func([]xactexp.ExpRef) ([]ExpRef, error)
 )
 
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/revnum:Convert.*
 // goverter:extend data.*
 var (
 	DataToExpRefs   func([]expRefDS) ([]ExpRef, error)

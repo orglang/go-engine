@@ -58,12 +58,14 @@ tasks:
     desc: Run tests of specified level (unit, it, e2e).
     vars:
       LEVEL: '{{index .MATCH 0}}'
+    deps:
+      - task: generator:goverter
     cmds:
       - cmd: go test -tags=unit ./lib/... ./adt/... ./app/...
         if: '{{eq .LEVEL "unit"}}'
       - cmd: go test -run=TestIntegration ./lib/...  ./adt/... ./app/...
         if: '{{eq .LEVEL "it"}}'
-      - cmd: go test ./test/...
+      - cmd: go test -failfast ./test/...
         if: '{{eq .LEVEL "e2e"}}'
 
   linter:*:
@@ -82,3 +84,11 @@ tasks:
         if: '{{eq .TOOL "staticcheck"}}'
       - cmd: go run github.com/kisielk/errcheck ./lib/... ./adt/... ./app/...
         if: '{{eq .TOOL "errcheck"}}'
+
+  generator:*:
+    vars:
+      TOOL: '{{index .MATCH 0}}'
+    run: once
+    cmds:
+      - cmd: go run github.com/jmattheis/goverter/cmd/goverter gen -global 'skipCopySameType' ./...
+        if: '{{eq .TOOL "goverter"}}'

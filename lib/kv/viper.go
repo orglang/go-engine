@@ -19,7 +19,7 @@ func newViperDriver(logger *slog.Logger) *viperDriver {
 	driver.SetConfigName("application")
 	mergeErr := driver.MergeInConfig()
 	if mergeErr != nil {
-		panic(mergeErr)
+		logger.Warn("falling back to default config")
 	}
 	name := slog.String("name", reflect.TypeFor[viperDriver]().Name())
 	return &viperDriver{driver, logger.With(name)}

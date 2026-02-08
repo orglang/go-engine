@@ -12,3 +12,5 @@ storage:
       url: postgres://orglang:orglang@localhost:5432/orglang
   driver:
     mode: pgx
+    pgx:
+      max_conns: 1

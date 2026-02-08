@@ -6,8 +6,6 @@ import (
 
 var Module = fx.Module("lib/e2e",
 	fx.Provide(
-		fx.Private,
-		newPoolDecAPI,
 		newPoolExecAPI,
 		newPoolDecAPI,
 		newXactDefAPI,

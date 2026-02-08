@@ -1,4 +1,4 @@
-package typeexp
+package xactexp
 
 import (
 	"database/sql"

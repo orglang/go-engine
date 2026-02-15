@@ -3,10 +3,10 @@ package typeexp
 import (
 	"fmt"
 
-	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/polarity"
 	"orglang/go-engine/adt/revnum"
 	"orglang/go-engine/adt/uniqsym"
+	"orglang/go-engine/adt/valkey"
 )
 
 type ExpSpec interface {
@@ -25,208 +25,208 @@ type LinkSpec struct {
 func (LinkSpec) spec() {}
 
 type TensorSpec struct {
-	Y ExpSpec // val to send
-	Z ExpSpec // cont
+	Val  ExpSpec // val to send
+	Cont ExpSpec // cont
 }
 
 func (TensorSpec) spec() {}
 
 type LolliSpec struct {
-	Y ExpSpec // val to receive
-	Z ExpSpec // cont
+	Val  ExpSpec // val to receive
+	Cont ExpSpec // cont
 }
 
 func (LolliSpec) spec() {}
 
 // aka Internal Choice
 type PlusSpec struct {
-	Zs map[uniqsym.ADT]ExpSpec // conts
+	Choices map[uniqsym.ADT]ExpSpec // conts
 }
 
 func (PlusSpec) spec() {}
 
 // aka External Choice
 type WithSpec struct {
-	Zs map[uniqsym.ADT]ExpSpec // conts
+	Choices map[uniqsym.ADT]ExpSpec // conts
 }
 
 func (WithSpec) spec() {}
 
 type UpSpec struct {
-	Z ExpSpec // cont
+	Cont ExpSpec // cont
 }
 
 func (UpSpec) spec() {}
 
 type DownSpec struct {
-	Z ExpSpec // cont
+	Cont ExpSpec // cont
 }
 
 func (DownSpec) spec() {}
 
 type ExpRef interface {
-	identity.Identifiable
+	valkey.Keyable
 }
 
 type OneRef struct {
-	ExpID identity.ADT
+	ExpVK valkey.ADT
 }
 
-func (r OneRef) Ident() identity.ADT { return r.ExpID }
+func (r OneRef) Key() valkey.ADT { return r.ExpVK }
 
 type LinkRef struct {
-	ExpID identity.ADT
+	ExpVK valkey.ADT
 }
 
-func (r LinkRef) Ident() identity.ADT { return r.ExpID }
+func (r LinkRef) Key() valkey.ADT { return r.ExpVK }
 
 type PlusRef struct {
-	ExpID identity.ADT
+	ExpVK valkey.ADT
 }
 
-func (r PlusRef) Ident() identity.ADT { return r.ExpID }
+func (r PlusRef) Key() valkey.ADT { return r.ExpVK }
 
 type WithRef struct {
-	ExpID identity.ADT
+	ExpVK valkey.ADT
 }
 
-func (r WithRef) Ident() identity.ADT { return r.ExpID }
+func (r WithRef) Key() valkey.ADT { return r.ExpVK }
 
 type TensorRef struct {
-	ExpID identity.ADT
+	ExpVK valkey.ADT
 }
 
-func (r TensorRef) Ident() identity.ADT { return r.ExpID }
+func (r TensorRef) Key() valkey.ADT { return r.ExpVK }
 
 type LolliRef struct {
-	ExpID identity.ADT
+	ExpVK valkey.ADT
 }
 
-func (r LolliRef) Ident() identity.ADT { return r.ExpID }
+func (r LolliRef) Key() valkey.ADT { return r.ExpVK }
 
 type UpRef struct {
-	ExpID identity.ADT
+	ExpVK valkey.ADT
 }
 
-func (r UpRef) Ident() identity.ADT { return r.ExpID }
+func (r UpRef) Ident() valkey.ADT { return r.ExpVK }
 
 type DownRef struct {
-	ExpID identity.ADT
+	ExpVK valkey.ADT
 }
 
-func (r DownRef) Ident() identity.ADT { return r.ExpID }
+func (r DownRef) Ident() valkey.ADT { return r.ExpVK }
 
 // aka Stype
 type ExpRec interface {
-	identity.Identifiable
 	polarity.Polarizable
+	valkey.Keyable
 }
 
 type ProdRec interface {
-	Next() identity.ADT
+	Next() valkey.ADT
 }
 
 type SumRec interface {
-	Next(uniqsym.ADT) identity.ADT
+	Next(uniqsym.ADT) valkey.ADT
 }
 
 type OneRec struct {
-	ExpID identity.ADT
+	ExpVK valkey.ADT
 }
 
 func (OneRec) spec() {}
 
-func (r OneRec) Ident() identity.ADT { return r.ExpID }
+func (r OneRec) Key() valkey.ADT { return r.ExpVK }
 
 func (OneRec) Pol() polarity.ADT { return polarity.Pos }
 
 // aka TpName
 type LinkRec struct {
-	ExpID  identity.ADT
+	ExpVK  valkey.ADT
 	TypeQN uniqsym.ADT
 }
 
 func (LinkRec) spec() {}
 
-func (r LinkRec) Ident() identity.ADT { return r.ExpID }
+func (r LinkRec) Key() valkey.ADT { return r.ExpVK }
 
 func (LinkRec) Pol() polarity.ADT { return polarity.Zero }
 
 // aka Internal Choice
 type PlusRec struct {
-	ExpID identity.ADT
-	Zs    map[uniqsym.ADT]ExpRec
+	ExpVK   valkey.ADT
+	Choices map[uniqsym.ADT]ExpRec
 }
 
 func (PlusRec) spec() {}
 
-func (r PlusRec) Ident() identity.ADT { return r.ExpID }
+func (r PlusRec) Key() valkey.ADT { return r.ExpVK }
 
-func (r PlusRec) Next(l uniqsym.ADT) identity.ADT { return r.Zs[l].Ident() }
+func (r PlusRec) Next(l uniqsym.ADT) valkey.ADT { return r.Choices[l].Key() }
 
 func (PlusRec) Pol() polarity.ADT { return polarity.Pos }
 
 // aka External Choice
 type WithRec struct {
-	ExpID identity.ADT
-	Zs    map[uniqsym.ADT]ExpRec
+	ExpVK   valkey.ADT
+	Choices map[uniqsym.ADT]ExpRec
 }
 
 func (WithRec) spec() {}
 
-func (r WithRec) Ident() identity.ADT { return r.ExpID }
+func (r WithRec) Key() valkey.ADT { return r.ExpVK }
 
-func (r WithRec) Next(l uniqsym.ADT) identity.ADT { return r.Zs[l].Ident() }
+func (r WithRec) Next(l uniqsym.ADT) valkey.ADT { return r.Choices[l].Key() }
 
 func (WithRec) Pol() polarity.ADT { return polarity.Neg }
 
 type TensorRec struct {
-	ExpID identity.ADT
-	Y     ExpRec
-	Z     ExpRec
+	ExpVK valkey.ADT
+	Val   ExpRec
+	Cont  ExpRec
 }
 
 func (TensorRec) spec() {}
 
-func (r TensorRec) Ident() identity.ADT { return r.ExpID }
+func (r TensorRec) Key() valkey.ADT { return r.ExpVK }
 
-func (r TensorRec) Next() identity.ADT { return r.Z.Ident() }
+func (r TensorRec) Next() valkey.ADT { return r.Cont.Key() }
 
 func (TensorRec) Pol() polarity.ADT { return polarity.Pos }
 
 type LolliRec struct {
-	ExpID identity.ADT
-	Y     ExpRec
-	Z     ExpRec
+	ExpVK valkey.ADT
+	Val   ExpRec
+	Cont  ExpRec
 }
 
 func (LolliRec) spec() {}
 
-func (r LolliRec) Ident() identity.ADT { return r.ExpID }
+func (r LolliRec) Key() valkey.ADT { return r.ExpVK }
 
-func (r LolliRec) Next() identity.ADT { return r.Z.Ident() }
+func (r LolliRec) Next() valkey.ADT { return r.Cont.Key() }
 
 func (LolliRec) Pol() polarity.ADT { return polarity.Neg }
 
 type UpRec struct {
-	ExpID identity.ADT
-	Z     ExpRec
+	ExpVK valkey.ADT
+	Cont  ExpRec
 }
 
 func (UpRec) spec() {}
 
-func (r UpRec) Ident() identity.ADT { return r.ExpID }
+func (r UpRec) Key() valkey.ADT { return r.ExpVK }
 
 func (UpRec) Pol() polarity.ADT { return polarity.Zero }
 
 type DownRec struct {
-	ExpID identity.ADT
-	Z     ExpRec
+	ExpVK valkey.ADT
+	Cont  ExpRec
 }
 
 func (DownRec) spec() {}
 
-func (r DownRec) Ident() identity.ADT { return r.ExpID }
+func (r DownRec) Key() valkey.ADT { return r.ExpVK }
 
 func (DownRec) Pol() polarity.ADT { return polarity.Zero }
 
@@ -236,7 +236,7 @@ type Context struct {
 }
 
 func ErrSymMissingInEnv(want uniqsym.ADT) error {
-	return fmt.Errorf("root missing in env: %v", want)
+	return fmt.Errorf("qn missing in env: %v", want)
 }
 
 func errConcurrentModification(got revnum.ADT, want revnum.ADT) error {
@@ -247,7 +247,7 @@ func errOptimisticUpdate(got revnum.ADT) error {
 	return fmt.Errorf("entity concurrent modification: got revision %v", got)
 }
 
-func CheckRef(got, want identity.ADT) error {
+func CheckRef(got, want valkey.ADT) error {
 	if got != want {
 		return fmt.Errorf("type mismatch: want %+v, got %+v", want, got)
 	}
@@ -256,7 +256,7 @@ func CheckRef(got, want identity.ADT) error {
 
 // aka eqtp
 func CheckSpec(got, want ExpSpec) error {
-	switch wantSt := want.(type) {
+	switch wantSpec := want.(type) {
 	case OneSpec:
 		_, ok := got.(OneSpec)
 		if !ok {
@@ -264,58 +264,58 @@ func CheckSpec(got, want ExpSpec) error {
 		}
 		return nil
 	case TensorSpec:
-		gotSt, ok := got.(TensorSpec)
+		gotSpec, ok := got.(TensorSpec)
 		if !ok {
 			return ErrSpecTypeMismatch(got, want)
 		}
-		err := CheckSpec(gotSt.Y, wantSt.Y)
+		err := CheckSpec(gotSpec.Val, wantSpec.Val)
 		if err != nil {
 			return err
 		}
-		return CheckSpec(gotSt.Z, wantSt.Z)
+		return CheckSpec(gotSpec.Cont, wantSpec.Cont)
 	case LolliSpec:
-		gotSt, ok := got.(LolliSpec)
+		gotSpec, ok := got.(LolliSpec)
 		if !ok {
 			return ErrSpecTypeMismatch(got, want)
 		}
-		err := CheckSpec(gotSt.Y, wantSt.Y)
+		err := CheckSpec(gotSpec.Val, wantSpec.Val)
 		if err != nil {
 			return err
 		}
-		return CheckSpec(gotSt.Z, wantSt.Z)
+		return CheckSpec(gotSpec.Cont, wantSpec.Cont)
 	case PlusSpec:
-		gotSt, ok := got.(PlusSpec)
+		gotSpec, ok := got.(PlusSpec)
 		if !ok {
 			return ErrSpecTypeMismatch(got, want)
 		}
-		if len(gotSt.Zs) != len(wantSt.Zs) {
-			return fmt.Errorf("choices mismatch: want %v items, got %v items", len(wantSt.Zs), len(gotSt.Zs))
+		if len(gotSpec.Choices) != len(wantSpec.Choices) {
+			return fmt.Errorf("choices mismatch: want %v items, got %v items", len(wantSpec.Choices), len(gotSpec.Choices))
 		}
-		for wantLab, wantChoice := range wantSt.Zs {
-			gotChoice, ok := gotSt.Zs[wantLab]
+		for wantLab, wantCont := range wantSpec.Choices {
+			gotCont, ok := gotSpec.Choices[wantLab]
 			if !ok {
 				return fmt.Errorf("label mismatch: want %v, got nothing", wantLab)
 			}
-			err := CheckSpec(gotChoice, wantChoice)
+			err := CheckSpec(gotCont, wantCont)
 			if err != nil {
 				return err
 			}
 		}
 		return nil
 	case WithSpec:
-		gotSt, ok := got.(WithSpec)
+		gotSpec, ok := got.(WithSpec)
 		if !ok {
 			return ErrSpecTypeMismatch(got, want)
 		}
-		if len(gotSt.Zs) != len(wantSt.Zs) {
-			return fmt.Errorf("choices mismatch: want %v items, got %v items", len(wantSt.Zs), len(gotSt.Zs))
+		if len(gotSpec.Choices) != len(wantSpec.Choices) {
+			return fmt.Errorf("choices mismatch: want %v items, got %v items", len(wantSpec.Choices), len(gotSpec.Choices))
 		}
-		for wantLab, wantChoice := range wantSt.Zs {
-			gotChoice, ok := gotSt.Zs[wantLab]
+		for wantLab, wantCont := range wantSpec.Choices {
+			gotCont, ok := gotSpec.Choices[wantLab]
 			if !ok {
 				return fmt.Errorf("label mismatch: want %v, got nothing", wantLab)
 			}
-			err := CheckSpec(gotChoice, wantChoice)
+			err := CheckSpec(gotCont, wantCont)
 			if err != nil {
 				return err
 			}
@@ -328,7 +328,7 @@ func CheckSpec(got, want ExpSpec) error {
 
 // aka eqtp
 func CheckRec(got, want ExpRec) error {
-	switch wantSt := want.(type) {
+	switch wantRec := want.(type) {
 	case OneRec:
 		_, ok := got.(OneRec)
 		if !ok {
@@ -336,54 +336,54 @@ func CheckRec(got, want ExpRec) error {
 		}
 		return nil
 	case TensorRec:
-		gotSt, ok := got.(TensorRec)
+		gotRec, ok := got.(TensorRec)
 		if !ok {
 			return ErrSnapTypeMismatch(got, want)
 		}
-		err := CheckRec(gotSt.Y, wantSt.Y)
+		err := CheckRec(gotRec.Val, wantRec.Val)
 		if err != nil {
 			return err
 		}
-		return CheckRec(gotSt.Z, wantSt.Z)
+		return CheckRec(gotRec.Cont, wantRec.Cont)
 	case LolliRec:
-		gotSt, ok := got.(LolliRec)
+		gotRec, ok := got.(LolliRec)
 		if !ok {
 			return ErrSnapTypeMismatch(got, want)
 		}
-		err := CheckRec(gotSt.Y, wantSt.Y)
+		err := CheckRec(gotRec.Val, wantRec.Val)
 		if err != nil {
 			return err
 		}
-		return CheckRec(gotSt.Z, wantSt.Z)
+		return CheckRec(gotRec.Cont, wantRec.Cont)
 	case PlusRec:
-		gotSt, ok := got.(PlusRec)
+		gotRec, ok := got.(PlusRec)
 		if !ok {
 			return ErrSnapTypeMismatch(got, want)
 		}
-		if len(gotSt.Zs) != len(wantSt.Zs) {
-			return fmt.Errorf("choices mismatch: want %v items, got %v items", len(wantSt.Zs), len(gotSt.Zs))
+		if len(gotRec.Choices) != len(wantRec.Choices) {
+			return fmt.Errorf("choices mismatch: want %v items, got %v items", len(wantRec.Choices), len(gotRec.Choices))
 		}
-		for wantLab, wantChoice := range wantSt.Zs {
-			gotChoice, ok := gotSt.Zs[wantLab]
+		for wantLab, wantCont := range wantRec.Choices {
+			gotCont, ok := gotRec.Choices[wantLab]
 			if !ok {
 				return fmt.Errorf("label mismatch: want %v, got nothing", wantLab)
 			}
-			err := CheckRec(gotChoice, wantChoice)
+			err := CheckRec(gotCont, wantCont)
 			if err != nil {
 				return err
 			}
 		}
 		return nil
 	case WithRec:
-		gotSt, ok := got.(WithRec)
+		gotRec, ok := got.(WithRec)
 		if !ok {
 			return ErrSnapTypeMismatch(got, want)
 		}
-		if len(gotSt.Zs) != len(wantSt.Zs) {
-			return fmt.Errorf("choices mismatch: want %v items, got %v items", len(wantSt.Zs), len(gotSt.Zs))
+		if len(gotRec.Choices) != len(wantRec.Choices) {
+			return fmt.Errorf("choices mismatch: want %v items, got %v items", len(wantRec.Choices), len(gotRec.Choices))
 		}
-		for wantLab, wantChoice := range wantSt.Zs {
-			gotChoice, ok := gotSt.Zs[wantLab]
+		for wantLab, wantChoice := range wantRec.Choices {
+			gotChoice, ok := gotRec.Choices[wantLab]
 			if !ok {
 				return fmt.Errorf("label mismatch: want %v, got nothing", wantLab)
 			}
@@ -410,15 +410,15 @@ func ErrRecTypeUnexpected(got ExpRec) error {
 	return fmt.Errorf("rec type unexpected: %T", got)
 }
 
-func ErrDoesNotExist(want identity.ADT) error {
+func ErrDoesNotExist(want valkey.ADT) error {
 	return fmt.Errorf("root doesn't exist: %v", want)
 }
 
-func ErrMissingInEnv(want identity.ADT) error {
+func ErrMissingInEnv(want valkey.ADT) error {
 	return fmt.Errorf("root missing in env: %v", want)
 }
 
-func ErrMissingInCfg(want identity.ADT) error {
+func ErrMissingInCfg(want valkey.ADT) error {
 	return fmt.Errorf("root missing in cfg: %v", want)
 }
 

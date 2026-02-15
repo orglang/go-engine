@@ -19,25 +19,25 @@ func ConvertFromString(str string) (ADT, error) {
 	if idx < 0 {
 		return ADT{symbol.New(str), nil}, nil
 	}
-	name, err := symbol.ConvertFromString(str[idx+1:])
+	sym, err := symbol.ConvertFromString(str[idx+1:])
 	if err != nil {
 		return empty, err
 	}
-	space, err := ConvertFromString(str[:idx])
+	ns, err := ConvertFromString(str[:idx])
 	if err != nil {
 		return empty, err
 	}
-	return ADT{name, &space}, nil
+	return ADT{sym, &ns}, nil
 }
 
 func ConvertToString(adt ADT) string {
 	if adt == empty {
 		panic("invalid value")
 	}
-	name := symbol.ConvertToString(adt.sym)
+	sym := symbol.ConvertToString(adt.sym)
 	if adt.ns == nil {
-		return name
+		return sym
 	}
-	space := ConvertToString(*adt.ns)
-	return space + sep + name
+	ns := ConvertToString(*adt.ns)
+	return ns + sep + sym
 }

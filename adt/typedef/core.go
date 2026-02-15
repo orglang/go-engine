@@ -15,6 +15,7 @@ import (
 	"orglang/go-engine/adt/typeexp"
 	"orglang/go-engine/adt/uniqref"
 	"orglang/go-engine/adt/uniqsym"
+	"orglang/go-engine/adt/valkey"
 )
 
 type API interface {
@@ -36,7 +37,7 @@ type DefSpec struct {
 // aka TpDef
 type DefRec struct {
 	DefRef DefRef
-	ExpID  identity.ADT
+	ExpID  valkey.ADT
 }
 
 type DefSnap struct {
@@ -82,11 +83,11 @@ func (s *service) Incept(typeQN uniqsym.ADT) (_ DefRef, err error) {
 		DefRef: DefRef{ID: newSyn.DecID, RN: newSyn.DecRN},
 	}
 	err = s.operator.Explicit(ctx, func(ds db.Source) error {
-		err = s.synDecs.Insert(ds, newSyn)
+		err = s.synDecs.InsertRec(ds, newSyn)
 		if err != nil {
 			return err
 		}
-		err = s.typeDefs.Insert(ds, newType)
+		err = s.typeDefs.InsertRec(ds, newType)
 		if err != nil {
 			return err
 		}
@@ -105,21 +106,24 @@ func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 	qnAttr := slog.Any("typeQN", spec.TypeQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	newSyn := syndec.DecRec{DecQN: spec.TypeQN, DecID: identity.New(), DecRN: revnum.New()}
-	newExp := typeexp.ConvertSpecToRec(spec.TypeES)
-	newType := DefRec{
+	newExp, err := typeexp.ConvertSpecToRec(spec.TypeES)
+	if err != nil {
+		return DefSnap{}, err
+	}
+	newDef := DefRec{
 		DefRef: DefRef{ID: newSyn.DecID, RN: newSyn.DecRN},
-		ExpID:  newExp.Ident(),
+		ExpID:  newExp.Key(),
 	}
 	err = s.operator.Explicit(ctx, func(ds db.Source) error {
-		err = s.synDecs.Insert(ds, newSyn)
+		err = s.synDecs.InsertRec(ds, newSyn)
 		if err != nil {
 			return err
 		}
-		err = s.typeExps.InsertRec(ds, newExp)
+		err = s.typeExps.InsertRec(ds, newExp, newDef.DefRef)
 		if err != nil {
 			return err
 		}
-		err = s.typeDefs.Insert(ds, newType)
+		err = s.typeDefs.InsertRec(ds, newDef)
 		if err != nil {
 			return err
 		}
@@ -129,11 +133,11 @@ func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 		s.log.Error("creation failed", qnAttr)
 		return DefSnap{}, err
 	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("defRef", newType.DefRef))
+	s.log.Debug("creation succeed", qnAttr, slog.Any("defRef", newDef.DefRef))
 	return DefSnap{
-		DefRef: newType.DefRef,
+		DefRef: newDef.DefRef,
 		TypeQN: newSyn.DecQN,
-		TypeES: typeexp.ConvertRecToSpec(newExp),
+		TypeES: spec.TypeES,
 	}, nil
 }
 
@@ -162,12 +166,15 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 	}
 	err = s.operator.Explicit(ctx, func(ds db.Source) error {
 		if typeexp.CheckSpec(snap.TypeES, curSnap.TypeES) != nil {
-			newTerm := typeexp.ConvertSpecToRec(snap.TypeES)
-			err = s.typeExps.InsertRec(ds, newTerm)
+			newExp, err := typeexp.ConvertSpecToRec(snap.TypeES)
 			if err != nil {
 				return err
 			}
-			rec.ExpID = newTerm.Ident()
+			err = s.typeExps.InsertRec(ds, newExp, snap.DefRef)
+			if err != nil {
+				return err
+			}
+			rec.ExpID = newExp.Key()
 			rec.DefRef.RN = snap.DefRef.RN
 		}
 		if rec.DefRef.RN == snap.DefRef.RN {
@@ -202,9 +209,9 @@ func (s *service) RetrieveSnap(ref DefRef) (_ DefSnap, err error) {
 
 func (s *service) retrieveSnap(rec DefRec) (_ DefSnap, err error) { // revive:disable-line:confusing-naming
 	ctx := context.Background()
-	var termRec typeexp.ExpRec
+	var expRec typeexp.ExpRec
 	err = s.operator.Implicit(ctx, func(ds db.Source) error {
-		termRec, err = s.typeExps.SelectRecByID(ds, rec.ExpID)
+		expRec, err = s.typeExps.SelectRecBySK(ds, rec.ExpID)
 		return err
 	})
 	if err != nil {
@@ -213,7 +220,7 @@ func (s *service) retrieveSnap(rec DefRec) (_ DefSnap, err error) { // revive:di
 	}
 	return DefSnap{
 		DefRef: rec.DefRef,
-		TypeES: typeexp.ConvertRecToSpec(termRec),
+		TypeES: typeexp.ConvertRecToSpec(expRec),
 	}, nil
 }
 
@@ -230,12 +237,12 @@ func (s *service) RetreiveRefs() (refs []DefRef, err error) {
 	return refs, nil
 }
 
-func CollectEnv(recs iter.Seq[DefRec]) []identity.ADT {
-	termIDs := []identity.ADT{}
+func CollectEnv(recs iter.Seq[DefRec]) []valkey.ADT {
+	expIDs := []valkey.ADT{}
 	for r := range recs {
-		termIDs = append(termIDs, r.ExpID)
+		expIDs = append(expIDs, r.ExpID)
 	}
-	return termIDs
+	return expIDs
 }
 
 func ErrSymMissingInEnv(want uniqsym.ADT) error {
@@ -254,8 +261,8 @@ func ErrDoesNotExist(want identity.ADT) error {
 	return fmt.Errorf("root doesn't exist: %v", want)
 }
 
-func ErrMissingInEnv(want identity.ADT) error {
-	return fmt.Errorf("root missing in env: %v", want)
+func ErrMissingInEnv(want valkey.ADT) error {
+	return fmt.Errorf("exp missing in env: %v", want)
 }
 
 func ErrMissingInCfg(want identity.ADT) error {

@@ -12,6 +12,7 @@ import (
 	"orglang/go-engine/adt/syndec"
 	"orglang/go-engine/adt/uniqref"
 	"orglang/go-engine/adt/uniqsym"
+	"orglang/go-engine/adt/valkey"
 	"orglang/go-engine/adt/xactexp"
 )
 
@@ -28,7 +29,7 @@ type DefSpec struct {
 
 type DefRec struct {
 	DefRef DefRef
-	ExpID  identity.ADT
+	ExpID  valkey.ADT
 }
 
 type DefSnap struct {
@@ -64,13 +65,16 @@ func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 	qnAttr := slog.Any("xactQN", spec.XactQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	newSyn := syndec.DecRec{DecQN: spec.XactQN, DecID: identity.New(), DecRN: revnum.New()}
-	newExp := xactexp.ConvertSpecToRec(spec.XactES)
+	newExp, err := xactexp.ConvertSpecToRec(spec.XactES)
+	if err != nil {
+		return DefSnap{}, err
+	}
 	newType := DefRec{
 		DefRef: DefRef{ID: newSyn.DecID, RN: newSyn.DecRN},
-		ExpID:  newExp.Ident(),
+		ExpID:  newExp.Key(),
 	}
 	err = s.operator.Explicit(ctx, func(ds db.Source) error {
-		err = s.synDecs.Insert(ds, newSyn)
+		err = s.synDecs.InsertRec(ds, newSyn)
 		if err != nil {
 			return err
 		}

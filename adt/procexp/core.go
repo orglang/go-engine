@@ -6,6 +6,7 @@ import (
 	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/symbol"
 	"orglang/go-engine/adt/uniqsym"
+	"orglang/go-engine/adt/valkey"
 )
 
 type ExpSpec interface {
@@ -153,7 +154,7 @@ type SendRec struct {
 	CommChnlPH symbol.ADT
 	ContChnlID identity.ADT
 	ValChnlID  identity.ADT
-	ValExpID   identity.ADT
+	ValExpID   valkey.ADT
 }
 
 func (r SendRec) Via() symbol.ADT { return r.CommChnlPH }

@@ -5,7 +5,7 @@ import (
 )
 
 type Repo interface {
-	Insert(db.Source, DecRec) error
+	InsertRec(db.Source, DecRec) error
 }
 
 type decRecDS struct {

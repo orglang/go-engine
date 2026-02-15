@@ -16,8 +16,6 @@ type Identifiable interface {
 
 type ADT xid.ID
 
-func (ADT) PH() {}
-
 func New() ADT {
 	return ADT(xid.New())
 }

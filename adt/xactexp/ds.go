@@ -1,8 +1,6 @@
 package xactexp
 
 import (
-	"database/sql"
-
 	"orglang/go-engine/lib/db"
 
 	"orglang/go-engine/adt/identity"
@@ -28,20 +26,20 @@ const (
 )
 
 type expRefDS struct {
-	ExpID string    `db:"exp_id" json:"exp_id"`
+	ExpVK int64     `db:"exp_vk" json:"exp_vk"`
 	K     expKindDS `db:"kind" json:"kind"`
 }
 
 type expRecDS struct {
-	ExpID  string
+	ExpVK  int64
 	States []stateDS
 }
 
 type stateDS struct {
-	ExpID    string         `db:"exp_id"`
-	K        expKindDS      `db:"kind"`
-	SupExpID sql.NullString `db:"sup_exp_id"`
-	Spec     expSpecDS      `db:"spec"`
+	ExpVK    int64     `db:"exp_vk"`
+	SupExpVK int64     `db:"sup_exp_vk"`
+	K        expKindDS `db:"kind"`
+	Spec     expSpecDS `db:"spec"`
 }
 
 type expSpecDS struct {
@@ -53,11 +51,11 @@ type expSpecDS struct {
 }
 
 type prodDS struct {
-	ValES  string `json:"on"`
-	ContES string `json:"to"`
+	ValExpVK  int64 `json:"on"`
+	ContExpVK int64 `json:"to"`
 }
 
 type sumDS struct {
-	LabQN  string `json:"on"`
-	ContES string `json:"to"`
+	LabQN     string `json:"on"`
+	ContExpVK int64  `json:"to"`
 }

@@ -1,7 +1,10 @@
 package uniqsym
 
 import (
+	"hash/fnv"
+
 	"orglang/go-engine/adt/symbol"
+	"orglang/go-engine/adt/valkey"
 )
 
 type ADT struct {
@@ -9,36 +12,52 @@ type ADT struct {
 	ns  *ADT
 }
 
-func New(name symbol.ADT) ADT {
-	return ADT{name, nil}
+func New(sym symbol.ADT) ADT {
+	return ADT{sym, nil}
 }
 
-func (adt ADT) New(name symbol.ADT) ADT {
-	return ADT{name, &adt}
+func (ns ADT) New(sym symbol.ADT) ADT {
+	return ADT{sym, &ns}
 }
 
 // symbol
-func (adt ADT) Sym() symbol.ADT {
-	return adt.sym
+func (a ADT) Sym() symbol.ADT {
+	return a.sym
 }
 
 // namespace
-func (adt ADT) NS() ADT {
-	if adt.ns == nil {
+func (a ADT) NS() ADT {
+	if a.ns == nil {
 		return empty
 	}
-	return *adt.ns
+	return *a.ns
 }
 
-func (adt ADT) Equal(b ADT) bool {
-	if adt.sym == b.sym && adt.ns == b.ns {
+func (a ADT) Key() (valkey.ADT, error) {
+	if a == empty {
+		panic("invalid value")
+	}
+	h := fnv.New32a()
+	_, err := h.Write([]byte(ConvertToString(a)))
+	if err != nil {
+		return valkey.Zero, err
+	}
+	return valkey.ADT(h.Sum32()), nil
+}
+
+func (a ADT) Equal(b ADT) bool {
+	if a.sym == b.sym && a.ns == b.ns {
 		return true
 	}
-	if adt.ns == nil || b.ns == nil {
+	if a.ns == nil || b.ns == nil {
 		return false
 	}
-	return adt.ns.Equal(*b.ns)
+	return a.ns.Equal(*b.ns)
 }
+
+const (
+	sepKey = 1
+)
 
 var (
 	empty ADT

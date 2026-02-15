@@ -28,7 +28,7 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func (dao *pgxDAO) Insert(source db.Source, rec DefRec) error {
+func (dao *pgxDAO) InsertRec(source db.Source, rec DefRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("defRef", rec.DefRef)
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity insertion started", refAttr)

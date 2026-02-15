@@ -5,6 +5,7 @@ import (
 	"orglang/go-engine/adt/symbol"
 	"orglang/go-engine/adt/uniqref"
 	"orglang/go-engine/adt/uniqsym"
+	"orglang/go-engine/adt/valkey"
 )
 
 type BindSpec struct {
@@ -20,7 +21,7 @@ type BindRec struct {
 	ChnlBS  bindSide
 	ChnlPH  symbol.ADT
 	ChnlID  identity.ADT
-	ExpID   identity.ADT
+	ExpID   valkey.ADT
 }
 
 type bindSide uint8

@@ -1,38 +1,69 @@
 package xactexp
 
 import (
-	"database/sql"
 	"fmt"
 
 	"golang.org/x/exp/maps"
 
-	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/uniqsym"
+	"orglang/go-engine/adt/valkey"
 
 	"github.com/orglang/go-sdk/adt/xactexp"
 )
 
-func ConvertSpecToRec(s ExpSpec) ExpRec {
+func ConvertSpecToRec(s ExpSpec) (ExpRec, error) {
 	if s == nil {
-		return nil
+		return nil, nil
 	}
 	switch spec := s.(type) {
 	case OneSpec:
-		return OneRec{ExpID: identity.New()}
+		return OneRec{ExpVK: valkey.One}, nil
 	case LinkSpec:
-		return LinkRec{ExpID: identity.New(), XactQN: spec.XactQN}
+		expVK, err := spec.XactQN.Key()
+		if err != nil {
+			return nil, err
+		}
+		return LinkRec{ExpVK: expVK, XactQN: spec.XactQN}, nil
 	case WithSpec:
 		choices := make(map[uniqsym.ADT]ExpRec, len(spec.Choices))
-		for lab, st := range spec.Choices {
-			choices[lab] = ConvertSpecToRec(st)
+		keys := make([]valkey.ADT, len(spec.Choices)*2)
+		for lab, spec := range spec.Choices {
+			cont, err := ConvertSpecToRec(spec)
+			if err != nil {
+				return nil, err
+			}
+			choices[lab] = cont
+			labVK, err := lab.Key()
+			if err != nil {
+				return nil, err
+			}
+			keys = append(keys, labVK, cont.Key())
 		}
-		return WithRec{ExpID: identity.New(), Zs: choices}
+		expVK, err := valkey.Compose(keys...)
+		if err != nil {
+			return nil, err
+		}
+		return WithRec{ExpVK: expVK, Choices: choices}, nil
 	case PlusSpec:
 		choices := make(map[uniqsym.ADT]ExpRec, len(spec.Choices))
-		for lab, rec := range spec.Choices {
-			choices[lab] = ConvertSpecToRec(rec)
+		keys := make([]valkey.ADT, len(spec.Choices)*2)
+		for lab, spec := range spec.Choices {
+			cont, err := ConvertSpecToRec(spec)
+			if err != nil {
+				return nil, err
+			}
+			choices[lab] = cont
+			labVK, err := lab.Key()
+			if err != nil {
+				return nil, err
+			}
+			keys = append(keys, labVK, cont.Key())
 		}
-		return PlusRec{ExpID: identity.New(), Zs: choices}
+		expVK, err := valkey.Compose(keys...)
+		if err != nil {
+			return nil, err
+		}
+		return PlusRec{ExpVK: expVK, Choices: choices}, nil
 	default:
 		panic(ErrSpecTypeUnexpected(spec))
 	}
@@ -48,14 +79,14 @@ func ConvertRecToSpec(r ExpRec) ExpSpec {
 	case LinkRec:
 		return LinkSpec{XactQN: rec.XactQN}
 	case WithRec:
-		choices := make(map[uniqsym.ADT]ExpSpec, len(rec.Zs))
-		for lab, rec := range rec.Zs {
+		choices := make(map[uniqsym.ADT]ExpSpec, len(rec.Choices))
+		for lab, rec := range rec.Choices {
 			choices[lab] = ConvertRecToSpec(rec)
 		}
 		return WithSpec{Choices: choices}
 	case PlusRec:
-		choices := make(map[uniqsym.ADT]ExpSpec, len(rec.Zs))
-		for lab, st := range rec.Zs {
+		choices := make(map[uniqsym.ADT]ExpSpec, len(rec.Choices))
+		for lab, st := range rec.Choices {
 			choices[lab] = ConvertRecToSpec(st)
 		}
 		return PlusSpec{Choices: choices}
@@ -138,36 +169,36 @@ func MsgToExpSpec(dto xactexp.ExpSpec) (ExpSpec, error) {
 	}
 }
 
-func msgFromExpRef(r ExpRef) xactexp.ExpRef {
-	ident := r.Ident().String()
-	switch r.(type) {
+func msgFromExpRef(ref ExpRef) xactexp.ExpRef {
+	expVK := valkey.ConvertToInteger(ref.Key())
+	switch ref.(type) {
 	case OneRef, OneRec:
-		return xactexp.ExpRef{K: xactexp.One, ExpID: ident}
+		return xactexp.ExpRef{K: xactexp.One, ExpVK: expVK}
 	case LinkRef, LinkRec:
-		return xactexp.ExpRef{K: xactexp.Link, ExpID: ident}
+		return xactexp.ExpRef{K: xactexp.Link, ExpVK: expVK}
 	case PlusRef, PlusRec:
-		return xactexp.ExpRef{K: xactexp.Plus, ExpID: ident}
+		return xactexp.ExpRef{K: xactexp.Plus, ExpVK: expVK}
 	case WithRef, WithRec:
-		return xactexp.ExpRef{K: xactexp.With, ExpID: ident}
+		return xactexp.ExpRef{K: xactexp.With, ExpVK: expVK}
 	default:
-		panic(ErrRefTypeUnexpected(r))
+		panic(ErrRefTypeUnexpected(ref))
 	}
 }
 
 func msgToExpRef(dto xactexp.ExpRef) (ExpRef, error) {
-	expID, err := identity.ConvertFromString(dto.ExpID)
+	expVK, err := valkey.ConvertFromInteger(dto.ExpVK)
 	if err != nil {
 		return nil, err
 	}
 	switch dto.K {
 	case xactexp.One:
-		return OneRef{expID}, nil
+		return OneRef{expVK}, nil
 	case xactexp.Link:
-		return LinkRef{expID}, nil
+		return LinkRef{expVK}, nil
 	case xactexp.Plus:
-		return PlusRef{expID}, nil
+		return PlusRef{expVK}, nil
 	case xactexp.With:
-		return WithRef{expID}, nil
+		return WithRef{expVK}, nil
 	default:
 		panic(xactexp.ErrKindUnexpected(dto.K))
 	}
@@ -177,46 +208,46 @@ func dataFromExpRef(ref ExpRef) expRefDS {
 	if ref == nil {
 		panic("can't be nil")
 	}
-	expID := ref.Ident().String()
+	expVK := valkey.ConvertToInteger(ref.Key())
 	switch ref.(type) {
 	case OneRef, OneRec:
-		return expRefDS{K: oneExp, ExpID: expID}
+		return expRefDS{K: oneExp, ExpVK: expVK}
 	case LinkRef, LinkRec:
-		return expRefDS{K: linkExp, ExpID: expID}
+		return expRefDS{K: linkExp, ExpVK: expVK}
 	case PlusRef, PlusRec:
-		return expRefDS{K: plusExp, ExpID: expID}
+		return expRefDS{K: plusExp, ExpVK: expVK}
 	case WithRef, WithRec:
-		return expRefDS{K: withExp, ExpID: expID}
+		return expRefDS{K: withExp, ExpVK: expVK}
 	default:
 		panic(ErrRefTypeUnexpected(ref))
 	}
 }
 
 func dataToExpRef(dto expRefDS) (ExpRef, error) {
-	expID, err := identity.ConvertFromString(dto.ExpID)
+	expVK, err := valkey.ConvertFromInteger(dto.ExpVK)
 	if err != nil {
 		return nil, err
 	}
 	switch dto.K {
 	case oneExp:
-		return OneRef{expID}, nil
+		return OneRef{expVK}, nil
 	case linkExp:
-		return LinkRef{expID}, nil
+		return LinkRef{expVK}, nil
 	case plusExp:
-		return PlusRef{expID}, nil
+		return PlusRef{expVK}, nil
 	case withExp:
-		return WithRef{expID}, nil
+		return WithRef{expVK}, nil
 	default:
 		panic(errUnexpectedKind(dto.K))
 	}
 }
 
 func dataToExpRec(dto expRecDS) (ExpRec, error) {
-	states := make(map[string]stateDS, len(dto.States))
+	states := make(map[int64]stateDS, len(dto.States))
 	for _, dto := range dto.States {
-		states[dto.ExpID] = dto
+		states[dto.ExpVK] = dto
 	}
-	return statesToExpRec(states, states[dto.ExpID])
+	return statesToExpRec(states, states[dto.ExpVK])
 }
 
 func dataFromExpRec(rec ExpRec) expRecDS {
@@ -224,31 +255,31 @@ func dataFromExpRec(rec ExpRec) expRecDS {
 		panic("can't be nil")
 	}
 	dto := &expRecDS{
-		ExpID:  rec.Ident().String(),
+		ExpVK:  valkey.ConvertToInteger(rec.Key()),
 		States: nil,
 	}
-	statesFromExpRec("", rec, dto)
+	statesFromExpRec(0, rec, dto)
 	return *dto
 }
 
-func statesToExpRec(states map[string]stateDS, st stateDS) (ExpRec, error) {
-	expID, err := identity.ConvertFromString(st.ExpID)
+func statesToExpRec(states map[int64]stateDS, st stateDS) (ExpRec, error) {
+	expVK, err := valkey.ConvertFromInteger(st.ExpVK)
 	if err != nil {
 		return nil, err
 	}
 	switch st.K {
 	case oneExp:
-		return OneRec{ExpID: expID}, nil
+		return OneRec{ExpVK: expVK}, nil
 	case linkExp:
 		xactQN, err := uniqsym.ConvertFromString(st.Spec.Link)
 		if err != nil {
 			return nil, err
 		}
-		return LinkRec{ExpID: expID, XactQN: xactQN}, nil
+		return LinkRec{ExpVK: expVK, XactQN: xactQN}, nil
 	case plusExp:
 		choices := make(map[uniqsym.ADT]ExpRec, len(st.Spec.Plus))
 		for _, ch := range st.Spec.Plus {
-			choice, err := statesToExpRec(states, states[ch.ContES])
+			choice, err := statesToExpRec(states, states[ch.ContExpVK])
 			if err != nil {
 				return nil, err
 			}
@@ -258,11 +289,11 @@ func statesToExpRec(states map[string]stateDS, st stateDS) (ExpRec, error) {
 			}
 			choices[label] = choice
 		}
-		return PlusRec{ExpID: expID, Zs: choices}, nil
+		return PlusRec{ExpVK: expVK, Choices: choices}, nil
 	case withExp:
 		choices := make(map[uniqsym.ADT]ExpRec, len(st.Spec.With))
 		for _, ch := range st.Spec.With {
-			choice, err := statesToExpRec(states, states[ch.ContES])
+			choice, err := statesToExpRec(states, states[ch.ContExpVK])
 			if err != nil {
 				return nil, err
 			}
@@ -272,62 +303,58 @@ func statesToExpRec(states map[string]stateDS, st stateDS) (ExpRec, error) {
 			}
 			choices[label] = choice
 		}
-		return WithRec{ExpID: expID, Zs: choices}, nil
+		return WithRec{ExpVK: expVK, Choices: choices}, nil
 	default:
 		panic(errUnexpectedKind(st.K))
 	}
 }
 
-func statesFromExpRec(from string, r ExpRec, dto *expRecDS) string {
-	var fromID sql.NullString
-	if len(from) > 0 {
-		fromID = sql.NullString{String: from, Valid: true}
-	}
-	expID := r.Ident().String()
+func statesFromExpRec(fromID int64, r ExpRec, dto *expRecDS) int64 {
+	expVK := valkey.ConvertToInteger(r.Key())
 	switch rec := r.(type) {
 	case OneRec:
-		st := stateDS{ExpID: expID, K: oneExp, SupExpID: fromID}
+		st := stateDS{ExpVK: expVK, K: oneExp, SupExpVK: fromID}
 		dto.States = append(dto.States, st)
-		return expID
+		return expVK
 	case LinkRec:
 		st := stateDS{
-			ExpID:    expID,
+			ExpVK:    expVK,
 			K:        linkExp,
-			SupExpID: fromID,
+			SupExpVK: fromID,
 			Spec: expSpecDS{
 				Link: uniqsym.ConvertToString(rec.XactQN),
 			},
 		}
 		dto.States = append(dto.States, st)
-		return expID
+		return expVK
 	case PlusRec:
 		var choices []sumDS
-		for label, choice := range rec.Zs {
-			cont := statesFromExpRec(expID, choice, dto)
+		for label, choice := range rec.Choices {
+			cont := statesFromExpRec(expVK, choice, dto)
 			choices = append(choices, sumDS{uniqsym.ConvertToString(label), cont})
 		}
 		st := stateDS{
-			ExpID:    expID,
+			ExpVK:    expVK,
 			K:        plusExp,
-			SupExpID: fromID,
+			SupExpVK: fromID,
 			Spec:     expSpecDS{Plus: choices},
 		}
 		dto.States = append(dto.States, st)
-		return expID
+		return expVK
 	case WithRec:
 		var choices []sumDS
-		for label, choice := range rec.Zs {
-			cont := statesFromExpRec(expID, choice, dto)
+		for label, choice := range rec.Choices {
+			cont := statesFromExpRec(expVK, choice, dto)
 			choices = append(choices, sumDS{uniqsym.ConvertToString(label), cont})
 		}
 		st := stateDS{
-			ExpID:    expID,
+			ExpVK:    expVK,
 			K:        withExp,
-			SupExpID: fromID,
+			SupExpVK: fromID,
 			Spec:     expSpecDS{With: choices},
 		}
 		dto.States = append(dto.States, st)
-		return expID
+		return expVK
 	default:
 		panic(ErrRecTypeUnexpected(r))
 	}

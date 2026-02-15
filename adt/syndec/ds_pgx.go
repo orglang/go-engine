@@ -24,7 +24,7 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func (dao *pgxDAO) Insert(source db.Source, root DecRec) error {
+func (dao *pgxDAO) InsertRec(source db.Source, root DecRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
 	idAttr := slog.Any("id", root.DecID)
 	dto, err := DataFromDecRec(root)

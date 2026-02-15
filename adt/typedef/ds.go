@@ -7,7 +7,7 @@ import (
 )
 
 type Repo interface {
-	Insert(db.Source, DefRec) error
+	InsertRec(db.Source, DefRec) error
 	Update(db.Source, DefRec) error
 	SelectRefs(db.Source) ([]DefRef, error)
 	SelectRecByRef(db.Source, DefRef) (DefRec, error)

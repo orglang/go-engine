@@ -363,8 +363,8 @@ func (s *suite) recvSend(t *testing.T) {
 		TypeES: typeexp.ExpSpec{
 			K: typeexp.Lolli,
 			Lolli: &typeexp.ProdSpec{
-				ValES:  typeexp.ExpSpec{K: typeexp.One},
-				ContES: typeexp.ExpSpec{K: typeexp.One},
+				Val:  typeexp.ExpSpec{K: typeexp.One},
+				Cont: typeexp.ExpSpec{K: typeexp.One},
 			},
 		},
 	})
@@ -552,7 +552,7 @@ func (s *suite) caseLab(t *testing.T) {
 		TypeES: typeexp.ExpSpec{
 			With: &typeexp.SumSpec{
 				Choices: []typeexp.ChoiceSpec{
-					{LabQN: labelQN, ContES: typeexp.ExpSpec{K: typeexp.One}},
+					{LabQN: labelQN, Cont: typeexp.ExpSpec{K: typeexp.One}},
 				},
 			},
 		},

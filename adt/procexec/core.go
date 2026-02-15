@@ -23,6 +23,7 @@ import (
 	"orglang/go-engine/adt/typeexp"
 	"orglang/go-engine/adt/uniqref"
 	"orglang/go-engine/adt/uniqsym"
+	"orglang/go-engine/adt/valkey"
 )
 
 type API interface {
@@ -47,7 +48,7 @@ type ExecSnap struct {
 
 type Env struct {
 	TypeDefs map[uniqsym.ADT]typedef.DefRec
-	TypeExps map[identity.ADT]typeexp.ExpRec
+	TypeExps map[valkey.ADT]typeexp.ExpRec
 	ProcDecs map[identity.ADT]procdec.DecRec
 }
 
@@ -135,7 +136,7 @@ func (s *service) Take(spec procstep.StepSpec) (err error) {
 		}
 		envIDs := typedef.CollectEnv(maps.Values(typeDefs))
 		ctxIDs := CollectCtx(maps.Values(execSnap.ChnlBRs))
-		var typeExps map[identity.ADT]typeexp.ExpRec
+		var typeExps map[valkey.ADT]typeexp.ExpRec
 		err = s.operator.Implicit(ctx, func(ds db.Source) error {
 			typeExps, err = s.typeExps.SelectEnv(ds, append(envIDs, ctxIDs...))
 			return err
@@ -777,11 +778,11 @@ func (s *service) takeWith(
 	}
 }
 
-func CollectCtx(chnls iter.Seq[procbind.BindRec]) []identity.ADT {
+func CollectCtx(chnls iter.Seq[procbind.BindRec]) []valkey.ADT {
 	return nil
 }
 
-func convertToCtx(chnlBinds iter.Seq[procbind.BindRec], typeExps map[identity.ADT]typeexp.ExpRec) typedef.Context {
+func convertToCtx(chnlBinds iter.Seq[procbind.BindRec], typeExps map[valkey.ADT]typeexp.ExpRec) typedef.Context {
 	assets := make(map[symbol.ADT]typeexp.ExpRec, 1)
 	liabs := make(map[symbol.ADT]typeexp.ExpRec, 1)
 	for bind := range chnlBinds {
@@ -864,13 +865,13 @@ func (s *service) checkProvider(
 			s.log.Error("checking failed")
 			return err
 		}
-		err := typeexp.CheckRec(gotVal, wantVia.Y)
+		err := typeexp.CheckRec(gotVal, wantVia.Val)
 		if err != nil {
 			s.log.Error("checking failed")
 			return err
 		}
 		// no cont to check
-		procCtx.Liabs[expSpec.CommChnlPH] = wantVia.Z
+		procCtx.Liabs[expSpec.CommChnlPH] = wantVia.Cont
 		delete(procCtx.Assets, expSpec.ValChnlPH)
 		return nil
 	case procexp.RecvSpec:
@@ -894,14 +895,14 @@ func (s *service) checkProvider(
 			s.log.Error("checking failed")
 			return err
 		}
-		err := typeexp.CheckRec(gotVal, wantVia.Y)
+		err := typeexp.CheckRec(gotVal, wantVia.Val)
 		if err != nil {
 			s.log.Error("checking failed")
 			return err
 		}
 		// check cont
-		procCtx.Liabs[expSpec.CommChnlPH] = wantVia.Z
-		procCtx.Assets[expSpec.BindChnlPH] = wantVia.Y
+		procCtx.Liabs[expSpec.CommChnlPH] = wantVia.Cont
+		procCtx.Assets[expSpec.BindChnlPH] = wantVia.Val
 		return s.checkType(procEnv, procCtx, procCfg, expSpec.ContES)
 	case procexp.LabSpec:
 		// check via
@@ -918,9 +919,9 @@ func (s *service) checkProvider(
 			return err
 		}
 		// check label
-		choice, ok := wantVia.Zs[expSpec.LabelQN]
+		choice, ok := wantVia.Choices[expSpec.LabelQN]
 		if !ok {
-			err := fmt.Errorf("label mismatch: want %v, got %v", maps.Keys(wantVia.Zs), expSpec.LabelQN)
+			err := fmt.Errorf("label mismatch: want %v, got %v", maps.Keys(wantVia.Choices), expSpec.LabelQN)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -942,12 +943,12 @@ func (s *service) checkProvider(
 			return err
 		}
 		// check conts
-		if len(expSpec.ContESs) != len(wantVia.Zs) {
-			err := fmt.Errorf("state mismatch: want %v choices, got %v conts", len(wantVia.Zs), len(expSpec.ContESs))
+		if len(expSpec.ContESs) != len(wantVia.Choices) {
+			err := fmt.Errorf("state mismatch: want %v choices, got %v conts", len(wantVia.Choices), len(expSpec.ContESs))
 			s.log.Error("checking failed")
 			return err
 		}
-		for label, choice := range wantVia.Zs {
+		for label, choice := range wantVia.Choices {
 			cont, ok := expSpec.ContESs[label]
 			if !ok {
 				err := fmt.Errorf("label mismatch: want %v, got nothing", label)
@@ -1047,12 +1048,12 @@ func (s *service) checkClient(
 			s.log.Error("checking failed")
 			return err
 		}
-		err := typeexp.CheckRec(gotVal, wantVia.Y)
+		err := typeexp.CheckRec(gotVal, wantVia.Val)
 		if err != nil {
 			s.log.Error("checking failed")
 			return err
 		}
-		procCtx.Assets[expSpec.CommChnlPH] = wantVia.Z
+		procCtx.Assets[expSpec.CommChnlPH] = wantVia.Cont
 		delete(procCtx.Assets, expSpec.ValChnlPH)
 		return nil
 	case procexp.RecvSpec:
@@ -1076,14 +1077,14 @@ func (s *service) checkClient(
 			s.log.Error("checking failed")
 			return err
 		}
-		err := typeexp.CheckRec(gotVal, wantVia.Y)
+		err := typeexp.CheckRec(gotVal, wantVia.Val)
 		if err != nil {
 			s.log.Error("checking failed")
 			return err
 		}
 		// check cont
-		procCtx.Assets[expSpec.CommChnlPH] = wantVia.Z
-		procCtx.Assets[expSpec.BindChnlPH] = wantVia.Y
+		procCtx.Assets[expSpec.CommChnlPH] = wantVia.Cont
+		procCtx.Assets[expSpec.BindChnlPH] = wantVia.Val
 		return s.checkType(procEnv, procCtx, procCfg, expSpec.ContES)
 	case procexp.LabSpec:
 		// check via
@@ -1100,9 +1101,9 @@ func (s *service) checkClient(
 			return err
 		}
 		// check label
-		choice, ok := wantVia.Zs[expSpec.LabelQN]
+		choice, ok := wantVia.Choices[expSpec.LabelQN]
 		if !ok {
-			err := fmt.Errorf("label mismatch: want %v, got %v", maps.Keys(wantVia.Zs), expSpec.LabelQN)
+			err := fmt.Errorf("label mismatch: want %v, got %v", maps.Keys(wantVia.Choices), expSpec.LabelQN)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -1123,12 +1124,12 @@ func (s *service) checkClient(
 			return err
 		}
 		// check conts
-		if len(expSpec.ContESs) != len(wantVia.Zs) {
-			err := fmt.Errorf("state mismatch: want %v choices, got %v conts", len(wantVia.Zs), len(expSpec.ContESs))
+		if len(expSpec.ContESs) != len(wantVia.Choices) {
+			err := fmt.Errorf("state mismatch: want %v choices, got %v conts", len(wantVia.Choices), len(expSpec.ContESs))
 			s.log.Error("checking failed")
 			return err
 		}
-		for label, choice := range wantVia.Zs {
+		for label, choice := range wantVia.Choices {
 			cont, ok := expSpec.ContESs[label]
 			if !ok {
 				err := fmt.Errorf("label mismatch: want %v, got nothing", label)

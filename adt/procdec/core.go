@@ -69,7 +69,7 @@ func (s *service) Incept(procQN uniqsym.ADT) (_ DecRef, err error) {
 	newSyn := syndec.DecRec{DecQN: procQN, DecID: identity.New(), DecRN: revnum.New()}
 	newRec := DecRec{DecRef: DecRef{ID: newSyn.DecID, RN: newSyn.DecRN}}
 	err = s.operator.Explicit(ctx, func(ds db.Source) error {
-		err = s.synDecs.Insert(ds, newSyn)
+		err = s.synDecs.InsertRec(ds, newSyn)
 		if err != nil {
 			return err
 		}

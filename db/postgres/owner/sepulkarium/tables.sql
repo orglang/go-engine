@@ -1,30 +1,30 @@
 CREATE TABLE type_defs (
 	def_id varchar(36),
 	def_rn bigint,
-	exp_id varchar(36)
+	exp_hk varchar(36)
 );
 
 CREATE TABLE type_exps (
-	exp_id varchar(36),
-	sup_exp_id varchar(36),
-	kind smallint,
+	exp_hk varchar(36) primary key,
+	sup_exp_hk varchar(36),
 	def_id varchar(36),
 	def_rn bigint,
+	kind smallint,
 	spec jsonb
 );
 
 CREATE TABLE xact_defs (
 	def_id varchar(36),
 	def_rn bigint,
-	exp_id varchar(36)
+	exp_hk varchar(36)
 );
 
 CREATE TABLE xact_exps (
-	exp_id varchar(36),
-	sup_exp_id varchar(36),
-	kind smallint,
+	exp_hk varchar(36) primary key,
+	sup_exp_hk varchar(36),
 	def_id varchar(36),
 	def_rn bigint,
+	kind smallint,
 	spec jsonb
 );
 

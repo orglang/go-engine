@@ -38,25 +38,19 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 		dao.log.Error("model conversion failed", refAttr)
 		return err
 	}
-	insertRoot := `
-		insert into proc_decs (
-			dec_id, dec_rn, title
-		) VALUES (
-			@dec_id, @dec_rn, @title
-		)`
-	rootArgs := pgx.NamedArgs{
+	recArgs := pgx.NamedArgs{
 		"dec_id": dto.ID,
 		"dec_rn": dto.RN,
 	}
-	_, err = ds.Conn.Exec(ds.Ctx, insertRoot, rootArgs)
+	_, err = ds.Conn.Exec(ds.Ctx, insertRec, recArgs)
 	if err != nil {
-		dao.log.Error("query execution failed", refAttr, slog.String("q", insertRoot))
+		dao.log.Error("query execution failed", refAttr)
 		return err
 	}
 	insertPE := `
 		insert into dec_pes (
 			dec_id, from_rn, to_rn, chnl_ph, type_qn
-		) VALUES (
+		) values (
 			@dec_id, @from_rn, @to_rn, @chnl_ph, @type_qn
 		)`
 	peArgs := pgx.NamedArgs{
@@ -68,17 +62,17 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertPE, peArgs)
 	if err != nil {
-		dao.log.Error("query execution failed", refAttr, slog.String("q", insertPE))
+		dao.log.Error("query execution failed", refAttr)
 		return err
 	}
 	insertCE := `
 		insert into dec_ces (
 			dec_id, from_rn, to_rn, chnl_ph, type_qn
-		) VALUES (
+		) values (
 			@dec_id, @from_rn, @to_rn, @chnl_ph, @type_qn
 		)`
 	batch := pgx.Batch{}
-	for _, ce := range dto.ClientBSs {
+	for _, ce := range dto.ClientBSes {
 		args := pgx.NamedArgs{
 			"dec_id":  dto.ID,
 			"from_rn": dto.RN,
@@ -92,7 +86,7 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	for range dto.ClientBSs {
+	for range dto.ClientBSes {
 		_, err = br.Exec()
 		if err != nil {
 			dao.log.Error("query execution failed", refAttr, slog.String("q", insertCE))
@@ -190,6 +184,13 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]DecRef, error) {
 }
 
 const (
+	insertRec = `
+		insert into proc_decs (
+			dec_id, dec_rn
+		) values (
+			@dec_id, @dec_rn
+		)`
+
 	// revive:disable:line-length-limit
 	selectByID = `
 		select

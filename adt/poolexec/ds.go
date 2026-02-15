@@ -1,8 +1,6 @@
 package poolexec
 
 import (
-	"database/sql"
-
 	"orglang/go-engine/lib/db"
 )
 
@@ -27,9 +25,8 @@ type execSnapDS struct {
 }
 
 type execRecDS struct {
-	ID    string         `db:"exec_id"`
-	RN    int64          `db:"exec_rn"`
-	SupID sql.NullString `db:"sup_exec_id"`
+	ID string `db:"exec_id"`
+	RN int64  `db:"exec_rn"`
 }
 
 type liabDS struct {

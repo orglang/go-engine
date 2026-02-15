@@ -9,8 +9,8 @@ import (
 
 type Repo interface {
 	InsertRec(db.Source, ExpRec, uniqref.ADT) error
-	SelectRecBySK(db.Source, valkey.ADT) (ExpRec, error)
-	SelectRecsBySKs(db.Source, []valkey.ADT) ([]ExpRec, error)
+	SelectRecByVK(db.Source, valkey.ADT) (ExpRec, error)
+	SelectRecsByVKs(db.Source, []valkey.ADT) ([]ExpRec, error)
 	SelectEnv(db.Source, []valkey.ADT) (map[valkey.ADT]ExpRec, error)
 }
 
@@ -38,7 +38,7 @@ type expRecDS struct {
 
 type stateDS struct {
 	ExpVK    int64     `db:"exp_vk"`
-	SupExpSK int64     `db:"sup_exp_vk"`
+	SupExpVK int64     `db:"sup_exp_vk"`
 	K        expKindDS `db:"kind"`
 	Spec     expSpecDS `db:"spec"`
 }

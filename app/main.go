@@ -8,14 +8,16 @@ import (
 	"orglang/go-engine/lib/lf"
 	"orglang/go-engine/lib/ws"
 
+	"orglang/go-engine/adt/pooldec"
 	"orglang/go-engine/adt/poolexec"
 	"orglang/go-engine/adt/procdec"
 	"orglang/go-engine/adt/procdef"
 	"orglang/go-engine/adt/procexec"
-	"orglang/go-engine/adt/syndec"
+	"orglang/go-engine/adt/synonym"
 	"orglang/go-engine/adt/typedef"
 	"orglang/go-engine/adt/typeexp"
 	"orglang/go-engine/adt/xactdef"
+	"orglang/go-engine/adt/xactexp"
 
 	"orglang/go-engine/app/web"
 )
@@ -28,13 +30,15 @@ func main() {
 		lf.Module,
 		ws.Module,
 		// adt
-		syndec.Module,
+		synonym.Module,
 		poolexec.Module,
 		typedef.Module,
 		typeexp.Module,
 		xactdef.Module,
+		xactexp.Module,
 		procdef.Module,
 		procdec.Module,
+		pooldec.Module,
 		procexec.Module,
 		// app
 		web.Module,

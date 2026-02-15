@@ -205,8 +205,8 @@ func CollectEnv(spec ExpSpec) []identity.ADT {
 	return collectEnvRec(spec, []identity.ADT{})
 }
 
-func collectEnvRec(es ExpSpec, env []identity.ADT) []identity.ADT {
-	switch spec := es.(type) {
+func collectEnvRec(s ExpSpec, env []identity.ADT) []identity.ADT {
+	switch spec := s.(type) {
 	case RecvSpec:
 		return collectEnvRec(spec.ContES, env)
 	case CaseSpec:

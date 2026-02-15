@@ -89,7 +89,7 @@ func (dao *pgxDAO) UpdateProc(source db.Source, mod ExecMod) (err error) {
 			"exec_rn":  dto.RN,
 			"chnl_ph":  dto.ChnlPH,
 			"chnl_id":  dto.ChnlID,
-			"state_id": dto.ExpID,
+			"state_id": dto.ExpVK,
 		}
 		bindReq.Queue(insertBind, args)
 	}

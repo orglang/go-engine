@@ -417,14 +417,14 @@ func statesFromExpRec(fromID int64, r ExpRec, dto *expRecDS) int64 {
 	expVK := valkey.ConvertToInteger(r.Key())
 	switch rec := r.(type) {
 	case OneRec:
-		st := stateDS{ExpVK: expVK, K: oneExp, SupExpSK: fromID}
+		st := stateDS{ExpVK: expVK, K: oneExp, SupExpVK: fromID}
 		dto.States = append(dto.States, st)
 		return expVK
 	case LinkRec:
 		st := stateDS{
 			ExpVK:    expVK,
 			K:        linkExp,
-			SupExpSK: fromID,
+			SupExpVK: fromID,
 			Spec: expSpecDS{
 				Link: uniqsym.ConvertToString(rec.TypeQN),
 			},
@@ -437,7 +437,7 @@ func statesFromExpRec(fromID int64, r ExpRec, dto *expRecDS) int64 {
 		st := stateDS{
 			ExpVK:    expVK,
 			K:        tensorExp,
-			SupExpSK: fromID,
+			SupExpVK: fromID,
 			Spec: expSpecDS{
 				Tensor: &prodDS{val, cont},
 			},
@@ -450,7 +450,7 @@ func statesFromExpRec(fromID int64, r ExpRec, dto *expRecDS) int64 {
 		st := stateDS{
 			ExpVK:    expVK,
 			K:        lolliExp,
-			SupExpSK: fromID,
+			SupExpVK: fromID,
 			Spec: expSpecDS{
 				Lolli: &prodDS{val, cont},
 			},
@@ -466,7 +466,7 @@ func statesFromExpRec(fromID int64, r ExpRec, dto *expRecDS) int64 {
 		st := stateDS{
 			ExpVK:    expVK,
 			K:        plusExp,
-			SupExpSK: fromID,
+			SupExpVK: fromID,
 			Spec:     expSpecDS{Plus: choices},
 		}
 		dto.States = append(dto.States, st)
@@ -480,7 +480,7 @@ func statesFromExpRec(fromID int64, r ExpRec, dto *expRecDS) int64 {
 		st := stateDS{
 			ExpVK:    expVK,
 			K:        withExp,
-			SupExpSK: fromID,
+			SupExpVK: fromID,
 			Spec:     expSpecDS{With: choices},
 		}
 		dto.States = append(dto.States, st)

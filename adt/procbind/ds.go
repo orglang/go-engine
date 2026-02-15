@@ -11,5 +11,5 @@ type BindRecDS struct {
 	ChnlBS uint8  `db:"chnl_bs"`
 	ChnlPH string `db:"chnl_ph"`
 	ChnlID string `db:"chnl_id"`
-	ExpID  string `db:"exp_id"`
+	ExpVK  int64  `db:"exp_vk"`
 }

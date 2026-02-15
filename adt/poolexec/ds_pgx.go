@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/lf"
 )
 
 type pgxDAO struct {
@@ -27,16 +28,15 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec ExecRec) (err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	dto := DataFromExecRec(rec)
 	args := pgx.NamedArgs{
-		"exec_id":     dto.ID,
-		"exec_rn":     dto.RN,
-		"sup_exec_id": dto.SupID,
+		"exec_id": dto.ID,
+		"exec_rn": dto.RN,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertExec, args)
 	if err != nil {
 		dao.log.Error("execution failed")
 		return err
 	}
-	dao.log.Debug("insertion succeed", slog.Any("execRef", rec.ExecRef))
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "insertion succeed", slog.Any("execRef", rec.ExecRef))
 	return nil
 }
 
@@ -53,22 +53,22 @@ func (dao *pgxDAO) InsertLiab(source db.Source, liab Liab) (err error) {
 		dao.log.Error("execution failed")
 		return err
 	}
-	dao.log.Debug("insertion succeed", slog.Any("execRef", liab.ExecRef))
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "insertion succeed", slog.Any("execRef", liab.ExecRef))
 	return nil
 }
 
 func (dao *pgxDAO) SelectSubs(source db.Source, ref ExecRef) (ExecSnap, error) {
 	ds := db.MustConform[db.SourcePgx](source)
-	idAttr := slog.Any("execRef", ref)
+	refAttr := slog.Any("execRef", ref)
 	rows, err := ds.Conn.Query(ds.Ctx, selectOrgSnap, ref.ID.String())
 	if err != nil {
-		dao.log.Error("execution failed", idAttr)
+		dao.log.Error("execution failed", refAttr)
 		return ExecSnap{}, err
 	}
 	defer rows.Close()
 	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[execSnapDS])
 	if err != nil {
-		dao.log.Error("collection failed", idAttr, slog.Any("t", reflect.TypeOf(dto)))
+		dao.log.Error("collection failed", refAttr, slog.Any("type", reflect.TypeFor[execSnapDS]))
 		return ExecSnap{}, err
 	}
 	snap, err := DataToExecSnap(dto)
@@ -76,7 +76,7 @@ func (dao *pgxDAO) SelectSubs(source db.Source, ref ExecRef) (ExecSnap, error) {
 		dao.log.Error("conversion failed")
 		return ExecSnap{}, err
 	}
-	dao.log.Debug("selection succeed", idAttr)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection succeed", refAttr)
 	return snap, nil
 }
 
@@ -84,7 +84,7 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]ExecRef, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	query := `
 		select
-			exec_id, title
+			exec_id, exec_rn
 		from pool_execs`
 	rows, err := ds.Conn.Query(ds.Ctx, query)
 	if err != nil {
@@ -94,7 +94,7 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]ExecRef, error) {
 	defer rows.Close()
 	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[execRefDS])
 	if err != nil {
-		dao.log.Error("collection failed", slog.Any("t", reflect.TypeOf(dtos)))
+		dao.log.Error("collection failed", slog.Any("type", reflect.TypeFor[[]execRefDS]))
 		return nil, err
 	}
 	refs, err := DataToExecRefs(dtos)
@@ -108,9 +108,9 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]ExecRef, error) {
 const (
 	insertExec = `
 		insert into pool_execs (
-			pool_id, title, proc_id, sup_pool_id, rev
+			exec_id, exec_rn, proc_id
 		) values (
-			@pool_id, @title, @proc_id, @sup_pool_id, @rev
+			@exec_id, @exec_rn, @proc_id
 		)`
 
 	insertLiab = `

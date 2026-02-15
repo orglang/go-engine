@@ -10,10 +10,10 @@ import (
 
 	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/procbind"
-	"orglang/go-engine/adt/revnum"
-	"orglang/go-engine/adt/syndec"
+	"orglang/go-engine/adt/synonym"
 	"orglang/go-engine/adt/uniqref"
 	"orglang/go-engine/adt/uniqsym"
+	"orglang/go-engine/adt/valkey"
 )
 
 type API interface {
@@ -30,25 +30,26 @@ type DecSpec struct {
 	// endpoint where process acts as a provider
 	ProviderBS procbind.BindSpec
 	// endpoints where process acts as a client
-	ClientBSs []procbind.BindSpec
+	ClientBSes []procbind.BindSpec
 }
 
 type DecRec struct {
 	DecRef     DecRef
+	SynVK      valkey.ADT
 	ProviderBS procbind.BindSpec
-	ClientBSs  []procbind.BindSpec
+	ClientBSes []procbind.BindSpec
 }
 
 // aka ExpDec or ExpDecDef without expression
 type DecSnap struct {
 	DecRef     DecRef
 	ProviderBS procbind.BindSpec
-	ClientBSs  []procbind.BindSpec
+	ClientBSes []procbind.BindSpec
 }
 
 type service struct {
 	procDecs Repo
-	synDecs  syndec.Repo
+	synonyms synonym.Repo
 	operator db.Operator
 	log      *slog.Logger
 }
@@ -58,7 +59,7 @@ func newAPI() API {
 	return new(service)
 }
 
-func newService(procDecs Repo, synDecs syndec.Repo, operator db.Operator, log *slog.Logger) *service {
+func newService(procDecs Repo, synDecs synonym.Repo, operator db.Operator, log *slog.Logger) *service {
 	return &service{procDecs, synDecs, operator, log}
 }
 
@@ -66,14 +67,18 @@ func (s *service) Incept(procQN uniqsym.ADT) (_ DecRef, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("procQN", procQN)
 	s.log.Debug("inception started", qnAttr)
-	newSyn := syndec.DecRec{DecQN: procQN, DecID: identity.New(), DecRN: revnum.New()}
-	newRec := DecRec{DecRef: DecRef{ID: newSyn.DecID, RN: newSyn.DecRN}}
+	synVK, err := procQN.Key()
+	if err != nil {
+		return DecRef{}, err
+	}
+	newSyn := synonym.Rec{SynQN: procQN, SynVK: synVK}
+	newDec := DecRec{DecRef: uniqref.New(), SynVK: synVK}
 	err = s.operator.Explicit(ctx, func(ds db.Source) error {
-		err = s.synDecs.InsertRec(ds, newSyn)
+		err = s.synonyms.InsertRec(ds, newSyn)
 		if err != nil {
 			return err
 		}
-		err = s.procDecs.InsertRec(ds, newRec)
+		err = s.procDecs.InsertRec(ds, newDec)
 		if err != nil {
 			return err
 		}
@@ -83,8 +88,8 @@ func (s *service) Incept(procQN uniqsym.ADT) (_ DecRef, err error) {
 		s.log.Error("inception failed", qnAttr)
 		return DecRef{}, err
 	}
-	s.log.Debug("inception succeed", qnAttr, slog.Any("decRef", newRec.DecRef))
-	return newRec.DecRef, nil
+	s.log.Debug("inception succeed", qnAttr, slog.Any("decRef", newDec.DecRef))
+	return newDec.DecRef, nil
 }
 
 func (s *service) Create(spec DecSpec) (_ DecRef, err error) {
@@ -92,9 +97,9 @@ func (s *service) Create(spec DecSpec) (_ DecRef, err error) {
 	qnAttr := slog.Any("procQN", spec.ProcQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	newRec := DecRec{
-		DecRef:     DecRef{ID: identity.New(), RN: revnum.New()},
+		DecRef:     uniqref.New(),
 		ProviderBS: spec.ProviderBS,
-		ClientBSs:  spec.ClientBSs,
+		ClientBSes: spec.ClientBSes,
 	}
 	err = s.operator.Explicit(ctx, func(ds db.Source) error {
 		err = s.procDecs.InsertRec(ds, newRec)
@@ -141,7 +146,7 @@ func CollectEnv(recs iter.Seq[DecRec]) []uniqsym.ADT {
 	typeQNs := []uniqsym.ADT{}
 	for rec := range recs {
 		typeQNs = append(typeQNs, rec.ProviderBS.TypeQN)
-		for _, y := range rec.ClientBSs {
+		for _, y := range rec.ClientBSes {
 			typeQNs = append(typeQNs, y.TypeQN)
 		}
 	}

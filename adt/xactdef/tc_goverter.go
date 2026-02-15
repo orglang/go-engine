@@ -1,6 +1,8 @@
 package xactdef
 
 import (
+	"orglang/go-engine/adt/uniqsym"
+
 	"github.com/orglang/go-sdk/adt/xactdef"
 )
 
@@ -25,11 +27,14 @@ var (
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
+// goverter:extend orglang/go-engine/adt/valkey:Convert.*
 // goverter:extend orglang/go-engine/adt/uniqref:Data.*
 var (
 	DataToDefRef    func(defRefDS) (DefRef, error)
 	DataFromDefRef  func(DefRef) (defRefDS, error)
 	DataToDefRefs   func([]defRefDS) ([]DefRef, error)
+	DataToDefRefs2  func(map[uniqsym.ADT]defRefDS) (map[uniqsym.ADT]DefRef, error)
 	DataFromDefRefs func([]DefRef) ([]defRefDS, error)
 	// goverter:map . DefRef
 	DataToDefRec func(defRecDS) (DefRec, error)

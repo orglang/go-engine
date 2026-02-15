@@ -40,7 +40,7 @@ func (dao *pgxDAO) Insert(source db.Source, rec DefRec) error {
 	args := pgx.NamedArgs{
 		"def_id": dto.ID,
 		"def_rn": dto.RN,
-		"exp_id": dto.ExpID,
+		"exp_vk": dto.ExpVK,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertRec, args)
 	if err != nil {
@@ -63,7 +63,7 @@ func (dao *pgxDAO) Update(source db.Source, rec DefRec) error {
 	args := pgx.NamedArgs{
 		"def_id": dto.ID,
 		"def_rn": dto.RN,
-		"exp_id": dto.ExpID,
+		"exp_vk": dto.ExpVK,
 	}
 	ct, err := ds.Conn.Exec(ds.Ctx, updateRec, args)
 	if err != nil {
@@ -166,6 +166,39 @@ func (dao *pgxDAO) SelectRecsByRefs(source db.Source, defRefs []DefRef) (_ []Def
 	return DataToDefRecs(dtos)
 }
 
+func (dao *pgxDAO) SelectRefsByQNs(source db.Source, xactQNs []uniqsym.ADT) (_ map[uniqsym.ADT]DefRef, err error) {
+	ds := db.MustConform[db.SourcePgx](source)
+	if len(xactQNs) == 0 {
+		return map[uniqsym.ADT]DefRef{}, nil
+	}
+	batch := pgx.Batch{}
+	for _, xactQN := range xactQNs {
+		batch.Queue(selectRefByQN, uniqsym.ConvertToString(xactQN))
+	}
+	br := ds.Conn.SendBatch(ds.Ctx, &batch)
+	defer func() {
+		err = errors.Join(err, br.Close())
+	}()
+	dtos := make(map[uniqsym.ADT]defRefDS, len(xactQNs))
+	for _, xactQN := range xactQNs {
+		qnAttr := slog.Any("xactQN", xactQN)
+		rows, err := br.Query()
+		if err != nil {
+			dao.log.Error("query execution failed", qnAttr)
+		}
+		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRefDS])
+		if err != nil {
+			dao.log.Error("row collection failed", qnAttr)
+		}
+		dtos[xactQN] = dto
+	}
+	if err != nil {
+		return nil, err
+	}
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "entities selection succeed", slog.Any("dtos", dtos))
+	return DataToDefRefs2(dtos)
+}
+
 func (dao *pgxDAO) SelectRecsByQNs(source db.Source, xactQNs []uniqsym.ADT) (_ []DefRec, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	if len(xactQNs) == 0 {
@@ -183,7 +216,7 @@ func (dao *pgxDAO) SelectRecsByQNs(source db.Source, xactQNs []uniqsym.ADT) (_ [
 	for _, xactQN := range xactQNs {
 		rows, err := br.Query()
 		if err != nil {
-			dao.log.Error("query execution failed", slog.Any("xactQN", xactQN), slog.String("q", selectRecByQN))
+			dao.log.Error("query execution failed", slog.Any("xactQN", xactQN))
 		}
 		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRecDS])
 		if err != nil {
@@ -201,15 +234,15 @@ func (dao *pgxDAO) SelectRecsByQNs(source db.Source, xactQNs []uniqsym.ADT) (_ [
 const (
 	insertRec = `
 		insert into xact_defs (
-			def_id, def_rn, exp_id
+			def_id, def_rn, exp_vk
 		) values (
-			@def_id, @def_rn, @exp_id
+			@def_id, @def_rn, @exp_vk
 		)`
 
 	updateRec = `
 		update xact_defs
 		set def_rn = @def_rn,
-			exp_id = @exp_id
+			exp_vk = @exp_vk
 		where def_id = @def_id
 			and def_rn = @def_rn - 1`
 
@@ -219,23 +252,30 @@ const (
 			def_rn
 		from xact_defs`
 
+	selectRefByQN = `
+		select
+			xd.def_id,
+			xd.def_rn
+		from xact_defs xd
+		left join synonyms s
+			on s.syn_vk = xd.syn_vk
+		where s.syn_qn = $1`
+
 	selectRecByQN = `
 		select
 			xd.def_id,
 			xd.def_rn,
-			xd.exp_id
+			xd.exp_vk
 		from xact_defs xd
-		left join syn_decs sd
-			on sd.dec_id = xd.def_id
-			and sd.from_rn >= xd.def_rn
-			and sd.to_rn > xd.def_rn
-		where sd.dec_qn = $1`
+		left join synonyms s
+			on s.syn_vk = xd.syn_vk
+		where s.syn_qn = $1`
 
 	selectRecByID = `
 		select
 			def_id,
 			def_rn,
-			exp_id
+			exp_vk
 		from xact_defs
 		where def_id = $1`
 )

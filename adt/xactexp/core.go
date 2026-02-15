@@ -139,3 +139,7 @@ func ErrRefTypeUnexpected(got ExpRef) error {
 func ErrRecTypeUnexpected(got ExpRec) error {
 	return fmt.Errorf("rec type unexpected: %T", got)
 }
+
+func ErrDoesNotExist(want valkey.ADT) error {
+	return fmt.Errorf("root doesn't exist: %v", want)
+}

@@ -40,7 +40,7 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DefRec) error {
 	defArgs := pgx.NamedArgs{
 		"def_id": dto.ID,
 		"def_rn": dto.RN,
-		"exp_id": dto.ExpID,
+		"exp_vk": dto.ExpVK,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertRec, defArgs)
 	if err != nil {
@@ -63,7 +63,7 @@ func (dao *pgxDAO) Update(source db.Source, rec DefRec) error {
 	args := pgx.NamedArgs{
 		"def_id": dto.ID,
 		"def_rn": dto.RN,
-		"exp_id": dto.ExpID,
+		"exp_vk": dto.ExpVK,
 	}
 	ct, err := ds.Conn.Exec(ds.Ctx, updateRec, args)
 	if err != nil {
@@ -213,15 +213,15 @@ func (dao *pgxDAO) SelectRecsByQNs(source db.Source, typeQNs []uniqsym.ADT) (_ [
 const (
 	insertRec = `
 		insert into type_defs (
-			def_id, def_rn, exp_id
+			def_id, def_rn, syn_vk, exp_vk
 		) values (
-			@def_id, @def_rn, @exp_id
+			@def_id, @def_rn, @syn_vk, @exp_vk
 		)`
 
 	updateRec = `
 		update type_defs
 		set def_rn = @def_rn,
-			exp_id = @exp_id
+			exp_vk = @exp_vk
 		where def_id = @def_id
 			and def_rn = @def_rn - 1`
 
@@ -229,19 +229,19 @@ const (
 		select
 			td.def_id,
 			td.def_rn,
-			td.exp_id
+			td.syn_vk,
+			td.exp_vk
 		from type_defs td
-		left join syn_decs sd
-			on sd.dec_id = td.def_id
-			and sd.from_rn >= td.def_rn
-			and sd.to_rn > td.def_rn
-		where sd.dec_qn = $1`
+		left join synonyms s
+			on s.syn_vk = td.syn_vk
+		where s.syn_qn = $1`
 
 	selectRecByID = `
 		select
 			def_id,
 			def_rn,
-			exp_id
+			syn_vk,
+			exp_vk
 		from type_defs
 		where def_id = $1`
 

@@ -13,6 +13,7 @@ type Repo interface {
 	SelectRecByRef(db.Source, DefRef) (DefRec, error)
 	SelectRecsByRefs(db.Source, []DefRef) ([]DefRec, error)
 	SelectRecByQN(db.Source, uniqsym.ADT) (DefRec, error)
+	SelectRefsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]DefRef, error)
 	SelectRecsByQNs(db.Source, []uniqsym.ADT) ([]DefRec, error)
 }
 
@@ -24,5 +25,6 @@ type defRefDS struct {
 type defRecDS struct {
 	ID    string `db:"def_id"`
 	RN    int64  `db:"def_rn"`
-	ExpID string `db:"exp_id"`
+	SynVK int64  `db:"syn_vk"`
+	ExpVK int64  `db:"exp_vk"`
 }

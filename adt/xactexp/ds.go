@@ -3,14 +3,15 @@ package xactexp
 import (
 	"orglang/go-engine/lib/db"
 
-	"orglang/go-engine/adt/identity"
+	"orglang/go-engine/adt/uniqref"
+	"orglang/go-engine/adt/valkey"
 )
 
 type Repo interface {
-	InsertRec(db.Source, ExpRec) error
-	SelectRecByID(db.Source, identity.ADT) (ExpRec, error)
-	SelectRecsByIDs(db.Source, []identity.ADT) ([]ExpRec, error)
-	SelectEnv(db.Source, []identity.ADT) (map[identity.ADT]ExpRec, error)
+	InsertRec(db.Source, ExpRec, uniqref.ADT) error
+	SelectRecByVK(db.Source, valkey.ADT) (ExpRec, error)
+	SelectRecsByVKs(db.Source, []valkey.ADT) ([]ExpRec, error)
+	SelectEnv(db.Source, []valkey.ADT) (map[valkey.ADT]ExpRec, error)
 }
 
 type expKindDS int

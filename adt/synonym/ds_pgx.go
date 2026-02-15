@@ -1,8 +1,7 @@
-package syndec
+package synonym
 
 import (
 	"log/slog"
-	"math"
 	"reflect"
 
 	"github.com/jackc/pgx/v5"
@@ -24,30 +23,31 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func (dao *pgxDAO) InsertRec(source db.Source, root DecRec) error {
+func (dao *pgxDAO) InsertRec(source db.Source, rec Rec) error {
 	ds := db.MustConform[db.SourcePgx](source)
-	idAttr := slog.Any("id", root.DecID)
-	dto, err := DataFromDecRec(root)
+	idAttr := slog.Any("decID", rec.SynVK)
+	dto, err := DataFromRec(rec)
 	if err != nil {
 		dao.log.Error("model conversion failed", idAttr)
 		return err
 	}
-	query := `
-		insert into aliases (
-			id, from_rn, to_rn, sym
-		) values (
-			@id, @from_rn, @to_rn, @sym
-		)`
 	args := pgx.NamedArgs{
-		"id":      dto.DecID,
-		"from_rn": dto.DecRN,
-		"to_rn":   math.MaxInt64,
-		"sym":     dto.DecQN,
+		"syn_vk": dto.SynVK,
+		"syn_qn": dto.SynQN,
 	}
-	_, err = ds.Conn.Exec(ds.Ctx, query, args)
+	_, err = ds.Conn.Exec(ds.Ctx, insertRec, args)
 	if err != nil {
-		dao.log.Error("query execution failed", idAttr, slog.String("q", query))
+		dao.log.Error("query execution failed", idAttr)
 		return err
 	}
 	return nil
 }
+
+const (
+	insertRec = `
+		insert into synonyms (
+			syn_vk, syn_qn
+		) values (
+			@syn_vk, @syn_qn
+		)`
+)

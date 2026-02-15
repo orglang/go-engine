@@ -25,13 +25,13 @@ func newEchoController(a API, r te.Renderer, l *slog.Logger) *echoController {
 }
 
 func cfgEchoController(e *echo.Echo, h *echoController) error {
-	e.POST("/api/v1/pools", h.PostOne)
+	e.POST("/api/v1/pools", h.PostSpec)
 	e.GET("/api/v1/pools/:id", h.GetOne)
 	e.POST("/api/v1/pools/:id/procs", h.PostProc)
 	return nil
 }
 
-func (h *echoController) PostOne(c echo.Context) error {
+func (h *echoController) PostSpec(c echo.Context) error {
 	var dto poolexec.ExecSpec
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {

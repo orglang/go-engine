@@ -25,5 +25,6 @@ type defRefDS struct {
 type defRecDS struct {
 	ID    string `db:"def_id"`
 	RN    int64  `db:"def_rn"`
-	ExpID string `db:"exp_id"`
+	SynVK int64  `db:"syn_vk"`
+	ExpVK int64  `db:"exp_vk"`
 }

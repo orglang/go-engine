@@ -21,13 +21,14 @@ type decRefDS = uniqref.Data
 type decRecDS struct {
 	ID         string                `db:"dec_id"`
 	RN         int64                 `db:"dec_rn"`
-	ClientBSs  []procbind.BindSpecDS `db:"ys"`
-	ProviderBS procbind.BindSpecDS   `db:"x"`
+	SynVK      int64                 `db:"syn_vk"`
+	ClientBSes []procbind.BindSpecDS `db:"client_bses"`
+	ProviderBS procbind.BindSpecDS   `db:"provider_bs"`
 }
 
 type decSnapDS struct {
-	ID         string                `db:"id"`
-	RN         int64                 `db:"rn"`
-	ClientBSs  []procbind.BindSpecDS `db:"ys"`
-	ProviderBS procbind.BindSpecDS   `db:"x"`
+	ID         string                `db:"dec_id"`
+	RN         int64                 `db:"dec_rn"`
+	ClientBSes []procbind.BindSpecDS `db:"client_bses"`
+	ProviderBS procbind.BindSpecDS   `db:"provider_bs"`
 }

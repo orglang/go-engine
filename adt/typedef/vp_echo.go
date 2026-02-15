@@ -12,7 +12,6 @@ import (
 	"orglang/go-engine/lib/lf"
 	"orglang/go-engine/lib/te"
 
-	"orglang/go-engine/adt/symbol"
 	"orglang/go-engine/adt/typeexp"
 	"orglang/go-engine/adt/uniqref"
 	"orglang/go-engine/adt/uniqsym"
@@ -51,12 +50,12 @@ func (p *echoPresenter) PostOne(c echo.Context) error {
 		p.log.Error("validation failed", slog.Any("dto", dto))
 		return validationErr
 	}
-	ns, conversionErr := uniqsym.ConvertFromString(dto.TypeNS)
+	qn, conversionErr := uniqsym.ConvertFromString(dto.TypeQN)
 	if conversionErr != nil {
 		p.log.Error("conversion failed", slog.Any("dto", dto))
 		return conversionErr
 	}
-	snap, creationErr := p.api.Create(DefSpec{TypeQN: ns.New(symbol.New(dto.TypeSN)), TypeES: typeexp.OneSpec{}})
+	snap, creationErr := p.api.Create(DefSpec{TypeQN: qn, TypeES: typeexp.OneSpec{}})
 	if creationErr != nil {
 		return creationErr
 	}

@@ -8,6 +8,7 @@ import (
 	"orglang/go-engine/adt/valkey"
 )
 
+// Спецификация связки
 type BindSpec struct {
 	// channel placeholder (aka variable name)
 	ChnlPH symbol.ADT
@@ -15,13 +16,14 @@ type BindSpec struct {
 	TypeQN uniqsym.ADT
 }
 
+// Запись связки
 type BindRec struct {
 	// процесс, в рамках которого связка
 	ExecRef uniqref.ADT
 	ChnlBS  bindSide
 	ChnlPH  symbol.ADT
 	ChnlID  identity.ADT
-	ExpID   valkey.ADT
+	ExpVK   valkey.ADT
 }
 
 type bindSide uint8

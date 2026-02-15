@@ -6,9 +6,9 @@ import (
 
 // goverter:variables
 // goverter:output:format assign-variable
+// goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
 // goverter:extend orglang/go-engine/adt/uniqref:Msg.*
 // goverter:extend orglang/go-engine/adt/typeexp:Msg.*
-// goverter:extend Msg.*
 var (
 	MsgFromDefSpec  func(DefSpec) typedef.DefSpec
 	MsgToDefSpec    func(typedef.DefSpec) (DefSpec, error)
@@ -24,6 +24,7 @@ var (
 
 // goverter:variables
 // goverter:output:format assign-variable
+// goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
 // goverter:extend orglang/go-engine/adt/uniqref:Msg.*
 // goverter:extend orglang/go-engine/adt/typeexp:Msg.*
 var (
@@ -37,6 +38,7 @@ var (
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/adt/valkey:Convert.*
 // goverter:extend orglang/go-engine/adt/uniqref:Data.*
 // goverter:extend orglang/go-engine/adt/typeexp:Data.*
 var (

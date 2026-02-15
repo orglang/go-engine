@@ -302,7 +302,7 @@ func (s *service) takeWith(
 				},
 				ChnlPH: expSpec.CommChnlPH,
 				ChnlID: procER.ContChnlID,
-				ExpID:  commChnlBR.ExpID,
+				ExpVK:  commChnlBR.ExpVK,
 			}
 			execMod.Binds = append(execMod.Binds, recieverBR)
 			stepSpec = procstep.StepSpec{
@@ -323,9 +323,9 @@ func (s *service) takeWith(
 		}
 		viaAttr := slog.Any("chnlID", commChnlBR.ChnlID)
 		execMod.Locks = append(execMod.Locks, execSnap.ExecRef)
-		typeER, ok := procEnv.TypeExps[commChnlBR.ExpID]
+		typeER, ok := procEnv.TypeExps[commChnlBR.ExpVK]
 		if !ok {
-			err := typedef.ErrMissingInEnv(commChnlBR.ExpID)
+			err := typedef.ErrMissingInEnv(commChnlBR.ExpVK)
 			s.log.Error("taking failed", viaAttr)
 			return procstep.StepSpec{}, ExecMod{}, err
 		}
@@ -354,7 +354,7 @@ func (s *service) takeWith(
 				},
 				ChnlPH: expSpec.CommChnlPH,
 				ChnlID: newChnlID,
-				ExpID:  nextExpID,
+				ExpVK:  nextExpID,
 			}
 			execMod.Binds = append(execMod.Binds, senderBR)
 			senderSR := procstep.MsgRec{
@@ -367,7 +367,7 @@ func (s *service) takeWith(
 					CommChnlPH: expSpec.CommChnlPH,
 					ContChnlID: newChnlID,
 					ValChnlID:  valueEP.ChnlID,
-					ValExpID:   valueEP.ExpID,
+					ValExpID:   valueEP.ExpVK,
 				},
 			}
 			execMod.Steps = append(execMod.Steps, senderSR)
@@ -387,7 +387,7 @@ func (s *service) takeWith(
 				},
 				ChnlPH: expSpec.CommChnlPH,
 				ChnlID: expRec.ContChnlID,
-				ExpID:  nextExpID,
+				ExpVK:  nextExpID,
 			}
 			execMod.Binds = append(execMod.Binds, senderBR)
 			recieverBR := procbind.BindRec{
@@ -397,7 +397,7 @@ func (s *service) takeWith(
 				},
 				ChnlPH: expRec.CommChnlPH,
 				ChnlID: expRec.ContChnlID,
-				ExpID:  nextExpID,
+				ExpVK:  nextExpID,
 			}
 			execMod.Binds = append(execMod.Binds, recieverBR)
 			receiverBR := procbind.BindRec{
@@ -407,7 +407,7 @@ func (s *service) takeWith(
 				},
 				ChnlPH: expRec.ValChnlPH,
 				ChnlID: valueEP.ChnlID,
-				ExpID:  valueEP.ExpID,
+				ExpVK:  valueEP.ExpVK,
 			}
 			execMod.Binds = append(execMod.Binds, receiverBR)
 			stepSpec = procstep.StepSpec{
@@ -453,9 +453,9 @@ func (s *service) takeWith(
 		}
 		switch expRec := sndrMsgRec.ValER.(type) {
 		case procexp.SendRec:
-			typeER, ok := procEnv.TypeExps[commChnlBR.ExpID]
+			typeER, ok := procEnv.TypeExps[commChnlBR.ExpVK]
 			if !ok {
-				err := typedef.ErrMissingInEnv(commChnlBR.ExpID)
+				err := typedef.ErrMissingInEnv(commChnlBR.ExpVK)
 				s.log.Error("taking failed", viaAttr)
 				return procstep.StepSpec{}, ExecMod{}, err
 			}
@@ -466,7 +466,7 @@ func (s *service) takeWith(
 				},
 				ChnlPH: expSpec.CommChnlPH,
 				ChnlID: expRec.ContChnlID,
-				ExpID:  typeER.(typeexp.ProdRec).Next(),
+				ExpVK:  typeER.(typeexp.ProdRec).Next(),
 			}
 			execMod.Binds = append(execMod.Binds, recieverBR)
 			receiverBR := procbind.BindRec{
@@ -476,7 +476,7 @@ func (s *service) takeWith(
 				},
 				ChnlPH: expSpec.BindChnlPH,
 				ChnlID: expRec.ValChnlID,
-				ExpID:  expRec.ValExpID,
+				ExpVK:  expRec.ValExpID,
 			}
 			execMod.Binds = append(execMod.Binds, receiverBR)
 			stepSpec = procstep.StepSpec{
@@ -497,9 +497,9 @@ func (s *service) takeWith(
 		}
 		viaAttr := slog.Any("chnlID", commChnlBR.ChnlID)
 		execMod.Locks = append(execMod.Locks, execSnap.ExecRef)
-		typeER, ok := procEnv.TypeExps[commChnlBR.ExpID]
+		typeER, ok := procEnv.TypeExps[commChnlBR.ExpVK]
 		if !ok {
-			err := typedef.ErrMissingInEnv(commChnlBR.ExpID)
+			err := typedef.ErrMissingInEnv(commChnlBR.ExpVK)
 			s.log.Error("taking failed", viaAttr)
 			return procstep.StepSpec{}, ExecMod{}, err
 		}
@@ -514,7 +514,7 @@ func (s *service) takeWith(
 				},
 				ChnlPH: expSpec.CommChnlPH,
 				ChnlID: newViaID,
-				ExpID:  nextExpID,
+				ExpVK:  nextExpID,
 			}
 			execMod.Binds = append(execMod.Binds, senderBR)
 			senderSR := procstep.MsgRec{
@@ -546,7 +546,7 @@ func (s *service) takeWith(
 				},
 				ChnlPH: expSpec.CommChnlPH,
 				ChnlID: expRec.ContChnlID,
-				ExpID:  nextExpID,
+				ExpVK:  nextExpID,
 			}
 			execMod.Binds = append(execMod.Binds, senderBR)
 			recieverBR := procbind.BindRec{
@@ -556,7 +556,7 @@ func (s *service) takeWith(
 				},
 				ChnlPH: expRec.CommChnlPH,
 				ChnlID: expRec.ContChnlID,
-				ExpID:  nextExpID,
+				ExpVK:  nextExpID,
 			}
 			execMod.Binds = append(execMod.Binds, recieverBR)
 			stepSpec = procstep.StepSpec{
@@ -601,9 +601,9 @@ func (s *service) takeWith(
 		}
 		switch procER := messageSR.ValER.(type) {
 		case procexp.LabRec:
-			typeER, ok := procEnv.TypeExps[commChnlBR.ExpID]
+			typeER, ok := procEnv.TypeExps[commChnlBR.ExpVK]
 			if !ok {
-				err := typedef.ErrMissingInEnv(commChnlBR.ExpID)
+				err := typedef.ErrMissingInEnv(commChnlBR.ExpVK)
 				s.log.Error("taking failed", viaAttr)
 				return procstep.StepSpec{}, ExecMod{}, err
 			}
@@ -614,7 +614,7 @@ func (s *service) takeWith(
 				},
 				ChnlPH: expSpec.CommChnlPH,
 				ChnlID: procER.ContChnlID,
-				ExpID:  typeER.(typeexp.SumRec).Next(procER.LabelQN),
+				ExpVK:  typeER.(typeexp.SumRec).Next(procER.LabelQN),
 			}
 			execMod.Binds = append(execMod.Binds, recieverBR)
 			stepSpec = procstep.StepSpec{
@@ -634,9 +634,9 @@ func (s *service) takeWith(
 			return procstep.StepSpec{}, ExecMod{}, err
 		}
 		viaAttr := slog.Any("chnlID", commChnlBR.ChnlID)
-		commChnlER, ok := procEnv.TypeExps[commChnlBR.ExpID]
+		commChnlER, ok := procEnv.TypeExps[commChnlBR.ExpVK]
 		if !ok {
-			err := typedef.ErrMissingInEnv(commChnlBR.ExpID)
+			err := typedef.ErrMissingInEnv(commChnlBR.ExpVK)
 			s.log.Error("taking failed", viaAttr)
 			return procstep.StepSpec{}, ExecMod{}, err
 		}
@@ -658,7 +658,7 @@ func (s *service) takeWith(
 					},
 					ChnlPH: stepRec.ContER.Via(),
 					ChnlID: commChnlBR.ChnlID,
-					ExpID:  commChnlBR.ExpID,
+					ExpVK:  commChnlBR.ExpVK,
 				}
 				execMod.Binds = append(execMod.Binds, xBnd)
 				stepSpec = procstep.StepSpec{
@@ -675,7 +675,7 @@ func (s *service) takeWith(
 					},
 					ChnlPH: stepRec.ValER.Via(),
 					ChnlID: valChnlBR.ChnlID,
-					ExpID:  valChnlBR.ExpID,
+					ExpVK:  valChnlBR.ExpVK,
 				}
 				execMod.Binds = append(execMod.Binds, yBnd)
 				stepSpec = procstep.StepSpec{
@@ -727,7 +727,7 @@ func (s *service) takeWith(
 					},
 					ChnlPH: stepRec.ContER.Via(),
 					ChnlID: valChnlBR.ChnlID,
-					ExpID:  valChnlBR.ExpID,
+					ExpVK:  valChnlBR.ExpVK,
 				}
 				execMod.Binds = append(execMod.Binds, yBnd)
 				stepSpec = procstep.StepSpec{
@@ -744,7 +744,7 @@ func (s *service) takeWith(
 					},
 					ChnlPH: stepRec.ValER.Via(),
 					ChnlID: commChnlBR.ChnlID,
-					ExpID:  commChnlBR.ExpID,
+					ExpVK:  commChnlBR.ExpVK,
 				}
 				execMod.Binds = append(execMod.Binds, xBnd)
 				stepSpec = procstep.StepSpec{
@@ -787,9 +787,9 @@ func convertToCtx(chnlBinds iter.Seq[procbind.BindRec], typeExps map[valkey.ADT]
 	liabs := make(map[symbol.ADT]typeexp.ExpRec, 1)
 	for bind := range chnlBinds {
 		if bind.ChnlBS == procbind.ProviderSide {
-			liabs[bind.ChnlPH] = typeExps[bind.ExpID]
+			liabs[bind.ChnlPH] = typeExps[bind.ExpVK]
 		} else {
-			assets[bind.ChnlPH] = typeExps[bind.ExpID]
+			assets[bind.ChnlPH] = typeExps[bind.ExpVK]
 		}
 	}
 	return typedef.Context{Assets: assets, Liabs: liabs}
@@ -1152,24 +1152,24 @@ func (s *service) checkClient(
 			return err
 		}
 		// check vals
-		if len(expSpec.Ys) != len(procDec.ClientBSs) {
-			err := fmt.Errorf("context mismatch: want %v items, got %v items", len(procDec.ClientBSs), len(expSpec.Ys))
-			s.log.Error("checking failed", slog.Any("want", procDec.ClientBSs), slog.Any("got", expSpec.Ys))
+		if len(expSpec.Ys) != len(procDec.ClientBSes) {
+			err := fmt.Errorf("context mismatch: want %v items, got %v items", len(procDec.ClientBSes), len(expSpec.Ys))
+			s.log.Error("checking failed", slog.Any("want", procDec.ClientBSes), slog.Any("got", expSpec.Ys))
 			return err
 		}
 		if len(expSpec.Ys) == 0 {
 			return nil
 		}
-		for i, ep := range procDec.ClientBSs {
-			valRole, ok := procEnv.TypeDefs[ep.TypeQN]
+		for i, ep := range procDec.ClientBSes {
+			valType, ok := procEnv.TypeDefs[ep.TypeQN]
 			if !ok {
 				err := typedef.ErrSymMissingInEnv(ep.TypeQN)
 				s.log.Error("checking failed")
 				return err
 			}
-			wantVal, ok := procEnv.TypeExps[valRole.ExpID]
+			wantVal, ok := procEnv.TypeExps[valType.ExpVK]
 			if !ok {
-				err := typedef.ErrMissingInEnv(valRole.ExpID)
+				err := typedef.ErrMissingInEnv(valType.ExpVK)
 				s.log.Error("checking failed")
 				return err
 			}
@@ -1193,9 +1193,9 @@ func (s *service) checkClient(
 			s.log.Error("checking failed")
 			return err
 		}
-		wantVia, ok := procEnv.TypeExps[viaRole.ExpID]
+		wantVia, ok := procEnv.TypeExps[viaRole.ExpVK]
 		if !ok {
-			err := typedef.ErrMissingInEnv(viaRole.ExpID)
+			err := typedef.ErrMissingInEnv(viaRole.ExpVK)
 			s.log.Error("checking failed")
 			return err
 		}

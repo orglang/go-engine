@@ -28,6 +28,7 @@ var (
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/adt/valkey:Convert.*
 // goverter:extend orglang/go-engine/adt/procbind:Data.*
 var (
 	// goverter:map . DecRef

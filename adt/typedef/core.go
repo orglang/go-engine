@@ -11,7 +11,7 @@ import (
 	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/revnum"
 	"orglang/go-engine/adt/symbol"
-	"orglang/go-engine/adt/syndec"
+	"orglang/go-engine/adt/synonym"
 	"orglang/go-engine/adt/typeexp"
 	"orglang/go-engine/adt/uniqref"
 	"orglang/go-engine/adt/uniqsym"
@@ -37,13 +37,13 @@ type DefSpec struct {
 // aka TpDef
 type DefRec struct {
 	DefRef DefRef
-	ExpID  valkey.ADT
+	SynVK  valkey.ADT
+	ExpVK  valkey.ADT
 }
 
 type DefSnap struct {
-	DefRef DefRef
-	TypeQN uniqsym.ADT
-	TypeES typeexp.ExpSpec
+	DefRef  DefRef
+	DefSpec DefSpec
 }
 
 type Context struct {
@@ -54,7 +54,7 @@ type Context struct {
 type service struct {
 	typeDefs Repo
 	typeExps typeexp.Repo
-	synDecs  syndec.Repo
+	synonyms synonym.Repo
 	operator db.Operator
 	log      *slog.Logger
 }
@@ -67,7 +67,7 @@ func newAPI() API {
 func newService(
 	typeDefs Repo,
 	typeExps typeexp.Repo,
-	synDecs syndec.Repo,
+	synDecs synonym.Repo,
 	operator db.Operator,
 	l *slog.Logger,
 ) *service {
@@ -78,16 +78,18 @@ func (s *service) Incept(typeQN uniqsym.ADT) (_ DefRef, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("typeQN", typeQN)
 	s.log.Debug("inception started", qnAttr)
-	newSyn := syndec.DecRec{DecQN: typeQN, DecID: identity.New(), DecRN: revnum.New()}
-	newType := DefRec{
-		DefRef: DefRef{ID: newSyn.DecID, RN: newSyn.DecRN},
+	synVK, err := typeQN.Key()
+	if err != nil {
+		return DefRef{}, err
 	}
+	newSyn := synonym.Rec{SynQN: typeQN, SynVK: synVK}
+	newDef := DefRec{DefRef: uniqref.New(), SynVK: synVK}
 	err = s.operator.Explicit(ctx, func(ds db.Source) error {
-		err = s.synDecs.InsertRec(ds, newSyn)
+		err = s.synonyms.InsertRec(ds, newSyn)
 		if err != nil {
 			return err
 		}
-		err = s.typeDefs.InsertRec(ds, newType)
+		err = s.typeDefs.InsertRec(ds, newDef)
 		if err != nil {
 			return err
 		}
@@ -97,25 +99,30 @@ func (s *service) Incept(typeQN uniqsym.ADT) (_ DefRef, err error) {
 		s.log.Error("inception failed", qnAttr)
 		return DefRef{}, err
 	}
-	s.log.Debug("inception succeed", qnAttr, slog.Any("defRef", newType.DefRef))
-	return newType.DefRef, nil
+	s.log.Debug("inception succeed", qnAttr, slog.Any("defRef", newDef.DefRef))
+	return newDef.DefRef, nil
 }
 
 func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("typeQN", spec.TypeQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
-	newSyn := syndec.DecRec{DecQN: spec.TypeQN, DecID: identity.New(), DecRN: revnum.New()}
+	synVK, err := spec.TypeQN.Key()
+	if err != nil {
+		return DefSnap{}, err
+	}
+	newSyn := synonym.Rec{SynQN: spec.TypeQN, SynVK: synVK}
 	newExp, err := typeexp.ConvertSpecToRec(spec.TypeES)
 	if err != nil {
 		return DefSnap{}, err
 	}
 	newDef := DefRec{
-		DefRef: DefRef{ID: newSyn.DecID, RN: newSyn.DecRN},
-		ExpID:  newExp.Key(),
+		DefRef: uniqref.New(),
+		SynVK:  synVK,
+		ExpVK:  newExp.Key(),
 	}
 	err = s.operator.Explicit(ctx, func(ds db.Source) error {
-		err = s.synDecs.InsertRec(ds, newSyn)
+		err = s.synonyms.InsertRec(ds, newSyn)
 		if err != nil {
 			return err
 		}
@@ -135,9 +142,8 @@ func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 	}
 	s.log.Debug("creation succeed", qnAttr, slog.Any("defRef", newDef.DefRef))
 	return DefSnap{
-		DefRef: newDef.DefRef,
-		TypeQN: newSyn.DecQN,
-		TypeES: spec.TypeES,
+		DefRef:  newDef.DefRef,
+		DefSpec: spec,
 	}, nil
 }
 
@@ -165,8 +171,8 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 		return DefSnap{}, err
 	}
 	err = s.operator.Explicit(ctx, func(ds db.Source) error {
-		if typeexp.CheckSpec(snap.TypeES, curSnap.TypeES) != nil {
-			newExp, err := typeexp.ConvertSpecToRec(snap.TypeES)
+		if typeexp.CheckSpec(snap.DefSpec.TypeES, curSnap.DefSpec.TypeES) != nil {
+			newExp, err := typeexp.ConvertSpecToRec(snap.DefSpec.TypeES)
 			if err != nil {
 				return err
 			}
@@ -174,7 +180,7 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 			if err != nil {
 				return err
 			}
-			rec.ExpID = newExp.Key()
+			rec.ExpVK = newExp.Key()
 			rec.DefRef.RN = snap.DefRef.RN
 		}
 		if rec.DefRef.RN == snap.DefRef.RN {
@@ -211,7 +217,7 @@ func (s *service) retrieveSnap(rec DefRec) (_ DefSnap, err error) { // revive:di
 	ctx := context.Background()
 	var expRec typeexp.ExpRec
 	err = s.operator.Implicit(ctx, func(ds db.Source) error {
-		expRec, err = s.typeExps.SelectRecBySK(ds, rec.ExpID)
+		expRec, err = s.typeExps.SelectRecByVK(ds, rec.ExpVK)
 		return err
 	})
 	if err != nil {
@@ -219,8 +225,8 @@ func (s *service) retrieveSnap(rec DefRec) (_ DefSnap, err error) { // revive:di
 		return DefSnap{}, err
 	}
 	return DefSnap{
-		DefRef: rec.DefRef,
-		TypeES: typeexp.ConvertRecToSpec(expRec),
+		DefRef:  rec.DefRef,
+		DefSpec: DefSpec{TypeES: typeexp.ConvertRecToSpec(expRec)},
 	}, nil
 }
 
@@ -240,7 +246,7 @@ func (s *service) RetreiveRefs() (refs []DefRef, err error) {
 func CollectEnv(recs iter.Seq[DefRec]) []valkey.ADT {
 	expIDs := []valkey.ADT{}
 	for r := range recs {
-		expIDs = append(expIDs, r.ExpID)
+		expIDs = append(expIDs, r.ExpVK)
 	}
 	return expIDs
 }

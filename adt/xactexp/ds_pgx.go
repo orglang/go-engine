@@ -1,4 +1,4 @@
-package typeexp
+package xactexp
 
 import (
 	"errors"
@@ -52,7 +52,7 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec ExpRec, ref uniqref.ADT) (err
 	for range dto.States {
 		_, err = br.Exec()
 		if err != nil {
-			dao.log.Error("query execution failed", idAttr, slog.String("q", insertRec))
+			dao.log.Error("query execution failed", idAttr)
 		}
 	}
 	if err != nil {
@@ -66,7 +66,7 @@ func (dao *pgxDAO) SelectRecByVK(source db.Source, expVK valkey.ADT) (ExpRec, er
 	idAttr := slog.Any("expVK", expVK)
 	rows, err := ds.Conn.Query(ds.Ctx, selectByID, valkey.ConvertToInteger(expVK))
 	if err != nil {
-		dao.log.Error("query execution failed", idAttr, slog.String("q", selectByID))
+		dao.log.Error("query execution failed", idAttr)
 		return nil, err
 	}
 	defer rows.Close()
@@ -114,7 +114,7 @@ func (dao *pgxDAO) SelectRecsByVKs(source db.Source, expVKs []valkey.ADT) (_ []E
 		idAttr := slog.Any("expVK", expVK)
 		rows, err := br.Query()
 		if err != nil {
-			dao.log.Error("query execution failed", idAttr, slog.String("q", selectByID))
+			dao.log.Error("query execution failed", idAttr)
 		}
 		dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[stateDS])
 		if err != nil {
@@ -137,7 +137,7 @@ func (dao *pgxDAO) SelectRecsByVKs(source db.Source, expVKs []valkey.ADT) (_ []E
 
 const (
 	insertRec = `
-		insert into type_exps (
+		insert into xact_exps (
 			exp_vk, sup_exp_vk, def_id, def_rn, kind, spec
 		) values (
 			@exp_vk, @sup_exp_vk, @def_id, @def_rn, @kind, @spec
@@ -147,11 +147,11 @@ const (
 	selectByID = `
 		with recursive exp_tree AS (
 			select top.*
-			from type_exps top
+			from xact_exps top
 			where exp_vk = $1
 			union all
 			select sub.*
-			from type_exps sub, exp_tree sup
+			from xact_exps sub, exp_tree sup
 			where sub.sup_exp_vk = sup.exp_vk
 		)
 		select * from exp_tree`

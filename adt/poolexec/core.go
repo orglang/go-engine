@@ -27,14 +27,12 @@ type API interface {
 
 type ExecSpec struct {
 	PoolQN uniqsym.ADT
-	SupID  identity.ADT
 }
 
 type ExecRef = uniqref.ADT
 
 type ExecRec struct {
 	ExecRef ExecRef
-	SupID   identity.ADT
 }
 
 type ExecSnap struct {
@@ -86,7 +84,6 @@ func (s *service) Run(spec ExecSpec) (ExecRef, error) {
 	s.log.Debug("creation started", slog.Any("spec", spec))
 	execRec := ExecRec{
 		ExecRef: uniqref.New(),
-		SupID:   spec.SupID,
 	}
 	err := s.operator.Explicit(ctx, func(ds db.Source) error {
 		err := s.poolExecs.InsertRec(ds, execRec)

@@ -7,9 +7,8 @@ import (
 
 	"orglang/go-engine/lib/db"
 
-	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/revnum"
-	"orglang/go-engine/adt/syndec"
+	"orglang/go-engine/adt/synonym"
 	"orglang/go-engine/adt/uniqref"
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/adt/valkey"
@@ -29,7 +28,8 @@ type DefSpec struct {
 
 type DefRec struct {
 	DefRef DefRef
-	ExpID  valkey.ADT
+	SynVK  valkey.ADT
+	ExpVK  valkey.ADT
 }
 
 type DefSnap struct {
@@ -40,7 +40,7 @@ type DefSnap struct {
 type service struct {
 	xactDefs Repo
 	xactExps xactexp.Repo
-	synDecs  syndec.Repo
+	synonyms synonym.Repo
 	operator db.Operator
 	log      *slog.Logger
 }
@@ -53,7 +53,7 @@ func newAPI() API {
 func newService(
 	xactDefs Repo,
 	xactExps xactexp.Repo,
-	synDecs syndec.Repo,
+	synDecs synonym.Repo,
 	operator db.Operator,
 	l *slog.Logger,
 ) *service {
@@ -64,25 +64,30 @@ func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("xactQN", spec.XactQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
-	newSyn := syndec.DecRec{DecQN: spec.XactQN, DecID: identity.New(), DecRN: revnum.New()}
+	synVK, err := spec.XactQN.Key()
+	if err != nil {
+		return DefSnap{}, err
+	}
+	newSyn := synonym.Rec{SynQN: spec.XactQN, SynVK: synVK}
 	newExp, err := xactexp.ConvertSpecToRec(spec.XactES)
 	if err != nil {
 		return DefSnap{}, err
 	}
-	newType := DefRec{
-		DefRef: DefRef{ID: newSyn.DecID, RN: newSyn.DecRN},
-		ExpID:  newExp.Key(),
+	newRec := DefRec{
+		DefRef: uniqref.New(),
+		SynVK:  synVK,
+		ExpVK:  newExp.Key(),
 	}
 	err = s.operator.Explicit(ctx, func(ds db.Source) error {
-		err = s.synDecs.InsertRec(ds, newSyn)
+		err = s.synonyms.InsertRec(ds, newSyn)
 		if err != nil {
 			return err
 		}
-		err = s.xactExps.InsertRec(ds, newExp)
+		err = s.xactExps.InsertRec(ds, newExp, newRec.DefRef)
 		if err != nil {
 			return err
 		}
-		err = s.xactDefs.Insert(ds, newType)
+		err = s.xactDefs.Insert(ds, newRec)
 		if err != nil {
 			return err
 		}
@@ -92,9 +97,9 @@ func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 		s.log.Error("creation failed", qnAttr)
 		return DefSnap{}, err
 	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("defRef", newType.DefRef))
+	s.log.Debug("creation succeed", qnAttr, slog.Any("defRef", newRec.DefRef))
 	return DefSnap{
-		DefRef:  newType.DefRef,
+		DefRef:  newRec.DefRef,
 		DefSpec: spec,
 	}, nil
 }

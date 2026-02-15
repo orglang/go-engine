@@ -1,12 +1,13 @@
 CREATE TABLE type_defs (
 	def_id varchar(36),
 	def_rn bigint,
-	exp_hk varchar(36)
+	syn_vk bigint,
+	exp_vk bigint
 );
 
 CREATE TABLE type_exps (
-	exp_hk varchar(36) primary key,
-	sup_exp_hk varchar(36),
+	exp_vk bigint UNIQUE,
+	sup_exp_vk bigint,
 	def_id varchar(36),
 	def_rn bigint,
 	kind smallint,
@@ -16,53 +17,31 @@ CREATE TABLE type_exps (
 CREATE TABLE xact_defs (
 	def_id varchar(36),
 	def_rn bigint,
-	exp_hk varchar(36)
+	syn_vk bigint,
+	exp_vk bigint
 );
 
 CREATE TABLE xact_exps (
-	exp_hk varchar(36) primary key,
-	sup_exp_hk varchar(36),
+	exp_vk bigint UNIQUE,
+	sup_exp_vk bigint,
 	def_id varchar(36),
 	def_rn bigint,
 	kind smallint,
 	spec jsonb
 );
 
-CREATE TABLE proc_decs (
+CREATE TABLE pool_decs (
 	dec_id varchar(36),
 	dec_rn bigint,
-	title text
-);
-
-CREATE TABLE dec_pes (
-	dec_id varchar(36),
-	chnl_ph varchar(64),
-	type_qn ltree,
-	from_rn bigint,
-	to_rn bigint
-);
-
-CREATE TABLE dec_ces (
-	dec_id varchar(36),
-	chnl_ph varchar(64),
-	type_qn ltree,
-	from_rn bigint,
-	to_rn bigint
-);
-
-CREATE TABLE dec_subs (
-	dec_id varchar(36),
-	dec_qn ltree,
-	from_rn bigint,
-	to_rn bigint
+	syn_vk bigint,
+    client_brs jsonb,
+    provider_br jsonb
 );
 
 CREATE TABLE pool_execs (
 	exec_id varchar(36),
 	exec_rn bigint,
-	title varchar(64),
-	proc_id varchar(36),
-	sup_exec_id varchar(36)
+	proc_id varchar(36)
 );
 
 CREATE TABLE pool_caps (
@@ -83,6 +62,12 @@ CREATE TABLE pool_liabs (
 	proc_id varchar(36),
 	pool_id varchar(36),
 	rev bigint
+);
+
+CREATE TABLE proc_decs (
+	dec_id varchar(36),
+	dec_rn bigint,
+	syn_vk bigint
 );
 
 CREATE TABLE proc_execs (
@@ -113,12 +98,10 @@ CREATE TABLE pool_sups (
 	rev bigint
 );
 
-CREATE TABLE syn_decs (
-	dec_id varchar(36),
-	dec_qn ltree UNIQUE,
-	from_rn bigint,
-	to_rn bigint,
+CREATE TABLE synonyms (
+	syn_qn ltree UNIQUE,
+	syn_vk bigint UNIQUE,
 	kind smallint
 );
 
-CREATE INDEX dec_qn_gist_idx ON syn_decs USING GIST (dec_qn);
+CREATE INDEX syn_qn_gist_idx ON synonyms USING GIST (syn_qn);

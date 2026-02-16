@@ -21,7 +21,6 @@ var (
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/uniqref:Data.*
 var (
 	DataToExecRefs   func([]execRefDS) ([]ExecRef, error)
 	DataFromExecRefs func([]ExecRef) []execRefDS

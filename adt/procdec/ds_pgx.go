@@ -41,6 +41,7 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 	recArgs := pgx.NamedArgs{
 		"dec_id": dto.ID,
 		"dec_rn": dto.RN,
+		"syn_vk": dto.SynVK,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertRec, recArgs)
 	if err != nil {
@@ -89,7 +90,7 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 	for range dto.ClientBSes {
 		_, err = br.Exec()
 		if err != nil {
-			dao.log.Error("query execution failed", refAttr, slog.String("q", insertCE))
+			dao.log.Error("query execution failed", refAttr)
 		}
 	}
 	if err != nil {
@@ -186,9 +187,9 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]DecRef, error) {
 const (
 	insertRec = `
 		insert into proc_decs (
-			dec_id, dec_rn
+			dec_id, dec_rn, syn_vk
 		) values (
-			@dec_id, @dec_rn
+			@dec_id, @dec_rn, @syn_vk
 		)`
 
 	// revive:disable:line-length-limit

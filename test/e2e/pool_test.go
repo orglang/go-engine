@@ -72,6 +72,7 @@ func (s *suite) beforeAll(t *testing.T) {
 func (s *suite) beforeEach(t *testing.T) {
 	tables := []string{
 		"synonyms",
+		"xact_defs", "xact_exps",
 		"pool_decs", "pool_execs", "pool_liabs",
 		"proc_decs", "proc_binds", "proc_steps",
 		"type_defs", "type_exps",
@@ -122,12 +123,10 @@ func (s *suite) waitClose(t *testing.T) {
 		PoolQN: myPoolQN,
 		ProviderBS: poolbind.BindSpec{
 			ChnlPH: poolProviderPH,
-			ChnlBM: poolbind.Internal,
 			XactQN: withXactQN,
 		},
 		ClientBSes: []poolbind.BindSpec{{
 			ChnlPH: poolClientPH,
-			ChnlBM: poolbind.Internal,
 			XactQN: withXactQN,
 		}},
 	})
@@ -336,12 +335,10 @@ func (s *suite) recvSend(t *testing.T) {
 		PoolQN: myPoolQN,
 		ProviderBS: poolbind.BindSpec{
 			ChnlPH: poolProviderPH,
-			ChnlBM: poolbind.Internal,
 			XactQN: withXactQN,
 		},
 		ClientBSes: []poolbind.BindSpec{{
 			ChnlPH: poolClientPH,
-			ChnlBM: poolbind.Internal,
 			XactQN: withXactQN,
 		}},
 	})

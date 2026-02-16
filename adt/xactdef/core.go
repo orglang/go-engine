@@ -53,53 +53,49 @@ func newAPI() API {
 func newService(
 	xactDefs Repo,
 	xactExps xactexp.Repo,
-	synDecs synonym.Repo,
+	synonyms synonym.Repo,
 	operator db.Operator,
 	l *slog.Logger,
 ) *service {
-	return &service{xactDefs, xactExps, synDecs, operator, l}
+	return &service{xactDefs, xactExps, synonyms, operator, l}
 }
 
 func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("xactQN", spec.XactQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
-	synVK, err := spec.XactQN.Key()
-	if err != nil {
-		return DefSnap{}, err
+	synVK, keyErr := spec.XactQN.Key()
+	if keyErr != nil {
+		return DefSnap{}, keyErr
 	}
 	newSyn := synonym.Rec{SynQN: spec.XactQN, SynVK: synVK}
-	newExp, err := xactexp.ConvertSpecToRec(spec.XactES)
-	if err != nil {
-		return DefSnap{}, err
+	newExp, convertErr := xactexp.ConvertSpecToRec(spec.XactES)
+	if convertErr != nil {
+		return DefSnap{}, convertErr
 	}
-	newRec := DefRec{
+	newDef := DefRec{
 		DefRef: uniqref.New(),
 		SynVK:  synVK,
 		ExpVK:  newExp.Key(),
 	}
-	err = s.operator.Explicit(ctx, func(ds db.Source) error {
+	transactErr := s.operator.Explicit(ctx, func(ds db.Source) error {
 		err = s.synonyms.InsertRec(ds, newSyn)
 		if err != nil {
 			return err
 		}
-		err = s.xactExps.InsertRec(ds, newExp, newRec.DefRef)
+		err = s.xactExps.InsertRec(ds, newExp, newDef.DefRef)
 		if err != nil {
 			return err
 		}
-		err = s.xactDefs.Insert(ds, newRec)
-		if err != nil {
-			return err
-		}
-		return nil
+		return s.xactDefs.InsertRec(ds, newDef)
 	})
-	if err != nil {
+	if transactErr != nil {
 		s.log.Error("creation failed", qnAttr)
-		return DefSnap{}, err
+		return DefSnap{}, transactErr
 	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("defRef", newRec.DefRef))
+	s.log.Debug("creation succeed", qnAttr, slog.Any("defRef", newDef.DefRef))
 	return DefSnap{
-		DefRef:  newRec.DefRef,
+		DefRef:  newDef.DefRef,
 		DefSpec: spec,
 	}, nil
 }

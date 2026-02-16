@@ -28,7 +28,7 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func (dao *pgxDAO) Insert(source db.Source, rec DefRec) error {
+func (dao *pgxDAO) InsertRec(source db.Source, rec DefRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("defRef", rec.DefRef)
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity insertion started", refAttr)
@@ -40,11 +40,12 @@ func (dao *pgxDAO) Insert(source db.Source, rec DefRec) error {
 	args := pgx.NamedArgs{
 		"def_id": dto.ID,
 		"def_rn": dto.RN,
+		"syn_vk": dto.SynVK,
 		"exp_vk": dto.ExpVK,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertRec, args)
 	if err != nil {
-		dao.log.Error("query execution failed", refAttr, slog.String("q", insertRec))
+		dao.log.Error("query execution failed", refAttr)
 		return err
 	}
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity insertion succeed", refAttr)
@@ -168,6 +169,7 @@ func (dao *pgxDAO) SelectRecsByRefs(source db.Source, defRefs []DefRef) (_ []Def
 
 func (dao *pgxDAO) SelectRefsByQNs(source db.Source, xactQNs []uniqsym.ADT) (_ map[uniqsym.ADT]DefRef, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection started", slog.Any("xactQNs", xactQNs))
 	if len(xactQNs) == 0 {
 		return map[uniqsym.ADT]DefRef{}, nil
 	}
@@ -182,20 +184,19 @@ func (dao *pgxDAO) SelectRefsByQNs(source db.Source, xactQNs []uniqsym.ADT) (_ m
 	dtos := make(map[uniqsym.ADT]defRefDS, len(xactQNs))
 	for _, xactQN := range xactQNs {
 		qnAttr := slog.Any("xactQN", xactQN)
-		rows, err := br.Query()
-		if err != nil {
+		rows, readErr := br.Query()
+		if readErr != nil {
 			dao.log.Error("query execution failed", qnAttr)
+			return nil, readErr
 		}
-		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRefDS])
-		if err != nil {
+		dto, collectErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRefDS])
+		if collectErr != nil {
 			dao.log.Error("row collection failed", qnAttr)
+			return nil, collectErr
 		}
 		dtos[xactQN] = dto
 	}
-	if err != nil {
-		return nil, err
-	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "entities selection succeed", slog.Any("dtos", dtos))
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection succeed", slog.Any("dtos", dtos))
 	return DataToDefRefs2(dtos)
 }
 
@@ -234,9 +235,9 @@ func (dao *pgxDAO) SelectRecsByQNs(source db.Source, xactQNs []uniqsym.ADT) (_ [
 const (
 	insertRec = `
 		insert into xact_defs (
-			def_id, def_rn, exp_vk
+			def_id, def_rn, syn_vk, exp_vk
 		) values (
-			@def_id, @def_rn, @exp_vk
+			@def_id, @def_rn, @syn_vk, @exp_vk
 		)`
 
 	updateRec = `

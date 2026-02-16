@@ -39,7 +39,6 @@ var (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/valkey:Convert.*
-// goverter:extend orglang/go-engine/adt/uniqref:Data.*
 // goverter:extend orglang/go-engine/adt/typeexp:Data.*
 var (
 	DataToDefRef    func(defRefDS) (DefRef, error)

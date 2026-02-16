@@ -59,8 +59,8 @@ func newAPI() API {
 	return new(service)
 }
 
-func newService(procDecs Repo, synDecs synonym.Repo, operator db.Operator, log *slog.Logger) *service {
-	return &service{procDecs, synDecs, operator, log}
+func newService(procDecs Repo, synonyms synonym.Repo, operator db.Operator, log *slog.Logger) *service {
+	return &service{procDecs, synonyms, operator, log}
 }
 
 func (s *service) Incept(procQN uniqsym.ADT) (_ DecRef, err error) {

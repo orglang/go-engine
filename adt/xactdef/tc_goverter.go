@@ -29,7 +29,6 @@ var (
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
 // goverter:extend orglang/go-engine/adt/valkey:Convert.*
-// goverter:extend orglang/go-engine/adt/uniqref:Data.*
 var (
 	DataToDefRef    func(defRefDS) (DefRef, error)
 	DataFromDefRef  func(DefRef) (defRefDS, error)

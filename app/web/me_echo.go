@@ -7,8 +7,10 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"orglang/go-engine/adt/typedef"
 	"orglang/go-engine/lib/te"
+
+	"orglang/go-engine/adt/descexec"
+	"orglang/go-engine/adt/typedef"
 )
 
 // Adapter
@@ -32,7 +34,7 @@ func (h *echoController) Home(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	html, err := h.ssr.Render("home.html", typedef.MsgFromDefRefs(refs))
+	html, err := h.ssr.Render("home.html", descexec.MsgFromRefs(refs))
 	if err != nil {
 		return err
 	}

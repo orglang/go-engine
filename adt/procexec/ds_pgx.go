@@ -201,12 +201,12 @@ const (
 		)
 		select
 			bnd.*,
-			prvd.pool_id
+			prvd.desc_id
 		from bnds bnd
 		left join liabs liab
 			on liab.proc_id = bnd.proc_id
 		left join pool_execs prvd
-			on prvd.pool_id = liab.pool_id`
+			on prvd.desc_id = liab.desc_id`
 
 	selectSteps = ``
 )

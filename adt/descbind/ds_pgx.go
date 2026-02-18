@@ -1,4 +1,4 @@
-package synonym
+package descbind
 
 import (
 	"log/slog"
@@ -23,21 +23,21 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func (dao *pgxDAO) InsertRec(source db.Source, rec Rec) error {
+func (dao *pgxDAO) InsertRec(source db.Source, rec BindRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
-	idAttr := slog.Any("decID", rec.SynVK)
+	qnAttr := slog.Any("desc_qn", rec.DescQN)
 	dto, err := DataFromRec(rec)
 	if err != nil {
-		dao.log.Error("model conversion failed", idAttr)
+		dao.log.Error("model conversion failed", qnAttr)
 		return err
 	}
 	args := pgx.NamedArgs{
-		"syn_vk": dto.SynVK,
-		"syn_qn": dto.SynQN,
+		"desc_qn": dto.DescQN,
+		"desc_id": dto.DescID,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertRec, args)
 	if err != nil {
-		dao.log.Error("query execution failed", idAttr)
+		dao.log.Error("query execution failed", qnAttr)
 		return err
 	}
 	return nil
@@ -45,9 +45,9 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec Rec) error {
 
 const (
 	insertRec = `
-		insert into synonyms (
-			syn_vk, syn_qn
+		insert into desc_binds (
+			desc_qn, desc_id
 		) values (
-			@syn_vk, @syn_qn
+			@desc_qn, @desc_id
 		)`
 )

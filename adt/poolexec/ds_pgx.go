@@ -115,16 +115,16 @@ const (
 
 	insertLiab = `
 		insert into pool_liabs (
-			pool_id, proc_id, rev
+			desc_id, proc_id, rev
 		) values (
-			@pool_id, @proc_id, @rev
+			@desc_id, @proc_id, @rev
 		)`
 
 	insertBind = `
 		insert into pool_assets (
-			pool_id, chnl_key, state_id, ex_pool_id, rev
+			desc_id, chnl_key, state_id, ex_pool_id, rev
 		) values (
-			@pool_id, @chnl_key, @state_id, @ex_pool_id, @rev
+			@desc_id, @chnl_key, @state_id, @ex_pool_id, @rev
 		)`
 
 	insertStep = `
@@ -137,22 +137,22 @@ const (
 	updateRoot = `
 		update pool_roots
 		set rev = @rev + 1
-		where pool_id = @pool_id
+		where desc_id = @desc_id
 			and rev = @rev`
 
 	selectOrgSnap = `
 		select
-			sup.pool_id,
+			sup.desc_id,
 			sup.title,
-			jsonb_agg(json_build_object('pool_id', sub.pool_id, 'title', sub.title)) as subs
+			jsonb_agg(json_build_object('desc_id', sub.desc_id, 'title', sub.title)) as subs
 		from pool_roots sup
 		left join pool_sups rel
-			on rel.sup_pool_id = sup.pool_id
+			on rel.sup_pool_id = sup.desc_id
 		left join pool_roots sub
-			on sub.pool_id = rel.pool_id
+			on sub.desc_id = rel.desc_id
 			and sub.rev = rel.rev
-		where sup.pool_id = $1
-		group by sup.pool_id, sup.title`
+		where sup.desc_id = $1
+		group by sup.desc_id, sup.title`
 
 	selectChnls = `
 		with bnds as not materialized (
@@ -170,12 +170,12 @@ const (
 		)
 		select
 			bnd.*,
-			prvd.pool_id
+			prvd.desc_id
 		from bnds bnd
 		left join liabs liab
 			on liab.proc_id = bnd.proc_id
 		left join pool_roots prvd
-			on prvd.pool_id = liab.pool_id`
+			on prvd.desc_id = liab.desc_id`
 
 	selectSteps = ``
 )

@@ -7,13 +7,13 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	sdk "github.com/orglang/go-sdk/adt/uniqref"
+	sdk "github.com/orglang/go-sdk/adt/descexec"
 
 	"orglang/go-engine/lib/lf"
 	"orglang/go-engine/lib/te"
 
+	"orglang/go-engine/adt/descexec"
 	"orglang/go-engine/adt/typeexp"
-	"orglang/go-engine/adt/uniqref"
 	"orglang/go-engine/adt/uniqsym"
 )
 
@@ -64,7 +64,7 @@ func (p *echoPresenter) PostOne(c echo.Context) error {
 		p.log.Error("rendering failed", slog.Any("snap", snap))
 		return renderingErr
 	}
-	p.log.Log(ctx, lf.LevelTrace, "posting succeed", slog.Any("ref", snap.DefRef))
+	p.log.Log(ctx, lf.LevelTrace, "posting succeed", slog.Any("ref", snap.DescRef))
 	return c.HTMLBlob(http.StatusOK, html)
 }
 
@@ -73,7 +73,7 @@ func (p *echoPresenter) GetMany(c echo.Context) error {
 	if retrievalErr != nil {
 		return retrievalErr
 	}
-	html, renderingErr := p.ssr.Render("view-many", ViewFromDefRefs(refs))
+	html, renderingErr := p.ssr.Render("view-many", descexec.MsgFromRefs(refs))
 	if renderingErr != nil {
 		p.log.Error("rendering failed", slog.Any("refs", refs))
 		return renderingErr
@@ -82,7 +82,7 @@ func (p *echoPresenter) GetMany(c echo.Context) error {
 }
 
 func (p *echoPresenter) GetOne(c echo.Context) error {
-	var dto sdk.Msg
+	var dto sdk.ExecRef
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
 		p.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
@@ -95,7 +95,7 @@ func (p *echoPresenter) GetOne(c echo.Context) error {
 		p.log.Error("validation failed", slog.Any("dto", dto))
 		return validationErr
 	}
-	ref, conversionErr := uniqref.MsgToADT(dto)
+	ref, conversionErr := descexec.MsgToRef(dto)
 	if conversionErr != nil {
 		p.log.Error("conversion failed", slog.Any("dto", dto))
 		return conversionErr
@@ -109,6 +109,6 @@ func (p *echoPresenter) GetOne(c echo.Context) error {
 		p.log.Error("rendering failed", slog.Any("snap", snap))
 		return renderingErr
 	}
-	p.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("ref", snap.DefRef))
+	p.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("ref", snap.DescRef))
 	return c.HTMLBlob(http.StatusOK, html)
 }

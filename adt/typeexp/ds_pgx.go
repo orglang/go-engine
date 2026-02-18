@@ -10,7 +10,7 @@ import (
 	"orglang/go-engine/lib/db"
 	"orglang/go-engine/lib/lf"
 
-	"orglang/go-engine/adt/uniqref"
+	"orglang/go-engine/adt/descexec"
 	"orglang/go-engine/adt/valkey"
 )
 
@@ -29,54 +29,52 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func (dao *pgxDAO) InsertRec(source db.Source, rec ExpRec, ref uniqref.ADT) (err error) {
+func (dao *pgxDAO) InsertRec(source db.Source, rec ExpRec, ref descexec.ExecRef) (err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	idAttr := slog.Any("expVK", rec.Key())
 	dto := dataFromExpRec(rec)
 	batch := pgx.Batch{}
 	for _, st := range dto.States {
-		sa := pgx.NamedArgs{
+		args := pgx.NamedArgs{
 			"exp_vk":     st.ExpVK,
 			"sup_exp_vk": st.SupExpVK,
-			"def_id":     ref.ID,
-			"def_rn":     ref.RN,
+			"desc_id":    ref.DescID,
+			"desc_rn":    ref.DescRN,
 			"kind":       st.K,
 			"spec":       st.Spec,
 		}
-		batch.Queue(insertRec, sa)
+		batch.Queue(insertRec, args)
 	}
 	br := ds.Conn.SendBatch(ds.Ctx, &batch)
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
 	for range dto.States {
-		_, err = br.Exec()
-		if err != nil {
-			dao.log.Error("query execution failed", idAttr, slog.String("q", insertRec))
+		_, readErr := br.Exec()
+		if readErr != nil {
+			dao.log.Error("query execution failed", idAttr)
+			return readErr
 		}
-	}
-	if err != nil {
-		return err
 	}
 	return nil
 }
 
 func (dao *pgxDAO) SelectRecByVK(source db.Source, expVK valkey.ADT) (ExpRec, error) {
 	ds := db.MustConform[db.SourcePgx](source)
-	idAttr := slog.Any("expVK", expVK)
-	rows, err := ds.Conn.Query(ds.Ctx, selectByID, valkey.ConvertToInteger(expVK))
-	if err != nil {
-		dao.log.Error("query execution failed", idAttr, slog.String("q", selectByID))
-		return nil, err
+	vkAttr := slog.Any("expVK", expVK)
+	rows, queryErr := ds.Conn.Query(ds.Ctx, selectByID, valkey.ConvertToInteger(expVK))
+	if queryErr != nil {
+		dao.log.Error("query execution failed", vkAttr)
+		return nil, queryErr
 	}
 	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[stateDS])
-	if err != nil {
-		dao.log.Error("row collection failed", idAttr)
-		return nil, err
+	dtos, collectErr := pgx.CollectRows(rows, pgx.RowToStructByName[stateDS])
+	if collectErr != nil {
+		dao.log.Error("row collection failed", vkAttr)
+		return nil, collectErr
 	}
 	if len(dtos) == 0 { // revive:disable-line
-		dao.log.Error("entity selection failed", idAttr)
+		dao.log.Error("entity selection failed", vkAttr)
 		return nil, errors.New("no rows selected")
 	}
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity selection succeed", slog.Any("dtos", dtos))
@@ -111,22 +109,22 @@ func (dao *pgxDAO) SelectRecsByVKs(source db.Source, expVKs []valkey.ADT) (_ []E
 	}()
 	var recs []ExpRec
 	for _, expVK := range expVKs {
-		idAttr := slog.Any("expVK", expVK)
+		vkAttr := slog.Any("expVK", expVK)
 		rows, err := br.Query()
 		if err != nil {
-			dao.log.Error("query execution failed", idAttr, slog.String("q", selectByID))
+			dao.log.Error("query execution failed", vkAttr)
 		}
 		dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[stateDS])
 		if err != nil {
-			dao.log.Error("rows collection failed", idAttr)
+			dao.log.Error("rows collection failed", vkAttr)
 		}
 		if len(dtos) == 0 {
-			dao.log.Error("entity selection failed", idAttr)
+			dao.log.Error("entity selection failed", vkAttr)
 			return nil, ErrDoesNotExist(expVK)
 		}
 		rec, err := dataToExpRec(expRecDS{valkey.ConvertToInteger(expVK), dtos})
 		if err != nil {
-			dao.log.Error("model conversion failed", idAttr)
+			dao.log.Error("model conversion failed", vkAttr)
 			return nil, err
 		}
 		recs = append(recs, rec)
@@ -138,9 +136,9 @@ func (dao *pgxDAO) SelectRecsByVKs(source db.Source, expVKs []valkey.ADT) (_ []E
 const (
 	insertRec = `
 		insert into type_exps (
-			exp_vk, sup_exp_vk, def_id, def_rn, kind, spec
+			exp_vk, sup_exp_vk, desc_id, desc_rn, kind, spec
 		) values (
-			@exp_vk, @sup_exp_vk, @def_id, @def_rn, @kind, @spec
+			@exp_vk, @sup_exp_vk, @desc_id, @desc_rn, @kind, @spec
 		)
 		on conflict (exp_vk) do nothing`
 

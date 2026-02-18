@@ -14,7 +14,7 @@ import (
 )
 
 type PoolDecAPI interface {
-	Create(pooldec.DecSpec) (pooldec.DecRef, error)
+	Create(pooldec.DecSpec) (pooldec.PoolRef, error)
 }
 
 func newPoolDecAPI(client *resty.Client) PoolDecAPI {

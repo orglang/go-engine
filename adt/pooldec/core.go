@@ -6,16 +6,15 @@ import (
 
 	"orglang/go-engine/lib/db"
 
+	"orglang/go-engine/adt/descbind"
+	"orglang/go-engine/adt/descexec"
+	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/poolbind"
-	"orglang/go-engine/adt/synonym"
-	"orglang/go-engine/adt/uniqref"
 	"orglang/go-engine/adt/uniqsym"
-	"orglang/go-engine/adt/valkey"
-	"orglang/go-engine/adt/xactdef"
 )
 
 type API interface {
-	Create(DecSpec) (DecRef, error)
+	Create(DecSpec) (descexec.ExecRef, error)
 }
 
 // for compilation purposes
@@ -29,34 +28,31 @@ type DecSpec struct {
 	ClientBSes []poolbind.BindSpec
 }
 
-type DecRef = uniqref.ADT
-
 type DecRec struct {
-	DecRef     DecRef
-	SynVK      valkey.ADT
+	PoolID     identity.ADT
 	ProviderBR poolbind.BindRec
 	ClientBRs  []poolbind.BindRec
 }
 
 func newService(
 	poolDecs repo,
-	xactDefs xactdef.Repo,
-	synonyms synonym.Repo,
+	descExecs descexec.Repo,
+	descBinds descbind.Repo,
 	operator db.Operator,
 	log *slog.Logger,
 ) *service {
-	return &service{poolDecs, xactDefs, synonyms, operator, log}
+	return &service{poolDecs, descExecs, descBinds, operator, log}
 }
 
 type service struct {
-	poolDecs repo
-	xactDefs xactdef.Repo
-	synonyms synonym.Repo
-	operator db.Operator
-	log      *slog.Logger
+	poolDecs  repo
+	descExecs descexec.Repo
+	descBinds descbind.Repo
+	operator  db.Operator
+	log       *slog.Logger
 }
 
-func (s *service) Create(spec DecSpec) (_ DecRef, err error) {
+func (s *service) Create(spec DecSpec) (_ descexec.ExecRef, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("poolQN", spec.PoolQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
@@ -64,35 +60,35 @@ func (s *service) Create(spec DecSpec) (_ DecRef, err error) {
 	for _, bs := range spec.ClientBSes {
 		xactQNs = append(xactQNs, bs.XactQN)
 	}
-	var xactDefs map[uniqsym.ADT]xactdef.DefRef
+	var xactDefs map[uniqsym.ADT]descexec.ExecRef
 	selectErr := s.operator.Implicit(ctx, func(ds db.Source) error {
-		xactDefs, err = s.xactDefs.SelectRefsByQNs(ds, append(xactQNs, spec.ProviderBS.XactQN))
+		xactDefs, err = s.descExecs.SelectRefsByQNs(ds, append(xactQNs, spec.ProviderBS.XactQN))
 		return err
 	})
 	if selectErr != nil {
-		return DecRef{}, selectErr
+		return descexec.ExecRef{}, selectErr
 	}
 	providerBR := poolbind.BindRec{
 		ChnlPH: spec.ProviderBS.ChnlPH,
-		DefID:  xactDefs[spec.ProviderBS.XactQN].ID,
+		DefID:  xactDefs[spec.ProviderBS.XactQN].DescID,
 	}
 	clientBRs := make([]poolbind.BindRec, 0, len(spec.ClientBSes))
 	for _, bs := range spec.ClientBSes {
-		clientBRs = append(clientBRs, poolbind.BindRec{ChnlPH: bs.ChnlPH, DefID: xactDefs[bs.XactQN].ID})
+		clientBRs = append(clientBRs, poolbind.BindRec{ChnlPH: bs.ChnlPH, DefID: xactDefs[bs.XactQN].DescID})
 	}
-	synVK, keyErr := spec.PoolQN.Key()
-	if keyErr != nil {
-		return DecRef{}, keyErr
-	}
-	newSyn := synonym.Rec{SynQN: spec.PoolQN, SynVK: synVK}
+	newExec := descexec.ExecRec{Ref: descexec.NewExecRef(), Kind: descexec.Pool}
+	newBind := descbind.BindRec{DescQN: spec.PoolQN, DescID: newExec.Ref.DescID}
 	newDec := DecRec{
-		DecRef:     uniqref.New(),
-		SynVK:      synVK,
+		PoolID:     newExec.Ref.DescID,
 		ProviderBR: providerBR,
 		ClientBRs:  clientBRs,
 	}
 	transactErr := s.operator.Explicit(ctx, func(ds db.Source) error {
-		err = s.synonyms.InsertRec(ds, newSyn)
+		err = s.descBinds.InsertRec(ds, newBind)
+		if err != nil {
+			return err
+		}
+		err = s.descExecs.InsertRec(ds, newExec)
 		if err != nil {
 			return err
 		}
@@ -100,8 +96,8 @@ func (s *service) Create(spec DecSpec) (_ DecRef, err error) {
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", qnAttr)
-		return DecRef{}, transactErr
+		return descexec.ExecRef{}, transactErr
 	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("decRef", newDec.DecRef))
-	return newDec.DecRef, nil
+	s.log.Debug("creation succeed", qnAttr, slog.Any("poolRef", newExec.Ref))
+	return newExec.Ref, nil
 }

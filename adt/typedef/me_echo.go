@@ -7,11 +7,12 @@ import (
 
 	"github.com/labstack/echo/v4"
 
+	sdk "github.com/orglang/go-sdk/adt/descexec"
 	"github.com/orglang/go-sdk/adt/typedef"
 
 	"orglang/go-engine/lib/lf"
 
-	"orglang/go-engine/adt/uniqref"
+	"orglang/go-engine/adt/descexec"
 )
 
 // Server-side primary adapter
@@ -55,12 +56,12 @@ func (h *echoController) PostSpec(c echo.Context) error {
 	if creationErr != nil {
 		return creationErr
 	}
-	h.log.Log(ctx, lf.LevelTrace, "posting succeed", slog.Any("defRef", snap.DefRef))
+	h.log.Log(ctx, lf.LevelTrace, "posting succeed", slog.Any("ref", snap.DescRef))
 	return c.JSON(http.StatusCreated, MsgFromDefSnap(snap))
 }
 
 func (h *echoController) GetSnap(c echo.Context) error {
-	var dto typedef.DefRef
+	var dto sdk.ExecRef
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
@@ -71,7 +72,7 @@ func (h *echoController) GetSnap(c echo.Context) error {
 		h.log.Error("validation failed", slog.Any("dto", dto))
 		return validationErr
 	}
-	ref, conversionErr := uniqref.MsgToADT(dto)
+	ref, conversionErr := descexec.MsgToRef(dto)
 	if conversionErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
 		return conversionErr
@@ -106,6 +107,6 @@ func (h *echoController) PatchOne(c echo.Context) error {
 	if modificationErr != nil {
 		return modificationErr
 	}
-	h.log.Log(ctx, lf.LevelTrace, "patching succeed", slog.Any("defRef", resSnap.DefRef))
+	h.log.Log(ctx, lf.LevelTrace, "patching succeed", slog.Any("ref", resSnap.DescRef))
 	return c.JSON(http.StatusOK, MsgFromDefSnap(resSnap))
 }

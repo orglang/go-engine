@@ -22,7 +22,7 @@ type execModDS struct {
 type execRefDS = uniqref.Data
 
 type liabDS struct {
-	PoolID string `db:"pool_id"`
+	PoolID string `db:"desc_id"`
 	ProcID string `db:"proc_id"`
 	PoolRN int64  `db:"rev"`
 }

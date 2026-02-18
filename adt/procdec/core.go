@@ -8,9 +8,9 @@ import (
 
 	"orglang/go-engine/lib/db"
 
+	"orglang/go-engine/adt/descbind"
 	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/procbind"
-	"orglang/go-engine/adt/synonym"
 	"orglang/go-engine/adt/uniqref"
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/adt/valkey"
@@ -49,7 +49,7 @@ type DecSnap struct {
 
 type service struct {
 	procDecs Repo
-	synonyms synonym.Repo
+	synonyms descbind.Repo
 	operator db.Operator
 	log      *slog.Logger
 }
@@ -59,7 +59,7 @@ func newAPI() API {
 	return new(service)
 }
 
-func newService(procDecs Repo, synonyms synonym.Repo, operator db.Operator, log *slog.Logger) *service {
+func newService(procDecs Repo, synonyms descbind.Repo, operator db.Operator, log *slog.Logger) *service {
 	return &service{procDecs, synonyms, operator, log}
 }
 
@@ -71,8 +71,8 @@ func (s *service) Incept(procQN uniqsym.ADT) (_ DecRef, err error) {
 	if err != nil {
 		return DecRef{}, err
 	}
-	newSyn := synonym.Rec{SynQN: procQN, SynVK: synVK}
 	newDec := DecRec{DecRef: uniqref.New(), SynVK: synVK}
+	newSyn := descbind.BindRec{DescQN: procQN, DescID: newDec.DecRef.ID}
 	err = s.operator.Explicit(ctx, func(ds db.Source) error {
 		err = s.synonyms.InsertRec(ds, newSyn)
 		if err != nil {

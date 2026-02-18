@@ -85,17 +85,12 @@ func (s *service) Run(spec ExecSpec) (ExecRef, error) {
 	execRec := ExecRec{
 		ExecRef: uniqref.New(),
 	}
-	err := s.operator.Explicit(ctx, func(ds db.Source) error {
-		err := s.poolExecs.InsertRec(ds, execRec)
-		if err != nil {
-			s.log.Error("creation failed")
-			return err
-		}
-		return nil
+	transactErr := s.operator.Explicit(ctx, func(ds db.Source) error {
+		return s.poolExecs.InsertRec(ds, execRec)
 	})
-	if err != nil {
+	if transactErr != nil {
 		s.log.Error("creation failed")
-		return ExecRef{}, err
+		return ExecRef{}, transactErr
 	}
 	s.log.Debug("creation succeed", slog.Any("execRef", execRec.ExecRef))
 	return execRec.ExecRef, nil

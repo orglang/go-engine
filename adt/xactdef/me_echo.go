@@ -24,7 +24,7 @@ func newEchoController(a API, l *slog.Logger) *echoController {
 }
 
 func cfgEchoController(e *echo.Echo, h *echoController) error {
-	e.POST("/api/v1/xacts", h.PostSpec)
+	e.POST("/api/v1/xacts/defs", h.PostSpec)
 	return nil
 }
 
@@ -51,6 +51,6 @@ func (h *echoController) PostSpec(c echo.Context) error {
 	if creationErr != nil {
 		return creationErr
 	}
-	h.log.Log(ctx, lf.LevelTrace, "posting succeed", slog.Any("defRef", snap.DefRef))
+	h.log.Log(ctx, lf.LevelTrace, "posting succeed", slog.Any("ref", snap.DescRef))
 	return c.JSON(http.StatusCreated, MsgFromDefSnap(snap))
 }

@@ -16,10 +16,7 @@ var (
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/valkey:Convert.*
 var (
-	// goverter:map . DecRef
-	DataToDecRec func(decRecDS) (DecRec, error)
-	// goverter:autoMap DecRef
+	DataToDecRec   func(decRecDS) (DecRec, error)
 	DataFromDecRec func(DecRec) (decRecDS, error)
 )

@@ -25,22 +25,20 @@ func newRepo() repo {
 
 func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
-	refAttr := slog.Any("decRef", rec.DecRef)
+	idAttr := slog.Any("id", rec.PoolID)
 	dto, err := DataFromDecRec(rec)
 	if err != nil {
-		dao.log.Error("model conversion failed", refAttr)
+		dao.log.Error("model conversion failed", idAttr)
 		return err
 	}
 	args := pgx.NamedArgs{
-		"dec_id":      dto.ID,
-		"dec_rn":      dto.RN,
-		"syn_vk":      dto.SynVK,
+		"desc_id":     dto.PoolID,
 		"provider_br": dto.ProviderBR,
 		"client_brs":  dto.ClientBRs,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertRec, args)
 	if err != nil {
-		dao.log.Error("query execution failed", refAttr)
+		dao.log.Error("query execution failed", idAttr)
 		return err
 	}
 	return nil
@@ -49,8 +47,8 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 const (
 	insertRec = `
 		insert into pool_decs (
-			dec_id, dec_rn, syn_vk, provider_br, client_brs
+			desc_id, provider_br, client_brs
 		) values (
-			@dec_id, @dec_rn, @syn_vk, @provider_br, @client_brs
+			@desc_id, @provider_br, @client_brs
 		)`
 )

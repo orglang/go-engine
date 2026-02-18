@@ -9,7 +9,7 @@ import (
 
 	"github.com/orglang/go-sdk/adt/pooldec"
 
-	"orglang/go-engine/adt/uniqref"
+	"orglang/go-engine/adt/descexec"
 )
 
 // Server-side primary adapter
@@ -49,5 +49,5 @@ func (h *echoController) PostSpec(c echo.Context) error {
 	if creationErr != nil {
 		return creationErr
 	}
-	return c.JSON(http.StatusCreated, uniqref.MsgFromADT(ref))
+	return c.JSON(http.StatusCreated, descexec.MsgFromRef(ref))
 }

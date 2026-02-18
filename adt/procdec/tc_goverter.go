@@ -6,6 +6,7 @@ import (
 
 // goverter:variables
 // goverter:output:format assign-variable
+// goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
 // goverter:extend orglang/go-engine/adt/procbind:Msg.*
 // goverter:extend orglang/go-engine/adt/typedef:Msg.*

@@ -7,9 +7,10 @@ import (
 
 	"orglang/go-engine/lib/db"
 
+	"orglang/go-engine/adt/descbind"
+	"orglang/go-engine/adt/descexec"
+	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/revnum"
-	"orglang/go-engine/adt/synonym"
-	"orglang/go-engine/adt/uniqref"
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/adt/valkey"
 	"orglang/go-engine/adt/xactexp"
@@ -19,30 +20,28 @@ type API interface {
 	Create(DefSpec) (DefSnap, error)
 }
 
-type DefRef = uniqref.ADT
-
 type DefSpec struct {
 	XactQN uniqsym.ADT
 	XactES xactexp.ExpSpec
 }
 
 type DefRec struct {
-	DefRef DefRef
-	SynVK  valkey.ADT
+	XactID identity.ADT
 	ExpVK  valkey.ADT
 }
 
 type DefSnap struct {
-	DefRef  DefRef
+	DescRef descexec.ExecRef
 	DefSpec DefSpec
 }
 
 type service struct {
-	xactDefs Repo
-	xactExps xactexp.Repo
-	synonyms synonym.Repo
-	operator db.Operator
-	log      *slog.Logger
+	xactDefs  Repo
+	xactExps  xactexp.Repo
+	descExecs descexec.Repo
+	descBinds descbind.Repo
+	operator  db.Operator
+	log       *slog.Logger
 }
 
 // for compilation purposes
@@ -53,37 +52,35 @@ func newAPI() API {
 func newService(
 	xactDefs Repo,
 	xactExps xactexp.Repo,
-	synonyms synonym.Repo,
+	descExecs descexec.Repo,
+	descBinds descbind.Repo,
 	operator db.Operator,
-	l *slog.Logger,
+	log *slog.Logger,
 ) *service {
-	return &service{xactDefs, xactExps, synonyms, operator, l}
+	return &service{xactDefs, xactExps, descExecs, descBinds, operator, log}
 }
 
 func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("xactQN", spec.XactQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
-	synVK, keyErr := spec.XactQN.Key()
-	if keyErr != nil {
-		return DefSnap{}, keyErr
-	}
-	newSyn := synonym.Rec{SynQN: spec.XactQN, SynVK: synVK}
 	newExp, convertErr := xactexp.ConvertSpecToRec(spec.XactES)
 	if convertErr != nil {
 		return DefSnap{}, convertErr
 	}
-	newDef := DefRec{
-		DefRef: uniqref.New(),
-		SynVK:  synVK,
-		ExpVK:  newExp.Key(),
-	}
+	newExec := descexec.ExecRec{Ref: descexec.NewExecRef(), Kind: descexec.Xact}
+	newBind := descbind.BindRec{DescQN: spec.XactQN, DescID: newExec.Ref.DescID}
+	newDef := DefRec{XactID: newExec.Ref.DescID, ExpVK: newExp.Key()}
 	transactErr := s.operator.Explicit(ctx, func(ds db.Source) error {
-		err = s.synonyms.InsertRec(ds, newSyn)
+		err = s.descBinds.InsertRec(ds, newBind)
 		if err != nil {
 			return err
 		}
-		err = s.xactExps.InsertRec(ds, newExp, newDef.DefRef)
+		err = s.descExecs.InsertRec(ds, newExec)
+		if err != nil {
+			return err
+		}
+		err = s.xactExps.InsertRec(ds, newExp, newExec.Ref)
 		if err != nil {
 			return err
 		}
@@ -93,9 +90,9 @@ func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 		s.log.Error("creation failed", qnAttr)
 		return DefSnap{}, transactErr
 	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("defRef", newDef.DefRef))
+	s.log.Debug("creation succeed", qnAttr, slog.Any("xactRef", newExec.Ref))
 	return DefSnap{
-		DefRef:  newDef.DefRef,
+		DescRef: newExec.Ref,
 		DefSpec: spec,
 	}, nil
 }

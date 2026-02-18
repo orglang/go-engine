@@ -10,7 +10,7 @@ import (
 	"orglang/go-engine/lib/db"
 	"orglang/go-engine/lib/lf"
 
-	"orglang/go-engine/adt/uniqref"
+	"orglang/go-engine/adt/descexec"
 	"orglang/go-engine/adt/valkey"
 )
 
@@ -29,21 +29,21 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func (dao *pgxDAO) InsertRec(source db.Source, rec ExpRec, ref uniqref.ADT) (err error) {
+func (dao *pgxDAO) InsertRec(source db.Source, rec ExpRec, ref descexec.ExecRef) (err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	idAttr := slog.Any("expVK", rec.Key())
 	dto := dataFromExpRec(rec)
 	batch := pgx.Batch{}
 	for _, st := range dto.States {
-		sa := pgx.NamedArgs{
+		args := pgx.NamedArgs{
 			"exp_vk":     st.ExpVK,
 			"sup_exp_vk": st.SupExpVK,
-			"def_id":     ref.ID,
-			"def_rn":     ref.RN,
+			"desc_id":    ref.DescID,
+			"desc_rn":    ref.DescRN,
 			"kind":       st.K,
 			"spec":       st.Spec,
 		}
-		batch.Queue(insertRec, sa)
+		batch.Queue(insertRec, args)
 	}
 	br := ds.Conn.SendBatch(ds.Ctx, &batch)
 	defer func() {
@@ -138,9 +138,9 @@ func (dao *pgxDAO) SelectRecsByVKs(source db.Source, expVKs []valkey.ADT) (_ []E
 const (
 	insertRec = `
 		insert into xact_exps (
-			exp_vk, sup_exp_vk, def_id, def_rn, kind, spec
+			exp_vk, sup_exp_vk, desc_id, desc_rn, kind, spec
 		) values (
-			@exp_vk, @sup_exp_vk, @def_id, @def_rn, @kind, @spec
+			@exp_vk, @sup_exp_vk, @desc_id, @desc_rn, @kind, @spec
 		)
 		on conflict (exp_vk) do nothing`
 

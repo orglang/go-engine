@@ -71,7 +71,7 @@ func (s *suite) beforeAll(t *testing.T) {
 
 func (s *suite) beforeEach(t *testing.T) {
 	tables := []string{
-		"synonyms",
+		"desc_binds",
 		"xact_defs", "xact_exps",
 		"pool_decs", "pool_execs", "pool_liabs",
 		"proc_decs", "proc_binds", "proc_steps",

@@ -25,8 +25,8 @@ func newEchoController(a API, r te.Renderer, l *slog.Logger) *echoController {
 }
 
 func cfgEchoController(e *echo.Echo, h *echoController) error {
-	e.POST("/api/v1/pools", h.PostSpec)
-	e.GET("/api/v1/pools/:id", h.GetOne)
+	e.POST("/api/v1/pools/execs", h.PostSpec)
+	e.GET("/api/v1/pools/execs/:id", h.GetSnap)
 	e.POST("/api/v1/pools/:id/procs", h.PostProc)
 	return nil
 }
@@ -55,7 +55,7 @@ func (h *echoController) PostSpec(c echo.Context) error {
 	return c.JSON(http.StatusCreated, MsgFromExecRef(ref))
 }
 
-func (h *echoController) GetOne(c echo.Context) error {
+func (h *echoController) GetSnap(c echo.Context) error {
 	var dto poolexec.ExecRef
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {

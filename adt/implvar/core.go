@@ -11,8 +11,8 @@ import (
 type VarSpec struct {
 	// channel placeholder (aka variable name)
 	ChnlPH symbol.ADT
-	// type qualified name (aka variable type)
-	TypeQN uniqsym.ADT
+	// desc qualified name (aka variable type)
+	ImplQN uniqsym.ADT
 }
 
 type VarRec struct {

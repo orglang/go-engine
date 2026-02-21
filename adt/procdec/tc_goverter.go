@@ -30,6 +30,7 @@ var (
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
 // goverter:extend orglang/go-engine/adt/valkey:Convert.*
+// goverter:extend orglang/go-engine/adt/descvar:Data.*
 var (
 	// goverter:map . DescRef
 	DataToDecRec func(decRecDS) (DecRec, error)

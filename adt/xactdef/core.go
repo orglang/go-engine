@@ -59,7 +59,7 @@ func newService(
 func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("qn", spec.XactQN)
-	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
+	s.log.Debug("starting creation...", qnAttr, slog.Any("spec", spec))
 	newExp, convertErr := xactexp.ConvertSpecToRec(spec.XactES)
 	if convertErr != nil {
 		return DefSnap{}, convertErr
@@ -83,7 +83,7 @@ func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 		s.log.Error("creation failed", qnAttr)
 		return DefSnap{}, transactErr
 	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("xactRef", newRef))
+	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", newRef))
 	return DefSnap{
 		DescRef: newRef,
 		DefSpec: spec,

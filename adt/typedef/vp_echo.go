@@ -38,26 +38,26 @@ func cfgEchoPresenter(e *echo.Echo, p *echoPresenter) error {
 
 func (p *echoPresenter) PostOne(c echo.Context) error {
 	var dto DefSpecVP
-	bindingErr := c.Bind(&dto)
-	if bindingErr != nil {
+	bindErr := c.Bind(&dto)
+	if bindErr != nil {
 		p.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
-		return bindingErr
+		return bindErr
 	}
 	ctx := c.Request().Context()
 	p.log.Log(ctx, lf.LevelTrace, "posting started", slog.Any("dto", dto))
-	validationErr := dto.Validate()
-	if validationErr != nil {
+	validateErr := dto.Validate()
+	if validateErr != nil {
 		p.log.Error("validation failed", slog.Any("dto", dto))
-		return validationErr
+		return validateErr
 	}
-	qn, conversionErr := uniqsym.ConvertFromString(dto.TypeQN)
-	if conversionErr != nil {
+	qn, convertErr := uniqsym.ConvertFromString(dto.TypeQN)
+	if convertErr != nil {
 		p.log.Error("conversion failed", slog.Any("dto", dto))
-		return conversionErr
+		return convertErr
 	}
-	snap, creationErr := p.api.Create(DefSpec{TypeQN: qn, TypeES: typeexp.OneSpec{}})
-	if creationErr != nil {
-		return creationErr
+	snap, createErr := p.api.Create(DefSpec{TypeQN: qn, TypeES: typeexp.OneSpec{}})
+	if createErr != nil {
+		return createErr
 	}
 	html, renderingErr := p.ssr.Render("view-one", ViewFromDefSnap(snap))
 	if renderingErr != nil {
@@ -69,9 +69,9 @@ func (p *echoPresenter) PostOne(c echo.Context) error {
 }
 
 func (p *echoPresenter) GetMany(c echo.Context) error {
-	refs, retrievalErr := p.api.RetreiveRefs()
-	if retrievalErr != nil {
-		return retrievalErr
+	refs, retrieveErr := p.api.RetreiveRefs()
+	if retrieveErr != nil {
+		return retrieveErr
 	}
 	html, renderingErr := p.ssr.Render("view-many", descsem.MsgFromRefs(refs))
 	if renderingErr != nil {
@@ -83,26 +83,26 @@ func (p *echoPresenter) GetMany(c echo.Context) error {
 
 func (p *echoPresenter) GetOne(c echo.Context) error {
 	var dto sdk.SemRef
-	bindingErr := c.Bind(&dto)
-	if bindingErr != nil {
+	bindErr := c.Bind(&dto)
+	if bindErr != nil {
 		p.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
-		return bindingErr
+		return bindErr
 	}
 	ctx := c.Request().Context()
 	p.log.Log(ctx, lf.LevelTrace, "getting started", slog.Any("dto", dto))
-	validationErr := dto.Validate()
-	if validationErr != nil {
+	validateErr := dto.Validate()
+	if validateErr != nil {
 		p.log.Error("validation failed", slog.Any("dto", dto))
-		return validationErr
+		return validateErr
 	}
-	ref, conversionErr := descsem.MsgToRef(dto)
-	if conversionErr != nil {
+	ref, convertErr := descsem.MsgToRef(dto)
+	if convertErr != nil {
 		p.log.Error("conversion failed", slog.Any("dto", dto))
-		return conversionErr
+		return convertErr
 	}
-	snap, retrievalErr := p.api.RetrieveSnap(ref)
-	if retrievalErr != nil {
-		return retrievalErr
+	snap, retrieveErr := p.api.RetrieveSnap(ref)
+	if retrieveErr != nil {
+		return retrieveErr
 	}
 	html, renderingErr := p.ssr.Render("view-one", ViewFromDefSnap(snap))
 	if renderingErr != nil {

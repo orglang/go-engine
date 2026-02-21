@@ -8,7 +8,6 @@ import (
 
 	"orglang/go-engine/adt/descsem"
 	"orglang/go-engine/adt/descvar"
-	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/uniqsym"
 )
 
@@ -22,19 +21,19 @@ func newAPI() API {
 }
 
 type DecSpec struct {
-	PoolQN     uniqsym.ADT
+	DescQN     uniqsym.ADT
 	ProviderVS descvar.VarSpec
 	ClientVSes []descvar.VarSpec
 }
 
 type DecRec struct {
-	PoolID     identity.ADT
+	DescRef    descsem.SemRef
 	ProviderVR descvar.VarRec
 	ClientVRs  []descvar.VarRec
 }
 
 func newService(
-	poolDecs repo,
+	poolDecs Repo,
 	descSems descsem.Repo,
 	operator db.Operator,
 	log *slog.Logger,
@@ -43,7 +42,7 @@ func newService(
 }
 
 type service struct {
-	poolDecs repo
+	poolDecs Repo
 	descSems descsem.Repo
 	operator db.Operator
 	log      *slog.Logger
@@ -51,8 +50,8 @@ type service struct {
 
 func (s *service) Create(spec DecSpec) (_ descsem.SemRef, err error) {
 	ctx := context.Background()
-	qnAttr := slog.Any("qn", spec.PoolQN)
-	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
+	qnAttr := slog.Any("qn", spec.DescQN)
+	s.log.Debug("starting creation...", qnAttr, slog.Any("spec", spec))
 	xactQNs := make([]uniqsym.ADT, 0, len(spec.ClientVSes)+1)
 	for _, spec := range spec.ClientVSes {
 		xactQNs = append(xactQNs, spec.DescQN)
@@ -70,14 +69,14 @@ func (s *service) Create(spec DecSpec) (_ descsem.SemRef, err error) {
 		DescID: xactRefs[spec.ProviderVS.DescQN].DescID,
 	}
 	clientVRs := make([]descvar.VarRec, 0, len(spec.ClientVSes))
-	for _, bs := range spec.ClientVSes {
-		clientVRs = append(clientVRs, descvar.VarRec{ChnlPH: bs.ChnlPH, DescID: xactRefs[bs.DescQN].DescID})
+	for _, vs := range spec.ClientVSes {
+		clientVRs = append(clientVRs, descvar.VarRec{ChnlPH: vs.ChnlPH, DescID: xactRefs[vs.DescQN].DescID})
 	}
 	newRef := descsem.NewRef()
-	newBind := descsem.SemBind{DescQN: spec.PoolQN, DescID: newRef.DescID}
+	newBind := descsem.SemBind{DescQN: spec.DescQN, DescID: newRef.DescID}
 	newDesc := descsem.SemRec{Ref: newRef, Bind: newBind, Kind: descsem.Pool}
 	newDec := DecRec{
-		PoolID:     newDesc.Ref.DescID,
+		DescRef:    newRef,
 		ProviderVR: providerVR,
 		ClientVRs:  clientVRs,
 	}

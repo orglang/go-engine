@@ -30,26 +30,26 @@ func cfgEchoController(e *echo.Echo, h *echoController) error {
 
 func (h *echoController) PostSpec(c echo.Context) error {
 	var dto xactdef.DefSpec
-	bindingErr := c.Bind(&dto)
-	if bindingErr != nil {
+	bindErr := c.Bind(&dto)
+	if bindErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
-		return bindingErr
+		return bindErr
 	}
 	ctx := c.Request().Context()
 	h.log.Log(ctx, lf.LevelTrace, "posting started", slog.Any("dto", dto))
-	validationErr := dto.Validate()
-	if validationErr != nil {
+	validateErr := dto.Validate()
+	if validateErr != nil {
 		h.log.Error("validation failed", slog.Any("dto", dto))
-		return validationErr
+		return validateErr
 	}
-	spec, conversionErr := MsgToDefSpec(dto)
-	if conversionErr != nil {
+	spec, convertErr := MsgToDefSpec(dto)
+	if convertErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
-		return conversionErr
+		return convertErr
 	}
-	snap, creationErr := h.api.Create(spec)
-	if creationErr != nil {
-		return creationErr
+	snap, createErr := h.api.Create(spec)
+	if createErr != nil {
+		return createErr
 	}
 	h.log.Log(ctx, lf.LevelTrace, "posting succeed", slog.Any("ref", snap.DescRef))
 	return c.JSON(http.StatusCreated, MsgFromDefSnap(snap))

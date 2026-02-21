@@ -8,6 +8,7 @@ import (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
+// goverter:extend orglang/go-engine/adt/implsem:Msg.*
 var (
 	MsgToExecSpec   func(poolexec.ExecSpec) (ExecSpec, error)
 	MsgFromExecSpec func(ExecSpec) poolexec.ExecSpec
@@ -19,9 +20,9 @@ var (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 var (
-	// goverter:map . ExecRef
+	// goverter:map . ImplRef
 	DataToExecRec func(execRecDS) (ExecRec, error)
-	// goverter:autoMap ExecRef
+	// goverter:autoMap ImplRef
 	DataFromExecRec func(ExecRec) execRecDS
 	// goverter:map . ExecRef
 	DataToLiab func(liabDS) (Liab, error)

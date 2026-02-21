@@ -10,9 +10,9 @@ func newExchangeCS(loader kv.Loader) (exchangeCS, error) {
 	if loadingErr != nil {
 		return exchangeCS{}, loadingErr
 	}
-	validationErr := dto.Validate()
-	if validationErr != nil {
-		return exchangeCS{}, validationErr
+	validateErr := dto.Validate()
+	if validateErr != nil {
+		return exchangeCS{}, validateErr
 	}
 	return *dto, nil
 }

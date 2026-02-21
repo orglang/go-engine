@@ -1143,64 +1143,64 @@ func (s *service) checkClient(
 			}
 		}
 		return nil
-	case procexp.SpawnSpecOld:
-		procDec, ok := procEnv.ProcDecs[expSpec.SigID]
-		if !ok {
-			err := procdec.ErrRootMissingInEnv(expSpec.SigID)
-			s.log.Error("checking failed")
-			return err
-		}
-		// check vals
-		if len(expSpec.Ys) != len(procDec.ClientVSes) {
-			err := fmt.Errorf("context mismatch: want %v items, got %v items", len(procDec.ClientVSes), len(expSpec.Ys))
-			s.log.Error("checking failed", slog.Any("want", procDec.ClientVSes), slog.Any("got", expSpec.Ys))
-			return err
-		}
-		if len(expSpec.Ys) == 0 {
-			return nil
-		}
-		for i, ep := range procDec.ClientVSes {
-			valType, ok := procEnv.TypeDefs[ep.TypeQN]
-			if !ok {
-				err := typedef.ErrSymMissingInEnv(ep.TypeQN)
-				s.log.Error("checking failed")
-				return err
-			}
-			wantVal, ok := procEnv.TypeExps[valType.ExpVK]
-			if !ok {
-				err := typedef.ErrMissingInEnv(valType.ExpVK)
-				s.log.Error("checking failed")
-				return err
-			}
-			gotVal, ok := procCtx.Assets[expSpec.Ys[i]]
-			if !ok {
-				err := procdef.ErrMissingInCtx(ep.ChnlPH)
-				s.log.Error("checking failed")
-				return err
-			}
-			err := typeexp.CheckRec(gotVal, wantVal)
-			if err != nil {
-				s.log.Error("checking failed", slog.Any("want", wantVal), slog.Any("got", gotVal))
-				return err
-			}
-			delete(procCtx.Assets, expSpec.Ys[i])
-		}
-		// check via
-		viaRole, ok := procEnv.TypeDefs[procDec.ProviderVS.TypeQN]
-		if !ok {
-			err := typedef.ErrSymMissingInEnv(procDec.ProviderVS.TypeQN)
-			s.log.Error("checking failed")
-			return err
-		}
-		wantVia, ok := procEnv.TypeExps[viaRole.ExpVK]
-		if !ok {
-			err := typedef.ErrMissingInEnv(viaRole.ExpVK)
-			s.log.Error("checking failed")
-			return err
-		}
-		// check cont
-		procCtx.Assets[expSpec.X] = wantVia
-		return s.checkType(procEnv, procCtx, procCfg, expSpec.ContES)
+	// case procexp.SpawnSpecOld:
+	// 	procDec, ok := procEnv.ProcDecs[expSpec.SigID]
+	// 	if !ok {
+	// 		err := procdec.ErrRootMissingInEnv(expSpec.SigID)
+	// 		s.log.Error("checking failed")
+	// 		return err
+	// 	}
+	// 	// check vals
+	// 	if len(expSpec.Ys) != len(procDec.ClientVRs) {
+	// 		err := fmt.Errorf("context mismatch: want %v items, got %v items", len(procDec.ClientVRs), len(expSpec.Ys))
+	// 		s.log.Error("checking failed", slog.Any("want", procDec.ClientVRs), slog.Any("got", expSpec.Ys))
+	// 		return err
+	// 	}
+	// 	if len(expSpec.Ys) == 0 {
+	// 		return nil
+	// 	}
+	// 	for i, ep := range procDec.ClientVRs {
+	// 		valType, ok := procEnv.TypeDefs[ep.ImplQN]
+	// 		if !ok {
+	// 			err := typedef.ErrSymMissingInEnv(ep.ImplQN)
+	// 			s.log.Error("checking failed")
+	// 			return err
+	// 		}
+	// 		wantVal, ok := procEnv.TypeExps[valType.ExpVK]
+	// 		if !ok {
+	// 			err := typedef.ErrMissingInEnv(valType.ExpVK)
+	// 			s.log.Error("checking failed")
+	// 			return err
+	// 		}
+	// 		gotVal, ok := procCtx.Assets[expSpec.Ys[i]]
+	// 		if !ok {
+	// 			err := procdef.ErrMissingInCtx(ep.ChnlPH)
+	// 			s.log.Error("checking failed")
+	// 			return err
+	// 		}
+	// 		err := typeexp.CheckRec(gotVal, wantVal)
+	// 		if err != nil {
+	// 			s.log.Error("checking failed", slog.Any("want", wantVal), slog.Any("got", gotVal))
+	// 			return err
+	// 		}
+	// 		delete(procCtx.Assets, expSpec.Ys[i])
+	// 	}
+	// 	// check via
+	// 	viaRole, ok := procEnv.TypeDefs[procDec.ProviderVR.ImplQN]
+	// 	if !ok {
+	// 		err := typedef.ErrSymMissingInEnv(procDec.ProviderVR.ImplQN)
+	// 		s.log.Error("checking failed")
+	// 		return err
+	// 	}
+	// 	wantVia, ok := procEnv.TypeExps[viaRole.ExpVK]
+	// 	if !ok {
+	// 		err := typedef.ErrMissingInEnv(viaRole.ExpVK)
+	// 		s.log.Error("checking failed")
+	// 		return err
+	// 	}
+	// 	// check cont
+	// 	procCtx.Assets[expSpec.X] = wantVia
+	// 	return s.checkType(procEnv, procCtx, procCfg, expSpec.ContES)
 	default:
 		panic(procexp.ErrExpTypeUnexpected(es))
 	}

@@ -19,20 +19,20 @@ func newPgxDAO(l *slog.Logger) *pgxDAO {
 }
 
 // for compilation purposes
-func newRepo() repo {
+func newRepo() Repo {
 	return new(pgxDAO)
 }
 
 func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
-	idAttr := slog.Any("id", rec.PoolID)
+	idAttr := slog.Any("id", rec.DescRef.DescID)
 	dto, err := DataFromDecRec(rec)
 	if err != nil {
 		dao.log.Error("model conversion failed", idAttr)
 		return err
 	}
 	args := pgx.NamedArgs{
-		"desc_id":     dto.PoolID,
+		"desc_id":     dto.DescID,
 		"provider_vr": dto.ProviderVR,
 		"client_vrs":  dto.ClientVRs,
 	}

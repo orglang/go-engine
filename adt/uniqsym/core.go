@@ -55,6 +55,10 @@ func (a ADT) Equal(b ADT) bool {
 	return a.ns.Equal(*b.ns)
 }
 
+func (a ADT) String() string {
+	return ConvertToString(a)
+}
+
 const (
 	sepKey = 1
 )

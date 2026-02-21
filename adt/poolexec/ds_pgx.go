@@ -29,15 +29,17 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec ExecRec) (err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	dto := DataFromExecRec(rec)
 	args := pgx.NamedArgs{
-		"exec_id": dto.ImplID,
-		"exec_rn": dto.ImplRN,
+		"impl_id":     dto.ImplID,
+		"provider_ph": dto.ProviderPH,
+		"client_srs":  dto.ClientSRs,
 	}
-	_, err = ds.Conn.Exec(ds.Ctx, insertExec, args)
+	refAttr := slog.Any("ref", rec.ImplRef)
+	_, err = ds.Conn.Exec(ds.Ctx, insertRec, args)
 	if err != nil {
-		dao.log.Error("execution failed")
+		dao.log.Error("execution failed", refAttr)
 		return err
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "insertion succeed", slog.Any("execRef", rec.ExecRef))
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "insertion succeed", refAttr)
 	return nil
 }
 
@@ -107,11 +109,11 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]implsem.SemRef, error) {
 }
 
 const (
-	insertExec = `
+	insertRec = `
 		insert into pool_execs (
-			exec_id, exec_rn, proc_id
+			impl_id, provider_ph, client_srs
 		) values (
-			@exec_id, @exec_rn, @proc_id
+			@impl_id, @provider_ph, @client_srs
 		)`
 
 	insertLiab = `

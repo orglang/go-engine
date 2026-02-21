@@ -10,9 +10,9 @@ func newStorageCS(l kv.Loader) (storageCS, error) {
 	if loadingErr != nil {
 		return storageCS{}, loadingErr
 	}
-	validationErr := dto.Validate()
-	if validationErr != nil {
-		return storageCS{}, validationErr
+	validateErr := dto.Validate()
+	if validateErr != nil {
+		return storageCS{}, validateErr
 	}
 	return *dto, nil
 }

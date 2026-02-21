@@ -17,6 +17,8 @@ var (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 var (
-	DataToDecRec   func(decRecDS) (DecRec, error)
+	// goverter:map . DescRef
+	DataToDecRec func(decRecDS) (DecRec, error)
+	// goverter:autoMap DescRef
 	DataFromDecRec func(DecRec) (decRecDS, error)
 )

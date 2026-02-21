@@ -9,8 +9,8 @@ import (
 	"orglang/go-engine/lib/db"
 
 	"orglang/go-engine/adt/descsem"
+	"orglang/go-engine/adt/descvar"
 	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/implvar"
 	"orglang/go-engine/adt/uniqsym"
 )
 
@@ -22,24 +22,24 @@ type API interface {
 }
 
 type DecSpec struct {
-	ProcQN uniqsym.ADT
+	DescQN uniqsym.ADT
 	// endpoint where process acts as a provider
-	ProviderVS implvar.VarSpec
+	ProviderVS descvar.VarSpec
 	// endpoints where process acts as a client
-	ClientVSes []implvar.VarSpec
+	ClientVSes []descvar.VarSpec
 }
 
 type DecRec struct {
 	DescRef    descsem.SemRef
-	ProviderVS implvar.VarSpec
-	ClientVSes []implvar.VarSpec
+	ProviderVR descvar.VarRec
+	ClientVRs  []descvar.VarRec
 }
 
 // aka ExpDec or ExpDecDef without expression
 type DecSnap struct {
 	DescRef    descsem.SemRef
-	ProviderVS implvar.VarSpec
-	ClientVSes []implvar.VarSpec
+	ProviderVR descvar.VarRec
+	ClientVRs  []descvar.VarRec
 }
 
 type service struct {
@@ -61,7 +61,7 @@ func newService(procDecs Repo, descSems descsem.Repo, operator db.Operator, log 
 func (s *service) Incept(procQN uniqsym.ADT) (_ descsem.SemRef, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("qn", procQN)
-	s.log.Debug("inception started", qnAttr)
+	s.log.Debug("starting inception...", qnAttr)
 	newRef := descsem.NewRef()
 	newDec := DecRec{DescRef: newRef}
 	newBind := descsem.SemBind{DescQN: procQN, DescID: newRef.DescID}
@@ -81,32 +81,55 @@ func (s *service) Incept(procQN uniqsym.ADT) (_ descsem.SemRef, err error) {
 		s.log.Error("inception failed", qnAttr)
 		return descsem.SemRef{}, err
 	}
-	s.log.Debug("inception succeed", qnAttr, slog.Any("decRef", newDec.DescRef))
+	s.log.Debug("inception succeed", qnAttr, slog.Any("ref", newDec.DescRef))
 	return newDec.DescRef, nil
 }
 
 func (s *service) Create(spec DecSpec) (_ descsem.SemRef, err error) {
 	ctx := context.Background()
-	qnAttr := slog.Any("procQN", spec.ProcQN)
-	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
-	newRec := DecRec{
-		DescRef:    descsem.NewRef(),
-		ProviderVS: spec.ProviderVS,
-		ClientVSes: spec.ClientVSes,
+	qnAttr := slog.Any("qn", spec.DescQN)
+	s.log.Debug("starting creation...", qnAttr, slog.Any("spec", spec))
+	typeQNs := make([]uniqsym.ADT, 0, len(spec.ClientVSes)+1)
+	for _, spec := range spec.ClientVSes {
+		typeQNs = append(typeQNs, spec.DescQN)
 	}
-	err = s.operator.Explicit(ctx, func(ds db.Source) error {
-		err = s.procDecs.InsertRec(ds, newRec)
+	var typeRefs map[uniqsym.ADT]descsem.SemRef
+	selectErr := s.operator.Implicit(ctx, func(ds db.Source) error {
+		typeRefs, err = s.descSems.SelectRefsByQNs(ds, append(typeQNs, spec.ProviderVS.DescQN))
+		return err
+	})
+	if selectErr != nil {
+		return descsem.SemRef{}, selectErr
+	}
+	providerVR := descvar.VarRec{
+		ChnlPH: spec.ProviderVS.ChnlPH,
+		DescID: typeRefs[spec.ProviderVS.DescQN].DescID,
+	}
+	clientVRs := make([]descvar.VarRec, 0, len(spec.ClientVSes))
+	for _, vs := range spec.ClientVSes {
+		clientVRs = append(clientVRs, descvar.VarRec{ChnlPH: vs.ChnlPH, DescID: typeRefs[vs.DescQN].DescID})
+	}
+	newRef := descsem.NewRef()
+	newBind := descsem.SemBind{DescQN: spec.DescQN, DescID: newRef.DescID}
+	newDesc := descsem.SemRec{Ref: newRef, Bind: newBind, Kind: descsem.Pool}
+	newDec := DecRec{
+		DescRef:    newRef,
+		ProviderVR: providerVR,
+		ClientVRs:  clientVRs,
+	}
+	transactErr := s.operator.Explicit(ctx, func(ds db.Source) error {
+		err = s.descSems.InsertRec(ds, newDesc)
 		if err != nil {
 			return err
 		}
-		return nil
+		return s.procDecs.InsertRec(ds, newDec)
 	})
-	if err != nil {
+	if transactErr != nil {
 		s.log.Error("creation failed", qnAttr)
-		return descsem.SemRef{}, err
+		return descsem.SemRef{}, transactErr
 	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("decRef", newRec.DescRef))
-	return newRec.DescRef, nil
+	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", newRef))
+	return newRef, nil
 }
 
 func (s *service) RetrieveSnap(ref descsem.SemRef) (snap DecSnap, err error) {
@@ -116,7 +139,7 @@ func (s *service) RetrieveSnap(ref descsem.SemRef) (snap DecSnap, err error) {
 		return err
 	})
 	if err != nil {
-		s.log.Error("retrieval failed", slog.Any("decRef", ref))
+		s.log.Error("retrieval failed", slog.Any("ref", ref))
 		return DecSnap{}, err
 	}
 	return snap, nil
@@ -136,14 +159,7 @@ func (s *service) RetreiveRefs() (refs []descsem.SemRef, err error) {
 }
 
 func CollectEnv(recs iter.Seq[DecRec]) []uniqsym.ADT {
-	typeQNs := []uniqsym.ADT{}
-	for rec := range recs {
-		typeQNs = append(typeQNs, rec.ProviderVS.TypeQN)
-		for _, y := range rec.ClientVSes {
-			typeQNs = append(typeQNs, y.TypeQN)
-		}
-	}
-	return typeQNs
+	return []uniqsym.ADT{}
 }
 
 func ErrRootMissingInEnv(rid identity.ADT) error {

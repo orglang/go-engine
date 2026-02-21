@@ -4,8 +4,8 @@ import (
 	"orglang/go-engine/lib/db"
 
 	"orglang/go-engine/adt/descsem"
+	"orglang/go-engine/adt/descvar"
 	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/implvar"
 )
 
 type Repo interface {
@@ -17,15 +17,15 @@ type Repo interface {
 }
 
 type decRecDS struct {
-	DescID     string              `db:"desc_id"`
-	DescRN     int64               `db:"desc_rn"`
-	ClientVSes []implvar.VarSpecDS `db:"client_vrs"`
-	ProviderVS implvar.VarSpecDS   `db:"provider_vr"`
+	DescID     string             `db:"desc_id"`
+	DescRN     int64              `db:"desc_rn"`
+	ProviderVR descvar.VarRecDS   `db:"provider_vr"`
+	ClientVRs  []descvar.VarRecDS `db:"client_vrs"`
 }
 
 type decSnapDS struct {
-	DescID     string              `db:"desc_id"`
-	DescRN     int64               `db:"desc_rn"`
-	ClientVSes []implvar.VarSpecDS `db:"client_vrs"`
-	ProviderVS implvar.VarSpecDS   `db:"provider_vr"`
+	DescID     string             `db:"desc_id"`
+	DescRN     int64              `db:"desc_rn"`
+	ProviderVR descvar.VarRecDS   `db:"provider_vr"`
+	ClientVRs  []descvar.VarRecDS `db:"client_vrs"`
 }

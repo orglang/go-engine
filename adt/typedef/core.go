@@ -73,7 +73,7 @@ func newService(
 func (s *service) Incept(typeQN uniqsym.ADT) (_ descsem.SemRef, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("qn", typeQN)
-	s.log.Debug("inception started", qnAttr)
+	s.log.Debug("starting inception...", qnAttr)
 	newRef := descsem.NewRef()
 	newBind := descsem.SemBind{DescQN: typeQN, DescID: newRef.DescID}
 	newDesc := descsem.SemRec{Ref: descsem.NewRef(), Bind: newBind, Kind: descsem.Type}
@@ -95,7 +95,7 @@ func (s *service) Incept(typeQN uniqsym.ADT) (_ descsem.SemRef, err error) {
 func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("qn", spec.TypeQN)
-	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
+	s.log.Debug("starting creation...", qnAttr, slog.Any("spec", spec))
 	newRef := descsem.NewRef()
 	newBind := descsem.SemBind{DescQN: spec.TypeQN, DescID: newRef.DescID}
 	newDesc := descsem.SemRec{Ref: descsem.NewRef(), Bind: newBind, Kind: descsem.Type}

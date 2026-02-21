@@ -34,41 +34,41 @@ func cfgEchoController(e *echo.Echo, h *echoController) error {
 
 func (h *echoController) GetSnap(c echo.Context) error {
 	var dto sdksem.SemRef
-	bindingErr := c.Bind(&dto)
-	if bindingErr != nil {
+	bindErr := c.Bind(&dto)
+	if bindErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", dto))
-		return bindingErr
+		return bindErr
 	}
-	ref, conversionErr := implsem.MsgToRef(dto)
-	if conversionErr != nil {
+	ref, convertErr := implsem.MsgToRef(dto)
+	if convertErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
-		return conversionErr
+		return convertErr
 	}
-	snap, retrievalErr := h.api.RetrieveSnap(ref)
-	if retrievalErr != nil {
-		return retrievalErr
+	snap, retrieveErr := h.api.RetrieveSnap(ref)
+	if retrieveErr != nil {
+		return retrieveErr
 	}
 	return c.JSON(http.StatusOK, MsgFromExecSnap(snap))
 }
 
 func (h *echoController) PostStep(c echo.Context) error {
 	var dto sdkstep.StepSpec
-	bindingErr := c.Bind(&dto)
-	if bindingErr != nil {
+	bindErr := c.Bind(&dto)
+	if bindErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
-		return bindingErr
+		return bindErr
 	}
 	ctx := c.Request().Context()
 	h.log.Log(ctx, lf.LevelTrace, "posting started", slog.Any("dto", dto))
-	validationErr := dto.Validate()
-	if validationErr != nil {
+	validateErr := dto.Validate()
+	if validateErr != nil {
 		h.log.Error("validation failed", slog.Any("dto", dto))
-		return validationErr
+		return validateErr
 	}
-	spec, conversionErr := procstep.MsgToStepSpec(dto)
-	if conversionErr != nil {
+	spec, convertErr := procstep.MsgToStepSpec(dto)
+	if convertErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
-		return conversionErr
+		return convertErr
 	}
 	takingErr := h.api.Take(spec)
 	if takingErr != nil {

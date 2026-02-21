@@ -39,8 +39,8 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 	}
 	args := pgx.NamedArgs{
 		"desc_id":     dto.DescID,
-		"client_vrs":  dto.ClientVSes,
-		"provider_vr": dto.ProviderVS,
+		"client_vrs":  dto.ClientVRs,
+		"provider_vr": dto.ProviderVR,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertRec, args)
 	if err != nil {

@@ -2,7 +2,7 @@ package implvar
 
 type VarSpecDS struct {
 	ChnlPH string `json:"chnl_ph"`
-	TypeQN string `json:"type_qn"`
+	ImplQN string `json:"impl_qn"`
 }
 
 type VarRecDS struct {

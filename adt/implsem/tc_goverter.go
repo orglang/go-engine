@@ -21,14 +21,17 @@ var (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/revnum:Convert.*
+// goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
 var (
 	DataFromRef  func(SemRef) (SemRefDS, error)
 	DataFromRefs func([]SemRef) ([]SemRefDS, error)
 	DataToRef    func(SemRefDS) (SemRef, error)
 	DataToRefs   func([]SemRefDS) ([]SemRef, error)
 	// goverter:autoMap Ref
+	// goverter:map Bind.ImplQN ImplQN
 	DataFromRec func(SemRec) (semRecDS, error)
 	// goverter:map . Ref
+	// goverter:map . Bind
 	DataToRec    func(semRecDS) (SemRec, error)
 	DataToRefMap func(map[uniqsym.ADT]SemRefDS) (map[uniqsym.ADT]SemRef, error)
 )

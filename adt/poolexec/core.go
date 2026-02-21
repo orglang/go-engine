@@ -9,8 +9,11 @@ import (
 
 	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/implsem"
+	"orglang/go-engine/adt/implsubst"
+	"orglang/go-engine/adt/pooldec"
 	"orglang/go-engine/adt/poolstep"
 	"orglang/go-engine/adt/procdec"
+	"orglang/go-engine/adt/symbol"
 	"orglang/go-engine/adt/typedef"
 	"orglang/go-engine/adt/typeexp"
 	"orglang/go-engine/adt/uniqsym"
@@ -25,11 +28,18 @@ type API interface {
 }
 
 type ExecSpec struct {
-	PoolQN uniqsym.ADT
+	// ссылка на декларацию пула
+	DescQN uniqsym.ADT
+	// внутренняя и внешняя ссылки на вновь создаваемый пул
+	ProviderSS implsubst.SubstSpec
+	// подстановки ранее созданных пулов
+	ClientSSes []implsubst.SubstSpec
 }
 
 type ExecRec struct {
-	ExecRef implsem.SemRef
+	ImplRef    implsem.SemRef
+	ProviderPH symbol.ADT
+	ClientSRs  []implsubst.SubstRec
 }
 
 type ExecSnap struct {
@@ -52,6 +62,8 @@ type Liab struct {
 
 type service struct {
 	poolExecs Repo
+	implSems  implsem.Repo
+	poolDecs  pooldec.Repo
 	procDecs  procdec.Repo
 	typeDefs  typedef.Repo
 	typeExps  typeexp.Repo
@@ -66,6 +78,8 @@ func newAPI() API {
 
 func newService(
 	poolExecs Repo,
+	implSems implsem.Repo,
+	poolDecs pooldec.Repo,
 	procDecs procdec.Repo,
 	typeDefs typedef.Repo,
 	typeExps typeexp.Repo,
@@ -73,25 +87,54 @@ func newService(
 	log *slog.Logger,
 ) *service {
 	name := slog.String("name", reflect.TypeFor[service]().Name())
-	return &service{poolExecs, procDecs, typeDefs, typeExps, operator, log.With(name)}
+	return &service{poolExecs, implSems, poolDecs, procDecs, typeDefs, typeExps, operator, log.With(name)}
 }
 
-func (s *service) Run(spec ExecSpec) (implsem.SemRef, error) {
+func (s *service) Run(spec ExecSpec) (_ implsem.SemRef, err error) {
 	ctx := context.Background()
-	qnAttr := slog.Any("qn", spec.PoolQN)
-	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
-	execRec := ExecRec{
-		ExecRef: implsem.NewRef(),
+	ssAttr := slog.Any("ss", spec.ProviderSS)
+	s.log.Debug("starting creation...", ssAttr, slog.Any("spec", spec))
+	execQNs := make([]uniqsym.ADT, 0, len(spec.ClientSSes)+1)
+	for _, ss := range spec.ClientSSes {
+		if ss.ImplQN == spec.ProviderSS.ImplQN {
+			continue
+		}
+		execQNs = append(execQNs, ss.ImplQN)
 	}
+	var execRefs map[uniqsym.ADT]implsem.SemRef
+	selectErr := s.operator.Implicit(ctx, func(ds db.Source) error {
+		execRefs, err = s.implSems.SelectRefsByQNs(ds, execQNs)
+		return err
+	})
+	if selectErr != nil {
+		s.log.Error("creation failed", ssAttr)
+		return implsem.SemRef{}, selectErr
+	}
+	newRef := implsem.NewRef()
+	newBind := implsem.SemBind{ImplQN: spec.ProviderSS.ImplQN, ImplID: newRef.ImplID}
+	newImpl := implsem.SemRec{Ref: newRef, Bind: newBind, Kind: implsem.Pool}
+	clientSRs := make([]implsubst.SubstRec, 0, len(spec.ClientSSes))
+	for _, ss := range spec.ClientSSes {
+		if ss.ImplQN == spec.ProviderSS.ImplQN {
+			clientSRs = append(clientSRs, implsubst.SubstRec{ChnlPH: ss.ChnlPH, ImplID: newRef.ImplID})
+			continue
+		}
+		clientSRs = append(clientSRs, implsubst.SubstRec{ChnlPH: ss.ChnlPH, ImplID: execRefs[ss.ImplQN].ImplID})
+	}
+	newExec := ExecRec{ImplRef: newRef, ProviderPH: spec.ProviderSS.ChnlPH, ClientSRs: clientSRs}
 	transactErr := s.operator.Explicit(ctx, func(ds db.Source) error {
-		return s.poolExecs.InsertRec(ds, execRec)
+		err = s.implSems.InsertRec(ds, newImpl)
+		if err != nil {
+			return err
+		}
+		return s.poolExecs.InsertRec(ds, newExec)
 	})
 	if transactErr != nil {
-		s.log.Error("creation failed", qnAttr)
+		s.log.Error("creation failed", ssAttr)
 		return implsem.SemRef{}, transactErr
 	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", execRec.ExecRef))
-	return execRec.ExecRef, nil
+	s.log.Debug("creation succeed", ssAttr, slog.Any("ref", newRef))
+	return newRef, nil
 }
 
 func (s *service) Poll(spec PollSpec) (implsem.SemRef, error) {
@@ -99,8 +142,8 @@ func (s *service) Poll(spec PollSpec) (implsem.SemRef, error) {
 }
 
 func (s *service) Take(spec poolstep.StepSpec) (err error) {
-	qnAttr := slog.Any("qn", spec.ProcQN)
-	s.log.Debug("spawning started", qnAttr)
+	refAttr := slog.Any("ref", spec.ImplRef)
+	s.log.Debug("starting taking...", refAttr)
 	return nil
 }
 

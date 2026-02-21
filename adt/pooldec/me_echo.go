@@ -30,24 +30,24 @@ func cfgEchoController(e *echo.Echo, h *echoController) error {
 
 func (h *echoController) PostSpec(c echo.Context) error {
 	var dto pooldec.DecSpec
-	bindingErr := c.Bind(&dto)
-	if bindingErr != nil {
+	bindErr := c.Bind(&dto)
+	if bindErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
-		return bindingErr
+		return bindErr
 	}
-	validationErr := dto.Validate()
-	if validationErr != nil {
+	validateErr := dto.Validate()
+	if validateErr != nil {
 		h.log.Error("validation failed", slog.Any("dto", dto))
-		return validationErr
+		return validateErr
 	}
-	spec, conversionErr := MsgToDecSpec(dto)
-	if conversionErr != nil {
+	spec, convertErr := MsgToDecSpec(dto)
+	if convertErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
-		return conversionErr
+		return convertErr
 	}
-	ref, creationErr := h.api.Create(spec)
-	if creationErr != nil {
-		return creationErr
+	ref, createErr := h.api.Create(spec)
+	if createErr != nil {
+		return createErr
 	}
 	return c.JSON(http.StatusCreated, descsem.MsgFromRef(ref))
 }

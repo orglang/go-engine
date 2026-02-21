@@ -19,5 +19,6 @@ type SemRefDS struct {
 type semRecDS struct {
 	ImplID string `db:"impl_id"`
 	ImplRN int64  `db:"impl_rn"`
+	ImplQN string `db:"impl_qn"`
 	Kind   uint8  `db:"kind"`
 }

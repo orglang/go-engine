@@ -28,8 +28,8 @@ CREATE TABLE xact_exps (
 
 CREATE TABLE pool_decs (
 	desc_id varchar(36) UNIQUE,
-    client_vrs jsonb,
-    provider_vr jsonb
+    provider_vr jsonb,
+    client_vrs jsonb
 );
 
 CREATE TABLE impl_sems (
@@ -44,10 +44,12 @@ CREATE TABLE impl_binds (
 	impl_id varchar(36)
 );
 
+CREATE INDEX impl_qn_gist_idx ON impl_binds USING GIST (impl_qn);
+
 CREATE TABLE pool_execs (
-	exec_id varchar(36),
-	exec_rn bigint,
-	proc_id varchar(36)
+	impl_id varchar(36) UNIQUE,
+    provider_ph varchar,
+    client_srs jsonb
 );
 
 -- передачи каналов (провайдерская сторона)

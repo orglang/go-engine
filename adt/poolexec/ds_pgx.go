@@ -6,6 +6,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"orglang/go-engine/adt/implsem"
 	"orglang/go-engine/lib/db"
 	"orglang/go-engine/lib/lf"
 )
@@ -28,8 +29,8 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec ExecRec) (err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	dto := DataFromExecRec(rec)
 	args := pgx.NamedArgs{
-		"exec_id": dto.ID,
-		"exec_rn": dto.RN,
+		"exec_id": dto.ImplID,
+		"exec_rn": dto.ImplRN,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertExec, args)
 	if err != nil {
@@ -44,8 +45,8 @@ func (dao *pgxDAO) InsertLiab(source db.Source, liab Liab) (err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	dto := DataFromLiab(liab)
 	args := pgx.NamedArgs{
-		"exec_id": dto.ID,
-		"exec_rn": dto.RN,
+		"exec_id": dto.ImplID,
+		"exec_rn": dto.ImplRN,
 		"proc_id": dto.ProcID,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertLiab, args)
@@ -57,10 +58,10 @@ func (dao *pgxDAO) InsertLiab(source db.Source, liab Liab) (err error) {
 	return nil
 }
 
-func (dao *pgxDAO) SelectSubs(source db.Source, ref ExecRef) (ExecSnap, error) {
+func (dao *pgxDAO) SelectSubs(source db.Source, ref implsem.SemRef) (ExecSnap, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("execRef", ref)
-	rows, err := ds.Conn.Query(ds.Ctx, selectOrgSnap, ref.ID.String())
+	rows, err := ds.Conn.Query(ds.Ctx, selectOrgSnap, ref.ImplID.String())
 	if err != nil {
 		dao.log.Error("execution failed", refAttr)
 		return ExecSnap{}, err
@@ -80,7 +81,7 @@ func (dao *pgxDAO) SelectSubs(source db.Source, ref ExecRef) (ExecSnap, error) {
 	return snap, nil
 }
 
-func (dao *pgxDAO) SelectRefs(source db.Source) ([]ExecRef, error) {
+func (dao *pgxDAO) SelectRefs(source db.Source) ([]implsem.SemRef, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	query := `
 		select
@@ -92,12 +93,12 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]ExecRef, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[execRefDS])
+	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[implsem.SemRefDS])
 	if err != nil {
-		dao.log.Error("collection failed", slog.Any("type", reflect.TypeFor[[]execRefDS]))
+		dao.log.Error("collection failed", slog.Any("type", reflect.TypeFor[[]implsem.SemRefDS]))
 		return nil, err
 	}
-	refs, err := DataToExecRefs(dtos)
+	refs, err := implsem.DataToRefs(dtos)
 	if err != nil {
 		dao.log.Error("conversion failed")
 		return nil, err

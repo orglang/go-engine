@@ -9,7 +9,8 @@ import (
 
 	"orglang/go-engine/lib/db"
 
-	"orglang/go-engine/adt/procbind"
+	"orglang/go-engine/adt/implsem"
+	"orglang/go-engine/adt/implvar"
 	"orglang/go-engine/adt/procstep"
 	"orglang/go-engine/adt/revnum"
 )
@@ -29,26 +30,26 @@ func newPgxDAO(l *slog.Logger) *pgxDAO {
 	return &pgxDAO{l.With(name)}
 }
 
-func (dao *pgxDAO) SelectSnap(source db.Source, execRef ExecRef) (ExecSnap, error) {
+func (dao *pgxDAO) SelectSnap(source db.Source, execRef implsem.SemRef) (ExecSnap, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("execRef", execRef)
-	chnlRows, err := ds.Conn.Query(ds.Ctx, selectChnls, execRef.ID.String())
+	chnlRows, err := ds.Conn.Query(ds.Ctx, selectChnls, execRef.ImplID.String())
 	if err != nil {
 		dao.log.Error("execution failed", refAttr)
 		return ExecSnap{}, err
 	}
 	defer chnlRows.Close()
-	chnlDtos, err := pgx.CollectRows(chnlRows, pgx.RowToStructByName[procbind.BindRecDS])
+	chnlDtos, err := pgx.CollectRows(chnlRows, pgx.RowToStructByName[implvar.VarRecDS])
 	if err != nil {
 		dao.log.Error("collection failed", refAttr, slog.Any("t", reflect.TypeOf(chnlDtos)))
 		return ExecSnap{}, err
 	}
-	chnls, err := procbind.DataToBindRecs(chnlDtos)
+	chnls, err := implvar.DataToVarRecs(chnlDtos)
 	if err != nil {
 		dao.log.Error("conversion failed", refAttr)
 		return ExecSnap{}, err
 	}
-	stepRows, err := ds.Conn.Query(ds.Ctx, selectSteps, execRef.ID.String())
+	stepRows, err := ds.Conn.Query(ds.Ctx, selectSteps, execRef.ImplID.String())
 	if err != nil {
 		dao.log.Error("execution failed", refAttr)
 		return ExecSnap{}, err
@@ -66,8 +67,8 @@ func (dao *pgxDAO) SelectSnap(source db.Source, execRef ExecRef) (ExecSnap, erro
 	}
 	dao.log.Debug("selection succeed", refAttr)
 	return ExecSnap{
-		ChnlBRs: procbind.IndexBy(ChnlPH, chnls),
-		ProcSRs: procbind.IndexBy(procstep.ChnlID, steps),
+		ChnlBRs: implvar.IndexBy(ChnlPH, chnls),
+		ProcSRs: implvar.IndexBy(procstep.ChnlID, steps),
 	}, nil
 }
 
@@ -85,8 +86,8 @@ func (dao *pgxDAO) UpdateProc(source db.Source, mod ExecMod) (err error) {
 	bindReq := pgx.Batch{}
 	for _, dto := range dto.Binds {
 		args := pgx.NamedArgs{
-			"exec_id":  dto.ID,
-			"exec_rn":  dto.RN,
+			"exec_id":  dto.ImplID,
+			"exec_rn":  dto.ImplRN,
 			"chnl_ph":  dto.ChnlPH,
 			"chnl_id":  dto.ChnlID,
 			"state_id": dto.ExpVK,
@@ -138,8 +139,8 @@ func (dao *pgxDAO) UpdateProc(source db.Source, mod ExecMod) (err error) {
 	execReq := pgx.Batch{}
 	for _, dto := range dto.Locks {
 		args := pgx.NamedArgs{
-			"exec_id": dto.ID,
-			"exec_rn": dto.RN,
+			"exec_id": dto.ImplID,
+			"exec_rn": dto.ImplRN,
 		}
 		execReq.Queue(updateExec, args)
 	}
@@ -154,7 +155,7 @@ func (dao *pgxDAO) UpdateProc(source db.Source, mod ExecMod) (err error) {
 		}
 		if ct.RowsAffected() == 0 {
 			dao.log.Error("update failed")
-			return errOptimisticUpdate(revnum.ADT(dto.RN))
+			return errOptimisticUpdate(revnum.ADT(dto.ImplRN))
 		}
 	}
 	if err != nil {

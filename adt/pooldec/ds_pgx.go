@@ -33,8 +33,8 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 	}
 	args := pgx.NamedArgs{
 		"desc_id":     dto.PoolID,
-		"provider_br": dto.ProviderBR,
-		"client_brs":  dto.ClientBRs,
+		"provider_vr": dto.ProviderVR,
+		"client_vrs":  dto.ClientVRs,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertRec, args)
 	if err != nil {
@@ -47,8 +47,8 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 const (
 	insertRec = `
 		insert into pool_decs (
-			desc_id, provider_br, client_brs
+			desc_id, provider_vr, client_vrs
 		) values (
-			@desc_id, @provider_br, @client_brs
+			@desc_id, @provider_vr, @client_vrs
 		)`
 )

@@ -7,12 +7,12 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	sdk "github.com/orglang/go-sdk/adt/descexec"
+	sdk "github.com/orglang/go-sdk/adt/descsem"
 
 	"orglang/go-engine/lib/lf"
 	"orglang/go-engine/lib/te"
 
-	"orglang/go-engine/adt/descexec"
+	"orglang/go-engine/adt/descsem"
 	"orglang/go-engine/adt/typeexp"
 	"orglang/go-engine/adt/uniqsym"
 )
@@ -73,7 +73,7 @@ func (p *echoPresenter) GetMany(c echo.Context) error {
 	if retrievalErr != nil {
 		return retrievalErr
 	}
-	html, renderingErr := p.ssr.Render("view-many", descexec.MsgFromRefs(refs))
+	html, renderingErr := p.ssr.Render("view-many", descsem.MsgFromRefs(refs))
 	if renderingErr != nil {
 		p.log.Error("rendering failed", slog.Any("refs", refs))
 		return renderingErr
@@ -82,7 +82,7 @@ func (p *echoPresenter) GetMany(c echo.Context) error {
 }
 
 func (p *echoPresenter) GetOne(c echo.Context) error {
-	var dto sdk.ExecRef
+	var dto sdk.SemRef
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
 		p.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
@@ -95,7 +95,7 @@ func (p *echoPresenter) GetOne(c echo.Context) error {
 		p.log.Error("validation failed", slog.Any("dto", dto))
 		return validationErr
 	}
-	ref, conversionErr := descexec.MsgToRef(dto)
+	ref, conversionErr := descsem.MsgToRef(dto)
 	if conversionErr != nil {
 		p.log.Error("conversion failed", slog.Any("dto", dto))
 		return conversionErr

@@ -1,6 +1,7 @@
 package poolexec
 
 import (
+	"orglang/go-engine/adt/implsem"
 	"orglang/go-engine/lib/db"
 )
 
@@ -8,8 +9,8 @@ import (
 type Repo interface {
 	InsertRec(db.Source, ExecRec) error
 	InsertLiab(db.Source, Liab) error
-	SelectRefs(db.Source) ([]ExecRef, error)
-	SelectSubs(db.Source, ExecRef) (ExecSnap, error)
+	SelectRefs(db.Source) ([]implsem.SemRef, error)
+	SelectSubs(db.Source, implsem.SemRef) (ExecSnap, error)
 }
 
 type execRefDS = struct {
@@ -18,19 +19,19 @@ type execRefDS = struct {
 }
 
 type execSnapDS struct {
-	ID       string      `db:"exec_id"`
-	RN       int64       `db:"exec_rn"`
-	Title    string      `db:"title"`
-	SubExecs []execRefDS `db:"subs"`
+	ImplID   string             `db:"exec_id"`
+	ImplRN   int64              `db:"exec_rn"`
+	Title    string             `db:"title"`
+	SubExecs []implsem.SemRefDS `db:"subs"`
 }
 
 type execRecDS struct {
-	ID string `db:"exec_id"`
-	RN int64  `db:"exec_rn"`
+	ImplID string `db:"exec_id"`
+	ImplRN int64  `db:"exec_rn"`
 }
 
 type liabDS struct {
-	ID     string `db:"exec_id"`
-	RN     int64  `db:"exec_rn"`
+	ImplID string `db:"exec_id"`
+	ImplRN int64  `db:"exec_rn"`
 	ProcID string `db:"proc_id"`
 }

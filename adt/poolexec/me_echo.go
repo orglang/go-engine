@@ -7,9 +7,12 @@ import (
 
 	"github.com/labstack/echo/v4"
 
+	sdk "github.com/orglang/go-sdk/adt/implsem"
 	"github.com/orglang/go-sdk/adt/poolexec"
 
 	"orglang/go-engine/lib/te"
+
+	"orglang/go-engine/adt/implsem"
 )
 
 // Server-side primary adapter
@@ -52,16 +55,16 @@ func (h *echoController) PostSpec(c echo.Context) error {
 	if creationErr != nil {
 		return creationErr
 	}
-	return c.JSON(http.StatusCreated, MsgFromExecRef(ref))
+	return c.JSON(http.StatusCreated, implsem.MsgFromRef(ref))
 }
 
 func (h *echoController) GetSnap(c echo.Context) error {
-	var dto poolexec.ExecRef
+	var dto sdk.SemRef
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
 		return bindingErr
 	}
-	ref, conversionErr := MsgToExecRef(dto)
+	ref, conversionErr := implsem.MsgToRef(dto)
 	if conversionErr != nil {
 		return conversionErr
 	}
@@ -93,5 +96,5 @@ func (h *echoController) PostProc(c echo.Context) error {
 	if creationErr != nil {
 		return creationErr
 	}
-	return c.JSON(http.StatusCreated, MsgFromExecRef(ref))
+	return c.JSON(http.StatusCreated, implsem.MsgFromRef(ref))
 }

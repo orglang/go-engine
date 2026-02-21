@@ -1,4 +1,4 @@
-package poolbind
+package descvar
 
 import (
 	"orglang/go-engine/adt/identity"
@@ -6,15 +6,14 @@ import (
 	"orglang/go-engine/adt/uniqsym"
 )
 
-type BindSpec struct {
+type VarSpec struct {
 	// channel placeholder (aka variable name)
 	ChnlPH symbol.ADT
-	// xact qualified name (aka variable type)
-	XactQN uniqsym.ADT
+	// description qualified name (aka variable type)
+	DescQN uniqsym.ADT
 }
 
-type BindRec struct {
+type VarRec struct {
 	ChnlPH symbol.ADT
-	// xact definition id
-	DefID identity.ADT
+	DescID identity.ADT
 }

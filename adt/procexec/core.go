@@ -11,8 +11,9 @@ import (
 	"orglang/go-engine/lib/db"
 
 	"orglang/go-engine/adt/identity"
+	"orglang/go-engine/adt/implsem"
+	"orglang/go-engine/adt/implvar"
 	"orglang/go-engine/adt/polarity"
-	"orglang/go-engine/adt/procbind"
 	"orglang/go-engine/adt/procdec"
 	"orglang/go-engine/adt/procdef"
 	"orglang/go-engine/adt/procexp"
@@ -28,7 +29,7 @@ import (
 
 type API interface {
 	Take(procstep.StepSpec) error
-	RetrieveSnap(ExecRef) (ExecSnap, error)
+	RetrieveSnap(implsem.SemRef) (ExecSnap, error)
 }
 
 type ExecSpec struct {
@@ -41,8 +42,9 @@ type ExecRef = uniqref.ADT
 
 // aka Configuration
 type ExecSnap struct {
-	ExecRef ExecRef
-	ChnlBRs map[symbol.ADT]procbind.BindRec
+	// ExecRef
+	ExecRef implsem.SemRef
+	ChnlBRs map[symbol.ADT]implvar.VarRec
 	ProcSRs map[identity.ADT]procstep.StepRec
 }
 
@@ -52,11 +54,11 @@ type Env struct {
 	ProcDecs map[identity.ADT]procdec.DecRec
 }
 
-func ChnlPH(rec procbind.BindRec) symbol.ADT { return rec.ChnlPH }
+func ChnlPH(rec implvar.VarRec) symbol.ADT { return rec.ChnlPH }
 
 type ExecMod struct {
-	Locks []ExecRef
-	Binds []procbind.BindRec
+	Locks []implsem.SemRef
+	Binds []implvar.VarRec
 	Steps []procstep.StepRec
 }
 
@@ -86,7 +88,7 @@ func newService(
 	return &service{procExecs, procDecs, typeDefs, typeExps, operator, l.With(name)}
 }
 
-func (s *service) RetrieveSnap(ref ExecRef) (_ ExecSnap, err error) {
+func (s *service) RetrieveSnap(ref implsem.SemRef) (_ ExecSnap, err error) {
 	return ExecSnap{}, nil
 }
 
@@ -201,9 +203,9 @@ func (s *service) takeWith(
 		recieverSR := execSnap.ProcSRs[commChnlBR.ChnlID]
 		if recieverSR == nil {
 			senderSR := procstep.MsgRec{
-				ExecRef: ExecRef{
-					ID: execSnap.ExecRef.ID,
-					RN: execSnap.ExecRef.RN.Next(),
+				ExecRef: implsem.SemRef{
+					ImplID: execSnap.ExecRef.ImplID,
+					ImplRN: execSnap.ExecRef.ImplRN.Next(),
 				},
 				ChnlID: commChnlBR.ChnlID,
 				ValER:  procexp.CloseRec(expSpec),
@@ -218,18 +220,18 @@ func (s *service) takeWith(
 		}
 		switch procER := serviceSR.ContER.(type) {
 		case procexp.WaitRec:
-			senderBR := procbind.BindRec{
-				ExecRef: ExecRef{
-					ID: execSnap.ExecRef.ID,
-					RN: -execSnap.ExecRef.RN.Next(),
+			senderBR := implvar.VarRec{
+				ImplRef: implsem.SemRef{
+					ImplID: execSnap.ExecRef.ImplID,
+					ImplRN: -execSnap.ExecRef.ImplRN.Next(),
 				},
 				ChnlPH: expSpec.CommChnlPH,
 			}
 			execMod.Binds = append(execMod.Binds, senderBR)
-			recieverBR := procbind.BindRec{
-				ExecRef: ExecRef{
-					ID: serviceSR.ExecRef.ID,
-					RN: -serviceSR.ExecRef.RN.Next(),
+			recieverBR := implvar.VarRec{
+				ImplRef: implsem.SemRef{
+					ImplID: serviceSR.ExecRef.ImplID,
+					ImplRN: -serviceSR.ExecRef.ImplRN.Next(),
 				},
 				ChnlPH: procER.CommChnlPH,
 			}
@@ -255,9 +257,9 @@ func (s *service) takeWith(
 		senderSR := execSnap.ProcSRs[commChnlBR.ChnlID]
 		if senderSR == nil {
 			recieverSR := procstep.SvcRec{
-				ExecRef: ExecRef{
-					ID: execSnap.ExecRef.ID,
-					RN: execSnap.ExecRef.RN.Next(),
+				ExecRef: implsem.SemRef{
+					ImplID: execSnap.ExecRef.ImplID,
+					ImplRN: execSnap.ExecRef.ImplRN.Next(),
 				},
 				ChnlID: commChnlBR.ChnlID,
 				ContER: procexp.WaitRec(expSpec),
@@ -272,18 +274,18 @@ func (s *service) takeWith(
 		}
 		switch procER := messageSR.ValER.(type) {
 		case procexp.CloseRec:
-			senderBR := procbind.BindRec{
-				ExecRef: ExecRef{
-					ID: messageSR.ExecRef.ID,
-					RN: -messageSR.ExecRef.RN.Next(),
+			senderBR := implvar.VarRec{
+				ImplRef: implsem.SemRef{
+					ImplID: messageSR.ExecRef.ImplID,
+					ImplRN: -messageSR.ExecRef.ImplRN.Next(),
 				},
 				ChnlPH: procER.CommChnlPH,
 			}
 			execMod.Binds = append(execMod.Binds, senderBR)
-			recieverBR := procbind.BindRec{
-				ExecRef: ExecRef{
-					ID: execSnap.ExecRef.ID,
-					RN: -execSnap.ExecRef.RN.Next(),
+			recieverBR := implvar.VarRec{
+				ImplRef: implsem.SemRef{
+					ImplID: execSnap.ExecRef.ImplID,
+					ImplRN: -execSnap.ExecRef.ImplRN.Next(),
 				},
 				ChnlPH: expSpec.CommChnlPH,
 			}
@@ -295,10 +297,10 @@ func (s *service) takeWith(
 			s.log.Debug("taking succeed", viaAttr)
 			return stepSpec, execMod, nil
 		case procexp.FwdRec:
-			recieverBR := procbind.BindRec{
-				ExecRef: ExecRef{
-					ID: execSnap.ExecRef.ID,
-					RN: execSnap.ExecRef.RN.Next(),
+			recieverBR := implvar.VarRec{
+				ImplRef: implsem.SemRef{
+					ImplID: execSnap.ExecRef.ImplID,
+					ImplRN: execSnap.ExecRef.ImplRN.Next(),
 				},
 				ChnlPH: expSpec.CommChnlPH,
 				ChnlID: procER.ContChnlID,
@@ -336,10 +338,10 @@ func (s *service) takeWith(
 			s.log.Error("taking failed", viaAttr)
 			return procstep.StepSpec{}, ExecMod{}, err
 		}
-		senderBR := procbind.BindRec{
-			ExecRef: ExecRef{
-				ID: execSnap.ExecRef.ID,
-				RN: -execSnap.ExecRef.RN.Next(),
+		senderBR := implvar.VarRec{
+			ImplRef: implsem.SemRef{
+				ImplID: execSnap.ExecRef.ImplID,
+				ImplRN: -execSnap.ExecRef.ImplRN.Next(),
 			},
 			ChnlPH: expSpec.ValChnlPH,
 		}
@@ -347,10 +349,10 @@ func (s *service) takeWith(
 		recieverSR := execSnap.ProcSRs[commChnlBR.ChnlID]
 		if recieverSR == nil {
 			newChnlID := identity.New()
-			senderBR := procbind.BindRec{
-				ExecRef: ExecRef{
-					ID: execSnap.ExecRef.ID,
-					RN: execSnap.ExecRef.RN.Next(),
+			senderBR := implvar.VarRec{
+				ImplRef: implsem.SemRef{
+					ImplID: execSnap.ExecRef.ImplID,
+					ImplRN: execSnap.ExecRef.ImplRN.Next(),
 				},
 				ChnlPH: expSpec.CommChnlPH,
 				ChnlID: newChnlID,
@@ -358,9 +360,9 @@ func (s *service) takeWith(
 			}
 			execMod.Binds = append(execMod.Binds, senderBR)
 			senderSR := procstep.MsgRec{
-				ExecRef: ExecRef{
-					ID: execSnap.ExecRef.ID,
-					RN: execSnap.ExecRef.RN.Next(),
+				ExecRef: implsem.SemRef{
+					ImplID: execSnap.ExecRef.ImplID,
+					ImplRN: execSnap.ExecRef.ImplRN.Next(),
 				},
 				ChnlID: commChnlBR.ChnlID,
 				ValER: procexp.SendRec{
@@ -380,30 +382,30 @@ func (s *service) takeWith(
 		}
 		switch expRec := serviceSR.ContER.(type) {
 		case procexp.RecvRec:
-			senderBR := procbind.BindRec{
-				ExecRef: ExecRef{
-					ID: execSnap.ExecRef.ID,
-					RN: execSnap.ExecRef.RN.Next(),
+			senderBR := implvar.VarRec{
+				ImplRef: implsem.SemRef{
+					ImplID: execSnap.ExecRef.ImplID,
+					ImplRN: execSnap.ExecRef.ImplRN.Next(),
 				},
 				ChnlPH: expSpec.CommChnlPH,
 				ChnlID: expRec.ContChnlID,
 				ExpVK:  nextExpID,
 			}
 			execMod.Binds = append(execMod.Binds, senderBR)
-			recieverBR := procbind.BindRec{
-				ExecRef: ExecRef{
-					ID: serviceSR.ExecRef.ID,
-					RN: serviceSR.ExecRef.RN.Next(),
+			recieverBR := implvar.VarRec{
+				ImplRef: implsem.SemRef{
+					ImplID: serviceSR.ExecRef.ImplID,
+					ImplRN: serviceSR.ExecRef.ImplRN.Next(),
 				},
 				ChnlPH: expRec.CommChnlPH,
 				ChnlID: expRec.ContChnlID,
 				ExpVK:  nextExpID,
 			}
 			execMod.Binds = append(execMod.Binds, recieverBR)
-			receiverBR := procbind.BindRec{
-				ExecRef: ExecRef{
-					ID: serviceSR.ExecRef.ID,
-					RN: serviceSR.ExecRef.RN.Next(),
+			receiverBR := implvar.VarRec{
+				ImplRef: implsem.SemRef{
+					ImplID: serviceSR.ExecRef.ImplID,
+					ImplRN: serviceSR.ExecRef.ImplRN.Next(),
 				},
 				ChnlPH: expRec.ValChnlPH,
 				ChnlID: valueEP.ChnlID,
@@ -431,9 +433,9 @@ func (s *service) takeWith(
 		senderSR := execSnap.ProcSRs[commChnlBR.ChnlID]
 		if senderSR == nil {
 			receiverSR := procstep.SvcRec{
-				ExecRef: ExecRef{
-					ID: execSnap.ExecRef.ID,
-					RN: execSnap.ExecRef.RN.Next(),
+				ExecRef: implsem.SemRef{
+					ImplID: execSnap.ExecRef.ImplID,
+					ImplRN: execSnap.ExecRef.ImplRN.Next(),
 				},
 				ChnlID: commChnlBR.ChnlID,
 				ContER: procexp.RecvRec{
@@ -459,20 +461,20 @@ func (s *service) takeWith(
 				s.log.Error("taking failed", viaAttr)
 				return procstep.StepSpec{}, ExecMod{}, err
 			}
-			recieverBR := procbind.BindRec{
-				ExecRef: ExecRef{
-					ID: execSnap.ExecRef.ID,
-					RN: execSnap.ExecRef.RN.Next(),
+			recieverBR := implvar.VarRec{
+				ImplRef: implsem.SemRef{
+					ImplID: execSnap.ExecRef.ImplID,
+					ImplRN: execSnap.ExecRef.ImplRN.Next(),
 				},
 				ChnlPH: expSpec.CommChnlPH,
 				ChnlID: expRec.ContChnlID,
 				ExpVK:  typeER.(typeexp.ProdRec).Next(),
 			}
 			execMod.Binds = append(execMod.Binds, recieverBR)
-			receiverBR := procbind.BindRec{
-				ExecRef: ExecRef{
-					ID: execSnap.ExecRef.ID,
-					RN: execSnap.ExecRef.RN.Next(),
+			receiverBR := implvar.VarRec{
+				ImplRef: implsem.SemRef{
+					ImplID: execSnap.ExecRef.ImplID,
+					ImplRN: execSnap.ExecRef.ImplRN.Next(),
 				},
 				ChnlPH: expSpec.BindChnlPH,
 				ChnlID: expRec.ValChnlID,
@@ -507,10 +509,10 @@ func (s *service) takeWith(
 		recieverSR := execSnap.ProcSRs[commChnlBR.ChnlID]
 		if recieverSR == nil {
 			newViaID := identity.New()
-			senderBR := procbind.BindRec{
-				ExecRef: ExecRef{
-					ID: execSnap.ExecRef.ID,
-					RN: execSnap.ExecRef.RN.Next(),
+			senderBR := implvar.VarRec{
+				ImplRef: implsem.SemRef{
+					ImplID: execSnap.ExecRef.ImplID,
+					ImplRN: execSnap.ExecRef.ImplRN.Next(),
 				},
 				ChnlPH: expSpec.CommChnlPH,
 				ChnlID: newViaID,
@@ -518,9 +520,9 @@ func (s *service) takeWith(
 			}
 			execMod.Binds = append(execMod.Binds, senderBR)
 			senderSR := procstep.MsgRec{
-				ExecRef: ExecRef{
-					ID: execSnap.ExecRef.ID,
-					RN: execSnap.ExecRef.RN.Next(),
+				ExecRef: implsem.SemRef{
+					ImplID: execSnap.ExecRef.ImplID,
+					ImplRN: execSnap.ExecRef.ImplRN.Next(),
 				},
 				ChnlID: commChnlBR.ChnlID,
 				ValER: procexp.LabRec{
@@ -539,20 +541,20 @@ func (s *service) takeWith(
 		}
 		switch expRec := serviceSR.ContER.(type) {
 		case procexp.CaseRec:
-			senderBR := procbind.BindRec{
-				ExecRef: ExecRef{
-					ID: execSnap.ExecRef.ID,
-					RN: execSnap.ExecRef.RN.Next(),
+			senderBR := implvar.VarRec{
+				ImplRef: implsem.SemRef{
+					ImplID: execSnap.ExecRef.ImplID,
+					ImplRN: execSnap.ExecRef.ImplRN.Next(),
 				},
 				ChnlPH: expSpec.CommChnlPH,
 				ChnlID: expRec.ContChnlID,
 				ExpVK:  nextExpID,
 			}
 			execMod.Binds = append(execMod.Binds, senderBR)
-			recieverBR := procbind.BindRec{
-				ExecRef: ExecRef{
-					ID: serviceSR.ExecRef.ID,
-					RN: serviceSR.ExecRef.RN.Next(),
+			recieverBR := implvar.VarRec{
+				ImplRef: implsem.SemRef{
+					ImplID: serviceSR.ExecRef.ImplID,
+					ImplRN: serviceSR.ExecRef.ImplRN.Next(),
 				},
 				ChnlPH: expRec.CommChnlPH,
 				ChnlID: expRec.ContChnlID,
@@ -580,9 +582,9 @@ func (s *service) takeWith(
 		senderSR := execSnap.ProcSRs[commChnlBR.ChnlID]
 		if senderSR == nil {
 			recieverSR := procstep.SvcRec{
-				ExecRef: ExecRef{
-					ID: execSnap.ExecRef.ID,
-					RN: execSnap.ExecRef.RN.Next(),
+				ExecRef: implsem.SemRef{
+					ImplID: execSnap.ExecRef.ImplID,
+					ImplRN: execSnap.ExecRef.ImplRN.Next(),
 				},
 				ChnlID: commChnlBR.ChnlID,
 				ContER: procexp.CaseRec{
@@ -607,10 +609,10 @@ func (s *service) takeWith(
 				s.log.Error("taking failed", viaAttr)
 				return procstep.StepSpec{}, ExecMod{}, err
 			}
-			recieverBR := procbind.BindRec{
-				ExecRef: ExecRef{
-					ID: execSnap.ExecRef.ID,
-					RN: execSnap.ExecRef.RN.Next(),
+			recieverBR := implvar.VarRec{
+				ImplRef: implsem.SemRef{
+					ImplID: execSnap.ExecRef.ImplID,
+					ImplRN: execSnap.ExecRef.ImplRN.Next(),
 				},
 				ChnlPH: expSpec.CommChnlPH,
 				ChnlID: procER.ContChnlID,
@@ -651,10 +653,10 @@ func (s *service) takeWith(
 		case polarity.Pos:
 			switch stepRec := commChnlSR.(type) {
 			case procstep.SvcRec:
-				xBnd := procbind.BindRec{
-					ExecRef: ExecRef{
-						ID: stepRec.ExecRef.ID,
-						RN: stepRec.ExecRef.RN.Next(),
+				xBnd := implvar.VarRec{
+					ImplRef: implsem.SemRef{
+						ImplID: stepRec.ExecRef.ImplID,
+						ImplRN: stepRec.ExecRef.ImplRN.Next(),
 					},
 					ChnlPH: stepRec.ContER.Via(),
 					ChnlID: commChnlBR.ChnlID,
@@ -668,10 +670,10 @@ func (s *service) takeWith(
 				s.log.Debug("taking succeed", viaAttr)
 				return stepSpec, execMod, nil
 			case procstep.MsgRec:
-				yBnd := procbind.BindRec{
-					ExecRef: ExecRef{
-						ID: stepRec.ExecRef.ID,
-						RN: stepRec.ExecRef.RN.Next(),
+				yBnd := implvar.VarRec{
+					ImplRef: implsem.SemRef{
+						ImplID: stepRec.ExecRef.ImplID,
+						ImplRN: stepRec.ExecRef.ImplRN.Next(),
 					},
 					ChnlPH: stepRec.ValER.Via(),
 					ChnlID: valChnlBR.ChnlID,
@@ -685,26 +687,26 @@ func (s *service) takeWith(
 				s.log.Debug("taking succeed", viaAttr)
 				return stepSpec, execMod, nil
 			case nil:
-				xBnd := procbind.BindRec{
-					ExecRef: ExecRef{
-						ID: execSnap.ExecRef.ID,
-						RN: -execSnap.ExecRef.RN.Next(),
+				xBnd := implvar.VarRec{
+					ImplRef: implsem.SemRef{
+						ImplID: execSnap.ExecRef.ImplID,
+						ImplRN: -execSnap.ExecRef.ImplRN.Next(),
 					},
 					ChnlPH: expSpec.CommChnlPH,
 				}
 				execMod.Binds = append(execMod.Binds, xBnd)
-				yBnd := procbind.BindRec{
-					ExecRef: ExecRef{
-						ID: execSnap.ExecRef.ID,
-						RN: -execSnap.ExecRef.RN.Next(),
+				yBnd := implvar.VarRec{
+					ImplRef: implsem.SemRef{
+						ImplID: execSnap.ExecRef.ImplID,
+						ImplRN: -execSnap.ExecRef.ImplRN.Next(),
 					},
 					ChnlPH: expSpec.ContChnlPH,
 				}
 				execMod.Binds = append(execMod.Binds, yBnd)
 				messageSR := procstep.MsgRec{
-					ExecRef: ExecRef{
-						ID: execSnap.ExecRef.ID,
-						RN: execSnap.ExecRef.RN.Next(),
+					ExecRef: implsem.SemRef{
+						ImplID: execSnap.ExecRef.ImplID,
+						ImplRN: execSnap.ExecRef.ImplRN.Next(),
 					},
 					ChnlID: commChnlBR.ChnlID,
 					ValER: procexp.FwdRec{
@@ -720,10 +722,10 @@ func (s *service) takeWith(
 		case polarity.Neg:
 			switch stepRec := commChnlSR.(type) {
 			case procstep.SvcRec:
-				yBnd := procbind.BindRec{
-					ExecRef: ExecRef{
-						ID: stepRec.ExecRef.ID,
-						RN: stepRec.ExecRef.RN.Next(),
+				yBnd := implvar.VarRec{
+					ImplRef: implsem.SemRef{
+						ImplID: stepRec.ExecRef.ImplID,
+						ImplRN: stepRec.ExecRef.ImplRN.Next(),
 					},
 					ChnlPH: stepRec.ContER.Via(),
 					ChnlID: valChnlBR.ChnlID,
@@ -737,10 +739,10 @@ func (s *service) takeWith(
 				s.log.Debug("taking succeed", viaAttr)
 				return stepSpec, execMod, nil
 			case procstep.MsgRec:
-				xBnd := procbind.BindRec{
-					ExecRef: ExecRef{
-						ID: stepRec.ExecRef.ID,
-						RN: stepRec.ExecRef.RN.Next(),
+				xBnd := implvar.VarRec{
+					ImplRef: implsem.SemRef{
+						ImplID: stepRec.ExecRef.ImplID,
+						ImplRN: stepRec.ExecRef.ImplRN.Next(),
 					},
 					ChnlPH: stepRec.ValER.Via(),
 					ChnlID: commChnlBR.ChnlID,
@@ -755,9 +757,9 @@ func (s *service) takeWith(
 				return stepSpec, execMod, nil
 			case nil:
 				serviceSR := procstep.SvcRec{
-					ExecRef: ExecRef{
-						ID: execSnap.ExecRef.ID,
-						RN: execSnap.ExecRef.RN.Next(),
+					ExecRef: implsem.SemRef{
+						ImplID: execSnap.ExecRef.ImplID,
+						ImplRN: execSnap.ExecRef.ImplRN.Next(),
 					},
 					ChnlID: commChnlBR.ChnlID,
 					ContER: procexp.FwdRec{
@@ -778,15 +780,15 @@ func (s *service) takeWith(
 	}
 }
 
-func CollectCtx(chnls iter.Seq[procbind.BindRec]) []valkey.ADT {
+func CollectCtx(chnls iter.Seq[implvar.VarRec]) []valkey.ADT {
 	return nil
 }
 
-func convertToCtx(chnlBinds iter.Seq[procbind.BindRec], typeExps map[valkey.ADT]typeexp.ExpRec) typedef.Context {
+func convertToCtx(chnlBinds iter.Seq[implvar.VarRec], typeExps map[valkey.ADT]typeexp.ExpRec) typedef.Context {
 	assets := make(map[symbol.ADT]typeexp.ExpRec, 1)
 	liabs := make(map[symbol.ADT]typeexp.ExpRec, 1)
 	for bind := range chnlBinds {
-		if bind.ChnlBS == procbind.ProviderSide {
+		if bind.ChnlBS == implvar.Provider {
 			liabs[bind.ChnlPH] = typeExps[bind.ExpVK]
 		} else {
 			assets[bind.ChnlPH] = typeExps[bind.ExpVK]
@@ -805,7 +807,7 @@ func (s *service) checkType(
 	if !ok {
 		panic("no comm chnl in proc snap")
 	}
-	if chnlBR.ChnlBS == procbind.ProviderSide {
+	if chnlBR.ChnlBS == implvar.Provider {
 		return s.checkProvider(procEnv, procCtx, execSnap, expSpec)
 	}
 	return s.checkClient(procEnv, procCtx, execSnap, expSpec)
@@ -1152,15 +1154,15 @@ func (s *service) checkClient(
 			return err
 		}
 		// check vals
-		if len(expSpec.Ys) != len(procDec.ClientBSes) {
-			err := fmt.Errorf("context mismatch: want %v items, got %v items", len(procDec.ClientBSes), len(expSpec.Ys))
-			s.log.Error("checking failed", slog.Any("want", procDec.ClientBSes), slog.Any("got", expSpec.Ys))
+		if len(expSpec.Ys) != len(procDec.ClientVSes) {
+			err := fmt.Errorf("context mismatch: want %v items, got %v items", len(procDec.ClientVSes), len(expSpec.Ys))
+			s.log.Error("checking failed", slog.Any("want", procDec.ClientVSes), slog.Any("got", expSpec.Ys))
 			return err
 		}
 		if len(expSpec.Ys) == 0 {
 			return nil
 		}
-		for i, ep := range procDec.ClientBSes {
+		for i, ep := range procDec.ClientVSes {
 			valType, ok := procEnv.TypeDefs[ep.TypeQN]
 			if !ok {
 				err := typedef.ErrSymMissingInEnv(ep.TypeQN)
@@ -1187,9 +1189,9 @@ func (s *service) checkClient(
 			delete(procCtx.Assets, expSpec.Ys[i])
 		}
 		// check via
-		viaRole, ok := procEnv.TypeDefs[procDec.ProviderBS.TypeQN]
+		viaRole, ok := procEnv.TypeDefs[procDec.ProviderVS.TypeQN]
 		if !ok {
-			err := typedef.ErrSymMissingInEnv(procDec.ProviderBS.TypeQN)
+			err := typedef.ErrSymMissingInEnv(procDec.ProviderVS.TypeQN)
 			s.log.Error("checking failed")
 			return err
 		}

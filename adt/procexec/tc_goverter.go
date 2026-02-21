@@ -6,10 +6,9 @@ import (
 
 // goverter:variables
 // goverter:output:format assign-variable
+// goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/uniqref:Msg.*
 var (
-	MsgToExecRef   func(procexec.ExecRef) (ExecRef, error)
-	MsgFromExecRef func(ExecRef) procexec.ExecRef
 	// goverter:ignore ChnlBRs ProcSRs
 	MsgToExecSnap   func(procexec.ExecSnap) (ExecSnap, error)
 	MsgFromExecSnap func(ExecSnap) procexec.ExecSnap
@@ -17,9 +16,9 @@ var (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/adt/uniqref:Data.*
-// goverter:extend orglang/go-engine/adt/procbind:Data.*
+// goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/procstep:Data.*
+// goverter:extend orglang/go-engine/adt/implvar:Data.*
 var (
 	DataFromMod func(ExecMod) (execModDS, error)
 )

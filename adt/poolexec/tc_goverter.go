@@ -12,8 +12,6 @@ import (
 var (
 	MsgToExecSpec   func(poolexec.ExecSpec) (ExecSpec, error)
 	MsgFromExecSpec func(ExecSpec) poolexec.ExecSpec
-	MsgToExecRef    func(poolexec.ExecRef) (ExecRef, error)
-	MsgFromExecRef  func(ExecRef) poolexec.ExecRef
 	MsgToExecSnap   func(poolexec.ExecSnap) (ExecSnap, error)
 	MsgFromExecSnap func(ExecSnap) poolexec.ExecSnap
 )
@@ -22,8 +20,6 @@ var (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 var (
-	DataToExecRefs   func([]execRefDS) ([]ExecRef, error)
-	DataFromExecRefs func([]ExecRef) []execRefDS
 	// goverter:map . ExecRef
 	DataToExecRec func(execRecDS) (ExecRec, error)
 	// goverter:autoMap ExecRef

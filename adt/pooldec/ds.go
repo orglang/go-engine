@@ -3,7 +3,7 @@ package pooldec
 import (
 	"orglang/go-engine/lib/db"
 
-	"orglang/go-engine/adt/poolbind"
+	"orglang/go-engine/adt/descvar"
 )
 
 type repo interface {
@@ -11,7 +11,7 @@ type repo interface {
 }
 
 type decRecDS struct {
-	PoolID     string               `db:"desc_id"`
-	ClientBRs  []poolbind.BindRecDS `db:"client_brs"`
-	ProviderBR poolbind.BindRecDS   `db:"provider_br"`
+	PoolID     string             `db:"desc_id"`
+	ClientVRs  []descvar.VarRecDS `db:"client_vrs"`
+	ProviderVR descvar.VarRecDS   `db:"provider_vr"`
 }

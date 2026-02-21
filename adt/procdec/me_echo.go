@@ -3,12 +3,14 @@ package procdec
 import (
 	"log/slog"
 	"net/http"
-	"orglang/go-engine/adt/uniqref"
 	"reflect"
 
 	"github.com/labstack/echo/v4"
 
+	sdk "github.com/orglang/go-sdk/adt/descsem"
 	"github.com/orglang/go-sdk/adt/procdec"
+
+	"orglang/go-engine/adt/descsem"
 )
 
 // Server-side primary adapter
@@ -49,17 +51,17 @@ func (h *echoController) PostSpec(c echo.Context) error {
 	if creationErr != nil {
 		return creationErr
 	}
-	return c.JSON(http.StatusCreated, uniqref.MsgFromADT(ref))
+	return c.JSON(http.StatusCreated, descsem.MsgFromRef(ref))
 }
 
 func (h *echoController) GetSnap(c echo.Context) error {
-	var dto procdec.DecRef
+	var dto sdk.SemRef
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
 		return bindingErr
 	}
-	ref, conversionErr := uniqref.MsgToADT(dto)
+	ref, conversionErr := descsem.MsgToRef(dto)
 	if conversionErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
 		return conversionErr

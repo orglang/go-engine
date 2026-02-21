@@ -6,15 +6,14 @@ import (
 
 	"orglang/go-engine/lib/db"
 
-	"orglang/go-engine/adt/descbind"
-	"orglang/go-engine/adt/descexec"
+	"orglang/go-engine/adt/descsem"
+	"orglang/go-engine/adt/descvar"
 	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/poolbind"
 	"orglang/go-engine/adt/uniqsym"
 )
 
 type API interface {
-	Create(DecSpec) (descexec.ExecRef, error)
+	Create(DecSpec) (descsem.SemRef, error)
 }
 
 // for compilation purposes
@@ -24,71 +23,66 @@ func newAPI() API {
 
 type DecSpec struct {
 	PoolQN     uniqsym.ADT
-	ProviderBS poolbind.BindSpec
-	ClientBSes []poolbind.BindSpec
+	ProviderVS descvar.VarSpec
+	ClientVSes []descvar.VarSpec
 }
 
 type DecRec struct {
 	PoolID     identity.ADT
-	ProviderBR poolbind.BindRec
-	ClientBRs  []poolbind.BindRec
+	ProviderVR descvar.VarRec
+	ClientVRs  []descvar.VarRec
 }
 
 func newService(
 	poolDecs repo,
-	descExecs descexec.Repo,
-	descBinds descbind.Repo,
+	descSems descsem.Repo,
 	operator db.Operator,
 	log *slog.Logger,
 ) *service {
-	return &service{poolDecs, descExecs, descBinds, operator, log}
+	return &service{poolDecs, descSems, operator, log}
 }
 
 type service struct {
-	poolDecs  repo
-	descExecs descexec.Repo
-	descBinds descbind.Repo
-	operator  db.Operator
-	log       *slog.Logger
+	poolDecs repo
+	descSems descsem.Repo
+	operator db.Operator
+	log      *slog.Logger
 }
 
-func (s *service) Create(spec DecSpec) (_ descexec.ExecRef, err error) {
+func (s *service) Create(spec DecSpec) (_ descsem.SemRef, err error) {
 	ctx := context.Background()
-	qnAttr := slog.Any("poolQN", spec.PoolQN)
+	qnAttr := slog.Any("qn", spec.PoolQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
-	xactQNs := make([]uniqsym.ADT, 0, len(spec.ClientBSes)+1)
-	for _, bs := range spec.ClientBSes {
-		xactQNs = append(xactQNs, bs.XactQN)
+	xactQNs := make([]uniqsym.ADT, 0, len(spec.ClientVSes)+1)
+	for _, spec := range spec.ClientVSes {
+		xactQNs = append(xactQNs, spec.DescQN)
 	}
-	var xactDefs map[uniqsym.ADT]descexec.ExecRef
+	var xactRefs map[uniqsym.ADT]descsem.SemRef
 	selectErr := s.operator.Implicit(ctx, func(ds db.Source) error {
-		xactDefs, err = s.descExecs.SelectRefsByQNs(ds, append(xactQNs, spec.ProviderBS.XactQN))
+		xactRefs, err = s.descSems.SelectRefsByQNs(ds, append(xactQNs, spec.ProviderVS.DescQN))
 		return err
 	})
 	if selectErr != nil {
-		return descexec.ExecRef{}, selectErr
+		return descsem.SemRef{}, selectErr
 	}
-	providerBR := poolbind.BindRec{
-		ChnlPH: spec.ProviderBS.ChnlPH,
-		DefID:  xactDefs[spec.ProviderBS.XactQN].DescID,
+	providerVR := descvar.VarRec{
+		ChnlPH: spec.ProviderVS.ChnlPH,
+		DescID: xactRefs[spec.ProviderVS.DescQN].DescID,
 	}
-	clientBRs := make([]poolbind.BindRec, 0, len(spec.ClientBSes))
-	for _, bs := range spec.ClientBSes {
-		clientBRs = append(clientBRs, poolbind.BindRec{ChnlPH: bs.ChnlPH, DefID: xactDefs[bs.XactQN].DescID})
+	clientVRs := make([]descvar.VarRec, 0, len(spec.ClientVSes))
+	for _, bs := range spec.ClientVSes {
+		clientVRs = append(clientVRs, descvar.VarRec{ChnlPH: bs.ChnlPH, DescID: xactRefs[bs.DescQN].DescID})
 	}
-	newExec := descexec.ExecRec{Ref: descexec.NewExecRef(), Kind: descexec.Pool}
-	newBind := descbind.BindRec{DescQN: spec.PoolQN, DescID: newExec.Ref.DescID}
+	newRef := descsem.NewRef()
+	newBind := descsem.SemBind{DescQN: spec.PoolQN, DescID: newRef.DescID}
+	newDesc := descsem.SemRec{Ref: newRef, Bind: newBind, Kind: descsem.Pool}
 	newDec := DecRec{
-		PoolID:     newExec.Ref.DescID,
-		ProviderBR: providerBR,
-		ClientBRs:  clientBRs,
+		PoolID:     newDesc.Ref.DescID,
+		ProviderVR: providerVR,
+		ClientVRs:  clientVRs,
 	}
 	transactErr := s.operator.Explicit(ctx, func(ds db.Source) error {
-		err = s.descBinds.InsertRec(ds, newBind)
-		if err != nil {
-			return err
-		}
-		err = s.descExecs.InsertRec(ds, newExec)
+		err = s.descSems.InsertRec(ds, newDesc)
 		if err != nil {
 			return err
 		}
@@ -96,8 +90,8 @@ func (s *service) Create(spec DecSpec) (_ descexec.ExecRef, err error) {
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", qnAttr)
-		return descexec.ExecRef{}, transactErr
+		return descsem.SemRef{}, transactErr
 	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("poolRef", newExec.Ref))
-	return newExec.Ref, nil
+	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", newRef))
+	return newRef, nil
 }

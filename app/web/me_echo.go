@@ -9,7 +9,7 @@ import (
 
 	"orglang/go-engine/lib/te"
 
-	"orglang/go-engine/adt/descexec"
+	"orglang/go-engine/adt/descsem"
 	"orglang/go-engine/adt/typedef"
 )
 
@@ -34,7 +34,7 @@ func (h *echoController) Home(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	html, err := h.ssr.Render("home.html", descexec.MsgFromRefs(refs))
+	html, err := h.ssr.Render("home.html", descsem.MsgFromRefs(refs))
 	if err != nil {
 		return err
 	}

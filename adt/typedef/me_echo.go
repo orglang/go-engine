@@ -7,12 +7,12 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	sdk "github.com/orglang/go-sdk/adt/descexec"
+	sdk "github.com/orglang/go-sdk/adt/descsem"
 	"github.com/orglang/go-sdk/adt/typedef"
 
 	"orglang/go-engine/lib/lf"
 
-	"orglang/go-engine/adt/descexec"
+	"orglang/go-engine/adt/descsem"
 )
 
 // Server-side primary adapter
@@ -61,7 +61,7 @@ func (h *echoController) PostSpec(c echo.Context) error {
 }
 
 func (h *echoController) GetSnap(c echo.Context) error {
-	var dto sdk.ExecRef
+	var dto sdk.SemRef
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
@@ -72,7 +72,7 @@ func (h *echoController) GetSnap(c echo.Context) error {
 		h.log.Error("validation failed", slog.Any("dto", dto))
 		return validationErr
 	}
-	ref, conversionErr := descexec.MsgToRef(dto)
+	ref, conversionErr := descsem.MsgToRef(dto)
 	if conversionErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
 		return conversionErr

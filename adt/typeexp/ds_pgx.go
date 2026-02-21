@@ -10,7 +10,7 @@ import (
 	"orglang/go-engine/lib/db"
 	"orglang/go-engine/lib/lf"
 
-	"orglang/go-engine/adt/descexec"
+	"orglang/go-engine/adt/descsem"
 	"orglang/go-engine/adt/valkey"
 )
 
@@ -29,7 +29,7 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func (dao *pgxDAO) InsertRec(source db.Source, rec ExpRec, ref descexec.ExecRef) (err error) {
+func (dao *pgxDAO) InsertRec(source db.Source, rec ExpRec, ref descsem.SemRef) (err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	idAttr := slog.Any("expVK", rec.Key())
 	dto := dataFromExpRec(rec)

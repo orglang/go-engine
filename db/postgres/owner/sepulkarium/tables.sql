@@ -1,4 +1,4 @@
-CREATE TABLE desc_execs (
+CREATE TABLE desc_sems (
 	desc_id varchar(36) UNIQUE,
 	desc_rn bigint,
 	kind smallint
@@ -28,8 +28,20 @@ CREATE TABLE xact_exps (
 
 CREATE TABLE pool_decs (
 	desc_id varchar(36) UNIQUE,
-    client_brs jsonb,
-    provider_br jsonb
+    client_vrs jsonb,
+    provider_vr jsonb
+);
+
+CREATE TABLE impl_sems (
+	impl_id varchar(36) UNIQUE,
+	impl_rn bigint,
+	kind smallint
+);
+
+-- связка воплощений с квалифицированными синонимами 
+CREATE TABLE impl_binds (
+	impl_qn ltree UNIQUE,
+	impl_id varchar(36)
 );
 
 CREATE TABLE pool_execs (
@@ -73,9 +85,9 @@ CREATE TABLE type_exps (
 );
 
 CREATE TABLE proc_decs (
-	dec_id varchar(36),
-	dec_rn bigint,
-	syn_vk bigint
+	desc_id varchar(36),
+    client_vrs jsonb,
+    provider_vr jsonb
 );
 
 CREATE TABLE proc_execs (

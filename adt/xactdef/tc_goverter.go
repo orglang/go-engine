@@ -24,7 +24,9 @@ var (
 // goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
 // goverter:extend orglang/go-engine/adt/valkey:Convert.*
 var (
-	DataToDefRec    func(defRecDS) (DefRec, error)
+	// goverter:map . DescRef
+	DataToDefRec func(defRecDS) (DefRec, error)
+	// goverter:autoMap DescRef
 	DataFromDefRec  func(DefRec) (defRecDS, error)
 	DataToDefRecs   func([]defRecDS) ([]DefRec, error)
 	DataFromDefRecs func([]DefRec) ([]defRecDS, error)

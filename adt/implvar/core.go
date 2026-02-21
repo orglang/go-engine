@@ -1,25 +1,23 @@
-package procbind
+package implvar
 
 import (
 	"orglang/go-engine/adt/identity"
+	"orglang/go-engine/adt/implsem"
 	"orglang/go-engine/adt/symbol"
-	"orglang/go-engine/adt/uniqref"
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/adt/valkey"
 )
 
-// Спецификация связки
-type BindSpec struct {
+type VarSpec struct {
 	// channel placeholder (aka variable name)
 	ChnlPH symbol.ADT
 	// type qualified name (aka variable type)
 	TypeQN uniqsym.ADT
 }
 
-// Запись связки
-type BindRec struct {
+type VarRec struct {
 	// процесс, в рамках которого связка
-	ExecRef uniqref.ADT
+	ImplRef implsem.SemRef
 	ChnlBS  bindSide
 	ChnlPH  symbol.ADT
 	ChnlID  identity.ADT
@@ -29,9 +27,9 @@ type BindRec struct {
 type bindSide uint8
 
 const (
-	NonSide bindSide = iota
-	ProviderSide
-	ClientSide
+	unknown bindSide = iota
+	Provider
+	Client
 )
 
 func IndexBy[K comparable, V any](getKey func(V) K, vals []V) map[K]V {

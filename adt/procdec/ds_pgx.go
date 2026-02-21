@@ -11,8 +11,8 @@ import (
 	"orglang/go-engine/lib/db"
 	"orglang/go-engine/lib/lf"
 
+	"orglang/go-engine/adt/descsem"
 	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/uniqref"
 )
 
 // Adapter
@@ -32,16 +32,15 @@ func newRepo() Repo {
 
 func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
-	refAttr := slog.Any("decRef", rec.DecRef)
+	refAttr := slog.Any("decRef", rec.DescRef)
 	dto, err := DataFromDecRec(rec)
 	if err != nil {
 		dao.log.Error("model conversion failed", refAttr)
 		return err
 	}
 	recArgs := pgx.NamedArgs{
-		"dec_id": dto.ID,
-		"dec_rn": dto.RN,
-		"syn_vk": dto.SynVK,
+		"desc_id": dto.DescID,
+		"desc_rn": dto.DescRN,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertRec, recArgs)
 	if err != nil {
@@ -50,16 +49,16 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 	}
 	insertPE := `
 		insert into dec_pes (
-			dec_id, from_rn, to_rn, chnl_ph, type_qn
+			desc_id, from_rn, to_rn, chnl_ph, type_qn
 		) values (
-			@dec_id, @from_rn, @to_rn, @chnl_ph, @type_qn
+			@desc_id, @from_rn, @to_rn, @chnl_ph, @type_qn
 		)`
 	peArgs := pgx.NamedArgs{
-		"dec_id":  dto.ID,
-		"from_rn": dto.RN,
+		"desc_id": dto.DescID,
+		"from_rn": dto.DescRN,
 		"to_rn":   math.MaxInt64,
-		"chnl_ph": dto.ProviderBS.ChnlPH,
-		"type_qn": dto.ProviderBS.TypeQN,
+		"chnl_ph": dto.ProviderVS.ChnlPH,
+		"type_qn": dto.ProviderVS.TypeQN,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertPE, peArgs)
 	if err != nil {
@@ -68,15 +67,15 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 	}
 	insertCE := `
 		insert into dec_ces (
-			dec_id, from_rn, to_rn, chnl_ph, type_qn
+			desc_id, from_rn, to_rn, chnl_ph, type_qn
 		) values (
-			@dec_id, @from_rn, @to_rn, @chnl_ph, @type_qn
+			@desc_id, @from_rn, @to_rn, @chnl_ph, @type_qn
 		)`
 	batch := pgx.Batch{}
-	for _, ce := range dto.ClientBSes {
+	for _, ce := range dto.ClientVSes {
 		args := pgx.NamedArgs{
-			"dec_id":  dto.ID,
-			"from_rn": dto.RN,
+			"desc_id": dto.DescID,
+			"from_rn": dto.DescRN,
 			"to_rn":   math.MaxInt64,
 			"chnl_ph": ce.ChnlPH,
 			"type_qn": ce.TypeQN,
@@ -87,7 +86,7 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	for range dto.ClientBSes {
+	for range dto.ClientVSes {
 		_, err = br.Exec()
 		if err != nil {
 			dao.log.Error("query execution failed", refAttr)
@@ -99,10 +98,10 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 	return nil
 }
 
-func (dao *pgxDAO) SelectSnap(source db.Source, ref DecRef) (DecSnap, error) {
+func (dao *pgxDAO) SelectSnap(source db.Source, ref descsem.SemRef) (DecSnap, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	idAttr := slog.Any("id", ref)
-	rows, err := ds.Conn.Query(ds.Ctx, selectByID, ref.ID.String())
+	rows, err := ds.Conn.Query(ds.Ctx, selectByID, ref.DescID.String())
 	if err != nil {
 		dao.log.Error("query execution failed", idAttr, slog.String("q", selectByID))
 		return DecSnap{}, err
@@ -124,7 +123,7 @@ func (dao *pgxDAO) SelectEnv(source db.Source, ids []identity.ADT) (map[identity
 	}
 	env := make(map[identity.ADT]DecRec, len(decs))
 	for _, dec := range decs {
-		env[dec.DecRef.ID] = dec
+		env[dec.DescRef.DescID] = dec
 	}
 	return env, nil
 }
@@ -164,52 +163,52 @@ func (dao *pgxDAO) SelectRecs(source db.Source, ids []identity.ADT) (_ []DecRec,
 	return DataToDecRecs(dtos)
 }
 
-func (dao *pgxDAO) SelectRefs(source db.Source) ([]DecRef, error) {
+func (dao *pgxDAO) SelectRefs(source db.Source) ([]descsem.SemRef, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	query := `
 		select
-			dec_id, rev, title
+			desc_id, rev, title
 		from dec_roots`
 	rows, err := ds.Conn.Query(ds.Ctx, query)
 	if err != nil {
-		dao.log.Error("query execution failed", slog.String("q", query))
+		dao.log.Error("query execution failed")
 		return nil, err
 	}
 	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[decRefDS])
+	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[descsem.SemRefDS])
 	if err != nil {
 		dao.log.Error("rows collection failed")
 		return nil, err
 	}
-	return uniqref.DataToADTs(dtos)
+	return descsem.DataToRefs(dtos)
 }
 
 const (
 	insertRec = `
 		insert into proc_decs (
-			dec_id, dec_rn, syn_vk
+			desc_id, desc_rn
 		) values (
-			@dec_id, @dec_rn, @syn_vk
+			@desc_id, @desc_rn
 		)`
 
 	// revive:disable:line-length-limit
 	selectByID = `
 		select
-			sr.dec_id,
+			sr.desc_id,
 			sr.rev,
 			(array_agg(sr.title))[1] as title,
 			(jsonb_agg(to_jsonb((select ep from (select sp.chnl_key, sp.type_qn) ep))))[0] as pe,
-			jsonb_agg(to_jsonb((select ep from (select sc.chnl_key, sc.type_qn) ep))) filter (where sc.dec_id is not null) as ces
+			jsonb_agg(to_jsonb((select ep from (select sc.chnl_key, sc.type_qn) ep))) filter (where sc.desc_id is not null) as ces
 		from dec_roots sr
 		left join dec_pes sp
-			on sp.dec_id = sr.dec_id
+			on sp.desc_id = sr.desc_id
 			and sp.from_rn >= sr.rev
 			and sp.to_rn > sr.rev
 		left join dec_ces sc
-			on sc.dec_id = sr.dec_id
+			on sc.desc_id = sr.desc_id
 			and sc.from_rn >= sr.rev
 			and sc.to_rn > sr.rev
-		where sr.dec_id = $1
-		group by sr.dec_id, sr.rev`
+		where sr.desc_id = $1
+		group by sr.desc_id, sr.rev`
 	// revive:enable:line-length-limit
 )

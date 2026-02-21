@@ -6,8 +6,8 @@ import (
 )
 
 type ADT struct {
-	ID identity.ADT
-	RN revnum.ADT
+	DescID identity.ADT
+	DescRN revnum.ADT
 }
 
 func New() ADT {

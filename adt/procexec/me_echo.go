@@ -7,13 +7,13 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/orglang/go-sdk/adt/procexec"
-	sdk "github.com/orglang/go-sdk/adt/procstep"
+	sdksem "github.com/orglang/go-sdk/adt/implsem"
+	sdkstep "github.com/orglang/go-sdk/adt/procstep"
 
 	"orglang/go-engine/lib/lf"
 
+	"orglang/go-engine/adt/implsem"
 	"orglang/go-engine/adt/procstep"
-	"orglang/go-engine/adt/uniqref"
 )
 
 // Server-side primary adapter
@@ -33,13 +33,13 @@ func cfgEchoController(e *echo.Echo, h *echoController) error {
 }
 
 func (h *echoController) GetSnap(c echo.Context) error {
-	var dto procexec.ExecRef
+	var dto sdksem.SemRef
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", dto))
 		return bindingErr
 	}
-	ref, conversionErr := uniqref.MsgToADT(dto)
+	ref, conversionErr := implsem.MsgToRef(dto)
 	if conversionErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
 		return conversionErr
@@ -52,7 +52,7 @@ func (h *echoController) GetSnap(c echo.Context) error {
 }
 
 func (h *echoController) PostStep(c echo.Context) error {
-	var dto sdk.StepSpec
+	var dto sdkstep.StepSpec
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))

@@ -3,12 +3,12 @@ package xactexp
 import (
 	"orglang/go-engine/lib/db"
 
-	"orglang/go-engine/adt/descexec"
+	"orglang/go-engine/adt/descsem"
 	"orglang/go-engine/adt/valkey"
 )
 
 type Repo interface {
-	InsertRec(db.Source, ExpRec, descexec.ExecRef) error
+	InsertRec(db.Source, ExpRec, descsem.SemRef) error
 	SelectRecByVK(db.Source, valkey.ADT) (ExpRec, error)
 	SelectRecsByVKs(db.Source, []valkey.ADT) ([]ExpRec, error)
 	SelectEnv(db.Source, []valkey.ADT) (map[valkey.ADT]ExpRec, error)

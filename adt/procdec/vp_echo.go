@@ -7,10 +7,12 @@ import (
 
 	"github.com/labstack/echo/v4"
 
+	sdk "github.com/orglang/go-sdk/adt/descsem"
+
 	"orglang/go-engine/lib/lf"
 	"orglang/go-engine/lib/te"
 
-	"orglang/go-engine/adt/uniqref"
+	"orglang/go-engine/adt/descsem"
 	"orglang/go-engine/adt/uniqsym"
 )
 
@@ -55,7 +57,7 @@ func (p *echoPresenter) PostSpec(c echo.Context) error {
 	if inceptionErr != nil {
 		return inceptionErr
 	}
-	html, renderingErr := p.ssr.Render("view-one", uniqref.MsgFromADT(ref))
+	html, renderingErr := p.ssr.Render("view-one", descsem.MsgFromRef(ref))
 	if renderingErr != nil {
 		p.log.Error("rendering failed", slog.Any("ref", ref))
 		return renderingErr
@@ -69,7 +71,7 @@ func (p *echoPresenter) GetRefs(c echo.Context) error {
 	if retrievalErr != nil {
 		return retrievalErr
 	}
-	html, renderingErr := p.ssr.Render("view-many", uniqref.MsgFromADTs(refs))
+	html, renderingErr := p.ssr.Render("view-many", descsem.MsgFromRefs(refs))
 	if renderingErr != nil {
 		p.log.Error("rendering failed", slog.Any("refs", refs))
 		return renderingErr
@@ -78,7 +80,7 @@ func (p *echoPresenter) GetRefs(c echo.Context) error {
 }
 
 func (p *echoPresenter) GetSnap(c echo.Context) error {
-	var dto DecRefVP
+	var dto sdk.SemRef
 	bindingErr := c.Bind(&dto)
 	if bindingErr != nil {
 		p.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
@@ -91,7 +93,7 @@ func (p *echoPresenter) GetSnap(c echo.Context) error {
 		p.log.Error("validation failed", slog.Any("dto", dto))
 		return validationErr
 	}
-	ref, conversionErr := uniqref.MsgToADT(dto)
+	ref, conversionErr := descsem.MsgToRef(dto)
 	if conversionErr != nil {
 		p.log.Error("conversion failed", slog.Any("dto", dto))
 		return conversionErr
@@ -105,6 +107,6 @@ func (p *echoPresenter) GetSnap(c echo.Context) error {
 		p.log.Error("rendering failed", slog.Any("snap", snap))
 		return renderingErr
 	}
-	p.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("decRef", snap.DecRef))
+	p.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("decRef", snap.DescRef))
 	return c.HTMLBlob(http.StatusOK, html)
 }

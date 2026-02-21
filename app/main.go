@@ -8,8 +8,8 @@ import (
 	"orglang/go-engine/lib/lf"
 	"orglang/go-engine/lib/ws"
 
-	"orglang/go-engine/adt/descbind"
-	"orglang/go-engine/adt/descexec"
+	"orglang/go-engine/adt/descsem"
+	"orglang/go-engine/adt/implsem"
 	"orglang/go-engine/adt/pooldec"
 	"orglang/go-engine/adt/poolexec"
 	"orglang/go-engine/adt/procdec"
@@ -31,16 +31,16 @@ func main() {
 		lf.Module,
 		ws.Module,
 		// adt
-		descbind.Module,
-		descexec.Module,
+		descsem.Module,
+		implsem.Module,
+		xactdef.Module,
+		xactexp.Module,
+		pooldec.Module,
 		poolexec.Module,
 		typedef.Module,
 		typeexp.Module,
-		xactdef.Module,
-		xactexp.Module,
 		procdef.Module,
 		procdec.Module,
-		pooldec.Module,
 		procexec.Module,
 		// app
 		web.Module,

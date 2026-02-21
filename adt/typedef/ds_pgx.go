@@ -10,7 +10,7 @@ import (
 	"orglang/go-engine/lib/db"
 	"orglang/go-engine/lib/lf"
 
-	"orglang/go-engine/adt/descexec"
+	"orglang/go-engine/adt/descsem"
 	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/uniqsym"
 )
@@ -77,7 +77,7 @@ func (dao *pgxDAO) Update(source db.Source, rec DefRec) error {
 	return nil
 }
 
-func (dao *pgxDAO) SelectRefs(source db.Source) ([]descexec.ExecRef, error) {
+func (dao *pgxDAO) SelectRefs(source db.Source) ([]descsem.SemRef, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	rows, err := ds.Conn.Query(ds.Ctx, selectRefs)
 	if err != nil {
@@ -85,16 +85,16 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]descexec.ExecRef, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[descexec.ExecRefDS])
+	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[descsem.SemRefDS])
 	if err != nil {
 		dao.log.Error("rows collection failed")
 		return nil, err
 	}
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "entities selection succeed", slog.Any("dtos", dtos))
-	return descexec.DataToRefs(dtos)
+	return descsem.DataToRefs(dtos)
 }
 
-func (dao *pgxDAO) SelectRecByRef(source db.Source, ref descexec.ExecRef) (DefRec, error) {
+func (dao *pgxDAO) SelectRecByRef(source db.Source, ref descsem.SemRef) (DefRec, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("ref", ref)
 	rows, err := ds.Conn.Query(ds.Ctx, selectRecByID, ref.DescID.String())
@@ -130,7 +130,7 @@ func (dao *pgxDAO) SelectRecByQN(source db.Source, typeQN uniqsym.ADT) (DefRec, 
 	return DataToDefRec(dto)
 }
 
-func (dao *pgxDAO) SelectRecsByRefs(source db.Source, refs []descexec.ExecRef) (_ []DefRec, err error) {
+func (dao *pgxDAO) SelectRecsByRefs(source db.Source, refs []descsem.SemRef) (_ []DefRec, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	if len(refs) == 0 {
 		return []DefRec{}, nil
@@ -230,7 +230,7 @@ const (
 			td.exp_vk,
 			de.desc_rn
 		from type_defs td
-		left join desc_execs de
+		left join desc_sems de
 			on de.desc_id = td.desc_id
 		left join desc_binds db
 			on db.desc_id = td.desc_id
@@ -242,7 +242,7 @@ const (
 			td.exp_vk,
 			de.desc_rn
 		from type_defs td
-		left join desc_execs de
+		left join desc_sems de
 			on de.desc_id = td.desc_id
 		where td.desc_id = $1`
 

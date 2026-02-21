@@ -3,6 +3,8 @@ package e2e
 import (
 	"github.com/go-resty/resty/v2"
 
+	"github.com/orglang/go-sdk/adt/descsem"
+	"github.com/orglang/go-sdk/adt/implsem"
 	"github.com/orglang/go-sdk/adt/pooldec"
 	"github.com/orglang/go-sdk/adt/poolexec"
 	"github.com/orglang/go-sdk/adt/poolstep"
@@ -14,7 +16,7 @@ import (
 )
 
 type PoolDecAPI interface {
-	Create(pooldec.DecSpec) (pooldec.PoolRef, error)
+	Create(pooldec.DecSpec) (descsem.SemRef, error)
 }
 
 func newPoolDecAPI(client *resty.Client) PoolDecAPI {
@@ -22,11 +24,11 @@ func newPoolDecAPI(client *resty.Client) PoolDecAPI {
 }
 
 type PoolExecAPI interface {
-	Retrieve(poolexec.ExecRef) (poolexec.ExecSnap, error)
-	Create(poolexec.ExecSpec) (poolexec.ExecRef, error)
+	Retrieve(implsem.SemRef) (poolexec.ExecSnap, error)
+	Create(poolexec.ExecSpec) (implsem.SemRef, error)
 	Take(poolstep.StepSpec) error
-	Spawn(poolstep.StepSpec) (procexec.ExecRef, error)
-	Poll(poolexec.PollSpec) (procexec.ExecRef, error)
+	Spawn(poolstep.StepSpec) (implsem.SemRef, error)
+	Poll(poolexec.PollSpec) (implsem.SemRef, error)
 }
 
 func newPoolExecAPI(client *resty.Client) PoolExecAPI {

@@ -3,23 +3,21 @@ package procexec
 import (
 	"orglang/go-engine/lib/db"
 
-	"orglang/go-engine/adt/procbind"
+	"orglang/go-engine/adt/implsem"
+	"orglang/go-engine/adt/implvar"
 	"orglang/go-engine/adt/procstep"
-	"orglang/go-engine/adt/uniqref"
 )
 
 type Repo interface {
-	SelectSnap(db.Source, ExecRef) (ExecSnap, error)
+	SelectSnap(db.Source, implsem.SemRef) (ExecSnap, error)
 	UpdateProc(db.Source, ExecMod) error
 }
 
 type execModDS struct {
-	Locks []execRefDS
-	Binds []procbind.BindRecDS
+	Locks []implsem.SemRefDS
+	Binds []implvar.VarRecDS
 	Steps []procstep.StepRecDS
 }
-
-type execRefDS = uniqref.Data
 
 type liabDS struct {
 	PoolID string `db:"desc_id"`

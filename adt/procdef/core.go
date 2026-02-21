@@ -6,15 +6,15 @@ import (
 
 	"orglang/go-engine/lib/db"
 
+	"orglang/go-engine/adt/descsem"
 	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/procexp"
 	"orglang/go-engine/adt/symbol"
-	"orglang/go-engine/adt/uniqref"
 	"orglang/go-engine/adt/uniqsym"
 )
 
 type API interface {
-	Create(DefSpec) (DefRef, error)
+	Create(DefSpec) (descsem.SemRef, error)
 	Retrieve(identity.ADT) (DefRec, error)
 }
 
@@ -23,14 +23,12 @@ type DefSpec struct {
 	ProcES procexp.ExpSpec
 }
 
-type DefRef = uniqref.ADT
-
 type DefRec struct {
-	Ref DefRef
+	Ref descsem.SemRef
 }
 
 type DefSnap struct {
-	Ref DefRef
+	Ref descsem.SemRef
 }
 
 type service struct {
@@ -52,8 +50,8 @@ func newService(
 	return &service{procs, operator, l}
 }
 
-func (s *service) Create(spec DefSpec) (DefRef, error) {
-	return DefRef{}, nil
+func (s *service) Create(spec DefSpec) (descsem.SemRef, error) {
+	return descsem.SemRef{}, nil
 }
 
 func (s *service) Retrieve(recID identity.ADT) (DefRec, error) {

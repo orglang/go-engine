@@ -22,7 +22,6 @@ import (
 	"orglang/go-engine/adt/symbol"
 	"orglang/go-engine/adt/typedef"
 	"orglang/go-engine/adt/typeexp"
-	"orglang/go-engine/adt/uniqref"
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/adt/valkey"
 )
@@ -37,8 +36,6 @@ type ExecSpec struct {
 	ValChnlIDs []identity.ADT
 	ProcES     procexp.ExpSpec
 }
-
-type ExecRef = uniqref.ADT
 
 // aka Configuration
 type ExecSnap struct {

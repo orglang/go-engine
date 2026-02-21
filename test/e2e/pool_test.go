@@ -71,11 +71,12 @@ func (s *suite) beforeAll(t *testing.T) {
 
 func (s *suite) beforeEach(t *testing.T) {
 	tables := []string{
-		"desc_binds",
+		"desc_sems", "desc_binds",
+		"impl_sems", "impl_binds",
 		"xact_defs", "xact_exps",
 		"pool_decs", "pool_execs", "pool_liabs",
-		"proc_decs", "proc_binds", "proc_steps",
 		"type_defs", "type_exps",
+		"proc_decs", "proc_binds", "proc_steps",
 	}
 	for _, table := range tables {
 		_, err := s.DB.Exec(fmt.Sprintf("truncate table %v", table))

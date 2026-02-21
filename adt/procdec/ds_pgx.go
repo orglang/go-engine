@@ -3,7 +3,6 @@ package procdec
 import (
 	"errors"
 	"log/slog"
-	"math"
 	"reflect"
 
 	"github.com/jackc/pgx/v5"
@@ -32,67 +31,20 @@ func newRepo() Repo {
 
 func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
-	refAttr := slog.Any("decRef", rec.DescRef)
+	refAttr := slog.Any("ref", rec.DescRef)
 	dto, err := DataFromDecRec(rec)
 	if err != nil {
 		dao.log.Error("model conversion failed", refAttr)
 		return err
 	}
-	recArgs := pgx.NamedArgs{
-		"desc_id": dto.DescID,
-		"desc_rn": dto.DescRN,
+	args := pgx.NamedArgs{
+		"desc_id":     dto.DescID,
+		"client_vrs":  dto.ClientVSes,
+		"provider_vr": dto.ProviderVS,
 	}
-	_, err = ds.Conn.Exec(ds.Ctx, insertRec, recArgs)
+	_, err = ds.Conn.Exec(ds.Ctx, insertRec, args)
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)
-		return err
-	}
-	insertPE := `
-		insert into dec_pes (
-			desc_id, from_rn, to_rn, chnl_ph, type_qn
-		) values (
-			@desc_id, @from_rn, @to_rn, @chnl_ph, @type_qn
-		)`
-	peArgs := pgx.NamedArgs{
-		"desc_id": dto.DescID,
-		"from_rn": dto.DescRN,
-		"to_rn":   math.MaxInt64,
-		"chnl_ph": dto.ProviderVS.ChnlPH,
-		"type_qn": dto.ProviderVS.TypeQN,
-	}
-	_, err = ds.Conn.Exec(ds.Ctx, insertPE, peArgs)
-	if err != nil {
-		dao.log.Error("query execution failed", refAttr)
-		return err
-	}
-	insertCE := `
-		insert into dec_ces (
-			desc_id, from_rn, to_rn, chnl_ph, type_qn
-		) values (
-			@desc_id, @from_rn, @to_rn, @chnl_ph, @type_qn
-		)`
-	batch := pgx.Batch{}
-	for _, ce := range dto.ClientVSes {
-		args := pgx.NamedArgs{
-			"desc_id": dto.DescID,
-			"from_rn": dto.DescRN,
-			"to_rn":   math.MaxInt64,
-			"chnl_ph": ce.ChnlPH,
-			"type_qn": ce.TypeQN,
-		}
-		batch.Queue(insertCE, args)
-	}
-	br := ds.Conn.SendBatch(ds.Ctx, &batch)
-	defer func() {
-		err = errors.Join(err, br.Close())
-	}()
-	for range dto.ClientVSes {
-		_, err = br.Exec()
-		if err != nil {
-			dao.log.Error("query execution failed", refAttr)
-		}
-	}
-	if err != nil {
 		return err
 	}
 	return nil
@@ -186,9 +138,9 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]descsem.SemRef, error) {
 const (
 	insertRec = `
 		insert into proc_decs (
-			desc_id, desc_rn
+			desc_id, provider_vr, client_vrs
 		) values (
-			@desc_id, @desc_rn
+			@desc_id, @provider_vr, @client_vrs
 		)`
 
 	// revive:disable:line-length-limit

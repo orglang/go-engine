@@ -50,18 +50,6 @@ CREATE TABLE pool_execs (
 	proc_id varchar(36)
 );
 
-CREATE TABLE pool_caps (
-	desc_id varchar(36),
-	sig_id varchar(36),
-	rev bigint
-);
-
-CREATE TABLE pool_deps (
-	desc_id varchar(36),
-	sig_id varchar(36),
-	rev bigint
-);
-
 -- передачи каналов (провайдерская сторона)
 -- по истории передач определяем текущего провайдера
 CREATE TABLE pool_liabs (

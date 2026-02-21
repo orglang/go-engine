@@ -78,7 +78,8 @@ func newService(
 
 func (s *service) Run(spec ExecSpec) (implsem.SemRef, error) {
 	ctx := context.Background()
-	s.log.Debug("creation started", slog.Any("spec", spec))
+	qnAttr := slog.Any("qn", spec.PoolQN)
+	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	execRec := ExecRec{
 		ExecRef: implsem.NewRef(),
 	}
@@ -86,10 +87,10 @@ func (s *service) Run(spec ExecSpec) (implsem.SemRef, error) {
 		return s.poolExecs.InsertRec(ds, execRec)
 	})
 	if transactErr != nil {
-		s.log.Error("creation failed")
+		s.log.Error("creation failed", qnAttr)
 		return implsem.SemRef{}, transactErr
 	}
-	s.log.Debug("creation succeed", slog.Any("execRef", execRec.ExecRef))
+	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", execRec.ExecRef))
 	return execRec.ExecRef, nil
 }
 
@@ -98,7 +99,7 @@ func (s *service) Poll(spec PollSpec) (implsem.SemRef, error) {
 }
 
 func (s *service) Take(spec poolstep.StepSpec) (err error) {
-	qnAttr := slog.Any("procQN", spec.ProcQN)
+	qnAttr := slog.Any("qn", spec.ProcQN)
 	s.log.Debug("spawning started", qnAttr)
 	return nil
 }
@@ -110,7 +111,7 @@ func (s *service) RetrieveSnap(ref implsem.SemRef) (snap ExecSnap, err error) {
 		return err
 	})
 	if err != nil {
-		s.log.Error("retrieval failed", slog.Any("execID", ref))
+		s.log.Error("retrieval failed", slog.Any("ref", ref))
 		return ExecSnap{}, err
 	}
 	return snap, nil

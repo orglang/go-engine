@@ -8,7 +8,6 @@ import (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
-// goverter:extend orglang/go-engine/adt/uniqref:Msg.*
 var (
 	MsgToExecSpec   func(poolexec.ExecSpec) (ExecSpec, error)
 	MsgFromExecSpec func(ExecSpec) poolexec.ExecSpec

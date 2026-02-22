@@ -31,17 +31,15 @@ type API interface {
 	RetrieveSnap(implsem.SemRef) (ExecSnap, error)
 }
 
-type ExecSpec struct {
-	ProcQN     uniqsym.ADT
-	ValChnlIDs []identity.ADT
-	ProcES     procexp.ExpSpec
+type ExecRec struct {
+	ProcIR     implsem.SemRef
+	ProviderPH symbol.ADT
 }
 
 // aka Configuration
 type ExecSnap struct {
-	// ExecRef
 	ExecRef implsem.SemRef
-	ChnlBRs map[symbol.ADT]implvar.VarRec
+	ChnlVRs map[symbol.ADT]implvar.VarRec
 	ProcSRs map[identity.ADT]procstep.StepRec
 }
 
@@ -110,7 +108,7 @@ func (s *service) Take(spec procstep.StepSpec) (err error) {
 			s.log.Error("taking failed", refAttr)
 			return err
 		}
-		if len(execSnap.ChnlBRs) == 0 {
+		if len(execSnap.ChnlVRs) == 0 {
 			panic("zero channel binds")
 		}
 		decIDs := procexp.CollectEnv(expSpec)
@@ -134,7 +132,7 @@ func (s *service) Take(spec procstep.StepSpec) (err error) {
 			return err
 		}
 		envIDs := typedef.CollectEnv(maps.Values(typeDefs))
-		ctxIDs := CollectCtx(maps.Values(execSnap.ChnlBRs))
+		ctxIDs := CollectCtx(maps.Values(execSnap.ChnlVRs))
 		var typeExps map[valkey.ADT]typeexp.ExpRec
 		err = s.operator.Implicit(ctx, func(ds db.Source) error {
 			typeExps, err = s.typeExps.SelectEnv(ds, append(envIDs, ctxIDs...))
@@ -145,7 +143,7 @@ func (s *service) Take(spec procstep.StepSpec) (err error) {
 			return err
 		}
 		procEnv := Env{ProcDecs: procDRs, TypeDefs: typeDefs, TypeExps: typeExps}
-		procCtx := convertToCtx(maps.Values(execSnap.ChnlBRs), typeExps)
+		procCtx := convertToCtx(maps.Values(execSnap.ChnlVRs), typeExps)
 		// type checking
 		err = s.checkType(procEnv, procCtx, execSnap, expSpec)
 		if err != nil {
@@ -189,7 +187,7 @@ func (s *service) takeWith(
 ) {
 	switch expSpec := es.(type) {
 	case procexp.CloseSpec:
-		commChnlBR, ok := execSnap.ChnlBRs[expSpec.CommChnlPH]
+		commChnlBR, ok := execSnap.ChnlVRs[expSpec.CommChnlPH]
 		if !ok {
 			err := procdef.ErrMissingInCfg(expSpec.CommChnlPH)
 			s.log.Error("taking failed")
@@ -243,7 +241,7 @@ func (s *service) takeWith(
 			panic(procexp.ErrRecTypeUnexpected(serviceSR.ContER))
 		}
 	case procexp.WaitSpec:
-		commChnlBR, ok := execSnap.ChnlBRs[expSpec.CommChnlPH]
+		commChnlBR, ok := execSnap.ChnlVRs[expSpec.CommChnlPH]
 		if !ok {
 			err := procdef.ErrMissingInCfg(expSpec.CommChnlPH)
 			s.log.Error("taking failed")
@@ -314,7 +312,7 @@ func (s *service) takeWith(
 			panic(procexp.ErrRecTypeUnexpected(messageSR.ValER))
 		}
 	case procexp.SendSpec:
-		commChnlBR, ok := execSnap.ChnlBRs[expSpec.CommChnlPH]
+		commChnlBR, ok := execSnap.ChnlVRs[expSpec.CommChnlPH]
 		if !ok {
 			err := procdef.ErrMissingInCfg(expSpec.CommChnlPH)
 			s.log.Error("taking failed")
@@ -329,7 +327,7 @@ func (s *service) takeWith(
 			return procstep.StepSpec{}, ExecMod{}, err
 		}
 		nextExpID := typeER.(typeexp.ProdRec).Next()
-		valueEP, ok := execSnap.ChnlBRs[expSpec.ValChnlPH]
+		valueEP, ok := execSnap.ChnlVRs[expSpec.ValChnlPH]
 		if !ok {
 			err := procdef.ErrMissingInCfg(expSpec.ValChnlPH)
 			s.log.Error("taking failed", viaAttr)
@@ -419,7 +417,7 @@ func (s *service) takeWith(
 			panic(procexp.ErrRecTypeUnexpected(serviceSR.ContER))
 		}
 	case procexp.RecvSpec:
-		commChnlBR, ok := execSnap.ChnlBRs[expSpec.CommChnlPH]
+		commChnlBR, ok := execSnap.ChnlVRs[expSpec.CommChnlPH]
 		if !ok {
 			err := procdef.ErrMissingInCfg(expSpec.CommChnlPH)
 			s.log.Error("taking failed")
@@ -488,7 +486,7 @@ func (s *service) takeWith(
 			panic(procexp.ErrRecTypeUnexpected(sndrMsgRec.ValER))
 		}
 	case procexp.LabSpec:
-		commChnlBR, ok := execSnap.ChnlBRs[expSpec.CommChnlPH]
+		commChnlBR, ok := execSnap.ChnlVRs[expSpec.CommChnlPH]
 		if !ok {
 			err := procdef.ErrMissingInCfg(expSpec.CommChnlPH)
 			s.log.Error("taking failed")
@@ -568,7 +566,7 @@ func (s *service) takeWith(
 			panic(procexp.ErrRecTypeUnexpected(serviceSR.ContER))
 		}
 	case procexp.CaseSpec:
-		commChnlBR, ok := execSnap.ChnlBRs[expSpec.CommChnlPH]
+		commChnlBR, ok := execSnap.ChnlVRs[expSpec.CommChnlPH]
 		if !ok {
 			err := procdef.ErrMissingInCfg(expSpec.CommChnlPH)
 			s.log.Error("taking failed")
@@ -626,7 +624,7 @@ func (s *service) takeWith(
 			panic(procexp.ErrRecTypeUnexpected(messageSR.ValER))
 		}
 	case procexp.FwdSpec:
-		commChnlBR, ok := execSnap.ChnlBRs[expSpec.CommChnlPH]
+		commChnlBR, ok := execSnap.ChnlVRs[expSpec.CommChnlPH]
 		if !ok {
 			err := procdef.ErrMissingInCfg(expSpec.CommChnlPH)
 			s.log.Error("taking failed")
@@ -639,7 +637,7 @@ func (s *service) takeWith(
 			s.log.Error("taking failed", viaAttr)
 			return procstep.StepSpec{}, ExecMod{}, err
 		}
-		valChnlBR, ok := execSnap.ChnlBRs[expSpec.ContChnlPH]
+		valChnlBR, ok := execSnap.ChnlVRs[expSpec.ContChnlPH]
 		if !ok {
 			err := procdef.ErrMissingInCfg(expSpec.ContChnlPH)
 			s.log.Error("taking failed")
@@ -800,7 +798,7 @@ func (s *service) checkType(
 	execSnap ExecSnap,
 	expSpec procexp.ExpSpec,
 ) error {
-	chnlBR, ok := execSnap.ChnlBRs[expSpec.Via()]
+	chnlBR, ok := execSnap.ChnlVRs[expSpec.Via()]
 	if !ok {
 		panic("no comm chnl in proc snap")
 	}

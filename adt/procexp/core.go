@@ -222,15 +222,15 @@ func collectEnvRec(s ExpSpec, env []identity.ADT) []identity.ADT {
 }
 
 func ErrExpTypeUnexpected(got ExpSpec) error {
-	return fmt.Errorf("term spec unexpected: %T", got)
+	return fmt.Errorf("exp spec unexpected: %T", got)
 }
 
 func ErrRecTypeUnexpected(got ExpRec) error {
-	return fmt.Errorf("term rec unexpected: %T", got)
+	return fmt.Errorf("exp rec unexpected: %T", got)
 }
 
 func ErrExpTypeMismatch(got, want ExpSpec) error {
-	return fmt.Errorf("term spec mismatch: want %T, got %T", want, got)
+	return fmt.Errorf("exp spec mismatch: want %T, got %T", want, got)
 }
 
 func ErrExpValueNil(pid identity.ADT) error {

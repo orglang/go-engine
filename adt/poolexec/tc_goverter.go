@@ -2,6 +2,16 @@ package poolexec
 
 import (
 	"github.com/orglang/go-sdk/adt/poolexec"
+
+	"orglang/go-engine/adt/implsem"
+	"orglang/go-engine/adt/uniqsym"
+)
+
+// goverter:variables
+// goverter:output:format assign-variable
+// goverter:extend ConvertRecToRef
+var (
+	ConvertRecsToRefs func([]ExecRec) []implsem.SemRef
 )
 
 // goverter:variables
@@ -21,15 +31,13 @@ var (
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 var (
 	// goverter:map . ImplRef
+	// goverter:ignore ChnlBS
 	DataToExecRec func(execRecDS) (ExecRec, error)
 	// goverter:autoMap ImplRef
 	DataFromExecRec func(ExecRec) execRecDS
-	// goverter:map . ExecRef
-	DataToLiab func(liabDS) (Liab, error)
-	// goverter:autoMap ExecRef
-	DataFromLiab func(Liab) liabDS
-	// goverter:map . ExecRef
+	// goverter:map . ImplRef
 	DataToExecSnap func(execSnapDS) (ExecSnap, error)
-	// goverter:autoMap ExecRef
+	// goverter:autoMap ImplRef
 	DataFromExecSnap func(ExecSnap) execSnapDS
+	DataToRefMap     func(map[uniqsym.ADT]execRecDS) (map[uniqsym.ADT]ExecRec, error)
 )

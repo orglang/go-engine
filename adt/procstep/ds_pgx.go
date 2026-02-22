@@ -38,7 +38,7 @@ func (dao *pgxDAO) InsertRecs(source db.Source, recs ...StepRec) error {
 	for _, dto := range dtos {
 		args := pgx.NamedArgs{
 			"kind":    dto.K,
-			"exec_id": dto.ExecID,
+			"impl_id": dto.ExecID,
 			"chnl_id": dto.ChnlID,
 			"proc_er": dto.ProcER,
 		}

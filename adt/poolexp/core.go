@@ -1,60 +1,79 @@
 package poolexp
 
 import (
+	"fmt"
+
+	"orglang/go-engine/adt/descsem"
+	"orglang/go-engine/adt/implsem"
 	"orglang/go-engine/adt/symbol"
 	"orglang/go-engine/adt/uniqsym"
 )
 
 type ExpSpec interface {
-	via()
+	spec()
 }
 
 type HireSpec struct {
-	ProcQN uniqsym.ADT
+	CommChnlPH symbol.ADT
+	ProcDescQN uniqsym.ADT
 }
 
-func (s HireSpec) via() {}
+func (s HireSpec) spec() {}
 
 type FireSpec struct {
-	ProcQN uniqsym.ADT
+	CommChnlPH symbol.ADT
+	ProcDescQN uniqsym.ADT
 }
 
-func (s FireSpec) via() {}
+func (s FireSpec) spec() {}
 
 type ApplySpec struct {
-	ProcQN uniqsym.ADT
+	CommChnlPH symbol.ADT
+	ProcDescQN uniqsym.ADT
 }
 
-func (s ApplySpec) via() {}
+func (s ApplySpec) spec() {}
 
 type QuitSpec struct {
-	ProcQN uniqsym.ADT
+	CommChnlPH symbol.ADT
+	ProcDescQN uniqsym.ADT
 }
 
-func (s QuitSpec) via() {}
+func (s QuitSpec) spec() {}
 
 type AcquireSpec struct {
 	PoolQN uniqsym.ADT
 	BindPH symbol.ADT
 }
 
-func (s AcquireSpec) via() {}
+func (s AcquireSpec) spec() {}
 
 type ReleaseSpec struct {
 }
 
-func (s ReleaseSpec) via() {}
+func (s ReleaseSpec) spec() {}
 
 type AcceptSpec struct {
 	PoolQN uniqsym.ADT
 	ValPH  symbol.ADT
 }
 
-func (s AcceptSpec) via() {}
+func (s AcceptSpec) spec() {}
 
 type DetachSpec struct {
 	PoolQN uniqsym.ADT
 	ValPH  symbol.ADT
 }
 
-func (s DetachSpec) via() {}
+func (s DetachSpec) spec() {}
+
+type SpawnSpec struct {
+	ProcDescRef  descsem.SemRef
+	ProcImplRefs []implsem.SemRef
+}
+
+func (s SpawnSpec) spec() {}
+
+func ErrExpTypeUnexpected(got ExpSpec) error {
+	return fmt.Errorf("exp spec unexpected: %T", got)
+}

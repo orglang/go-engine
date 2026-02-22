@@ -9,8 +9,12 @@ import (
 )
 
 type Repo interface {
+	InsertRec(db.Source, ExecRec) error
 	SelectSnap(db.Source, implsem.SemRef) (ExecSnap, error)
 	UpdateProc(db.Source, ExecMod) error
+}
+
+type execRecDS struct {
 }
 
 type execModDS struct {

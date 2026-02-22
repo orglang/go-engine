@@ -1,14 +1,17 @@
 package poolexec
 
 import (
+	"errors"
 	"log/slog"
 	"reflect"
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/adt/implsem"
 	"orglang/go-engine/lib/db"
 	"orglang/go-engine/lib/lf"
+
+	"orglang/go-engine/adt/implsem"
+	"orglang/go-engine/adt/uniqsym"
 )
 
 type pgxDAO struct {
@@ -29,9 +32,11 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec ExecRec) (err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	dto := DataFromExecRec(rec)
 	args := pgx.NamedArgs{
-		"impl_id":     dto.ImplID,
-		"provider_ph": dto.ProviderPH,
-		"client_srs":  dto.ClientSRs,
+		"chnl_id": dto.ChnlID,
+		"chnl_ph": dto.ChnlPH,
+		"exp_vk":  dto.ExpVK,
+		"impl_id": dto.ImplID,
+		"impl_rn": dto.ImplRN,
 	}
 	refAttr := slog.Any("ref", rec.ImplRef)
 	_, err = ds.Conn.Exec(ds.Ctx, insertRec, args)
@@ -43,21 +48,45 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec ExecRec) (err error) {
 	return nil
 }
 
-func (dao *pgxDAO) InsertLiab(source db.Source, liab Liab) (err error) {
-	ds := db.MustConform[db.SourcePgx](source)
-	dto := DataFromLiab(liab)
-	args := pgx.NamedArgs{
-		"exec_id": dto.ImplID,
-		"exec_rn": dto.ImplRN,
-		"proc_id": dto.ProcID,
-	}
-	_, err = ds.Conn.Exec(ds.Ctx, insertLiab, args)
-	if err != nil {
-		dao.log.Error("execution failed")
-		return err
-	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "insertion succeed", slog.Any("execRef", liab.ExecRef))
+func (dao *pgxDAO) TouchRec(source db.Source, ref implsem.SemRef) error {
 	return nil
+}
+
+func (dao *pgxDAO) TouchRecs(db.Source, []implsem.SemRef) error {
+	return nil
+}
+
+func (dao *pgxDAO) SelectRecsByQNs(source db.Source, implQNs []uniqsym.ADT) (_ map[uniqsym.ADT]ExecRec, err error) {
+	ds := db.MustConform[db.SourcePgx](source)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "starting selection...", slog.Any("qns", implQNs))
+	if len(implQNs) == 0 {
+		return map[uniqsym.ADT]ExecRec{}, nil
+	}
+	batch := pgx.Batch{}
+	for _, implQN := range implQNs {
+		batch.Queue(selectRecByQN, uniqsym.ConvertToString(implQN))
+	}
+	br := ds.Conn.SendBatch(ds.Ctx, &batch)
+	defer func() {
+		err = errors.Join(err, br.Close())
+	}()
+	dtos := make(map[uniqsym.ADT]execRecDS, len(implQNs))
+	for _, implQN := range implQNs {
+		qnAttr := slog.Any("qn", implQN)
+		rows, readErr := br.Query()
+		if readErr != nil {
+			dao.log.Error("query execution failed", qnAttr)
+			return nil, readErr
+		}
+		dto, collectErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[execRecDS])
+		if collectErr != nil {
+			dao.log.Error("row collection failed", qnAttr)
+			return nil, collectErr
+		}
+		dtos[implQN] = dto
+	}
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection succeed", slog.Any("dtos", dtos))
+	return DataToRefMap(dtos)
 }
 
 func (dao *pgxDAO) SelectSubs(source db.Source, ref implsem.SemRef) (ExecSnap, error) {
@@ -87,7 +116,7 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]implsem.SemRef, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	query := `
 		select
-			exec_id, exec_rn
+			impl_id, impl_rn
 		from pool_execs`
 	rows, err := ds.Conn.Query(ds.Ctx, query)
 	if err != nil {
@@ -111,24 +140,24 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]implsem.SemRef, error) {
 const (
 	insertRec = `
 		insert into pool_execs (
-			impl_id, provider_ph, client_srs
+			impl_id, impl_rn, chnl_id, chnl_ph, exp_vk
 		) values (
-			@impl_id, @provider_ph, @client_srs
+			@impl_id, @impl_rn, @chnl_id, @chnl_ph, @exp_vk
 		)`
 
-	insertLiab = `
-		insert into pool_liabs (
-			desc_id, proc_id, rev
-		) values (
-			@desc_id, @proc_id, @rev
-		)`
-
-	insertBind = `
-		insert into pool_assets (
-			desc_id, chnl_key, state_id, ex_pool_id, rev
-		) values (
-			@desc_id, @chnl_key, @state_id, @ex_pool_id, @rev
-		)`
+	selectRecByQN = `
+		select
+			is.impl_id,
+			is.impl_rn,
+			pe.chnl_id,
+			pe.chnl_ph,
+			pe.exp_vk
+		from pool_execs pe
+		left join impl_sems is
+			on is.impl_id = pe.impl_id
+		left join impl_binds ib
+			on ib.impl_id = pe.impl_id
+		where ib.impl_qn = $1`
 
 	insertStep = `
 		insert into pool_steps (
@@ -179,6 +208,4 @@ const (
 			on liab.proc_id = bnd.proc_id
 		left join pool_roots prvd
 			on prvd.desc_id = liab.desc_id`
-
-	selectSteps = ``
 )

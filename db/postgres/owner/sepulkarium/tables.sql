@@ -12,6 +12,20 @@ CREATE TABLE desc_binds (
 
 CREATE INDEX desc_qn_gist_idx ON desc_binds USING GIST (desc_qn);
 
+CREATE TABLE impl_sems (
+	impl_id varchar(36) UNIQUE,
+	impl_rn bigint,
+	kind smallint
+);
+
+-- связка воплощений с квалифицированными синонимами 
+CREATE TABLE impl_binds (
+	impl_qn ltree UNIQUE,
+	impl_id varchar(36)
+);
+
+CREATE INDEX impl_qn_gist_idx ON impl_binds USING GIST (impl_qn);
+
 CREATE TABLE xact_defs (
 	desc_id varchar(36) UNIQUE,
 	exp_vk bigint
@@ -32,36 +46,24 @@ CREATE TABLE pool_decs (
     client_vrs jsonb
 );
 
-CREATE TABLE impl_sems (
-	impl_id varchar(36) UNIQUE,
-	impl_rn bigint,
-	kind smallint
-);
-
--- связка воплощений с квалифицированными синонимами 
-CREATE TABLE impl_binds (
-	impl_qn ltree UNIQUE,
-	impl_id varchar(36)
-);
-
-CREATE INDEX impl_qn_gist_idx ON impl_binds USING GIST (impl_qn);
-
 CREATE TABLE pool_execs (
 	impl_id varchar(36) UNIQUE,
-    provider_ph varchar,
-    client_srs jsonb
+	impl_rn bigint,
+	chnl_id varchar(36),
+	chnl_ph varchar,
+	exp_vk bigint
 );
 
--- передачи каналов (провайдерская сторона)
--- по истории передач определяем текущего провайдера
-CREATE TABLE pool_liabs (
-	proc_id varchar(36),
-	desc_id varchar(36),
-	rev bigint
+CREATE TABLE pool_vars (
+	impl_id varchar(36),
+	impl_rn bigint,
+	chnl_id varchar(36),
+	chnl_ph varchar,
+	exp_vk bigint
 );
 
 CREATE TABLE type_defs (
-	desc_id varchar(36),
+	desc_id varchar(36) UNIQUE,
 	exp_vk bigint
 );
 
@@ -75,35 +77,28 @@ CREATE TABLE type_exps (
 );
 
 CREATE TABLE proc_decs (
-	desc_id varchar(36),
-    client_vrs jsonb,
-    provider_vr jsonb
+	desc_id varchar(36) UNIQUE,
+    provider_vr jsonb,
+    client_vrs jsonb
 );
 
 CREATE TABLE proc_execs (
-	exec_id varchar(36),
-	exec_rn bigint
+	impl_id varchar(36) UNIQUE,
+	provider_ph varchar
 );
 
--- подстановки каналов в процесс
-CREATE TABLE proc_binds (
-	exec_id varchar(36),
-	exec_rn bigint,
-	chnl_ph varchar(36),
+CREATE TABLE proc_vars (
 	chnl_id varchar(36),
-	state_id varchar(36)
+	chnl_ph varchar,
+	exp_vk bigint,
+	impl_id varchar(36),
+	impl_rn bigint
 );
 
 CREATE TABLE proc_steps (
-	exec_id varchar(36),
-	exec_rn bigint,
+	impl_id varchar(36),
+	impl_rn bigint,
 	chnl_id varchar(36),
 	kind smallint,
 	proc_er jsonb
-);
-
-CREATE TABLE pool_sups (
-	desc_id varchar(36),
-	sup_pool_id varchar(36),
-	rev bigint
 );

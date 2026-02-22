@@ -16,7 +16,7 @@ import (
 
 type API interface {
 	Incept(uniqsym.ADT) (descsem.SemRef, error)
-	Create(DecSpec) (descsem.SemRef, error)
+	Create(DecSpec) (DecSnap, error)
 	RetrieveSnap(descsem.SemRef) (DecSnap, error)
 	RetreiveRefs() ([]descsem.SemRef, error)
 }
@@ -85,7 +85,7 @@ func (s *service) Incept(procQN uniqsym.ADT) (_ descsem.SemRef, err error) {
 	return newDec.DescRef, nil
 }
 
-func (s *service) Create(spec DecSpec) (_ descsem.SemRef, err error) {
+func (s *service) Create(spec DecSpec) (_ DecSnap, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("qn", spec.DescQN)
 	s.log.Debug("starting creation...", qnAttr, slog.Any("spec", spec))
@@ -99,7 +99,7 @@ func (s *service) Create(spec DecSpec) (_ descsem.SemRef, err error) {
 		return err
 	})
 	if selectErr != nil {
-		return descsem.SemRef{}, selectErr
+		return DecSnap{}, selectErr
 	}
 	providerVR := descvar.VarRec{
 		ChnlPH: spec.ProviderVS.ChnlPH,
@@ -111,12 +111,8 @@ func (s *service) Create(spec DecSpec) (_ descsem.SemRef, err error) {
 	}
 	newRef := descsem.NewRef()
 	newBind := descsem.SemBind{DescQN: spec.DescQN, DescID: newRef.DescID}
-	newDesc := descsem.SemRec{Ref: newRef, Bind: newBind, Kind: descsem.Pool}
-	newDec := DecRec{
-		DescRef:    newRef,
-		ProviderVR: providerVR,
-		ClientVRs:  clientVRs,
-	}
+	newDesc := descsem.SemRec{Ref: newRef, Bind: newBind, Kind: descsem.Proc}
+	newDec := DecRec{DescRef: newRef, ProviderVR: providerVR, ClientVRs: clientVRs}
 	transactErr := s.operator.Explicit(ctx, func(ds db.Source) error {
 		err = s.descSems.InsertRec(ds, newDesc)
 		if err != nil {
@@ -126,10 +122,10 @@ func (s *service) Create(spec DecSpec) (_ descsem.SemRef, err error) {
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", qnAttr)
-		return descsem.SemRef{}, transactErr
+		return DecSnap{}, transactErr
 	}
 	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", newRef))
-	return newRef, nil
+	return DecSnap{DescRef: newRef, ProviderVR: providerVR, ClientVRs: clientVRs}, nil
 }
 
 func (s *service) RetrieveSnap(ref descsem.SemRef) (snap DecSnap, err error) {

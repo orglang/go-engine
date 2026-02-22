@@ -1,16 +1,14 @@
-package procdec
+package poolstep
 
 import (
 	"log/slog"
 	"net/http"
+	"orglang/go-engine/adt/implsem"
 	"reflect"
 
 	"github.com/labstack/echo/v4"
 
-	sdk "github.com/orglang/go-sdk/adt/descsem"
-	"github.com/orglang/go-sdk/adt/procdec"
-
-	"orglang/go-engine/adt/descsem"
+	"github.com/orglang/go-sdk/adt/poolstep"
 )
 
 // Server-side primary adapter
@@ -19,19 +17,19 @@ type echoController struct {
 	log *slog.Logger
 }
 
-func newEchoController(a API, l *slog.Logger) *echoController {
+func newEchoController(api API, log *slog.Logger) *echoController {
 	name := slog.String("name", reflect.TypeFor[echoController]().Name())
-	return &echoController{a, l.With(name)}
+	return &echoController{api, log.With(name)}
 }
 
 func cfgEchoController(e *echo.Echo, h *echoController) error {
-	e.POST("/api/v1/procs/decs", h.PostSpec)
-	e.GET("/api/v1/procs/decs/:id", h.GetSnap)
+	e.POST("/api/v1/pools/execs/steps", h.PostSpec)
+	e.POST("/api/v1/pools/execs/spawns", h.PostSpec2)
 	return nil
 }
 
 func (h *echoController) PostSpec(c echo.Context) error {
-	var dto procdec.DecSpec
+	var dto poolstep.StepSpec
 	bindErr := c.Bind(&dto)
 	if bindErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
@@ -42,33 +40,38 @@ func (h *echoController) PostSpec(c echo.Context) error {
 		h.log.Error("validation failed", slog.Any("dto", dto))
 		return validateErr
 	}
-	spec, convertErr := MsgToDecSpec(dto)
+	spec, convertErr := MsgToStepSpec(dto)
 	if convertErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
 		return convertErr
 	}
-	snap, createErr := h.api.Create(spec)
-	if createErr != nil {
-		return createErr
+	takeErr := h.api.Take(spec)
+	if takeErr != nil {
+		return takeErr
 	}
-	return c.JSON(http.StatusCreated, MsgFromDecSnap(snap))
+	return c.NoContent(http.StatusNoContent)
 }
 
-func (h *echoController) GetSnap(c echo.Context) error {
-	var dto sdk.SemRef
+func (h *echoController) PostSpec2(c echo.Context) error {
+	var dto poolstep.StepSpec
 	bindErr := c.Bind(&dto)
 	if bindErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
 		return bindErr
 	}
-	ref, convertErr := descsem.MsgToRef(dto)
+	validateErr := dto.Validate()
+	if validateErr != nil {
+		h.log.Error("validation failed", slog.Any("dto", dto))
+		return validateErr
+	}
+	spec, convertErr := MsgToStepSpec(dto)
 	if convertErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
 		return convertErr
 	}
-	snap, retrieveErr := h.api.RetrieveSnap(ref)
-	if retrieveErr != nil {
-		return retrieveErr
+	ref, takeErr := h.api.Spawn(spec)
+	if takeErr != nil {
+		return takeErr
 	}
-	return c.JSON(http.StatusOK, MsgFromDecSnap(snap))
+	return c.JSON(http.StatusCreated, implsem.MsgFromRef(ref))
 }

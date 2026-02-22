@@ -30,12 +30,16 @@ func newPgxDAO(l *slog.Logger) *pgxDAO {
 	return &pgxDAO{l.With(name)}
 }
 
+func (dao *pgxDAO) InsertRec(source db.Source, rec ExecRec) error {
+	return nil
+}
+
 func (dao *pgxDAO) SelectSnap(source db.Source, execRef implsem.SemRef) (ExecSnap, error) {
 	ds := db.MustConform[db.SourcePgx](source)
-	refAttr := slog.Any("execRef", execRef)
+	refAttr := slog.Any("ref", execRef)
 	chnlRows, err := ds.Conn.Query(ds.Ctx, selectChnls, execRef.ImplID.String())
 	if err != nil {
-		dao.log.Error("execution failed", refAttr)
+		dao.log.Error("query execution failed", refAttr)
 		return ExecSnap{}, err
 	}
 	defer chnlRows.Close()
@@ -67,7 +71,7 @@ func (dao *pgxDAO) SelectSnap(source db.Source, execRef implsem.SemRef) (ExecSna
 	}
 	dao.log.Debug("selection succeed", refAttr)
 	return ExecSnap{
-		ChnlBRs: implvar.IndexBy(ChnlPH, chnls),
+		ChnlVRs: implvar.IndexBy(ChnlPH, chnls),
 		ProcSRs: implvar.IndexBy(procstep.ChnlID, steps),
 	}, nil
 }
@@ -86,8 +90,8 @@ func (dao *pgxDAO) UpdateProc(source db.Source, mod ExecMod) (err error) {
 	bindReq := pgx.Batch{}
 	for _, dto := range dto.Binds {
 		args := pgx.NamedArgs{
-			"exec_id":  dto.ImplID,
-			"exec_rn":  dto.ImplRN,
+			"impl_id":  dto.ImplID,
+			"impl_rn":  dto.ImplRN,
 			"chnl_ph":  dto.ChnlPH,
 			"chnl_id":  dto.ChnlID,
 			"state_id": dto.ExpVK,
@@ -139,8 +143,8 @@ func (dao *pgxDAO) UpdateProc(source db.Source, mod ExecMod) (err error) {
 	execReq := pgx.Batch{}
 	for _, dto := range dto.Locks {
 		args := pgx.NamedArgs{
-			"exec_id": dto.ImplID,
-			"exec_rn": dto.ImplRN,
+			"impl_id": dto.ImplID,
+			"impl_rn": dto.ImplRN,
 		}
 		execReq.Queue(updateExec, args)
 	}
@@ -168,23 +172,23 @@ func (dao *pgxDAO) UpdateProc(source db.Source, mod ExecMod) (err error) {
 const (
 	insertBind = `
 		insert into proc_binds (
-			exec_id, chnl_ph, chnl_id, state_id, exec_rn
+			impl_id, chnl_ph, chnl_id, state_id, impl_rn
 		) values (
-			@exec_id, @chnl_ph, @chnl_id, @state_id, @exec_rn
+			@impl_id, @chnl_ph, @chnl_id, @state_id, @impl_rn
 		)`
 
 	insertStep = `
 		insert into proc_steps (
-			exec_id, chnl_id, kind, proc_er
+			impl_id, chnl_id, kind, proc_er
 		) values (
-			@exec_id, @chnl_id, @kind, @proc_er
+			@impl_id, @chnl_id, @kind, @proc_er
 		)`
 
 	updateExec = `
 		update proc_execs
-		set exec_rn = @exec_rn + 1
-		where exec_id = @exec_id
-			and exec_rn = @exec_rn`
+		set impl_rn = @impl_rn + 1
+		where impl_id = @impl_id
+			and impl_rn = @impl_rn`
 
 	selectChnls = `
 		with bnds as not materialized (

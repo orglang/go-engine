@@ -14,7 +14,7 @@ type Repo interface {
 
 type StepRecDS struct {
 	K      stepKindDS       `db:"kind"`
-	ExecID sql.NullString   `db:"exec_id"`
+	ExecID sql.NullString   `db:"impl_id"`
 	ChnlID sql.NullString   `db:"chnl_id"`
 	ProcER procexp.ExpRecDS `db:"proc_er"`
 }

@@ -14,7 +14,6 @@ import (
 	"orglang/go-engine/adt/identity"
 )
 
-// Adapter
 type pgxDAO struct {
 	log *slog.Logger
 }
@@ -39,8 +38,8 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 	}
 	args := pgx.NamedArgs{
 		"desc_id":     dto.DescID,
-		"client_vrs":  dto.ClientVRs,
 		"provider_vr": dto.ProviderVR,
+		"client_vrs":  dto.ClientVRs,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertRec, args)
 	if err != nil {
@@ -52,16 +51,16 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 
 func (dao *pgxDAO) SelectSnap(source db.Source, ref descsem.SemRef) (DecSnap, error) {
 	ds := db.MustConform[db.SourcePgx](source)
-	idAttr := slog.Any("id", ref)
+	refAttr := slog.Any("ref", ref)
 	rows, err := ds.Conn.Query(ds.Ctx, selectByID, ref.DescID.String())
 	if err != nil {
-		dao.log.Error("query execution failed", idAttr, slog.String("q", selectByID))
+		dao.log.Error("query execution failed", refAttr)
 		return DecSnap{}, err
 	}
 	defer rows.Close()
 	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[decSnapDS])
 	if err != nil {
-		dao.log.Error("row collection failed", idAttr)
+		dao.log.Error("row collection failed", refAttr)
 		return DecSnap{}, err
 	}
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "entitiy selection succeed", slog.Any("dto", dto))

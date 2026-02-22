@@ -8,20 +8,25 @@ import (
 	"orglang/go-engine/adt/valkey"
 )
 
+// human-readable specification of implementation variable
+// человекочитаемая спецификация переменной воплощения
 type VarSpec struct {
-	// channel placeholder (aka variable name)
+	// channel placeholder
 	ChnlPH symbol.ADT
-	// desc qualified name (aka variable type)
+	// implementation qualified name
 	ImplQN uniqsym.ADT
 }
 
+// machine-readable record of implementation variable
+// машиночитаемая запись переменной воплощения
 type VarRec struct {
-	// процесс, в рамках которого связка
+	// воплощение, в рамках которого связка
 	ImplRef implsem.SemRef
 	ChnlBS  bindSide
 	ChnlPH  symbol.ADT
 	ChnlID  identity.ADT
-	ExpVK   valkey.ADT
+	// ссылка на выражение описания (aka текущее состояние канала)
+	ExpVK valkey.ADT
 }
 
 type bindSide uint8

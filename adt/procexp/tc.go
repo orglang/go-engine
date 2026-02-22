@@ -24,60 +24,60 @@ func MsgFromExpSpec(s ExpSpec) procexp.ExpSpec {
 		return procexp.ExpSpec{
 			K: procexp.Close,
 			Close: &procexp.CloseSpec{
-				CommPH: symbol.ConvertToString(spec.CommChnlPH),
+				CommChnlPH: symbol.ConvertToString(spec.CommChnlPH),
 			},
 		}
 	case WaitSpec:
 		return procexp.ExpSpec{
 			K: procexp.Wait,
 			Wait: &procexp.WaitSpec{
-				CommPH: symbol.ConvertToString(spec.CommChnlPH),
-				ContES: MsgFromExpSpec(spec.ContES),
+				CommChnlPH: symbol.ConvertToString(spec.CommChnlPH),
+				ContES:     MsgFromExpSpec(spec.ContES),
 			},
 		}
 	case SendSpec:
 		return procexp.ExpSpec{
 			K: procexp.Send,
 			Send: &procexp.SendSpec{
-				CommPH: symbol.ConvertToString(spec.CommChnlPH),
-				ValPH:  symbol.ConvertToString(spec.ValChnlPH),
+				CommChnlPH: symbol.ConvertToString(spec.CommChnlPH),
+				ValChnlPH:  symbol.ConvertToString(spec.ValChnlPH),
 			},
 		}
 	case RecvSpec:
 		return procexp.ExpSpec{
 			K: procexp.Recv,
 			Recv: &procexp.RecvSpec{
-				CommPH: symbol.ConvertToString(spec.CommChnlPH),
-				BindPH: symbol.ConvertToString(spec.CommChnlPH),
-				ContES: MsgFromExpSpec(spec.ContES),
+				CommChnlPH: symbol.ConvertToString(spec.CommChnlPH),
+				BindChnlPH: symbol.ConvertToString(spec.CommChnlPH),
+				ContES:     MsgFromExpSpec(spec.ContES),
 			},
 		}
 	case LabSpec:
 		return procexp.ExpSpec{
 			K: procexp.Lab,
 			Lab: &procexp.LabSpec{
-				CommPH: symbol.ConvertToString(spec.CommChnlPH),
-				InfoQN: uniqsym.ConvertToString(spec.LabelQN),
+				CommChnlPH: symbol.ConvertToString(spec.CommChnlPH),
+				PatternQN:  uniqsym.ConvertToString(spec.LabelQN),
 			},
 		}
 	case CaseSpec:
 		brs := []procexp.BranchSpec{}
 		for l, t := range spec.ContESs {
-			brs = append(brs, procexp.BranchSpec{LabQN: uniqsym.ConvertToString(l), ContES: MsgFromExpSpec(t)})
+			brs = append(brs, procexp.BranchSpec{PatternQN: uniqsym.ConvertToString(l), ContES: MsgFromExpSpec(t)})
 		}
 		return procexp.ExpSpec{
 			K: procexp.Case,
 			Case: &procexp.CaseSpec{
-				CommPH:  symbol.ConvertToString(spec.CommChnlPH),
-				ContBSs: brs,
+				CommChnlPH: symbol.ConvertToString(spec.CommChnlPH),
+				ContBSes:   brs,
 			},
 		}
 	case FwdSpec:
 		return procexp.ExpSpec{
 			K: procexp.Fwd,
 			Fwd: &procexp.FwdSpec{
-				CommPH: symbol.ConvertToString(spec.CommChnlPH),
-				ContPH: symbol.ConvertToString(spec.ContChnlPH),
+				CommChnlPH: symbol.ConvertToString(spec.CommChnlPH),
+				ContChnlPH: symbol.ConvertToString(spec.ContChnlPH),
 			},
 		}
 	default:
@@ -95,13 +95,13 @@ func MsgToExpSpecNilable(dto *procexp.ExpSpec) (ExpSpec, error) {
 func MsgToExpSpec(dto procexp.ExpSpec) (ExpSpec, error) {
 	switch dto.K {
 	case procexp.Close:
-		x, err := symbol.ConvertFromString(dto.Close.CommPH)
+		x, err := symbol.ConvertFromString(dto.Close.CommChnlPH)
 		if err != nil {
 			return nil, err
 		}
 		return CloseSpec{CommChnlPH: x}, nil
 	case procexp.Wait:
-		x, err := symbol.ConvertFromString(dto.Wait.CommPH)
+		x, err := symbol.ConvertFromString(dto.Wait.CommChnlPH)
 		if err != nil {
 			return nil, err
 		}
@@ -111,21 +111,21 @@ func MsgToExpSpec(dto procexp.ExpSpec) (ExpSpec, error) {
 		}
 		return WaitSpec{CommChnlPH: x, ContES: cont}, nil
 	case procexp.Send:
-		x, err := symbol.ConvertFromString(dto.Send.CommPH)
+		x, err := symbol.ConvertFromString(dto.Send.CommChnlPH)
 		if err != nil {
 			return nil, err
 		}
-		y, err := symbol.ConvertFromString(dto.Send.ValPH)
+		y, err := symbol.ConvertFromString(dto.Send.ValChnlPH)
 		if err != nil {
 			return nil, err
 		}
 		return SendSpec{CommChnlPH: x, ValChnlPH: y}, nil
 	case procexp.Recv:
-		x, err := symbol.ConvertFromString(dto.Recv.CommPH)
+		x, err := symbol.ConvertFromString(dto.Recv.CommChnlPH)
 		if err != nil {
 			return nil, err
 		}
-		y, err := symbol.ConvertFromString(dto.Recv.BindPH)
+		y, err := symbol.ConvertFromString(dto.Recv.BindChnlPH)
 		if err != nil {
 			return nil, err
 		}
@@ -135,27 +135,27 @@ func MsgToExpSpec(dto procexp.ExpSpec) (ExpSpec, error) {
 		}
 		return RecvSpec{CommChnlPH: x, BindChnlPH: y, ContES: cont}, nil
 	case procexp.Lab:
-		x, err := symbol.ConvertFromString(dto.Lab.CommPH)
+		x, err := symbol.ConvertFromString(dto.Lab.CommChnlPH)
 		if err != nil {
 			return nil, err
 		}
-		label, err := uniqsym.ConvertFromString(dto.Lab.InfoQN)
+		label, err := uniqsym.ConvertFromString(dto.Lab.PatternQN)
 		if err != nil {
 			return nil, err
 		}
 		return LabSpec{CommChnlPH: x, LabelQN: label}, nil
 	case procexp.Case:
-		x, err := symbol.ConvertFromString(dto.Case.CommPH)
+		x, err := symbol.ConvertFromString(dto.Case.CommChnlPH)
 		if err != nil {
 			return nil, err
 		}
-		conts := make(map[uniqsym.ADT]ExpSpec, len(dto.Case.ContBSs))
-		for _, b := range dto.Case.ContBSs {
+		conts := make(map[uniqsym.ADT]ExpSpec, len(dto.Case.ContBSes))
+		for _, b := range dto.Case.ContBSes {
 			cont, err := MsgToExpSpec(b.ContES)
 			if err != nil {
 				return nil, err
 			}
-			label, err := uniqsym.ConvertFromString(dto.Lab.InfoQN)
+			label, err := uniqsym.ConvertFromString(dto.Lab.PatternQN)
 			if err != nil {
 				return nil, err
 			}
@@ -163,25 +163,25 @@ func MsgToExpSpec(dto procexp.ExpSpec) (ExpSpec, error) {
 		}
 		return CaseSpec{CommChnlPH: x, ContESs: conts}, nil
 	case procexp.Call:
-		bindPH, err := symbol.ConvertFromString(dto.Call.BindPH)
+		bindPH, err := symbol.ConvertFromString(dto.Call.BindChnlPH)
 		if err != nil {
 			return nil, err
 		}
-		procQN, err := uniqsym.ConvertFromString(dto.Call.ProcQN)
+		procQN, err := uniqsym.ConvertFromString(dto.Call.ProcDescQN)
 		if err != nil {
 			return nil, err
 		}
-		valPHs, err := symbol.ConvertFromStrings(dto.Call.ValPHs)
+		valPHs, err := symbol.ConvertFromStrings(dto.Call.ValChnlPHs)
 		if err != nil {
 			return nil, err
 		}
 		return CallSpec{BindChnlPH: bindPH, ProcQN: procQN, ValChnlPHs: valPHs}, nil
 	case procexp.Fwd:
-		x, err := symbol.ConvertFromString(dto.Fwd.CommPH)
+		x, err := symbol.ConvertFromString(dto.Fwd.CommChnlPH)
 		if err != nil {
 			return nil, err
 		}
-		y, err := symbol.ConvertFromString(dto.Fwd.ContPH)
+		y, err := symbol.ConvertFromString(dto.Fwd.ContChnlPH)
 		if err != nil {
 			return nil, err
 		}

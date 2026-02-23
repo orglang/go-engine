@@ -32,8 +32,8 @@ type API interface {
 }
 
 type ExecRec struct {
-	ProcIR     implsem.SemRef
-	ProviderPH symbol.ADT
+	ImplRef implsem.SemRef
+	ChnlPH  symbol.ADT
 }
 
 // aka Configuration
@@ -92,87 +92,87 @@ func ErrMissingChnl(want symbol.ADT) error {
 }
 
 func (s *service) Take(spec procstep.StepSpec) (err error) {
-	refAttr := slog.Any("execRef", spec.ExecRef)
-	s.log.Debug("taking started", refAttr)
+	procAttr := slog.Any("proc", spec.ExecRef)
+	s.log.Debug("step taking started", procAttr, slog.Any("exp", spec.ProcES))
 	ctx := context.Background()
 	// initial values
-	execRef := spec.ExecRef
+	implRef := spec.ExecRef
 	expSpec := spec.ProcES
 	for expSpec != nil {
 		var execSnap ExecSnap
-		err = s.operator.Implicit(ctx, func(ds db.Source) error {
-			execSnap, err = s.procExecs.SelectSnap(ds, execRef)
+		selectErr1 := s.operator.Implicit(ctx, func(ds db.Source) error {
+			execSnap, err = s.procExecs.SelectSnap(ds, implRef)
 			return err
 		})
-		if err != nil {
-			s.log.Error("taking failed", refAttr)
-			return err
+		if selectErr1 != nil {
+			s.log.Error("step taking failed", procAttr)
+			return selectErr1
 		}
 		if len(execSnap.ChnlVRs) == 0 {
 			panic("zero channel binds")
 		}
 		decIDs := procexp.CollectEnv(expSpec)
-		var procDRs map[identity.ADT]procdec.DecRec
-		err = s.operator.Implicit(ctx, func(ds db.Source) error {
-			procDRs, err = s.procDecs.SelectEnv(ds, decIDs)
+		var procDecs map[identity.ADT]procdec.DecRec
+		selectErr2 := s.operator.Implicit(ctx, func(ds db.Source) error {
+			procDecs, err = s.procDecs.SelectEnv(ds, decIDs)
 			return err
 		})
-		if err != nil {
-			s.log.Error("taking failed", refAttr, slog.Any("decs", decIDs))
-			return err
+		if selectErr2 != nil {
+			s.log.Error("step taking failed", procAttr, slog.Any("decs", decIDs))
+			return selectErr2
 		}
-		typeQNs := procdec.CollectEnv(maps.Values(procDRs))
+		typeQNs := procdec.CollectEnv(maps.Values(procDecs))
 		var typeDefs map[uniqsym.ADT]typedef.DefRec
-		err = s.operator.Implicit(ctx, func(ds db.Source) error {
+		selectErr3 := s.operator.Implicit(ctx, func(ds db.Source) error {
 			typeDefs, err = s.typeDefs.SelectEnv(ds, typeQNs)
 			return err
 		})
-		if err != nil {
-			s.log.Error("taking failed", refAttr, slog.Any("types", typeQNs))
-			return err
+		if selectErr3 != nil {
+			s.log.Error("step taking failed", procAttr, slog.Any("types", typeQNs))
+			return selectErr3
 		}
 		envIDs := typedef.CollectEnv(maps.Values(typeDefs))
 		ctxIDs := CollectCtx(maps.Values(execSnap.ChnlVRs))
 		var typeExps map[valkey.ADT]typeexp.ExpRec
-		err = s.operator.Implicit(ctx, func(ds db.Source) error {
+		selectErr4 := s.operator.Implicit(ctx, func(ds db.Source) error {
 			typeExps, err = s.typeExps.SelectEnv(ds, append(envIDs, ctxIDs...))
 			return err
 		})
-		if err != nil {
-			s.log.Error("taking failed", refAttr, slog.Any("env", envIDs), slog.Any("ctx", ctxIDs))
-			return err
+		if selectErr4 != nil {
+			s.log.Error("step taking failed", procAttr, slog.Any("env", envIDs), slog.Any("ctx", ctxIDs))
+			return selectErr4
 		}
-		procEnv := Env{ProcDecs: procDRs, TypeDefs: typeDefs, TypeExps: typeExps}
+		procEnv := Env{ProcDecs: procDecs, TypeDefs: typeDefs, TypeExps: typeExps}
 		procCtx := convertToCtx(maps.Values(execSnap.ChnlVRs), typeExps)
 		// type checking
 		err = s.checkType(procEnv, procCtx, execSnap, expSpec)
 		if err != nil {
-			s.log.Error("taking failed", refAttr)
+			s.log.Error("step taking failed", procAttr)
 			return err
 		}
 		// step taking
 		nextSpec, procMod, err := s.takeWith(procEnv, execSnap, expSpec)
 		if err != nil {
-			s.log.Error("taking failed", refAttr)
+			s.log.Error("step taking failed", procAttr)
 			return err
 		}
 		err = s.operator.Explicit(ctx, func(ds db.Source) error {
 			err = s.procExecs.UpdateProc(ds, procMod)
 			if err != nil {
-				s.log.Error("taking failed", refAttr)
+				s.log.Error("step taking failed", procAttr)
 				return err
 			}
 			return nil
 		})
 		if err != nil {
-			s.log.Error("taking failed", refAttr)
+			s.log.Error("step taking failed", procAttr)
 			return err
 		}
 		// next values
-		execRef = nextSpec.ExecRef
+		implRef = nextSpec.ExecRef
 		expSpec = nextSpec.ProcES
 	}
-	s.log.Debug("taking succeed", refAttr)
+	s.log.Debug("step taking succeed", procAttr)
 	return nil
 }
 
@@ -190,7 +190,7 @@ func (s *service) takeWith(
 		commChnlBR, ok := execSnap.ChnlVRs[expSpec.CommChnlPH]
 		if !ok {
 			err := procdef.ErrMissingInCfg(expSpec.CommChnlPH)
-			s.log.Error("taking failed")
+			s.log.Error("step taking failed")
 			return procstep.StepSpec{}, ExecMod{}, err
 		}
 		viaAttr := slog.Any("chnlID", commChnlBR.ChnlID)
@@ -235,7 +235,7 @@ func (s *service) takeWith(
 				ExecRef: serviceSR.ExecRef,
 				ProcES:  procER.ContES,
 			}
-			s.log.Debug("taking succeed", viaAttr)
+			s.log.Debug("step taking succeed", viaAttr)
 			return stepSpec, execMod, nil
 		default:
 			panic(procexp.ErrRecTypeUnexpected(serviceSR.ContER))
@@ -244,7 +244,7 @@ func (s *service) takeWith(
 		commChnlBR, ok := execSnap.ChnlVRs[expSpec.CommChnlPH]
 		if !ok {
 			err := procdef.ErrMissingInCfg(expSpec.CommChnlPH)
-			s.log.Error("taking failed")
+			s.log.Error("step taking failed")
 			return procstep.StepSpec{}, ExecMod{}, err
 		}
 		viaAttr := slog.Any("chnlID", commChnlBR.ChnlID)
@@ -289,7 +289,7 @@ func (s *service) takeWith(
 				ExecRef: execSnap.ExecRef,
 				ProcES:  expSpec.ContES,
 			}
-			s.log.Debug("taking succeed", viaAttr)
+			s.log.Debug("step taking succeed", viaAttr)
 			return stepSpec, execMod, nil
 		case procexp.FwdRec:
 			recieverBR := implvar.VarRec{
@@ -306,7 +306,7 @@ func (s *service) takeWith(
 				ExecRef: execSnap.ExecRef,
 				ProcES:  expSpec,
 			}
-			s.log.Debug("taking succeed", viaAttr)
+			s.log.Debug("step taking succeed", viaAttr)
 			return stepSpec, execMod, nil
 		default:
 			panic(procexp.ErrRecTypeUnexpected(messageSR.ValER))
@@ -315,7 +315,7 @@ func (s *service) takeWith(
 		commChnlBR, ok := execSnap.ChnlVRs[expSpec.CommChnlPH]
 		if !ok {
 			err := procdef.ErrMissingInCfg(expSpec.CommChnlPH)
-			s.log.Error("taking failed")
+			s.log.Error("step taking failed")
 			return procstep.StepSpec{}, ExecMod{}, err
 		}
 		viaAttr := slog.Any("chnlID", commChnlBR.ChnlID)
@@ -323,14 +323,14 @@ func (s *service) takeWith(
 		typeER, ok := procEnv.TypeExps[commChnlBR.ExpVK]
 		if !ok {
 			err := typedef.ErrMissingInEnv(commChnlBR.ExpVK)
-			s.log.Error("taking failed", viaAttr)
+			s.log.Error("step taking failed", viaAttr)
 			return procstep.StepSpec{}, ExecMod{}, err
 		}
 		nextExpID := typeER.(typeexp.ProdRec).Next()
 		valueEP, ok := execSnap.ChnlVRs[expSpec.ValChnlPH]
 		if !ok {
 			err := procdef.ErrMissingInCfg(expSpec.ValChnlPH)
-			s.log.Error("taking failed", viaAttr)
+			s.log.Error("step taking failed", viaAttr)
 			return procstep.StepSpec{}, ExecMod{}, err
 		}
 		senderBR := implvar.VarRec{
@@ -411,7 +411,7 @@ func (s *service) takeWith(
 				ExecRef: serviceSR.ExecRef,
 				ProcES:  expRec.ContES,
 			}
-			s.log.Debug("taking succeed", viaAttr)
+			s.log.Debug("step taking succeed", viaAttr)
 			return stepSpec, execMod, nil
 		default:
 			panic(procexp.ErrRecTypeUnexpected(serviceSR.ContER))
@@ -420,7 +420,7 @@ func (s *service) takeWith(
 		commChnlBR, ok := execSnap.ChnlVRs[expSpec.CommChnlPH]
 		if !ok {
 			err := procdef.ErrMissingInCfg(expSpec.CommChnlPH)
-			s.log.Error("taking failed")
+			s.log.Error("step taking failed")
 			return procstep.StepSpec{}, ExecMod{}, err
 		}
 		viaAttr := slog.Any("chnlID", commChnlBR.ChnlID)
@@ -453,7 +453,7 @@ func (s *service) takeWith(
 			typeER, ok := procEnv.TypeExps[commChnlBR.ExpVK]
 			if !ok {
 				err := typedef.ErrMissingInEnv(commChnlBR.ExpVK)
-				s.log.Error("taking failed", viaAttr)
+				s.log.Error("step taking failed", viaAttr)
 				return procstep.StepSpec{}, ExecMod{}, err
 			}
 			recieverBR := implvar.VarRec{
@@ -480,7 +480,7 @@ func (s *service) takeWith(
 				ExecRef: execSnap.ExecRef,
 				ProcES:  expSpec.ContES,
 			}
-			s.log.Debug("taking succeed", viaAttr)
+			s.log.Debug("step taking succeed", viaAttr)
 			return stepSpec, execMod, nil
 		default:
 			panic(procexp.ErrRecTypeUnexpected(sndrMsgRec.ValER))
@@ -489,7 +489,7 @@ func (s *service) takeWith(
 		commChnlBR, ok := execSnap.ChnlVRs[expSpec.CommChnlPH]
 		if !ok {
 			err := procdef.ErrMissingInCfg(expSpec.CommChnlPH)
-			s.log.Error("taking failed")
+			s.log.Error("step taking failed")
 			return procstep.StepSpec{}, ExecMod{}, err
 		}
 		viaAttr := slog.Any("chnlID", commChnlBR.ChnlID)
@@ -497,7 +497,7 @@ func (s *service) takeWith(
 		typeER, ok := procEnv.TypeExps[commChnlBR.ExpVK]
 		if !ok {
 			err := typedef.ErrMissingInEnv(commChnlBR.ExpVK)
-			s.log.Error("taking failed", viaAttr)
+			s.log.Error("step taking failed", viaAttr)
 			return procstep.StepSpec{}, ExecMod{}, err
 		}
 		nextExpID := typeER.(typeexp.SumRec).Next(expSpec.LabelQN)
@@ -560,7 +560,7 @@ func (s *service) takeWith(
 				ExecRef: serviceSR.ExecRef,
 				ProcES:  expRec.ContESs[expSpec.LabelQN],
 			}
-			s.log.Debug("taking succeed", viaAttr)
+			s.log.Debug("step taking succeed", viaAttr)
 			return stepSpec, execMod, nil
 		default:
 			panic(procexp.ErrRecTypeUnexpected(serviceSR.ContER))
@@ -569,7 +569,7 @@ func (s *service) takeWith(
 		commChnlBR, ok := execSnap.ChnlVRs[expSpec.CommChnlPH]
 		if !ok {
 			err := procdef.ErrMissingInCfg(expSpec.CommChnlPH)
-			s.log.Error("taking failed")
+			s.log.Error("step taking failed")
 			return procstep.StepSpec{}, ExecMod{}, err
 		}
 		viaAttr := slog.Any("chnlID", commChnlBR.ChnlID)
@@ -601,7 +601,7 @@ func (s *service) takeWith(
 			typeER, ok := procEnv.TypeExps[commChnlBR.ExpVK]
 			if !ok {
 				err := typedef.ErrMissingInEnv(commChnlBR.ExpVK)
-				s.log.Error("taking failed", viaAttr)
+				s.log.Error("step taking failed", viaAttr)
 				return procstep.StepSpec{}, ExecMod{}, err
 			}
 			recieverBR := implvar.VarRec{
@@ -618,7 +618,7 @@ func (s *service) takeWith(
 				ExecRef: execSnap.ExecRef,
 				ProcES:  expSpec.ContESs[procER.LabelQN],
 			}
-			s.log.Debug("taking succeed", viaAttr)
+			s.log.Debug("step taking succeed", viaAttr)
 			return stepSpec, execMod, nil
 		default:
 			panic(procexp.ErrRecTypeUnexpected(messageSR.ValER))
@@ -627,20 +627,20 @@ func (s *service) takeWith(
 		commChnlBR, ok := execSnap.ChnlVRs[expSpec.CommChnlPH]
 		if !ok {
 			err := procdef.ErrMissingInCfg(expSpec.CommChnlPH)
-			s.log.Error("taking failed")
+			s.log.Error("step taking failed")
 			return procstep.StepSpec{}, ExecMod{}, err
 		}
 		viaAttr := slog.Any("chnlID", commChnlBR.ChnlID)
 		commChnlER, ok := procEnv.TypeExps[commChnlBR.ExpVK]
 		if !ok {
 			err := typedef.ErrMissingInEnv(commChnlBR.ExpVK)
-			s.log.Error("taking failed", viaAttr)
+			s.log.Error("step taking failed", viaAttr)
 			return procstep.StepSpec{}, ExecMod{}, err
 		}
 		valChnlBR, ok := execSnap.ChnlVRs[expSpec.ContChnlPH]
 		if !ok {
 			err := procdef.ErrMissingInCfg(expSpec.ContChnlPH)
-			s.log.Error("taking failed")
+			s.log.Error("step taking failed")
 			return procstep.StepSpec{}, ExecMod{}, err
 		}
 		commChnlSR := execSnap.ProcSRs[commChnlBR.ChnlID]
@@ -662,7 +662,7 @@ func (s *service) takeWith(
 					ExecRef: stepRec.ExecRef,
 					ProcES:  stepRec.ContER,
 				}
-				s.log.Debug("taking succeed", viaAttr)
+				s.log.Debug("step taking succeed", viaAttr)
 				return stepSpec, execMod, nil
 			case procstep.MsgRec:
 				yBnd := implvar.VarRec{
@@ -679,7 +679,7 @@ func (s *service) takeWith(
 					ExecRef: stepRec.ExecRef,
 					ProcES:  stepRec.ValER,
 				}
-				s.log.Debug("taking succeed", viaAttr)
+				s.log.Debug("step taking succeed", viaAttr)
 				return stepSpec, execMod, nil
 			case nil:
 				xBnd := implvar.VarRec{
@@ -731,7 +731,7 @@ func (s *service) takeWith(
 					ExecRef: stepRec.ExecRef,
 					ProcES:  stepRec.ContER,
 				}
-				s.log.Debug("taking succeed", viaAttr)
+				s.log.Debug("step taking succeed", viaAttr)
 				return stepSpec, execMod, nil
 			case procstep.MsgRec:
 				xBnd := implvar.VarRec{
@@ -748,7 +748,7 @@ func (s *service) takeWith(
 					ExecRef: stepRec.ExecRef,
 					ProcES:  stepRec.ValER, // TODO: несовпадение типов
 				}
-				s.log.Debug("taking succeed", viaAttr)
+				s.log.Debug("step taking succeed", viaAttr)
 				return stepSpec, execMod, nil
 			case nil:
 				serviceSR := procstep.SvcRec{

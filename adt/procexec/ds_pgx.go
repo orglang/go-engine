@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/lf"
 
 	"orglang/go-engine/adt/implsem"
 	"orglang/go-engine/adt/implvar"
@@ -31,13 +32,27 @@ func newPgxDAO(l *slog.Logger) *pgxDAO {
 }
 
 func (dao *pgxDAO) InsertRec(source db.Source, rec ExecRec) error {
+	ds := db.MustConform[db.SourcePgx](source)
+	dto := DataFromExecRec(rec)
+	args := pgx.NamedArgs{
+		"impl_id": dto.ImplID,
+		"impl_rn": dto.ImplRN,
+		"chnl_ph": dto.ChnlPH,
+	}
+	refAttr := slog.Any("ref", rec.ImplRef)
+	_, execErr := ds.Conn.Exec(ds.Ctx, insertRec, args)
+	if execErr != nil {
+		dao.log.Error("execution failed", refAttr)
+		return execErr
+	}
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "insertion succeed", slog.Any("dto", dto))
 	return nil
 }
 
-func (dao *pgxDAO) SelectSnap(source db.Source, execRef implsem.SemRef) (ExecSnap, error) {
+func (dao *pgxDAO) SelectSnap(source db.Source, ref implsem.SemRef) (ExecSnap, error) {
 	ds := db.MustConform[db.SourcePgx](source)
-	refAttr := slog.Any("ref", execRef)
-	chnlRows, err := ds.Conn.Query(ds.Ctx, selectChnls, execRef.ImplID.String())
+	refAttr := slog.Any("ref", ref)
+	chnlRows, err := ds.Conn.Query(ds.Ctx, selectChnls, ref.ImplID.String())
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)
 		return ExecSnap{}, err
@@ -45,31 +60,31 @@ func (dao *pgxDAO) SelectSnap(source db.Source, execRef implsem.SemRef) (ExecSna
 	defer chnlRows.Close()
 	chnlDtos, err := pgx.CollectRows(chnlRows, pgx.RowToStructByName[implvar.VarRecDS])
 	if err != nil {
-		dao.log.Error("collection failed", refAttr, slog.Any("t", reflect.TypeOf(chnlDtos)))
+		dao.log.Error("row collection failed", refAttr, slog.Any("t", reflect.TypeOf(chnlDtos)))
 		return ExecSnap{}, err
 	}
 	chnls, err := implvar.DataToVarRecs(chnlDtos)
 	if err != nil {
-		dao.log.Error("conversion failed", refAttr)
+		dao.log.Error("model conversion failed", refAttr)
 		return ExecSnap{}, err
 	}
-	stepRows, err := ds.Conn.Query(ds.Ctx, selectSteps, execRef.ImplID.String())
+	stepRows, err := ds.Conn.Query(ds.Ctx, selectSteps, ref.ImplID.String())
 	if err != nil {
-		dao.log.Error("execution failed", refAttr)
+		dao.log.Error("query execution failed", refAttr)
 		return ExecSnap{}, err
 	}
 	defer stepRows.Close()
 	stepDtos, err := pgx.CollectRows(stepRows, pgx.RowToStructByName[procstep.StepRecDS])
 	if err != nil {
-		dao.log.Error("collection failed", refAttr, slog.Any("t", reflect.TypeOf(stepDtos)))
+		dao.log.Error("row collection failed", refAttr, slog.Any("t", reflect.TypeOf(stepDtos)))
 		return ExecSnap{}, err
 	}
 	steps, err := procstep.DataToStepRecs(stepDtos)
 	if err != nil {
-		dao.log.Error("conversion failed", refAttr)
+		dao.log.Error("model conversion failed", refAttr)
 		return ExecSnap{}, err
 	}
-	dao.log.Debug("selection succeed", refAttr)
+	dao.log.Debug("snap selection succeed", refAttr)
 	return ExecSnap{
 		ChnlVRs: implvar.IndexBy(ChnlPH, chnls),
 		ProcSRs: implvar.IndexBy(procstep.ChnlID, steps),
@@ -170,6 +185,13 @@ func (dao *pgxDAO) UpdateProc(source db.Source, mod ExecMod) (err error) {
 }
 
 const (
+	insertRec = `
+		insert into proc_execs (
+			impl_id, impl_rn, chnl_ph
+		) values (
+			@impl_id, @impl_rn, @chnl_ph
+		)`
+
 	insertBind = `
 		insert into proc_binds (
 			impl_id, chnl_ph, chnl_id, state_id, impl_rn

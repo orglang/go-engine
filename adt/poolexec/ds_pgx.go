@@ -28,23 +28,23 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func (dao *pgxDAO) InsertRec(source db.Source, rec ExecRec) (err error) {
+func (dao *pgxDAO) InsertRec(source db.Source, rec ExecRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
 	dto := DataFromExecRec(rec)
 	args := pgx.NamedArgs{
+		"impl_id": dto.ImplID,
+		"impl_rn": dto.ImplRN,
 		"chnl_id": dto.ChnlID,
 		"chnl_ph": dto.ChnlPH,
 		"exp_vk":  dto.ExpVK,
-		"impl_id": dto.ImplID,
-		"impl_rn": dto.ImplRN,
 	}
 	refAttr := slog.Any("ref", rec.ImplRef)
-	_, err = ds.Conn.Exec(ds.Ctx, insertRec, args)
-	if err != nil {
+	_, execErr := ds.Conn.Exec(ds.Ctx, insertRec, args)
+	if execErr != nil {
 		dao.log.Error("execution failed", refAttr)
-		return err
+		return execErr
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "insertion succeed", refAttr)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "insertion succeed", slog.Any("dto", dto))
 	return nil
 }
 

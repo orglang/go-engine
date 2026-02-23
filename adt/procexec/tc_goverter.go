@@ -19,5 +19,7 @@ var (
 // goverter:extend orglang/go-engine/adt/procstep:Data.*
 // goverter:extend orglang/go-engine/adt/implvar:Data.*
 var (
-	DataFromMod func(ExecMod) (execModDS, error)
+	// goverter:autoMap ImplRef
+	DataFromExecRec func(ExecRec) execRecDS
+	DataFromMod     func(ExecMod) (execModDS, error)
 )

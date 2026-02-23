@@ -36,7 +36,7 @@ func newPoolExecAPI(client *resty.Client) PoolExecAPI {
 }
 
 type XactDefAPI interface {
-	Create(xactdef.DefSpec) (xactdef.DefSnap, error)
+	Create(xactdef.DefSpec) (descsem.SemRef, error)
 }
 
 func newXactDefAPI(client *resty.Client) XactDefAPI {

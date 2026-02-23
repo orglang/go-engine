@@ -52,7 +52,7 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 func (dao *pgxDAO) SelectSnap(source db.Source, ref descsem.SemRef) (DecSnap, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("ref", ref)
-	rows, err := ds.Conn.Query(ds.Ctx, selectByID, ref.DescID.String())
+	rows, err := ds.Conn.Query(ds.Ctx, selectByRef, ref.DescID.String())
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)
 		return DecSnap{}, err
@@ -89,7 +89,7 @@ func (dao *pgxDAO) SelectRecs(source db.Source, ids []identity.ADT) (_ []DecRec,
 		if rid.IsEmpty() {
 			return nil, identity.ErrEmpty
 		}
-		batch.Queue(selectByID, rid.String())
+		batch.Queue(selectByRef, rid.String())
 	}
 	br := ds.Conn.SendBatch(ds.Ctx, &batch)
 	defer func() {
@@ -99,7 +99,7 @@ func (dao *pgxDAO) SelectRecs(source db.Source, ids []identity.ADT) (_ []DecRec,
 	for _, rid := range ids {
 		rows, err := br.Query()
 		if err != nil {
-			dao.log.Error("query execution failed", slog.Any("id", rid), slog.String("q", selectByID))
+			dao.log.Error("query execution failed", slog.Any("id", rid), slog.String("q", selectByRef))
 		}
 		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[decRecDS])
 		if err != nil {
@@ -142,24 +142,14 @@ const (
 			@desc_id, @provider_vr, @client_vrs
 		)`
 
-	// revive:disable:line-length-limit
-	selectByID = `
+	selectByRef = `
 		select
-			sr.desc_id,
-			sr.rev,
-			(array_agg(sr.title))[1] as title,
-			(jsonb_agg(to_jsonb((select ep from (select sp.chnl_key, sp.type_qn) ep))))[0] as pe,
-			jsonb_agg(to_jsonb((select ep from (select sc.chnl_key, sc.type_qn) ep))) filter (where sc.desc_id is not null) as ces
-		from dec_roots sr
-		left join dec_pes sp
-			on sp.desc_id = sr.desc_id
-			and sp.from_rn >= sr.rev
-			and sp.to_rn > sr.rev
-		left join dec_ces sc
-			on sc.desc_id = sr.desc_id
-			and sc.from_rn >= sr.rev
-			and sc.to_rn > sr.rev
-		where sr.desc_id = $1
-		group by sr.desc_id, sr.rev`
-	// revive:enable:line-length-limit
+			pd.desc_id,
+			ds.desc_rn,
+			pd.provider_vr,
+			pd.client_vrs
+		from proc_decs pd
+		left join desc_sems ds
+			on ds.desc_id = pd.desc_id
+		where pd.desc_id = $1`
 )

@@ -6,11 +6,9 @@ import (
 	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/implsem"
 	"orglang/go-engine/adt/procexp"
-	"orglang/go-engine/adt/revnum"
 )
 
 type StepSpec struct {
-	// ExecRef uniqref.ADT
 	ExecRef implsem.SemRef
 	ProcES  procexp.ExpSpec
 }
@@ -23,8 +21,6 @@ type StepRec interface {
 func ChnlID(rec StepRec) identity.ADT { return rec.step() }
 
 type MsgRec struct {
-	PoolRN revnum.ADT
-	// ExecRef uniqref.ADT
 	ExecRef implsem.SemRef
 	ChnlID  identity.ADT
 	ValER   procexp.ExpRec
@@ -33,8 +29,6 @@ type MsgRec struct {
 func (r MsgRec) step() identity.ADT { return r.ChnlID }
 
 type SvcRec struct {
-	PoolRN revnum.ADT
-	// ExecRef uniqref.ADT
 	ExecRef implsem.SemRef
 	ChnlID  identity.ADT
 	ContER  procexp.ExpRec

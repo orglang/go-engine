@@ -48,6 +48,9 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec SemRec) error {
 		dao.log.Error("query execution failed", refAttr)
 		return execErr1
 	}
+	if !dto.ImplQN.Valid {
+		return nil
+	}
 	_, execErr2 := ds.Conn.Exec(ds.Ctx, insertBind, args)
 	if execErr2 != nil {
 		dao.log.Error("query execution failed", refAttr)

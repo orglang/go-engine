@@ -10,6 +10,8 @@ import (
 	"github.com/orglang/go-sdk/adt/xactdef"
 
 	"orglang/go-engine/lib/lf"
+
+	"orglang/go-engine/adt/descsem"
 )
 
 // Server-side primary adapter
@@ -47,10 +49,10 @@ func (h *echoController) PostSpec(c echo.Context) error {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
 		return convertErr
 	}
-	snap, createErr := h.api.Create(spec)
+	ref, createErr := h.api.Create(spec)
 	if createErr != nil {
 		return createErr
 	}
-	h.log.Log(ctx, lf.LevelTrace, "posting succeed", slog.Any("ref", snap.DescRef))
-	return c.JSON(http.StatusCreated, MsgFromDefSnap(snap))
+	h.log.Log(ctx, lf.LevelTrace, "posting succeed", slog.Any("ref", ref))
+	return c.JSON(http.StatusCreated, descsem.MsgFromRef(ref))
 }

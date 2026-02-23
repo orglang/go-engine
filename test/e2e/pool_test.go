@@ -153,7 +153,7 @@ func (s *suite) waitClose(t *testing.T) {
 	}
 	// and
 	err = s.PoolExecAPI.Take(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Hire, // пул делает предложение поработать в качестве closerProcQN
 			Hire: &poolexp.HireSpec{
@@ -167,7 +167,7 @@ func (s *suite) waitClose(t *testing.T) {
 	}
 	// and
 	err = s.PoolExecAPI.Take(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Apply, // пул принимает предложение поработать в качестве closerProcQN
 			Apply: &poolexp.ApplySpec{
@@ -201,7 +201,7 @@ func (s *suite) waitClose(t *testing.T) {
 	}
 	// and
 	closerProcExec, err := s.PoolExecAPI.Spawn(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Spawn,
 			Spawn: &poolexp.SpawnSpec{
@@ -214,7 +214,7 @@ func (s *suite) waitClose(t *testing.T) {
 	}
 	// and
 	err = s.PoolExecAPI.Take(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Hire,
 			Hire: &poolexp.HireSpec{
@@ -228,7 +228,7 @@ func (s *suite) waitClose(t *testing.T) {
 	}
 	// and
 	err = s.PoolExecAPI.Take(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Apply,
 			Apply: &poolexp.ApplySpec{
@@ -253,7 +253,7 @@ func (s *suite) waitClose(t *testing.T) {
 	}
 	// and
 	waiterProcExec, err := s.PoolExecAPI.Spawn(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Spawn,
 			Spawn: &poolexp.SpawnSpec{
@@ -422,7 +422,7 @@ func (s *suite) recvSend(t *testing.T) {
 	}
 	// and
 	err = s.PoolExecAPI.Take(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Hire,
 			Hire: &poolexp.HireSpec{
@@ -435,7 +435,7 @@ func (s *suite) recvSend(t *testing.T) {
 		t.Fatal(err)
 	}
 	receiverProcExec, err := s.PoolExecAPI.Spawn(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Spawn,
 			Spawn: &poolexp.SpawnSpec{
@@ -448,7 +448,7 @@ func (s *suite) recvSend(t *testing.T) {
 	}
 	// and
 	err = s.PoolExecAPI.Take(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Hire,
 			Hire: &poolexp.HireSpec{
@@ -461,7 +461,7 @@ func (s *suite) recvSend(t *testing.T) {
 		t.Fatal(err)
 	}
 	messageProcExec, err := s.PoolExecAPI.Spawn(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Spawn,
 			Spawn: &poolexp.SpawnSpec{
@@ -474,7 +474,7 @@ func (s *suite) recvSend(t *testing.T) {
 	}
 	// and
 	err = s.PoolExecAPI.Take(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Hire,
 			Hire: &poolexp.HireSpec{
@@ -487,7 +487,7 @@ func (s *suite) recvSend(t *testing.T) {
 		t.Fatal(err)
 	}
 	senderProcExec, err := s.PoolExecAPI.Spawn(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Spawn,
 			Spawn: &poolexp.SpawnSpec{
@@ -594,7 +594,7 @@ func (s *suite) caseLab(t *testing.T) {
 	// and
 	poolFollowerPH := "pool-follower-ph"
 	err = s.PoolExecAPI.Take(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Hire,
 			Hire: &poolexp.HireSpec{
@@ -606,7 +606,7 @@ func (s *suite) caseLab(t *testing.T) {
 		t.Fatal(err)
 	}
 	followerProcExec, err := s.PoolExecAPI.Spawn(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Spawn,
 			Spawn: &poolexp.SpawnSpec{
@@ -619,7 +619,7 @@ func (s *suite) caseLab(t *testing.T) {
 	}
 	// and
 	err = s.PoolExecAPI.Take(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Hire,
 			Hire: &poolexp.HireSpec{
@@ -631,7 +631,7 @@ func (s *suite) caseLab(t *testing.T) {
 		t.Fatal(err)
 	}
 	deciderProcExec, err := s.PoolExecAPI.Spawn(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Spawn,
 			Spawn: &poolexp.SpawnSpec{
@@ -717,7 +717,7 @@ func (s *suite) call(t *testing.T) {
 	}
 	// and
 	err = s.PoolExecAPI.Take(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Hire,
 			Hire: &poolexp.HireSpec{
@@ -730,7 +730,7 @@ func (s *suite) call(t *testing.T) {
 	}
 	// and
 	injecteeProcExec, err := s.PoolExecAPI.Spawn(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Spawn,
 			Spawn: &poolexp.SpawnSpec{
@@ -758,7 +758,7 @@ func (s *suite) call(t *testing.T) {
 	}
 	// and
 	err = s.PoolExecAPI.Take(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Hire,
 			Hire: &poolexp.HireSpec{
@@ -771,7 +771,7 @@ func (s *suite) call(t *testing.T) {
 	}
 	// and
 	callerProcExec, err := s.PoolExecAPI.Spawn(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Spawn,
 			Spawn: &poolexp.SpawnSpec{
@@ -893,7 +893,7 @@ func (s *suite) fwd(t *testing.T) {
 	}
 	// and
 	err = s.PoolExecAPI.Take(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Hire,
 			Hire: &poolexp.HireSpec{
@@ -906,7 +906,7 @@ func (s *suite) fwd(t *testing.T) {
 	}
 	// and
 	closerProcExec, err := s.PoolExecAPI.Spawn(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Spawn,
 			Spawn: &poolexp.SpawnSpec{
@@ -919,7 +919,7 @@ func (s *suite) fwd(t *testing.T) {
 	}
 	// and
 	err = s.PoolExecAPI.Take(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Hire,
 			Hire: &poolexp.HireSpec{
@@ -932,7 +932,7 @@ func (s *suite) fwd(t *testing.T) {
 	}
 	// and
 	forwarderProcExec, err := s.PoolExecAPI.Spawn(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Spawn,
 			Spawn: &poolexp.SpawnSpec{
@@ -946,7 +946,7 @@ func (s *suite) fwd(t *testing.T) {
 	}
 	// and
 	err = s.PoolExecAPI.Take(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Hire,
 			Hire: &poolexp.HireSpec{
@@ -958,7 +958,7 @@ func (s *suite) fwd(t *testing.T) {
 		t.Fatal(err)
 	}
 	waiterProcExec, err := s.PoolExecAPI.Spawn(poolstep.StepSpec{
-		PoolIR: myPoolExec,
+		ImplRef: myPoolExec,
 		PoolES: poolexp.ExpSpec{
 			K: poolexp.Spawn,
 			Spawn: &poolexp.SpawnSpec{

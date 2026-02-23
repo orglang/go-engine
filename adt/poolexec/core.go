@@ -112,6 +112,7 @@ func (s *service) Run(spec ExecSpec) (_ implsem.SemRef, err error) {
 		ChnlID:  identity.New(),
 		ChnlBS:  implvar.Provider,
 		ChnlPH:  spec.ProviderVS.ChnlPH,
+		// TODO: заполнить ExpVK
 	}
 	newVars := make([]implvar.VarRec, 0, len(spec.ClientVSes))
 	for _, varSpec := range spec.ClientVSes {

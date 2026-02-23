@@ -68,7 +68,9 @@ type DetachSpec struct {
 func (s DetachSpec) spec() {}
 
 type SpawnSpec struct {
-	ProcDescRef  descsem.SemRef
+	// ссылка на описание порождаемого процесса
+	ProcDescRef descsem.SemRef
+	// ссылки на воплощения потребляемых процессов
 	ProcImplRefs []implsem.SemRef
 }
 

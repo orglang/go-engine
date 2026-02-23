@@ -15,7 +15,7 @@ import (
 )
 
 type API interface {
-	Create(DefSpec) (DefSnap, error)
+	Create(DefSpec) (descsem.SemRef, error)
 }
 
 type DefSpec struct {
@@ -56,13 +56,13 @@ func newService(
 	return &service{xactDefs, xactExps, descSems, operator, log}
 }
 
-func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
+func (s *service) Create(spec DefSpec) (_ descsem.SemRef, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("qn", spec.XactQN)
 	s.log.Debug("starting creation...", qnAttr, slog.Any("spec", spec))
 	newExp, convertErr := xactexp.ConvertSpecToRec(spec.XactES)
 	if convertErr != nil {
-		return DefSnap{}, convertErr
+		return descsem.SemRef{}, convertErr
 	}
 	newRef := descsem.NewRef()
 	newBind := descsem.SemBind{DescQN: spec.XactQN, DescID: newRef.DescID}
@@ -81,13 +81,10 @@ func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", qnAttr)
-		return DefSnap{}, transactErr
+		return descsem.SemRef{}, transactErr
 	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", newRef))
-	return DefSnap{
-		DescRef: newRef,
-		DefSpec: spec,
-	}, nil
+	s.log.Debug("creation succeed", qnAttr, slog.Any("xact", newRef))
+	return newRef, nil
 }
 
 func errOptimisticUpdate(got revnum.ADT) error {

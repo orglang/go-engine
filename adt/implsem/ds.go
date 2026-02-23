@@ -1,6 +1,8 @@
 package implsem
 
 import (
+	"database/sql"
+
 	"orglang/go-engine/lib/db"
 
 	"orglang/go-engine/adt/uniqsym"
@@ -17,8 +19,8 @@ type SemRefDS struct {
 }
 
 type semRecDS struct {
-	ImplID string `db:"impl_id"`
-	ImplRN int64  `db:"impl_rn"`
-	ImplQN string `db:"impl_qn"`
-	Kind   uint8  `db:"kind"`
+	ImplID string         `db:"impl_id"`
+	ImplRN int64          `db:"impl_rn"`
+	ImplQN sql.NullString `db:"impl_qn"`
+	Kind   uint8          `db:"kind"`
 }

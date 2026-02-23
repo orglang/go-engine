@@ -15,6 +15,9 @@ type Repo interface {
 }
 
 type execRecDS struct {
+	ImplID string `db:"impl_id"`
+	ImplRN int64  `db:"impl_rn"`
+	ChnlPH string `db:"chnl_ph"`
 }
 
 type execModDS struct {

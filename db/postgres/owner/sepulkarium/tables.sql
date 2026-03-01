@@ -48,17 +48,23 @@ CREATE TABLE pool_decs (
 
 CREATE TABLE pool_execs (
 	impl_id varchar UNIQUE,
-	impl_rn bigint,
+	impl_rn bigint
+);
+
+CREATE TABLE pool_struct_vars (
 	chnl_id varchar,
+	chnl_on bigint,
 	chnl_ph varchar,
+	chnl_bs smallint,
 	exp_vk bigint
 );
 
-CREATE TABLE pool_vars (
+CREATE TABLE pool_linear_vars (
 	impl_id varchar,
 	impl_rn bigint,
 	chnl_id varchar,
 	chnl_ph varchar,
+	chnl_bs smallint,
 	exp_vk bigint
 );
 
@@ -84,11 +90,18 @@ CREATE TABLE proc_decs (
 
 CREATE TABLE proc_execs (
 	impl_id varchar UNIQUE,
-	impl_rn bigint,
-	chnl_ph varchar
+	impl_rn bigint
 );
 
-CREATE TABLE proc_vars (
+CREATE TABLE proc_provider_vars (
+	impl_id varchar UNIQUE,
+	impl_rn bigint,
+	chnl_id varchar,
+	chnl_ph varchar,
+	exp_vk bigint
+);
+
+CREATE TABLE proc_client_vars (
 	impl_id varchar,
 	impl_rn bigint,
 	chnl_id varchar,

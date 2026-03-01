@@ -31,13 +31,13 @@ func (dao *pgxDAO) InsertRecs(source db.Source, recs []implvar.VarRec) (err erro
 	batch := pgx.Batch{}
 	for _, dto := range dtos {
 		args := pgx.NamedArgs{
+			"impl_id": dto.ImplID,
+			"impl_rn": dto.ImplRN,
 			"chnl_id": dto.ChnlID,
 			"chnl_ph": dto.ChnlPH,
 			"exp_vk":  dto.ExpVK,
-			"impl_id": dto.ImplID,
-			"impl_rn": dto.ImplRN,
 		}
-		batch.Queue(insertRec, args)
+		batch.Queue(insertLinearRec, args)
 	}
 	br := ds.Conn.SendBatch(ds.Ctx, &batch)
 	defer func() {
@@ -55,10 +55,17 @@ func (dao *pgxDAO) InsertRecs(source db.Source, recs []implvar.VarRec) (err erro
 }
 
 const (
-	insertRec = `
-		insert into pool_vars (
-			chnl_id, chnl_ph, exp_vk, impl_id, impl_rn
+	insertLinearRec = `
+		insert into pool_linear_vars (
+			impl_id, impl_rn, chnl_id, chnl_ph, exp_vk
 		) values (
-			@chnl_id, @chnl_ph, @exp_vk, @impl_id, @impl_rn
+			@impl_id, @impl_rn, @chnl_id, @chnl_ph, @exp_vk
+		)`
+
+	insertStructuralRec = `
+		insert into pool_structural_vars (
+			impl_id, impl_rn, chnl_id, chnl_ph, exp_vk
+		) values (
+			@impl_id, @impl_rn, @chnl_id, @chnl_ph, @exp_vk
 		)`
 )

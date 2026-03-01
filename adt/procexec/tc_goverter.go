@@ -21,5 +21,5 @@ var (
 var (
 	// goverter:autoMap ImplRef
 	DataFromExecRec func(ExecRec) execRecDS
-	DataFromMod     func(ExecMod) (execModDS, error)
+	DataFromMod     func(CommMod) (execModDS, error)
 )

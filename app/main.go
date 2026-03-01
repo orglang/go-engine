@@ -10,9 +10,9 @@ import (
 
 	"orglang/go-engine/adt/descsem"
 	"orglang/go-engine/adt/implsem"
+	"orglang/go-engine/adt/poolcomm"
 	"orglang/go-engine/adt/pooldec"
 	"orglang/go-engine/adt/poolexec"
-	"orglang/go-engine/adt/poolstep"
 	"orglang/go-engine/adt/poolvar"
 	"orglang/go-engine/adt/procdec"
 	"orglang/go-engine/adt/procdef"
@@ -39,7 +39,7 @@ func main() {
 		xactexp.Module,
 		pooldec.Module,
 		poolexec.Module,
-		poolstep.Module,
+		poolcomm.Module,
 		poolvar.Module,
 		typedef.Module,
 		typeexp.Module,

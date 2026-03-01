@@ -128,6 +128,32 @@ func (r WithRec) Next(l uniqsym.ADT) valkey.ADT { return r.Choices[l].Key() }
 
 func (WithRec) Pol() polarity.ADT { return polarity.Neg }
 
+type UpRec struct {
+	ExpVK valkey.ADT
+	Cont  ExpRec
+}
+
+func (UpRec) spec() {}
+
+func (r UpRec) Key() valkey.ADT { return r.ExpVK }
+
+func (r UpRec) Next() valkey.ADT { return r.Cont.Key() }
+
+func (UpRec) Pol() polarity.ADT { return polarity.Zero }
+
+type DownRec struct {
+	ExpVK valkey.ADT
+	Cont  ExpRec
+}
+
+func (DownRec) spec() {}
+
+func (r DownRec) Key() valkey.ADT { return r.ExpVK }
+
+func (r DownRec) Next() valkey.ADT { return r.Cont.Key() }
+
+func (DownRec) Pol() polarity.ADT { return polarity.Zero }
+
 func ErrSpecTypeUnexpected(got ExpSpec) error {
 	return fmt.Errorf("spec type unexpected: %T", got)
 }

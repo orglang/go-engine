@@ -6,13 +6,13 @@ import (
 	"orglang/go-engine/adt/procexp"
 )
 
-func dataFromStepRec(r StepRec) (StepRecDS, error) {
+func dataFromStepRec(r CommRec) (StepRecDS, error) {
 	if r == nil {
 		return StepRecDS{}, nil
 	}
 	switch rec := r.(type) {
-	case MsgRec:
-		msgVal, err := procexp.DataFromExpRec(rec.ValER)
+	case PubRec:
+		msgVal, err := procexp.DataFromExpRec(rec.ValExp)
 		if err != nil {
 			return StepRecDS{}, err
 		}
@@ -20,8 +20,8 @@ func dataFromStepRec(r StepRec) (StepRecDS, error) {
 			K:      msgStep,
 			ProcER: msgVal,
 		}, nil
-	case SvcRec:
-		svcCont, err := procexp.DataFromExpRec(rec.ContER)
+	case SubRec:
+		svcCont, err := procexp.DataFromExpRec(rec.ContExp)
 		if err != nil {
 			return StepRecDS{}, err
 		}
@@ -34,7 +34,7 @@ func dataFromStepRec(r StepRec) (StepRecDS, error) {
 	}
 }
 
-func dataToStepRec(dto StepRecDS) (StepRec, error) {
+func dataToStepRec(dto StepRecDS) (CommRec, error) {
 	var nilData StepRecDS
 	if dto == nilData {
 		return nil, nil
@@ -45,13 +45,13 @@ func dataToStepRec(dto StepRecDS) (StepRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return MsgRec{ValER: val}, nil
+		return PubRec{ValExp: val}, nil
 	case svcStep:
 		cont, err := procexp.DataToExpRec(dto.ProcER)
 		if err != nil {
 			return nil, err
 		}
-		return SvcRec{ContER: cont}, nil
+		return SubRec{ContExp: cont}, nil
 	default:
 		panic(errUnexpectedStepKind(dto.K))
 	}

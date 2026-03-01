@@ -32,6 +32,11 @@ type DecRec struct {
 	ClientVRs  []descvar.VarRec
 }
 
+type DecSnap struct {
+	DescRef descsem.SemRef
+	DecSpec DecSpec
+}
+
 func newService(
 	poolDecs Repo,
 	descSems descsem.Repo,
@@ -69,17 +74,16 @@ func (s *service) Create(spec DecSpec) (_ descsem.SemRef, err error) {
 		DescID: xactRefs[spec.ProviderVS.DescQN].DescID,
 	}
 	clientVRs := make([]descvar.VarRec, 0, len(spec.ClientVSes))
-	for _, vs := range spec.ClientVSes {
-		clientVRs = append(clientVRs, descvar.VarRec{ChnlPH: vs.ChnlPH, DescID: xactRefs[vs.DescQN].DescID})
+	for _, varSpec := range spec.ClientVSes {
+		clientVRs = append(clientVRs, descvar.VarRec{
+			ChnlPH: varSpec.ChnlPH,
+			DescID: xactRefs[varSpec.DescQN].DescID,
+		})
 	}
 	newRef := descsem.NewRef()
 	newBind := descsem.SemBind{DescQN: spec.DescQN, DescID: newRef.DescID}
 	newDesc := descsem.SemRec{Ref: newRef, Bind: newBind, Kind: descsem.Pool}
-	newDec := DecRec{
-		DescRef:    newRef,
-		ProviderVR: providerVR,
-		ClientVRs:  clientVRs,
-	}
+	newDec := DecRec{DescRef: newRef, ProviderVR: providerVR, ClientVRs: clientVRs}
 	transactErr := s.operator.Explicit(ctx, func(ds db.Source) error {
 		err = s.descSems.InsertRec(ds, newDesc)
 		if err != nil {

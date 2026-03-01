@@ -9,8 +9,8 @@ import (
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/procexp:Msg.*
 var (
-	MsgFromStepSpec func(StepSpec) procstep.StepSpec
-	MsgToStepSpec   func(procstep.StepSpec) (StepSpec, error)
+	MsgFromStepSpec func(CommSpec) procstep.StepSpec
+	MsgToStepSpec   func(procstep.StepSpec) (CommSpec, error)
 )
 
 // goverter:variables
@@ -18,6 +18,6 @@ var (
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend data.*
 var (
-	DataToStepRecs   func([]StepRecDS) ([]StepRec, error)
-	DataFromStepRecs func([]StepRec) ([]StepRecDS, error)
+	DataToStepRecs   func([]StepRecDS) ([]CommRec, error)
+	DataFromStepRecs func([]CommRec) ([]StepRecDS, error)
 )

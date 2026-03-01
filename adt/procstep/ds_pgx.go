@@ -27,7 +27,7 @@ func newPgxDAO(l *slog.Logger) *pgxDAO {
 	return &pgxDAO{l.With(name)}
 }
 
-func (dao *pgxDAO) InsertRecs(source db.Source, recs ...StepRec) error {
+func (dao *pgxDAO) InsertRecs(source db.Source, recs ...CommRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
 	dtos, err := DataFromStepRecs(recs)
 	if err != nil {
@@ -60,7 +60,7 @@ func (dao *pgxDAO) InsertRecs(source db.Source, recs ...StepRec) error {
 	return nil
 }
 
-func (dao *pgxDAO) SelectRecs(source db.Source, rid identity.ADT) (StepRec, error) {
+func (dao *pgxDAO) SelectRecs(source db.Source, rid identity.ADT) (CommRec, error) {
 	query := `
 		select
 			id, kind, pid, vid, spec
@@ -69,7 +69,7 @@ func (dao *pgxDAO) SelectRecs(source db.Source, rid identity.ADT) (StepRec, erro
 	return dao.execute(source, query, rid.String())
 }
 
-func (dao *pgxDAO) execute(source db.Source, query string, arg string) (StepRec, error) {
+func (dao *pgxDAO) execute(source db.Source, query string, arg string) (CommRec, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	rows, err := ds.Conn.Query(ds.Ctx, query, arg)
 	if err != nil {

@@ -11,6 +11,16 @@ type SemRef struct {
 	ImplRN revnum.ADT
 }
 
+func (ref SemRef) Negate() SemRef {
+	ref.ImplRN = -ref.ImplRN
+	return ref
+}
+
+func (ref SemRef) Rewind(rn revnum.ADT) SemRef {
+	ref.ImplRN = rn
+	return ref
+}
+
 func NewRef() SemRef {
 	return SemRef{identity.New(), revnum.New()}
 }

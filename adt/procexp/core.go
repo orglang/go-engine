@@ -35,7 +35,7 @@ func (s SendSpec) Via() symbol.ADT { return s.CommChnlPH }
 
 type RecvSpec struct {
 	CommChnlPH symbol.ADT
-	BindChnlPH symbol.ADT
+	NewChnlPH  symbol.ADT
 	ContES     ExpSpec
 }
 
@@ -43,7 +43,7 @@ func (s RecvSpec) Via() symbol.ADT { return s.CommChnlPH }
 
 type LabSpec struct {
 	CommChnlPH symbol.ADT
-	LabelQN    uniqsym.ADT
+	ValLabQN   uniqsym.ADT
 	ContES     ExpSpec
 }
 
@@ -58,46 +58,35 @@ func (s CaseSpec) Via() symbol.ADT { return s.CommChnlPH }
 
 // aka ExpName
 type LinkSpec struct {
-	ProcQN uniqsym.ADT
-	X      identity.ADT
-	Ys     []identity.ADT
+	ProcDescQN uniqsym.ADT
+	X          identity.ADT
+	Ys         []identity.ADT
 }
 
 func (s LinkSpec) Via() symbol.ADT { return "" }
 
 type FwdSpec struct {
-	CommChnlPH symbol.ADT // old via / from / x
-	ContChnlPH symbol.ADT // new via / to / y
+	CommChnlPH symbol.ADT // old via | from | x
+	ContChnlPH symbol.ADT // new via | to | y
 }
 
 func (s FwdSpec) Via() symbol.ADT { return s.CommChnlPH }
 
 type CallSpec struct {
 	CommChnlPH symbol.ADT // TODO удалить
-	BindChnlPH symbol.ADT
-	ProcQN     uniqsym.ADT
+	NewChnlPH  symbol.ADT
+	ProcDescQN uniqsym.ADT
 	ValChnlPHs []symbol.ADT // channel bulk
 	ContES     ExpSpec
 }
 
 func (s CallSpec) Via() symbol.ADT { return s.CommChnlPH }
 
-// аналог RecvSpec, но значения принимаются балком
-type SpawnSpecOld struct {
-	X      symbol.ADT
-	SigID  identity.ADT
-	Ys     []symbol.ADT
-	PoolQN uniqsym.ADT
-	ContES ExpSpec
-}
-
-func (s SpawnSpecOld) Via() symbol.ADT { return s.X }
-
 type SpawnSpec struct {
-	CommChnlPH  symbol.ADT
-	ProcQN      uniqsym.ADT
-	BindChnlPHs []symbol.ADT
-	ContES      ExpSpec
+	CommChnlPH symbol.ADT
+	ProcDescQN uniqsym.ADT
+	NewChnlPHs []symbol.ADT
+	ContES     ExpSpec
 }
 
 func (s SpawnSpec) Via() symbol.ADT { return s.CommChnlPH }
@@ -154,7 +143,7 @@ type SendRec struct {
 	CommChnlPH symbol.ADT
 	ContChnlID identity.ADT
 	ValChnlID  identity.ADT
-	ValExpID   valkey.ADT
+	ValExpVK   valkey.ADT
 }
 
 func (r SendRec) Via() symbol.ADT { return r.CommChnlPH }
@@ -164,7 +153,7 @@ func (SendRec) impl() {}
 type RecvRec struct {
 	CommChnlPH symbol.ADT
 	ContChnlID identity.ADT
-	ValChnlPH  symbol.ADT
+	NewChnlPH  symbol.ADT
 	ContES     ExpSpec
 }
 
@@ -175,7 +164,7 @@ func (RecvRec) impl() {}
 type LabRec struct {
 	CommChnlPH symbol.ADT
 	ContChnlID identity.ADT
-	LabelQN    uniqsym.ADT
+	ValLabQN   uniqsym.ADT
 }
 
 func (r LabRec) Via() symbol.ADT { return r.CommChnlPH }
@@ -214,8 +203,6 @@ func collectEnvRec(s ExpSpec, env []identity.ADT) []identity.ADT {
 			env = collectEnvRec(cont, env)
 		}
 		return env
-	case SpawnSpec:
-		return collectEnvRec(spec.ContES, env)
 	default:
 		return env
 	}

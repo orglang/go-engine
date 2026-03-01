@@ -90,3 +90,7 @@ func (s *service) Create(spec DefSpec) (_ descsem.SemRef, err error) {
 func errOptimisticUpdate(got revnum.ADT) error {
 	return fmt.Errorf("entity concurrent modification: got revision %v", got)
 }
+
+func ErrMissingInEnv(want valkey.ADT) error {
+	return fmt.Errorf("exp missing in env: %v", want)
+}

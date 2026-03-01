@@ -11,7 +11,7 @@ import (
 type Repo interface {
 	InsertRec(db.Source, ExecRec) error
 	SelectSnap(db.Source, implsem.SemRef) (ExecSnap, error)
-	UpdateProc(db.Source, ExecMod) error
+	UpdateProc(db.Source, CommMod) error
 }
 
 type execRecDS struct {

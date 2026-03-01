@@ -20,11 +20,9 @@ var (
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
 // goverter:extend orglang/go-engine/adt/valkey:Convert.*
+// goverter:extend DataFromVarRec
 var (
-	// goverter:autoMap ImplRef
-	DataFromVarRec  func(VarRec) VarRecDS
 	DataFromVarRecs func([]VarRec) []VarRecDS
-	// goverter:map . ImplRef
-	DataToVarRec  func(VarRecDS) (VarRec, error)
-	DataToVarRecs func([]VarRecDS) ([]VarRec, error)
+	DataToVarRecs   func([]VarRecDS) ([]VarRec, error)
+	DataToVarRecs2  func([]VarRecDS) ([]LinearRec, error)
 )

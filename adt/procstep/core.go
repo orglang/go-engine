@@ -8,38 +8,38 @@ import (
 	"orglang/go-engine/adt/procexp"
 )
 
-type StepSpec struct {
+type CommSpec struct {
 	ExecRef implsem.SemRef
 	ProcES  procexp.ExpSpec
 }
 
 // aka Sem
-type StepRec interface {
+type CommRec interface {
 	step() identity.ADT
 }
 
-func ChnlID(rec StepRec) identity.ADT { return rec.step() }
+func ChnlID(rec CommRec) identity.ADT { return rec.step() }
 
-type MsgRec struct {
-	ExecRef implsem.SemRef
+type PubRec struct {
+	ImplRef implsem.SemRef
 	ChnlID  identity.ADT
-	ValER   procexp.ExpRec
+	ValExp  procexp.ExpRec
 }
 
-func (r MsgRec) step() identity.ADT { return r.ChnlID }
+func (r PubRec) step() identity.ADT { return r.ChnlID }
 
-type SvcRec struct {
-	ExecRef implsem.SemRef
+type SubRec struct {
+	ImplRef implsem.SemRef
 	ChnlID  identity.ADT
-	ContER  procexp.ExpRec
+	ContExp procexp.ExpRec
 }
 
-func (r SvcRec) step() identity.ADT { return r.ChnlID }
+func (r SubRec) step() identity.ADT { return r.ChnlID }
 
-func ErrRecTypeUnexpected(got StepRec) error {
+func ErrRecTypeUnexpected(got CommRec) error {
 	return fmt.Errorf("step rec unexpected: %T", got)
 }
 
-func ErrRecTypeMismatch(got, want StepRec) error {
+func ErrRecTypeMismatch(got, want CommRec) error {
 	return fmt.Errorf("step rec mismatch: want %T, got %T", want, got)
 }

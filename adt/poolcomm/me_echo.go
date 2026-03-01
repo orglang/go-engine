@@ -1,14 +1,15 @@
-package poolstep
+package poolcomm
 
 import (
 	"log/slog"
 	"net/http"
-	"orglang/go-engine/adt/implsem"
 	"reflect"
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/orglang/go-sdk/adt/poolstep"
+	"github.com/orglang/go-sdk/adt/poolcomm"
+
+	"orglang/go-engine/adt/implsem"
 )
 
 // Server-side primary adapter
@@ -29,7 +30,7 @@ func cfgEchoController(e *echo.Echo, h *echoController) error {
 }
 
 func (h *echoController) PostSpec(c echo.Context) error {
-	var dto poolstep.StepSpec
+	var dto poolcomm.CommSpec
 	bindErr := c.Bind(&dto)
 	if bindErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
@@ -40,7 +41,7 @@ func (h *echoController) PostSpec(c echo.Context) error {
 		h.log.Error("validation failed", slog.Any("dto", dto))
 		return validateErr
 	}
-	spec, convertErr := MsgToStepSpec(dto)
+	spec, convertErr := MsgToCommSpec(dto)
 	if convertErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
 		return convertErr
@@ -53,7 +54,7 @@ func (h *echoController) PostSpec(c echo.Context) error {
 }
 
 func (h *echoController) PostSpec2(c echo.Context) error {
-	var dto poolstep.StepSpec
+	var dto poolcomm.CommSpec
 	bindErr := c.Bind(&dto)
 	if bindErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
@@ -64,7 +65,7 @@ func (h *echoController) PostSpec2(c echo.Context) error {
 		h.log.Error("validation failed", slog.Any("dto", dto))
 		return validateErr
 	}
-	spec, convertErr := MsgToStepSpec(dto)
+	spec, convertErr := MsgToCommSpec(dto)
 	if convertErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
 		return convertErr

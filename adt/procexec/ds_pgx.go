@@ -63,7 +63,7 @@ func (dao *pgxDAO) SelectSnap(source db.Source, ref implsem.SemRef) (ExecSnap, e
 		dao.log.Error("row collection failed", refAttr, slog.Any("t", reflect.TypeOf(chnlDtos)))
 		return ExecSnap{}, err
 	}
-	chnls, err := implvar.DataToVarRecs(chnlDtos)
+	chnls, err := implvar.DataToVarRecs2(chnlDtos)
 	if err != nil {
 		dao.log.Error("model conversion failed", refAttr)
 		return ExecSnap{}, err
@@ -91,8 +91,8 @@ func (dao *pgxDAO) SelectSnap(source db.Source, ref implsem.SemRef) (ExecSnap, e
 	}, nil
 }
 
-func (dao *pgxDAO) UpdateProc(source db.Source, mod ExecMod) (err error) {
-	if len(mod.Locks) == 0 {
+func (dao *pgxDAO) UpdateProc(source db.Source, mod CommMod) (err error) {
+	if len(mod.Refs) == 0 {
 		panic("empty locks")
 	}
 	ds := db.MustConform[db.SourcePgx](source)

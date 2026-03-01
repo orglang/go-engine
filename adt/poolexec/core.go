@@ -9,6 +9,7 @@ import (
 
 	"orglang/go-engine/lib/db"
 
+	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/implsem"
 	"orglang/go-engine/adt/implvar"
@@ -33,7 +34,9 @@ type ExecSpec struct {
 	ClientVSes []implvar.VarSpec
 }
 
-type ExecRec implvar.VarRec
+type ExecRec struct {
+	ImplRef implsem.SemRef
+}
 
 type ExecSnap struct {
 	ImplRef  implsem.SemRef
@@ -85,8 +88,8 @@ func newService(
 
 func (s *service) Run(spec ExecSpec) (_ implsem.SemRef, err error) {
 	ctx := context.Background()
-	vsAttr := slog.Any("ss", spec.ProviderVS)
-	s.log.Debug("starting creation...", vsAttr, slog.Any("spec", spec))
+	vsAttr := slog.Any("varSpec", spec.ProviderVS)
+	s.log.Debug("starting creation...", vsAttr, slog.Any("expSpec", spec))
 	// нужно выбрать провайдерские переменные клиентов!
 	execQNs := make([]uniqsym.ADT, 0, len(spec.ClientVSes))
 	for _, varSpec := range spec.ClientVSes {
@@ -107,29 +110,26 @@ func (s *service) Run(spec ExecSpec) (_ implsem.SemRef, err error) {
 	newRef := implsem.NewRef()
 	newBind := implsem.SemBind{ImplQN: spec.ProviderVS.ImplQN, ImplID: newRef.ImplID}
 	newImpl := implsem.SemRec{Ref: newRef, Bind: newBind, Kind: implsem.Pool}
-	newExec := ExecRec{
-		ImplRef: newRef,
-		ChnlID:  identity.New(),
-		ChnlBS:  implvar.Provider,
+	newExec := ExecRec{ImplRef: newRef}
+	providerVar := implvar.StructRec{
+		ChnlRef: commsem.SemRef{ChnlID: newRef.ImplID, ChnlON: newRef.ImplRN},
 		ChnlPH:  spec.ProviderVS.ChnlPH,
+		ChnlBS:  implvar.Provider,
 		// TODO: заполнить ExpVK
 	}
-	newVars := make([]implvar.VarRec, 0, len(spec.ClientVSes))
+	clientVars := make([]implvar.VarRec, 0, len(spec.ClientVSes)+1)
 	for _, varSpec := range spec.ClientVSes {
-		var implRef implsem.SemRef
-		var chnlID identity.ADT
+		var chnlRef commsem.SemRef
 		if varSpec.ImplQN == spec.ProviderVS.ImplQN {
-			implRef = newExec.ImplRef
-			chnlID = newExec.ChnlID
+			chnlRef = providerVar.ChnlRef
 		} else {
-			implRef = execRecs[varSpec.ImplQN].ImplRef
-			chnlID = execRecs[varSpec.ImplQN].ChnlID
+			// TODO подставить ссылки
 		}
-		newVars = append(newVars, implvar.VarRec{
-			ImplRef: implRef,
-			ChnlID:  chnlID,
+		clientVars = append(clientVars, implvar.StructRec{
+			ChnlRef: chnlRef,
 			ChnlPH:  varSpec.ChnlPH,
 			ChnlBS:  implvar.Client,
+			// TODO: заполнить ExpVK
 		})
 	}
 	transactErr := s.operator.Explicit(ctx, func(ds db.Source) error {
@@ -141,7 +141,7 @@ func (s *service) Run(spec ExecSpec) (_ implsem.SemRef, err error) {
 		if err != nil {
 			return err
 		}
-		err = s.poolVars.InsertRecs(ds, newVars)
+		err = s.poolVars.InsertRecs(ds, append(clientVars, providerVar))
 		if err != nil {
 			return err
 		}

@@ -5,9 +5,9 @@ import (
 
 	"github.com/orglang/go-sdk/adt/descsem"
 	"github.com/orglang/go-sdk/adt/implsem"
+	"github.com/orglang/go-sdk/adt/poolcomm"
 	"github.com/orglang/go-sdk/adt/pooldec"
 	"github.com/orglang/go-sdk/adt/poolexec"
-	"github.com/orglang/go-sdk/adt/poolstep"
 	"github.com/orglang/go-sdk/adt/procdec"
 	"github.com/orglang/go-sdk/adt/procexec"
 	"github.com/orglang/go-sdk/adt/procstep"
@@ -26,8 +26,8 @@ func newPoolDecAPI(client *resty.Client) PoolDecAPI {
 type PoolExecAPI interface {
 	Retrieve(implsem.SemRef) (poolexec.ExecSnap, error)
 	Create(poolexec.ExecSpec) (implsem.SemRef, error)
-	Take(poolstep.StepSpec) error
-	Spawn(poolstep.StepSpec) (implsem.SemRef, error)
+	Take(poolcomm.CommSpec) error
+	Spawn(poolcomm.CommSpec) (implsem.SemRef, error)
 	Poll(poolexec.PollSpec) (implsem.SemRef, error)
 }
 

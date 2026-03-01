@@ -32,10 +32,9 @@ func MsgFromExpSpec(s ExpSpec) poolexp.ExpSpec {
 			K: poolexp.Apply,
 			Apply: &poolexp.ApplySpec{
 				CommChnlPH: symbol.ConvertToString(spec.CommChnlPH),
-				ProcDescQN: uniqsym.ConvertToString(spec.ProcDescQN),
 			},
 		}
-	case SpawnSpec:
+	case SpawnSpec2:
 		return poolexp.ExpSpec{
 			K: poolexp.Spawn,
 			Spawn: &poolexp.SpawnSpec{
@@ -44,7 +43,7 @@ func MsgFromExpSpec(s ExpSpec) poolexp.ExpSpec {
 			},
 		}
 	default:
-		panic(ErrExpTypeUnexpected(s))
+		panic(ErrSpecTypeUnexpected(s))
 	}
 }
 
@@ -72,11 +71,7 @@ func MsgToExpSpec(dto poolexp.ExpSpec) (ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		descQN, err := uniqsym.ConvertFromString(dto.Apply.ProcDescQN)
-		if err != nil {
-			return nil, err
-		}
-		return ApplySpec{CommChnlPH: commPH, ProcDescQN: descQN}, nil
+		return ApplySpec{CommChnlPH: commPH}, nil
 	case poolexp.Spawn:
 		descRef, err := descsem.MsgToRef(dto.Spawn.ProcDescRef)
 		if err != nil {
@@ -86,7 +81,7 @@ func MsgToExpSpec(dto poolexp.ExpSpec) (ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return SpawnSpec{ProcDescRef: descRef, ProcImplRefs: implRefs}, nil
+		return SpawnSpec2{ProcDescRef: descRef, ProcImplRefs: implRefs}, nil
 	default:
 		panic(poolexp.ErrUnexpectedExpKind(dto.K))
 	}

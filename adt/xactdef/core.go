@@ -8,7 +8,7 @@ import (
 	"orglang/go-engine/lib/db"
 
 	"orglang/go-engine/adt/descsem"
-	"orglang/go-engine/adt/revnum"
+	"orglang/go-engine/adt/seqnum"
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/adt/valkey"
 	"orglang/go-engine/adt/xactexp"
@@ -87,7 +87,7 @@ func (s *service) Create(spec DefSpec) (_ descsem.SemRef, err error) {
 	return newRef, nil
 }
 
-func errOptimisticUpdate(got revnum.ADT) error {
+func errOptimisticUpdate(got seqnum.ADT) error {
 	return fmt.Errorf("entity concurrent modification: got revision %v", got)
 }
 

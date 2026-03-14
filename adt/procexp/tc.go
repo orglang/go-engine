@@ -62,7 +62,7 @@ func MsgFromExpSpec(s ExpSpec) procexp.ExpSpec {
 		}
 	case CaseSpec:
 		brs := []procexp.BranchSpec{}
-		for l, t := range spec.ContESs {
+		for l, t := range spec.ContESes {
 			brs = append(brs, procexp.BranchSpec{PatternQN: uniqsym.ConvertToString(l), ContES: MsgFromExpSpec(t)})
 		}
 		return procexp.ExpSpec{
@@ -161,7 +161,7 @@ func MsgToExpSpec(dto procexp.ExpSpec) (ExpSpec, error) {
 			}
 			conts[label] = cont
 		}
-		return CaseSpec{CommChnlPH: x, ContESs: conts}, nil
+		return CaseSpec{CommChnlPH: x, ContESes: conts}, nil
 	case procexp.Call:
 		bindPH, err := symbol.ConvertFromString(dto.Call.BindChnlPH)
 		if err != nil {
@@ -398,7 +398,7 @@ func dataFromExpSpec(s ExpSpec) (ExpSpecDS, error) {
 		}, nil
 	case CaseSpec:
 		brs := []branchSpecDS{}
-		for l, cont := range spec.ContESs {
+		for l, cont := range spec.ContESes {
 			dto, err := dataFromExpSpec(cont)
 			if err != nil {
 				return ExpSpecDS{}, err
@@ -494,7 +494,7 @@ func dataToExpSpec(dto ExpSpecDS) (ExpSpec, error) {
 			}
 			conts[label] = cont
 		}
-		return CaseSpec{CommChnlPH: x, ContESs: conts}, nil
+		return CaseSpec{CommChnlPH: x, ContESes: conts}, nil
 	case fwdExp:
 		x, err := symbol.ConvertFromString(dto.Fwd.X)
 		if err != nil {

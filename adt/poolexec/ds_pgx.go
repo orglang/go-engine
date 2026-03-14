@@ -137,6 +137,10 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]implsem.SemRef, error) {
 	return refs, nil
 }
 
+func (dao *pgxDAO) SelectSnap(db.Source, implsem.SemRef) (ExecSnap, error) {
+	panic("unimplemented")
+}
+
 const (
 	insertRec = `
 		insert into pool_execs (

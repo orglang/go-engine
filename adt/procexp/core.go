@@ -3,6 +3,7 @@ package procexp
 import (
 	"fmt"
 
+	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/symbol"
 	"orglang/go-engine/adt/uniqsym"
@@ -51,7 +52,7 @@ func (s LabSpec) Via() symbol.ADT { return s.CommChnlPH }
 
 type CaseSpec struct {
 	CommChnlPH symbol.ADT
-	ContESs    map[uniqsym.ADT]ExpSpec
+	ContESes   map[uniqsym.ADT]ExpSpec
 }
 
 func (s CaseSpec) Via() symbol.ADT { return s.CommChnlPH }
@@ -144,6 +145,7 @@ type SendRec struct {
 	ContChnlID identity.ADT
 	ValChnlID  identity.ADT
 	ValExpVK   valkey.ADT
+	CommRef    commsem.SemRef
 }
 
 func (r SendRec) Via() symbol.ADT { return r.CommChnlPH }
@@ -164,7 +166,8 @@ func (RecvRec) impl() {}
 type LabRec struct {
 	CommChnlPH symbol.ADT
 	ContChnlID identity.ADT
-	ValLabQN   uniqsym.ADT
+	ValExpVK   valkey.ADT
+	ValLabQN   uniqsym.ADT // TODO выпилить
 }
 
 func (r LabRec) Via() symbol.ADT { return r.CommChnlPH }
@@ -199,7 +202,7 @@ func collectEnvRec(s ExpSpec, env []identity.ADT) []identity.ADT {
 	case RecvSpec:
 		return collectEnvRec(spec.ContES, env)
 	case CaseSpec:
-		for _, cont := range spec.ContESs {
+		for _, cont := range spec.ContESes {
 			env = collectEnvRec(cont, env)
 		}
 		return env

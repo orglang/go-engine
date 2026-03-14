@@ -1,21 +1,21 @@
-package poolcomm
+package poolstep
 
 import (
 	"orglang/go-engine/lib/db"
 
-	"orglang/go-engine/adt/commsem"
+	"orglang/go-engine/adt/implsem"
 	"orglang/go-engine/adt/poolcfg"
 	"orglang/go-engine/adt/poolctx"
 	"orglang/go-engine/adt/poolenv"
 )
 
 type Repo interface {
-	InsertRec(db.Source, CommRec) error
-	InsertRecs(db.Source, []CommRec) error
+	InsertRec(db.Source, StepRec) error
+	InsertRecs(db.Source, []StepRec) error
 	SelectEnvSnapByEnvSpec(db.Source, poolenv.EnvSpec) (poolenv.EnvSnap, error)
 	SelectCtxSnapByCtxSpec(db.Source, poolctx.CtxSpec) (poolctx.CtxSnap, error)
 	SelectCfgSnapBySpec(db.Source, poolcfg.CfgSpec) (poolcfg.CfgSnap, error)
-	SelectRecByRef(db.Source, commsem.SemRef) (CommRec, error)
+	SelectRecByRef(db.Source, implsem.SemRef) (StepRec, error)
 }
 
 type commRecDS struct {

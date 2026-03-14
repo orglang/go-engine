@@ -13,6 +13,7 @@ type Repo interface {
 	TouchRecs(db.Source, []implsem.SemRef) error
 	SelectRecsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]ExecRec, error)
 	SelectRefs(db.Source) ([]implsem.SemRef, error)
+	SelectSnap(db.Source, implsem.SemRef) (ExecSnap, error)
 	SelectSubs(db.Source, implsem.SemRef) (ExecSnap, error)
 }
 
@@ -26,8 +27,6 @@ type execRecDS struct {
 }
 
 type execSnapDS struct {
-	ImplID   string             `db:"impl_id"`
-	ImplRN   int64              `db:"impl_rn"`
-	Title    string             `db:"title"`
-	SubExecs []implsem.SemRefDS `db:"subs"`
+	ImplID string `db:"impl_id"`
+	ImplRN int64  `db:"impl_rn"`
 }

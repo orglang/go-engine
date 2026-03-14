@@ -11,7 +11,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/adt/revnum"
+	"orglang/go-engine/adt/seqnum"
 	"orglang/go-engine/adt/uniqsym"
 )
 
@@ -114,6 +114,6 @@ const (
 		where db.desc_qn = $1`
 )
 
-func errOptimisticUpdate(got revnum.ADT) error {
+func errOptimisticUpdate(got seqnum.ADT) error {
 	return fmt.Errorf("entity concurrent modification: got revision %v", got)
 }

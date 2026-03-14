@@ -17,6 +17,10 @@ type Keyable interface {
 	Key() ADT
 }
 
+func (key ADT) Invert() ADT {
+	return -key
+}
+
 func Compose(keys ...ADT) (ADT, error) {
 	slices.Sort(keys)
 	h := fnv.New32a()

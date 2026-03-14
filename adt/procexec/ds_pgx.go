@@ -12,8 +12,7 @@ import (
 
 	"orglang/go-engine/adt/implsem"
 	"orglang/go-engine/adt/implvar"
-	"orglang/go-engine/adt/procstep"
-	"orglang/go-engine/adt/revnum"
+	"orglang/go-engine/adt/seqnum"
 )
 
 // Adapter
@@ -42,7 +41,7 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec ExecRec) error {
 	refAttr := slog.Any("ref", rec.ImplRef)
 	_, execErr := ds.Conn.Exec(ds.Ctx, insertRec, args)
 	if execErr != nil {
-		dao.log.Error("execution failed", refAttr)
+		dao.log.Error("query execution failed", refAttr)
 		return execErr
 	}
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "insertion succeed", slog.Any("dto", dto))
@@ -63,35 +62,18 @@ func (dao *pgxDAO) SelectSnap(source db.Source, ref implsem.SemRef) (ExecSnap, e
 		dao.log.Error("row collection failed", refAttr, slog.Any("t", reflect.TypeOf(chnlDtos)))
 		return ExecSnap{}, err
 	}
-	chnls, err := implvar.DataToVarRecs2(chnlDtos)
-	if err != nil {
-		dao.log.Error("model conversion failed", refAttr)
-		return ExecSnap{}, err
-	}
-	stepRows, err := ds.Conn.Query(ds.Ctx, selectSteps, ref.ImplID.String())
-	if err != nil {
-		dao.log.Error("query execution failed", refAttr)
-		return ExecSnap{}, err
-	}
-	defer stepRows.Close()
-	stepDtos, err := pgx.CollectRows(stepRows, pgx.RowToStructByName[procstep.StepRecDS])
-	if err != nil {
-		dao.log.Error("row collection failed", refAttr, slog.Any("t", reflect.TypeOf(stepDtos)))
-		return ExecSnap{}, err
-	}
-	steps, err := procstep.DataToStepRecs(stepDtos)
+	chnls, err := implvar.DataToVarRecs(chnlDtos)
 	if err != nil {
 		dao.log.Error("model conversion failed", refAttr)
 		return ExecSnap{}, err
 	}
 	dao.log.Debug("snap selection succeed", refAttr)
 	return ExecSnap{
-		ChnlVRs: implvar.IndexBy(ChnlPH, chnls),
-		ProcSRs: implvar.IndexBy(procstep.ChnlID, steps),
+		LinearVars: implvar.IndexBy(ChnlPH, chnls),
 	}, nil
 }
 
-func (dao *pgxDAO) UpdateProc(source db.Source, mod CommMod) (err error) {
+func (dao *pgxDAO) UpdateProc(source db.Source, mod ExecMod) (err error) {
 	if len(mod.Refs) == 0 {
 		panic("empty locks")
 	}
@@ -174,7 +156,7 @@ func (dao *pgxDAO) UpdateProc(source db.Source, mod CommMod) (err error) {
 		}
 		if ct.RowsAffected() == 0 {
 			dao.log.Error("update failed")
-			return errOptimisticUpdate(revnum.ADT(dto.ImplRN))
+			return errOptimisticUpdate(seqnum.ADT(dto.ImplRN))
 		}
 	}
 	if err != nil {

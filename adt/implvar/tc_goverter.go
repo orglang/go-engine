@@ -2,6 +2,15 @@ package implvar
 
 import (
 	"github.com/orglang/go-sdk/adt/implvar"
+
+	"orglang/go-engine/adt/implsem"
+)
+
+// goverter:variables
+// goverter:output:format assign-variable
+// goverter:extend ConvertRecToRef
+var (
+	ConvertRecsToRefs func([]VarRec) []implsem.SemRef
 )
 
 // goverter:variables
@@ -24,5 +33,4 @@ var (
 var (
 	DataFromVarRecs func([]VarRec) []VarRecDS
 	DataToVarRecs   func([]VarRecDS) ([]VarRec, error)
-	DataToVarRecs2  func([]VarRecDS) ([]LinearRec, error)
 )

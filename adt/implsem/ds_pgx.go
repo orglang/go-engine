@@ -11,7 +11,7 @@ import (
 	"orglang/go-engine/lib/db"
 	"orglang/go-engine/lib/lf"
 
-	"orglang/go-engine/adt/revnum"
+	"orglang/go-engine/adt/seqnum"
 	"orglang/go-engine/adt/uniqsym"
 )
 
@@ -31,7 +31,7 @@ func newRepo() Repo {
 
 func (dao *pgxDAO) InsertRec(source db.Source, rec SemRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
-	refAttr := slog.Any("ref", rec.Ref)
+	refAttr := slog.Any("ref", rec.ImplRef)
 	dto, convertErr := DataFromRec(rec)
 	if convertErr != nil {
 		dao.log.Error("model conversion failed", refAttr)
@@ -57,6 +57,10 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec SemRec) error {
 		return execErr2
 	}
 	return nil
+}
+
+func (dao *pgxDAO) TouchRec(db.Source, SemRef) error {
+	panic("unimplemented")
 }
 
 func (dao *pgxDAO) SelectRefsByQNs(source db.Source, implQNs []uniqsym.ADT) (_ map[uniqsym.ADT]SemRef, err error) {
@@ -117,6 +121,6 @@ const (
 		where ib.impl_qn = $1`
 )
 
-func errOptimisticUpdate(got revnum.ADT) error {
+func errOptimisticUpdate(got seqnum.ADT) error {
 	return fmt.Errorf("entity concurrent modification: got revision %v", got)
 }

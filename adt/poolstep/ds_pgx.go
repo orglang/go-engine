@@ -1,4 +1,4 @@
-package poolcomm
+package poolstep
 
 import (
 	"log/slog"
@@ -6,7 +6,7 @@ import (
 
 	"orglang/go-engine/lib/db"
 
-	"orglang/go-engine/adt/commsem"
+	"orglang/go-engine/adt/implsem"
 	"orglang/go-engine/adt/poolcfg"
 	"orglang/go-engine/adt/poolctx"
 	"orglang/go-engine/adt/poolenv"
@@ -26,11 +26,11 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func (dao *pgxDAO) InsertRec(db.Source, CommRec) error {
+func (dao *pgxDAO) InsertRec(db.Source, StepRec) error {
 	panic("unimplemented")
 }
 
-func (dao *pgxDAO) InsertRecs(db.Source, []CommRec) error {
+func (dao *pgxDAO) InsertRecs(db.Source, []StepRec) error {
 	panic("unimplemented")
 }
 
@@ -46,6 +46,6 @@ func (dao *pgxDAO) SelectCfgSnapBySpec(db.Source, poolcfg.CfgSpec) (poolcfg.CfgS
 	panic("unimplemented")
 }
 
-func (dao *pgxDAO) SelectRecByRef(db.Source, commsem.SemRef) (CommRec, error) {
+func (dao *pgxDAO) SelectRecByRef(db.Source, implsem.SemRef) (StepRec, error) {
 	panic("unimplemented")
 }

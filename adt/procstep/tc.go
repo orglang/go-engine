@@ -6,7 +6,7 @@ import (
 	"orglang/go-engine/adt/procexp"
 )
 
-func dataFromStepRec(r CommRec) (StepRecDS, error) {
+func dataFromStepRec(r StepRec) (StepRecDS, error) {
 	if r == nil {
 		return StepRecDS{}, nil
 	}
@@ -34,7 +34,7 @@ func dataFromStepRec(r CommRec) (StepRecDS, error) {
 	}
 }
 
-func dataToStepRec(dto StepRecDS) (CommRec, error) {
+func dataToStepRec(dto StepRecDS) (StepRec, error) {
 	var nilData StepRecDS
 	if dto == nilData {
 		return nil, nil

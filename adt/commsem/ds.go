@@ -1,8 +1,6 @@
-package implsem
+package commsem
 
 import (
-	"database/sql"
-
 	"orglang/go-engine/lib/db"
 
 	"orglang/go-engine/adt/uniqsym"
@@ -15,13 +13,12 @@ type Repo interface {
 }
 
 type SemRefDS struct {
-	ImplID string `db:"impl_id"`
-	ImplRN int64  `db:"impl_rn"`
+	CommID string `db:"comm_id"`
+	CommRN int64  `db:"comm_rn"`
 }
 
 type semRecDS struct {
-	ImplID string         `db:"impl_id"`
-	ImplRN int64          `db:"impl_rn"`
-	ImplQN sql.NullString `db:"impl_qn"`
-	Kind   uint8          `db:"kind"`
+	CommID string `db:"comm_id"`
+	CommRN int64  `db:"comm_rn"`
+	Kind   int8   `db:"kind"`
 }

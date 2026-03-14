@@ -12,20 +12,6 @@ CREATE TABLE desc_binds (
 
 CREATE INDEX desc_qn_gist_idx ON desc_binds USING GIST (desc_qn);
 
-CREATE TABLE impl_sems (
-	impl_id varchar UNIQUE,
-	impl_rn bigint,
-	kind smallint
-);
-
--- связка воплощений с квалифицированными синонимами 
-CREATE TABLE impl_binds (
-	impl_qn ltree UNIQUE,
-	impl_id varchar
-);
-
-CREATE INDEX impl_qn_gist_idx ON impl_binds USING GIST (impl_qn);
-
 CREATE TABLE xact_defs (
 	desc_id varchar UNIQUE,
 	exp_vk bigint
@@ -46,26 +32,57 @@ CREATE TABLE pool_decs (
     client_vrs jsonb
 );
 
-CREATE TABLE pool_execs (
+CREATE TABLE impl_sems (
 	impl_id varchar UNIQUE,
-	impl_rn bigint
+	impl_rn bigint,
+	kind smallint
+);
+
+-- связка воплощений с квалифицированными синонимами 
+CREATE TABLE impl_binds (
+	impl_qn ltree UNIQUE,
+	impl_id varchar
+);
+
+CREATE INDEX impl_qn_gist_idx ON impl_binds USING GIST (impl_qn);
+
+CREATE TABLE comm_sems (
+	comm_id varchar UNIQUE,
+	comm_rn bigint,
+	kind smallint
+);
+
+CREATE TABLE pool_execs (
+	impl_id varchar,
+    -- что-то еще в будущем
+);
+
+CREATE TABLE pool_vars (
+	impl_id varchar,
+	comm_id varchar,
+	chnl_id varchar,
+	chnl_ph varchar,
+	chnl_bs smallint,
+	exp_vk bigint
 );
 
 CREATE TABLE pool_struct_vars (
-	chnl_id varchar,
-	chnl_on bigint,
-	chnl_ph varchar,
-	chnl_bs smallint,
-	exp_vk bigint
-);
+) INHERITS (pool_vars);
 
 CREATE TABLE pool_linear_vars (
-	impl_id varchar,
-	impl_rn bigint,
+) INHERITS (pool_vars);
+
+CREATE TABLE pool_conns (
+	comm_id varchar,
+	comm_on bigint
+);
+
+CREATE TABLE pool_steps (
+	comm_id varchar,
+	comm_rn bigint,
 	chnl_id varchar,
-	chnl_ph varchar,
-	chnl_bs smallint,
-	exp_vk bigint
+	kind smallint,
+	exp jsonb
 );
 
 CREATE TABLE type_defs (

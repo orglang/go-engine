@@ -9,7 +9,7 @@ import (
 )
 
 type Repo interface {
-	InsertRecs(db.Source, ...CommRec) error
+	InsertRecs(db.Source, ...StepRec) error
 }
 
 type StepRecDS struct {

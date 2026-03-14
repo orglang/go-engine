@@ -10,7 +10,7 @@ import (
 
 	"orglang/go-engine/adt/descsem"
 	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/revnum"
+	"orglang/go-engine/adt/seqnum"
 	"orglang/go-engine/adt/symbol"
 	"orglang/go-engine/adt/typeexp"
 	"orglang/go-engine/adt/uniqsym"
@@ -143,7 +143,7 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 		s.log.Error("modification failed", refAttr)
 		return DefSnap{}, errConcurrentModification(snap.DescRef.DescRN, rec.DescRef.DescRN)
 	}
-	snap.DescRef.DescRN = revnum.Next(snap.DescRef.DescRN)
+	snap.DescRef.DescRN = seqnum.Next(snap.DescRef.DescRN)
 	curSnap, err := s.retrieveSnap(rec)
 	if err != nil {
 		s.log.Error("modification failed", refAttr)
@@ -234,11 +234,11 @@ func ErrSymMissingInEnv(want uniqsym.ADT) error {
 	return fmt.Errorf("root missing in env: %v", want)
 }
 
-func errConcurrentModification(got revnum.ADT, want revnum.ADT) error {
+func errConcurrentModification(got seqnum.ADT, want seqnum.ADT) error {
 	return fmt.Errorf("entity concurrent modification: want revision %v, got revision %v", want, got)
 }
 
-func errOptimisticUpdate(got revnum.ADT) error {
+func errOptimisticUpdate(got seqnum.ADT) error {
 	return fmt.Errorf("entity concurrent modification: got revision %v", got)
 }
 

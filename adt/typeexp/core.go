@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"orglang/go-engine/adt/polarity"
-	"orglang/go-engine/adt/revnum"
+	"orglang/go-engine/adt/seqnum"
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/adt/valkey"
 )
@@ -239,11 +239,11 @@ func ErrSymMissingInEnv(want uniqsym.ADT) error {
 	return fmt.Errorf("qn missing in env: %v", want)
 }
 
-func errConcurrentModification(got revnum.ADT, want revnum.ADT) error {
+func errConcurrentModification(got seqnum.ADT, want seqnum.ADT) error {
 	return fmt.Errorf("entity concurrent modification: want revision %v, got revision %v", want, got)
 }
 
-func errOptimisticUpdate(got revnum.ADT) error {
+func errOptimisticUpdate(got seqnum.ADT) error {
 	return fmt.Errorf("entity concurrent modification: got revision %v", got)
 }
 

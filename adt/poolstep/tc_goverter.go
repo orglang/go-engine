@@ -1,7 +1,7 @@
-package poolcomm
+package poolstep
 
 import (
-	"github.com/orglang/go-sdk/adt/poolcomm"
+	"github.com/orglang/go-sdk/adt/poolstep"
 )
 
 // goverter:variables
@@ -9,6 +9,6 @@ import (
 // goverter:extend orglang/go-engine/adt/implsem:Msg.*
 // goverter:extend orglang/go-engine/adt/poolexp:Msg.*
 var (
-	MsgToCommSpec   func(poolcomm.CommSpec) (CommSpec, error)
-	MsgFromCommSpec func(CommSpec) poolcomm.CommSpec
+	MsgToCommSpec   func(poolstep.StepSpec) (StepSpec, error)
+	MsgFromCommSpec func(StepSpec) poolstep.StepSpec
 )

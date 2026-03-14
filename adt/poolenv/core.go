@@ -15,6 +15,6 @@ type EnvSpec struct {
 
 type EnvSnap struct {
 	XactDefs map[uniqsym.ADT]xactdef.DefSnap
-	PoolDecs map[uniqsym.ADT]pooldec.DecSnap
 	XactExps map[valkey.ADT]xactexp.ExpSpec
+	PoolDecs map[uniqsym.ADT]pooldec.DecSnap
 }

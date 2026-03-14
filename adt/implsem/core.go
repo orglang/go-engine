@@ -2,44 +2,30 @@ package implsem
 
 import (
 	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/revnum"
+	"orglang/go-engine/adt/seqnum"
 	"orglang/go-engine/adt/uniqsym"
 )
 
 type SemRef struct {
 	ImplID identity.ADT
-	ImplRN revnum.ADT
-}
-
-func (ref SemRef) Negate() SemRef {
-	ref.ImplRN = -ref.ImplRN
-	return ref
-}
-
-func (ref SemRef) Rewind(rn revnum.ADT) SemRef {
-	ref.ImplRN = rn
-	return ref
+	// revision number
+	ImplRN seqnum.ADT
 }
 
 func NewRef() SemRef {
-	return SemRef{identity.New(), revnum.New()}
-}
-
-type SemBind struct {
-	ImplQN uniqsym.ADT
-	ImplID identity.ADT
+	return SemRef{identity.New(), seqnum.New()}
 }
 
 type SemRec struct {
-	Ref  SemRef
-	Bind SemBind
-	Kind semKind
+	ImplRef SemRef
+	ImplQN  uniqsym.ADT
+	Kind    semKind
 }
 
 type semKind uint8
 
 const (
-	unknown semKind = iota
+	unkSem semKind = iota
 	Pool
 	Proc
 )

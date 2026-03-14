@@ -2,15 +2,28 @@ package commsem
 
 import (
 	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/revnum"
+	"orglang/go-engine/adt/seqnum"
 )
 
 type SemRef struct {
-	ChnlID identity.ADT
-	ChnlON revnum.ADT
+	CommID identity.ADT
+	// revision number
+	CommRN seqnum.ADT
 }
 
-func (ref SemRef) Negate() SemRef {
-	ref.ChnlON = -ref.ChnlON
-	return ref
+func NewRef() SemRef {
+	return SemRef{identity.New(), seqnum.New()}
 }
+
+type SemRec struct {
+	CommRef SemRef
+	Kind    semKind
+}
+
+type semKind int8
+
+const (
+	unkSem semKind = iota
+	Pool
+	Proc
+)

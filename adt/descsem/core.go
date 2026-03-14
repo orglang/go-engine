@@ -2,17 +2,17 @@ package descsem
 
 import (
 	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/revnum"
+	"orglang/go-engine/adt/seqnum"
 	"orglang/go-engine/adt/uniqsym"
 )
 
 type SemRef struct {
 	DescID identity.ADT
-	DescRN revnum.ADT
+	DescRN seqnum.ADT
 }
 
 func NewRef() SemRef {
-	return SemRef{identity.New(), revnum.New()}
+	return SemRef{identity.New(), seqnum.New()}
 }
 
 type SemBind struct {

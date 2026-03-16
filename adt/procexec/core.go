@@ -54,7 +54,7 @@ type Env struct {
 func ChnlPH(rec implvar.VarRec) symbol.ADT { return rec.ChnlPH }
 
 type ExecMod struct {
-	Refs       []implsem.SemRef
+	ImplRefs   []implsem.SemRef
 	LinearVars []implvar.VarRec
 }
 
@@ -191,7 +191,7 @@ func (s *service) takeWith(
 ) {
 	ctx := context.Background()
 	implAttr := slog.Any("impl", execSnap.ImplRef)
-	execMod.Refs = append(execMod.Refs, execSnap.ImplRef)
+	execMod.ImplRefs = append(execMod.ImplRefs, execSnap.ImplRef)
 	switch expSpec := es.(type) {
 	case procexp.CloseSpec:
 		commChnl, ok := execSnap.LinearVars[expSpec.CommChnlPH]
@@ -493,7 +493,7 @@ func (s *service) takeWith(
 				CommRef: valExp.CommRef,
 				ChnlID:  valExp.ValChnlID,
 				ChnlPH:  expSpec.NewChnlPH,
-				ChnlBS:  implvar.Client,
+				ChnlBS:  implvar.Asset,
 				ExpVK:   valExp.ValExpVK,
 			})
 			stepSpec = procstep.StepSpec{
@@ -813,7 +813,7 @@ func convertToCtx(chnlBinds iter.Seq[implvar.VarRec], typeExps map[valkey.ADT]ty
 	assets := make(map[symbol.ADT]typeexp.ExpRec, 1)
 	liabs := make(map[symbol.ADT]typeexp.ExpRec, 1)
 	for bind := range chnlBinds {
-		if bind.ChnlBS == implvar.Provider {
+		if bind.ChnlBS == implvar.Liab {
 			liabs[bind.ChnlPH] = typeExps[bind.ExpVK]
 		} else {
 			assets[bind.ChnlPH] = typeExps[bind.ExpVK]
@@ -832,7 +832,7 @@ func (s *service) checkType(
 	if !ok {
 		panic("no comm chnl in proc snap")
 	}
-	if chnlBR.ChnlBS == implvar.Provider {
+	if chnlBR.ChnlBS == implvar.Liab {
 		return s.checkProvider(procEnv, procCtx, execSnap, expSpec)
 	}
 	return s.checkClient(procEnv, procCtx, execSnap, expSpec)

@@ -1,14 +1,11 @@
 package poolconn
 
 import (
-	"orglang/go-engine/lib/db"
-
 	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/option"
 	"orglang/go-engine/adt/poolstep"
 	"orglang/go-engine/adt/seqnum"
-	"orglang/go-engine/adt/uniqsym"
 )
 
 type ConnRec struct {
@@ -21,7 +18,7 @@ type ConnMod struct {
 	Steps   []poolstep.StepRec
 }
 
-type ConnQuery struct {
+type ConnQry struct {
 	CommRef commsem.SemRef
 	ChnlID  option.ADT[identity.ADT]
 }
@@ -37,11 +34,4 @@ func (s ConnSnap) NextStep() poolstep.StepRec {
 		return s.Steps[0]
 	}
 	return nil
-}
-
-type Repo interface {
-	InsertRec(db.Source, ConnRec) error
-	UpdateRec(db.Source, ConnMod) error
-	SelectRefsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]commsem.SemRef, error)
-	SelectSnapByQry(db.Source, ConnQuery) (ConnSnap, error)
 }

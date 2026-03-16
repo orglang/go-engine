@@ -28,7 +28,6 @@ type PoolExecAPI interface {
 	Create(poolexec.ExecSpec) (implsem.SemRef, error)
 	Take(poolstep.StepSpec) error
 	Spawn(poolstep.StepSpec) (implsem.SemRef, error)
-	Poll(poolexec.PollSpec) (implsem.SemRef, error)
 }
 
 func newPoolExecAPI(client *resty.Client) PoolExecAPI {

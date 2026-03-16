@@ -9,6 +9,6 @@ import (
 // goverter:extend orglang/go-engine/adt/implsem:Msg.*
 // goverter:extend orglang/go-engine/adt/poolexp:Msg.*
 var (
-	MsgToCommSpec   func(poolstep.StepSpec) (StepSpec, error)
-	MsgFromCommSpec func(StepSpec) poolstep.StepSpec
+	MsgToStepSpec   func(poolstep.StepSpec) (StepSpec, error)
+	MsgFromStepSpec func(StepSpec) poolstep.StepSpec
 )

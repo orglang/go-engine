@@ -59,14 +59,13 @@ func newService(
 func (s *service) Create(spec DefSpec) (_ descsem.SemRef, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("qn", spec.XactQN)
-	s.log.Debug("starting creation...", qnAttr, slog.Any("spec", spec))
+	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	newExp, convertErr := xactexp.ConvertSpecToRec(spec.XactES)
 	if convertErr != nil {
 		return descsem.SemRef{}, convertErr
 	}
 	newRef := descsem.NewRef()
-	newBind := descsem.SemBind{DescQN: spec.XactQN, DescID: newRef.DescID}
-	newDesc := descsem.SemRec{Ref: newRef, Bind: newBind, Kind: descsem.Xact}
+	newDesc := descsem.SemRec{DescRef: newRef, DescQN: spec.XactQN, Kind: descsem.Xact}
 	newDef := DefRec{DescRef: newRef, ExpVK: newExp.Key()}
 	transactErr := s.operator.Explicit(ctx, func(ds db.Source) error {
 		err = s.descSems.InsertRec(ds, newDesc)

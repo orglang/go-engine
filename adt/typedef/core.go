@@ -75,8 +75,7 @@ func (s *service) Incept(typeQN uniqsym.ADT) (_ descsem.SemRef, err error) {
 	qnAttr := slog.Any("qn", typeQN)
 	s.log.Debug("starting inception...", qnAttr)
 	newRef := descsem.NewRef()
-	newBind := descsem.SemBind{DescQN: typeQN, DescID: newRef.DescID}
-	newDesc := descsem.SemRec{Ref: descsem.NewRef(), Bind: newBind, Kind: descsem.Type}
+	newDesc := descsem.SemRec{DescRef: descsem.NewRef(), DescQN: typeQN, Kind: descsem.Type}
 	err = s.operator.Explicit(ctx, func(ds db.Source) error {
 		err = s.descSems.InsertRec(ds, newDesc)
 		if err != nil {
@@ -95,10 +94,9 @@ func (s *service) Incept(typeQN uniqsym.ADT) (_ descsem.SemRef, err error) {
 func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("qn", spec.TypeQN)
-	s.log.Debug("starting creation...", qnAttr, slog.Any("spec", spec))
+	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	newRef := descsem.NewRef()
-	newBind := descsem.SemBind{DescQN: spec.TypeQN, DescID: newRef.DescID}
-	newDesc := descsem.SemRec{Ref: descsem.NewRef(), Bind: newBind, Kind: descsem.Type}
+	newDesc := descsem.SemRec{DescRef: descsem.NewRef(), DescQN: spec.TypeQN, Kind: descsem.Type}
 	newExp, err := typeexp.ConvertSpecToRec(spec.TypeES)
 	if err != nil {
 		return DefSnap{}, err

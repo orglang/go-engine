@@ -23,7 +23,6 @@ import (
 	"orglang/go-engine/adt/procdef"
 	"orglang/go-engine/adt/procexec"
 	"orglang/go-engine/adt/symbol"
-	"orglang/go-engine/adt/typedef"
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/adt/xactdef"
 	"orglang/go-engine/adt/xactexp"
@@ -46,11 +45,15 @@ type ExecSpec struct {
 }
 
 type ExecRec struct {
-	ImplRef implsem.SemRef
+	ImplRef   implsem.SemRef
+	CommRefs  map[symbol.ADT]commsem.SemRef
+	LiabRef   commsem.SemRef
+	AssetRefs map[symbol.ADT]commsem.SemRef
 }
 
 type ExecSnap struct {
 	ImplRef    implsem.SemRef
+	CommRefs   map[symbol.ADT]commsem.SemRef
 	StructVars map[symbol.ADT]implvar.VarRec
 	LinearVars map[symbol.ADT]implvar.VarRec
 }
@@ -103,7 +106,7 @@ func newService(
 func (s *service) Run(spec ExecSpec) (_ implsem.SemRef, err error) {
 	ctx := context.Background()
 	vsAttr := slog.Any("varSpec", spec.LiabVar)
-	s.log.Debug("starting creation...", vsAttr, slog.Any("expSpec", spec))
+	s.log.Debug("creation started", vsAttr, slog.Any("expSpec", spec))
 	assetQNs := make([]uniqsym.ADT, 0, len(spec.AssetVars))
 	for _, assetVar := range spec.AssetVars {
 		if assetVar.ImplQN == spec.LiabVar.ImplQN {
@@ -111,9 +114,9 @@ func (s *service) Run(spec ExecSpec) (_ implsem.SemRef, err error) {
 		}
 		assetQNs = append(assetQNs, assetVar.ImplQN)
 	}
-	var liabVars map[uniqsym.ADT]commsem.SemRef
+	var assetExecs map[uniqsym.ADT]ExecRec
 	selectErr := s.operator.Implicit(ctx, func(ds db.Source) error {
-		liabVars, err = s.poolConns.SelectRefsByQNs(ds, assetQNs)
+		assetExecs, err = s.poolExecs.SelectRecsByQNs(ds, assetQNs)
 		return err
 	})
 	if selectErr != nil {
@@ -122,31 +125,36 @@ func (s *service) Run(spec ExecSpec) (_ implsem.SemRef, err error) {
 	}
 	implRef := implsem.NewRef()
 	newImpl := implsem.SemRec{ImplRef: implRef, ImplQN: spec.LiabVar.ImplQN, Kind: implsem.Pool}
-	newExec := ExecRec{ImplRef: implRef}
-	newExch := commsem.SemRec{CommRef: commsem.NewRef(), Kind: commsem.Pool}
-	newConn := poolconn.ConnRec{CommRef: newExch.CommRef}
+	newComm := commsem.SemRec{CommRef: commsem.NewRef(), Kind: commsem.Pool}
+	newConn := poolconn.ConnRec{CommRef: newComm.CommRef}
+	var commRefs map[symbol.ADT]commsem.SemRef
+	for _, assetVar := range spec.AssetVars {
+		if assetVar.ImplQN == spec.LiabVar.ImplQN {
+			commRefs[spec.LiabVar.ChnlPH] = newComm.CommRef
+		}
+		commRefs[assetVar.ChnlPH] = assetExecs[assetVar.ImplQN].LiabRef
+	}
+	newExec := ExecRec{ImplRef: implRef, CommRefs: commRefs}
 	newLiab := implvar.VarRec{
 		ImplRef: implRef,
-		CommRef: newExch.CommRef,
 		ChnlID:  identity.New(),
 		ChnlPH:  spec.LiabVar.ChnlPH,
-		ChnlBS:  implvar.Provider,
+		ChnlBS:  implvar.Liab,
 		// TODO: заполнить ExpVK
 	}
 	newAssets := make([]implvar.VarRec, 0, len(spec.AssetVars)+1)
 	for _, assetVar := range spec.AssetVars {
-		var commRef commsem.SemRef
+		var chnlID identity.ADT
 		if assetVar.ImplQN == spec.LiabVar.ImplQN {
-			commRef = newExch.CommRef
+			chnlID = newLiab.ChnlID
 		} else {
-			commRef = liabVars[assetVar.ImplQN]
+			// TODO айдишник канала assetExec
 		}
 		newAssets = append(newAssets, implvar.VarRec{
 			ImplRef: implRef,
-			CommRef: commRef,
-			ChnlID:  newLiab.ChnlID,
+			ChnlID:  chnlID,
 			ChnlPH:  assetVar.ChnlPH,
-			ChnlBS:  implvar.Client,
+			ChnlBS:  implvar.Asset,
 			// TODO: заполнить ExpVK
 		})
 	}
@@ -163,7 +171,7 @@ func (s *service) Run(spec ExecSpec) (_ implsem.SemRef, err error) {
 		if err != nil {
 			return err
 		}
-		err = s.commSems.InsertRec(ds, newExch)
+		err = s.commSems.InsertRec(ds, newComm)
 		if err != nil {
 			return err
 		}
@@ -180,7 +188,7 @@ func (s *service) Run(spec ExecSpec) (_ implsem.SemRef, err error) {
 func (s *service) RetrieveSnap(ref implsem.SemRef) (snap ExecSnap, err error) {
 	ctx := context.Background()
 	err = s.operator.Implicit(ctx, func(ds db.Source) error {
-		snap, err = s.poolExecs.SelectSubs(ds, ref)
+		snap, err = s.poolExecs.SelectSnap(ds, ref)
 		return err
 	})
 	if err != nil {
@@ -192,8 +200,8 @@ func (s *service) RetrieveSnap(ref implsem.SemRef) (snap ExecSnap, err error) {
 
 func (s *service) Spawn(spec poolstep.StepSpec) (_ implsem.SemRef, err error) {
 	ctx := context.Background()
-	poolAttr := slog.Any("pool", spec.ImplRef)
-	s.log.Debug("proc spawning started", poolAttr, slog.Any("exp", spec.PoolExp))
+	implAttr := slog.Any("pool", spec.ImplRef)
+	s.log.Debug("proc spawning started", implAttr, slog.Any("exp", spec.PoolExp))
 	spawn, ok := spec.PoolExp.(poolexp.SpawnSpec2)
 	if !ok {
 		panic(poolexp.ErrSpecTypeUnexpected(spec.PoolExp))
@@ -204,7 +212,7 @@ func (s *service) Spawn(spec poolstep.StepSpec) (_ implsem.SemRef, err error) {
 		return err
 	})
 	if selectErr != nil {
-		s.log.Error("proc spawning failed", poolAttr)
+		s.log.Error("proc spawning failed", implAttr)
 		return implsem.SemRef{}, selectErr
 	}
 	newRef := implsem.NewRef()
@@ -215,17 +223,13 @@ func (s *service) Spawn(spec poolstep.StepSpec) (_ implsem.SemRef, err error) {
 		if err != nil {
 			return err
 		}
-		err = s.procExecs.InsertRec(ds, newExec)
-		if err != nil {
-			return err
-		}
-		return s.poolExecs.TouchRec(ds, spec.ImplRef)
+		return s.procExecs.InsertRec(ds, newExec)
 	})
 	if transactErr != nil {
-		s.log.Error("proc spawning failed", poolAttr)
+		s.log.Error("proc spawning failed", implAttr)
 		return implsem.SemRef{}, transactErr
 	}
-	s.log.Debug("proc spawning succeed", poolAttr, slog.Any("proc", newRef))
+	s.log.Debug("proc spawning succeed", implAttr, slog.Any("proc", newRef))
 	return newRef, nil
 }
 
@@ -240,6 +244,7 @@ func (s *service) Take(spec poolstep.StepSpec) (err error) {
 		return err
 	})
 	if selectErr1 != nil {
+		s.log.Error("step taking failed", implAttr)
 		return selectErr1
 	}
 	var ctxSnap poolctx.CtxSnap
@@ -249,6 +254,7 @@ func (s *service) Take(spec poolstep.StepSpec) (err error) {
 		return err
 	})
 	if selectErr2 != nil {
+		s.log.Error("step taking failed", implAttr)
 		return selectErr2
 	}
 	var execSnap ExecSnap
@@ -257,10 +263,12 @@ func (s *service) Take(spec poolstep.StepSpec) (err error) {
 		return err
 	})
 	if selectErr3 != nil {
+		s.log.Error("step taking failed", implAttr)
 		return selectErr3
 	}
 	execMod, connMod, takeErr := s.take(envSnap, ctxSnap, execSnap, spec.PoolExp)
 	if takeErr != nil {
+		s.log.Error("step taking failed", implAttr)
 		return takeErr
 	}
 	transactErr := s.operator.Explicit(ctx, func(ds db.Source) error {
@@ -283,6 +291,7 @@ func (s *service) Take(spec poolstep.StepSpec) (err error) {
 		return s.implSems.TouchRec(ds, execMod.ImplRef)
 	})
 	if transactErr != nil {
+		s.log.Error("step taking failed", implAttr)
 		return transactErr
 	}
 	s.log.Debug("step taking succeed", implAttr)
@@ -304,12 +313,18 @@ func (s *service) take(
 	implAttr := slog.Any("impl", execSnap.ImplRef)
 	switch expSpec := es.(type) {
 	case poolexp.AcceptSpec:
+		commRef, ok := execSnap.CommRefs[expSpec.CommChnlPH]
+		if !ok {
+			s.log.Error("step taking failed", implAttr)
+			return execMod, connMod, procdef.ErrMissingInCfg(expSpec.CommChnlPH)
+		}
+		connMod.CommRef = commRef
+		commAttr := slog.Any("comm", commRef)
 		commChnl, ok := execSnap.StructVars[expSpec.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", implAttr)
 			return execMod, connMod, procdef.ErrMissingInCfg(expSpec.CommChnlPH)
 		}
-		commAttr := slog.Any("comm", commChnl.CommRef)
 		// вычисляем следующее состояние
 		xactExp, ok := envSnap.XactExps[commChnl.ExpVK]
 		if !ok {
@@ -320,8 +335,8 @@ func (s *service) take(
 		// получаем снепшот соединения
 		var connSnap poolconn.ConnSnap
 		selectErr := s.operator.Implicit(ctx, func(ds db.Source) error {
-			connSnap, err = s.poolConns.SelectSnapByQry(ds, poolconn.ConnQuery{
-				CommRef: commChnl.CommRef,
+			connSnap, err = s.poolConns.GetSnapByQry(ds, poolconn.ConnQry{
+				CommRef: commRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
@@ -330,14 +345,12 @@ func (s *service) take(
 			s.log.Error("step taking failed", implAttr, commAttr)
 			return execMod, connMod, selectErr
 		}
-		connMod.CommRef = connSnap.CommRef
 		subscription := connSnap.NextStep()
 		if subscription == nil {
 			newChnlID := identity.New()
 			// вяжем продолжение доступодателя
 			execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
 				ImplRef: commChnl.ImplRef,
-				CommRef: commChnl.CommRef,
 				ChnlID:  newChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -365,7 +378,6 @@ func (s *service) take(
 			// вяжем продолжение доступодателя
 			execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
 				ImplRef: commChnl.ImplRef,
-				CommRef: commChnl.CommRef,
 				ChnlID:  contExp.ContChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -377,23 +389,29 @@ func (s *service) take(
 			panic(poolexp.ErrRecTypeUnexpected(acquisition.ContExp))
 		}
 	case poolexp.AcquireSpec:
+		commRef, ok := execSnap.CommRefs[expSpec.CommChnlPH]
+		if !ok {
+			s.log.Error("step taking failed", implAttr)
+			return execMod, connMod, procdef.ErrMissingInCfg(expSpec.CommChnlPH)
+		}
+		connMod.CommRef = commRef
+		commAttr := slog.Any("comm", commRef)
 		commChnl, ok := execSnap.StructVars[expSpec.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", implAttr)
 			return execMod, connMod, procdef.ErrMissingInCfg(expSpec.CommChnlPH)
 		}
-		commAttr := slog.Any("comm", commChnl.CommRef)
 		xactExp, ok := envSnap.XactExps[commChnl.ExpVK]
 		if !ok {
 			s.log.Error("step taking failed", implAttr, commAttr)
-			return execMod, connMod, typedef.ErrMissingInEnv(commChnl.ExpVK)
+			return execMod, connMod, xactdef.ErrMissingInEnv(commChnl.ExpVK)
 		}
 		nextExpVK := xactExp.(xactexp.ProdRec).Next()
 		// получаем снепшот соединения
 		var connSnap poolconn.ConnSnap
 		selectErr := s.operator.Implicit(ctx, func(ds db.Source) error {
-			connSnap, err = s.poolConns.SelectSnapByQry(ds, poolconn.ConnQuery{
-				CommRef: commChnl.CommRef,
+			connSnap, err = s.poolConns.GetSnapByQry(ds, poolconn.ConnQry{
+				CommRef: commRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
@@ -409,7 +427,6 @@ func (s *service) take(
 			// вяжем продолжение доступополучателя
 			execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
 				ImplRef: commChnl.ImplRef,
-				CommRef: commChnl.CommRef,
 				ChnlID:  newChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -437,7 +454,6 @@ func (s *service) take(
 			// вяжем продолжение доступополучателя
 			execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
 				ImplRef: commChnl.ImplRef,
-				CommRef: commChnl.CommRef,
 				ChnlID:  valExp.ContChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,

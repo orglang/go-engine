@@ -14,6 +14,7 @@ var Module = fx.Module("adt/poolexec",
 	fx.Provide(
 		fx.Private,
 		newEchoController,
+		fx.Annotate(newSQLBuilder, fx.As(new(queryBuilder))),
 		fx.Annotate(newRendererStdlib, fx.As(new(te.Renderer))),
 	),
 	fx.Invoke(

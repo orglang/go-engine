@@ -9,7 +9,7 @@ import (
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/revnum:Convert.*
+// goverter:extend orglang/go-engine/adt/seqnum:Convert.*
 var (
 	MsgFromRef  func(SemRef) implsem.SemRef
 	MsgFromRefs func([]SemRef) []implsem.SemRef
@@ -20,18 +20,18 @@ var (
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/revnum:Convert.*
+// goverter:extend orglang/go-engine/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
 var (
 	DataFromRef  func(SemRef) (SemRefDS, error)
 	DataFromRefs func([]SemRef) ([]SemRefDS, error)
 	DataToRef    func(SemRefDS) (SemRef, error)
-	DataToRefs   func([]SemRefDS) ([]SemRef, error)
-	// goverter:autoMap Ref
-	// goverter:map Bind.ImplQN ImplQN
+	// goverter:ignore ImplRN
+	DataToRef2 func(struct{ ImplID string }) (SemRef, error)
+	DataToRefs func([]SemRefDS) ([]SemRef, error)
+	// goverter:autoMap ImplRef
 	DataFromRec func(SemRec) (semRecDS, error)
-	// goverter:map . Ref
-	// goverter:map . Bind
+	// goverter:map . ImplRef
 	DataToRec    func(semRecDS) (SemRec, error)
 	DataToRefMap func(map[uniqsym.ADT]SemRefDS) (map[uniqsym.ADT]SemRef, error)
 )

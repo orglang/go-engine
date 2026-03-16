@@ -56,7 +56,7 @@ type service struct {
 func (s *service) Create(spec DecSpec) (_ descsem.SemRef, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("qn", spec.DescQN)
-	s.log.Debug("starting creation...", qnAttr, slog.Any("spec", spec))
+	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	xactQNs := make([]uniqsym.ADT, 0, len(spec.ClientVSes)+1)
 	for _, spec := range spec.ClientVSes {
 		xactQNs = append(xactQNs, spec.DescQN)
@@ -81,8 +81,7 @@ func (s *service) Create(spec DecSpec) (_ descsem.SemRef, err error) {
 		})
 	}
 	newRef := descsem.NewRef()
-	newBind := descsem.SemBind{DescQN: spec.DescQN, DescID: newRef.DescID}
-	newDesc := descsem.SemRec{Ref: newRef, Bind: newBind, Kind: descsem.Pool}
+	newDesc := descsem.SemRec{DescRef: newRef, DescQN: spec.DescQN, Kind: descsem.Pool}
 	newDec := DecRec{DescRef: newRef, ProviderVR: providerVR, ClientVRs: clientVRs}
 	transactErr := s.operator.Explicit(ctx, func(ds db.Source) error {
 		err = s.descSems.InsertRec(ds, newDesc)

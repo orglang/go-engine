@@ -3,12 +3,14 @@ package poolvar
 import (
 	"errors"
 	"log/slog"
-	"orglang/go-engine/adt/implvar"
-	"orglang/go-engine/lib/db"
-	"orglang/go-engine/lib/lf"
 	"reflect"
 
 	"github.com/jackc/pgx/v5"
+
+	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/lf"
+
+	"orglang/go-engine/adt/implvar"
 )
 
 type pgxDAO struct {
@@ -32,7 +34,6 @@ func (dao *pgxDAO) InsertRecs(source db.Source, recs []implvar.VarRec) (err erro
 	for _, dto := range dtos {
 		args := pgx.NamedArgs{
 			"impl_id": dto.ImplID,
-			"impl_rn": dto.ImplRN,
 			"chnl_id": dto.ChnlID,
 			"chnl_ph": dto.ChnlPH,
 			"exp_vk":  dto.ExpVK,

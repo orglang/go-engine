@@ -9,7 +9,7 @@ import (
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/revnum:Convert.*
+// goverter:extend orglang/go-engine/adt/seqnum:Convert.*
 var (
 	MsgFromRef  func(SemRef) descsem.SemRef
 	MsgFromRefs func([]SemRef) []descsem.SemRef
@@ -20,7 +20,7 @@ var (
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/revnum:Convert.*
+// goverter:extend orglang/go-engine/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
 var (
 	DataFromRef  func(SemRef) (SemRefDS, error)
@@ -29,11 +29,9 @@ var (
 	DataToRefs   func([]SemRefDS) ([]SemRef, error)
 	DataFromBind func(SemBind) (semBindDS, error)
 	DataToBind   func(semBindDS) (SemBind, error)
-	// goverter:autoMap Ref
-	// goverter:map Bind.DescQN DescQN
+	// goverter:autoMap DescRef
 	DataFromRec func(SemRec) (semRecDS, error)
-	// goverter:map . Ref
-	// goverter:map . Bind
+	// goverter:map . DescRef
 	DataToRec    func(semRecDS) (SemRec, error)
 	DataToRefMap func(map[uniqsym.ADT]SemRefDS) (map[uniqsym.ADT]SemRef, error)
 )

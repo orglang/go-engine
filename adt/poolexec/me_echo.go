@@ -90,7 +90,7 @@ func (h *echoController) PostSpec2(c echo.Context) error {
 		h.log.Error("validation failed", slog.Any("dto", dto))
 		return validateErr
 	}
-	spec, convertErr := poolstep.MsgToCommSpec(dto)
+	spec, convertErr := poolstep.MsgToStepSpec(dto)
 	if convertErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
 		return convertErr
@@ -114,7 +114,7 @@ func (h *echoController) PostSpec3(c echo.Context) error {
 		h.log.Error("validation failed", slog.Any("dto", dto))
 		return validateErr
 	}
-	spec, convertErr := poolstep.MsgToCommSpec(dto)
+	spec, convertErr := poolstep.MsgToStepSpec(dto)
 	if convertErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
 		return convertErr

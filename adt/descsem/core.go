@@ -21,9 +21,9 @@ type SemBind struct {
 }
 
 type SemRec struct {
-	Ref  SemRef
-	Bind SemBind
-	Kind semKind
+	DescRef SemRef
+	DescQN  uniqsym.ADT
+	Kind    semKind
 }
 
 type semKind uint8

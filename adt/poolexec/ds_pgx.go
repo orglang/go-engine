@@ -15,12 +15,13 @@ import (
 )
 
 type pgxDAO struct {
+	qb  queryBuilder
 	log *slog.Logger
 }
 
-func newPgxDAO(log *slog.Logger) *pgxDAO {
+func newPgxDAO(qb queryBuilder, log *slog.Logger) *pgxDAO {
 	name := slog.String("name", reflect.TypeFor[pgxDAO]().Name())
-	return &pgxDAO{log.With(name)}
+	return &pgxDAO{qb, log.With(name)}
 }
 
 // for compilation purposes
@@ -31,34 +32,20 @@ func newRepo() Repo {
 func (dao *pgxDAO) InsertRec(source db.Source, rec ExecRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
 	dto := DataFromExecRec(rec)
-	args := pgx.NamedArgs{
-		"impl_id": dto.ImplID,
-		"impl_rn": dto.ImplRN,
-		"chnl_id": dto.ChnlID,
-		"chnl_ph": dto.ChnlPH,
-		"exp_vk":  dto.ExpVK,
-	}
-	refAttr := slog.Any("ref", rec.ImplRef)
-	_, execErr := ds.Conn.Exec(ds.Ctx, insertRec, args)
+	implAttr := slog.Any("impl", rec.ImplRef)
+	sql, args := dao.qb.insertRec(dto)
+	_, execErr := ds.Conn.Exec(ds.Ctx, sql, args...)
 	if execErr != nil {
-		dao.log.Error("execution failed", refAttr)
+		dao.log.Error("query execution failed", implAttr)
 		return execErr
 	}
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "insertion succeed", slog.Any("dto", dto))
 	return nil
 }
 
-func (dao *pgxDAO) TouchRec(source db.Source, ref implsem.SemRef) error {
-	return nil
-}
-
-func (dao *pgxDAO) TouchRecs(db.Source, []implsem.SemRef) error {
-	return nil
-}
-
 func (dao *pgxDAO) SelectRecsByQNs(source db.Source, implQNs []uniqsym.ADT) (_ map[uniqsym.ADT]ExecRec, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "starting selection...", slog.Any("qns", implQNs))
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection started", slog.Any("qns", implQNs))
 	if len(implQNs) == 0 {
 		return map[uniqsym.ADT]ExecRec{}, nil
 	}
@@ -89,29 +76,6 @@ func (dao *pgxDAO) SelectRecsByQNs(source db.Source, implQNs []uniqsym.ADT) (_ m
 	return DataToRefMap(dtos)
 }
 
-func (dao *pgxDAO) SelectSubs(source db.Source, ref implsem.SemRef) (ExecSnap, error) {
-	ds := db.MustConform[db.SourcePgx](source)
-	refAttr := slog.Any("execRef", ref)
-	rows, err := ds.Conn.Query(ds.Ctx, selectOrgSnap, ref.ImplID.String())
-	if err != nil {
-		dao.log.Error("execution failed", refAttr)
-		return ExecSnap{}, err
-	}
-	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[execSnapDS])
-	if err != nil {
-		dao.log.Error("collection failed", refAttr, slog.Any("type", reflect.TypeFor[execSnapDS]))
-		return ExecSnap{}, err
-	}
-	snap, err := DataToExecSnap(dto)
-	if err != nil {
-		dao.log.Error("conversion failed")
-		return ExecSnap{}, err
-	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection succeed", refAttr)
-	return snap, nil
-}
-
 func (dao *pgxDAO) SelectRefs(source db.Source) ([]implsem.SemRef, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	query := `
@@ -137,18 +101,36 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]implsem.SemRef, error) {
 	return refs, nil
 }
 
-func (dao *pgxDAO) SelectSnap(db.Source, implsem.SemRef) (ExecSnap, error) {
-	panic("unimplemented")
+func (dao *pgxDAO) SelectSnap(source db.Source, ref implsem.SemRef) (ExecSnap, error) {
+	ds := db.MustConform[db.SourcePgx](source)
+	implAttr := slog.Any("impl", ref)
+	refDTO, convErr1 := implsem.DataFromRef(ref)
+	if convErr1 != nil {
+		dao.log.Error("model converison failed", implAttr)
+		return ExecSnap{}, convErr1
+	}
+	sql, args := dao.qb.selectSnap(refDTO)
+	rows, execErr := ds.Conn.Query(ds.Ctx, sql, args...)
+	if execErr != nil {
+		dao.log.Error("query execution failed", implAttr)
+		return ExecSnap{}, execErr
+	}
+	defer rows.Close()
+	snapDTO, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[execSnapDS])
+	if scanErr != nil {
+		dao.log.Error("row collection failed", implAttr, slog.Any("type", reflect.TypeFor[execSnapDS]))
+		return ExecSnap{}, scanErr
+	}
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection succeed", slog.Any("dto", snapDTO))
+	snap, convErr2 := DataToExecSnap(snapDTO)
+	if convErr2 != nil {
+		dao.log.Error("model converison failed", implAttr)
+		return ExecSnap{}, convErr2
+	}
+	return snap, nil
 }
 
 const (
-	insertRec = `
-		insert into pool_execs (
-			impl_id, impl_rn, chnl_id, chnl_ph, exp_vk
-		) values (
-			@impl_id, @impl_rn, @chnl_id, @chnl_ph, @exp_vk
-		)`
-
 	selectRecByQN = `
 		select
 			is.impl_id,
@@ -169,12 +151,6 @@ const (
 		) values (
 			@proc_id, @chnl_id, @kind, @spec
 		)`
-
-	updateRoot = `
-		update pool_roots
-		set rev = @rev + 1
-		where desc_id = @desc_id
-			and rev = @rev`
 
 	selectOrgSnap = `
 		select

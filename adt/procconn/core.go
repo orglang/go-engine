@@ -1,14 +1,11 @@
 package procconn
 
 import (
-	"orglang/go-engine/lib/db"
-
 	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/option"
 	"orglang/go-engine/adt/procstep"
 	"orglang/go-engine/adt/seqnum"
-	"orglang/go-engine/adt/uniqsym"
 )
 
 type ConnRec struct {
@@ -37,11 +34,4 @@ func (s ConnSnap) NextStep() procstep.StepRec {
 		return s.Steps[0]
 	}
 	return nil
-}
-
-type Repo interface {
-	InsertRec(db.Source, ConnRec) error
-	UpdateRec(db.Source, ConnMod) error
-	SelectRefsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]commsem.SemRef, error)
-	SelectSnapByQry(db.Source, ConnQuery) (ConnSnap, error)
 }

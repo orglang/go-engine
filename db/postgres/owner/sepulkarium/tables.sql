@@ -53,7 +53,7 @@ CREATE TABLE comm_sems (
 );
 
 CREATE TABLE pool_execs (
-	impl_id varchar,
+	impl_id varchar UNIQUE
     -- что-то еще в будущем
 );
 
@@ -73,7 +73,7 @@ CREATE TABLE pool_linear_vars (
 ) INHERITS (pool_vars);
 
 CREATE TABLE pool_conns (
-	comm_id varchar,
+	comm_id varchar UNIQUE,
 	comm_on bigint
 );
 
@@ -106,30 +106,34 @@ CREATE TABLE proc_decs (
 );
 
 CREATE TABLE proc_execs (
-	impl_id varchar UNIQUE,
-	impl_rn bigint
+	impl_id varchar UNIQUE
+    -- что-то еще в будущем
 );
 
-CREATE TABLE proc_provider_vars (
-	impl_id varchar UNIQUE,
-	impl_rn bigint,
-	chnl_id varchar,
-	chnl_ph varchar,
-	exp_vk bigint
-);
-
-CREATE TABLE proc_client_vars (
+CREATE TABLE proc_vars (
 	impl_id varchar,
-	impl_rn bigint,
+	comm_id varchar,
 	chnl_id varchar,
 	chnl_ph varchar,
+	chnl_bs smallint,
 	exp_vk bigint
+);
+
+CREATE TABLE proc_struct_vars (
+) INHERITS (proc_vars);
+
+CREATE TABLE proc_linear_vars (
+) INHERITS (proc_vars);
+
+CREATE TABLE proc_conns (
+	comm_id varchar UNIQUE,
+	comm_on bigint
 );
 
 CREATE TABLE proc_steps (
-	impl_id varchar,
-	impl_rn bigint,
+	comm_id varchar,
+	comm_rn bigint,
 	chnl_id varchar,
 	kind smallint,
-	proc_er jsonb
+	exp jsonb
 );

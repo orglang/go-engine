@@ -65,7 +65,7 @@ func (dao *pgxDAO) TouchRec(db.Source, SemRef) error {
 
 func (dao *pgxDAO) SelectRefsByQNs(source db.Source, implQNs []uniqsym.ADT) (_ map[uniqsym.ADT]SemRef, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "starting selection...", slog.Any("qns", implQNs))
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection started", slog.Any("qns", implQNs))
 	if len(implQNs) == 0 {
 		return map[uniqsym.ADT]SemRef{}, nil
 	}

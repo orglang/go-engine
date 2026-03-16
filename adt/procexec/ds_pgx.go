@@ -35,8 +35,6 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec ExecRec) error {
 	dto := DataFromExecRec(rec)
 	args := pgx.NamedArgs{
 		"impl_id": dto.ImplID,
-		"impl_rn": dto.ImplRN,
-		"chnl_ph": dto.ChnlPH,
 	}
 	refAttr := slog.Any("ref", rec.ImplRef)
 	_, execErr := ds.Conn.Exec(ds.Ctx, insertRec, args)
@@ -74,7 +72,7 @@ func (dao *pgxDAO) SelectSnap(source db.Source, ref implsem.SemRef) (ExecSnap, e
 }
 
 func (dao *pgxDAO) UpdateProc(source db.Source, mod ExecMod) (err error) {
-	if len(mod.Refs) == 0 {
+	if len(mod.ImplRefs) == 0 {
 		panic("empty locks")
 	}
 	ds := db.MustConform[db.SourcePgx](source)
@@ -85,10 +83,9 @@ func (dao *pgxDAO) UpdateProc(source db.Source, mod ExecMod) (err error) {
 	}
 	// binds
 	bindReq := pgx.Batch{}
-	for _, dto := range dto.Binds {
+	for _, dto := range dto.LinearVars {
 		args := pgx.NamedArgs{
 			"impl_id":  dto.ImplID,
-			"impl_rn":  dto.ImplRN,
 			"chnl_ph":  dto.ChnlPH,
 			"chnl_id":  dto.ChnlID,
 			"state_id": dto.ExpVK,
@@ -100,34 +97,8 @@ func (dao *pgxDAO) UpdateProc(source db.Source, mod ExecMod) (err error) {
 		defer func() {
 			err = errors.Join(err, bindRes.Close())
 		}()
-		for _, dto := range dto.Binds {
+		for _, dto := range dto.LinearVars {
 			_, err = bindRes.Exec()
-			if err != nil {
-				dao.log.Error("execution failed", slog.Any("dto", dto))
-			}
-		}
-		if err != nil {
-			return err
-		}
-	}
-	// steps
-	stepReq := pgx.Batch{}
-	for _, dto := range dto.Steps {
-		args := pgx.NamedArgs{
-			"kind":    dto.K,
-			"proc_id": dto.ExecID,
-			"chnl_id": dto.ChnlID,
-			"proc_er": dto.ProcER,
-		}
-		stepReq.Queue(insertStep, args)
-	}
-	if stepReq.Len() > 0 {
-		stepRes := ds.Conn.SendBatch(ds.Ctx, &stepReq)
-		defer func() {
-			err = errors.Join(err, stepRes.Close())
-		}()
-		for _, dto := range dto.Steps {
-			_, err = stepRes.Exec()
 			if err != nil {
 				dao.log.Error("execution failed", slog.Any("dto", dto))
 			}
@@ -138,7 +109,7 @@ func (dao *pgxDAO) UpdateProc(source db.Source, mod ExecMod) (err error) {
 	}
 	// execs
 	execReq := pgx.Batch{}
-	for _, dto := range dto.Locks {
+	for _, dto := range dto.ImplRefs {
 		args := pgx.NamedArgs{
 			"impl_id": dto.ImplID,
 			"impl_rn": dto.ImplRN,
@@ -149,7 +120,7 @@ func (dao *pgxDAO) UpdateProc(source db.Source, mod ExecMod) (err error) {
 	defer func() {
 		err = errors.Join(err, execRes.Close())
 	}()
-	for _, dto := range dto.Locks {
+	for _, dto := range dto.ImplRefs {
 		ct, err := execRes.Exec()
 		if err != nil {
 			dao.log.Error("execution failed", slog.Any("dto", dto))

@@ -3,6 +3,7 @@ package implvar
 import (
 	"github.com/orglang/go-sdk/adt/implvar"
 
+	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/implsem"
 )
 
@@ -29,8 +30,17 @@ var (
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
 // goverter:extend orglang/go-engine/adt/valkey:Convert.*
-// goverter:extend DataFromVarRec
 var (
+	// goverter:autoMap ImplRef
+	// goverter:autoMap CommRef
+	DataFromVarRec  func(VarRec) VarRecDS
 	DataFromVarRecs func([]VarRec) []VarRecDS
-	DataToVarRecs   func([]VarRecDS) ([]VarRec, error)
+	// goverter:map . ImplRef | DataToImplRef
+	// goverter:map . CommRef | DataToCommRef
+	DataToVarRec  func(VarRecDS) (VarRec, error)
+	DataToVarRecs func([]VarRecDS) ([]VarRec, error)
+	// goverter:ignore ImplRN
+	DataToImplRef func(VarRecDS) (implsem.SemRef, error)
+	// goverter:ignore CommRN
+	DataToCommRef func(VarRecDS) (commsem.SemRef, error)
 )

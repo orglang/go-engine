@@ -31,7 +31,7 @@ func newRepo() Repo {
 
 func (dao *pgxDAO) InsertRec(source db.Source, rec SemRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
-	qnAttr := slog.Any("qn", rec.Bind.DescQN)
+	qnAttr := slog.Any("qn", rec.DescQN)
 	dto, convertErr := DataFromRec(rec)
 	if convertErr != nil {
 		dao.log.Error("model conversion failed", qnAttr)
@@ -58,7 +58,7 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec SemRec) error {
 
 func (dao *pgxDAO) SelectRefsByQNs(source db.Source, descQNs []uniqsym.ADT) (_ map[uniqsym.ADT]SemRef, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "starting selection...", slog.Any("xactQNs", descQNs))
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection started", slog.Any("xactQNs", descQNs))
 	if len(descQNs) == 0 {
 		return map[uniqsym.ADT]SemRef{}, nil
 	}

@@ -8,7 +8,7 @@ import (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 var (
-	// goverter:ignore ChnlVRs ProcSRs
+	// goverter:ignore LinearVars
 	MsgToExecSnap   func(procexec.ExecSnap) (ExecSnap, error)
 	MsgFromExecSnap func(ExecSnap) procexec.ExecSnap
 )

@@ -7,7 +7,7 @@ import (
 )
 
 type Repo interface {
-	InsertRec(db.Source, SemRec) error
+	AddRec(db.Source, SemRec) error
 	TouchRec(db.Source, SemRef) error
 	SelectRefsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]SemRef, error)
 }

@@ -9,9 +9,9 @@ import (
 )
 
 type Repo interface {
-	InsertRec(db.Source, SemRec) error
+	AddRec(db.Source, SemRec) error
 	TouchRec(db.Source, SemRef) error
-	SelectRefsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]SemRef, error)
+	GetRefsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]SemRef, error)
 }
 
 type SemRefDS struct {
@@ -23,5 +23,10 @@ type semRecDS struct {
 	ImplID string         `db:"impl_id"`
 	ImplRN int64          `db:"impl_rn"`
 	ImplQN sql.NullString `db:"impl_qn"`
-	Kind   uint8          `db:"kind"`
+	Kind   int8           `db:"kind"`
+}
+
+type SemBindDS struct {
+	ImplID string         `db:"impl_id"`
+	ImplQN sql.NullString `db:"impl_qn"`
 }

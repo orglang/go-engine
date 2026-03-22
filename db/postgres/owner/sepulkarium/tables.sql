@@ -53,17 +53,18 @@ CREATE TABLE comm_sems (
 );
 
 CREATE TABLE pool_execs (
-	impl_id varchar UNIQUE
-    -- что-то еще в будущем
+	impl_id varchar UNIQUE,
+	mode smallint
 );
 
 CREATE TABLE pool_vars (
 	impl_id varchar,
+	impl_rn bigint, -- только для сортировки
 	comm_id varchar,
 	chnl_id varchar,
 	chnl_ph varchar,
-	chnl_bs smallint,
-	exp_vk bigint
+	exp_vk bigint,
+	side smallint
 );
 
 CREATE TABLE pool_struct_vars (
@@ -106,17 +107,18 @@ CREATE TABLE proc_decs (
 );
 
 CREATE TABLE proc_execs (
-	impl_id varchar UNIQUE
-    -- что-то еще в будущем
+	impl_id varchar UNIQUE,
+	mode smallint
 );
 
 CREATE TABLE proc_vars (
 	impl_id varchar,
+	impl_rn bigint, -- только для сортировки
 	comm_id varchar,
 	chnl_id varchar,
 	chnl_ph varchar,
-	chnl_bs smallint,
-	exp_vk bigint
+	exp_vk bigint,
+	side smallint
 );
 
 CREATE TABLE proc_struct_vars (

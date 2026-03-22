@@ -29,7 +29,7 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func (dao *pgxDAO) InsertRec(source db.Source, rec SemRec) error {
+func (dao *pgxDAO) AddRec(source db.Source, rec SemRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("ref", rec.ImplRef)
 	dto, convertErr := DataFromRec(rec)
@@ -63,7 +63,7 @@ func (dao *pgxDAO) TouchRec(db.Source, SemRef) error {
 	panic("unimplemented")
 }
 
-func (dao *pgxDAO) SelectRefsByQNs(source db.Source, implQNs []uniqsym.ADT) (_ map[uniqsym.ADT]SemRef, err error) {
+func (dao *pgxDAO) GetRefsByQNs(source db.Source, implQNs []uniqsym.ADT) (_ map[uniqsym.ADT]SemRef, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection started", slog.Any("qns", implQNs))
 	if len(implQNs) == 0 {

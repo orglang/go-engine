@@ -60,7 +60,7 @@ func (dao *pgxDAO) SelectSnap(source db.Source, ref implsem.SemRef) (ExecSnap, e
 		dao.log.Error("row collection failed", refAttr, slog.Any("t", reflect.TypeOf(chnlDtos)))
 		return ExecSnap{}, err
 	}
-	chnls, err := implvar.DataToVarRecs(chnlDtos)
+	chnls, err := implvar.DataToLinearRecs(chnlDtos)
 	if err != nil {
 		dao.log.Error("model conversion failed", refAttr)
 		return ExecSnap{}, err

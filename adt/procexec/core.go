@@ -42,7 +42,7 @@ type ExecRec struct {
 // aka Configuration
 type ExecSnap struct {
 	ImplRef    implsem.SemRef
-	LinearVars map[symbol.ADT]implvar.VarRec
+	LinearVars map[symbol.ADT]implvar.LinearRec
 }
 
 type Env struct {
@@ -51,11 +51,11 @@ type Env struct {
 	ProcDecs map[identity.ADT]procdec.DecRec
 }
 
-func ChnlPH(rec implvar.VarRec) symbol.ADT { return rec.ChnlPH }
+func ChnlPH(rec implvar.LinearRec) symbol.ADT { return rec.ChnlPH }
 
 type ExecMod struct {
 	ImplRefs   []implsem.SemRef
-	LinearVars []implvar.VarRec
+	LinearVars []implvar.LinearRec
 }
 
 type service struct {
@@ -214,7 +214,7 @@ func (s *service) takeWith(
 			return stepSpec, connMod, execMod, selectErr
 		}
 		// обнуляем канал закрывателя
-		execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
+		execMod.LinearVars = append(execMod.LinearVars, implvar.LinearRec{
 			ImplRef: commChnl.ImplRef,
 			CommRef: commChnl.CommRef,
 			ChnlID:  identity.Nil,
@@ -256,7 +256,7 @@ func (s *service) takeWith(
 			return procstep.StepSpec{}, connMod, ExecMod{}, procdef.ErrMissingInCfg(expSpec.CommChnlPH)
 		}
 		// обнуляем канал наблюдателя
-		execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
+		execMod.LinearVars = append(execMod.LinearVars, implvar.LinearRec{
 			ImplRef: commChnl.ImplRef,
 			CommRef: commChnl.CommRef,
 			ChnlID:  identity.Nil,
@@ -303,7 +303,7 @@ func (s *service) takeWith(
 			return stepSpec, connMod, execMod, nil
 		case procexp.FwdRec:
 			// перенаправляем продолжение наблюдателя
-			execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
+			execMod.LinearVars = append(execMod.LinearVars, implvar.LinearRec{
 				ImplRef: execSnap.ImplRef,
 				CommRef: connSnap.CommRef,
 				ChnlID:  valExp.ContChnlID,
@@ -328,7 +328,7 @@ func (s *service) takeWith(
 			return procstep.StepSpec{}, connMod, ExecMod{}, err
 		}
 		// лишаем значения отправителя
-		execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
+		execMod.LinearVars = append(execMod.LinearVars, implvar.LinearRec{
 			ImplRef: commChnl.ImplRef,
 			CommRef: commChnl.CommRef,
 			ChnlID:  commChnl.ChnlID,
@@ -364,7 +364,7 @@ func (s *service) takeWith(
 		if subscription == nil {
 			newChnlID := identity.New()
 			// вяжем продолжение отправителя
-			execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
+			execMod.LinearVars = append(execMod.LinearVars, implvar.LinearRec{
 				ImplRef: commChnl.ImplRef,
 				CommRef: commChnl.CommRef,
 				ChnlID:  newChnlID,
@@ -394,7 +394,7 @@ func (s *service) takeWith(
 		switch contExp := receival.ContExp.(type) {
 		case procexp.RecvRec:
 			// вяжем продолжение отправителя
-			execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
+			execMod.LinearVars = append(execMod.LinearVars, implvar.LinearRec{
 				ImplRef: commChnl.ImplRef,
 				CommRef: commChnl.CommRef,
 				ChnlID:  contExp.ContChnlID,
@@ -403,7 +403,7 @@ func (s *service) takeWith(
 				ExpVK:   nextExpVK,
 			})
 			// вяжем значение принимателя
-			execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
+			execMod.LinearVars = append(execMod.LinearVars, implvar.LinearRec{
 				ImplRef: receival.ImplRef,
 				CommRef: valChnl.CommRef,
 				ChnlID:  valChnl.ChnlID,
@@ -449,7 +449,7 @@ func (s *service) takeWith(
 		if publication == nil {
 			newChnlID := identity.New()
 			// вяжем продолжение принимателя
-			execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
+			execMod.LinearVars = append(execMod.LinearVars, implvar.LinearRec{
 				ImplRef: commChnl.ImplRef,
 				CommRef: commChnl.CommRef,
 				ChnlID:  newChnlID,
@@ -479,7 +479,7 @@ func (s *service) takeWith(
 		switch valExp := sending.ValExp.(type) {
 		case procexp.SendRec:
 			// вяжем продолжение принимателя
-			execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
+			execMod.LinearVars = append(execMod.LinearVars, implvar.LinearRec{
 				ImplRef: commChnl.ImplRef,
 				CommRef: commChnl.CommRef,
 				ChnlID:  valExp.ContChnlID,
@@ -488,12 +488,12 @@ func (s *service) takeWith(
 				ExpVK:   nextExpVK,
 			})
 			// вяжем значение принимателя
-			execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
+			execMod.LinearVars = append(execMod.LinearVars, implvar.LinearRec{
 				ImplRef: commChnl.ImplRef,
 				CommRef: valExp.CommRef,
 				ChnlID:  valExp.ValChnlID,
 				ChnlPH:  expSpec.NewChnlPH,
-				ChnlBS:  implvar.Asset,
+				ChnlBS:  implvar.AssetSide,
 				ExpVK:   valExp.ValExpVK,
 			})
 			stepSpec = procstep.StepSpec{
@@ -535,7 +535,7 @@ func (s *service) takeWith(
 		if subscription == nil {
 			newChnlID := identity.New()
 			// вяжем продолжение решателя
-			execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
+			execMod.LinearVars = append(execMod.LinearVars, implvar.LinearRec{
 				ImplRef: commChnl.ImplRef,
 				CommRef: commChnl.CommRef,
 				ChnlID:  newChnlID,
@@ -564,7 +564,7 @@ func (s *service) takeWith(
 		switch contExp := folowing.ContExp.(type) {
 		case procexp.CaseRec:
 			// вяжем продолжение решателя
-			execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
+			execMod.LinearVars = append(execMod.LinearVars, implvar.LinearRec{
 				ImplRef: commChnl.ImplRef,
 				CommRef: commChnl.CommRef,
 				ChnlID:  contExp.ContChnlID,
@@ -573,7 +573,7 @@ func (s *service) takeWith(
 				ExpVK:   nextExpVK,
 			})
 			// вяжем продолжение последователя
-			execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
+			execMod.LinearVars = append(execMod.LinearVars, implvar.LinearRec{
 				ImplRef: folowing.ImplRef,
 				CommRef: folowing.CommRef,
 				ChnlID:  contExp.ContChnlID,
@@ -634,7 +634,7 @@ func (s *service) takeWith(
 		switch valExp := decision.ValExp.(type) {
 		case procexp.LabRec:
 			// вяжем продолжение последователя
-			execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
+			execMod.LinearVars = append(execMod.LinearVars, implvar.LinearRec{
 				ImplRef: commChnl.ImplRef,
 				CommRef: commChnl.CommRef,
 				ChnlID:  valExp.ContChnlID,
@@ -686,7 +686,7 @@ func (s *service) takeWith(
 			switch forwardable := communication.(type) {
 			case procstep.SubRec:
 				// перенаправляем подписчика
-				execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
+				execMod.LinearVars = append(execMod.LinearVars, implvar.LinearRec{
 					ImplRef: forwardable.ImplRef,
 					CommRef: forwardable.CommRef,
 					ChnlID:  commChnl.ChnlID,
@@ -702,7 +702,7 @@ func (s *service) takeWith(
 				return stepSpec, connMod, execMod, nil
 			case procstep.PubRec:
 				// перенаправляем публикатора
-				execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
+				execMod.LinearVars = append(execMod.LinearVars, implvar.LinearRec{
 					ImplRef: forwardable.ImplRef,
 					CommRef: forwardable.CommRef,
 					ChnlID:  contChnl.ChnlID,
@@ -718,7 +718,7 @@ func (s *service) takeWith(
 				return stepSpec, connMod, execMod, nil
 			case nil:
 				// лишаем значений схлопывающегося
-				execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
+				execMod.LinearVars = append(execMod.LinearVars, implvar.LinearRec{
 					ImplRef: commChnl.ImplRef,
 					CommRef: commChnl.CommRef,
 					ChnlID:  commChnl.ChnlID,
@@ -726,7 +726,7 @@ func (s *service) takeWith(
 					ChnlBS:  commChnl.ChnlBS,
 					ExpVK:   commChnl.ExpVK.Invert(),
 				})
-				execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
+				execMod.LinearVars = append(execMod.LinearVars, implvar.LinearRec{
 					ImplRef: commChnl.ImplRef,
 					// TODO значение CommRef
 					ChnlID: contChnl.ChnlID,
@@ -752,7 +752,7 @@ func (s *service) takeWith(
 			switch forwardable := communication.(type) {
 			case procstep.SubRec:
 				// перенаправляем подписчика
-				execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
+				execMod.LinearVars = append(execMod.LinearVars, implvar.LinearRec{
 					ImplRef: forwardable.ImplRef,
 					CommRef: forwardable.CommRef,
 					ChnlID:  contChnl.ChnlID,
@@ -768,7 +768,7 @@ func (s *service) takeWith(
 				return stepSpec, connMod, execMod, nil
 			case procstep.PubRec:
 				// перенаправляем публикатора
-				execMod.LinearVars = append(execMod.LinearVars, implvar.VarRec{
+				execMod.LinearVars = append(execMod.LinearVars, implvar.LinearRec{
 					ImplRef: forwardable.ImplRef,
 					CommRef: forwardable.CommRef,
 					ChnlID:  commChnl.ChnlID,
@@ -805,15 +805,15 @@ func (s *service) takeWith(
 	}
 }
 
-func CollectCtx(chnls iter.Seq[implvar.VarRec]) []valkey.ADT {
+func CollectCtx(chnls iter.Seq[implvar.LinearRec]) []valkey.ADT {
 	return nil
 }
 
-func convertToCtx(chnlBinds iter.Seq[implvar.VarRec], typeExps map[valkey.ADT]typeexp.ExpRec) typedef.Context {
+func convertToCtx(chnlBinds iter.Seq[implvar.LinearRec], typeExps map[valkey.ADT]typeexp.ExpRec) typedef.Context {
 	assets := make(map[symbol.ADT]typeexp.ExpRec, 1)
 	liabs := make(map[symbol.ADT]typeexp.ExpRec, 1)
 	for bind := range chnlBinds {
-		if bind.ChnlBS == implvar.Liab {
+		if bind.ChnlBS == implvar.LiabSide {
 			liabs[bind.ChnlPH] = typeExps[bind.ExpVK]
 		} else {
 			assets[bind.ChnlPH] = typeExps[bind.ExpVK]
@@ -832,7 +832,7 @@ func (s *service) checkType(
 	if !ok {
 		panic("no comm chnl in proc snap")
 	}
-	if chnlBR.ChnlBS == implvar.Liab {
+	if chnlBR.ChnlBS == implvar.LiabSide {
 		return s.checkProvider(procEnv, procCtx, execSnap, expSpec)
 	}
 	return s.checkClient(procEnv, procCtx, execSnap, expSpec)

@@ -22,3 +22,11 @@ func TestSelectSnap(t *testing.T) {
 	fmt.Println(sql)
 	fmt.Println(args)
 }
+
+func TestSelectSnapByQN(t *testing.T) {
+	qb := newSQLBuilder()
+	qn := "qn-1"
+	sql, args := qb.selectSnapByQN(qn)
+	fmt.Println(sql)
+	fmt.Println(args)
+}

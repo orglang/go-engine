@@ -74,8 +74,9 @@ func (s *suite) beforeEach(t *testing.T) {
 	tables := []string{
 		"desc_sems", "desc_binds",
 		"impl_sems", "impl_binds",
+		"comm_sems",
 		"xact_defs", "xact_exps",
-		"pool_decs", "pool_execs", "pool_struct_vars", "pool_linear_vars",
+		"pool_decs", "pool_execs", "pool_conns", "pool_vars",
 		"type_defs", "type_exps",
 		"proc_decs", "proc_linear_vars", "proc_steps",
 	}
@@ -120,16 +121,16 @@ func (s *suite) waitClose(t *testing.T) {
 	// and
 	poolDescQN := "pool-desc-qn"
 	poolImplQN := "pool-impl-qn"
-	poolClientPH := "pool-client-ph"
-	poolProviderPH := "pool-provider-ph"
+	poolAssetPH := "pool-asset-ph"
+	poolLiabPH := "pool-liab-ph"
 	_, err = s.PoolDecAPI.Create(pooldec.DecSpec{
 		DescQN: poolDescQN,
 		ProviderVS: descvar.VarSpec{
-			ChnlPH: poolProviderPH,
+			ChnlPH: poolLiabPH,
 			DescQN: withXactQN,
 		},
 		ClientVSes: []descvar.VarSpec{{
-			ChnlPH: poolClientPH,
+			ChnlPH: poolAssetPH,
 			DescQN: withXactQN,
 		}},
 	})
@@ -140,11 +141,11 @@ func (s *suite) waitClose(t *testing.T) {
 	myPoolExec, err := s.PoolExecAPI.Create(poolexec.ExecSpec{
 		DescQN: poolDescQN,
 		LiabVar: implvar.VarSpec{
-			ChnlPH: poolProviderPH,
+			ChnlPH: poolLiabPH,
 			ImplQN: poolImplQN,
 		},
 		AssetVars: []implvar.VarSpec{{
-			ChnlPH: poolClientPH,
+			ChnlPH: poolAssetPH,
 			ImplQN: poolImplQN,
 		}},
 	})
@@ -157,7 +158,7 @@ func (s *suite) waitClose(t *testing.T) {
 		PoolExp: poolexp.ExpSpec{
 			K: poolexp.Hire, // пул делает предложение поработать в качестве closerProcQN
 			Hire: &poolexp.HireSpec{
-				CommChnlPH: poolClientPH, // пул выступает в качестве клиента самого себя
+				CommChnlPH: poolAssetPH, // пул выступает в качестве клиента самого себя
 				ProcDescQN: closerProcQN,
 			},
 		},
@@ -171,7 +172,7 @@ func (s *suite) waitClose(t *testing.T) {
 		PoolExp: poolexp.ExpSpec{
 			K: poolexp.Apply, // пул принимает предложение поработать в качестве closerProcQN
 			Apply: &poolexp.ApplySpec{
-				CommChnlPH: poolProviderPH, // пул выступает в качестве провайдера самому себе
+				CommChnlPH: poolLiabPH, // пул выступает в качестве провайдера самому себе
 				ProcDescQN: closerProcQN,
 			},
 		},
@@ -218,7 +219,7 @@ func (s *suite) waitClose(t *testing.T) {
 		PoolExp: poolexp.ExpSpec{
 			K: poolexp.Hire,
 			Hire: &poolexp.HireSpec{
-				CommChnlPH: poolClientPH,
+				CommChnlPH: poolAssetPH,
 				ProcDescQN: waiterProcQN,
 			},
 		},
@@ -232,7 +233,7 @@ func (s *suite) waitClose(t *testing.T) {
 		PoolExp: poolexp.ExpSpec{
 			K: poolexp.Apply,
 			Apply: &poolexp.ApplySpec{
-				CommChnlPH: poolProviderPH,
+				CommChnlPH: poolLiabPH,
 				ProcDescQN: waiterProcQN,
 			},
 		},

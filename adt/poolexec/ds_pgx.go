@@ -7,6 +7,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/georgysavva/scany/v2/pgxscan"
+
 	"orglang/go-engine/lib/db"
 	"orglang/go-engine/lib/lf"
 
@@ -29,7 +31,7 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func (dao *pgxDAO) InsertRec(source db.Source, rec ExecRec) error {
+func (dao *pgxDAO) AddRec(source db.Source, rec ExecRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
 	dto := DataFromExecRec(rec)
 	implAttr := slog.Any("impl", rec.ImplRef)
@@ -43,7 +45,7 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec ExecRec) error {
 	return nil
 }
 
-func (dao *pgxDAO) SelectRecsByQNs(source db.Source, implQNs []uniqsym.ADT) (_ map[uniqsym.ADT]ExecRec, err error) {
+func (dao *pgxDAO) GetRecsByQNs(source db.Source, implQNs []uniqsym.ADT) (_ map[uniqsym.ADT]ExecRec, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection started", slog.Any("qns", implQNs))
 	if len(implQNs) == 0 {
@@ -76,7 +78,7 @@ func (dao *pgxDAO) SelectRecsByQNs(source db.Source, implQNs []uniqsym.ADT) (_ m
 	return DataToRefMap(dtos)
 }
 
-func (dao *pgxDAO) SelectRefs(source db.Source) ([]implsem.SemRef, error) {
+func (dao *pgxDAO) GetRefs(source db.Source) ([]implsem.SemRef, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	query := `
 		select
@@ -101,7 +103,7 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]implsem.SemRef, error) {
 	return refs, nil
 }
 
-func (dao *pgxDAO) SelectSnap(source db.Source, ref implsem.SemRef) (ExecSnap, error) {
+func (dao *pgxDAO) GetSnap(source db.Source, ref implsem.SemRef) (ExecSnap, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	implAttr := slog.Any("impl", ref)
 	refDTO, convErr1 := implsem.DataFromRef(ref)
@@ -128,6 +130,41 @@ func (dao *pgxDAO) SelectSnap(source db.Source, ref implsem.SemRef) (ExecSnap, e
 		return ExecSnap{}, convErr2
 	}
 	return snap, nil
+}
+
+func (dao *pgxDAO) GetSnapsByQNs(source db.Source, implQNs []uniqsym.ADT) (_ map[uniqsym.ADT]ExecLiabSnap, err error) {
+	ds := db.MustConform[db.SourcePgx](source)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection started", slog.Any("qns", implQNs))
+	if len(implQNs) == 0 {
+		return map[uniqsym.ADT]ExecLiabSnap{}, nil
+	}
+	batch := pgx.Batch{}
+	for _, implQN := range implQNs {
+		sql, args := dao.qb.selectSnapByQN(uniqsym.ConvertToString(implQN))
+		batch.Queue(sql, args...)
+	}
+	br := ds.Conn.SendBatch(ds.Ctx, &batch)
+	defer func() {
+		err = errors.Join(err, br.Close())
+	}()
+	dtos := make(map[uniqsym.ADT]execLiabSnapDS, len(implQNs))
+	for _, implQN := range implQNs {
+		qnAttr := slog.Any("qn", implQN)
+		rows, readErr := br.Query()
+		if readErr != nil {
+			dao.log.Error("query execution failed", qnAttr)
+			return nil, readErr
+		}
+		var dto execLiabSnapDS
+		scanErr := pgxscan.ScanOne(dto, rows)
+		if scanErr != nil {
+			dao.log.Error("row scanning failed", qnAttr)
+			return nil, scanErr
+		}
+		dtos[implQN] = dto
+	}
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection succeed", slog.Any("dtos", dtos))
+	return DataToSnapMap(dtos)
 }
 
 const (

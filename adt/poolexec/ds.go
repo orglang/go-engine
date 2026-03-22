@@ -9,14 +9,16 @@ import (
 )
 
 type Repo interface {
-	InsertRec(db.Source, ExecRec) error
-	SelectRecsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]ExecRec, error)
-	SelectRefs(db.Source) ([]implsem.SemRef, error)
-	SelectSnap(db.Source, implsem.SemRef) (ExecSnap, error)
+	AddRec(db.Source, ExecRec) error
+	GetRecsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]ExecRec, error)
+	GetRefs(db.Source) ([]implsem.SemRef, error)
+	GetSnap(db.Source, implsem.SemRef) (ExecSnap, error)
+	GetSnapsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]ExecLiabSnap, error)
 }
 
 type execRecDS struct {
 	ImplID string `db:"impl_id"`
+	Mode   int8   `db:"mode"`
 }
 
 type execSnapDS struct {
@@ -24,4 +26,11 @@ type execSnapDS struct {
 	ImplRN     int64              `db:"impl_rn"`
 	StructVars []implvar.VarRecDS `db:"struct_vars"`
 	LinearVars []implvar.VarRecDS `db:"linear_vars"`
+}
+
+type execLiabSnapDS struct {
+	ImplRef   implsem.SemRefDS  `db:"sem"`
+	Mode      int8              `db:"exec.mode"`
+	StructVar *implvar.VarRecDS `db:"struct_var"`
+	LinearVar *implvar.VarRecDS `db:"linear_var"`
 }

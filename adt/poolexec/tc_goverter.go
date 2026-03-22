@@ -32,6 +32,7 @@ var (
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/implvar:Convert.*
 // goverter:extend orglang/go-engine/adt/implvar:Data.*
+// goverter:extend DataToExecLiabSnap
 var (
 	// goverter:map . ImplRef | DataToImplRef
 	DataToExecRec func(execRecDS) (ExecRec, error)
@@ -41,7 +42,9 @@ var (
 	DataToExecSnap func(execSnapDS) (ExecSnap, error)
 	// goverter:autoMap ImplRef
 	DataFromExecSnap func(ExecSnap) execSnapDS
-	DataToRefMap     func(map[uniqsym.ADT]execRecDS) (map[uniqsym.ADT]ExecRec, error)
 	// goverter:ignore ImplRN
 	DataToImplRef func(execRecDS) (implsem.SemRef, error)
+
+	DataToRefMap  func(map[uniqsym.ADT]execRecDS) (map[uniqsym.ADT]ExecRec, error)
+	DataToSnapMap func(map[uniqsym.ADT]execLiabSnapDS) (map[uniqsym.ADT]ExecLiabSnap, error)
 )

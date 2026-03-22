@@ -22,7 +22,7 @@ type SemRec struct {
 	Kind    semKind
 }
 
-type semKind uint8
+type semKind int8
 
 const (
 	unkSem semKind = iota

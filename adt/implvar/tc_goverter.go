@@ -11,7 +11,7 @@ import (
 // goverter:output:format assign-variable
 // goverter:extend ConvertRecToRef
 var (
-	ConvertRecsToRefs func([]VarRec) []implsem.SemRef
+	ConvertRecsToRefs func([]LinearRec) []implsem.SemRef
 )
 
 // goverter:variables
@@ -33,14 +33,20 @@ var (
 var (
 	// goverter:autoMap ImplRef
 	// goverter:autoMap CommRef
-	DataFromVarRec  func(VarRec) VarRecDS
-	DataFromVarRecs func([]VarRec) []VarRecDS
-	// goverter:map . ImplRef | DataToImplRef
+	DataFromStructRec  func(StructRec) VarRecDS
+	DataFromStructRecs func([]StructRec) []VarRecDS
+	// goverter:autoMap ImplRef
+	// goverter:autoMap CommRef
+	DataFromLinearRec  func(LinearRec) VarRecDS
+	DataFromLinearRecs func([]LinearRec) []VarRecDS
+	// goverter:map . ImplRef
 	// goverter:map . CommRef | DataToCommRef
-	DataToVarRec  func(VarRecDS) (VarRec, error)
-	DataToVarRecs func([]VarRecDS) ([]VarRec, error)
-	// goverter:ignore ImplRN
-	DataToImplRef func(VarRecDS) (implsem.SemRef, error)
+	DataToStructRec  func(VarRecDS) (StructRec, error)
+	DataToStructRecs func([]VarRecDS) ([]StructRec, error)
+	// goverter:map . ImplRef
+	// goverter:map . CommRef | DataToCommRef
+	DataToLinearRec  func(VarRecDS) (LinearRec, error)
+	DataToLinearRecs func([]VarRecDS) ([]LinearRec, error)
 	// goverter:ignore CommRN
 	DataToCommRef func(VarRecDS) (commsem.SemRef, error)
 )

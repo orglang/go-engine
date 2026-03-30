@@ -24,22 +24,22 @@ type API interface {
 type DecSpec struct {
 	DescQN uniqsym.ADT
 	// endpoint where process acts as a provider
-	ProviderVS descvar.VarSpec
+	LiabVar descvar.VarSpec
 	// endpoints where process acts as a client
-	ClientVSes []descvar.VarSpec
+	AssetVars []descvar.VarSpec
 }
 
 type DecRec struct {
-	DescRef    descsem.SemRef
-	ProviderVR descvar.VarRec
-	ClientVRs  []descvar.VarRec
+	DescRef   descsem.SemRef
+	LiabVar   descvar.VarRec
+	AssetVars []descvar.VarRec
 }
 
 // aka ExpDec or ExpDecDef without expression
 type DecSnap struct {
-	DescRef    descsem.SemRef
-	ProviderVR descvar.VarRec
-	ClientVRs  []descvar.VarRec
+	DescRef   descsem.SemRef
+	LiabVar   descvar.VarRec
+	AssetVars []descvar.VarRec
 }
 
 type service struct {
@@ -66,7 +66,7 @@ func (s *service) Incept(procQN uniqsym.ADT) (_ descsem.SemRef, err error) {
 	newDec := DecRec{DescRef: newRef}
 	newDesc := descsem.SemRec{DescRef: newRef, DescQN: procQN, Kind: descsem.Proc}
 	err = s.operator.Explicit(ctx, func(ds db.Source) error {
-		err = s.descSems.InsertRec(ds, newDesc)
+		err = s.descSems.AddRec(ds, newDesc)
 		if err != nil {
 			return err
 		}
@@ -88,31 +88,34 @@ func (s *service) Create(spec DecSpec) (_ DecSnap, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("qn", spec.DescQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
-	typeQNs := make([]uniqsym.ADT, 0, len(spec.ClientVSes)+1)
-	for _, spec := range spec.ClientVSes {
+	typeQNs := make([]uniqsym.ADT, 0, len(spec.AssetVars)+1)
+	for _, spec := range spec.AssetVars {
 		typeQNs = append(typeQNs, spec.DescQN)
 	}
 	var typeRefs map[uniqsym.ADT]descsem.SemRef
-	selectErr := s.operator.Implicit(ctx, func(ds db.Source) error {
-		typeRefs, err = s.descSems.SelectRefsByQNs(ds, append(typeQNs, spec.ProviderVS.DescQN))
+	getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
+		typeRefs, err = s.descSems.GetRefsByQNs(ds, append(typeQNs, spec.LiabVar.DescQN))
 		return err
 	})
-	if selectErr != nil {
-		return DecSnap{}, selectErr
+	if getErr != nil {
+		return DecSnap{}, getErr
 	}
-	providerVR := descvar.VarRec{
-		ChnlPH: spec.ProviderVS.ChnlPH,
-		DescID: typeRefs[spec.ProviderVS.DescQN].DescID,
+	newLiabVar := descvar.VarRec{
+		DescRef: typeRefs[spec.LiabVar.DescQN],
+		ChnlPH:  spec.LiabVar.ChnlPH,
 	}
-	clientVRs := make([]descvar.VarRec, 0, len(spec.ClientVSes))
-	for _, vs := range spec.ClientVSes {
-		clientVRs = append(clientVRs, descvar.VarRec{ChnlPH: vs.ChnlPH, DescID: typeRefs[vs.DescQN].DescID})
+	newAssetVars := make([]descvar.VarRec, 0, len(spec.AssetVars))
+	for _, vs := range spec.AssetVars {
+		newAssetVars = append(newAssetVars, descvar.VarRec{
+			DescRef: typeRefs[vs.DescQN],
+			ChnlPH:  vs.ChnlPH,
+		})
 	}
 	newRef := descsem.NewRef()
 	newDesc := descsem.SemRec{DescRef: newRef, DescQN: spec.DescQN, Kind: descsem.Proc}
-	newDec := DecRec{DescRef: newRef, ProviderVR: providerVR, ClientVRs: clientVRs}
+	newDec := DecRec{DescRef: newRef, LiabVar: newLiabVar, AssetVars: newAssetVars}
 	transactErr := s.operator.Explicit(ctx, func(ds db.Source) error {
-		err = s.descSems.InsertRec(ds, newDesc)
+		err = s.descSems.AddRec(ds, newDesc)
 		if err != nil {
 			return err
 		}
@@ -123,7 +126,7 @@ func (s *service) Create(spec DecSpec) (_ DecSnap, err error) {
 		return DecSnap{}, transactErr
 	}
 	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", newRef))
-	return DecSnap{DescRef: newRef, ProviderVR: providerVR, ClientVRs: clientVRs}, nil
+	return DecSnap{DescRef: newRef, LiabVar: newLiabVar, AssetVars: newAssetVars}, nil
 }
 
 func (s *service) RetrieveSnap(ref descsem.SemRef) (snap DecSnap, err error) {

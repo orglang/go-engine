@@ -26,9 +26,7 @@ var (
 	DataFromRef  func(SemRef) (SemRefDS, error)
 	DataFromRefs func([]SemRef) ([]SemRefDS, error)
 	DataToRef    func(SemRefDS) (SemRef, error)
-	// goverter:ignore ImplRN
-	DataToRef2 func(struct{ ImplID string }) (SemRef, error)
-	DataToRefs func([]SemRefDS) ([]SemRef, error)
+	DataToRefs   func([]SemRefDS) ([]SemRef, error)
 	// goverter:autoMap ImplRef
 	DataFromRec func(SemRec) (semRecDS, error)
 	// goverter:map . ImplRef

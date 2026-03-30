@@ -29,7 +29,7 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func (dao *pgxDAO) InsertRec(source db.Source, rec SemRec) error {
+func (dao *pgxDAO) AddRec(source db.Source, rec SemRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
 	qnAttr := slog.Any("qn", rec.DescQN)
 	dto, convertErr := DataFromRec(rec)
@@ -56,7 +56,7 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec SemRec) error {
 	return nil
 }
 
-func (dao *pgxDAO) SelectRefsByQNs(source db.Source, descQNs []uniqsym.ADT) (_ map[uniqsym.ADT]SemRef, err error) {
+func (dao *pgxDAO) GetRefsByQNs(source db.Source, descQNs []uniqsym.ADT) (_ map[uniqsym.ADT]SemRef, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection started", slog.Any("xactQNs", descQNs))
 	if len(descQNs) == 0 {
@@ -78,10 +78,10 @@ func (dao *pgxDAO) SelectRefsByQNs(source db.Source, descQNs []uniqsym.ADT) (_ m
 			dao.log.Error("query execution failed", qnAttr)
 			return nil, readErr
 		}
-		dto, collectErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[SemRefDS])
-		if collectErr != nil {
-			dao.log.Error("row collection failed", qnAttr)
-			return nil, collectErr
+		dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[SemRefDS])
+		if scanErr != nil {
+			dao.log.Error("row scanning failed", qnAttr)
+			return nil, scanErr
 		}
 		dtos[descQN] = dto
 	}

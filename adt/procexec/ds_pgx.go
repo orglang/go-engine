@@ -57,7 +57,7 @@ func (dao *pgxDAO) SelectSnap(source db.Source, ref implsem.SemRef) (ExecSnap, e
 	defer chnlRows.Close()
 	chnlDtos, err := pgx.CollectRows(chnlRows, pgx.RowToStructByName[implvar.VarRecDS])
 	if err != nil {
-		dao.log.Error("row collection failed", refAttr, slog.Any("t", reflect.TypeOf(chnlDtos)))
+		dao.log.Error("row scanning failed", refAttr, slog.Any("t", reflect.TypeOf(chnlDtos)))
 		return ExecSnap{}, err
 	}
 	chnls, err := implvar.DataToLinearRecs(chnlDtos)

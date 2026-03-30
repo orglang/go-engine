@@ -29,7 +29,7 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func (dao *pgxDAO) InsertRec(source db.Source, rec ExpRec, ref descsem.SemRef) (err error) {
+func (dao *pgxDAO) AddRec(source db.Source, rec ExpRec, ref descsem.SemRef) (err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	idAttr := slog.Any("expVK", rec.Key())
 	dto := dataFromExpRec(rec)
@@ -61,7 +61,7 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec ExpRec, ref descsem.SemRef) (
 	return nil
 }
 
-func (dao *pgxDAO) SelectRecByVK(source db.Source, expVK valkey.ADT) (ExpRec, error) {
+func (dao *pgxDAO) GetRecByVK(source db.Source, expVK valkey.ADT) (ExpRec, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	idAttr := slog.Any("expVK", expVK)
 	rows, err := ds.Conn.Query(ds.Ctx, selectByID, valkey.ConvertToInteger(expVK))
@@ -72,7 +72,7 @@ func (dao *pgxDAO) SelectRecByVK(source db.Source, expVK valkey.ADT) (ExpRec, er
 	defer rows.Close()
 	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[stateDS])
 	if err != nil {
-		dao.log.Error("row collection failed", idAttr)
+		dao.log.Error("row scanning failed", idAttr)
 		return nil, err
 	}
 	if len(dtos) == 0 { // revive:disable-line
@@ -88,7 +88,7 @@ func (dao *pgxDAO) SelectRecByVK(source db.Source, expVK valkey.ADT) (ExpRec, er
 }
 
 func (dao *pgxDAO) SelectEnv(source db.Source, expVKs []valkey.ADT) (map[valkey.ADT]ExpRec, error) {
-	recs, err := dao.SelectRecsByVKs(source, expVKs)
+	recs, err := dao.GetRecsByVKs(source, expVKs)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +99,7 @@ func (dao *pgxDAO) SelectEnv(source db.Source, expVKs []valkey.ADT) (map[valkey.
 	return env, nil
 }
 
-func (dao *pgxDAO) SelectRecsByVKs(source db.Source, expVKs []valkey.ADT) (_ []ExpRec, err error) {
+func (dao *pgxDAO) GetRecsByVKs(source db.Source, expVKs []valkey.ADT) (_ []ExpRec, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	batch := pgx.Batch{}
 	for _, expVK := range expVKs {

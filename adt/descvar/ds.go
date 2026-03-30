@@ -1,6 +1,7 @@
 package descvar
 
 type VarRecDS struct {
-	ChnlPH string `json:"chnl_ph"`
-	DescID string `json:"desc_id"`
+	DescID string `json:"id"`
+	ChnlPH string `json:"ph"`
+	ExpVK  int64  `json:"vk"`
 }

@@ -8,9 +8,9 @@ import (
 )
 
 type Repo interface {
-	InsertRec(db.Source, ExpRec, descsem.SemRef) error
-	SelectRecByVK(db.Source, valkey.ADT) (ExpRec, error)
-	SelectRecsByVKs(db.Source, []valkey.ADT) ([]ExpRec, error)
+	AddRec(db.Source, ExpRec, descsem.SemRef) error
+	GetRecByVK(db.Source, valkey.ADT) (ExpRec, error)
+	GetRecsByVKs(db.Source, []valkey.ADT) ([]ExpRec, error)
 	SelectEnv(db.Source, []valkey.ADT) (map[valkey.ADT]ExpRec, error)
 }
 

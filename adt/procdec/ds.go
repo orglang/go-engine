@@ -17,15 +17,15 @@ type Repo interface {
 }
 
 type decRecDS struct {
-	DescID     string             `db:"desc_id"`
-	DescRN     int64              `db:"desc_rn"`
-	ProviderVR descvar.VarRecDS   `db:"provider_vr"`
-	ClientVRs  []descvar.VarRecDS `db:"client_vrs"`
+	DescID    string             `db:"desc_id"`
+	DescRN    int64              `db:"desc_rn"`
+	LiabVar   descvar.VarRecDS   `db:"liab_var"`
+	AssetVars []descvar.VarRecDS `db:"asset_vars"`
 }
 
 type decSnapDS struct {
-	DescID     string             `db:"desc_id"`
-	DescRN     int64              `db:"desc_rn"`
-	ProviderVR descvar.VarRecDS   `db:"provider_vr"`
-	ClientVRs  []descvar.VarRecDS `db:"client_vrs"`
+	DescID    string             `db:"desc_id"`
+	DescRN    int64              `db:"desc_rn"`
+	LiabVar   descvar.VarRecDS   `db:"liab_var"`
+	AssetVars []descvar.VarRecDS `db:"asset_vars"`
 }

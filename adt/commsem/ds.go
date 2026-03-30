@@ -20,5 +20,5 @@ type SemRefDS struct {
 type semRecDS struct {
 	CommID string `db:"comm_id"`
 	CommRN int64  `db:"comm_rn"`
-	Kind   int8   `db:"kind"`
+	Kind   int16  `db:"kind"`
 }

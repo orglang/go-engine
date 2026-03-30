@@ -23,7 +23,7 @@ type semRecDS struct {
 	ImplID string         `db:"impl_id"`
 	ImplRN int64          `db:"impl_rn"`
 	ImplQN sql.NullString `db:"impl_qn"`
-	Kind   int8           `db:"kind"`
+	Kind   int16          `db:"kind"`
 }
 
 type SemBindDS struct {

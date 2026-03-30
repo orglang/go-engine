@@ -77,7 +77,7 @@ func (s *service) Incept(typeQN uniqsym.ADT) (_ descsem.SemRef, err error) {
 	newRef := descsem.NewRef()
 	newDesc := descsem.SemRec{DescRef: descsem.NewRef(), DescQN: typeQN, Kind: descsem.Type}
 	err = s.operator.Explicit(ctx, func(ds db.Source) error {
-		err = s.descSems.InsertRec(ds, newDesc)
+		err = s.descSems.AddRec(ds, newDesc)
 		if err != nil {
 			return err
 		}
@@ -103,7 +103,7 @@ func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 	}
 	newDef := DefRec{DescRef: newRef, ExpVK: newExp.Key()}
 	err = s.operator.Explicit(ctx, func(ds db.Source) error {
-		err = s.descSems.InsertRec(ds, newDesc)
+		err = s.descSems.AddRec(ds, newDesc)
 		if err != nil {
 			return err
 		}
@@ -179,13 +179,13 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 func (s *service) RetrieveSnap(ref descsem.SemRef) (_ DefSnap, err error) {
 	ctx := context.Background()
 	var rec DefRec
-	selectErr := s.operator.Implicit(ctx, func(ds db.Source) error {
+	getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
 		rec, err = s.typeDefs.SelectRecByRef(ds, ref)
 		return err
 	})
-	if selectErr != nil {
+	if getErr != nil {
 		s.log.Error("retrieval failed", slog.Any("ref", ref))
-		return DefSnap{}, selectErr
+		return DefSnap{}, getErr
 	}
 	return s.retrieveSnap(rec)
 }

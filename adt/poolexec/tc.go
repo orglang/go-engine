@@ -14,7 +14,7 @@ func DataToExecLiabSnap(dto execLiabSnapDS) (ExecLiabSnap, error) {
 	if err != nil {
 		return ExecLiabSnap{}, err
 	}
-	mode := implvar.Mode(dto.Mode)
+	mode := implvar.Mode(dto.LiabMode)
 	switch mode {
 	case implvar.StructMode:
 		rec, err := implvar.DataToStructRec(*dto.StructVar)

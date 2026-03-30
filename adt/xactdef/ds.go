@@ -14,11 +14,11 @@ type Repo interface {
 	SelectRecByRef(db.Source, descsem.SemRef) (DefRec, error)
 	SelectRecsByRefs(db.Source, []descsem.SemRef) ([]DefRec, error)
 	SelectRecByQN(db.Source, uniqsym.ADT) (DefRec, error)
-	SelectRecsByQNs(db.Source, []uniqsym.ADT) ([]DefRec, error)
+	GetRecsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]DefRec, error)
 }
 
 type defRecDS struct {
 	DescID string `db:"desc_id"`
-	DescRN int64  `db:"desc_rn"`
-	ExpVK  int64  `db:"exp_vk"`
+	// DescRN int64  `db:"desc_rn"`
+	ExpVK int64 `db:"exp_vk"`
 }

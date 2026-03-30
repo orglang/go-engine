@@ -1,6 +1,8 @@
 package implvar
 
 import (
+	"database/sql"
+
 	"orglang/go-engine/adt/implsem"
 	"orglang/go-engine/adt/symbol"
 )
@@ -66,4 +68,26 @@ func DataToLinearMap(dtos []VarRecDS) (map[symbol.ADT]LinearRec, error) {
 		recMap[rec.ChnlPH] = rec
 	}
 	return recMap, nil
+}
+
+func ConvertSideToNullInt(val side) sql.NullInt16 {
+	return sql.NullInt16{Int16: int16(val), Valid: true}
+}
+
+func ConvertSideFromNullInt(val sql.NullInt16) side {
+	if val.Valid {
+		return side(val.Int16)
+	}
+	return unkSide
+}
+
+func ConvertModeToNullInt(val Mode) sql.NullInt16 {
+	return sql.NullInt16{Int16: int16(val), Valid: true}
+}
+
+func ConvertModeFromNullInt(val sql.NullInt16) Mode {
+	if val.Valid {
+		return Mode(val.Int16)
+	}
+	return unkMode
 }

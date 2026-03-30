@@ -202,16 +202,16 @@ func (s *service) takeWith(
 		commAttr := slog.Any("comm", commChnl.CommRef)
 		// получаем снепшот соединения
 		var connSnap procconn.ConnSnap
-		selectErr := s.operator.Implicit(ctx, func(ds db.Source) error {
+		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
 			connSnap, err = s.procConns.SelectSnapByQry(ds, procconn.ConnQuery{
 				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
-		if selectErr != nil {
+		if getErr != nil {
 			s.log.Error("step taking failed", implAttr, commAttr)
-			return stepSpec, connMod, execMod, selectErr
+			return stepSpec, connMod, execMod, getErr
 		}
 		// обнуляем канал закрывателя
 		execMod.LinearVars = append(execMod.LinearVars, implvar.LinearRec{
@@ -266,16 +266,16 @@ func (s *service) takeWith(
 		})
 		// получаем снепшот соединения
 		var connSnap procconn.ConnSnap
-		selectErr := s.operator.Implicit(ctx, func(ds db.Source) error {
+		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
 			connSnap, err = s.procConns.SelectSnapByQry(ds, procconn.ConnQuery{
 				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
-		if selectErr != nil {
+		if getErr != nil {
 			s.log.Error("step taking failed", implAttr)
-			return stepSpec, connMod, execMod, selectErr
+			return stepSpec, connMod, execMod, getErr
 		}
 		publication := connSnap.NextStep()
 		if publication == nil {
@@ -349,16 +349,16 @@ func (s *service) takeWith(
 		}
 		// получаем снепшот соединения
 		var connSnap procconn.ConnSnap
-		selectErr := s.operator.Implicit(ctx, func(ds db.Source) error {
+		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
 			connSnap, err = s.procConns.SelectSnapByQry(ds, procconn.ConnQuery{
 				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
-		if selectErr != nil {
+		if getErr != nil {
 			s.log.Error("step taking failed", implAttr)
-			return stepSpec, connMod, execMod, selectErr
+			return stepSpec, connMod, execMod, getErr
 		}
 		subscription := connSnap.NextStep()
 		if subscription == nil {
@@ -434,16 +434,16 @@ func (s *service) takeWith(
 		nextExpVK := typeExp.(typeexp.ProdRec).Next()
 		// получаем снепшот соединения
 		var connSnap procconn.ConnSnap
-		selectErr := s.operator.Implicit(ctx, func(ds db.Source) error {
+		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
 			connSnap, err = s.procConns.SelectSnapByQry(ds, procconn.ConnQuery{
 				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
-		if selectErr != nil {
+		if getErr != nil {
 			s.log.Error("step taking failed", implAttr)
-			return stepSpec, connMod, execMod, selectErr
+			return stepSpec, connMod, execMod, getErr
 		}
 		publication := connSnap.NextStep()
 		if publication == nil {
@@ -520,16 +520,16 @@ func (s *service) takeWith(
 		nextExpVK := typeExp.(typeexp.SumRec).Next(expSpec.ValLabQN)
 		// получаем снепшот соединения
 		var connSnap procconn.ConnSnap
-		selectErr := s.operator.Implicit(ctx, func(ds db.Source) error {
+		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
 			connSnap, err = s.procConns.SelectSnapByQry(ds, procconn.ConnQuery{
 				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
-		if selectErr != nil {
+		if getErr != nil {
 			s.log.Error("step taking failed", implAttr)
-			return stepSpec, connMod, execMod, selectErr
+			return stepSpec, connMod, execMod, getErr
 		}
 		subscription := connSnap.NextStep()
 		if subscription == nil {
@@ -599,16 +599,16 @@ func (s *service) takeWith(
 		}
 		// получаем снепшот соединения
 		var connSnap procconn.ConnSnap
-		selectErr := s.operator.Implicit(ctx, func(ds db.Source) error {
+		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
 			connSnap, err = s.procConns.SelectSnapByQry(ds, procconn.ConnQuery{
 				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
-		if selectErr != nil {
+		if getErr != nil {
 			s.log.Error("step taking failed", implAttr)
-			return stepSpec, connMod, execMod, selectErr
+			return stepSpec, connMod, execMod, getErr
 		}
 		publication := connSnap.NextStep()
 		if publication == nil {
@@ -669,16 +669,16 @@ func (s *service) takeWith(
 		}
 		// получаем снепшот соединения
 		var connSnap procconn.ConnSnap
-		selectErr := s.operator.Implicit(ctx, func(ds db.Source) error {
+		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
 			connSnap, err = s.procConns.SelectSnapByQry(ds, procconn.ConnQuery{
 				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
-		if selectErr != nil {
+		if getErr != nil {
 			s.log.Error("step taking failed", implAttr)
-			return stepSpec, connMod, execMod, selectErr
+			return stepSpec, connMod, execMod, getErr
 		}
 		communication := connSnap.NextStep()
 		switch typeExp.Pol() {

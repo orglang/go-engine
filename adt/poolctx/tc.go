@@ -1,5 +1,5 @@
 package poolctx
 
-func ConvertExpToSpec() CtxSpec {
-	return CtxSpec{}
+func ConvertExpToSpec() CtxQry {
+	return CtxQry{}
 }

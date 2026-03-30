@@ -1,5 +1,10 @@
 package seqnum
 
+const (
+	Zero ADT = iota
+	One
+)
+
 type ADT int64
 
 func New() ADT {

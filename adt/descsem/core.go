@@ -26,10 +26,10 @@ type SemRec struct {
 	Kind    semKind
 }
 
-type semKind uint8
+type semKind uint16
 
 const (
-	nonDesc semKind = iota
+	unkKind semKind = iota
 	Xact
 	Pool
 	Type

@@ -37,7 +37,7 @@ type postgresCS struct {
 }
 
 type pgxCS struct {
-	MaxConns uint8 `mapstructure:"max_conns"`
+	MaxConns uint16 `mapstructure:"max_conns"`
 }
 
 type protoModeCS string

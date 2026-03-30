@@ -22,9 +22,9 @@ var (
 var (
 	MsgToExecSpec   func(poolexec.ExecSpec) (ExecSpec, error)
 	MsgFromExecSpec func(ExecSpec) poolexec.ExecSpec
-	// goverter:ignore StructVars LinearVars
-	MsgToExecSnap   func(poolexec.ExecSnap) (ExecSnap, error)
-	MsgFromExecSnap func(ExecSnap) poolexec.ExecSnap
+	// goverter:ignore StructVars LinearVars XactExps
+	MsgToExecSnap   func(poolexec.ExecSnap) (ExecCtxSnap, error)
+	MsgFromExecSnap func(ExecCtxSnap) poolexec.ExecSnap
 )
 
 // goverter:variables
@@ -39,9 +39,10 @@ var (
 	// goverter:autoMap ImplRef
 	DataFromExecRec func(ExecRec) execRecDS
 	// goverter:map . ImplRef
-	DataToExecSnap func(execSnapDS) (ExecSnap, error)
+	// goverter:ignore XactExps
+	DataToExecSnap func(execCtxSnapDS) (ExecCtxSnap, error)
 	// goverter:autoMap ImplRef
-	DataFromExecSnap func(ExecSnap) execSnapDS
+	DataFromExecSnap func(ExecCtxSnap) execCtxSnapDS
 	// goverter:ignore ImplRN
 	DataToImplRef func(execRecDS) (implsem.SemRef, error)
 

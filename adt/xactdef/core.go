@@ -19,8 +19,8 @@ type API interface {
 }
 
 type DefSpec struct {
-	XactQN uniqsym.ADT
-	XactES xactexp.ExpSpec
+	XactQN  uniqsym.ADT
+	XactExp xactexp.ExpSpec
 }
 
 type DefRec struct {
@@ -30,7 +30,7 @@ type DefRec struct {
 
 type DefSnap struct {
 	DescRef descsem.SemRef
-	DefSpec DefSpec
+	XactExp xactexp.ExpSpec
 }
 
 type service struct {
@@ -60,19 +60,19 @@ func (s *service) Create(spec DefSpec) (_ descsem.SemRef, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("qn", spec.XactQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
-	newExp, convertErr := xactexp.ConvertSpecToRec(spec.XactES)
-	if convertErr != nil {
-		return descsem.SemRef{}, convertErr
+	newExp, convErr := xactexp.ConvertSpecToRec(spec.XactExp)
+	if convErr != nil {
+		return descsem.SemRef{}, convErr
 	}
 	newRef := descsem.NewRef()
 	newDesc := descsem.SemRec{DescRef: newRef, DescQN: spec.XactQN, Kind: descsem.Xact}
 	newDef := DefRec{DescRef: newRef, ExpVK: newExp.Key()}
 	transactErr := s.operator.Explicit(ctx, func(ds db.Source) error {
-		err = s.descSems.InsertRec(ds, newDesc)
+		err = s.descSems.AddRec(ds, newDesc)
 		if err != nil {
 			return err
 		}
-		err = s.xactExps.InsertRec(ds, newExp, newRef)
+		err = s.xactExps.AddRec(ds, newExp, newRef)
 		if err != nil {
 			return err
 		}

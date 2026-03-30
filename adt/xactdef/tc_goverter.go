@@ -1,6 +1,9 @@
 package xactdef
 
 import (
+	"orglang/go-engine/adt/descsem"
+	"orglang/go-engine/adt/uniqsym"
+
 	"github.com/orglang/go-sdk/adt/xactdef"
 )
 
@@ -24,10 +27,13 @@ var (
 // goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
 // goverter:extend orglang/go-engine/adt/valkey:Convert.*
 var (
-	// goverter:map . DescRef
-	DataToDefRec func(defRecDS) (DefRec, error)
+	// goverter:map . DescRef | DataToSemRef
+	DataToDefRec    func(defRecDS) (DefRec, error)
+	DataToDefRecs   func([]defRecDS) ([]DefRec, error)
+	DataToDefRecMap func(map[uniqsym.ADT]defRecDS) (map[uniqsym.ADT]DefRec, error)
 	// goverter:autoMap DescRef
 	DataFromDefRec  func(DefRec) (defRecDS, error)
-	DataToDefRecs   func([]defRecDS) ([]DefRec, error)
 	DataFromDefRecs func([]DefRec) ([]defRecDS, error)
+	// goverter:ignore DescRN
+	DataToSemRef func(defRecDS) (descsem.SemRef, error)
 )

@@ -85,10 +85,10 @@ func (dao *pgxDAO) GetRefsByQNs(source db.Source, implQNs []uniqsym.ADT) (_ map[
 			dao.log.Error("query execution failed", qnAttr)
 			return nil, readErr
 		}
-		dto, collectErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[SemRefDS])
-		if collectErr != nil {
-			dao.log.Error("row collection failed", qnAttr)
-			return nil, collectErr
+		dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[SemRefDS])
+		if scanErr != nil {
+			dao.log.Error("row scanning failed", qnAttr)
+			return nil, scanErr
 		}
 		dtos[implQN] = dto
 	}

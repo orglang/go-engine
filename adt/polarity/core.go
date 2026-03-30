@@ -1,6 +1,6 @@
 package polarity
 
-type ADT int8
+type ADT int16
 
 const (
 	Zero = ADT(0)

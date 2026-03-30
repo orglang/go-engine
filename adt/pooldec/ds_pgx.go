@@ -23,23 +23,23 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
+func (dao *pgxDAO) AddRec(source db.Source, rec DecRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
-	idAttr := slog.Any("id", rec.DescRef.DescID)
-	dto, err := DataFromDecRec(rec)
-	if err != nil {
-		dao.log.Error("model conversion failed", idAttr)
-		return err
+	refAttr := slog.Any("ref", rec.DescRef)
+	dto, convErr := DataFromDecRec(rec)
+	if convErr != nil {
+		dao.log.Error("model conversion failed", refAttr)
+		return convErr
 	}
 	args := pgx.NamedArgs{
-		"desc_id":     dto.DescID,
-		"provider_vr": dto.ProviderVR,
-		"client_vrs":  dto.ClientVRs,
+		"desc_id":    dto.DescID,
+		"liab_var":   dto.LiabVar,
+		"asset_vars": dto.AssetVars,
 	}
-	_, err = ds.Conn.Exec(ds.Ctx, insertRec, args)
-	if err != nil {
-		dao.log.Error("query execution failed", idAttr)
-		return err
+	_, execErr := ds.Conn.Exec(ds.Ctx, insertRec, args)
+	if execErr != nil {
+		dao.log.Error("query execution failed", refAttr)
+		return execErr
 	}
 	return nil
 }
@@ -47,8 +47,8 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 const (
 	insertRec = `
 		insert into pool_decs (
-			desc_id, provider_vr, client_vrs
+			desc_id, liab_var, asset_vars
 		) values (
-			@desc_id, @provider_vr, @client_vrs
+			@desc_id, @liab_var, @asset_vars
 		)`
 )

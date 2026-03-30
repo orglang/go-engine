@@ -27,8 +27,8 @@ var (
 	DataFromRefs func([]SemRef) ([]SemRefDS, error)
 	DataToRef    func(SemRefDS) (SemRef, error)
 	DataToRefs   func([]SemRefDS) ([]SemRef, error)
-	DataFromBind func(SemBind) (semBindDS, error)
-	DataToBind   func(semBindDS) (SemBind, error)
+	DataFromBind func(SemBind) (SemBindDS, error)
+	DataToBind   func(SemBindDS) (SemBind, error)
 	// goverter:autoMap DescRef
 	DataFromRec func(SemRec) (semRecDS, error)
 	// goverter:map . DescRef

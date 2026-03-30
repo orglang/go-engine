@@ -4,6 +4,8 @@ import (
 	"orglang/go-engine/adt/valkey"
 )
 
+const Unit = ADT("")
+
 type ADT string
 
 func New(str string) ADT {

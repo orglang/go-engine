@@ -29,7 +29,10 @@ var (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
+// goverter:extend orglang/go-engine/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/adt/valkey:Convert.*
+// goverter:extend orglang/go-engine/adt/symbol:Convert.*
+// goverter:extend Convert.*
 var (
 	// goverter:autoMap ImplRef
 	// goverter:autoMap CommRef

@@ -28,8 +28,8 @@ CREATE TABLE xact_exps (
 
 CREATE TABLE pool_decs (
 	desc_id varchar UNIQUE,
-    provider_vr jsonb,
-    client_vrs jsonb
+    liab_var jsonb,
+    asset_vars jsonb
 );
 
 CREATE TABLE impl_sems (
@@ -102,8 +102,8 @@ CREATE TABLE type_exps (
 
 CREATE TABLE proc_decs (
 	desc_id varchar UNIQUE,
-    provider_vr jsonb,
-    client_vrs jsonb
+    liab_var jsonb,
+    asset_vars jsonb
 );
 
 CREATE TABLE proc_execs (

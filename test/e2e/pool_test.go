@@ -97,7 +97,7 @@ func (s *suite) waitClose(t *testing.T) {
 	withXactQN := "with-xact-qn"
 	_, err := s.XactDefAPI.Create(xactdef.DefSpec{
 		XactQN: withXactQN,
-		XactES: xactexp.ExpSpec{
+		XactExp: xactexp.ExpSpec{
 			K: xactexp.With,
 			With: &xactexp.LaborSpec{
 				Choices: []xactexp.ChoiceSpec{
@@ -125,11 +125,11 @@ func (s *suite) waitClose(t *testing.T) {
 	poolLiabPH := "pool-liab-ph"
 	_, err = s.PoolDecAPI.Create(pooldec.DecSpec{
 		DescQN: poolDescQN,
-		ProviderVS: descvar.VarSpec{
+		LiabVar: descvar.VarSpec{
 			ChnlPH: poolLiabPH,
 			DescQN: withXactQN,
 		},
-		ClientVSes: []descvar.VarSpec{{
+		AssetVars: []descvar.VarSpec{{
 			ChnlPH: poolAssetPH,
 			DescQN: withXactQN,
 		}},
@@ -192,7 +192,7 @@ func (s *suite) waitClose(t *testing.T) {
 	// and
 	closerProcDec, err := s.ProcDecAPI.Create(procdec.DecSpec{
 		DescQN: closerProcQN,
-		ProviderVS: descvar.VarSpec{
+		LiabVar: descvar.VarSpec{
 			ChnlPH: "closer-provider-ph",
 			DescQN: oneTypeQN,
 		},
@@ -243,9 +243,9 @@ func (s *suite) waitClose(t *testing.T) {
 	}
 	// and
 	waiterProcDec, err := s.ProcDecAPI.Create(procdec.DecSpec{
-		DescQN:     waiterProcQN,
-		ProviderVS: descvar.VarSpec{ChnlPH: "waiter-provider-ph", DescQN: oneTypeQN},
-		ClientVSes: []descvar.VarSpec{
+		DescQN:  waiterProcQN,
+		LiabVar: descvar.VarSpec{ChnlPH: "waiter-provider-ph", DescQN: oneTypeQN},
+		AssetVars: []descvar.VarSpec{
 			{ChnlPH: "waiter-closer-ph", DescQN: oneTypeQN},
 		},
 	})
@@ -272,7 +272,7 @@ func (s *suite) waitClose(t *testing.T) {
 		ProcExp: procexp.ExpSpec{
 			K: procexp.Close,
 			Close: &procexp.CloseSpec{
-				CommChnlPH: closerProcDec.ProviderVR.ChnlPH,
+				CommChnlPH: closerProcDec.LiabVar.ChnlPH,
 			},
 		},
 	})
@@ -285,11 +285,11 @@ func (s *suite) waitClose(t *testing.T) {
 		ProcExp: procexp.ExpSpec{
 			K: procexp.Wait,
 			Wait: &procexp.WaitSpec{
-				CommChnlPH: waiterProcDec.ClientVRs[0].ChnlPH,
+				CommChnlPH: waiterProcDec.AssetVars[0].ChnlPH,
 				ContES: procexp.ExpSpec{
 					K: procexp.Close,
 					Close: &procexp.CloseSpec{
-						CommChnlPH: waiterProcDec.ProviderVR.ChnlPH,
+						CommChnlPH: waiterProcDec.LiabVar.ChnlPH,
 					},
 				},
 			},
@@ -312,7 +312,7 @@ func (s *suite) recvSend(t *testing.T) {
 	withXactQN := "with-xact-qn"
 	_, err := s.XactDefAPI.Create(xactdef.DefSpec{
 		XactQN: withXactQN,
-		XactES: xactexp.ExpSpec{
+		XactExp: xactexp.ExpSpec{
 			K: xactexp.With,
 			With: &xactexp.LaborSpec{
 				Choices: []xactexp.ChoiceSpec{
@@ -341,11 +341,11 @@ func (s *suite) recvSend(t *testing.T) {
 	poolClientPH := "pool-client-ph"
 	_, err = s.PoolDecAPI.Create(pooldec.DecSpec{
 		DescQN: myPoolQN,
-		ProviderVS: descvar.VarSpec{
+		LiabVar: descvar.VarSpec{
 			ChnlPH: poolProviderPH,
 			DescQN: withXactQN,
 		},
-		ClientVSes: []descvar.VarSpec{{
+		AssetVars: []descvar.VarSpec{{
 			ChnlPH: poolClientPH,
 			DescQN: withXactQN,
 		}},
@@ -387,7 +387,7 @@ func (s *suite) recvSend(t *testing.T) {
 	// and
 	receiverProcDec, err := s.ProcDecAPI.Create(procdec.DecSpec{
 		DescQN: receiverProcQN,
-		ProviderVS: descvar.VarSpec{
+		LiabVar: descvar.VarSpec{
 			ChnlPH: "receiver-provider-ph",
 			DescQN: lolliTypeQN,
 		},
@@ -398,7 +398,7 @@ func (s *suite) recvSend(t *testing.T) {
 	// and
 	messageProcDec, err := s.ProcDecAPI.Create(procdec.DecSpec{
 		DescQN: messageProcQN,
-		ProviderVS: descvar.VarSpec{
+		LiabVar: descvar.VarSpec{
 			ChnlPH: "message-provider-ph",
 			DescQN: oneTypeQN,
 		},
@@ -409,11 +409,11 @@ func (s *suite) recvSend(t *testing.T) {
 	// and
 	senderProcDec, err := s.ProcDecAPI.Create(procdec.DecSpec{
 		DescQN: senderProcQN,
-		ProviderVS: descvar.VarSpec{
+		LiabVar: descvar.VarSpec{
 			ChnlPH: "sender-provider-ph",
 			DescQN: oneTypeQN,
 		},
-		ClientVSes: []descvar.VarSpec{
+		AssetVars: []descvar.VarSpec{
 			{ChnlPH: "sender-receiver-ph", DescQN: lolliTypeQN},
 			{ChnlPH: "sender-message-ph", DescQN: oneTypeQN},
 		},
@@ -506,7 +506,7 @@ func (s *suite) recvSend(t *testing.T) {
 		ProcExp: procexp.ExpSpec{
 			K: procexp.Recv,
 			Recv: &procexp.RecvSpec{
-				CommChnlPH: receiverProcDec.ProviderVR.ChnlPH,
+				CommChnlPH: receiverProcDec.LiabVar.ChnlPH,
 				BindChnlPH: "receiver-message-ph",
 			},
 		},
@@ -520,8 +520,8 @@ func (s *suite) recvSend(t *testing.T) {
 		ProcExp: procexp.ExpSpec{
 			K: procexp.Send,
 			Send: &procexp.SendSpec{
-				CommChnlPH: senderProcDec.ClientVRs[0].ChnlPH,
-				ValChnlPH:  senderProcDec.ClientVRs[1].ChnlPH,
+				CommChnlPH: senderProcDec.AssetVars[0].ChnlPH,
+				ValChnlPH:  senderProcDec.AssetVars[1].ChnlPH,
 			},
 		},
 	})
@@ -570,7 +570,7 @@ func (s *suite) caseLab(t *testing.T) {
 	followerProcQN := "follower-proc-qn"
 	followerProcDec := procdec.DecSpec{
 		DescQN: followerProcQN,
-		ProviderVS: descvar.VarSpec{
+		LiabVar: descvar.VarSpec{
 			ChnlPH: "follower-provider-ph",
 			DescQN: withType.DefSpec.TypeQN,
 		},
@@ -582,9 +582,9 @@ func (s *suite) caseLab(t *testing.T) {
 	// and
 	deciderProcQN := "decider-proc-qn"
 	deciderProcDec, err := s.ProcDecAPI.Create(procdec.DecSpec{
-		DescQN:     deciderProcQN,
-		ClientVSes: []descvar.VarSpec{followerProcDec.ProviderVS},
-		ProviderVS: descvar.VarSpec{
+		DescQN:    deciderProcQN,
+		AssetVars: []descvar.VarSpec{followerProcDec.LiabVar},
+		LiabVar: descvar.VarSpec{
 			ChnlPH: "decider-provider-ph",
 			DescQN: oneType.DefSpec.TypeQN,
 		},
@@ -708,7 +708,7 @@ func (s *suite) call(t *testing.T) {
 	injecteeProcQN := "injectee-proc-qn"
 	injecteeProcDec, err := s.ProcDecAPI.Create(procdec.DecSpec{
 		DescQN: injecteeProcQN,
-		ProviderVS: descvar.VarSpec{
+		LiabVar: descvar.VarSpec{
 			ChnlPH: "injectee-provider-ph",
 			DescQN: oneType.DefSpec.TypeQN,
 		},
@@ -746,11 +746,11 @@ func (s *suite) call(t *testing.T) {
 	callerProcQN := "caller-proc-qn"
 	callerProcDec, err := s.ProcDecAPI.Create(procdec.DecSpec{
 		DescQN: callerProcQN,
-		ProviderVS: descvar.VarSpec{
+		LiabVar: descvar.VarSpec{
 			ChnlPH: "caller-provider-ph",
 			DescQN: oneType.DefSpec.TypeQN,
 		},
-		ClientVSes: []descvar.VarSpec{
+		AssetVars: []descvar.VarSpec{
 			{ChnlPH: "caller-injectee-ph", DescQN: oneType.DefSpec.TypeQN},
 		},
 	})
@@ -788,11 +788,11 @@ func (s *suite) call(t *testing.T) {
 	calleeProcQN := "callee-proc-qn"
 	_, err = s.ProcDecAPI.Create(procdec.DecSpec{
 		DescQN: calleeProcQN,
-		ProviderVS: descvar.VarSpec{
+		LiabVar: descvar.VarSpec{
 			ChnlPH: "callee-provider-ph",
 			DescQN: oneType.DefSpec.TypeQN,
 		},
-		ClientVSes: []descvar.VarSpec{
+		AssetVars: []descvar.VarSpec{
 			{ChnlPH: "callee-injectee-ph", DescQN: oneType.DefSpec.TypeQN},
 		},
 	})
@@ -809,7 +809,7 @@ func (s *suite) call(t *testing.T) {
 			Call: &procexp.CallSpec{
 				BindChnlPH: callerCalleePH,
 				ProcDescQN: calleeProcQN,
-				ValChnlPHs: []string{callerProcDec.ClientVRs[0].ChnlPH},
+				ValChnlPHs: []string{callerProcDec.AssetVars[0].ChnlPH},
 				ContES: procexp.ExpSpec{
 					K: procexp.Wait,
 					Wait: &procexp.WaitSpec{
@@ -817,7 +817,7 @@ func (s *suite) call(t *testing.T) {
 						ContES: procexp.ExpSpec{
 							K: procexp.Close,
 							Close: &procexp.CloseSpec{
-								CommChnlPH: callerProcDec.ProviderVR.ChnlPH,
+								CommChnlPH: callerProcDec.LiabVar.ChnlPH,
 							},
 						},
 					},
@@ -854,7 +854,7 @@ func (s *suite) fwd(t *testing.T) {
 	closerProcQN := "closer-proc-qn"
 	closerProcDec, err := s.ProcDecAPI.Create(procdec.DecSpec{
 		DescQN: closerProcQN,
-		ProviderVS: descvar.VarSpec{
+		LiabVar: descvar.VarSpec{
 			ChnlPH: "closer-provider-ph",
 			DescQN: oneType.DefSpec.TypeQN,
 		},
@@ -866,11 +866,11 @@ func (s *suite) fwd(t *testing.T) {
 	forwarderProcQN := "forwarder-proc-qn"
 	forwarderProcDec, err := s.ProcDecAPI.Create(procdec.DecSpec{
 		DescQN: forwarderProcQN,
-		ProviderVS: descvar.VarSpec{
+		LiabVar: descvar.VarSpec{
 			ChnlPH: "forwarder-provider-ph",
 			DescQN: oneType.DefSpec.TypeQN,
 		},
-		ClientVSes: []descvar.VarSpec{
+		AssetVars: []descvar.VarSpec{
 			{ChnlPH: "forwarder-closer-ph", DescQN: oneType.DefSpec.TypeQN},
 		},
 	})
@@ -881,11 +881,11 @@ func (s *suite) fwd(t *testing.T) {
 	waiterProcQN := "waiter-proc-qn"
 	waiterProcDec, err := s.ProcDecAPI.Create(procdec.DecSpec{
 		DescQN: waiterProcQN,
-		ProviderVS: descvar.VarSpec{
+		LiabVar: descvar.VarSpec{
 			ChnlPH: "waiter-provider-ph",
 			DescQN: oneType.DefSpec.TypeQN,
 		},
-		ClientVSes: []descvar.VarSpec{
+		AssetVars: []descvar.VarSpec{
 			{ChnlPH: "waiter-forwarder-ph", DescQN: oneType.DefSpec.TypeQN},
 		},
 	})
@@ -977,7 +977,7 @@ func (s *suite) fwd(t *testing.T) {
 		ProcExp: procexp.ExpSpec{
 			K: procexp.Close,
 			Close: &procexp.CloseSpec{
-				CommChnlPH: closerProcDec.ProviderVR.ChnlPH,
+				CommChnlPH: closerProcDec.LiabVar.ChnlPH,
 			},
 		},
 	})
@@ -990,8 +990,8 @@ func (s *suite) fwd(t *testing.T) {
 		ProcExp: procexp.ExpSpec{
 			K: procexp.Fwd,
 			Fwd: &procexp.FwdSpec{
-				CommChnlPH: forwarderProcDec.ProviderVR.ChnlPH,
-				ContChnlPH: forwarderProcDec.ClientVRs[0].ChnlPH,
+				CommChnlPH: forwarderProcDec.LiabVar.ChnlPH,
+				ContChnlPH: forwarderProcDec.AssetVars[0].ChnlPH,
 			},
 		},
 	})
@@ -1004,11 +1004,11 @@ func (s *suite) fwd(t *testing.T) {
 		ProcExp: procexp.ExpSpec{
 			K: procexp.Wait,
 			Wait: &procexp.WaitSpec{
-				CommChnlPH: waiterProcDec.ClientVRs[0].ChnlPH,
+				CommChnlPH: waiterProcDec.AssetVars[0].ChnlPH,
 				ContES: procexp.ExpSpec{
 					K: procexp.Close,
 					Close: &procexp.CloseSpec{
-						CommChnlPH: waiterProcDec.ProviderVR.ChnlPH,
+						CommChnlPH: waiterProcDec.LiabVar.ChnlPH,
 					},
 				},
 			},

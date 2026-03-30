@@ -1,7 +1,6 @@
 package poolenv
 
 import (
-	"orglang/go-engine/adt/pooldec"
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/adt/valkey"
 	"orglang/go-engine/adt/xactdef"
@@ -16,5 +15,4 @@ type EnvSpec struct {
 type EnvSnap struct {
 	XactDefs map[uniqsym.ADT]xactdef.DefSnap
 	XactExps map[valkey.ADT]xactexp.ExpSpec
-	PoolDecs map[uniqsym.ADT]pooldec.DecSnap
 }

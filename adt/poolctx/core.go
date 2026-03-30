@@ -6,13 +6,12 @@ import (
 	"orglang/go-engine/adt/xactexp"
 )
 
-type CtxSpec struct {
+type CtxQry struct {
 	DescRef descsem.SemRef
 }
 
 type CtxSnap struct {
-	// активы пула
-	ClientVars map[symbol.ADT]xactexp.ExpRec
-	// обязательства пула
-	ProviderVars map[symbol.ADT]xactexp.ExpRec
+	DescRef    descsem.SemRef
+	StructVars map[symbol.ADT]xactexp.ExpRec
+	LinearVars map[symbol.ADT]xactexp.ExpRec
 }

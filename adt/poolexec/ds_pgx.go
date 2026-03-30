@@ -67,10 +67,10 @@ func (dao *pgxDAO) GetRecsByQNs(source db.Source, implQNs []uniqsym.ADT) (_ map[
 			dao.log.Error("query execution failed", qnAttr)
 			return nil, readErr
 		}
-		dto, collectErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[execRecDS])
-		if collectErr != nil {
-			dao.log.Error("row collection failed", qnAttr)
-			return nil, collectErr
+		dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[execRecDS])
+		if scanErr != nil {
+			dao.log.Error("row scanning failed", qnAttr)
+			return nil, scanErr
 		}
 		dtos[implQN] = dto
 	}
@@ -103,31 +103,31 @@ func (dao *pgxDAO) GetRefs(source db.Source) ([]implsem.SemRef, error) {
 	return refs, nil
 }
 
-func (dao *pgxDAO) GetSnap(source db.Source, ref implsem.SemRef) (ExecSnap, error) {
+func (dao *pgxDAO) GetSnap(source db.Source, ref implsem.SemRef) (ExecCtxSnap, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	implAttr := slog.Any("impl", ref)
 	refDTO, convErr1 := implsem.DataFromRef(ref)
 	if convErr1 != nil {
 		dao.log.Error("model converison failed", implAttr)
-		return ExecSnap{}, convErr1
+		return ExecCtxSnap{}, convErr1
 	}
 	sql, args := dao.qb.selectSnap(refDTO)
 	rows, execErr := ds.Conn.Query(ds.Ctx, sql, args...)
 	if execErr != nil {
-		dao.log.Error("query execution failed", implAttr)
-		return ExecSnap{}, execErr
+		dao.log.Error("query execution failed", implAttr, slog.String("sql", sql), slog.Any("args", args))
+		return ExecCtxSnap{}, execErr
 	}
 	defer rows.Close()
-	snapDTO, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[execSnapDS])
+	snapDTO, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[execCtxSnapDS])
 	if scanErr != nil {
-		dao.log.Error("row collection failed", implAttr, slog.Any("type", reflect.TypeFor[execSnapDS]))
-		return ExecSnap{}, scanErr
+		dao.log.Error("row scanning failed", implAttr, slog.Any("dto", snapDTO))
+		return ExecCtxSnap{}, scanErr
 	}
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection succeed", slog.Any("dto", snapDTO))
 	snap, convErr2 := DataToExecSnap(snapDTO)
 	if convErr2 != nil {
 		dao.log.Error("model converison failed", implAttr)
-		return ExecSnap{}, convErr2
+		return ExecCtxSnap{}, convErr2
 	}
 	return snap, nil
 }

@@ -68,10 +68,10 @@ func (dao *pgxDAO) SelectRecByVK(source db.Source, expVK valkey.ADT) (ExpRec, er
 		return nil, queryErr
 	}
 	defer rows.Close()
-	dtos, collectErr := pgx.CollectRows(rows, pgx.RowToStructByName[stateDS])
-	if collectErr != nil {
-		dao.log.Error("row collection failed", vkAttr)
-		return nil, collectErr
+	dtos, scanErr := pgx.CollectRows(rows, pgx.RowToStructByName[stateDS])
+	if scanErr != nil {
+		dao.log.Error("row scanning failed", vkAttr)
+		return nil, scanErr
 	}
 	if len(dtos) == 0 { // revive:disable-line
 		dao.log.Error("entity selection failed", vkAttr)

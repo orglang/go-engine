@@ -30,11 +30,11 @@ func (dao *pgxDAO) InsertRec(db.Source, StepRec) error {
 	panic("unimplemented")
 }
 
-func (dao *pgxDAO) InsertRecs(db.Source, []StepRec) error {
+func (dao *pgxDAO) AddRecs(db.Source, []StepRec) error {
 	panic("unimplemented")
 }
 
-func (dao *pgxDAO) SelectCtxSnapByCtxSpec(db.Source, poolctx.CtxSpec) (poolctx.CtxSnap, error) {
+func (dao *pgxDAO) SelectCtxSnapByCtxSpec(db.Source, poolctx.CtxQry) (poolctx.CtxSnap, error) {
 	panic("unimplemented")
 }
 

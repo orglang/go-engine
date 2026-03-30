@@ -1,8 +1,6 @@
 package poolexec
 
 import (
-	"database/sql"
-
 	"github.com/huandu/go-sqlbuilder"
 
 	"orglang/go-engine/adt/implsem"
@@ -37,14 +35,14 @@ func (qb *sqlBuilder) insertRec(rec execRecDS) (string, []any) {
 
 func (qb *sqlBuilder) selectSnap(ref implsem.SemRefDS) (string, []any) {
 	sems := qb.semBuilder.SelectFrom(implSems)
-	svs := qb.varBuilder.SelectFrom(poolStructVars)
-	lvs := qb.varBuilder.SelectFrom(poolLinearVars)
-	id := sql.Named("id", ref.ImplID)
-	return sems.SelectMore(
-		sems.BuilderAs(svs.Where(svs.Equal("impl_id", id)), "struct_vars"),
-		sems.BuilderAs(lvs.Where(lvs.Equal("impl_id", id)), "linear_vars"),
-	).
-		Where(sems.Equal("impl_id", id)).
+	return sems.
+		SelectMore(
+			sems.BuilderAs(sqlbuilder.Build("array_agg(row(struct_var.*))"), "struct_vars"),
+			sems.BuilderAs(sqlbuilder.Build("array_agg(row(linear_var.*))"), "linear_vars")).
+		JoinWithOption(sqlbuilder.LeftOuterJoin, poolStructVars, "struct_var.impl_id = sem.impl_id").
+		JoinWithOption(sqlbuilder.LeftOuterJoin, poolLinearVars, "linear_var.impl_id = sem.impl_id").
+		Where(sems.Equal("sem.impl_id", ref.ImplID)).
+		GroupBy("sem.impl_id", "sem.impl_rn").
 		Build()
 }
 

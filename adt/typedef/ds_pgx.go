@@ -105,7 +105,7 @@ func (dao *pgxDAO) SelectRecByRef(source db.Source, ref descsem.SemRef) (DefRec,
 	defer rows.Close()
 	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRecDS])
 	if err != nil {
-		dao.log.Error("row collection failed", refAttr)
+		dao.log.Error("row scanning failed", refAttr)
 		return DefRec{}, err
 	}
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity selection succeed", refAttr)
@@ -123,7 +123,7 @@ func (dao *pgxDAO) SelectRecByQN(source db.Source, typeQN uniqsym.ADT) (DefRec, 
 	defer rows.Close()
 	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRecDS])
 	if err != nil {
-		dao.log.Error("row collection failed", qnAttr)
+		dao.log.Error("row scanning failed", qnAttr)
 		return DefRec{}, err
 	}
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity selection succeed", qnAttr)
@@ -154,7 +154,7 @@ func (dao *pgxDAO) SelectRecsByRefs(source db.Source, refs []descsem.SemRef) (_ 
 		}
 		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRecDS])
 		if err != nil {
-			dao.log.Error("row collection failed", slog.Any("defRef", defRef))
+			dao.log.Error("row scanning failed", slog.Any("defRef", defRef))
 		}
 		dtos = append(dtos, dto)
 	}
@@ -198,7 +198,7 @@ func (dao *pgxDAO) SelectRecsByQNs(source db.Source, typeQNs []uniqsym.ADT) (_ [
 		}
 		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRecDS])
 		if err != nil {
-			dao.log.Error("row collection failed", slog.Any("typeQN", typeQN))
+			dao.log.Error("row scanning failed", slog.Any("typeQN", typeQN))
 		}
 		dtos = append(dtos, dto)
 	}

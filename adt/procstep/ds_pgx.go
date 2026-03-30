@@ -82,7 +82,7 @@ func (dao *pgxDAO) execute(source db.Source, query string, arg string) (StepRec,
 		return nil, nil
 	}
 	if err != nil {
-		dao.log.Error("row collection failed")
+		dao.log.Error("row scanning failed")
 		return nil, err
 	}
 	root, err := dataToStepRec(dto)

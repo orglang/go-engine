@@ -37,9 +37,9 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 		return err
 	}
 	args := pgx.NamedArgs{
-		"desc_id":     dto.DescID,
-		"provider_vr": dto.ProviderVR,
-		"client_vrs":  dto.ClientVRs,
+		"desc_id":    dto.DescID,
+		"liab_var":   dto.LiabVar,
+		"asset_vars": dto.AssetVars,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertRec, args)
 	if err != nil {
@@ -60,7 +60,7 @@ func (dao *pgxDAO) SelectSnap(source db.Source, ref descsem.SemRef) (DecSnap, er
 	defer rows.Close()
 	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[decSnapDS])
 	if err != nil {
-		dao.log.Error("row collection failed", refAttr)
+		dao.log.Error("row scanning failed", refAttr)
 		return DecSnap{}, err
 	}
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "entitiy selection succeed", slog.Any("dto", dto))
@@ -103,7 +103,7 @@ func (dao *pgxDAO) SelectRecs(source db.Source, ids []identity.ADT) (_ []DecRec,
 		}
 		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[decRecDS])
 		if err != nil {
-			dao.log.Error("row collection failed", slog.Any("id", rid))
+			dao.log.Error("row scanning failed", slog.Any("id", rid))
 		}
 		dtos = append(dtos, dto)
 	}
@@ -137,17 +137,17 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]descsem.SemRef, error) {
 const (
 	insertRec = `
 		insert into proc_decs (
-			desc_id, provider_vr, client_vrs
+			desc_id, liab_var, asset_vars
 		) values (
-			@desc_id, @provider_vr, @client_vrs
+			@desc_id, @liab_var, @asset_vars
 		)`
 
 	selectByRef = `
 		select
 			pd.desc_id,
 			ds.desc_rn,
-			pd.provider_vr,
-			pd.client_vrs
+			pd.liab_var,
+			pd.asset_vars
 		from proc_decs pd
 		left join desc_sems ds
 			on ds.desc_id = pd.desc_id

@@ -70,7 +70,7 @@ func (r StructRec) GetChnlID() identity.ADT { return r.ChnlID }
 
 func (r StructRec) GetChnlPH() symbol.ADT { return r.ChnlPH }
 
-type side int8
+type side int16
 
 const (
 	unkSide side = iota
@@ -78,7 +78,7 @@ const (
 	AssetSide
 )
 
-type Mode int8
+type Mode int16
 
 const (
 	unkMode Mode = iota

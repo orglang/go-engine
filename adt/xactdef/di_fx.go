@@ -12,6 +12,7 @@ var Module = fx.Module("adt/xactdef",
 	fx.Provide(
 		fx.Private,
 		newEchoController,
+		fx.Annotate(newSQLBuilder, fx.As(new(queryBuilder))),
 	),
 	fx.Invoke(
 		cfgEchoController,

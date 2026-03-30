@@ -1,9 +1,10 @@
 package descvar
 
 import (
-	"orglang/go-engine/adt/identity"
+	"orglang/go-engine/adt/descsem"
 	"orglang/go-engine/adt/symbol"
 	"orglang/go-engine/adt/uniqsym"
+	"orglang/go-engine/adt/valkey"
 )
 
 // human-readable specification of description variable
@@ -18,6 +19,7 @@ type VarSpec struct {
 // machine-readable record of description variable
 // машиночитаемая запись переменной описания
 type VarRec struct {
-	ChnlPH symbol.ADT
-	DescID identity.ADT
+	DescRef descsem.SemRef
+	ChnlPH  symbol.ADT
+	ExpVK   valkey.ADT
 }

@@ -20,8 +20,6 @@ CREATE TABLE xact_defs (
 CREATE TABLE xact_exps (
 	exp_vk bigint UNIQUE,
 	sup_exp_vk bigint,
-	desc_id varchar,
-	desc_rn bigint,
 	kind smallint,
 	spec jsonb
 );
@@ -94,8 +92,6 @@ CREATE TABLE type_defs (
 CREATE TABLE type_exps (
 	exp_vk bigint UNIQUE,
 	sup_exp_vk bigint,
-	desc_id varchar,
-	desc_rn bigint,
 	kind smallint,
 	spec jsonb
 );

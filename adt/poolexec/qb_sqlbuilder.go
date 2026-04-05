@@ -38,7 +38,8 @@ func (qb *sqlBuilder) selectSnap(ref implsem.SemRefDS) (string, []any) {
 	return sems.
 		SelectMore(
 			sems.BuilderAs(sqlbuilder.Build("array_agg(row(struct_var.*))"), "struct_vars"),
-			sems.BuilderAs(sqlbuilder.Build("array_agg(row(linear_var.*))"), "linear_vars")).
+			sems.BuilderAs(sqlbuilder.Build("array_agg(row(linear_var.*))"), "linear_vars"),
+		).
 		JoinWithOption(sqlbuilder.LeftOuterJoin, poolStructVars, "struct_var.impl_id = sem.impl_id").
 		JoinWithOption(sqlbuilder.LeftOuterJoin, poolLinearVars, "linear_var.impl_id = sem.impl_id").
 		Where(sems.Equal("sem.impl_id", ref.ImplID)).
@@ -46,13 +47,13 @@ func (qb *sqlBuilder) selectSnap(ref implsem.SemRefDS) (string, []any) {
 		Build()
 }
 
-func (qb *sqlBuilder) selectSnapByQN(implQN string) (string, []any) {
+func (qb *sqlBuilder) selectSnapByQN(qn string) (string, []any) {
 	sb := qb.snapBuilder.SelectFrom(implSems)
 	return sb.Join(poolExecs, "exec.impl_id = sem.impl_id").
 		Join(poolStructVars, "struct_var.impl_id = sem.impl_id", "struct_var.side = 1", "exec.mode = 1").
 		Join(poolLinearVars, "linear_var.impl_id = sem.impl_id", "linear_var.side = 1", "exec.mode = 2").
 		Join(implBinds, "bind.impl_id = sem.impl_id").
-		Where(sb.Equal("bind.impl_qn", implQN)).
+		Where(sb.Equal("bind.impl_qn", qn)).
 		OrderByDesc("struct_var.impl_rn").OrderByDesc("linear_var.impl_rn").
 		Limit(1).
 		Build()

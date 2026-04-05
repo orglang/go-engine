@@ -27,6 +27,6 @@ func newSQLBuilder() *sqlBuilder {
 func (qb *sqlBuilder) selectRecByQN() string {
 	sb := qb.defBuilder.SelectFrom(xactDefs)
 	return sb.Join(descBinds, "bind.desc_id = def.desc_id").
-		Where(sb.Equal("bind.desc_qn", sb.Var)).
+		Where(sb.Equal("bind.desc_qn", sb.Var(1))).
 		String()
 }

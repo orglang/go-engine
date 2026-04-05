@@ -12,6 +12,7 @@ var Module = fx.Module("adt/pooldec",
 	fx.Provide(
 		fx.Private,
 		newEchoController,
+		fx.Annotate(newSQLBuilder, fx.As(new(queryBuilder))),
 	),
 	fx.Invoke(
 		cfgEchoController,

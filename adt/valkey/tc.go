@@ -4,11 +4,11 @@ import (
 	"database/sql"
 )
 
-func ConvertFromInteger(key int64) (ADT, error) {
+func ConvertFromInt(key int64) (ADT, error) {
 	return ADT(key), nil
 }
 
-func ConvertToInteger(key ADT) int64 {
+func ConvertToInt(key ADT) int64 {
 	return int64(key)
 }
 

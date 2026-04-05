@@ -5,6 +5,7 @@ package commsem
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/seqnum:Convert.*
 var (
+	DataFromRef func(SemRef) SemRefDS
 	// goverter:autoMap CommRef
 	DataFromRec func(SemRec) semRecDS
 	// goverter:map . CommRef

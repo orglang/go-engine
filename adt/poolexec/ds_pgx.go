@@ -86,48 +86,48 @@ func (dao *pgxDAO) GetRefs(source db.Source) ([]implsem.SemRef, error) {
 		from pool_execs`
 	rows, err := ds.Conn.Query(ds.Ctx, query)
 	if err != nil {
-		dao.log.Error("execution failed", slog.String("q", query))
+		dao.log.Error("query execution failed", slog.String("q", query))
 		return nil, err
 	}
 	defer rows.Close()
 	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[implsem.SemRefDS])
 	if err != nil {
-		dao.log.Error("collection failed", slog.Any("type", reflect.TypeFor[[]implsem.SemRefDS]))
+		dao.log.Error("rows scanning failed", slog.Any("type", reflect.TypeFor[[]implsem.SemRefDS]))
 		return nil, err
 	}
 	refs, err := implsem.DataToRefs(dtos)
 	if err != nil {
-		dao.log.Error("conversion failed")
+		dao.log.Error("model conversion failed")
 		return nil, err
 	}
 	return refs, nil
 }
 
-func (dao *pgxDAO) GetSnap(source db.Source, ref implsem.SemRef) (ExecCtxSnap, error) {
+func (dao *pgxDAO) GetSnap(source db.Source, ref implsem.SemRef) (ExecCfgSnap, error) {
 	ds := db.MustConform[db.SourcePgx](source)
-	implAttr := slog.Any("impl", ref)
+	refAttr := slog.Any("ref", ref)
 	refDTO, convErr1 := implsem.DataFromRef(ref)
 	if convErr1 != nil {
-		dao.log.Error("model converison failed", implAttr)
-		return ExecCtxSnap{}, convErr1
+		dao.log.Error("model conversion failed", refAttr)
+		return ExecCfgSnap{}, convErr1
 	}
 	sql, args := dao.qb.selectSnap(refDTO)
 	rows, execErr := ds.Conn.Query(ds.Ctx, sql, args...)
 	if execErr != nil {
-		dao.log.Error("query execution failed", implAttr, slog.String("sql", sql), slog.Any("args", args))
-		return ExecCtxSnap{}, execErr
+		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql), slog.Any("args", args))
+		return ExecCfgSnap{}, execErr
 	}
 	defer rows.Close()
-	snapDTO, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[execCtxSnapDS])
+	snapDTO, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[execCfgSnapDS])
 	if scanErr != nil {
-		dao.log.Error("row scanning failed", implAttr, slog.Any("dto", snapDTO))
-		return ExecCtxSnap{}, scanErr
+		dao.log.Error("rows scanning failed", refAttr, slog.Any("dto", snapDTO))
+		return ExecCfgSnap{}, scanErr
 	}
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection succeed", slog.Any("dto", snapDTO))
 	snap, convErr2 := DataToExecSnap(snapDTO)
 	if convErr2 != nil {
-		dao.log.Error("model converison failed", implAttr)
-		return ExecCtxSnap{}, convErr2
+		dao.log.Error("model conversion failed", refAttr)
+		return ExecCfgSnap{}, convErr2
 	}
 	return snap, nil
 }
@@ -181,13 +181,6 @@ const (
 		left join impl_binds ib
 			on ib.impl_id = pe.impl_id
 		where ib.impl_qn = $1`
-
-	insertStep = `
-		insert into pool_steps (
-			proc_id, chnl_id, kind, spec
-		) values (
-			@proc_id, @chnl_id, @kind, @spec
-		)`
 
 	selectOrgSnap = `
 		select

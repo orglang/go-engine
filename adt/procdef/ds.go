@@ -9,7 +9,7 @@ type Repo interface {
 }
 
 type ExpRecDS struct {
-	K     expKindDS   `json:"k"`
+	K     expKind     `json:"k"`
 	Close *closeRecDS `json:"close,omitempty"`
 	Wait  *waitRecDS  `json:"wait,omitempty"`
 	Send  *sendRecDS  `json:"send,omitempty"`
@@ -20,7 +20,7 @@ type ExpRecDS struct {
 }
 
 type ExpSpecDS struct {
-	K     expKindDS    `json:"k"`
+	K     expKind      `json:"k"`
 	Close *closeSpecDS `json:"close,omitempty"`
 	Wait  *waitSpecDS  `json:"wait,omitempty"`
 	Send  *sendSpecDS  `json:"send,omitempty"`
@@ -30,10 +30,10 @@ type ExpSpecDS struct {
 	Fwd   *fwdSpecDS   `json:"fwd,omitempty"`
 }
 
-type expKindDS int
+type expKind int
 
 const (
-	nonExp = expKindDS(iota)
+	unkKind expKind = iota
 	closeExp
 	waitExp
 	sendExp

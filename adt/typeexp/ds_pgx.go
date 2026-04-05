@@ -62,7 +62,7 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec ExpRec, ref descsem.SemRef) (
 func (dao *pgxDAO) SelectRecByVK(source db.Source, expVK valkey.ADT) (ExpRec, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	vkAttr := slog.Any("expVK", expVK)
-	rows, queryErr := ds.Conn.Query(ds.Ctx, selectByID, valkey.ConvertToInteger(expVK))
+	rows, queryErr := ds.Conn.Query(ds.Ctx, selectByID, valkey.ConvertToInt(expVK))
 	if queryErr != nil {
 		dao.log.Error("query execution failed", vkAttr)
 		return nil, queryErr
@@ -82,7 +82,7 @@ func (dao *pgxDAO) SelectRecByVK(source db.Source, expVK valkey.ADT) (ExpRec, er
 	for _, dto := range dtos {
 		states[dto.ExpVK] = dto
 	}
-	return statesToExpRec(states, states[valkey.ConvertToInteger(expVK)])
+	return statesToExpRec(states, states[valkey.ConvertToInt(expVK)])
 }
 
 func (dao *pgxDAO) SelectEnv(source db.Source, expVKs []valkey.ADT) (map[valkey.ADT]ExpRec, error) {
@@ -101,7 +101,7 @@ func (dao *pgxDAO) SelectRecsByVKs(source db.Source, expVKs []valkey.ADT) (_ []E
 	ds := db.MustConform[db.SourcePgx](source)
 	batch := pgx.Batch{}
 	for _, expVK := range expVKs {
-		batch.Queue(selectByID, valkey.ConvertToInteger(expVK))
+		batch.Queue(selectByID, valkey.ConvertToInt(expVK))
 	}
 	br := ds.Conn.SendBatch(ds.Ctx, &batch)
 	defer func() {
@@ -116,13 +116,13 @@ func (dao *pgxDAO) SelectRecsByVKs(source db.Source, expVKs []valkey.ADT) (_ []E
 		}
 		dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[stateDS])
 		if err != nil {
-			dao.log.Error("rows collection failed", vkAttr)
+			dao.log.Error("rows scanning failed", vkAttr)
 		}
 		if len(dtos) == 0 {
 			dao.log.Error("entity selection failed", vkAttr)
 			return nil, ErrDoesNotExist(expVK)
 		}
-		rec, err := dataToExpRec(expRecDS{valkey.ConvertToInteger(expVK), dtos})
+		rec, err := dataToExpRec(expRecDS{valkey.ConvertToInt(expVK), dtos})
 		if err != nil {
 			dao.log.Error("model conversion failed", vkAttr)
 			return nil, err

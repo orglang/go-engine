@@ -1,4 +1,4 @@
-package pooldec
+package xactexp
 
 import (
 	"fmt"
@@ -7,12 +7,12 @@ import (
 
 func TestInsertRec(t *testing.T) {
 	qb := newSQLBuilder()
-	sql, _ := qb.insertRec(decRecDS{})
+	sql, _ := qb.insertRec(stateDS{})
 	fmt.Println(sql)
 }
 
-func TestSelectRecByQN(t *testing.T) {
+func TestSelectRec(t *testing.T) {
 	qb := newSQLBuilder()
-	sql, _ := qb.selectRecByQN("qn")
+	sql := qb.selectRecByVK()
 	fmt.Println(sql)
 }

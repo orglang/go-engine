@@ -1,14 +1,25 @@
 package poolconn
 
 import (
+	"database/sql"
 	"fmt"
 	"testing"
 )
 
-func TestInsert(t *testing.T) {
+func TestInsertRec(t *testing.T) {
 	qb := newSQLBuilder()
-	rec := connRecDS{CommID: "id-1", CommRN: 1}
-	sql, args := qb.insertRec(rec)
+	sql, _ := qb.insertRec(connRecDS{})
 	fmt.Println(sql)
-	fmt.Println(args)
+}
+
+func TestUpdateRec(t *testing.T) {
+	qb := newSQLBuilder()
+	sql, _ := qb.updateRec(connModDS{CommON: sql.Null[int64]{Valid: true}})
+	fmt.Println(sql)
+}
+
+func TestSelectSnap(t *testing.T) {
+	qb := newSQLBuilder()
+	sql, _ := qb.selectSnap(connQryDS{ChnlID: sql.Null[string]{Valid: true}})
+	fmt.Println(sql)
 }

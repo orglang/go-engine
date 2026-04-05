@@ -26,6 +26,7 @@ type VarRec interface {
 	GetCommRef() commsem.SemRef
 	GetChnlID() identity.ADT
 	GetChnlPH() symbol.ADT
+	GetExpVK() valkey.ADT
 }
 
 type LinearRec struct {
@@ -49,6 +50,8 @@ func (r LinearRec) GetChnlID() identity.ADT { return r.ChnlID }
 
 func (r LinearRec) GetChnlPH() symbol.ADT { return r.ChnlPH }
 
+func (r LinearRec) GetExpVK() valkey.ADT { return r.ExpVK }
+
 type StructRec struct {
 	ImplRef implsem.SemRef
 	CommRef commsem.SemRef
@@ -69,6 +72,8 @@ func (r StructRec) GetCommRef() commsem.SemRef { return r.CommRef }
 func (r StructRec) GetChnlID() identity.ADT { return r.ChnlID }
 
 func (r StructRec) GetChnlPH() symbol.ADT { return r.ChnlPH }
+
+func (r StructRec) GetExpVK() valkey.ADT { return r.ExpVK }
 
 type side int16
 

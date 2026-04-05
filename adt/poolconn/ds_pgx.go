@@ -9,6 +9,8 @@ import (
 
 	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/uniqsym"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type pgxDAO struct {
@@ -29,25 +31,57 @@ func newRepo() Repo {
 func (dao *pgxDAO) AddRec(source db.Source, rec ConnRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
 	dto := DataFromRec(rec)
-	commAttr := slog.Any("comm", rec.CommRef)
+	refAttr := slog.Any("ref", rec.CommRef)
 	sql, args := dao.qb.insertRec(dto)
 	_, execErr := ds.Conn.Exec(ds.Ctx, sql, args...)
 	if execErr != nil {
-		dao.log.Error("query execution failed", commAttr)
+		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
 		return execErr
 	}
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "insertion succeed", slog.Any("dto", dto))
 	return nil
 }
 
-func (dao *pgxDAO) GetRefsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]commsem.SemRef, error) {
+func (dao *pgxDAO) GetRefsByQNs(source db.Source, qns []uniqsym.ADT) (map[uniqsym.ADT]commsem.SemRef, error) {
 	panic("unimplemented")
 }
 
-func (dao *pgxDAO) GetSnapByQry(db.Source, ConnQry) (ConnSnap, error) {
-	panic("unimplemented")
+func (dao *pgxDAO) GetSnapByQry(source db.Source, qry ConnQry) (ConnSnap, error) {
+	ds := db.MustConform[db.SourcePgx](source)
+	refAttr := slog.Any("ref", qry.CommRef)
+	dto := DataFromQry(qry)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection started", slog.Any("qry", dto))
+	sql, args := dao.qb.selectSnap(dto)
+	rows, execErr := ds.Conn.Query(ds.Ctx, sql, args...)
+	if execErr != nil {
+		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
+		return ConnSnap{}, execErr
+	}
+	defer rows.Close()
+	snapDTO, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[connSnapDS])
+	if scanErr != nil {
+		dao.log.Error("rows scanning failed", refAttr)
+		return ConnSnap{}, scanErr
+	}
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection succeed", slog.Any("dto", snapDTO))
+	snap, convErr := DataToSnap(snapDTO)
+	if convErr != nil {
+		dao.log.Error("model conversion failed", refAttr)
+		return ConnSnap{}, convErr
+	}
+	return snap, nil
 }
 
-func (dao *pgxDAO) UpdateRec(db.Source, ConnMod) error {
-	panic("unimplemented")
+func (dao *pgxDAO) UpdateRec(source db.Source, mod ConnMod) error {
+	ds := db.MustConform[db.SourcePgx](source)
+	dto := DataFromMod(mod)
+	refAttr := slog.Any("ref", mod.CommRef)
+	sql, args := dao.qb.updateRec(dto)
+	_, execErr := ds.Conn.Exec(ds.Ctx, sql, args...)
+	if execErr != nil {
+		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
+		return execErr
+	}
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "update succeed", slog.Any("dto", dto))
+	return nil
 }

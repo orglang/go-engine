@@ -5,7 +5,7 @@ import (
 )
 
 type sqlBuilder struct {
-	semBuilder *sqlbuilder.Struct
+	recBuilder *sqlbuilder.Struct
 }
 
 // for compilation purposes
@@ -14,10 +14,19 @@ func newQueryBuikder() queryBuilder {
 }
 
 func newSQLBuilder() *sqlBuilder {
-	semBuilder := sqlbuilder.NewStruct(new(decRecDS)).For(sqlbuilder.PostgreSQL)
-	return &sqlBuilder{semBuilder}
+	recBuilder := sqlbuilder.NewStruct(new(decRecDS)).For(sqlbuilder.PostgreSQL)
+	return &sqlBuilder{recBuilder}
 }
 
 func (qb *sqlBuilder) insertRec(rec decRecDS) (string, []any) {
-	return qb.semBuilder.InsertInto("pool_decs", rec).Build()
+	return qb.recBuilder.InsertInto(poolDecs, rec).Build()
+}
+
+func (qb *sqlBuilder) selectRecByQN(qn string) (string, []any) {
+	sb := sqlbuilder.PostgreSQL.NewSelectBuilder()
+	return sb.Select("dec.desc_id", "dec.liab_var", "dec.asset_vars").
+		From(poolDecs+" dec").
+		Join(descBinds+" bind", "bind.desc_id = dec.desc_id").
+		Where(sb.Equal("bind.desc_qn", qn)).
+		Build()
 }

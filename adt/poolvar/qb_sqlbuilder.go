@@ -7,7 +7,7 @@ import (
 )
 
 type sqlBuilder struct {
-	semBuilder *sqlbuilder.Struct
+	varBuilder *sqlbuilder.Struct
 }
 
 // for compilation purposes
@@ -21,5 +21,5 @@ func newSQLBuilder() *sqlBuilder {
 }
 
 func (qb *sqlBuilder) insertRec(table string, rec implvar.VarRecDS) (string, []any) {
-	return qb.semBuilder.InsertInto(table, rec).Build()
+	return qb.varBuilder.InsertInto(table, rec).Build()
 }

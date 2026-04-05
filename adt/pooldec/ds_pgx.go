@@ -4,18 +4,20 @@ import (
 	"log/slog"
 	"reflect"
 
-	"github.com/jackc/pgx/v5"
-
+	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/lib/db"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type pgxDAO struct {
+	qb  queryBuilder
 	log *slog.Logger
 }
 
-func newPgxDAO(l *slog.Logger) *pgxDAO {
+func newPgxDAO(qb queryBuilder, log *slog.Logger) *pgxDAO {
 	name := slog.String("name", reflect.TypeFor[pgxDAO]().Name())
-	return &pgxDAO{l.With(name)}
+	return &pgxDAO{qb, log.With(name)}
 }
 
 // for compilation purposes
@@ -31,12 +33,8 @@ func (dao *pgxDAO) AddRec(source db.Source, rec DecRec) error {
 		dao.log.Error("model conversion failed", refAttr)
 		return convErr
 	}
-	args := pgx.NamedArgs{
-		"desc_id":    dto.DescID,
-		"liab_var":   dto.LiabVar,
-		"asset_vars": dto.AssetVars,
-	}
-	_, execErr := ds.Conn.Exec(ds.Ctx, insertRec, args)
+	sql, args := dao.qb.insertRec(dto)
+	_, execErr := ds.Conn.Exec(ds.Ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr)
 		return execErr
@@ -44,11 +42,24 @@ func (dao *pgxDAO) AddRec(source db.Source, rec DecRec) error {
 	return nil
 }
 
-const (
-	insertRec = `
-		insert into pool_decs (
-			desc_id, liab_var, asset_vars
-		) values (
-			@desc_id, @liab_var, @asset_vars
-		)`
-)
+func (dao *pgxDAO) GetRecByQN(source db.Source, qn uniqsym.ADT) (DecRec, error) {
+	ds := db.MustConform[db.SourcePgx](source)
+	qnAttr := slog.Any("qn", qn)
+	sql, args := dao.qb.selectRecByQN(uniqsym.ConvertToString(qn))
+	rows, execErr := ds.Conn.Query(ds.Ctx, sql, args...)
+	if execErr != nil {
+		dao.log.Error("query execution failed", qnAttr)
+		return DecRec{}, execErr
+	}
+	dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[decRecDS])
+	if scanErr != nil {
+		dao.log.Error("rows scanning failed", qnAttr)
+		return DecRec{}, scanErr
+	}
+	rec, convErr := DataToDecRec(dto)
+	if convErr != nil {
+		dao.log.Error("model conversion failed", qnAttr)
+		return DecRec{}, convErr
+	}
+	return rec, nil
+}

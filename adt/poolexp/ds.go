@@ -1,9 +1,22 @@
 package poolexp
 
-import (
-	"orglang/go-engine/lib/db"
+type Repo interface {
+}
+
+type ExpRecDS struct {
+	K       expKind     `json:"k"`
+	Acquire *shiftRecDS `json:"acquire,omitempty"`
+	Accept  *shiftRecDS `json:"accept,omitempty"`
+}
+
+type expKind int
+
+const (
+	unkExp expKind = iota
+	acquireExp
+	acceptExp
 )
 
-type Repo interface {
-	InsertRec(db.Source, ExpSpec) error
+type shiftRecDS struct {
+	ContChnlID string `json:"cont"`
 }

@@ -98,19 +98,23 @@ func (s *suite) waitClose(t *testing.T) {
 	_, err := s.XactDefAPI.Create(xactdef.DefSpec{
 		XactQN: withXactQN,
 		XactExp: xactexp.ExpSpec{
-			K: xactexp.With,
-			With: &xactexp.LaborSpec{
-				Choices: []xactexp.ChoiceSpec{
-					// пул заявляет компетенцию closerProcQN
-					{ProcQN: closerProcQN, ContES: xactexp.ExpSpec{
-						K:    xactexp.Link,
-						Link: &xactexp.LinkSpec{XactQN: withXactQN},
-					}},
-					// пул заявляет компетенцию waiterProcQN
-					{ProcQN: waiterProcQN, ContES: xactexp.ExpSpec{
-						K:    xactexp.Link,
-						Link: &xactexp.LinkSpec{XactQN: withXactQN},
-					}},
+			K: xactexp.Up,
+			Up: &xactexp.ShiftSpec{
+				ContExp: xactexp.ExpSpec{
+					K: xactexp.With,
+					With: &xactexp.LaborSpec{
+						// пул заявляет компетенции
+						ProcQNs: []string{closerProcQN, waiterProcQN},
+						ContExp: xactexp.ExpSpec{
+							K: xactexp.Down,
+							Down: &xactexp.ShiftSpec{
+								ContExp: xactexp.ExpSpec{
+									K:    xactexp.Link,
+									Link: &xactexp.LinkSpec{XactQN: withXactQN},
+								},
+							},
+						},
+					},
 				},
 			},
 		},
@@ -156,10 +160,16 @@ func (s *suite) waitClose(t *testing.T) {
 	err = s.PoolExecAPI.Take(poolstep.StepSpec{
 		ImplRef: myPoolExec,
 		PoolExp: poolexp.ExpSpec{
-			K: poolexp.Hire, // пул делает предложение поработать в качестве closerProcQN
-			Hire: &poolexp.HireSpec{
-				CommChnlPH: poolAssetPH, // пул выступает в качестве клиента самого себя
-				ProcDescQN: closerProcQN,
+			K: poolexp.Acquire, // пул запрашивает доступ к самому себе
+			Acquire: &poolexp.AcquireSpec{
+				CommChnlPH: poolAssetPH,
+				ContExp: poolexp.ExpSpec{
+					K: poolexp.Hire, // пул делает предложение поработать в качестве closerProcQN
+					Hire: &poolexp.HireSpec{
+						CommChnlPH: poolAssetPH, // пул выступает в качестве клиента самого себя
+						ProcDescQN: closerProcQN,
+					},
+				},
 			},
 		},
 	})
@@ -170,10 +180,16 @@ func (s *suite) waitClose(t *testing.T) {
 	err = s.PoolExecAPI.Take(poolstep.StepSpec{
 		ImplRef: myPoolExec,
 		PoolExp: poolexp.ExpSpec{
-			K: poolexp.Apply, // пул принимает предложение поработать в качестве closerProcQN
-			Apply: &poolexp.ApplySpec{
-				CommChnlPH: poolLiabPH, // пул выступает в качестве провайдера самому себе
-				ProcDescQN: closerProcQN,
+			K: poolexp.Accept,
+			Accept: &poolexp.AcceptSpec{
+				CommChnlPH: poolAssetPH,
+				ContExp: poolexp.ExpSpec{
+					K: poolexp.Apply, // пул принимает предложение поработать в качестве closerProcQN
+					Apply: &poolexp.ApplySpec{
+						CommChnlPH: poolLiabPH, // пул выступает в качестве провайдера самому себе
+						ProcDescQN: closerProcQN,
+					},
+				},
 			},
 		},
 	})
@@ -313,21 +329,22 @@ func (s *suite) recvSend(t *testing.T) {
 	_, err := s.XactDefAPI.Create(xactdef.DefSpec{
 		XactQN: withXactQN,
 		XactExp: xactexp.ExpSpec{
-			K: xactexp.With,
-			With: &xactexp.LaborSpec{
-				Choices: []xactexp.ChoiceSpec{
-					{ProcQN: senderProcQN, ContES: xactexp.ExpSpec{
-						K:    xactexp.Link,
-						Link: &xactexp.LinkSpec{XactQN: withXactQN},
-					}},
-					{ProcQN: receiverProcQN, ContES: xactexp.ExpSpec{
-						K:    xactexp.Link,
-						Link: &xactexp.LinkSpec{XactQN: withXactQN},
-					}},
-					{ProcQN: messageProcQN, ContES: xactexp.ExpSpec{
-						K:    xactexp.Link,
-						Link: &xactexp.LinkSpec{XactQN: withXactQN},
-					}},
+			K: xactexp.Up,
+			Up: &xactexp.ShiftSpec{
+				ContExp: xactexp.ExpSpec{
+					K: xactexp.With,
+					With: &xactexp.LaborSpec{
+						ProcQNs: []string{senderProcQN, receiverProcQN, messageProcQN},
+						ContExp: xactexp.ExpSpec{
+							K: xactexp.Down,
+							Down: &xactexp.ShiftSpec{
+								ContExp: xactexp.ExpSpec{
+									K:    xactexp.Link,
+									Link: &xactexp.LinkSpec{XactQN: withXactQN},
+								},
+							},
+						},
+					},
 				},
 			},
 		},

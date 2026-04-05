@@ -84,3 +84,7 @@ func ErrRecTypeUnexpected(got StepRec) error {
 func ErrRecTypeMismatch(got, want StepRec) error {
 	return fmt.Errorf("comm rec mismatch: want %T, got %T", want, got)
 }
+
+func ErrStepKindUnexpected(got stepKind) error {
+	return fmt.Errorf("step kind unexpected: %v", got)
+}

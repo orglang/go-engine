@@ -56,6 +56,26 @@ func MsgToExpSpecNilable(dto *poolexp.ExpSpec) (ExpSpec, error) {
 
 func MsgToExpSpec(dto poolexp.ExpSpec) (ExpSpec, error) {
 	switch dto.K {
+	case poolexp.Acquire:
+		commPH, err := symbol.ConvertFromString(dto.Acquire.CommChnlPH)
+		if err != nil {
+			return nil, err
+		}
+		contExp, err := MsgToExpSpec(dto.Acquire.ContExp)
+		if err != nil {
+			return nil, err
+		}
+		return AcquireSpec{CommChnlPH: commPH, ContExp: contExp}, nil
+	case poolexp.Accept:
+		commPH, err := symbol.ConvertFromString(dto.Accept.CommChnlPH)
+		if err != nil {
+			return nil, err
+		}
+		contExp, err := MsgToExpSpec(dto.Accept.ContExp)
+		if err != nil {
+			return nil, err
+		}
+		return AcceptSpec{CommChnlPH: commPH, ContExp: contExp}, nil
 	case poolexp.Hire:
 		commPH, err := symbol.ConvertFromString(dto.Hire.CommChnlPH)
 		if err != nil {
@@ -84,5 +104,35 @@ func MsgToExpSpec(dto poolexp.ExpSpec) (ExpSpec, error) {
 		return SpawnSpec2{ProcDescRef: descRef, ProcImplRefs: implRefs}, nil
 	default:
 		panic(poolexp.ErrUnexpectedExpKind(dto.K))
+	}
+}
+
+func DataFromExpRec(r ExpRec) ExpRecDS {
+	switch rec := r.(type) {
+	case AcquireRec:
+		return ExpRecDS{K: acquireExp, Acquire: DataFromAcquireRec(rec)}
+	case AcceptRec:
+		return ExpRecDS{K: acceptExp, Accept: DataFromAcceptRec(rec)}
+	default:
+		panic(ErrRecTypeUnexpected(r))
+	}
+}
+
+func DataToExpRec(dto ExpRecDS) (ExpRec, error) {
+	switch dto.K {
+	case acquireExp:
+		rec, err := DataToAcquireRec(dto.Acquire)
+		if err != nil {
+			return nil, err
+		}
+		return rec, nil
+	case acceptExp:
+		rec, err := DataToAcceptRec(dto.Accept)
+		if err != nil {
+			return nil, err
+		}
+		return rec, nil
+	default:
+		panic(ErrExpKindUnexpected(dto.K))
 	}
 }

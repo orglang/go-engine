@@ -6,7 +6,8 @@ import (
 )
 
 const (
-	LevelTrace slog.Level = slog.Level(-8)
+	LevelDebug slog.Level = slog.LevelDebug
+	LevelTrace            = slog.Level(-8)
 )
 
 func newLoggerSlog() *slog.Logger {

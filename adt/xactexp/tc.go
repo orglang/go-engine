@@ -3,8 +3,6 @@ package xactexp
 import (
 	"fmt"
 
-	"golang.org/x/exp/maps"
-
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/adt/valkey"
 
@@ -25,45 +23,52 @@ func ConvertSpecToRec(s ExpSpec) (ExpRec, error) {
 		}
 		return LinkRec{ExpVK: expVK, XactQN: spec.XactQN}, nil
 	case WithSpec:
-		choices := make(map[uniqsym.ADT]ExpRec, len(spec.Choices))
-		keys := make([]valkey.ADT, len(spec.Choices)*2)
-		for lab, spec := range spec.Choices {
-			cont, err := ConvertSpecToRec(spec)
-			if err != nil {
-				return nil, err
-			}
-			choices[lab] = cont
-			labVK, err := lab.Key()
-			if err != nil {
-				return nil, err
-			}
-			keys = append(keys, labVK, cont.Key())
-		}
-		expVK, err := valkey.Compose(keys...)
+		contExp, err := ConvertSpecToRec(spec.ContExp)
 		if err != nil {
 			return nil, err
 		}
-		return WithRec{ExpVK: expVK, Choices: choices}, nil
+		vks := make([]valkey.ADT, 0, len(spec.ProcQNs)+1)
+		for _, qn := range spec.ProcQNs {
+			vk, err := qn.Key()
+			if err != nil {
+				return nil, err
+			}
+			vks = append(vks, vk)
+		}
+		expVK, err := valkey.Compose(append(vks, contExp.Key())...)
+		if err != nil {
+			return nil, err
+		}
+		return WithRec{ExpVK: expVK, ProcQNs: spec.ProcQNs, ContExp: contExp}, nil
 	case PlusSpec:
-		choices := make(map[uniqsym.ADT]ExpRec, len(spec.Choices))
-		keys := make([]valkey.ADT, len(spec.Choices)*2)
-		for lab, spec := range spec.Choices {
-			cont, err := ConvertSpecToRec(spec)
-			if err != nil {
-				return nil, err
-			}
-			choices[lab] = cont
-			labVK, err := lab.Key()
-			if err != nil {
-				return nil, err
-			}
-			keys = append(keys, labVK, cont.Key())
-		}
-		expVK, err := valkey.Compose(keys...)
+		contExp, err := ConvertSpecToRec(spec.ContExp)
 		if err != nil {
 			return nil, err
 		}
-		return PlusRec{ExpVK: expVK, Choices: choices}, nil
+		vks := make([]valkey.ADT, 0, len(spec.ProcQNs)+1)
+		for _, qn := range spec.ProcQNs {
+			vk, err := qn.Key()
+			if err != nil {
+				return nil, err
+			}
+			vks = append(vks, vk)
+		}
+		expVK, err := valkey.Compose(append(vks, contExp.Key())...)
+		return PlusRec{ExpVK: expVK, ProcQNs: spec.ProcQNs, ContExp: contExp}, nil
+	case UpSpec:
+		contExp, err := ConvertSpecToRec(spec.ContExp)
+		if err != nil {
+			return nil, err
+		}
+		expVK, err := valkey.Compose([]valkey.ADT{valkey.Two, contExp.Key()}...)
+		return UpRec{ExpVK: expVK, ContExp: contExp}, nil
+	case DownSpec:
+		contExp, err := ConvertSpecToRec(spec.ContExp)
+		if err != nil {
+			return nil, err
+		}
+		expVK, err := valkey.Compose([]valkey.ADT{valkey.Three, contExp.Key()}...)
+		return UpRec{ExpVK: expVK, ContExp: contExp}, nil
 	default:
 		panic(ErrSpecTypeUnexpected(spec))
 	}
@@ -79,17 +84,13 @@ func ConvertRecToSpec(r ExpRec) ExpSpec {
 	case LinkRec:
 		return LinkSpec{XactQN: rec.XactQN}
 	case WithRec:
-		choices := make(map[uniqsym.ADT]ExpSpec, len(rec.Choices))
-		for lab, rec := range rec.Choices {
-			choices[lab] = ConvertRecToSpec(rec)
-		}
-		return WithSpec{Choices: choices}
+		return WithSpec{ProcQNs: rec.ProcQNs, ContExp: ConvertRecToSpec(rec.ContExp)}
 	case PlusRec:
-		choices := make(map[uniqsym.ADT]ExpSpec, len(rec.Choices))
-		for lab, st := range rec.Choices {
-			choices[lab] = ConvertRecToSpec(st)
-		}
-		return PlusSpec{Choices: choices}
+		return PlusSpec{ProcQNs: rec.ProcQNs, ContExp: ConvertRecToSpec(rec.ContExp)}
+	case UpRec:
+		return UpSpec{ContExp: ConvertRecToSpec(rec.ContExp)}
+	case DownRec:
+		return DownSpec{ContExp: ConvertRecToSpec(rec.ContExp)}
 	default:
 		panic(ErrRecTypeUnexpected(rec))
 	}
@@ -104,23 +105,19 @@ func MsgFromExpSpec(s ExpSpec) xactexp.ExpSpec {
 			K:    xactexp.Link,
 			Link: &xactexp.LinkSpec{XactQN: uniqsym.ConvertToString(spec.XactQN)}}
 	case WithSpec:
-		choices := make([]xactexp.ChoiceSpec, len(spec.Choices))
-		for i, p := range maps.Keys(spec.Choices) {
-			choices[i] = xactexp.ChoiceSpec{
-				ProcQN: uniqsym.ConvertToString(p),
-				ContES: MsgFromExpSpec(spec.Choices[p]),
-			}
+		return xactexp.ExpSpec{
+			K: xactexp.With,
+			With: &xactexp.LaborSpec{
+				ProcQNs: uniqsym.ConvertToStrings(spec.ProcQNs),
+				ContExp: MsgFromExpSpec(spec.ContExp)},
 		}
-		return xactexp.ExpSpec{K: xactexp.With, With: &xactexp.LaborSpec{Choices: choices}}
 	case PlusSpec:
-		choices := make([]xactexp.ChoiceSpec, len(spec.Choices))
-		for i, p := range maps.Keys(spec.Choices) {
-			choices[i] = xactexp.ChoiceSpec{
-				ProcQN: uniqsym.ConvertToString(p),
-				ContES: MsgFromExpSpec(spec.Choices[p]),
-			}
+		return xactexp.ExpSpec{
+			K: xactexp.Plus,
+			Plus: &xactexp.LaborSpec{
+				ProcQNs: uniqsym.ConvertToStrings(spec.ProcQNs),
+				ContExp: MsgFromExpSpec(spec.ContExp)},
 		}
-		return xactexp.ExpSpec{K: xactexp.Plus, Plus: &xactexp.LaborSpec{Choices: choices}}
 	default:
 		panic(ErrSpecTypeUnexpected(s))
 	}
@@ -137,40 +134,44 @@ func MsgToExpSpec(dto xactexp.ExpSpec) (ExpSpec, error) {
 		}
 		return LinkSpec{XactQN: xactQN}, nil
 	case xactexp.Plus:
-		choices := make(map[uniqsym.ADT]ExpSpec, len(dto.Plus.Choices))
-		for _, ch := range dto.Plus.Choices {
-			choice, err := MsgToExpSpec(ch.ContES)
-			if err != nil {
-				return nil, err
-			}
-			procQN, err := uniqsym.ConvertFromString(ch.ProcQN)
-			if err != nil {
-				return nil, err
-			}
-			choices[procQN] = choice
+		procQNs, err := uniqsym.ConvertFromStrings(dto.Plus.ProcQNs)
+		if err != nil {
+			return nil, err
 		}
-		return PlusSpec{Choices: choices}, nil
+		contExp, err := MsgToExpSpec(dto.Plus.ContExp)
+		if err != nil {
+			return nil, err
+		}
+		return PlusSpec{ProcQNs: procQNs, ContExp: contExp}, nil
 	case xactexp.With:
-		choices := make(map[uniqsym.ADT]ExpSpec, len(dto.With.Choices))
-		for _, ch := range dto.With.Choices {
-			choice, err := MsgToExpSpec(ch.ContES)
-			if err != nil {
-				return nil, err
-			}
-			procQN, err := uniqsym.ConvertFromString(ch.ProcQN)
-			if err != nil {
-				return nil, err
-			}
-			choices[procQN] = choice
+		procQNs, err := uniqsym.ConvertFromStrings(dto.With.ProcQNs)
+		if err != nil {
+			return nil, err
 		}
-		return WithSpec{Choices: choices}, nil
+		contExp, err := MsgToExpSpec(dto.With.ContExp)
+		if err != nil {
+			return nil, err
+		}
+		return WithSpec{ProcQNs: procQNs, ContExp: contExp}, nil
+	case xactexp.Up:
+		contExp, err := MsgToExpSpec(dto.Up.ContExp)
+		if err != nil {
+			return nil, err
+		}
+		return UpSpec{ContExp: contExp}, nil
+	case xactexp.Down:
+		contExp, err := MsgToExpSpec(dto.Down.ContExp)
+		if err != nil {
+			return nil, err
+		}
+		return DownSpec{ContExp: contExp}, nil
 	default:
 		panic(xactexp.ErrKindUnexpected(dto.K))
 	}
 }
 
 func msgFromExpRef(ref ExpRef) xactexp.ExpRef {
-	expVK := valkey.ConvertToInteger(ref.Key())
+	expVK := valkey.ConvertToInt(ref.Key())
 	switch ref.(type) {
 	case OneRef, OneRec:
 		return xactexp.ExpRef{K: xactexp.One, ExpVK: expVK}
@@ -186,7 +187,7 @@ func msgFromExpRef(ref ExpRef) xactexp.ExpRef {
 }
 
 func msgToExpRef(dto xactexp.ExpRef) (ExpRef, error) {
-	expVK, err := valkey.ConvertFromInteger(dto.ExpVK)
+	expVK, err := valkey.ConvertFromInt(dto.ExpVK)
 	if err != nil {
 		return nil, err
 	}
@@ -208,7 +209,7 @@ func dataFromExpRef(ref ExpRef) expRefDS {
 	if ref == nil {
 		panic("can't be nil")
 	}
-	expVK := valkey.ConvertToInteger(ref.Key())
+	expVK := valkey.ConvertToInt(ref.Key())
 	switch ref.(type) {
 	case OneRef, OneRec:
 		return expRefDS{K: oneExp, ExpVK: expVK}
@@ -224,7 +225,7 @@ func dataFromExpRef(ref ExpRef) expRefDS {
 }
 
 func dataToExpRef(dto expRefDS) (ExpRef, error) {
-	expVK, err := valkey.ConvertFromInteger(dto.ExpVK)
+	expVK, err := valkey.ConvertFromInt(dto.ExpVK)
 	if err != nil {
 		return nil, err
 	}
@@ -255,7 +256,7 @@ func dataFromExpRec(rec ExpRec) expRecDS {
 		panic("can't be nil")
 	}
 	dto := &expRecDS{
-		ExpVK:  valkey.ConvertToInteger(rec.Key()),
+		ExpVK:  valkey.ConvertToInt(rec.Key()),
 		States: nil,
 	}
 	statesFromExpRec(0, rec, dto)
@@ -263,7 +264,7 @@ func dataFromExpRec(rec ExpRec) expRecDS {
 }
 
 func statesToExpRec(states map[int64]stateDS, st stateDS) (ExpRec, error) {
-	expVK, err := valkey.ConvertFromInteger(st.ExpVK)
+	expVK, err := valkey.ConvertFromInt(st.ExpVK)
 	if err != nil {
 		return nil, err
 	}
@@ -277,50 +278,54 @@ func statesToExpRec(states map[int64]stateDS, st stateDS) (ExpRec, error) {
 		}
 		return LinkRec{ExpVK: expVK, XactQN: xactQN}, nil
 	case plusExp:
-		choices := make(map[uniqsym.ADT]ExpRec, len(st.Spec.Plus))
-		for _, ch := range st.Spec.Plus {
-			choice, err := statesToExpRec(states, states[ch.ContExpVK])
-			if err != nil {
-				return nil, err
-			}
-			label, err := uniqsym.ConvertFromString(ch.LabQN)
-			if err != nil {
-				return nil, err
-			}
-			choices[label] = choice
+		procQNs, err := uniqsym.ConvertFromStrings(st.Spec.Plus2.ProcQNs)
+		if err != nil {
+			return nil, err
 		}
-		return PlusRec{ExpVK: expVK, Choices: choices}, nil
+		contExp, err := statesToExpRec(states, states[st.Spec.Plus2.ContExpVK])
+		if err != nil {
+			return nil, err
+		}
+		return PlusRec{ExpVK: expVK, ProcQNs: procQNs, ContExp: contExp}, nil
 	case withExp:
-		choices := make(map[uniqsym.ADT]ExpRec, len(st.Spec.With))
-		for _, ch := range st.Spec.With {
-			choice, err := statesToExpRec(states, states[ch.ContExpVK])
-			if err != nil {
-				return nil, err
-			}
-			label, err := uniqsym.ConvertFromString(ch.LabQN)
-			if err != nil {
-				return nil, err
-			}
-			choices[label] = choice
+		procQNs, err := uniqsym.ConvertFromStrings(st.Spec.With2.ProcQNs)
+		if err != nil {
+			return nil, err
 		}
-		return WithRec{ExpVK: expVK, Choices: choices}, nil
+		contExp, err := statesToExpRec(states, states[st.Spec.With2.ContExpVK])
+		if err != nil {
+			return nil, err
+		}
+		return WithRec{ExpVK: expVK, ProcQNs: procQNs, ContExp: contExp}, nil
+	case upExp:
+		contExp, err := statesToExpRec(states, states[st.Spec.Up.ContExpVK])
+		if err != nil {
+			return nil, err
+		}
+		return UpRec{ExpVK: expVK, ContExp: contExp}, nil
+	case downExp:
+		contExp, err := statesToExpRec(states, states[st.Spec.Down.ContExpVK])
+		if err != nil {
+			return nil, err
+		}
+		return UpRec{ExpVK: expVK, ContExp: contExp}, nil
 	default:
 		panic(errUnexpectedKind(st.K))
 	}
 }
 
-func statesFromExpRec(fromID int64, r ExpRec, dto *expRecDS) int64 {
-	expVK := valkey.ConvertToInteger(r.Key())
+func statesFromExpRec(supExpVK int64, r ExpRec, dto *expRecDS) int64 {
+	expVK := valkey.ConvertToInt(r.Key())
 	switch rec := r.(type) {
 	case OneRec:
-		st := stateDS{ExpVK: expVK, K: oneExp, SupExpVK: fromID}
+		st := stateDS{ExpVK: expVK, K: oneExp, SupExpVK: supExpVK}
 		dto.States = append(dto.States, st)
 		return expVK
 	case LinkRec:
 		st := stateDS{
 			ExpVK:    expVK,
 			K:        linkExp,
-			SupExpVK: fromID,
+			SupExpVK: supExpVK,
 			Spec: expSpecDS{
 				Link: uniqsym.ConvertToString(rec.XactQN),
 			},
@@ -328,30 +333,48 @@ func statesFromExpRec(fromID int64, r ExpRec, dto *expRecDS) int64 {
 		dto.States = append(dto.States, st)
 		return expVK
 	case PlusRec:
-		var choices []sumDS
-		for label, choice := range rec.Choices {
-			cont := statesFromExpRec(expVK, choice, dto)
-			choices = append(choices, sumDS{uniqsym.ConvertToString(label), cont})
-		}
 		st := stateDS{
 			ExpVK:    expVK,
 			K:        plusExp,
-			SupExpVK: fromID,
-			Spec:     expSpecDS{Plus: choices},
+			SupExpVK: supExpVK,
+			Spec: expSpecDS{Plus2: &sumDS2{
+				ProcQNs:   uniqsym.ConvertToStrings(rec.ProcQNs),
+				ContExpVK: statesFromExpRec(expVK, rec.ContExp, dto),
+			}},
 		}
 		dto.States = append(dto.States, st)
 		return expVK
 	case WithRec:
-		var choices []sumDS
-		for label, choice := range rec.Choices {
-			cont := statesFromExpRec(expVK, choice, dto)
-			choices = append(choices, sumDS{uniqsym.ConvertToString(label), cont})
-		}
 		st := stateDS{
 			ExpVK:    expVK,
 			K:        withExp,
-			SupExpVK: fromID,
-			Spec:     expSpecDS{With: choices},
+			SupExpVK: supExpVK,
+			Spec: expSpecDS{With2: &sumDS2{
+				ProcQNs:   uniqsym.ConvertToStrings(rec.ProcQNs),
+				ContExpVK: statesFromExpRec(expVK, rec.ContExp, dto),
+			}},
+		}
+		dto.States = append(dto.States, st)
+		return expVK
+	case UpRec:
+		st := stateDS{
+			ExpVK:    expVK,
+			K:        upExp,
+			SupExpVK: supExpVK,
+			Spec: expSpecDS{Up: &shiftDS{
+				ContExpVK: statesFromExpRec(expVK, rec.ContExp, dto),
+			}},
+		}
+		dto.States = append(dto.States, st)
+		return expVK
+	case DownRec:
+		st := stateDS{
+			ExpVK:    expVK,
+			K:        downExp,
+			SupExpVK: supExpVK,
+			Spec: expSpecDS{Up: &shiftDS{
+				ContExpVK: statesFromExpRec(expVK, rec.ContExp, dto),
+			}},
 		}
 		dto.States = append(dto.States, st)
 		return expVK
@@ -360,6 +383,6 @@ func statesFromExpRec(fromID int64, r ExpRec, dto *expRecDS) int64 {
 	}
 }
 
-func errUnexpectedKind(k expKindDS) error {
+func errUnexpectedKind(k expKind) error {
 	return fmt.Errorf("unexpected kind %q", k)
 }

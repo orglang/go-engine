@@ -510,6 +510,6 @@ func dataToExpSpec(dto ExpSpecDS) (ExpSpec, error) {
 	}
 }
 
-func errUnexpectedExpKind(k expKindDS) error {
+func errUnexpectedExpKind(k expKind) error {
 	return fmt.Errorf("unexpected term kind: %v", k)
 }

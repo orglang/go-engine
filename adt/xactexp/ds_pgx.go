@@ -11,17 +11,19 @@ import (
 	"orglang/go-engine/lib/lf"
 
 	"orglang/go-engine/adt/descsem"
+	"orglang/go-engine/adt/symbol"
 	"orglang/go-engine/adt/valkey"
 )
 
 // Adapter
 type pgxDAO struct {
+	qb  queryBuilder
 	log *slog.Logger
 }
 
-func newPgxDAO(l *slog.Logger) *pgxDAO {
+func newPgxDAO(qb queryBuilder, log *slog.Logger) *pgxDAO {
 	name := slog.String("name", reflect.TypeFor[pgxDAO]().Name())
-	return &pgxDAO{l.With(name)}
+	return &pgxDAO{qb, log.With(name)}
 }
 
 // for compilation purposes
@@ -31,128 +33,128 @@ func newRepo() Repo {
 
 func (dao *pgxDAO) AddRec(source db.Source, rec ExpRec, ref descsem.SemRef) (err error) {
 	ds := db.MustConform[db.SourcePgx](source)
-	idAttr := slog.Any("expVK", rec.Key())
+	vkAttr := slog.Any("vk", rec.Key())
 	dto := dataFromExpRec(rec)
 	batch := pgx.Batch{}
 	for _, st := range dto.States {
-		args := pgx.NamedArgs{
-			"exp_vk":     st.ExpVK,
-			"sup_exp_vk": st.SupExpVK,
-			"desc_id":    ref.DescID,
-			"desc_rn":    ref.DescRN,
-			"kind":       st.K,
-			"spec":       st.Spec,
-		}
-		batch.Queue(insertRec, args)
+		sql, args := dao.qb.insertRec(st)
+		batch.Queue(sql, args...)
 	}
 	br := ds.Conn.SendBatch(ds.Ctx, &batch)
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
 	for range dto.States {
-		_, err = br.Exec()
-		if err != nil {
-			dao.log.Error("query execution failed", idAttr)
+		_, readErr := br.Exec()
+		if readErr != nil {
+			dao.log.Error("query execution failed", vkAttr)
+			return readErr
 		}
-	}
-	if err != nil {
-		return err
 	}
 	return nil
 }
 
 func (dao *pgxDAO) GetRecByVK(source db.Source, expVK valkey.ADT) (ExpRec, error) {
 	ds := db.MustConform[db.SourcePgx](source)
-	idAttr := slog.Any("expVK", expVK)
-	rows, err := ds.Conn.Query(ds.Ctx, selectByID, valkey.ConvertToInteger(expVK))
+	vkAttr := slog.Any("vk", expVK)
+	sql := dao.qb.selectRecByVK()
+	rows, err := ds.Conn.Query(ds.Ctx, sql, valkey.ConvertToInt(expVK))
 	if err != nil {
-		dao.log.Error("query execution failed", idAttr)
+		dao.log.Error("query execution failed", vkAttr, slog.String("sql", sql))
 		return nil, err
 	}
 	defer rows.Close()
 	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[stateDS])
 	if err != nil {
-		dao.log.Error("row scanning failed", idAttr)
+		dao.log.Error("rows scanning failed", vkAttr)
 		return nil, err
 	}
 	if len(dtos) == 0 { // revive:disable-line
-		dao.log.Error("entity selection failed", idAttr)
+		dao.log.Error("selection failed", vkAttr)
 		return nil, errors.New("no rows selected")
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity selection succeed", slog.Any("dtos", dtos))
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection succeed", slog.Any("dtos", dtos))
 	states := make(map[int64]stateDS, len(dtos))
 	for _, dto := range dtos {
 		states[dto.ExpVK] = dto
 	}
-	return statesToExpRec(states, states[valkey.ConvertToInteger(expVK)])
-}
-
-func (dao *pgxDAO) SelectEnv(source db.Source, expVKs []valkey.ADT) (map[valkey.ADT]ExpRec, error) {
-	recs, err := dao.GetRecsByVKs(source, expVKs)
-	if err != nil {
-		return nil, err
-	}
-	env := make(map[valkey.ADT]ExpRec, len(recs))
-	for _, rec := range recs {
-		env[rec.Key()] = rec
-	}
-	return env, nil
+	return statesToExpRec(states, states[valkey.ConvertToInt(expVK)])
 }
 
 func (dao *pgxDAO) GetRecsByVKs(source db.Source, expVKs []valkey.ADT) (_ []ExpRec, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	batch := pgx.Batch{}
+	sql := dao.qb.selectRecByVK()
 	for _, expVK := range expVKs {
-		batch.Queue(selectByID, valkey.ConvertToInteger(expVK))
+		batch.Queue(sql, valkey.ConvertToInt(expVK))
 	}
 	br := ds.Conn.SendBatch(ds.Ctx, &batch)
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	var recs []ExpRec
+	recs := make([]ExpRec, 0, len(expVKs))
 	for _, expVK := range expVKs {
-		idAttr := slog.Any("expVK", expVK)
-		rows, err := br.Query()
-		if err != nil {
-			dao.log.Error("query execution failed", idAttr)
+		vkAttr := slog.Any("vk", expVK)
+		rows, readErr := br.Query()
+		if readErr != nil {
+			dao.log.Error("query execution failed", vkAttr, slog.String("sql", sql))
+			return nil, readErr
 		}
-		dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[stateDS])
-		if err != nil {
-			dao.log.Error("rows collection failed", idAttr)
+		dtos, scanErr := pgx.CollectRows(rows, pgx.RowToStructByName[stateDS])
+		if scanErr != nil {
+			dao.log.Error("rows scanning failed", vkAttr)
+			return nil, scanErr
 		}
 		if len(dtos) == 0 {
-			dao.log.Error("entity selection failed", idAttr)
+			dao.log.Error("selection failed", vkAttr)
 			return nil, ErrDoesNotExist(expVK)
 		}
-		rec, err := dataToExpRec(expRecDS{valkey.ConvertToInteger(expVK), dtos})
-		if err != nil {
-			dao.log.Error("model conversion failed", idAttr)
-			return nil, err
+		rec, convErr := dataToExpRec(expRecDS{valkey.ConvertToInt(expVK), dtos})
+		if convErr != nil {
+			dao.log.Error("model conversion failed", vkAttr)
+			return nil, convErr
 		}
 		recs = append(recs, rec)
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "entities selection succeed", slog.Any("recs", recs))
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection succeed", slog.Any("recs", recs))
 	return recs, err
 }
 
-const (
-	insertRec = `
-		insert into xact_exps (
-			exp_vk, sup_exp_vk, desc_id, desc_rn, kind, spec
-		) values (
-			@exp_vk, @sup_exp_vk, @desc_id, @desc_rn, @kind, @spec
-		)
-		on conflict (exp_vk) do nothing`
-
-	selectByID = `
-		with recursive exp_tree AS (
-			select top.*
-			from xact_exps top
-			where exp_vk = $1
-			union all
-			select sub.*
-			from xact_exps sub, exp_tree sup
-			where sub.sup_exp_vk = sup.exp_vk
-		)
-		select * from exp_tree`
-)
+func (dao *pgxDAO) GetRecMap(source db.Source, expVKs map[symbol.ADT]valkey.ADT) (_ map[symbol.ADT]ExpRec, err error) {
+	ds := db.MustConform[db.SourcePgx](source)
+	batch := pgx.Batch{}
+	sql := dao.qb.selectRecByVK()
+	for _, expVK := range expVKs {
+		batch.Queue(sql, valkey.ConvertToInt(expVK))
+	}
+	br := ds.Conn.SendBatch(ds.Ctx, &batch)
+	defer func() {
+		err = errors.Join(err, br.Close())
+	}()
+	recs := make(map[symbol.ADT]ExpRec, len(expVKs))
+	for expPH, expVK := range expVKs {
+		vkAttr := slog.Any("vk", expVK)
+		rows, readErr := br.Query()
+		if readErr != nil {
+			dao.log.Error("query execution failed", vkAttr, slog.String("sql", sql))
+			return nil, readErr
+		}
+		dtos, scanErr := pgx.CollectRows(rows, pgx.RowToStructByName[stateDS])
+		if scanErr != nil {
+			dao.log.Error("rows scanning failed", vkAttr)
+			return nil, scanErr
+		}
+		if len(dtos) == 0 {
+			dao.log.Error("selection failed", vkAttr)
+			return nil, ErrDoesNotExist(expVK)
+		}
+		rec, convErr := dataToExpRec(expRecDS{valkey.ConvertToInt(expVK), dtos})
+		if convErr != nil {
+			dao.log.Error("model conversion failed", vkAttr)
+			return nil, convErr
+		}
+		recs[expPH] = rec
+	}
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection succeed", slog.Any("specs", recs))
+	return recs, err
+}

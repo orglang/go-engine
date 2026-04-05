@@ -9,6 +9,8 @@ import (
 const (
 	Zero ADT = iota
 	One
+	Two
+	Three
 )
 
 type ADT int64

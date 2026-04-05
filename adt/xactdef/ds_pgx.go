@@ -84,7 +84,7 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]descsem.SemRef, error) {
 	defer rows.Close()
 	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[descsem.SemRefDS])
 	if err != nil {
-		dao.log.Error("rows collection failed")
+		dao.log.Error("rows scanning failed")
 		return nil, err
 	}
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "entities selection succeed", slog.Any("dtos", dtos))

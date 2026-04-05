@@ -238,7 +238,7 @@ func MsgToExpSpec(dto typeexp.ExpSpec) (ExpSpec, error) {
 }
 
 func MsgFromExpRef(ref ExpRef) typeexp.ExpRef {
-	expVK := valkey.ConvertToInteger(ref.Key())
+	expVK := valkey.ConvertToInt(ref.Key())
 	switch ref.(type) {
 	case OneRef, OneRec:
 		return typeexp.ExpRef{K: typeexp.One, ExpVK: expVK}
@@ -258,7 +258,7 @@ func MsgFromExpRef(ref ExpRef) typeexp.ExpRef {
 }
 
 func MsgToExpRef(dto typeexp.ExpRef) (ExpRef, error) {
-	expVK, err := valkey.ConvertFromInteger(dto.ExpVK)
+	expVK, err := valkey.ConvertFromInt(dto.ExpVK)
 	if err != nil {
 		return nil, err
 	}
@@ -284,7 +284,7 @@ func dataFromExpRef(ref ExpRef) expRefDS {
 	if ref == nil {
 		panic("can't be null")
 	}
-	expVK := valkey.ConvertToInteger(ref.Key())
+	expVK := valkey.ConvertToInt(ref.Key())
 	switch ref.(type) {
 	case OneRef, OneRec:
 		return expRefDS{K: oneExp, ExpVK: expVK}
@@ -304,7 +304,7 @@ func dataFromExpRef(ref ExpRef) expRefDS {
 }
 
 func dataToExpRef(dto expRefDS) (ExpRef, error) {
-	expVK, err := valkey.ConvertFromInteger(dto.ExpVK)
+	expVK, err := valkey.ConvertFromInt(dto.ExpVK)
 	if err != nil {
 		return nil, err
 	}
@@ -339,7 +339,7 @@ func dataFromExpRec(rec ExpRec) expRecDS {
 		panic("can't be nil")
 	}
 	dto := &expRecDS{
-		ExpVK:  valkey.ConvertToInteger(rec.Key()),
+		ExpVK:  valkey.ConvertToInt(rec.Key()),
 		States: nil,
 	}
 	statesFromExpRec(0, rec, dto)
@@ -347,7 +347,7 @@ func dataFromExpRec(rec ExpRec) expRecDS {
 }
 
 func statesToExpRec(states map[int64]stateDS, st stateDS) (ExpRec, error) {
-	expVK, err := valkey.ConvertFromInteger(st.ExpVK)
+	expVK, err := valkey.ConvertFromInt(st.ExpVK)
 	if err != nil {
 		return nil, err
 	}
@@ -414,7 +414,7 @@ func statesToExpRec(states map[int64]stateDS, st stateDS) (ExpRec, error) {
 }
 
 func statesFromExpRec(fromID int64, r ExpRec, dto *expRecDS) int64 {
-	expVK := valkey.ConvertToInteger(r.Key())
+	expVK := valkey.ConvertToInt(r.Key())
 	switch rec := r.(type) {
 	case OneRec:
 		st := stateDS{ExpVK: expVK, K: oneExp, SupExpVK: fromID}

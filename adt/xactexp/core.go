@@ -24,17 +24,31 @@ func (LinkSpec) spec() {}
 
 // aka Internal Choice
 type PlusSpec struct {
-	Choices map[uniqsym.ADT]ExpSpec // conts
+	ProcQNs []uniqsym.ADT
+	ContExp ExpSpec
 }
 
 func (PlusSpec) spec() {}
 
 // aka External Choice
 type WithSpec struct {
-	Choices map[uniqsym.ADT]ExpSpec // conts
+	ProcQNs []uniqsym.ADT
+	ContExp ExpSpec
 }
 
 func (WithSpec) spec() {}
+
+type UpSpec struct {
+	ContExp ExpSpec
+}
+
+func (UpSpec) spec() {}
+
+type DownSpec struct {
+	ContExp ExpSpec
+}
+
+func (DownSpec) spec() {}
 
 type ExpRef interface {
 	valkey.Keyable
@@ -103,54 +117,56 @@ func (LinkRec) Pol() polarity.ADT { return polarity.Zero }
 // aka Internal Choice
 type PlusRec struct {
 	ExpVK   valkey.ADT
-	Choices map[uniqsym.ADT]ExpRec
+	ProcQNs []uniqsym.ADT
+	ContExp ExpRec
 }
 
 func (PlusRec) spec() {}
 
 func (r PlusRec) Key() valkey.ADT { return r.ExpVK }
 
-func (r PlusRec) Next(l uniqsym.ADT) valkey.ADT { return r.Choices[l].Key() }
+func (r PlusRec) Next(l uniqsym.ADT) valkey.ADT { return r.ContExp.Key() }
 
 func (PlusRec) Pol() polarity.ADT { return polarity.Pos }
 
 // aka External Choice
 type WithRec struct {
 	ExpVK   valkey.ADT
-	Choices map[uniqsym.ADT]ExpRec
+	ProcQNs []uniqsym.ADT
+	ContExp ExpRec
 }
 
 func (WithRec) spec() {}
 
 func (r WithRec) Key() valkey.ADT { return r.ExpVK }
 
-func (r WithRec) Next(l uniqsym.ADT) valkey.ADT { return r.Choices[l].Key() }
+func (r WithRec) Next(l uniqsym.ADT) valkey.ADT { return r.ContExp.Key() }
 
 func (WithRec) Pol() polarity.ADT { return polarity.Neg }
 
 type UpRec struct {
-	ExpVK valkey.ADT
-	Cont  ExpRec
+	ExpVK   valkey.ADT
+	ContExp ExpRec
 }
 
 func (UpRec) spec() {}
 
 func (r UpRec) Key() valkey.ADT { return r.ExpVK }
 
-func (r UpRec) Next() valkey.ADT { return r.Cont.Key() }
+func (r UpRec) Next() valkey.ADT { return r.ContExp.Key() }
 
 func (UpRec) Pol() polarity.ADT { return polarity.Zero }
 
 type DownRec struct {
-	ExpVK valkey.ADT
-	Cont  ExpRec
+	ExpVK   valkey.ADT
+	ContExp ExpRec
 }
 
 func (DownRec) spec() {}
 
 func (r DownRec) Key() valkey.ADT { return r.ExpVK }
 
-func (r DownRec) Next() valkey.ADT { return r.Cont.Key() }
+func (r DownRec) Next() valkey.ADT { return r.ContExp.Key() }
 
 func (DownRec) Pol() polarity.ADT { return polarity.Zero }
 

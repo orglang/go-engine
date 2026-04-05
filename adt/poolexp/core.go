@@ -17,6 +17,7 @@ type ExpSpec interface {
 // запрос доступа со стороны клиента (спрос на доступ)
 type AcquireSpec struct {
 	CommChnlPH symbol.ADT
+	ContExp    ExpSpec
 }
 
 func (s AcquireSpec) spec() {}
@@ -24,6 +25,7 @@ func (s AcquireSpec) spec() {}
 // предложение доступа со стороны провайдера (предложение доступа)
 type AcceptSpec struct {
 	CommChnlPH symbol.ADT
+	ContExp    ExpSpec
 }
 
 func (s AcceptSpec) spec() {}
@@ -158,4 +160,8 @@ func ErrSpecTypeUnexpected(got ExpSpec) error {
 
 func ErrRecTypeUnexpected(got ExpRec) error {
 	return fmt.Errorf("exp rec unexpected: %T", got)
+}
+
+func ErrExpKindUnexpected(got expKind) error {
+	return fmt.Errorf("exp kind unexpected: %v", got)
 }

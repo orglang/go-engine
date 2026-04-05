@@ -10,6 +10,8 @@ import (
 
 type ConnRec struct {
 	CommRef commsem.SemRef
+	// offset number
+	CommON seqnum.ADT
 }
 
 type ConnMod struct {

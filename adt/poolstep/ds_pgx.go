@@ -1,24 +1,24 @@
 package poolstep
 
 import (
+	"errors"
 	"log/slog"
 	"reflect"
 
 	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/lf"
 
-	"orglang/go-engine/adt/implsem"
-	"orglang/go-engine/adt/poolcfg"
-	"orglang/go-engine/adt/poolctx"
-	"orglang/go-engine/adt/poolenv"
+	"github.com/jackc/pgx/v5"
 )
 
 type pgxDAO struct {
+	qb  queryBuilder
 	log *slog.Logger
 }
 
-func newPgxDAO(l *slog.Logger) *pgxDAO {
+func newPgxDAO(qb queryBuilder, log *slog.Logger) *pgxDAO {
 	name := slog.String("name", reflect.TypeFor[pgxDAO]().Name())
-	return &pgxDAO{l.With(name)}
+	return &pgxDAO{qb, log.With(name)}
 }
 
 // for compilation purposes
@@ -26,26 +26,29 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func (dao *pgxDAO) InsertRec(db.Source, StepRec) error {
+func (dao *pgxDAO) AddRec(db.Source, StepRec) error {
 	panic("unimplemented")
 }
 
-func (dao *pgxDAO) AddRecs(db.Source, []StepRec) error {
-	panic("unimplemented")
-}
-
-func (dao *pgxDAO) SelectCtxSnapByCtxSpec(db.Source, poolctx.CtxQry) (poolctx.CtxSnap, error) {
-	panic("unimplemented")
-}
-
-func (dao *pgxDAO) SelectEnvSnapByEnvSpec(db.Source, poolenv.EnvSpec) (poolenv.EnvSnap, error) {
-	panic("unimplemented")
-}
-
-func (dao *pgxDAO) SelectCfgSnapBySpec(db.Source, poolcfg.CfgSpec) (poolcfg.CfgSnap, error) {
-	panic("unimplemented")
-}
-
-func (dao *pgxDAO) SelectRecByRef(db.Source, implsem.SemRef) (StepRec, error) {
-	panic("unimplemented")
+func (dao *pgxDAO) AddRecs(source db.Source, recs []StepRec) (err error) {
+	ds := db.MustConform[db.SourcePgx](source)
+	batch := pgx.Batch{}
+	for _, rec := range recs {
+		dto := DataFromStepRec(rec)
+		sql, args := dao.qb.insertRec(dto)
+		batch.Queue(sql, args...)
+	}
+	br := ds.Conn.SendBatch(ds.Ctx, &batch)
+	defer func() {
+		err = errors.Join(err, br.Close())
+	}()
+	for _, rec := range recs {
+		_, readErr := br.Exec()
+		if readErr != nil {
+			dao.log.Error("query execution failed", slog.Any("rec", rec))
+			return readErr
+		}
+	}
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "insertion succeed")
+	return nil
 }

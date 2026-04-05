@@ -110,7 +110,7 @@ func (dao *pgxDAO) SelectRecs(source db.Source, ids []identity.ADT) (_ []DecRec,
 	if err != nil {
 		return nil, err
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "entities selection succeed", slog.Any("dtos", dtos))
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection succeed", slog.Any("dtos", dtos))
 	return DataToDecRecs(dtos)
 }
 
@@ -128,7 +128,7 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]descsem.SemRef, error) {
 	defer rows.Close()
 	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[descsem.SemRefDS])
 	if err != nil {
-		dao.log.Error("rows collection failed")
+		dao.log.Error("rows scanning failed")
 		return nil, err
 	}
 	return descsem.DataToRefs(dtos)

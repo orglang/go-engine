@@ -1,6 +1,8 @@
 package pooldec
 
 import (
+	"orglang/go-engine/adt/descsem"
+
 	"github.com/orglang/go-sdk/adt/pooldec"
 )
 
@@ -18,8 +20,10 @@ var (
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/descvar:Data.*
 var (
-	// goverter:map . DescRef
+	// goverter:map . DescRef | DataToDescRef
 	DataToDecRec func(decRecDS) (DecRec, error)
 	// goverter:autoMap DescRef
 	DataFromDecRec func(DecRec) (decRecDS, error)
+	// goverter:ignore DescRN
+	DataToDescRef func(decRecDS) (descsem.SemRef, error)
 )

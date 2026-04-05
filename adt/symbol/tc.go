@@ -7,7 +7,7 @@ import (
 
 func ConvertFromString(str string) (ADT, error) {
 	if str == "" {
-		return Unit, fmt.Errorf("invalid value: %s", str)
+		return Zero, fmt.Errorf("invalid value: %s", str)
 	}
 	return ADT(str), nil
 }
@@ -20,7 +20,7 @@ func ConvertFromNullString(str sql.NullString) (ADT, error) {
 	if str.Valid {
 		return ADT(str.String), nil
 	}
-	return Unit, nil
+	return Zero, nil
 }
 
 func ConvertToNullString(adt ADT) sql.NullString {

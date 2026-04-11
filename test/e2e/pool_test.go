@@ -182,7 +182,7 @@ func (s *suite) waitClose(t *testing.T) {
 		PoolExp: poolexp.ExpSpec{
 			K: poolexp.Accept, // пул одобряет доступ к самому себе
 			Accept: &poolexp.AcceptSpec{
-				CommChnlPH: poolAssetPH,
+				CommChnlPH: poolLiabPH,
 				ContExp: poolexp.ExpSpec{
 					K: poolexp.Apply, // пул принимает предложение поработать в качестве closerProcQN
 					Apply: &poolexp.ApplySpec{

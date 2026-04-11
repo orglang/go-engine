@@ -71,10 +71,10 @@ func (dao *pgxDAO) TouchRec(source db.Source, ref SemRef) error {
 		return execErr
 	}
 	if ct.RowsAffected() == 0 {
-		dao.log.Error("entity update failed", refAttr)
+		dao.log.Error("touch failed", refAttr)
 		return ErrConcurrentModification(ref)
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "update succeed", slog.Any("dto", dto))
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "touch succeed", slog.Any("dto", dto))
 	return nil
 }
 

@@ -9,12 +9,10 @@ import (
 
 	sdk "github.com/orglang/go-sdk/adt/implsem"
 	"github.com/orglang/go-sdk/adt/poolexec"
-	poolstep1 "github.com/orglang/go-sdk/adt/poolstep"
 
 	"orglang/go-engine/lib/te"
 
 	"orglang/go-engine/adt/implsem"
-	"orglang/go-engine/adt/poolstep"
 )
 
 // Server-side primary adapter
@@ -29,11 +27,9 @@ func newEchoController(api API, ssr te.Renderer, log *slog.Logger) *echoControll
 	return &echoController{api, ssr, log.With(name)}
 }
 
-func cfgEchoController(e *echo.Echo, h *echoController) error {
-	e.POST("/api/v1/pools/execs", h.PostSpec)
-	e.GET("/api/v1/pools/execs/:id", h.GetSnap)
-	e.POST("/api/v1/pools/execs/steps", h.PostSpec2)
-	e.POST("/api/v1/pools/execs/spawns", h.PostSpec3)
+func cfgEchoController(server *echo.Echo, controller *echoController) error {
+	server.POST("/api/v1/pools/execs", controller.PostSpec)
+	server.GET("/api/v1/pools/execs/:id", controller.GetSnap)
 	return nil
 }
 
@@ -76,52 +72,4 @@ func (c *echoController) GetSnap(ctx echo.Context) error {
 		return apiErr
 	}
 	return ctx.JSON(http.StatusOK, MsgFromExecSnap(snap))
-}
-
-func (c *echoController) PostSpec2(ctx echo.Context) error {
-	var dto poolstep1.StepSpec
-	bindErr := ctx.Bind(&dto)
-	if bindErr != nil {
-		c.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
-		return bindErr
-	}
-	validateErr := dto.Validate()
-	if validateErr != nil {
-		c.log.Error("validation failed", slog.Any("dto", dto))
-		return validateErr
-	}
-	spec, convErr := poolstep.MsgToStepSpec(dto)
-	if convErr != nil {
-		c.log.Error("conversion failed", slog.Any("dto", dto))
-		return convErr
-	}
-	apiErr := c.api.Take(spec)
-	if apiErr != nil {
-		return apiErr
-	}
-	return ctx.NoContent(http.StatusNoContent)
-}
-
-func (c *echoController) PostSpec3(ctx echo.Context) error {
-	var dto poolstep1.StepSpec
-	bindErr := ctx.Bind(&dto)
-	if bindErr != nil {
-		c.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
-		return bindErr
-	}
-	validateErr := dto.Validate()
-	if validateErr != nil {
-		c.log.Error("validation failed", slog.Any("dto", dto))
-		return validateErr
-	}
-	spec, convErr := poolstep.MsgToStepSpec(dto)
-	if convErr != nil {
-		c.log.Error("conversion failed", slog.Any("dto", dto))
-		return convErr
-	}
-	ref, apiErr := c.api.Spawn(spec)
-	if apiErr != nil {
-		return apiErr
-	}
-	return ctx.JSON(http.StatusCreated, implsem.MsgFromRef(ref))
 }

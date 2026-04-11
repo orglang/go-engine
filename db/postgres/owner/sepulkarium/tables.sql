@@ -79,6 +79,7 @@ CREATE TABLE pool_conns (
 CREATE TABLE pool_steps (
 	comm_id varchar,
 	comm_rn bigint,
+	impl_id varchar,
 	chnl_id varchar,
 	kind smallint,
 	exp jsonb
@@ -131,6 +132,7 @@ CREATE TABLE proc_conns (
 CREATE TABLE proc_steps (
 	comm_id varchar,
 	comm_rn bigint,
+	impl_id varchar,
 	chnl_id varchar,
 	kind smallint,
 	exp jsonb

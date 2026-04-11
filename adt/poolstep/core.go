@@ -21,7 +21,7 @@ type API interface {
 
 type StepSpec struct {
 	ImplRef implsem.SemRef
-	CommExp poolexp.ExpSpec
+	PoolExp poolexp.ExpSpec
 }
 
 // step (aka Sem)
@@ -33,6 +33,7 @@ type StepRec interface {
 type PubRec struct {
 	// совпадает со значением в SubRec
 	CommRef commsem.SemRef
+	ImplRef implsem.SemRef
 	ChnlID  identity.ADT
 	ValExp  poolexp.ExpRec
 }
@@ -43,6 +44,7 @@ func (r PubRec) comm() {}
 type SubRec struct {
 	// совпадает со значением в PubRec
 	CommRef commsem.SemRef
+	ImplRef implsem.SemRef
 	ChnlID  identity.ADT
 	ContExp poolexp.ExpRec
 }

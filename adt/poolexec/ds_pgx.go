@@ -45,7 +45,7 @@ func (dao *pgxDAO) AddRec(source db.Source, rec ExecRec) error {
 	return nil
 }
 
-func (dao *pgxDAO) GetRecsByQNs(source db.Source, implQNs []uniqsym.ADT) (_ map[uniqsym.ADT]ExecRec, err error) {
+func (dao *pgxDAO) GetRecMapByQNs(source db.Source, implQNs []uniqsym.ADT) (_ map[uniqsym.ADT]ExecRec, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection started", slog.Any("qns", implQNs))
 	if len(implQNs) == 0 {
@@ -128,7 +128,7 @@ func (dao *pgxDAO) GetSnap(source db.Source, ref implsem.SemRef) (ExecCfgSnap, e
 	return snap, nil
 }
 
-func (dao *pgxDAO) GetSnapsByQNs(source db.Source, implQNs []uniqsym.ADT) (_ map[uniqsym.ADT]ExecLiabSnap, err error) {
+func (dao *pgxDAO) GetSnapMapByQNs(source db.Source, implQNs []uniqsym.ADT) (_ map[uniqsym.ADT]ExecLiabSnap, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection started", slog.Any("qns", implQNs))
 	if len(implQNs) == 0 {

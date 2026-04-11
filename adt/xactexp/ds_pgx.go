@@ -155,6 +155,6 @@ func (dao *pgxDAO) GetRecMap(source db.Source, expVKs map[symbol.ADT]valkey.ADT)
 		}
 		recs[expPH] = rec
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection succeed", slog.Any("specs", recs))
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection succeed", slog.Any("recs", recs))
 	return recs, err
 }

@@ -212,13 +212,13 @@ func dataFromExpRef(ref ExpRef) expRefDS {
 	expVK := valkey.ConvertToInt(ref.Key())
 	switch ref.(type) {
 	case OneRef, OneRec:
-		return expRefDS{K: oneExp, ExpVK: expVK}
+		return expRefDS{K: oneKind, ExpVK: expVK}
 	case LinkRef, LinkRec:
-		return expRefDS{K: linkExp, ExpVK: expVK}
+		return expRefDS{K: linkKind, ExpVK: expVK}
 	case PlusRef, PlusRec:
-		return expRefDS{K: plusExp, ExpVK: expVK}
+		return expRefDS{K: plusKind, ExpVK: expVK}
 	case WithRef, WithRec:
-		return expRefDS{K: withExp, ExpVK: expVK}
+		return expRefDS{K: withKind, ExpVK: expVK}
 	default:
 		panic(ErrRefTypeUnexpected(ref))
 	}
@@ -230,13 +230,13 @@ func dataToExpRef(dto expRefDS) (ExpRef, error) {
 		return nil, err
 	}
 	switch dto.K {
-	case oneExp:
+	case oneKind:
 		return OneRef{expVK}, nil
-	case linkExp:
+	case linkKind:
 		return LinkRef{expVK}, nil
-	case plusExp:
+	case plusKind:
 		return PlusRef{expVK}, nil
-	case withExp:
+	case withKind:
 		return WithRef{expVK}, nil
 	default:
 		panic(errUnexpectedKind(dto.K))
@@ -269,41 +269,41 @@ func statesToExpRec(states map[int64]stateDS, st stateDS) (ExpRec, error) {
 		return nil, err
 	}
 	switch st.K {
-	case oneExp:
+	case oneKind:
 		return OneRec{ExpVK: expVK}, nil
-	case linkExp:
+	case linkKind:
 		xactQN, err := uniqsym.ConvertFromString(st.Spec.Link)
 		if err != nil {
 			return nil, err
 		}
 		return LinkRec{ExpVK: expVK, XactQN: xactQN}, nil
-	case plusExp:
-		procQNs, err := uniqsym.ConvertFromStrings(st.Spec.Plus2.ProcQNs)
+	case plusKind:
+		procQNs, err := uniqsym.ConvertFromStrings(st.Spec.Plus.ProcQNs)
 		if err != nil {
 			return nil, err
 		}
-		contExp, err := statesToExpRec(states, states[st.Spec.Plus2.ContExpVK])
+		contExp, err := statesToExpRec(states, states[st.Spec.Plus.ContExpVK])
 		if err != nil {
 			return nil, err
 		}
 		return PlusRec{ExpVK: expVK, ProcQNs: procQNs, ContExp: contExp}, nil
-	case withExp:
-		procQNs, err := uniqsym.ConvertFromStrings(st.Spec.With2.ProcQNs)
+	case withKind:
+		procQNs, err := uniqsym.ConvertFromStrings(st.Spec.With.ProcQNs)
 		if err != nil {
 			return nil, err
 		}
-		contExp, err := statesToExpRec(states, states[st.Spec.With2.ContExpVK])
+		contExp, err := statesToExpRec(states, states[st.Spec.With.ContExpVK])
 		if err != nil {
 			return nil, err
 		}
 		return WithRec{ExpVK: expVK, ProcQNs: procQNs, ContExp: contExp}, nil
-	case upExp:
+	case upKind:
 		contExp, err := statesToExpRec(states, states[st.Spec.Up.ContExpVK])
 		if err != nil {
 			return nil, err
 		}
 		return UpRec{ExpVK: expVK, ContExp: contExp}, nil
-	case downExp:
+	case downKind:
 		contExp, err := statesToExpRec(states, states[st.Spec.Down.ContExpVK])
 		if err != nil {
 			return nil, err
@@ -318,13 +318,13 @@ func statesFromExpRec(supExpVK int64, r ExpRec, dto *expRecDS) int64 {
 	expVK := valkey.ConvertToInt(r.Key())
 	switch rec := r.(type) {
 	case OneRec:
-		st := stateDS{ExpVK: expVK, K: oneExp, SupExpVK: supExpVK}
+		st := stateDS{ExpVK: expVK, K: oneKind, SupExpVK: supExpVK}
 		dto.States = append(dto.States, st)
 		return expVK
 	case LinkRec:
 		st := stateDS{
 			ExpVK:    expVK,
-			K:        linkExp,
+			K:        linkKind,
 			SupExpVK: supExpVK,
 			Spec: expSpecDS{
 				Link: uniqsym.ConvertToString(rec.XactQN),
@@ -335,9 +335,9 @@ func statesFromExpRec(supExpVK int64, r ExpRec, dto *expRecDS) int64 {
 	case PlusRec:
 		st := stateDS{
 			ExpVK:    expVK,
-			K:        plusExp,
+			K:        plusKind,
 			SupExpVK: supExpVK,
-			Spec: expSpecDS{Plus2: &sumDS2{
+			Spec: expSpecDS{Plus: &sumDS{
 				ProcQNs:   uniqsym.ConvertToStrings(rec.ProcQNs),
 				ContExpVK: statesFromExpRec(expVK, rec.ContExp, dto),
 			}},
@@ -347,9 +347,9 @@ func statesFromExpRec(supExpVK int64, r ExpRec, dto *expRecDS) int64 {
 	case WithRec:
 		st := stateDS{
 			ExpVK:    expVK,
-			K:        withExp,
+			K:        withKind,
 			SupExpVK: supExpVK,
-			Spec: expSpecDS{With2: &sumDS2{
+			Spec: expSpecDS{With: &sumDS{
 				ProcQNs:   uniqsym.ConvertToStrings(rec.ProcQNs),
 				ContExpVK: statesFromExpRec(expVK, rec.ContExp, dto),
 			}},
@@ -359,7 +359,7 @@ func statesFromExpRec(supExpVK int64, r ExpRec, dto *expRecDS) int64 {
 	case UpRec:
 		st := stateDS{
 			ExpVK:    expVK,
-			K:        upExp,
+			K:        upKind,
 			SupExpVK: supExpVK,
 			Spec: expSpecDS{Up: &shiftDS{
 				ContExpVK: statesFromExpRec(expVK, rec.ContExp, dto),
@@ -370,7 +370,7 @@ func statesFromExpRec(supExpVK int64, r ExpRec, dto *expRecDS) int64 {
 	case DownRec:
 		st := stateDS{
 			ExpVK:    expVK,
-			K:        downExp,
+			K:        downKind,
 			SupExpVK: supExpVK,
 			Spec: expSpecDS{Up: &shiftDS{
 				ContExpVK: statesFromExpRec(expVK, rec.ContExp, dto),

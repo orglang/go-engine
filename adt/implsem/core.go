@@ -27,10 +27,10 @@ type semKind int16
 
 const (
 	unkKind semKind = iota
-	Pool
-	Proc
+	PoolKind
+	ProcKind
 )
 
 func ErrConcurrentModification(ref SemRef) error {
-	return fmt.Errorf("concurrent modification: %v", ref)
+	return fmt.Errorf("concurrent modification: %T%+v", ref, ref)
 }

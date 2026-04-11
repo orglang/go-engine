@@ -10,10 +10,10 @@ import (
 
 type Repo interface {
 	AddRec(db.Source, ExecRec) error
-	GetRecsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]ExecRec, error)
+	GetRecMapByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]ExecRec, error)
 	GetRefs(db.Source) ([]implsem.SemRef, error)
 	GetSnap(db.Source, implsem.SemRef) (ExecCfgSnap, error)
-	GetSnapsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]ExecLiabSnap, error)
+	GetSnapMapByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]ExecLiabSnap, error)
 }
 
 type execRecDS struct {

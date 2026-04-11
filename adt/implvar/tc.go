@@ -11,8 +11,8 @@ func ConvertRecToRef(rec LinearRec) implsem.SemRef {
 	return rec.ImplRef
 }
 
-func ConvertRecsToRecMap(recs []StructRec) map[symbol.ADT]StructRec {
-	recMap := make(map[symbol.ADT]StructRec, len(recs))
+func ConvertRecsToRecMap[T VarRec](recs []T) map[symbol.ADT]T {
+	recMap := make(map[symbol.ADT]T, len(recs))
 	for _, rec := range recs {
 		recMap[rec.GetChnlPH()] = rec
 	}

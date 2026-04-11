@@ -82,7 +82,7 @@ func (s *service) Create(spec DefSpec) (_ descsem.SemRef, err error) {
 		s.log.Error("creation failed", qnAttr)
 		return descsem.SemRef{}, transactErr
 	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("xact", newRef))
+	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", newRef))
 	return newRef, nil
 }
 

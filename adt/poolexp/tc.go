@@ -112,12 +112,58 @@ func MsgToExpSpec(dto poolexp.ExpSpec) (ExpSpec, error) {
 	}
 }
 
+func DataFromExpSpec(s ExpSpec) ExpSpecDS {
+	switch spec := s.(type) {
+	case AcquireSpec:
+		return ExpSpecDS{K: acquireKind, Acquire: DataFromAcquireSpec(spec)}
+	case AcceptSpec:
+		return ExpSpecDS{K: acceptKind, Accept: DataFromAcceptSpec(spec)}
+	case HireSpec:
+		return ExpSpecDS{K: hireKind, Hire: DataFromHireSpec(spec)}
+	case ApplySpec:
+		return ExpSpecDS{K: applyKind, Hire: DataFromApplySpec(spec)}
+	default:
+		panic(ErrSpecTypeUnexpected(s))
+	}
+}
+
+func DataToExpSpec(dto ExpSpecDS) (ExpSpec, error) {
+	switch dto.K {
+	case acquireKind:
+		spec, err := DataToAcquireSpec(dto.Acquire)
+		if err != nil {
+			return nil, err
+		}
+		return spec, nil
+	case acceptKind:
+		spec, err := DataToAcceptSpec(dto.Accept)
+		if err != nil {
+			return nil, err
+		}
+		return spec, nil
+	case hireKind:
+		spec, err := DataToHireSpec(dto.Hire)
+		if err != nil {
+			return nil, err
+		}
+		return spec, nil
+	case applyKind:
+		spec, err := DataToApplySpec(dto.Apply)
+		if err != nil {
+			return nil, err
+		}
+		return spec, nil
+	default:
+		panic(ErrExpKindUnexpected(dto.K))
+	}
+}
+
 func DataFromExpRec(r ExpRec) ExpRecDS {
 	switch rec := r.(type) {
 	case AcquireRec:
-		return ExpRecDS{K: acquireExp, Acquire: DataFromAcquireRec(rec)}
+		return ExpRecDS{K: acquireKind, Acquire: DataFromAcquireRec(rec)}
 	case AcceptRec:
-		return ExpRecDS{K: acceptExp, Accept: DataFromAcceptRec(rec)}
+		return ExpRecDS{K: acceptKind, Accept: DataFromAcceptRec(rec)}
 	default:
 		panic(ErrRecTypeUnexpected(r))
 	}
@@ -125,13 +171,13 @@ func DataFromExpRec(r ExpRec) ExpRecDS {
 
 func DataToExpRec(dto ExpRecDS) (ExpRec, error) {
 	switch dto.K {
-	case acquireExp:
+	case acquireKind:
 		rec, err := DataToAcquireRec(dto.Acquire)
 		if err != nil {
 			return nil, err
 		}
 		return rec, nil
-	case acceptExp:
+	case acceptKind:
 		rec, err := DataToAcceptRec(dto.Accept)
 		if err != nil {
 			return nil, err

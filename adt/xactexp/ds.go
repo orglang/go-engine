@@ -18,15 +18,15 @@ type Repo interface {
 type expKind int16
 
 const (
-	unkExp expKind = iota
-	oneExp
-	linkExp
-	tensorExp
-	lolliExp
-	plusExp
-	withExp
-	upExp
-	downExp
+	unkKind expKind = iota
+	oneKind
+	linkKind
+	tensorKind
+	lolliKind
+	plusKind
+	withKind
+	upKind
+	downKind
 )
 
 type expRefDS struct {
@@ -43,17 +43,15 @@ type stateDS struct {
 	ExpVK    int64     `db:"exp_vk"`
 	SupExpVK int64     `db:"sup_exp_vk"`
 	K        expKind   `db:"kind"`
-	Spec     expSpecDS `db:"spec"`
+	Spec     expSpecDS `db:"spec" fieldopt:"noexpand"`
 }
 
 type expSpecDS struct {
 	Link   string   `json:"link,omitempty"`
 	Tensor *prodDS  `json:"tensor,omitempty"`
 	Lolli  *prodDS  `json:"lolli,omitempty"`
-	Plus   []sumDS  `json:"plus,omitempty"`
-	Plus2  *sumDS2  `json:"plus2,omitempty"`
-	With   []sumDS  `json:"with,omitempty"`
-	With2  *sumDS2  `json:"with2,omitempty"`
+	Plus   *sumDS   `json:"plus,omitempty"`
+	With   *sumDS   `json:"with,omitempty"`
 	Up     *shiftDS `json:"up,omitempty"`
 	Down   *shiftDS `json:"down,omitempty"`
 }
@@ -64,11 +62,6 @@ type prodDS struct {
 }
 
 type sumDS struct {
-	LabQN     string `json:"on"`
-	ContExpVK int64  `json:"to"`
-}
-
-type sumDS2 struct {
 	ProcQNs   []string `json:"on"`
 	ContExpVK int64    `json:"to"`
 }

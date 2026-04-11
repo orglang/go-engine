@@ -1,10 +1,12 @@
-package poolstep
+package poolimpl
 
 import (
 	"log/slog"
 	"reflect"
 
 	"github.com/alitto/pond/v2"
+
+	"orglang/go-engine/adt/poolstep"
 )
 
 type pondBroker struct {
@@ -23,10 +25,13 @@ func newExch() Exch {
 	return new(pondBroker)
 }
 
-func (b *pondBroker) SendRec(rec StepRec) error {
-	panic("unimplemented")
-}
-
-func (b *pondBroker) SendSpec(spec StepSpec) error {
-	panic("unimplemented")
+func (b *pondBroker) SendSpec(spec poolstep.StepSpec) error {
+	b.pool.SubmitErr(func() error {
+		apiErr := b.api.Take(spec)
+		if apiErr != nil {
+			return apiErr
+		}
+		return nil
+	})
+	return nil
 }

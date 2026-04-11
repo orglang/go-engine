@@ -7,26 +7,20 @@ import (
 	"orglang/go-engine/adt/implsem"
 )
 
-func TestInsert(t *testing.T) {
+func TestInsertRec(t *testing.T) {
 	qb := newSQLBuilder()
-	rec := execRecDS{ImplID: "id-1"}
-	sql, args := qb.insertRec(rec)
+	sql, _ := qb.insertRec(execRecDS{})
 	fmt.Println(sql)
-	fmt.Println(args)
 }
 
 func TestSelectSnap(t *testing.T) {
 	qb := newSQLBuilder()
-	sem := implsem.SemRefDS{ImplID: "id-1"}
-	sql, args := qb.selectSnap(sem)
+	sql, _ := qb.selectSnap(implsem.SemRefDS{})
 	fmt.Println(sql)
-	fmt.Println(args)
 }
 
 func TestSelectSnapByQN(t *testing.T) {
 	qb := newSQLBuilder()
-	qn := "qn-1"
-	sql, args := qb.selectSnapByQN(qn)
+	sql, _ := qb.selectSnapByQN("qn-1")
 	fmt.Println(sql)
-	fmt.Println(args)
 }

@@ -1,4 +1,4 @@
-package commsem
+package implsem
 
 import (
 	"github.com/huandu/go-sqlbuilder"
@@ -19,13 +19,13 @@ func newSQLBuilder() *sqlBuilder {
 }
 
 func (qb *sqlBuilder) insertRec(rec semRecDS) (string, []any) {
-	return qb.semBuilder.InsertInto(commSems, rec).Build()
+	return qb.semBuilder.InsertInto(implSems, rec).Build()
 }
 
 func (qb *sqlBuilder) updateRec(ref SemRefDS) (string, []any) {
 	sem := sqlbuilder.PostgreSQL.NewUpdateBuilder()
-	sem.Update(commSems)
-	sem.Set("comm_rn = comm_rn + 1")
-	sem.Where(sem.Equal("comm_id", ref.CommID), sem.Equal("comm_rn", ref.CommRN))
+	sem.Update(implSems)
+	sem.Set("impl_rn = impl_rn + 1")
+	sem.Where(sem.Equal("impl_id", ref.ImplID), sem.Equal("impl_rn", ref.ImplRN))
 	return sem.Build()
 }

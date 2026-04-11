@@ -102,12 +102,14 @@ type ExpRec interface {
 
 type AcquireRec struct {
 	ContChnlID identity.ADT
+	ContExp    ExpSpec
 }
 
 func (r AcquireRec) rec() {}
 
 type AcceptRec struct {
 	ContChnlID identity.ADT
+	ContExp    ExpSpec
 }
 
 func (r AcceptRec) rec() {}

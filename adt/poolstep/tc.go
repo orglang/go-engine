@@ -23,7 +23,7 @@ func DataFromStepRec(r StepRec) StepRecDS {
 			CommID: commRef.CommID,
 			CommRN: commRef.CommRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
-			K:      PubStep,
+			K:      SubStep,
 			Exp:    poolexp.DataFromExpRec(rec.ContExp),
 		}
 	default:

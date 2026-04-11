@@ -39,10 +39,10 @@ func (h *echoController) GetSnap(c echo.Context) error {
 		h.log.Error("binding failed", slog.Any("dto", dto))
 		return bindErr
 	}
-	ref, convertErr := implsem.MsgToRef(dto)
-	if convertErr != nil {
+	ref, convErr := implsem.MsgToRef(dto)
+	if convErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
-		return convertErr
+		return convErr
 	}
 	snap, retrieveErr := h.api.RetrieveSnap(ref)
 	if retrieveErr != nil {
@@ -65,10 +65,10 @@ func (h *echoController) PostStep(c echo.Context) error {
 		h.log.Error("validation failed", slog.Any("dto", dto))
 		return validateErr
 	}
-	spec, convertErr := procstep.MsgToStepSpec(dto)
-	if convertErr != nil {
+	spec, convErr := procstep.MsgToStepSpec(dto)
+	if convErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
-		return convertErr
+		return convErr
 	}
 	takingErr := h.api.Take(spec)
 	if takingErr != nil {

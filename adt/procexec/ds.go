@@ -14,7 +14,8 @@ type Repo interface {
 }
 
 type execRecDS struct {
-	ImplID string `db:"impl_id"`
+	ImplID   string `db:"impl_id"`
+	LiabMode int16  `db:"mode"`
 }
 
 type execModDS struct {

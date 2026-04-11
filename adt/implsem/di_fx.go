@@ -8,4 +8,8 @@ var Module = fx.Module("adt/implsem",
 	fx.Provide(
 		fx.Annotate(newPgxDAO, fx.As(new(Repo))),
 	),
+	fx.Provide(
+		fx.Private,
+		fx.Annotate(newSQLBuilder, fx.As(new(queryBuilder))),
+	),
 )

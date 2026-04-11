@@ -1,7 +1,7 @@
-package commsem
+package implsem
 
 const (
-	commSems string = "comm_sems"
+	implSems string = "impl_sems"
 )
 
 type queryBuilder interface {

@@ -76,7 +76,7 @@ func (s *suite) beforeEach(t *testing.T) {
 		"impl_sems", "impl_binds",
 		"comm_sems",
 		"xact_defs", "xact_exps",
-		"pool_decs", "pool_execs", "pool_conns", "pool_vars",
+		"pool_decs", "pool_execs", "pool_conns", "pool_vars", "pool_steps",
 		"type_defs", "type_exps",
 		"proc_decs", "proc_linear_vars", "proc_steps",
 	}
@@ -180,7 +180,7 @@ func (s *suite) waitClose(t *testing.T) {
 	err = s.PoolExecAPI.Take(poolstep.StepSpec{
 		ImplRef: myPoolExec,
 		PoolExp: poolexp.ExpSpec{
-			K: poolexp.Accept,
+			K: poolexp.Accept, // пул одобряет доступ к самому себе
 			Accept: &poolexp.AcceptSpec{
 				CommChnlPH: poolAssetPH,
 				ContExp: poolexp.ExpSpec{
@@ -233,10 +233,16 @@ func (s *suite) waitClose(t *testing.T) {
 	err = s.PoolExecAPI.Take(poolstep.StepSpec{
 		ImplRef: myPoolExec,
 		PoolExp: poolexp.ExpSpec{
-			K: poolexp.Hire,
-			Hire: &poolexp.HireSpec{
+			K: poolexp.Acquire,
+			Acquire: &poolexp.AcquireSpec{
 				CommChnlPH: poolAssetPH,
-				ProcDescQN: waiterProcQN,
+				ContExp: poolexp.ExpSpec{
+					K: poolexp.Hire,
+					Hire: &poolexp.HireSpec{
+						CommChnlPH: poolAssetPH,
+						ProcDescQN: waiterProcQN,
+					},
+				},
 			},
 		},
 	})
@@ -247,10 +253,16 @@ func (s *suite) waitClose(t *testing.T) {
 	err = s.PoolExecAPI.Take(poolstep.StepSpec{
 		ImplRef: myPoolExec,
 		PoolExp: poolexp.ExpSpec{
-			K: poolexp.Apply,
-			Apply: &poolexp.ApplySpec{
-				CommChnlPH: poolLiabPH,
-				ProcDescQN: waiterProcQN,
+			K: poolexp.Accept,
+			Accept: &poolexp.AcceptSpec{
+				CommChnlPH: poolAssetPH,
+				ContExp: poolexp.ExpSpec{
+					K: poolexp.Apply,
+					Apply: &poolexp.ApplySpec{
+						CommChnlPH: poolLiabPH,
+						ProcDescQN: waiterProcQN,
+					},
+				},
 			},
 		},
 	})

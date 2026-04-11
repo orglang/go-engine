@@ -1,4 +1,4 @@
-package poolconn
+package poolcomm
 
 import (
 	"orglang/go-engine/adt/commsem"
@@ -13,13 +13,13 @@ var (
 	// goverter:autoMap CommRef
 	DataFromRec func(ConnRec) connRecDS
 	// goverter:autoMap CommRef
-	DataFromQry func(ConnQry) connQryDS
+	DataFromQry func(CommQry) connQryDS
 	// goverter:autoMap CommRef
-	DataFromMod func(ConnMod) connModDS
+	DataFromMod func(CommMod) connModDS
 	// goverter:map . CommRef | DataToSemRef
 	DataToRec func(connRecDS) (ConnRec, error)
 	// goverter:map . CommRef
-	DataToSnap func(connSnapDS) (ConnSnap, error)
+	DataToSnap func(connSnapDS) (CommSnap, error)
 	// goverter:ignore CommRN
 	DataToSemRef func(connRecDS) (commsem.SemRef, error)
 )

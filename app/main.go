@@ -11,7 +11,7 @@ import (
 	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/descsem"
 	"orglang/go-engine/adt/implsem"
-	"orglang/go-engine/adt/poolconn"
+	"orglang/go-engine/adt/poolcomm"
 	"orglang/go-engine/adt/pooldec"
 	"orglang/go-engine/adt/poolexec"
 	"orglang/go-engine/adt/poolstep"
@@ -41,7 +41,7 @@ func main() {
 		implsem.Module,
 		xactdef.Module,
 		xactexp.Module,
-		poolconn.Module,
+		poolcomm.Module,
 		pooldec.Module,
 		poolexec.Module,
 		poolstep.Module,

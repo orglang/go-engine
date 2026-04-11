@@ -42,10 +42,10 @@ func (h *echoController) PostSpec(c echo.Context) error {
 		h.log.Error("validation failed", slog.Any("dto", dto))
 		return validateErr
 	}
-	spec, convertErr := MsgToDecSpec(dto)
-	if convertErr != nil {
+	spec, convErr := MsgToDecSpec(dto)
+	if convErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
-		return convertErr
+		return convErr
 	}
 	snap, createErr := h.api.Create(spec)
 	if createErr != nil {
@@ -61,10 +61,10 @@ func (h *echoController) GetSnap(c echo.Context) error {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
 		return bindErr
 	}
-	ref, convertErr := descsem.MsgToRef(dto)
-	if convertErr != nil {
+	ref, convErr := descsem.MsgToRef(dto)
+	if convErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
-		return convertErr
+		return convErr
 	}
 	snap, retrieveErr := h.api.RetrieveSnap(ref)
 	if retrieveErr != nil {

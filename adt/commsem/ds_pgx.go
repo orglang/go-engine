@@ -43,6 +43,20 @@ func (dao *pgxDAO) SelectRefsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]Se
 	panic("unimplemented")
 }
 
-func (dao *pgxDAO) TouchRec(db.Source, SemRef) error {
-	panic("unimplemented")
+func (dao *pgxDAO) TouchRec(source db.Source, ref SemRef) error {
+	ds := db.MustConform[db.SourcePgx](source)
+	dto := DataFromRef(ref)
+	refAttr := slog.Any("ref", ref)
+	sql, args := dao.qb.updateRec(dto)
+	ct, execErr := ds.Conn.Exec(ds.Ctx, sql, args...)
+	if execErr != nil {
+		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
+		return execErr
+	}
+	if ct.RowsAffected() == 0 {
+		dao.log.Error("entity update failed", refAttr)
+		return ErrConcurrentModification(ref)
+	}
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "update succeed", slog.Any("dto", dto))
+	return nil
 }

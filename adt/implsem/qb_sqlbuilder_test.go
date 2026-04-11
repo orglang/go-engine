@@ -1,4 +1,4 @@
-package commsem
+package implsem
 
 import (
 	"fmt"

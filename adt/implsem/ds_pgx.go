@@ -16,12 +16,13 @@ import (
 )
 
 type pgxDAO struct {
+	qb  queryBuilder
 	log *slog.Logger
 }
 
-func newPgxDAO(l *slog.Logger) *pgxDAO {
+func newPgxDAO(qb queryBuilder, log *slog.Logger) *pgxDAO {
 	name := slog.String("name", reflect.TypeFor[pgxDAO]().Name())
-	return &pgxDAO{l.With(name)}
+	return &pgxDAO{qb, log.With(name)}
 }
 
 // for compilation purposes
@@ -32,10 +33,10 @@ func newRepo() Repo {
 func (dao *pgxDAO) AddRec(source db.Source, rec SemRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("ref", rec.ImplRef)
-	dto, convertErr := DataFromRec(rec)
-	if convertErr != nil {
+	dto, convErr := DataFromRec(rec)
+	if convErr != nil {
 		dao.log.Error("model conversion failed", refAttr)
-		return convertErr
+		return convErr
 	}
 	args := pgx.NamedArgs{
 		"impl_id": dto.ImplID,
@@ -59,8 +60,22 @@ func (dao *pgxDAO) AddRec(source db.Source, rec SemRec) error {
 	return nil
 }
 
-func (dao *pgxDAO) TouchRec(db.Source, SemRef) error {
-	panic("unimplemented")
+func (dao *pgxDAO) TouchRec(source db.Source, ref SemRef) error {
+	ds := db.MustConform[db.SourcePgx](source)
+	dto := DataFromRef(ref)
+	refAttr := slog.Any("ref", ref)
+	sql, args := dao.qb.updateRec(dto)
+	ct, execErr := ds.Conn.Exec(ds.Ctx, sql, args...)
+	if execErr != nil {
+		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
+		return execErr
+	}
+	if ct.RowsAffected() == 0 {
+		dao.log.Error("entity update failed", refAttr)
+		return ErrConcurrentModification(ref)
+	}
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "update succeed", slog.Any("dto", dto))
+	return nil
 }
 
 func (dao *pgxDAO) GetRefsByQNs(source db.Source, implQNs []uniqsym.ADT) (_ map[uniqsym.ADT]SemRef, err error) {

@@ -32,10 +32,10 @@ func newRepo() Repo {
 func (dao *pgxDAO) AddRec(source db.Source, rec SemRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
 	qnAttr := slog.Any("qn", rec.DescQN)
-	dto, convertErr := DataFromRec(rec)
-	if convertErr != nil {
+	dto, convErr := DataFromRec(rec)
+	if convErr != nil {
 		dao.log.Error("model conversion failed", qnAttr)
-		return convertErr
+		return convErr
 	}
 	args := pgx.NamedArgs{
 		"desc_id": dto.DescID,

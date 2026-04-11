@@ -17,6 +17,7 @@ import (
 
 // Adapter
 type pgxDAO struct {
+	qb  queryBuilder
 	log *slog.Logger
 }
 
@@ -25,21 +26,19 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func newPgxDAO(l *slog.Logger) *pgxDAO {
+func newPgxDAO(qb queryBuilder, log *slog.Logger) *pgxDAO {
 	name := slog.String("name", reflect.TypeFor[pgxDAO]().Name())
-	return &pgxDAO{l.With(name)}
+	return &pgxDAO{qb, log.With(name)}
 }
 
 func (dao *pgxDAO) InsertRec(source db.Source, rec ExecRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
 	dto := DataFromExecRec(rec)
-	args := pgx.NamedArgs{
-		"impl_id": dto.ImplID,
-	}
 	refAttr := slog.Any("ref", rec.ImplRef)
-	_, execErr := ds.Conn.Exec(ds.Ctx, insertRec, args)
+	sql, args := dao.qb.insertRec(dto)
+	_, execErr := ds.Conn.Exec(ds.Ctx, sql, args...)
 	if execErr != nil {
-		dao.log.Error("query execution failed", refAttr)
+		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
 		return execErr
 	}
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "insertion succeed", slog.Any("dto", dto))
@@ -138,13 +137,6 @@ func (dao *pgxDAO) UpdateProc(source db.Source, mod ExecMod) (err error) {
 }
 
 const (
-	insertRec = `
-		insert into proc_execs (
-			impl_id, impl_rn, chnl_ph
-		) values (
-			@impl_id, @impl_rn, @chnl_ph
-		)`
-
 	insertBind = `
 		insert into proc_binds (
 			impl_id, chnl_ph, chnl_id, state_id, impl_rn

@@ -1,4 +1,4 @@
-package poolconn
+package poolcomm
 
 const (
 	commSems  = "comm_sems"

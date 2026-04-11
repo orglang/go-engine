@@ -1,4 +1,4 @@
-package poolconn
+package poolcomm
 
 import (
 	"log/slog"
@@ -46,7 +46,7 @@ func (dao *pgxDAO) GetRefsByQNs(source db.Source, qns []uniqsym.ADT) (map[uniqsy
 	panic("unimplemented")
 }
 
-func (dao *pgxDAO) GetSnapByQry(source db.Source, qry ConnQry) (ConnSnap, error) {
+func (dao *pgxDAO) GetSnapByQry(source db.Source, qry CommQry) (CommSnap, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("ref", qry.CommRef)
 	dto := DataFromQry(qry)
@@ -55,24 +55,27 @@ func (dao *pgxDAO) GetSnapByQry(source db.Source, qry ConnQry) (ConnSnap, error)
 	rows, execErr := ds.Conn.Query(ds.Ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
-		return ConnSnap{}, execErr
+		return CommSnap{}, execErr
 	}
 	defer rows.Close()
 	snapDTO, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[connSnapDS])
 	if scanErr != nil {
 		dao.log.Error("rows scanning failed", refAttr)
-		return ConnSnap{}, scanErr
+		return CommSnap{}, scanErr
 	}
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection succeed", slog.Any("dto", snapDTO))
 	snap, convErr := DataToSnap(snapDTO)
 	if convErr != nil {
 		dao.log.Error("model conversion failed", refAttr)
-		return ConnSnap{}, convErr
+		return CommSnap{}, convErr
 	}
 	return snap, nil
 }
 
-func (dao *pgxDAO) UpdateRec(source db.Source, mod ConnMod) error {
+func (dao *pgxDAO) ModifyRec(source db.Source, mod CommMod) error {
+	if mod.CommON == nil {
+		return nil
+	}
 	ds := db.MustConform[db.SourcePgx](source)
 	dto := DataFromMod(mod)
 	refAttr := slog.Any("ref", mod.CommRef)

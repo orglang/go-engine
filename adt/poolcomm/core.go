@@ -1,4 +1,4 @@
-package poolconn
+package poolcomm
 
 import (
 	"orglang/go-engine/adt/commsem"
@@ -14,24 +14,24 @@ type ConnRec struct {
 	CommON seqnum.ADT
 }
 
-type ConnMod struct {
+type CommMod struct {
 	CommRef commsem.SemRef
 	CommON  option.ADT[seqnum.ADT]
 	Steps   []poolstep.StepRec
 }
 
-type ConnQry struct {
+type CommQry struct {
 	CommRef commsem.SemRef
 	ChnlID  option.ADT[identity.ADT]
 }
 
 // aka Configuration
-type ConnSnap struct {
+type CommSnap struct {
 	CommRef commsem.SemRef
 	Steps   []poolstep.StepRec
 }
 
-func (s ConnSnap) NextStep() poolstep.StepRec {
+func (s CommSnap) NextStep() poolstep.StepRec {
 	if len(s.Steps) > 0 {
 		return s.Steps[0]
 	}

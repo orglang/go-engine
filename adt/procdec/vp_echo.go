@@ -48,10 +48,10 @@ func (p *echoPresenter) PostSpec(c echo.Context) error {
 		p.log.Error("validation failed", slog.Any("dto", dto))
 		return validateErr
 	}
-	qn, convertErr := uniqsym.ConvertFromString(dto.ProcQN)
-	if convertErr != nil {
+	qn, convErr := uniqsym.ConvertFromString(dto.ProcQN)
+	if convErr != nil {
 		p.log.Error("conversion failed", slog.Any("dto", dto))
-		return convertErr
+		return convErr
 	}
 	ref, inceptionErr := p.api.Incept(qn)
 	if inceptionErr != nil {
@@ -93,10 +93,10 @@ func (p *echoPresenter) GetSnap(c echo.Context) error {
 		p.log.Error("validation failed", slog.Any("dto", dto))
 		return validateErr
 	}
-	ref, convertErr := descsem.MsgToRef(dto)
-	if convertErr != nil {
+	ref, convErr := descsem.MsgToRef(dto)
+	if convErr != nil {
 		p.log.Error("conversion failed", slog.Any("dto", dto))
-		return convertErr
+		return convErr
 	}
 	snap, retrieveErr := p.api.RetrieveSnap(ref)
 	if retrieveErr != nil {

@@ -24,9 +24,9 @@ type echoController struct {
 	log *slog.Logger
 }
 
-func newEchoController(a API, r te.Renderer, l *slog.Logger) *echoController {
+func newEchoController(api API, ssr te.Renderer, log *slog.Logger) *echoController {
 	name := slog.String("name", reflect.TypeFor[echoController]().Name())
-	return &echoController{a, r, l.With(name)}
+	return &echoController{api, ssr, log.With(name)}
 }
 
 func cfgEchoController(e *echo.Echo, h *echoController) error {
@@ -37,91 +37,91 @@ func cfgEchoController(e *echo.Echo, h *echoController) error {
 	return nil
 }
 
-func (h *echoController) PostSpec(c echo.Context) error {
+func (c *echoController) PostSpec(ctx echo.Context) error {
 	var dto poolexec.ExecSpec
-	bindErr := c.Bind(&dto)
+	bindErr := ctx.Bind(&dto)
 	if bindErr != nil {
-		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
+		c.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
 		return bindErr
 	}
 	validateErr := dto.Validate()
 	if validateErr != nil {
-		h.log.Error("validation failed", slog.Any("dto", dto))
+		c.log.Error("validation failed", slog.Any("dto", dto))
 		return validateErr
 	}
-	spec, convertErr := MsgToExecSpec(dto)
-	if convertErr != nil {
-		h.log.Error("conversion failed", slog.Any("dto", dto))
-		return convertErr
+	spec, convErr := MsgToExecSpec(dto)
+	if convErr != nil {
+		c.log.Error("conversion failed", slog.Any("dto", dto))
+		return convErr
 	}
-	ref, createErr := h.api.Run(spec)
-	if createErr != nil {
-		return createErr
+	ref, apiErr := c.api.Run(spec)
+	if apiErr != nil {
+		return apiErr
 	}
-	return c.JSON(http.StatusCreated, implsem.MsgFromRef(ref))
+	return ctx.JSON(http.StatusCreated, implsem.MsgFromRef(ref))
 }
 
-func (h *echoController) GetSnap(c echo.Context) error {
+func (c *echoController) GetSnap(ctx echo.Context) error {
 	var dto sdk.SemRef
-	bindErr := c.Bind(&dto)
+	bindErr := ctx.Bind(&dto)
 	if bindErr != nil {
 		return bindErr
 	}
-	ref, convertErr := implsem.MsgToRef(dto)
-	if convertErr != nil {
-		return convertErr
+	ref, convErr := implsem.MsgToRef(dto)
+	if convErr != nil {
+		return convErr
 	}
-	snap, retrieveErr := h.api.RetrieveSnap(ref)
-	if retrieveErr != nil {
-		return retrieveErr
+	snap, apiErr := c.api.RetrieveSnap(ref)
+	if apiErr != nil {
+		return apiErr
 	}
-	return c.JSON(http.StatusOK, MsgFromExecSnap(snap))
+	return ctx.JSON(http.StatusOK, MsgFromExecSnap(snap))
 }
 
-func (h *echoController) PostSpec2(c echo.Context) error {
+func (c *echoController) PostSpec2(ctx echo.Context) error {
 	var dto poolstep1.StepSpec
-	bindErr := c.Bind(&dto)
+	bindErr := ctx.Bind(&dto)
 	if bindErr != nil {
-		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
+		c.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
 		return bindErr
 	}
 	validateErr := dto.Validate()
 	if validateErr != nil {
-		h.log.Error("validation failed", slog.Any("dto", dto))
+		c.log.Error("validation failed", slog.Any("dto", dto))
 		return validateErr
 	}
-	spec, convertErr := poolstep.MsgToStepSpec(dto)
-	if convertErr != nil {
-		h.log.Error("conversion failed", slog.Any("dto", dto))
-		return convertErr
+	spec, convErr := poolstep.MsgToStepSpec(dto)
+	if convErr != nil {
+		c.log.Error("conversion failed", slog.Any("dto", dto))
+		return convErr
 	}
-	takeErr := h.api.Take(spec)
-	if takeErr != nil {
-		return takeErr
+	apiErr := c.api.Take(spec)
+	if apiErr != nil {
+		return apiErr
 	}
-	return c.NoContent(http.StatusNoContent)
+	return ctx.NoContent(http.StatusNoContent)
 }
 
-func (h *echoController) PostSpec3(c echo.Context) error {
+func (c *echoController) PostSpec3(ctx echo.Context) error {
 	var dto poolstep1.StepSpec
-	bindErr := c.Bind(&dto)
+	bindErr := ctx.Bind(&dto)
 	if bindErr != nil {
-		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
+		c.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
 		return bindErr
 	}
 	validateErr := dto.Validate()
 	if validateErr != nil {
-		h.log.Error("validation failed", slog.Any("dto", dto))
+		c.log.Error("validation failed", slog.Any("dto", dto))
 		return validateErr
 	}
-	spec, convertErr := poolstep.MsgToStepSpec(dto)
-	if convertErr != nil {
-		h.log.Error("conversion failed", slog.Any("dto", dto))
-		return convertErr
+	spec, convErr := poolstep.MsgToStepSpec(dto)
+	if convErr != nil {
+		c.log.Error("conversion failed", slog.Any("dto", dto))
+		return convErr
 	}
-	ref, takeErr := h.api.Spawn(spec)
-	if takeErr != nil {
-		return takeErr
+	ref, apiErr := c.api.Spawn(spec)
+	if apiErr != nil {
+		return apiErr
 	}
-	return c.JSON(http.StatusCreated, implsem.MsgFromRef(ref))
+	return ctx.JSON(http.StatusCreated, implsem.MsgFromRef(ref))
 }

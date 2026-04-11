@@ -21,7 +21,7 @@ type API interface {
 
 type StepSpec struct {
 	ImplRef implsem.SemRef
-	PoolExp poolexp.ExpSpec
+	CommExp poolexp.ExpSpec
 }
 
 // step (aka Sem)
@@ -78,11 +78,11 @@ func newService(
 }
 
 func ErrRecTypeUnexpected(got StepRec) error {
-	return fmt.Errorf("comm rec unexpected: %T", got)
+	return fmt.Errorf("step rec unexpected: %T%+v", got, got)
 }
 
 func ErrRecTypeMismatch(got, want StepRec) error {
-	return fmt.Errorf("comm rec mismatch: want %T, got %T", want, got)
+	return fmt.Errorf("step rec mismatch: want %T, got %T", want, got)
 }
 
 func ErrStepKindUnexpected(got stepKind) error {

@@ -47,10 +47,10 @@ func (h *echoController) PostSpec(c echo.Context) error {
 		h.log.Error("validation failed", slog.Any("dto", dto))
 		return validateErr
 	}
-	spec, convertErr := MsgToDefSpec(dto)
-	if convertErr != nil {
+	spec, convErr := MsgToDefSpec(dto)
+	if convErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
-		return convertErr
+		return convErr
 	}
 	snap, createErr := h.api.Create(spec)
 	if createErr != nil {
@@ -72,10 +72,10 @@ func (h *echoController) GetSnap(c echo.Context) error {
 		h.log.Error("validation failed", slog.Any("dto", dto))
 		return validateErr
 	}
-	ref, convertErr := descsem.MsgToRef(dto)
-	if convertErr != nil {
+	ref, convErr := descsem.MsgToRef(dto)
+	if convErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
-		return convertErr
+		return convErr
 	}
 	snap, retrieveErr := h.api.RetrieveSnap(ref)
 	if retrieveErr != nil {
@@ -98,10 +98,10 @@ func (h *echoController) PatchOne(c echo.Context) error {
 		h.log.Error("validation failed", slog.Any("dto", dto))
 		return validateErr
 	}
-	reqSnap, convertErr := MsgToDefSnap(dto)
-	if convertErr != nil {
+	reqSnap, convErr := MsgToDefSnap(dto)
+	if convErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
-		return convertErr
+		return convErr
 	}
 	resSnap, modificationErr := h.api.Modify(reqSnap)
 	if modificationErr != nil {

@@ -1,4 +1,4 @@
-package poolconn
+package poolcomm
 
 import (
 	"github.com/huandu/go-sqlbuilder"

@@ -1,4 +1,4 @@
-package poolconn
+package poolcomm
 
 import (
 	"go.uber.org/fx"

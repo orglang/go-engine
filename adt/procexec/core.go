@@ -34,9 +34,8 @@ type API interface {
 }
 
 type ExecRec struct {
-	ImplRef implsem.SemRef
-	ChnlPH  symbol.ADT
-	ChnlON  seqnum.ADT
+	ImplRef  implsem.SemRef
+	LiabMode implvar.Mode
 }
 
 // aka Configuration

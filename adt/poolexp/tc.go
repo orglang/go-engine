@@ -32,6 +32,7 @@ func MsgFromExpSpec(s ExpSpec) poolexp.ExpSpec {
 			K: poolexp.Apply,
 			Apply: &poolexp.ApplySpec{
 				CommChnlPH: symbol.ConvertToString(spec.CommChnlPH),
+				ProcDescQN: uniqsym.ConvertToString(spec.ProcDescQN),
 			},
 		}
 	case SpawnSpec2:
@@ -91,7 +92,11 @@ func MsgToExpSpec(dto poolexp.ExpSpec) (ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return ApplySpec{CommChnlPH: commPH}, nil
+		descQN, err := uniqsym.ConvertFromString(dto.Apply.ProcDescQN)
+		if err != nil {
+			return nil, err
+		}
+		return ApplySpec{CommChnlPH: commPH, ProcDescQN: descQN}, nil
 	case poolexp.Spawn:
 		descRef, err := descsem.MsgToRef(dto.Spawn.ProcDescRef)
 		if err != nil {

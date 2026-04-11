@@ -34,10 +34,10 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DefRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("ref", rec.DescRef)
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity insertion started", refAttr)
-	dto, convertErr := DataFromDefRec(rec)
-	if convertErr != nil {
+	dto, convErr := DataFromDefRec(rec)
+	if convErr != nil {
 		dao.log.Error("model conversion failed", refAttr)
-		return convertErr
+		return convErr
 	}
 	args := pgx.NamedArgs{
 		"desc_id": dto.DescID,
@@ -56,10 +56,10 @@ func (dao *pgxDAO) Update(source db.Source, rec DefRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("ref", rec.DescRef)
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity update started", refAttr)
-	dto, convertErr := DataFromDefRec(rec)
-	if convertErr != nil {
+	dto, convErr := DataFromDefRec(rec)
+	if convErr != nil {
 		dao.log.Error("model conversion failed", refAttr)
-		return convertErr
+		return convErr
 	}
 	args := pgx.NamedArgs{
 		"desc_id": dto.DescID,

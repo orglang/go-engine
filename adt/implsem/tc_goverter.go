@@ -23,7 +23,7 @@ var (
 // goverter:extend orglang/go-engine/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
 var (
-	DataFromRef  func(SemRef) (SemRefDS, error)
+	DataFromRef  func(SemRef) SemRefDS
 	DataFromRefs func([]SemRef) ([]SemRefDS, error)
 	DataToRef    func(SemRefDS) (SemRef, error)
 	DataToRefs   func([]SemRefDS) ([]SemRef, error)

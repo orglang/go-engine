@@ -44,10 +44,10 @@ func (h *echoController) PostSpec(c echo.Context) error {
 		h.log.Error("validation failed", slog.Any("dto", dto))
 		return validateErr
 	}
-	spec, convertErr := MsgToDefSpec(dto)
-	if convertErr != nil {
+	spec, convErr := MsgToDefSpec(dto)
+	if convErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
-		return convertErr
+		return convErr
 	}
 	ref, createErr := h.api.Create(spec)
 	if createErr != nil {

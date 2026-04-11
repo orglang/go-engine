@@ -8,6 +8,7 @@ var Module = fx.Module("adt/poolstep",
 	fx.Provide(
 		fx.Annotate(newService, fx.As(new(API))),
 		fx.Annotate(newPgxDAO, fx.As(new(Repo))),
+		fx.Annotate(newPondBroker, fx.As(new(Exch))),
 	),
 	fx.Provide(
 		fx.Private,

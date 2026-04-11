@@ -1,6 +1,8 @@
 package commsem
 
 import (
+	"fmt"
+
 	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/seqnum"
 )
@@ -27,3 +29,7 @@ const (
 	Pool
 	Proc
 )
+
+func ErrConcurrentModification(ref SemRef) error {
+	return fmt.Errorf("concurrent modification: %T%+v", ref, ref)
+}

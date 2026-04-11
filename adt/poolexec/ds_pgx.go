@@ -34,11 +34,11 @@ func newRepo() Repo {
 func (dao *pgxDAO) AddRec(source db.Source, rec ExecRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
 	dto := DataFromExecRec(rec)
-	implAttr := slog.Any("impl", rec.ImplRef)
+	refAttr := slog.Any("ref", rec.ImplRef)
 	sql, args := dao.qb.insertRec(dto)
 	_, execErr := ds.Conn.Exec(ds.Ctx, sql, args...)
 	if execErr != nil {
-		dao.log.Error("query execution failed", implAttr)
+		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
 		return execErr
 	}
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "insertion succeed", slog.Any("dto", dto))
@@ -106,11 +106,7 @@ func (dao *pgxDAO) GetRefs(source db.Source) ([]implsem.SemRef, error) {
 func (dao *pgxDAO) GetSnap(source db.Source, ref implsem.SemRef) (ExecCfgSnap, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("ref", ref)
-	refDTO, convErr1 := implsem.DataFromRef(ref)
-	if convErr1 != nil {
-		dao.log.Error("model conversion failed", refAttr)
-		return ExecCfgSnap{}, convErr1
-	}
+	refDTO := implsem.DataFromRef(ref)
 	sql, args := dao.qb.selectSnap(refDTO)
 	rows, execErr := ds.Conn.Query(ds.Ctx, sql, args...)
 	if execErr != nil {

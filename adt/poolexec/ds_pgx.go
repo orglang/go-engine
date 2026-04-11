@@ -103,36 +103,11 @@ func (dao *pgxDAO) GetRefs(source db.Source) ([]implsem.SemRef, error) {
 	return refs, nil
 }
 
-func (dao *pgxDAO) GetSnap(source db.Source, ref implsem.SemRef) (ExecCfgSnap, error) {
-	ds := db.MustConform[db.SourcePgx](source)
-	refAttr := slog.Any("ref", ref)
-	refDTO := implsem.DataFromRef(ref)
-	sql, args := dao.qb.selectSnap(refDTO)
-	rows, execErr := ds.Conn.Query(ds.Ctx, sql, args...)
-	if execErr != nil {
-		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql), slog.Any("args", args))
-		return ExecCfgSnap{}, execErr
-	}
-	defer rows.Close()
-	snapDTO, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[execCfgSnapDS])
-	if scanErr != nil {
-		dao.log.Error("rows scanning failed", refAttr, slog.Any("dto", snapDTO))
-		return ExecCfgSnap{}, scanErr
-	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection succeed", slog.Any("dto", snapDTO))
-	snap, convErr2 := DataToExecSnap(snapDTO)
-	if convErr2 != nil {
-		dao.log.Error("model conversion failed", refAttr)
-		return ExecCfgSnap{}, convErr2
-	}
-	return snap, nil
-}
-
-func (dao *pgxDAO) GetSnapMapByQNs(source db.Source, implQNs []uniqsym.ADT) (_ map[uniqsym.ADT]ExecLiabSnap, err error) {
+func (dao *pgxDAO) GetSnapMapByQNs(source db.Source, implQNs []uniqsym.ADT) (_ map[uniqsym.ADT]ExecSnap, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection started", slog.Any("qns", implQNs))
 	if len(implQNs) == 0 {
-		return map[uniqsym.ADT]ExecLiabSnap{}, nil
+		return map[uniqsym.ADT]ExecSnap{}, nil
 	}
 	batch := pgx.Batch{}
 	for _, implQN := range implQNs {
@@ -143,7 +118,7 @@ func (dao *pgxDAO) GetSnapMapByQNs(source db.Source, implQNs []uniqsym.ADT) (_ m
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	dtos := make(map[uniqsym.ADT]execLiabSnapDS, len(implQNs))
+	dtos := make(map[uniqsym.ADT]execSnapDS, len(implQNs))
 	for _, implQN := range implQNs {
 		qnAttr := slog.Any("qn", implQN)
 		rows, readErr := br.Query()
@@ -151,7 +126,7 @@ func (dao *pgxDAO) GetSnapMapByQNs(source db.Source, implQNs []uniqsym.ADT) (_ m
 			dao.log.Error("query execution failed", qnAttr)
 			return nil, readErr
 		}
-		var dto execLiabSnapDS
+		var dto execSnapDS
 		scanErr := pgxscan.ScanOne(dto, rows)
 		if scanErr != nil {
 			dao.log.Error("row scanning failed", qnAttr)

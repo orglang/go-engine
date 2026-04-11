@@ -52,7 +52,7 @@ CREATE TABLE comm_sems (
 
 CREATE TABLE pool_execs (
 	impl_id varchar UNIQUE,
-	mode smallint
+	liab_mode smallint
 );
 
 CREATE TABLE pool_vars (
@@ -105,7 +105,7 @@ CREATE TABLE proc_decs (
 
 CREATE TABLE proc_execs (
 	impl_id varchar UNIQUE,
-	mode smallint
+	liab_mode smallint
 );
 
 CREATE TABLE proc_vars (

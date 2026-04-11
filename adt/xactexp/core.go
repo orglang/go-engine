@@ -125,7 +125,7 @@ func (PlusRec) spec() {}
 
 func (r PlusRec) Key() valkey.ADT { return r.ExpVK }
 
-func (r PlusRec) Next(l uniqsym.ADT) valkey.ADT { return r.ContExp.Key() }
+func (r PlusRec) Next() valkey.ADT { return r.ContExp.Key() }
 
 func (PlusRec) Pol() polarity.ADT { return polarity.Pos }
 
@@ -140,7 +140,7 @@ func (WithRec) spec() {}
 
 func (r WithRec) Key() valkey.ADT { return r.ExpVK }
 
-func (r WithRec) Next(l uniqsym.ADT) valkey.ADT { return r.ContExp.Key() }
+func (r WithRec) Next() valkey.ADT { return r.ContExp.Key() }
 
 func (WithRec) Pol() polarity.ADT { return polarity.Neg }
 

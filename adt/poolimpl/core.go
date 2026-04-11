@@ -174,18 +174,18 @@ func (s *service) take(
 ) {
 	ctx := context.Background()
 	implRefAttr := slog.Any("implRef", implSnap.ImplRef)
-	switch commExp := exp.(type) {
+	switch poolExp := exp.(type) {
 	case poolexp.AcceptSpec:
-		commChnl, ok := implSnap.StructVars[commExp.CommChnlPH]
+		commChnl, ok := implSnap.StructVars[poolExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", implRefAttr)
-			return implMod, implEff, commMod, procdef.ErrMissingInCfg(commExp.CommChnlPH)
+			return implMod, implEff, commMod, procdef.ErrMissingInCfg(poolExp.CommChnlPH)
 		}
 		// вычисляем следующее состояние
-		xactExp, ok := implSnap.StructExps[commExp.CommChnlPH]
+		xactExp, ok := implSnap.StructExps[poolExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", implRefAttr)
-			return implMod, implEff, commMod, procdef.ErrMissingInCtx(commExp.CommChnlPH)
+			return implMod, implEff, commMod, procdef.ErrMissingInCtx(poolExp.CommChnlPH)
 		}
 		nextExpVK := xactExp.(xactexp.ProdRec).Next()
 		// получаем снепшот коммуникации
@@ -222,7 +222,7 @@ func (s *service) take(
 				ChnlID:  commChnl.ChnlID,
 				ValExp: poolexp.AcceptRec{
 					ContChnlID: newChnlID,
-					ContExp:    commExp.ContExp,
+					ContExp:    poolExp.ContExp,
 				},
 			})
 			s.log.Debug("taking half done", implRefAttr, commRefAttr)
@@ -258,15 +258,16 @@ func (s *service) take(
 		s.log.Debug("step taking succeed", implRefAttr, commRefAttr)
 		return implMod, implEff, commMod, nil
 	case poolexp.AcquireSpec:
-		commChnl, ok := implSnap.StructVars[commExp.CommChnlPH]
+		commChnl, ok := implSnap.StructVars[poolExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", implRefAttr)
-			return implMod, implEff, commMod, procdef.ErrMissingInCfg(commExp.CommChnlPH)
+			return implMod, implEff, commMod, procdef.ErrMissingInCfg(poolExp.CommChnlPH)
 		}
-		xactExp, ok := implSnap.StructExps[commExp.CommChnlPH]
+		// вычисляем следующее состояние
+		xactExp, ok := implSnap.StructExps[poolExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", implRefAttr)
-			return implMod, implEff, commMod, procdef.ErrMissingInCtx(commExp.CommChnlPH)
+			return implMod, implEff, commMod, procdef.ErrMissingInCtx(poolExp.CommChnlPH)
 		}
 		nextExpVK := xactExp.(xactexp.ProdRec).Next()
 		// получаем снепшот коммуникации
@@ -303,7 +304,7 @@ func (s *service) take(
 				ChnlID:  commChnl.ChnlID,
 				ContExp: poolexp.AcquireRec{
 					ContChnlID: newChnlID,
-					ContExp:    commExp.ContExp,
+					ContExp:    poolExp.ContExp,
 				},
 			})
 			s.log.Debug("taking half done", implRefAttr, commAttr)
@@ -337,11 +338,18 @@ func (s *service) take(
 		s.log.Debug("step taking succeed", implRefAttr, commAttr)
 		return implMod, implEff, commMod, nil
 	case poolexp.HireSpec:
-		commChnl, ok := implSnap.LinearVars[commExp.CommChnlPH]
+		commChnl, ok := implSnap.LinearVars[poolExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", implRefAttr)
-			return implMod, implEff, commMod, procdef.ErrMissingInCfg(commExp.CommChnlPH)
+			return implMod, implEff, commMod, procdef.ErrMissingInCfg(poolExp.CommChnlPH)
 		}
+		// вычисляем следующее состояние
+		xactExp, ok := implSnap.LinearExps[poolExp.CommChnlPH]
+		if !ok {
+			s.log.Error("step taking failed", implRefAttr)
+			return implMod, implEff, commMod, procdef.ErrMissingInCtx(poolExp.CommChnlPH)
+		}
+		nextExpVK := xactExp.(xactexp.ProdRec).Next()
 		// получаем снепшот коммуникации
 		var commSnap poolcomm.CommSnap
 		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
@@ -359,18 +367,70 @@ func (s *service) take(
 		commRefAttr := slog.Any("commRef", commSnap.CommRef)
 		subscription := commSnap.NextStep()
 		if subscription == nil {
+			newChnlID := identity.New()
+			// вяжем продолжение нанимателя
+			implMod.Vars = append(implMod.Vars, implvar.LinearRec{
+				ImplRef: commChnl.ImplRef,
+				CommRef: commChnl.CommRef,
+				ChnlID:  newChnlID,
+				ChnlPH:  commChnl.ChnlPH,
+				ChnlBS:  commChnl.ChnlBS,
+				ExpVK:   nextExpVK,
+			})
+			// регистрируем сообщение нанимателя
+			commMod.Steps = append(commMod.Steps, poolstep.PubRec{
+				CommRef: commSnap.CommRef,
+				ImplRef: implSnap.ImplRef,
+				ChnlID:  commChnl.ChnlID,
+				ValExp: poolexp.HireRec{
+					ContChnlID: newChnlID,
+					ProcDescQN: poolExp.ProcDescQN,
+					ContExp:    poolExp.ContExp,
+				},
+			})
+			s.log.Debug("taking half done", implRefAttr, commRefAttr)
+			return implMod, implEff, commMod, nil
 		}
-
-		// ...
-
+		application, ok := subscription.(poolstep.SubRec)
+		if !ok {
+			panic(poolstep.ErrRecTypeUnexpected(subscription))
+		}
+		switch expRec := application.ContExp.(type) {
+		case poolexp.ApplyRec:
+			// вяжем продолжение нанимателя
+			implMod.Vars = append(implMod.Vars, implvar.LinearRec{
+				ImplRef: commChnl.ImplRef,
+				CommRef: commChnl.CommRef,
+				ChnlID:  expRec.ContChnlID,
+				ChnlPH:  commChnl.ChnlPH,
+				ChnlBS:  commChnl.ChnlBS,
+				ExpVK:   nextExpVK,
+			})
+			if expRec.ContExp != nil {
+				// шедулим продолжение нанимателя
+				implEff.Steps = append(implEff.Steps, poolstep.StepSpec{
+					ImplRef: application.ImplRef,
+					PoolExp: expRec.ContExp,
+				})
+			}
+		default:
+			panic(poolexp.ErrRecTypeUnexpected(application.ContExp))
+		}
 		s.log.Debug("step taking succeed", implRefAttr, commRefAttr)
 		return implMod, implEff, commMod, nil
 	case poolexp.ApplySpec:
-		commChnl, ok := implSnap.LinearVars[commExp.CommChnlPH]
+		commChnl, ok := implSnap.LinearVars[poolExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", implRefAttr)
-			return implMod, implEff, commMod, procdef.ErrMissingInCfg(commExp.CommChnlPH)
+			return implMod, implEff, commMod, procdef.ErrMissingInCfg(poolExp.CommChnlPH)
 		}
+		// вычисляем следующее состояние
+		xactExp, ok := implSnap.StructExps[poolExp.CommChnlPH]
+		if !ok {
+			s.log.Error("step taking failed", implRefAttr)
+			return implMod, implEff, commMod, procdef.ErrMissingInCtx(poolExp.CommChnlPH)
+		}
+		nextExpVK := xactExp.(xactexp.ProdRec).Next()
 		// получаем снепшот коммуникации
 		var commSnap poolcomm.CommSnap
 		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
@@ -388,15 +448,57 @@ func (s *service) take(
 		commAttr := slog.Any("commRef", commSnap.CommRef)
 		publication := commSnap.NextStep()
 		if publication == nil {
-
+			newChnlID := identity.New()
+			// вяжем продолжение соискателя
+			implMod.Vars = append(implMod.Vars, implvar.LinearRec{
+				ImplRef: commChnl.ImplRef,
+				CommRef: commChnl.CommRef,
+				ChnlID:  newChnlID,
+				ChnlPH:  commChnl.ChnlPH,
+				ChnlBS:  commChnl.ChnlBS,
+				ExpVK:   nextExpVK,
+			})
+			// регистрируем подписку соискателя
+			commMod.Steps = append(commMod.Steps, poolstep.SubRec{
+				CommRef: commSnap.CommRef,
+				ImplRef: implSnap.ImplRef,
+				ChnlID:  commChnl.ChnlID,
+				ContExp: poolexp.ApplyRec{
+					ContChnlID: newChnlID,
+					ProcDescQN: poolExp.ProcDescQN,
+					ContExp:    poolExp.ContExp,
+				},
+			})
+			s.log.Debug("taking half done", implRefAttr, commAttr)
+			return implMod, implEff, commMod, nil
 		}
-
-		// ...
-
+		hiring, ok := publication.(poolstep.PubRec)
+		if !ok {
+			panic(poolstep.ErrRecTypeUnexpected(publication))
+		}
+		switch expRec := hiring.ValExp.(type) {
+		case poolexp.HireRec:
+			// вяжем продолжение нанимателя
+			implMod.Vars = append(implMod.Vars, implvar.LinearRec{
+				ImplRef: commChnl.ImplRef,
+				CommRef: commChnl.CommRef,
+				ChnlID:  expRec.ContChnlID,
+				ChnlPH:  commChnl.ChnlPH,
+				ChnlBS:  commChnl.ChnlBS,
+				ExpVK:   nextExpVK,
+			})
+			// запускаем продолжение нанимателя
+			implEff.Steps = append(implEff.Steps, poolstep.StepSpec{
+				ImplRef: hiring.ImplRef,
+				PoolExp: expRec.ContExp,
+			})
+		default:
+			panic(poolexp.ErrRecTypeUnexpected(hiring.ValExp))
+		}
 		s.log.Debug("step taking succeed", implRefAttr, commAttr)
 		return implMod, implEff, commMod, nil
 	default:
-		panic(poolexp.ErrSpecTypeUnexpected(commExp))
+		panic(poolexp.ErrSpecTypeUnexpected(poolExp))
 	}
 }
 

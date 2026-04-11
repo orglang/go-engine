@@ -13,13 +13,13 @@ type Repo interface {
 
 type implJoinDS struct {
 	ImplRef  implsem.SemRefDS `db:"sem"`
-	LiabMode int16            `db:"exec.mode"`
+	LiabMode int16            `db:"exec.liab_mode"`
 }
 
 type implRecDS struct {
 	ImplID     string             `db:"impl_id"`
 	ImplRN     int64              `db:"impl_rn"`
-	LiabMode   int16              `db:"mode"`
+	LiabMode   int16              `db:"liab_mode"`
 	StructVars []implvar.VarRecDS `db:"struct_vars"`
 	LinearVars []implvar.VarRecDS `db:"linear_vars"`
 }

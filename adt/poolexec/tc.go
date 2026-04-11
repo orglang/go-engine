@@ -9,25 +9,25 @@ func ConvertRecToRef(rec ExecRec) implsem.SemRef {
 	return rec.ImplRef
 }
 
-func DataToExecLiabSnap(dto execLiabSnapDS) (ExecLiabSnap, error) {
+func DataToExecLiabSnap(dto execSnapDS) (ExecSnap, error) {
 	ref, err := implsem.DataToRef(dto.ImplRef)
 	if err != nil {
-		return ExecLiabSnap{}, err
+		return ExecSnap{}, err
 	}
 	mode := implvar.Mode(dto.LiabMode)
 	switch mode {
 	case implvar.StructMode:
 		rec, err := implvar.DataToStructRec(*dto.StructVar)
 		if err != nil {
-			return ExecLiabSnap{}, err
+			return ExecSnap{}, err
 		}
-		return ExecLiabSnap{ref, rec}, nil
+		return ExecSnap{ref, rec}, nil
 	case implvar.LinearMode:
 		rec, err := implvar.DataToLinearRec(*dto.LinearVar)
 		if err != nil {
-			return ExecLiabSnap{}, err
+			return ExecSnap{}, err
 		}
-		return ExecLiabSnap{ref, rec}, nil
+		return ExecSnap{ref, rec}, nil
 	default:
 		panic(implvar.ErrUnexpectedMode(mode))
 	}

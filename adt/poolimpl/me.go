@@ -5,5 +5,6 @@ import (
 )
 
 type Exch interface {
+	Subscribe(api API)
 	SendSpec(poolstep.StepSpec) error
 }

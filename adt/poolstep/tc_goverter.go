@@ -2,6 +2,7 @@ package poolstep
 
 import (
 	"orglang/go-engine/adt/commsem"
+	"orglang/go-engine/adt/implsem"
 
 	"github.com/orglang/go-sdk/adt/poolstep"
 )
@@ -20,5 +21,7 @@ var (
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/seqnum:Convert.*
 var (
-	DataToSemRef func(StepRecDS) (commsem.SemRef, error)
+	DataToCommRef func(StepRecDS) (commsem.SemRef, error)
+	// goverter:ignore ImplRN
+	DataToImplRef func(StepRecDS) (implsem.SemRef, error)
 )

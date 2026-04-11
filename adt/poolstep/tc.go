@@ -3,6 +3,7 @@ package poolstep
 import (
 	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/identity"
+	"orglang/go-engine/adt/implsem"
 	"orglang/go-engine/adt/poolexp"
 )
 
@@ -10,20 +11,24 @@ func DataFromStepRec(r StepRec) StepRecDS {
 	switch rec := r.(type) {
 	case PubRec:
 		commRef := commsem.DataFromRef(rec.CommRef)
+		implRef := implsem.DataFromRef(rec.ImplRef)
 		return StepRecDS{
 			CommID: commRef.CommID,
 			CommRN: commRef.CommRN,
+			ImplID: implRef.ImplID,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
-			K:      PubStep,
+			K:      PubKind,
 			Exp:    poolexp.DataFromExpRec(rec.ValExp),
 		}
 	case SubRec:
 		commRef := commsem.DataFromRef(rec.CommRef)
+		implRef := implsem.DataFromRef(rec.ImplRef)
 		return StepRecDS{
 			CommID: commRef.CommID,
 			CommRN: commRef.CommRN,
+			ImplID: implRef.ImplID,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
-			K:      SubStep,
+			K:      SubKind,
 			Exp:    poolexp.DataFromExpRec(rec.ContExp),
 		}
 	default:
@@ -33,8 +38,12 @@ func DataFromStepRec(r StepRec) StepRecDS {
 
 func DataToStepRec(dto StepRecDS) (StepRec, error) {
 	switch dto.K {
-	case PubStep:
-		commRef, err := DataToSemRef(dto)
+	case PubKind:
+		commRef, err := DataToCommRef(dto)
+		if err != nil {
+			return nil, err
+		}
+		implRef, err := DataToImplRef(dto)
 		if err != nil {
 			return nil, err
 		}
@@ -46,9 +55,13 @@ func DataToStepRec(dto StepRecDS) (StepRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return PubRec{CommRef: commRef, ChnlID: chnlID, ValExp: valExp}, nil
-	case SubStep:
-		commRef, err := DataToSemRef(dto)
+		return PubRec{CommRef: commRef, ImplRef: implRef, ChnlID: chnlID, ValExp: valExp}, nil
+	case SubKind:
+		commRef, err := DataToCommRef(dto)
+		if err != nil {
+			return nil, err
+		}
+		implRef, err := DataToImplRef(dto)
 		if err != nil {
 			return nil, err
 		}
@@ -60,7 +73,7 @@ func DataToStepRec(dto StepRecDS) (StepRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return SubRec{CommRef: commRef, ChnlID: chnlID, ContExp: contExp}, nil
+		return SubRec{CommRef: commRef, ImplRef: implRef, ChnlID: chnlID, ContExp: contExp}, nil
 	default:
 		panic(ErrStepKindUnexpected(dto.K))
 	}

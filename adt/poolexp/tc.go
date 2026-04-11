@@ -5,8 +5,6 @@ import (
 
 	"orglang/go-engine/adt/descsem"
 	"orglang/go-engine/adt/implsem"
-	"orglang/go-engine/adt/symbol"
-	"orglang/go-engine/adt/uniqsym"
 )
 
 func MsgFromExpSpecNilable(spec ExpSpec) *poolexp.ExpSpec {
@@ -20,21 +18,17 @@ func MsgFromExpSpecNilable(spec ExpSpec) *poolexp.ExpSpec {
 func MsgFromExpSpec(s ExpSpec) poolexp.ExpSpec {
 	switch spec := s.(type) {
 	case HireSpec:
-		return poolexp.ExpSpec{
-			K: poolexp.Hire,
-			Hire: &poolexp.HireSpec{
-				CommChnlPH: symbol.ConvertToString(spec.CommChnlPH),
-				ProcDescQN: uniqsym.ConvertToString(spec.ProcDescQN),
-			},
-		}
+		return poolexp.ExpSpec{K: poolexp.Hire, Hire: MsgFromHireSpec(spec)}
 	case ApplySpec:
-		return poolexp.ExpSpec{
-			K: poolexp.Apply,
-			Apply: &poolexp.ApplySpec{
-				CommChnlPH: symbol.ConvertToString(spec.CommChnlPH),
-				ProcDescQN: uniqsym.ConvertToString(spec.ProcDescQN),
-			},
-		}
+		return poolexp.ExpSpec{K: poolexp.Apply, Apply: MsgFromApplySpec(spec)}
+	case AcquireSpec:
+		return poolexp.ExpSpec{K: poolexp.Acquire, Acquire: MsgFromAcquireSpec(spec)}
+	case AcceptSpec:
+		return poolexp.ExpSpec{K: poolexp.Accept, Accept: MsgFromAcceptSpec(spec)}
+	case ReleaseSpec:
+		return poolexp.ExpSpec{K: poolexp.Release, Release: MsgFromReleaseSpec(spec)}
+	case DetachSpec:
+		return poolexp.ExpSpec{K: poolexp.Detach, Detach: MsgFromDetachSpec(spec)}
 	case SpawnSpec2:
 		return poolexp.ExpSpec{
 			K: poolexp.Spawn,
@@ -58,45 +52,17 @@ func MsgToExpSpecNilable(dto *poolexp.ExpSpec) (ExpSpec, error) {
 func MsgToExpSpec(dto poolexp.ExpSpec) (ExpSpec, error) {
 	switch dto.K {
 	case poolexp.Acquire:
-		commPH, err := symbol.ConvertFromString(dto.Acquire.CommChnlPH)
-		if err != nil {
-			return nil, err
-		}
-		contExp, err := MsgToExpSpec(dto.Acquire.ContExp)
-		if err != nil {
-			return nil, err
-		}
-		return AcquireSpec{CommChnlPH: commPH, ContExp: contExp}, nil
+		return MsgToAcquireSpec(dto.Acquire)
 	case poolexp.Accept:
-		commPH, err := symbol.ConvertFromString(dto.Accept.CommChnlPH)
-		if err != nil {
-			return nil, err
-		}
-		contExp, err := MsgToExpSpec(dto.Accept.ContExp)
-		if err != nil {
-			return nil, err
-		}
-		return AcceptSpec{CommChnlPH: commPH, ContExp: contExp}, nil
+		return MsgToAcceptSpec(dto.Accept)
 	case poolexp.Hire:
-		commPH, err := symbol.ConvertFromString(dto.Hire.CommChnlPH)
-		if err != nil {
-			return nil, err
-		}
-		descQN, err := uniqsym.ConvertFromString(dto.Hire.ProcDescQN)
-		if err != nil {
-			return nil, err
-		}
-		return HireSpec{CommChnlPH: commPH, ProcDescQN: descQN}, nil
+		return MsgToHireSpec(dto.Hire)
 	case poolexp.Apply:
-		commPH, err := symbol.ConvertFromString(dto.Apply.CommChnlPH)
-		if err != nil {
-			return nil, err
-		}
-		descQN, err := uniqsym.ConvertFromString(dto.Apply.ProcDescQN)
-		if err != nil {
-			return nil, err
-		}
-		return ApplySpec{CommChnlPH: commPH, ProcDescQN: descQN}, nil
+		return MsgToApplySpec(dto.Apply)
+	case poolexp.Release:
+		return MsgToReleaseSpec(dto.Release)
+	case poolexp.Detach:
+		return MsgToDetachSpec(dto.Detach)
 	case poolexp.Spawn:
 		descRef, err := descsem.MsgToRef(dto.Spawn.ProcDescRef)
 		if err != nil {
@@ -122,6 +88,10 @@ func DataFromExpSpec(s ExpSpec) ExpSpecDS {
 		return ExpSpecDS{K: hireKind, Hire: DataFromHireSpec(spec)}
 	case ApplySpec:
 		return ExpSpecDS{K: applyKind, Hire: DataFromApplySpec(spec)}
+	case ReleaseSpec:
+		return ExpSpecDS{K: releaseKind, Release: DataFromReleaseSpec(spec)}
+	case DetachSpec:
+		return ExpSpecDS{K: detachKind, Detach: DataFromDetachSpec(spec)}
 	default:
 		panic(ErrSpecTypeUnexpected(s))
 	}
@@ -130,29 +100,17 @@ func DataFromExpSpec(s ExpSpec) ExpSpecDS {
 func DataToExpSpec(dto ExpSpecDS) (ExpSpec, error) {
 	switch dto.K {
 	case acquireKind:
-		spec, err := DataToAcquireSpec(dto.Acquire)
-		if err != nil {
-			return nil, err
-		}
-		return spec, nil
+		return DataToAcquireSpec(dto.Acquire)
 	case acceptKind:
-		spec, err := DataToAcceptSpec(dto.Accept)
-		if err != nil {
-			return nil, err
-		}
-		return spec, nil
+		return DataToAcceptSpec(dto.Accept)
 	case hireKind:
-		spec, err := DataToHireSpec(dto.Hire)
-		if err != nil {
-			return nil, err
-		}
-		return spec, nil
+		return DataToHireSpec(dto.Hire)
 	case applyKind:
-		spec, err := DataToApplySpec(dto.Apply)
-		if err != nil {
-			return nil, err
-		}
-		return spec, nil
+		return DataToApplySpec(dto.Apply)
+	case releaseKind:
+		return DataToReleaseSpec(dto.Release)
+	case detachKind:
+		return DataToDetachSpec(dto.Detach)
 	default:
 		panic(ErrExpKindUnexpected(dto.K))
 	}
@@ -164,6 +122,14 @@ func DataFromExpRec(r ExpRec) ExpRecDS {
 		return ExpRecDS{K: acquireKind, Acquire: DataFromAcquireRec(rec)}
 	case AcceptRec:
 		return ExpRecDS{K: acceptKind, Accept: DataFromAcceptRec(rec)}
+	case HireRec:
+		return ExpRecDS{K: hireKind, Hire: DataFromHireRec(rec)}
+	case ApplyRec:
+		return ExpRecDS{K: applyKind, Apply: DataFromApplyRec(rec)}
+	case ReleaseRec:
+		return ExpRecDS{K: releaseKind, Release: DataFromReleaseRec(rec)}
+	case DetachRec:
+		return ExpRecDS{K: detachKind, Detach: DataFromDetachRec(rec)}
 	default:
 		panic(ErrRecTypeUnexpected(r))
 	}
@@ -172,17 +138,17 @@ func DataFromExpRec(r ExpRec) ExpRecDS {
 func DataToExpRec(dto ExpRecDS) (ExpRec, error) {
 	switch dto.K {
 	case acquireKind:
-		rec, err := DataToAcquireRec(dto.Acquire)
-		if err != nil {
-			return nil, err
-		}
-		return rec, nil
+		return DataToAcquireRec(dto.Acquire)
 	case acceptKind:
-		rec, err := DataToAcceptRec(dto.Accept)
-		if err != nil {
-			return nil, err
-		}
-		return rec, nil
+		return DataToAcceptRec(dto.Accept)
+	case hireKind:
+		return DataToHireRec(dto.Hire)
+	case applyKind:
+		return DataToApplyRec(dto.Apply)
+	case releaseKind:
+		return DataToReleaseRec(dto.Release)
+	case detachKind:
+		return DataToDetachRec(dto.Detach)
 	default:
 		panic(ErrExpKindUnexpected(dto.K))
 	}

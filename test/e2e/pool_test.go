@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"testing"
+	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/fx"
@@ -168,6 +169,12 @@ func (s *suite) waitClose(t *testing.T) {
 					Hire: &poolexp.HireSpec{
 						CommChnlPH: poolAssetPH, // пул выступает в качестве клиента самого себя
 						ProcDescQN: closerProcQN,
+						ContExp: poolexp.ExpSpec{
+							K: poolexp.Release,
+							Release: &poolexp.ReleaseSpec{
+								CommChnlPH: poolAssetPH,
+							},
+						},
 					},
 				},
 			},
@@ -188,6 +195,12 @@ func (s *suite) waitClose(t *testing.T) {
 					Apply: &poolexp.ApplySpec{
 						CommChnlPH: poolLiabPH, // пул выступает в качестве провайдера самому себе
 						ProcDescQN: closerProcQN,
+						ContExp: poolexp.ExpSpec{
+							K: poolexp.Detach,
+							Detach: &poolexp.DetachSpec{
+								CommChnlPH: poolLiabPH,
+							},
+						},
 					},
 				},
 			},
@@ -196,6 +209,7 @@ func (s *suite) waitClose(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	time.Sleep(5 * time.Second)
 	// and
 	oneTypeQN := "one-type-qn"
 	_, err = s.TypeDefAPI.Create(typedef.DefSpec{

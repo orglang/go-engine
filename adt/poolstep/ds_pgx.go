@@ -32,6 +32,7 @@ func (dao *pgxDAO) AddRec(db.Source, StepRec) error {
 
 func (dao *pgxDAO) AddRecs(source db.Source, recs []StepRec) (err error) {
 	ds := db.MustConform[db.SourcePgx](source)
+	dao.log.Log(ds.Ctx, lf.LevelDebug, "insertion started", slog.Any("recs", recs))
 	batch := pgx.Batch{}
 	for _, rec := range recs {
 		dto := DataFromStepRec(rec)

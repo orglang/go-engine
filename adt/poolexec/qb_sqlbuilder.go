@@ -25,7 +25,7 @@ func newSQLBuilder() *sqlBuilder {
 	bindBuilder := sqlbuilder.NewStruct(new(implsem.SemBindDS)).For(sqlbuilder.PostgreSQL)
 	execBuilder := sqlbuilder.NewStruct(new(execRecDS)).For(sqlbuilder.PostgreSQL)
 	varBuilder := sqlbuilder.NewStruct(new(implvar.VarRecDS)).For(sqlbuilder.PostgreSQL)
-	snapBuilder := sqlbuilder.NewStruct(new(execLiabSnapDS)).For(sqlbuilder.PostgreSQL)
+	snapBuilder := sqlbuilder.NewStruct(new(execSnapDS)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{semBuilder, bindBuilder, execBuilder, varBuilder, snapBuilder}
 }
 

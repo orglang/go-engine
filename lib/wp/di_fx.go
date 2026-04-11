@@ -6,6 +6,7 @@ import (
 
 var Module = fx.Module("lib/wp",
 	fx.Provide(
-		fx.Annotate(newPondPool),
+		newPondPool,
+		newWorkerPool,
 	),
 )

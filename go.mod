@@ -20,6 +20,8 @@ require (
 	github.com/cristalhq/acmd v0.12.0 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/fatih/structtag v1.2.0 // indirect
+	github.com/gammazero/deque v1.2.1 // indirect
+	github.com/gammazero/workerpool v1.2.1 // indirect
 	github.com/georgysavva/scany/v2 v2.1.4 // indirect
 	github.com/go-critic/go-critic v0.14.3 // indirect
 	github.com/go-toolsmith/astcast v1.1.0 // indirect

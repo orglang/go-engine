@@ -16,7 +16,6 @@ import (
 	"orglang/go-engine/adt/poolstep"
 	"orglang/go-engine/adt/poolvar"
 	"orglang/go-engine/adt/procdec"
-	"orglang/go-engine/adt/symbol"
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/adt/valkey"
 	"orglang/go-engine/adt/xactexp"
@@ -24,7 +23,6 @@ import (
 
 type API interface {
 	Run(ExecSpec) (implsem.SemRef, error) // aka Create
-	RetrieveSnap(implsem.SemRef) (ExecCfgSnap, error)
 }
 
 type ExecSpec struct {
@@ -41,13 +39,7 @@ type ExecRec struct {
 	LiabMode implvar.Mode
 }
 
-type ExecCfgSnap struct {
-	ImplRef    implsem.SemRef
-	StructVars map[symbol.ADT]implvar.StructRec
-	LinearVars map[symbol.ADT]implvar.LinearRec
-}
-
-type ExecLiabSnap struct {
+type ExecSnap struct {
 	ImplRef implsem.SemRef
 	LiabVar implvar.VarRec
 }
@@ -109,7 +101,7 @@ func (s *service) Run(spec ExecSpec) (_ implsem.SemRef, err error) {
 		}
 		assetQNs = append(assetQNs, assetVar.ImplQN)
 	}
-	var assetExecs map[uniqsym.ADT]ExecLiabSnap
+	var assetExecs map[uniqsym.ADT]ExecSnap
 	getErr2 := s.operator.Implicit(ctx, func(ds db.Source) error {
 		assetExecs, err = s.poolExecRepo.GetSnapMapByQNs(ds, assetQNs)
 		return err
@@ -179,17 +171,4 @@ func (s *service) Run(spec ExecSpec) (_ implsem.SemRef, err error) {
 	}
 	s.log.Debug("creation succeed", slog.Any("ref", newImplSem.ImplRef))
 	return newImplSem.ImplRef, nil
-}
-
-func (s *service) RetrieveSnap(ref implsem.SemRef) (snap ExecCfgSnap, err error) {
-	ctx := context.Background()
-	getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
-		snap, err = s.poolExecRepo.GetSnap(ds, ref)
-		return err
-	})
-	if getErr != nil {
-		s.log.Error("retrieval failed", slog.Any("ref", ref))
-		return ExecCfgSnap{}, getErr
-	}
-	return snap, nil
 }

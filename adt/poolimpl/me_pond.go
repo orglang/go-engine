@@ -15,23 +15,33 @@ type pondBroker struct {
 	log  *slog.Logger
 }
 
-func newPondBroker(api API, pool pond.Pool, log *slog.Logger) *pondBroker {
+func newPondBroker(pool pond.Pool, log *slog.Logger) *pondBroker {
 	name := slog.String("name", reflect.TypeFor[pondBroker]().Name())
-	return &pondBroker{api, pool, log.With(name)}
+	return &pondBroker{nil, pool, log.With(name)}
+}
+
+func cfgPondBroker(broker Exch, api API) error {
+	broker.Subscribe(api)
+	return nil
 }
 
 // for compilation purposes
-func newExch() Exch {
+func newPondExch() Exch {
 	return new(pondBroker)
 }
 
+func (b *pondBroker) Subscribe(api API) {
+	b.api = api
+}
+
 func (b *pondBroker) SendSpec(spec poolstep.StepSpec) error {
-	b.pool.SubmitErr(func() error {
+	b.pool.Go(func() {
 		apiErr := b.api.Take(spec)
 		if apiErr != nil {
-			return apiErr
+			b.log.Error("consumption failed", slog.Any("ref", spec.ImplRef), slog.Any("reason", apiErr))
+			return
 		}
-		return nil
+		b.log.Debug("consumption succeed", slog.Any("ref", spec.ImplRef))
 	})
 	return nil
 }

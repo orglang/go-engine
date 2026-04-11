@@ -12,25 +12,17 @@ type Repo interface {
 	AddRec(db.Source, ExecRec) error
 	GetRecMapByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]ExecRec, error)
 	GetRefs(db.Source) ([]implsem.SemRef, error)
-	GetSnap(db.Source, implsem.SemRef) (ExecCfgSnap, error)
-	GetSnapMapByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]ExecLiabSnap, error)
+	GetSnapMapByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]ExecSnap, error)
 }
 
 type execRecDS struct {
 	ImplID   string `db:"impl_id"`
-	LiabMode int16  `db:"mode"`
+	LiabMode int16  `db:"liab_mode"`
 }
 
-type execCfgSnapDS struct {
-	ImplID     string             `db:"impl_id"`
-	ImplRN     int64              `db:"impl_rn"`
-	StructVars []implvar.VarRecDS `db:"struct_vars"`
-	LinearVars []implvar.VarRecDS `db:"linear_vars"`
-}
-
-type execLiabSnapDS struct {
+type execSnapDS struct {
 	ImplRef   implsem.SemRefDS  `db:"sem"`
-	LiabMode  int16             `db:"exec.mode"`
+	LiabMode  int16             `db:"exec.liab_mode"`
 	StructVar *implvar.VarRecDS `db:"struct_var"`
 	LinearVar *implvar.VarRecDS `db:"linear_var"`
 }

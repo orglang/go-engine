@@ -22,9 +22,6 @@ var (
 var (
 	MsgToExecSpec   func(poolexec.ExecSpec) (ExecSpec, error)
 	MsgFromExecSpec func(ExecSpec) poolexec.ExecSpec
-	// goverter:ignore StructVars LinearVars
-	MsgToExecSnap   func(poolexec.ExecSnap) (ExecCfgSnap, error)
-	MsgFromExecSnap func(ExecCfgSnap) poolexec.ExecSnap
 )
 
 // goverter:variables
@@ -38,13 +35,9 @@ var (
 	DataToExecRec func(execRecDS) (ExecRec, error)
 	// goverter:autoMap ImplRef
 	DataFromExecRec func(ExecRec) execRecDS
-	// goverter:map . ImplRef
-	DataToExecSnap func(execCfgSnapDS) (ExecCfgSnap, error)
-	// goverter:autoMap ImplRef
-	DataFromExecSnap func(ExecCfgSnap) execCfgSnapDS
 	// goverter:ignore ImplRN
 	DataToImplRef func(execRecDS) (implsem.SemRef, error)
 
 	DataToRefMap  func(map[uniqsym.ADT]execRecDS) (map[uniqsym.ADT]ExecRec, error)
-	DataToSnapMap func(map[uniqsym.ADT]execLiabSnapDS) (map[uniqsym.ADT]ExecLiabSnap, error)
+	DataToSnapMap func(map[uniqsym.ADT]execSnapDS) (map[uniqsym.ADT]ExecSnap, error)
 )

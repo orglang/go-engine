@@ -35,6 +35,7 @@ type HireSpec struct {
 	CommChnlPH symbol.ADT
 	// запрашиваемая компетенция
 	ProcDescQN uniqsym.ADT
+	ContExp    ExpSpec
 }
 
 func (s HireSpec) spec() {}
@@ -44,6 +45,7 @@ type ApplySpec struct {
 	CommChnlPH symbol.ADT
 	// предлагаемая компетенция
 	ProcDescQN uniqsym.ADT
+	ContExp    ExpSpec
 }
 
 func (s ApplySpec) spec() {}
@@ -115,25 +117,29 @@ type AcceptRec struct {
 func (r AcceptRec) rec() {}
 
 type HireRec struct {
-	CommChnlPH symbol.ADT
+	ContChnlID identity.ADT
+	ProcDescQN uniqsym.ADT
+	ContExp    ExpSpec
 }
 
 func (r HireRec) rec() {}
 
 type ApplyRec struct {
-	CommChnlPH symbol.ADT
+	ContChnlID identity.ADT
+	ProcDescQN uniqsym.ADT
+	ContExp    ExpSpec
 }
 
 func (r ApplyRec) rec() {}
 
 type ReleaseRec struct {
-	CommChnlPH symbol.ADT
+	ContChnlID identity.ADT
 }
 
 func (r ReleaseRec) rec() {}
 
 type DetachRec struct {
-	CommChnlPH symbol.ADT
+	ContChnlID identity.ADT
 }
 
 func (r DetachRec) rec() {}
@@ -157,11 +163,11 @@ type SpawnRec struct {
 func (r SpawnRec) rec() {}
 
 func ErrSpecTypeUnexpected(got ExpSpec) error {
-	return fmt.Errorf("exp spec unexpected: %T", got)
+	return fmt.Errorf("exp spec unexpected: %T%+v", got, got)
 }
 
 func ErrRecTypeUnexpected(got ExpRec) error {
-	return fmt.Errorf("exp rec unexpected: %T", got)
+	return fmt.Errorf("exp rec unexpected: %T%+v", got, got)
 }
 
 func ErrExpKindUnexpected(got expKind) error {

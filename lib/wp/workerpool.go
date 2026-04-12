@@ -5,5 +5,5 @@ import (
 )
 
 func newWorkerPool() *workerpool.WorkerPool {
-	return workerpool.New(10)
+	return workerpool.New(1)
 }

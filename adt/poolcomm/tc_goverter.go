@@ -13,13 +13,13 @@ var (
 	// goverter:autoMap CommRef
 	DataFromRec func(ConnRec) connRecDS
 	// goverter:autoMap CommRef
-	DataFromQry func(CommQry) connQryDS
+	DataFromQry func(CommQry) commQryDS
 	// goverter:autoMap CommRef
-	DataFromMod func(CommMod) connModDS
+	DataFromMod func(CommMod) commModDS
 	// goverter:map . CommRef | DataToSemRef
 	DataToRec func(connRecDS) (ConnRec, error)
 	// goverter:map . CommRef
-	DataToSnap func(connSnapDS) (CommSnap, error)
+	DataToSnap func(commSnapDS) (CommSnap, error)
 	// goverter:ignore CommRN
 	DataToSemRef func(connRecDS) (commsem.SemRef, error)
 )

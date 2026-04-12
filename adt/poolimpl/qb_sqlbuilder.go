@@ -8,8 +8,8 @@ import (
 )
 
 type sqlBuilder struct {
-	implRecBuilder *sqlbuilder.Struct
-	varRecBuilder  *sqlbuilder.Struct
+	implJoinBuilder *sqlbuilder.Struct
+	varRecBuilder   *sqlbuilder.Struct
 }
 
 // for compilation purposes
@@ -24,7 +24,7 @@ func newSQLBuilder() *sqlBuilder {
 }
 
 func (qb *sqlBuilder) selectRecByRef(ref implsem.SemRefDS) (string, []any) {
-	implRec := qb.implRecBuilder.SelectFrom(implSems + "sem")
+	poolImpl := qb.implJoinBuilder.SelectFrom(implSems + "sem")
 	structVar := qb.varRecBuilder.SelectFrom(poolStructVars + "var")
 	linearVar := qb.varRecBuilder.SelectFrom(poolLinearVars + "var")
 	vars := sqlbuilder.PostgreSQL.NewCTEBuilder()
@@ -32,13 +32,13 @@ func (qb *sqlBuilder) selectRecByRef(ref implsem.SemRefDS) (string, []any) {
 		sqlbuilder.CTEQuery("struct_vars").As(structVar.Where(structVar.Equal("impl_id", ref.ImplID))),
 		sqlbuilder.CTEQuery("linear_vars").As(linearVar.Where(linearVar.Equal("impl_id", ref.ImplID))),
 	)
-	return implRec.With(vars).
+	return poolImpl.With(vars).
 		SelectMore(
-			implRec.BuilderAs(sqlbuilder.Buildf(arrayAgg, sqlbuilder.Raw("struct_vars")), "struct_vars"),
-			implRec.BuilderAs(sqlbuilder.Buildf(arrayAgg, sqlbuilder.Raw("linear_vars")), "linear_vars"),
+			poolImpl.BuilderAs(sqlbuilder.Buildf(arrayAgg, sqlbuilder.Raw("struct_vars")), "struct_vars"),
+			poolImpl.BuilderAs(sqlbuilder.Buildf(arrayAgg, sqlbuilder.Raw("linear_vars")), "linear_vars"),
 		).
 		Join(poolExecs+"exec", "exec.impl_id = sem.impl_id").
-		Where(implRec.Equal("sem.impl_id", ref.ImplID)).
+		Where(poolImpl.Equal("sem.impl_id", ref.ImplID)).
 		Build()
 }
 

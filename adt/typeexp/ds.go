@@ -3,12 +3,11 @@ package typeexp
 import (
 	"orglang/go-engine/lib/db"
 
-	"orglang/go-engine/adt/descsem"
 	"orglang/go-engine/adt/valkey"
 )
 
 type Repo interface {
-	InsertRec(db.Source, ExpRec, descsem.SemRef) error
+	InsertRec(db.Source, ExpRec) error
 	SelectRecByVK(db.Source, valkey.ADT) (ExpRec, error)
 	SelectRecsByVKs(db.Source, []valkey.ADT) ([]ExpRec, error)
 	SelectEnv(db.Source, []valkey.ADT) (map[valkey.ADT]ExpRec, error)
@@ -17,13 +16,13 @@ type Repo interface {
 type expKindDS int
 
 const (
-	nonExp expKindDS = iota
-	oneExp
-	linkExp
-	tensorExp
-	lolliExp
-	plusExp
-	withExp
+	unkKind expKindDS = iota
+	oneKind
+	linkKind
+	tensorKind
+	lolliKind
+	plusKind
+	withKind
 )
 
 type expRefDS struct {

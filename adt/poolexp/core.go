@@ -2,6 +2,7 @@ package poolexp
 
 import (
 	"fmt"
+	"log/slog"
 
 	"orglang/go-engine/adt/descsem"
 	"orglang/go-engine/adt/identity"
@@ -14,7 +15,7 @@ type ExpSpec interface {
 	spec()
 }
 
-// запрос доступа со стороны клиента (спрос на доступ)
+// запрос доступа (подписка) со стороны клиента (спрос на доступ)
 type AcquireSpec struct {
 	CommChnlPH symbol.ADT
 	ContExp    ExpSpec
@@ -22,7 +23,11 @@ type AcquireSpec struct {
 
 func (s AcquireSpec) spec() {}
 
-// предложение доступа со стороны провайдера (предложение доступа)
+func (s AcquireSpec) LogValue() slog.Value {
+	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
+}
+
+// предложение доступа (публикация) со стороны провайдера (предложение доступа)
 type AcceptSpec struct {
 	CommChnlPH symbol.ADT
 	ContExp    ExpSpec
@@ -30,7 +35,11 @@ type AcceptSpec struct {
 
 func (s AcceptSpec) spec() {}
 
-// запрос компетенции со стороны нанимателя (спрос на рабочую силу)
+func (s AcceptSpec) LogValue() slog.Value {
+	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
+}
+
+// запрос компетенции (подписка) со стороны нанимателя (спрос на рабочую силу)
 type HireSpec struct {
 	CommChnlPH symbol.ADT
 	// запрашиваемая компетенция
@@ -40,7 +49,11 @@ type HireSpec struct {
 
 func (s HireSpec) spec() {}
 
-// предложение компетенции со стороны соискателя (предложение рабочей силы)
+func (s HireSpec) LogValue() slog.Value {
+	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
+}
+
+// предложение компетенции (публикация) со стороны соискателя (предложение рабочей силы)
 type ApplySpec struct {
 	CommChnlPH symbol.ADT
 	// предлагаемая компетенция
@@ -50,19 +63,31 @@ type ApplySpec struct {
 
 func (s ApplySpec) spec() {}
 
-// освобождение доступа со стороны клиента
+func (s ApplySpec) LogValue() slog.Value {
+	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
+}
+
+// освобождение доступа (публикация) по инициативе клиента
 type ReleaseSpec struct {
 	CommChnlPH symbol.ADT
 }
 
 func (s ReleaseSpec) spec() {}
 
-// лишение доступа со стороны провайдера
+func (s ReleaseSpec) LogValue() slog.Value {
+	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
+}
+
+// лишение доступа (подписка) по инициативе провайдера
 type DetachSpec struct {
 	CommChnlPH symbol.ADT
 }
 
 func (s DetachSpec) spec() {}
+
+func (s DetachSpec) LogValue() slog.Value {
+	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
+}
 
 // лишение должности по инициативе работодателя
 type FireSpec struct {
@@ -72,6 +97,10 @@ type FireSpec struct {
 
 func (s FireSpec) spec() {}
 
+func (s FireSpec) LogValue() slog.Value {
+	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
+}
+
 // освобождение должности по инициативе сотрудника
 type QuitSpec struct {
 	CommChnlPH symbol.ADT
@@ -79,6 +108,10 @@ type QuitSpec struct {
 }
 
 func (s QuitSpec) spec() {}
+
+func (s QuitSpec) LogValue() slog.Value {
+	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
+}
 
 type SpawnSpec struct {
 	// ссылка на описание порождаемого процесса
@@ -89,6 +122,10 @@ type SpawnSpec struct {
 
 func (s SpawnSpec) spec() {}
 
+func (s SpawnSpec) LogValue() slog.Value {
+	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
+}
+
 type SpawnSpec2 struct {
 	// ссылка на описание порождаемого процесса
 	ProcDescRef descsem.SemRef
@@ -97,6 +134,10 @@ type SpawnSpec2 struct {
 }
 
 func (s SpawnSpec2) spec() {}
+
+func (s SpawnSpec2) LogValue() slog.Value {
+	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
+}
 
 type ExpRec interface {
 	rec()

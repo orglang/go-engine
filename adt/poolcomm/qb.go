@@ -1,13 +1,13 @@
 package poolcomm
 
 const (
-	commSems  = "comm_sems"
-	poolConns = "pool_conns"
-	poolSteps = "pool_steps"
+	commSems  = "comm_sems "
+	poolConns = "pool_conns "
+	poolSteps = "pool_steps "
 )
 
 type queryBuilder interface {
 	insertRec(connRecDS) (string, []any)
-	updateRec(connModDS) (string, []any)
-	selectSnap(connQryDS) (string, []any)
+	updateRec(commModDS) (string, []any)
+	selectSnap(commQryDS) (string, []any)
 }

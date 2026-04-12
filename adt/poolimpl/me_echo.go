@@ -37,10 +37,10 @@ func (c *echoController) PostSpec2(ctx echo.Context) error {
 		c.log.Error("binding failed", slog.Any("dto", reflect.TypeFor[sdk.StepSpec]()))
 		return bindErr
 	}
-	validateErr := dto.Validate()
-	if validateErr != nil {
+	validErr := dto.Validate()
+	if validErr != nil {
 		c.log.Error("validation failed", slog.Any("dto", dto))
-		return validateErr
+		return validErr
 	}
 	spec, convErr := poolstep.MsgToStepSpec(dto)
 	if convErr != nil {

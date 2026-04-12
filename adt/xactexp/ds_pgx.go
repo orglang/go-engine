@@ -144,6 +144,7 @@ func (dao *pgxDAO) GetRecMap(source db.Source, expVKs map[symbol.ADT]valkey.ADT)
 			dao.log.Error("rows scanning failed", vkAttr)
 			return nil, scanErr
 		}
+		dao.log.Log(ds.Ctx, lf.LevelTrace, "selection succeed", slog.Any("dtos", dtos))
 		if len(dtos) == 0 {
 			dao.log.Error("selection failed", vkAttr)
 			return nil, ErrDoesNotExist(expVK)
@@ -155,6 +156,6 @@ func (dao *pgxDAO) GetRecMap(source db.Source, expVKs map[symbol.ADT]valkey.ADT)
 		}
 		recs[expPH] = rec
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection succeed", slog.Any("recs", recs))
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "getting succeed", slog.Any("recs", recs))
 	return recs, err
 }

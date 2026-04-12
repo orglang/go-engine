@@ -14,12 +14,12 @@ func TestInsertRec(t *testing.T) {
 
 func TestUpdateRec(t *testing.T) {
 	qb := newSQLBuilder()
-	sql, _ := qb.updateRec(connModDS{CommON: sql.Null[int64]{Valid: true}})
+	sql, _ := qb.updateRec(commModDS{CommON: sql.Null[int64]{Valid: true}})
 	fmt.Println(sql)
 }
 
 func TestSelectSnap(t *testing.T) {
 	qb := newSQLBuilder()
-	sql, _ := qb.selectSnap(connQryDS{ChnlID: sql.Null[string]{Valid: true}})
+	sql, _ := qb.selectSnap(commQryDS{ChnlID: sql.Null[string]{Valid: true}})
 	fmt.Println(sql)
 }

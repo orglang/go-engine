@@ -15,6 +15,9 @@ func newSlogLogger() *slog.Logger {
 		Level:     slog.LevelDebug,
 		AddSource: true,
 	}
+	// formatter := slogformatter.FormatByKind(slog.KindAny, func(v slog.Value) slog.Value {
+	// 	return slog.StringValue(fmt.Sprintf("%T%+v", v.Any(), v.Any()))
+	// })
 	return slog.New(slog.NewTextHandler(os.Stdout, opts))
 	// slog.SetLogLoggerLevel(slog.LevelDebug)
 	// return slog.Default()

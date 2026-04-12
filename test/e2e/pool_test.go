@@ -165,9 +165,9 @@ func (s *suite) waitClose(t *testing.T) {
 			Acquire: &poolexp.AcquireSpec{
 				CommChnlPH: poolAssetPH,
 				ContExp: poolexp.ExpSpec{
-					K: poolexp.Hire, // пул делает предложение поработать в качестве closerProcQN
+					K: poolexp.Hire, // пул запрашивает компетенцию closerProcQN
 					Hire: &poolexp.HireSpec{
-						CommChnlPH: poolAssetPH, // пул выступает в качестве клиента самого себя
+						CommChnlPH: poolAssetPH, // пул выступает нанимателем самого себя
 						ProcDescQN: closerProcQN,
 						ContExp: poolexp.ExpSpec{
 							K: poolexp.Release,
@@ -191,9 +191,9 @@ func (s *suite) waitClose(t *testing.T) {
 			Accept: &poolexp.AcceptSpec{
 				CommChnlPH: poolLiabPH,
 				ContExp: poolexp.ExpSpec{
-					K: poolexp.Apply, // пул принимает предложение поработать в качестве closerProcQN
+					K: poolexp.Apply, // пул предлагает компетенцию closerProcQN
 					Apply: &poolexp.ApplySpec{
-						CommChnlPH: poolLiabPH, // пул выступает в качестве провайдера самому себе
+						CommChnlPH: poolLiabPH, // пул выступает соискателем
 						ProcDescQN: closerProcQN,
 						ContExp: poolexp.ExpSpec{
 							K: poolexp.Detach,
@@ -209,7 +209,8 @@ func (s *suite) waitClose(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	time.Sleep(5 * time.Second)
+	// and
+	time.Sleep(1 * time.Second)
 	// and
 	oneTypeQN := "one-type-qn"
 	_, err = s.TypeDefAPI.Create(typedef.DefSpec{
@@ -255,6 +256,12 @@ func (s *suite) waitClose(t *testing.T) {
 					Hire: &poolexp.HireSpec{
 						CommChnlPH: poolAssetPH,
 						ProcDescQN: waiterProcQN,
+						ContExp: poolexp.ExpSpec{
+							K: poolexp.Release,
+							Release: &poolexp.ReleaseSpec{
+								CommChnlPH: poolAssetPH,
+							},
+						},
 					},
 				},
 			},
@@ -275,6 +282,12 @@ func (s *suite) waitClose(t *testing.T) {
 					Apply: &poolexp.ApplySpec{
 						CommChnlPH: poolLiabPH,
 						ProcDescQN: waiterProcQN,
+						ContExp: poolexp.ExpSpec{
+							K: poolexp.Detach,
+							Detach: &poolexp.DetachSpec{
+								CommChnlPH: poolAssetPH,
+							},
+						},
 					},
 				},
 			},

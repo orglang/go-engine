@@ -29,7 +29,7 @@ type StepRec interface {
 	comm()
 }
 
-// publication (aka Msg)
+// publication (aka msg)
 type PubRec struct {
 	// совпадает со значением в SubRec
 	CommRef commsem.SemRef
@@ -40,7 +40,7 @@ type PubRec struct {
 
 func (r PubRec) comm() {}
 
-// subscription (aka Service)
+// subscription (aka srv)
 type SubRec struct {
 	// совпадает со значением в PubRec
 	CommRef commsem.SemRef

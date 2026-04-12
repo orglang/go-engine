@@ -21,18 +21,24 @@ type connRecDS struct {
 	CommON int64  `db:"comm_on"`
 }
 
-type connModDS struct {
+type commModDS struct {
 	CommID string          `db:"comm_id"`
 	CommON sql.Null[int64] `db:"comm_on"`
 }
 
-type connQryDS struct {
+type commQryDS struct {
 	CommID string           `db:"comm_id"`
 	ChnlID sql.Null[string] `db:"chnl_id"`
 }
 
-type connSnapDS struct {
+type commSnapDS struct {
 	CommID string               `db:"comm_id"`
 	CommRN int64                `db:"comm_rn"`
+	CommON int64                `db:"comm_on"`
 	Steps  []poolstep.StepRecDS `db:"steps"`
+}
+
+type commJoinDS struct {
+	CommRef commsem.SemRefDS `db:"sem"`
+	CommON  int64            `db:"conn.comm_on"`
 }

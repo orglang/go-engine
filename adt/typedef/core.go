@@ -107,7 +107,7 @@ func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 		if err != nil {
 			return err
 		}
-		err = s.typeExps.InsertRec(ds, newExp, newRef)
+		err = s.typeExps.InsertRec(ds, newExp)
 		if err != nil {
 			return err
 		}
@@ -153,7 +153,7 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 			if err != nil {
 				return err
 			}
-			err = s.typeExps.InsertRec(ds, newExp, snap.DescRef)
+			err = s.typeExps.InsertRec(ds, newExp)
 			if err != nil {
 				return err
 			}

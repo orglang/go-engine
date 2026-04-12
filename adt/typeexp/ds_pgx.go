@@ -10,18 +10,18 @@ import (
 	"orglang/go-engine/lib/db"
 	"orglang/go-engine/lib/lf"
 
-	"orglang/go-engine/adt/descsem"
 	"orglang/go-engine/adt/valkey"
 )
 
 // Adapter
 type pgxDAO struct {
+	qb  queryBuilder
 	log *slog.Logger
 }
 
-func newPgxDAO(l *slog.Logger) *pgxDAO {
+func newPgxDAO(qb queryBuilder, log *slog.Logger) *pgxDAO {
 	name := slog.String("name", reflect.TypeFor[pgxDAO]().Name())
-	return &pgxDAO{l.With(name)}
+	return &pgxDAO{qb, log.With(name)}
 }
 
 // for compilation purposes
@@ -29,21 +29,14 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func (dao *pgxDAO) InsertRec(source db.Source, rec ExpRec, ref descsem.SemRef) (err error) {
+func (dao *pgxDAO) InsertRec(source db.Source, rec ExpRec) (err error) {
 	ds := db.MustConform[db.SourcePgx](source)
-	idAttr := slog.Any("expVK", rec.Key())
+	vkAttr := slog.Any("expVK", rec.Key())
 	dto := dataFromExpRec(rec)
 	batch := pgx.Batch{}
 	for _, st := range dto.States {
-		args := pgx.NamedArgs{
-			"exp_vk":     st.ExpVK,
-			"sup_exp_vk": st.SupExpVK,
-			"desc_id":    ref.DescID,
-			"desc_rn":    ref.DescRN,
-			"kind":       st.K,
-			"spec":       st.Spec,
-		}
-		batch.Queue(insertRec, args)
+		sql, args := dao.qb.insertRec(st)
+		batch.Queue(sql, args...)
 	}
 	br := ds.Conn.SendBatch(ds.Ctx, &batch)
 	defer func() {
@@ -52,7 +45,7 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec ExpRec, ref descsem.SemRef) (
 	for range dto.States {
 		_, readErr := br.Exec()
 		if readErr != nil {
-			dao.log.Error("query execution failed", idAttr)
+			dao.log.Error("query execution failed", vkAttr)
 			return readErr
 		}
 	}

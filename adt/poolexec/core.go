@@ -112,7 +112,7 @@ func (s *service) Run(spec ExecSpec) (_ implsem.SemRef, err error) {
 	}
 	newImplSem := implsem.SemRec{ImplRef: implsem.NewRef(), ImplQN: spec.LiabVar.ImplQN, Kind: implsem.PoolKind}
 	newCommSem := commsem.SemRec{CommRef: commsem.NewRef(), Kind: commsem.Pool}
-	newConn := poolcomm.ConnRec{CommRef: newCommSem.CommRef, CommON: newCommSem.CommRef.CommRN}
+	newConn := poolcomm.ConnRec{CommRef: newCommSem.CommRef, CommON: 0}
 	newExec := ExecRec{ImplRef: newImplSem.ImplRef, LiabMode: implvar.StructMode}
 	newLiabVar := implvar.StructRec{
 		ImplRef: newImplSem.ImplRef,

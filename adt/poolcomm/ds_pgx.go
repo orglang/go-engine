@@ -38,7 +38,7 @@ func (dao *pgxDAO) AddRec(source db.Source, rec ConnRec) error {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
 		return execErr
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "insertion succeed", slog.Any("dto", dto))
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "addition succeed", slog.Any("dto", dto))
 	return nil
 }
 
@@ -50,7 +50,7 @@ func (dao *pgxDAO) GetSnapByQry(source db.Source, qry CommQry) (CommSnap, error)
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("ref", qry.CommRef)
 	dto := DataFromQry(qry)
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection started", slog.Any("qry", dto))
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "getting started", slog.Any("qry", dto))
 	sql, args := dao.qb.selectSnap(dto)
 	rows, execErr := ds.Conn.Query(ds.Ctx, sql, args...)
 	if execErr != nil {
@@ -58,12 +58,12 @@ func (dao *pgxDAO) GetSnapByQry(source db.Source, qry CommQry) (CommSnap, error)
 		return CommSnap{}, execErr
 	}
 	defer rows.Close()
-	snapDTO, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[connSnapDS])
+	snapDTO, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[commSnapDS])
 	if scanErr != nil {
 		dao.log.Error("rows scanning failed", refAttr)
 		return CommSnap{}, scanErr
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection succeed", slog.Any("dto", snapDTO))
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "getting succeed", slog.Any("dto", snapDTO))
 	snap, convErr := DataToSnap(snapDTO)
 	if convErr != nil {
 		dao.log.Error("model conversion failed", refAttr)
@@ -85,6 +85,6 @@ func (dao *pgxDAO) ModifyRec(source db.Source, mod CommMod) error {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
 		return execErr
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "update succeed", slog.Any("dto", dto))
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "modification succeed", slog.Any("dto", dto))
 	return nil
 }

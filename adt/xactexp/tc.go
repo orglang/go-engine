@@ -239,7 +239,7 @@ func dataToExpRef(dto expRefDS) (ExpRef, error) {
 	case withKind:
 		return WithRef{expVK}, nil
 	default:
-		panic(errUnexpectedKind(dto.K))
+		panic(errExpKindUnexpected(dto.K))
 	}
 }
 
@@ -308,9 +308,9 @@ func statesToExpRec(states map[int64]stateDS, st stateDS) (ExpRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return UpRec{ExpVK: expVK, ContExp: contExp}, nil
+		return DownRec{ExpVK: expVK, ContExp: contExp}, nil
 	default:
-		panic(errUnexpectedKind(st.K))
+		panic(errExpKindUnexpected(st.K))
 	}
 }
 
@@ -383,6 +383,6 @@ func statesFromExpRec(supExpVK int64, r ExpRec, dto *expRecDS) int64 {
 	}
 }
 
-func errUnexpectedKind(k expKind) error {
-	return fmt.Errorf("unexpected kind %q", k)
+func errExpKindUnexpected(k expKind) error {
+	return fmt.Errorf("exp kind unexpected: %v", k)
 }

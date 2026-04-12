@@ -5,5 +5,5 @@ import (
 )
 
 func newPondPool() pond.Pool {
-	return pond.NewPool(10, pond.WithoutPanicRecovery())
+	return pond.NewPool(1, pond.WithoutPanicRecovery())
 }

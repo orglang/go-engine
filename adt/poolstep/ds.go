@@ -17,7 +17,7 @@ type StepRecDS struct {
 	ImplID string           `db:"impl_id"`
 	ChnlID string           `db:"chnl_id"`
 	K      stepKind         `db:"kind"`
-	Exp    poolexp.ExpRecDS `db:"exp"`
+	Exp    poolexp.ExpRecDS `db:"exp" fieldopt:"noexpand"`
 }
 
 type stepKind int16

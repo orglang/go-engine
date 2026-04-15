@@ -11,7 +11,7 @@ import (
 
 	"orglang/go-engine/lib/te"
 
-	"orglang/go-engine/adt/implsem"
+	"orglang/go-engine/adt/semterm"
 )
 
 // Server-side primary adapter
@@ -52,5 +52,5 @@ func (c *echoController) PostSpec(ctx echo.Context) error {
 	if apiErr != nil {
 		return apiErr
 	}
-	return ctx.JSON(http.StatusCreated, implsem.MsgFromRef(ref))
+	return ctx.JSON(http.StatusCreated, semterm.MsgFromRef(ref))
 }

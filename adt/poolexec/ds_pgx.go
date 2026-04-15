@@ -12,7 +12,7 @@ import (
 	"orglang/go-engine/lib/db"
 	"orglang/go-engine/lib/lf"
 
-	"orglang/go-engine/adt/implsem"
+	"orglang/go-engine/adt/semterm"
 	"orglang/go-engine/adt/uniqsym"
 )
 
@@ -34,7 +34,7 @@ func newRepo() Repo {
 func (dao *pgxDAO) AddRec(source db.Source, rec ExecRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
 	dto := DataFromExecRec(rec)
-	refAttr := slog.Any("ref", rec.ImplRef)
+	refAttr := slog.Any("ref", rec.CompRef)
 	sql, args := dao.qb.insertRec(dto)
 	_, execErr := ds.Conn.Exec(ds.Ctx, sql, args...)
 	if execErr != nil {
@@ -78,7 +78,7 @@ func (dao *pgxDAO) GetRecMapByQNs(source db.Source, implQNs []uniqsym.ADT) (_ ma
 	return DataToRefMap(dtos)
 }
 
-func (dao *pgxDAO) GetRefs(source db.Source) ([]implsem.SemRef, error) {
+func (dao *pgxDAO) GetRefs(source db.Source) ([]semterm.TermRef, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	query := `
 		select
@@ -90,12 +90,12 @@ func (dao *pgxDAO) GetRefs(source db.Source) ([]implsem.SemRef, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[implsem.SemRefDS])
+	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[semterm.TermRefDS])
 	if err != nil {
-		dao.log.Error("rows scanning failed", slog.Any("type", reflect.TypeFor[[]implsem.SemRefDS]))
+		dao.log.Error("rows scanning failed", slog.Any("type", reflect.TypeFor[[]semterm.TermRefDS]))
 		return nil, err
 	}
-	refs, err := implsem.DataToRefs(dtos)
+	refs, err := semterm.DataToRefs(dtos)
 	if err != nil {
 		dao.log.Error("model conversion failed")
 		return nil, err

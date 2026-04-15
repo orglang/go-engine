@@ -14,7 +14,6 @@ import (
 	"github.com/orglang/go-sdk/lib/rc"
 
 	"github.com/orglang/go-sdk/adt/descvar"
-	"github.com/orglang/go-sdk/adt/implsem"
 	"github.com/orglang/go-sdk/adt/implvar"
 	"github.com/orglang/go-sdk/adt/pooldec"
 	"github.com/orglang/go-sdk/adt/poolexec"
@@ -23,6 +22,7 @@ import (
 	"github.com/orglang/go-sdk/adt/procdec"
 	"github.com/orglang/go-sdk/adt/procexp"
 	"github.com/orglang/go-sdk/adt/procstep"
+	"github.com/orglang/go-sdk/adt/semterm"
 	"github.com/orglang/go-sdk/adt/typedef"
 	"github.com/orglang/go-sdk/adt/typeexp"
 	"github.com/orglang/go-sdk/adt/xactdef"
@@ -314,7 +314,7 @@ func (s *suite) waitClose(t *testing.T) {
 			K: poolexp.Spawn,
 			Spawn: &poolexp.SpawnSpec{
 				ProcDescRef:  waiterProcDec.DescRef,
-				ProcImplRefs: []implsem.SemRef{closerProcExec},
+				ProcImplRefs: []semterm.TermRef{closerProcExec},
 			},
 		},
 	})
@@ -549,7 +549,7 @@ func (s *suite) recvSend(t *testing.T) {
 			K: poolexp.Spawn,
 			Spawn: &poolexp.SpawnSpec{
 				ProcDescRef:  senderProcDec.DescRef,
-				ProcImplRefs: []implsem.SemRef{receiverProcExec, messageProcExec},
+				ProcImplRefs: []semterm.TermRef{receiverProcExec, messageProcExec},
 			},
 		},
 	})
@@ -693,7 +693,7 @@ func (s *suite) caseLab(t *testing.T) {
 			K: poolexp.Spawn,
 			Spawn: &poolexp.SpawnSpec{
 				ProcDescRef:  deciderProcDec.DescRef,
-				ProcImplRefs: []implsem.SemRef{followerProcExec},
+				ProcImplRefs: []semterm.TermRef{followerProcExec},
 			},
 		},
 	})
@@ -833,7 +833,7 @@ func (s *suite) call(t *testing.T) {
 			K: poolexp.Spawn,
 			Spawn: &poolexp.SpawnSpec{
 				ProcDescRef:  callerProcDec.DescRef,
-				ProcImplRefs: []implsem.SemRef{injecteeProcExec},
+				ProcImplRefs: []semterm.TermRef{injecteeProcExec},
 			},
 		},
 	})
@@ -994,7 +994,7 @@ func (s *suite) fwd(t *testing.T) {
 			K: poolexp.Spawn,
 			Spawn: &poolexp.SpawnSpec{
 				ProcDescRef:  forwarderProcDec.DescRef,
-				ProcImplRefs: []implsem.SemRef{closerProcExec},
+				ProcImplRefs: []semterm.TermRef{closerProcExec},
 			},
 		},
 	})
@@ -1020,7 +1020,7 @@ func (s *suite) fwd(t *testing.T) {
 			K: poolexp.Spawn,
 			Spawn: &poolexp.SpawnSpec{
 				ProcDescRef:  waiterProcDec.DescRef,
-				ProcImplRefs: []implsem.SemRef{forwarderProcExec},
+				ProcImplRefs: []semterm.TermRef{forwarderProcExec},
 			},
 		},
 	})

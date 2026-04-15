@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"orglang/go-engine/adt/implsem"
+	"orglang/go-engine/adt/semterm"
 )
 
 func TestInsertRec(t *testing.T) {
@@ -15,7 +15,7 @@ func TestInsertRec(t *testing.T) {
 
 func TestSelectSnap(t *testing.T) {
 	qb := newSQLBuilder()
-	sql, _ := qb.selectSnap(implsem.SemRefDS{})
+	sql, _ := qb.selectSnap(semterm.TermRefDS{})
 	fmt.Println(sql)
 }
 

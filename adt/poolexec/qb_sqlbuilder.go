@@ -3,13 +3,12 @@ package poolexec
 import (
 	"github.com/huandu/go-sqlbuilder"
 
-	"orglang/go-engine/adt/implsem"
-	"orglang/go-engine/adt/implvar"
+	"orglang/go-engine/adt/compvar"
+	"orglang/go-engine/adt/semterm"
 )
 
 type sqlBuilder struct {
 	semBuilder  *sqlbuilder.Struct
-	bindBuilder *sqlbuilder.Struct
 	execBuilder *sqlbuilder.Struct
 	varBuilder  *sqlbuilder.Struct
 	snapBuilder *sqlbuilder.Struct
@@ -21,19 +20,18 @@ func newQueryBuikder() queryBuilder {
 }
 
 func newSQLBuilder() *sqlBuilder {
-	semBuilder := sqlbuilder.NewStruct(new(implsem.SemRefDS)).For(sqlbuilder.PostgreSQL)
-	bindBuilder := sqlbuilder.NewStruct(new(implsem.SemBindDS)).For(sqlbuilder.PostgreSQL)
+	semBuilder := sqlbuilder.NewStruct(new(semterm.TermRefDS)).For(sqlbuilder.PostgreSQL)
 	execBuilder := sqlbuilder.NewStruct(new(execRecDS)).For(sqlbuilder.PostgreSQL)
-	varBuilder := sqlbuilder.NewStruct(new(implvar.VarRecDS)).For(sqlbuilder.PostgreSQL)
+	varBuilder := sqlbuilder.NewStruct(new(compvar.VarRecDS)).For(sqlbuilder.PostgreSQL)
 	snapBuilder := sqlbuilder.NewStruct(new(execSnapDS)).For(sqlbuilder.PostgreSQL)
-	return &sqlBuilder{semBuilder, bindBuilder, execBuilder, varBuilder, snapBuilder}
+	return &sqlBuilder{semBuilder, execBuilder, varBuilder, snapBuilder}
 }
 
 func (qb *sqlBuilder) insertRec(rec execRecDS) (string, []any) {
 	return qb.execBuilder.InsertInto("pool_execs", rec).Build()
 }
 
-func (qb *sqlBuilder) selectSnap(ref implsem.SemRefDS) (string, []any) {
+func (qb *sqlBuilder) selectSnap(ref semterm.TermRefDS) (string, []any) {
 	sems := qb.semBuilder.SelectFrom(implSems)
 	return sems.
 		SelectMore(
@@ -42,7 +40,7 @@ func (qb *sqlBuilder) selectSnap(ref implsem.SemRefDS) (string, []any) {
 		).
 		JoinWithOption(sqlbuilder.LeftOuterJoin, poolStructVars, "struct_var.impl_id = sem.impl_id").
 		JoinWithOption(sqlbuilder.LeftOuterJoin, poolLinearVars, "linear_var.impl_id = sem.impl_id").
-		Where(sems.Equal("sem.impl_id", ref.ImplID)).
+		Where(sems.Equal("sem.impl_id", ref.TermID)).
 		GroupBy("sem.impl_id", "sem.impl_rn").
 		Build()
 }

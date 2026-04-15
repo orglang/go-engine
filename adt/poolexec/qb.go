@@ -1,7 +1,7 @@
 package poolexec
 
 import (
-	"orglang/go-engine/adt/implsem"
+	"orglang/go-engine/adt/semterm"
 )
 
 const (
@@ -14,6 +14,6 @@ const (
 
 type queryBuilder interface {
 	insertRec(execRecDS) (string, []any)
-	selectSnap(implsem.SemRefDS) (string, []any)
+	selectSnap(semterm.TermRefDS) (string, []any)
 	selectSnapByQN(string) (string, []any)
 }

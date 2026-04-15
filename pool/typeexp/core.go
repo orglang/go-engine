@@ -1,0 +1,187 @@
+package typeexp
+
+import (
+	"fmt"
+
+	"orglang/go-engine/adt/polarity"
+	"orglang/go-engine/adt/uniqsym"
+	"orglang/go-engine/adt/valkey"
+)
+
+type ExpSpec interface {
+	spec()
+}
+
+type OneSpec struct{}
+
+func (OneSpec) spec() {}
+
+type LinkSpec struct {
+	TypeQN uniqsym.ADT
+}
+
+func (LinkSpec) spec() {}
+
+// aka Internal Choice
+type PlusSpec struct {
+	ProcQNs []uniqsym.ADT
+	ContExp ExpSpec
+}
+
+func (PlusSpec) spec() {}
+
+// aka External Choice
+type WithSpec struct {
+	ProcQNs []uniqsym.ADT
+	ContExp ExpSpec
+}
+
+func (WithSpec) spec() {}
+
+type UpSpec struct {
+	ContExp ExpSpec
+}
+
+func (UpSpec) spec() {}
+
+type DownSpec struct {
+	ContExp ExpSpec
+}
+
+func (DownSpec) spec() {}
+
+type ExpRef interface {
+	valkey.Keyable
+}
+
+type OneRef struct {
+	ExpVK valkey.ADT
+}
+
+func (r OneRef) Key() valkey.ADT { return r.ExpVK }
+
+type LinkRef struct {
+	ExpVK valkey.ADT
+}
+
+func (r LinkRef) Key() valkey.ADT { return r.ExpVK }
+
+type PlusRef struct {
+	ExpVK valkey.ADT
+}
+
+func (r PlusRef) Key() valkey.ADT { return r.ExpVK }
+
+type WithRef struct {
+	ExpVK valkey.ADT
+}
+
+func (r WithRef) Key() valkey.ADT { return r.ExpVK }
+
+// aka Stype
+type ExpRec interface {
+	polarity.Polarizable
+	valkey.Keyable
+}
+
+type ProdRec interface {
+	Next() valkey.ADT
+}
+
+type SumRec interface {
+	Next(uniqsym.ADT) valkey.ADT
+}
+
+type OneRec struct {
+	ExpVK valkey.ADT
+}
+
+func (OneRec) spec() {}
+
+func (r OneRec) Key() valkey.ADT { return r.ExpVK }
+
+func (OneRec) Pol() polarity.ADT { return polarity.Pos }
+
+// aka TpName
+type LinkRec struct {
+	ExpVK  valkey.ADT
+	TypeQN uniqsym.ADT
+}
+
+func (LinkRec) spec() {}
+
+func (r LinkRec) Key() valkey.ADT { return r.ExpVK }
+
+func (LinkRec) Pol() polarity.ADT { return polarity.Zero }
+
+// aka Internal Choice
+type PlusRec struct {
+	ExpVK   valkey.ADT
+	ProcQNs []uniqsym.ADT
+	ContExp ExpRec
+}
+
+func (PlusRec) spec() {}
+
+func (r PlusRec) Key() valkey.ADT { return r.ExpVK }
+
+func (r PlusRec) Next() valkey.ADT { return r.ContExp.Key() }
+
+func (PlusRec) Pol() polarity.ADT { return polarity.Pos }
+
+// aka External Choice
+type WithRec struct {
+	ExpVK   valkey.ADT
+	ProcQNs []uniqsym.ADT
+	ContExp ExpRec
+}
+
+func (WithRec) spec() {}
+
+func (r WithRec) Key() valkey.ADT { return r.ExpVK }
+
+func (r WithRec) Next() valkey.ADT { return r.ContExp.Key() }
+
+func (WithRec) Pol() polarity.ADT { return polarity.Neg }
+
+type UpRec struct {
+	ExpVK   valkey.ADT
+	ContExp ExpRec
+}
+
+func (UpRec) spec() {}
+
+func (r UpRec) Key() valkey.ADT { return r.ExpVK }
+
+func (r UpRec) Next() valkey.ADT { return r.ContExp.Key() }
+
+func (UpRec) Pol() polarity.ADT { return polarity.Zero }
+
+type DownRec struct {
+	ExpVK   valkey.ADT
+	ContExp ExpRec
+}
+
+func (DownRec) spec() {}
+
+func (r DownRec) Key() valkey.ADT { return r.ExpVK }
+
+func (r DownRec) Next() valkey.ADT { return r.ContExp.Key() }
+
+func (DownRec) Pol() polarity.ADT { return polarity.Zero }
+
+func ErrSpecTypeUnexpected(got ExpSpec) error {
+	return fmt.Errorf("spec type unexpected: %T", got)
+}
+
+func ErrRefTypeUnexpected(got ExpRef) error {
+	return fmt.Errorf("ref type unexpected: %T", got)
+}
+
+func ErrRecTypeUnexpected(got ExpRec) error {
+	return fmt.Errorf("rec type unexpected: %T", got)
+}
+
+func ErrDoesNotExist(want valkey.ADT) error {
+	return fmt.Errorf("root doesn't exist: %v", want)
+}

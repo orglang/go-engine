@@ -1,34 +1,34 @@
 package poolexec
 
 import (
-	"orglang/go-engine/adt/implsem"
-	"orglang/go-engine/adt/implvar"
+	"orglang/go-engine/adt/compvar"
+	"orglang/go-engine/adt/semterm"
 )
 
-func ConvertRecToRef(rec ExecRec) implsem.SemRef {
-	return rec.ImplRef
+func ConvertRecToRef(rec ExecRec) semterm.TermRef {
+	return rec.CompRef
 }
 
 func DataToExecLiabSnap(dto execSnapDS) (ExecSnap, error) {
-	ref, err := implsem.DataToRef(dto.ImplRef)
+	ref, err := semterm.DataToRef(dto.ImplRef)
 	if err != nil {
 		return ExecSnap{}, err
 	}
-	mode := implvar.Mode(dto.LiabMode)
+	mode := compvar.Mode(dto.LiabMode)
 	switch mode {
-	case implvar.StructMode:
-		rec, err := implvar.DataToStructRec(*dto.StructVar)
+	case compvar.StructMode:
+		rec, err := compvar.DataToStructRec(*dto.StructVar)
 		if err != nil {
 			return ExecSnap{}, err
 		}
 		return ExecSnap{ref, rec}, nil
-	case implvar.LinearMode:
-		rec, err := implvar.DataToLinearRec(*dto.LinearVar)
+	case compvar.LinearMode:
+		rec, err := compvar.DataToLinearRec(*dto.LinearVar)
 		if err != nil {
 			return ExecSnap{}, err
 		}
 		return ExecSnap{ref, rec}, nil
 	default:
-		panic(implvar.ErrUnexpectedMode(mode))
+		panic(compvar.ErrUnexpectedMode(mode))
 	}
 }

@@ -9,8 +9,8 @@ import (
 
 	"orglang/go-engine/lib/te"
 
-	"orglang/go-engine/adt/descsem"
-	"orglang/go-engine/adt/typedef"
+	"orglang/go-engine/adt/semtype"
+	"orglang/go-engine/proc/typedef"
 )
 
 // Adapter
@@ -34,7 +34,7 @@ func (h *echoController) Home(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	html, err := h.ssr.Render("home.html", descsem.MsgFromRefs(refs))
+	html, err := h.ssr.Render("home.html", semtype.MsgFromRefs(refs))
 	if err != nil {
 		return err
 	}

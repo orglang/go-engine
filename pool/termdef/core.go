@@ -6,6 +6,7 @@ import (
 
 	"orglang/go-engine/lib/db"
 
+	"orglang/go-engine/adt/descsem"
 	"orglang/go-engine/adt/termsem"
 	"orglang/go-engine/adt/termvar"
 	"orglang/go-engine/adt/uniqsym"
@@ -38,19 +39,21 @@ type DefSnap struct {
 }
 
 func newService(
-	termDefs Repo,
-	typeDefs typedef.Repo,
+	termDefRepo Repo,
+	typeDefRepo typedef.Repo,
+	descSemRepo descsem.Repo,
 	operator db.Operator,
 	log *slog.Logger,
 ) *service {
-	return &service{termDefs, typeDefs, operator, log}
+	return &service{termDefRepo, typeDefRepo, descSemRepo, operator, log}
 }
 
 type service struct {
-	termDefs Repo
-	typeDefs typedef.Repo
-	operator db.Operator
-	log      *slog.Logger
+	termDefRepo Repo
+	typeDefRepo typedef.Repo
+	descSemRepo descsem.Repo
+	operator    db.Operator
+	log         *slog.Logger
 }
 
 func (s *service) Create(spec DefSpec) (_ termsem.SemRef, err error) {
@@ -63,7 +66,7 @@ func (s *service) Create(spec DefSpec) (_ termsem.SemRef, err error) {
 	}
 	var typeDefs map[uniqsym.ADT]typedef.DefRec
 	getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
-		typeDefs, err = s.typeDefs.GetRecsByQNs(ds, append(assetQNs, spec.LiabVar.TypeQN))
+		typeDefs, err = s.typeDefRepo.GetRecsByQNs(ds, append(assetQNs, spec.LiabVar.TypeQN))
 		return err
 	})
 	if getErr != nil {
@@ -83,8 +86,13 @@ func (s *service) Create(spec DefSpec) (_ termsem.SemRef, err error) {
 		})
 	}
 	newDef := DefRec{TermRef: termsem.New(), LiabVar: newLiabVar, AssetVars: newAssetVars}
+	newBind := descsem.SemRec{DescQN: spec.TermQN, DescID: newDef.TermRef.TermID, Kind: descsem.TermKind}
 	transactErr := s.operator.Explicit(ctx, func(ds db.Source) error {
-		return s.termDefs.AddRec(ds, newDef)
+		err = s.descSemRepo.AddRec(ds, newBind)
+		if err != nil {
+			return err
+		}
+		return s.termDefRepo.AddRec(ds, newDef)
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", qnAttr)

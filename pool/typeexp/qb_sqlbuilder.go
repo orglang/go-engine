@@ -9,7 +9,7 @@ type sqlBuilder struct {
 }
 
 // for compilation purposes
-func newQueryBuikder() queryBuilder {
+func newQueryBuilder() queryBuilder {
 	return new(sqlBuilder)
 }
 

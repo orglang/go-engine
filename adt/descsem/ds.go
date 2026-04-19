@@ -1,6 +1,15 @@
 package descsem
 
-type SemBindDS struct {
+import (
+	"orglang/go-engine/lib/db"
+)
+
+type Repo interface {
+	AddRec(db.Source, SemRec) error
+}
+
+type SemRecDS struct {
 	DescQN string `db:"desc_qn"`
 	DescID string `db:"desc_id"`
+	Kind   int16  `db:"kind"`
 }

@@ -7,7 +7,7 @@ import (
 	"orglang/go-engine/adt/valkey"
 )
 
-func ConvertRecToRef(rec ExecRec) compsem.SemRef {
+func ConvertRecToRef(rec ExecSnap2) compsem.SemRef {
 	return rec.CompRef
 }
 
@@ -22,7 +22,7 @@ func ExtractExpVKs[T compvar.VarRec](vars []T) map[symbol.ADT]valkey.ADT {
 	return vks
 }
 
-func DataToExecLiabSnap(dto execSnapDS) (ExecSnap1, error) {
+func DataToExecSnap1(dto execSnap1) (ExecSnap1, error) {
 	ref, err := compsem.DataToRef(dto.CompRef)
 	if err != nil {
 		return ExecSnap1{}, err

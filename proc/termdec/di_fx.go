@@ -3,6 +3,7 @@ package termdec
 import (
 	"go.uber.org/fx"
 
+	"orglang/go-engine/adt/typesem"
 	"orglang/go-engine/lib/te"
 )
 
@@ -15,7 +16,9 @@ var Module = fx.Module("proc/termdec",
 		fx.Private,
 		newEchoController,
 		newEchoPresenter,
+		fx.Annotate(newSQLBuilder, fx.As(new(queryBuilder))),
 		fx.Annotate(newRendererStdlib, fx.As(new(te.Renderer))),
+		fx.Annotate(typesem.NewPgxDAO(typeDefs, descBinds), fx.As(new(typesem.Repo))),
 	),
 	fx.Invoke(
 		cfgEchoController,

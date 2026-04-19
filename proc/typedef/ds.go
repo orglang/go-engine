@@ -8,10 +8,9 @@ import (
 )
 
 type Repo interface {
-	InsertRec(db.Source, DefRec) error
-	Update(db.Source, DefRec) error
+	AddRec(db.Source, DefRec) error
+	ModifyRec(db.Source, DefRec) error
 	GetRefs(db.Source) ([]typesem.SemRef, error)
-	GetRefsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]typesem.SemRef, error)
 	GetRecByRef(db.Source, typesem.SemRef) (DefRec, error)
 	GetRecsByRefs(db.Source, []typesem.SemRef) ([]DefRec, error)
 	GetRecByQN(db.Source, uniqsym.ADT) (DefRec, error)
@@ -20,7 +19,7 @@ type Repo interface {
 }
 
 type defRecDS struct {
-	TypeID string `db:"desc_id"`
-	TypeRN int64  `db:"desc_rn"`
+	TypeID string `db:"type_id"`
+	TypeRN int64  `db:"type_rn"`
 	ExpVK  int64  `db:"exp_vk"`
 }

@@ -5,7 +5,16 @@ import (
 	"orglang/go-engine/adt/uniqsym"
 )
 
-type SemBind struct {
+type SemRec struct {
 	ImplQN uniqsym.ADT
 	ImplID identity.ADT
+	Kind   implKind
 }
+
+type implKind int16
+
+const (
+	unkKind implKind = iota
+	CompKind
+	CommKind
+)

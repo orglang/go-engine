@@ -21,9 +21,9 @@ var (
 // goverter:extend orglang/go-engine/adt/termvar:Data.*
 var (
 	// goverter:map . TermRef | dataToTermRef
-	DataToDecRec func(decRecDS) (DefRec, error)
+	DataToDecRec func(defRecDS) (DefRec, error)
 	// goverter:autoMap TermRef
-	DataFromDecRec func(DefRec) (decRecDS, error)
+	DataFromDecRec func(DefRec) (defRecDS, error)
 	// goverter:ignore TermRN
-	dataToTermRef func(decRecDS) (termsem.SemRef, error)
+	dataToTermRef func(defRecDS) (termsem.SemRef, error)
 )

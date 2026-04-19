@@ -49,6 +49,7 @@ type DecSnap struct {
 type service struct {
 	termDecRepo Repo
 	typeDefRepo typedef.Repo
+	typeSemRepo typesem.Repo
 	operator    db.Operator
 	log         *slog.Logger
 }
@@ -58,8 +59,14 @@ func newAPI() API {
 	return new(service)
 }
 
-func newService(termDecRepo Repo, typeDefRepo typedef.Repo, operator db.Operator, log *slog.Logger) *service {
-	return &service{termDecRepo, typeDefRepo, operator, log}
+func newService(
+	termDecRepo Repo,
+	typeDefRepo typedef.Repo,
+	typeSemRepo typesem.Repo,
+	operator db.Operator,
+	log *slog.Logger,
+) *service {
+	return &service{termDecRepo, typeDefRepo, typeSemRepo, operator, log}
 }
 
 func (s *service) Incept(termQN uniqsym.ADT) (_ termsem.SemRef, err error) {
@@ -86,13 +93,13 @@ func (s *service) Create(spec DecSpec) (_ DecSnap, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("qn", spec.TermQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
-	typeQNs := make([]uniqsym.ADT, 0, len(spec.AssetVars)+1)
+	assetQNs := make([]uniqsym.ADT, 0, len(spec.AssetVars)+1)
 	for _, spec := range spec.AssetVars {
-		typeQNs = append(typeQNs, spec.TypeQN)
+		assetQNs = append(assetQNs, spec.TypeQN)
 	}
 	var typeRefs map[uniqsym.ADT]typesem.SemRef
 	getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
-		typeRefs, err = s.typeDefRepo.GetRefsByQNs(ds, append(typeQNs, spec.LiabVar.TypeQN))
+		typeRefs, err = s.typeSemRepo.GetRefsByQNs(ds, append(assetQNs, spec.LiabVar.TypeQN))
 		return err
 	})
 	if getErr != nil {

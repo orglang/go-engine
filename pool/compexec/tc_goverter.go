@@ -1,8 +1,19 @@
 package compexec
 
 import (
-	"orglang/go-engine/adt/compsem"
+	"github.com/orglang/go-sdk/pool/compexec"
+
 	"orglang/go-engine/adt/uniqsym"
+)
+
+// goverter:variables
+// goverter:output:format assign-variable
+// goverter:extend orglang/go-engine/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
+// goverter:extend orglang/go-engine/adt/compsem:Msg.*
+var (
+	MsgToExecSpec   func(compexec.ExecSpec) (ExecSpec, error)
+	MsgFromExecSpec func(ExecSpec) compexec.ExecSpec
 )
 
 // goverter:variables
@@ -10,16 +21,17 @@ import (
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/compvar:Convert.*
 // goverter:extend orglang/go-engine/adt/compvar:Data.*
-// goverter:extend DataToExecLiabSnap
+// goverter:extend DataToExecSnap1
 var (
-	// goverter:map . CompRef | dataToSemRef
-	// goverter:ignore TermQN
-	DataToExecRec func(execRecDS) (ExecRec, error)
+	// goverter:map . CompRef
+	DataToExecRec func(execRec) (ExecRec, error)
 	// goverter:autoMap CompRef
-	DataFromExecRec func(ExecRec) execRecDS
+	DataFromExecRec func(ExecRec) execRec
+	// goverter:map . CompRef
+	DataToExecSnap2 func(execSnap2) (ExecSnap2, error)
+	// goverter:autoMap CompRef
+	DataFromExecSnap2 func(ExecSnap2) execSnap2
 
-	DataToRefMap  func(map[uniqsym.ADT]execRecDS) (map[uniqsym.ADT]ExecRec, error)
-	DataToSnapMap func(map[uniqsym.ADT]execSnapDS) (map[uniqsym.ADT]ExecSnap1, error)
-
-	dataToSemRef func(execRecDS) (compsem.SemRef, error)
+	DataToRefMap  func(map[uniqsym.ADT]execSnap2) (map[uniqsym.ADT]ExecSnap2, error)
+	DataToSnapMap func(map[uniqsym.ADT]execSnap1) (map[uniqsym.ADT]ExecSnap1, error)
 )

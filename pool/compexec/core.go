@@ -10,6 +10,7 @@ import (
 	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/adt/identity"
+	"orglang/go-engine/adt/implsem"
 	"orglang/go-engine/adt/option"
 	"orglang/go-engine/adt/seqnum"
 	"orglang/go-engine/adt/symbol"
@@ -20,12 +21,12 @@ import (
 	"orglang/go-engine/pool/commturn"
 	"orglang/go-engine/pool/compstep"
 	"orglang/go-engine/pool/compvar"
-	termdef1 "orglang/go-engine/pool/termdef"
+	"orglang/go-engine/pool/termdef"
 	"orglang/go-engine/pool/termexp"
 	"orglang/go-engine/pool/typeexp"
 
 	"orglang/go-engine/proc/compexec"
-	"orglang/go-engine/proc/termdef"
+	termdef1 "orglang/go-engine/proc/termdef"
 )
 
 type API interface {
@@ -44,11 +45,19 @@ type ExecSpec struct {
 }
 
 type ExecRec struct {
-	CompRef    compsem.SemRef
-	TermQN     uniqsym.ADT
-	LiabMode   compvar.Mode
-	StructVars []compvar.StructRec
-	LinearVars []compvar.LinearRec
+	CompRef  compsem.SemRef
+	LiabMode compvar.Mode
+}
+
+type ExecMod struct {
+	CompRef compsem.SemRef
+	Vars    []compvar.VarRec
+}
+
+func (mod ExecMod) isEmpty() bool { return len(mod.Vars) == 0 }
+
+type ExecEff struct {
+	Steps []compstep.StepSpec
 }
 
 type ExecSnap1 struct {
@@ -56,20 +65,19 @@ type ExecSnap1 struct {
 	LiabVar compvar.VarRec
 }
 
-type ExecSnap struct {
+type ExecSnap2 struct {
+	CompRef    compsem.SemRef
+	LiabMode   compvar.Mode
+	StructVars []compvar.StructRec
+	LinearVars []compvar.LinearRec
+}
+
+type ExecSnap3 struct {
 	CompRef    compsem.SemRef
 	StructVars map[symbol.ADT]compvar.StructRec
 	StructExps map[symbol.ADT]typeexp.ExpRec
 	LinearVars map[symbol.ADT]compvar.LinearRec
 	LinearExps map[symbol.ADT]typeexp.ExpRec
-}
-
-type ExecMod struct {
-	Vars []compvar.VarRec
-}
-
-type ExecEff struct {
-	Steps []compstep.StepSpec
 }
 
 type service struct {
@@ -80,7 +88,9 @@ type service struct {
 	commTurnRepo   commturn.Repo
 	typeExpRepo    typeexp.Repo
 	procExecRepo   compexec.Repo
-	termDecRepo    termdef1.Repo
+	termDefRepo    termdef.Repo
+	implSemRepo    implsem.Repo
+	compSemRepo    compsem.Repo
 	operator       db.Operator
 	log            *slog.Logger
 }
@@ -98,14 +108,17 @@ func newService(
 	commTurnRepo commturn.Repo,
 	typeExpRepo typeexp.Repo,
 	procExecRepo compexec.Repo,
-	termDecRepo termdef1.Repo,
+	termDefRepo termdef.Repo,
+	implSemRepo implsem.Repo,
+	compSemRepo compsem.Repo,
 	operator db.Operator,
 	log *slog.Logger,
 ) *service {
 	name := slog.String("name", reflect.TypeFor[service]().Name())
 	return &service{
 		compExecRepo, compExecExch, compVarRepo,
-		commExchRepo, commTurnRepo, typeExpRepo, procExecRepo, termDecRepo,
+		commExchRepo, commTurnRepo, typeExpRepo, procExecRepo, termDefRepo,
+		implSemRepo, compSemRepo,
 		operator, log.With(name),
 	}
 }
@@ -114,9 +127,9 @@ func (s *service) Run(spec ExecSpec) (_ compsem.SemRef, err error) {
 	ctx := context.Background()
 	specAttr := slog.Any("spec", spec)
 	s.log.Debug("creation started", specAttr)
-	var termDec termdef1.DefRec
+	var termDec termdef.DefRec
 	getErr1 := s.operator.Implicit(ctx, func(ds db.Source) error {
-		termDec, err = s.termDecRepo.GetRecByQN(ds, spec.TermQN)
+		termDec, err = s.termDefRepo.GetRecByQN(ds, spec.TermQN)
 		return err
 	})
 	if getErr1 != nil {
@@ -139,11 +152,12 @@ func (s *service) Run(spec ExecSpec) (_ compsem.SemRef, err error) {
 		s.log.Error("creation failed", specAttr)
 		return compsem.SemRef{}, getErr2
 	}
-	newExec := ExecRec{CompRef: compsem.New(), TermQN: spec.LiabVar.TermQN, LiabMode: compvar.StructMode}
-	newComm := commexch.ExchRec{CommRef: commsem.New(), OffsetNr: seqnum.Zero}
+	newExec := ExecRec{CompRef: compsem.New(), LiabMode: compvar.StructMode}
+	newExch := commexch.ExchRec{CommRef: commsem.New(), OffsetNr: seqnum.Zero}
+	newImpl := implsem.SemRec{ImplQN: spec.TermQN, ImplID: newExec.CompRef.CompID}
 	newLiabVar := compvar.StructRec{
 		CompRef: newExec.CompRef,
-		CommRef: newComm.CommRef,
+		CommRef: newExch.CommRef,
 		ChnlID:  identity.New(),
 		ChnlPH:  spec.LiabVar.ChnlPH,
 		ChnlBS:  compvar.LiabSide,
@@ -156,7 +170,7 @@ func (s *service) Run(spec ExecSpec) (_ compsem.SemRef, err error) {
 		var expVK valkey.ADT
 		assetExec, ok := assetExecs[assetVar.TermQN]
 		if !ok && assetVar.TermQN == spec.LiabVar.TermQN {
-			commRef = newComm.CommRef
+			commRef = newExch.CommRef
 			chnlID = newLiabVar.ChnlID
 			expVK = newLiabVar.ExpVK
 		} else {
@@ -174,6 +188,10 @@ func (s *service) Run(spec ExecSpec) (_ compsem.SemRef, err error) {
 		})
 	}
 	transactErr := s.operator.Explicit(ctx, func(ds db.Source) error {
+		err = s.implSemRepo.AddRec(ds, newImpl)
+		if err != nil {
+			return err
+		}
 		err = s.compExecRepo.AddRec(ds, newExec)
 		if err != nil {
 			return err
@@ -182,7 +200,7 @@ func (s *service) Run(spec ExecSpec) (_ compsem.SemRef, err error) {
 		if err != nil {
 			return err
 		}
-		return s.commExchRepo.AddRec(ds, newComm)
+		return s.commExchRepo.AddRec(ds, newExch)
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", specAttr)
@@ -212,10 +230,10 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 	ctx := context.Background()
 	refAttr := slog.Any("ref", spec.CompRef)
 	s.log.Debug("step taking started", refAttr, slog.Any("exp", spec.PoolExp))
-	execSnap, retrErr := s.retrieveSnap(spec.CompRef)
-	if retrErr != nil {
+	execSnap, retErr := s.retrieveSnap(spec.CompRef)
+	if retErr != nil {
 		s.log.Error("step taking failed", refAttr)
-		return retrErr
+		return retErr
 	}
 	execMod, execEff, exchMod, takeErr := s.take(execSnap, spec.PoolExp)
 	if takeErr != nil {
@@ -235,7 +253,7 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 		if err != nil {
 			return err
 		}
-		return s.compExecRepo.ModifyRec(ds, execMod)
+		return s.compSemRepo.TouchRef(ds, execSnap.CompRef)
 	})
 	if transactErr != nil {
 		s.log.Error("step taking failed", refAttr)
@@ -252,7 +270,7 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 }
 
 func (s *service) take(
-	execSnap ExecSnap,
+	execSnap ExecSnap3,
 	exp termexp.ExpSpec,
 ) (
 	execMod ExecMod,
@@ -267,13 +285,13 @@ func (s *service) take(
 		commChnl, ok := execSnap.StructVars[poolExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", implRefAttr)
-			return execMod, execEff, exchMod, termdef.ErrMissingInCfg(poolExp.CommChnlPH)
+			return execMod, execEff, exchMod, termdef1.ErrMissingInCfg(poolExp.CommChnlPH)
 		}
 		// вычисляем следующее состояние
 		xactExp, ok := execSnap.StructExps[poolExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", implRefAttr)
-			return execMod, execEff, exchMod, termdef.ErrMissingInCtx(poolExp.CommChnlPH)
+			return execMod, execEff, exchMod, termdef1.ErrMissingInCtx(poolExp.CommChnlPH)
 		}
 		nextExpVK := xactExp.(typeexp.ProdRec).Next()
 		// получаем снепшот коммуникации
@@ -356,13 +374,13 @@ func (s *service) take(
 		commChnl, ok := execSnap.StructVars[poolExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", implRefAttr)
-			return execMod, execEff, exchMod, termdef.ErrMissingInCfg(poolExp.CommChnlPH)
+			return execMod, execEff, exchMod, termdef1.ErrMissingInCfg(poolExp.CommChnlPH)
 		}
 		// вычисляем следующее состояние
 		xactExp, ok := execSnap.StructExps[poolExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", implRefAttr)
-			return execMod, execEff, exchMod, termdef.ErrMissingInCtx(poolExp.CommChnlPH)
+			return execMod, execEff, exchMod, termdef1.ErrMissingInCtx(poolExp.CommChnlPH)
 		}
 		nextExpVK := xactExp.(typeexp.ProdRec).Next()
 		// получаем снепшот коммуникации
@@ -445,13 +463,13 @@ func (s *service) take(
 		commChnl, ok := execSnap.LinearVars[poolExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", implRefAttr)
-			return execMod, execEff, exchMod, termdef.ErrMissingInCfg(poolExp.CommChnlPH)
+			return execMod, execEff, exchMod, termdef1.ErrMissingInCfg(poolExp.CommChnlPH)
 		}
 		// вычисляем следующее состояние
 		xactExp, ok := execSnap.LinearExps[poolExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", implRefAttr)
-			return execMod, execEff, exchMod, termdef.ErrMissingInCtx(poolExp.CommChnlPH)
+			return execMod, execEff, exchMod, termdef1.ErrMissingInCtx(poolExp.CommChnlPH)
 		}
 		nextExpVK := xactExp.(typeexp.ProdRec).Next()
 		// получаем снепшот коммуникации
@@ -533,13 +551,13 @@ func (s *service) take(
 		commChnl, ok := execSnap.LinearVars[poolExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", implRefAttr)
-			return execMod, execEff, exchMod, termdef.ErrMissingInCfg(poolExp.CommChnlPH)
+			return execMod, execEff, exchMod, termdef1.ErrMissingInCfg(poolExp.CommChnlPH)
 		}
 		// вычисляем следующее состояние
 		xactExp, ok := execSnap.LinearExps[poolExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", implRefAttr)
-			return execMod, execEff, exchMod, termdef.ErrMissingInCtx(poolExp.CommChnlPH)
+			return execMod, execEff, exchMod, termdef1.ErrMissingInCtx(poolExp.CommChnlPH)
 		}
 		nextExpVK := xactExp.(typeexp.ProdRec).Next()
 		// получаем снепшот коммуникации
@@ -621,13 +639,13 @@ func (s *service) take(
 		commChnl, ok := execSnap.LinearVars[poolExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", implRefAttr)
-			return execMod, execEff, exchMod, termdef.ErrMissingInCfg(poolExp.CommChnlPH)
+			return execMod, execEff, exchMod, termdef1.ErrMissingInCfg(poolExp.CommChnlPH)
 		}
 		// вычисляем следующее состояние
 		xactExp, ok := execSnap.LinearExps[poolExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", implRefAttr)
-			return execMod, execEff, exchMod, termdef.ErrMissingInCtx(poolExp.CommChnlPH)
+			return execMod, execEff, exchMod, termdef1.ErrMissingInCtx(poolExp.CommChnlPH)
 		}
 		nextExpVK := xactExp.(typeexp.ProdRec).Next()
 		// получаем снепшот коммуникации
@@ -693,13 +711,13 @@ func (s *service) take(
 		commChnl, ok := execSnap.LinearVars[poolExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", implRefAttr)
-			return execMod, execEff, exchMod, termdef.ErrMissingInCfg(poolExp.CommChnlPH)
+			return execMod, execEff, exchMod, termdef1.ErrMissingInCfg(poolExp.CommChnlPH)
 		}
 		// вычисляем следующее состояние
 		xactExp, ok := execSnap.LinearExps[poolExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", implRefAttr)
-			return execMod, execEff, exchMod, termdef.ErrMissingInCtx(poolExp.CommChnlPH)
+			return execMod, execEff, exchMod, termdef1.ErrMissingInCtx(poolExp.CommChnlPH)
 		}
 		nextExpVK := xactExp.(typeexp.ProdRec).Next()
 		// получаем снепшот коммуникации
@@ -766,34 +784,34 @@ func (s *service) take(
 	}
 }
 
-func (s *service) retrieveSnap(ref compsem.SemRef) (_ ExecSnap, err error) {
+func (s *service) retrieveSnap(ref compsem.SemRef) (_ ExecSnap3, err error) {
 	ctx := context.Background()
-	var execRec ExecRec
+	var execSnap ExecSnap2
 	getErr1 := s.operator.Implicit(ctx, func(ds db.Source) error {
-		execRec, err = s.compExecRepo.GetRecByRef(ds, ref)
+		execSnap, err = s.compExecRepo.GetSnapByRef(ds, ref)
 		return err
 	})
 	if getErr1 != nil {
-		return ExecSnap{}, getErr1
+		return ExecSnap3{}, getErr1
 	}
 	var structExps map[symbol.ADT]typeexp.ExpRec
 	var linearExps map[symbol.ADT]typeexp.ExpRec
 	getErr2 := s.operator.Implicit(ctx, func(ds db.Source) error {
-		structExps, err = s.typeExpRepo.GetRecMap(ds, ExtractExpVKs(execRec.StructVars))
+		structExps, err = s.typeExpRepo.GetRecMap(ds, ExtractExpVKs(execSnap.StructVars))
 		if err != nil {
 			return err
 		}
-		linearExps, err = s.typeExpRepo.GetRecMap(ds, ExtractExpVKs(execRec.LinearVars))
+		linearExps, err = s.typeExpRepo.GetRecMap(ds, ExtractExpVKs(execSnap.LinearVars))
 		return err
 	})
 	if getErr2 != nil {
-		return ExecSnap{}, getErr2
+		return ExecSnap3{}, getErr2
 	}
-	return ExecSnap{
-		CompRef:    execRec.CompRef,
-		StructVars: compvar.ConvertRecsToRecMap(execRec.StructVars),
+	return ExecSnap3{
+		CompRef:    execSnap.CompRef,
+		StructVars: compvar.ConvertRecsToRecMap(execSnap.StructVars),
 		StructExps: structExps,
-		LinearVars: compvar.ConvertRecsToRecMap(execRec.LinearVars),
+		LinearVars: compvar.ConvertRecsToRecMap(execSnap.LinearVars),
 		LinearExps: linearExps,
 	}, nil
 }

@@ -18,6 +18,7 @@ type Repo interface {
 
 type exchRecDS struct {
 	CommID   string `db:"comm_id"`
+	CommRN   int64  `db:"comm_rn"`
 	OffsetNr int64  `db:"offset_nr"`
 }
 
@@ -32,7 +33,8 @@ type exchQryDS struct {
 }
 
 type exchSnapDS struct {
-	CommID string               `db:"comm_id"`
-	CommRN int64                `db:"comm_rn"`
-	Turns  []commturn.TurnRecDS `db:"steps"`
+	CommID   string               `db:"comm_id"`
+	CommRN   int64                `db:"comm_rn"`
+	OffsetNr int64                `db:"offset_nr"`
+	Turns    []commturn.TurnRecDS `db:"turns"`
 }

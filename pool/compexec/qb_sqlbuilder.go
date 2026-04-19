@@ -8,31 +8,29 @@ import (
 )
 
 type sqlBuilder struct {
-	compExecBuilder *sqlbuilder.Struct
-	snapBuilder     *sqlbuilder.Struct
-	execJoinBuilder *sqlbuilder.Struct
-	compVarBuilder  *sqlbuilder.Struct
+	recBuilder     *sqlbuilder.Struct
+	snapBuilder    *sqlbuilder.Struct
+	compVarBuilder *sqlbuilder.Struct
 }
 
 // for compilation purposes
-func newQueryBuikder() queryBuilder {
+func newQueryBuilder() queryBuilder {
 	return new(sqlBuilder)
 }
 
 func newSQLBuilder() *sqlBuilder {
-	compExecBuilder := sqlbuilder.NewStruct(new(execRecDS)).For(sqlbuilder.PostgreSQL)
-	snapBuilder := sqlbuilder.NewStruct(new(execSnapDS)).For(sqlbuilder.PostgreSQL)
-	execJoinBuilder := sqlbuilder.NewStruct(new(execJoinDS)).For(sqlbuilder.PostgreSQL)
+	recBuilder := sqlbuilder.NewStruct(new(execRec)).For(sqlbuilder.PostgreSQL)
+	snapBuilder := sqlbuilder.NewStruct(new(execSnap1)).For(sqlbuilder.PostgreSQL)
 	compVarBuilder := sqlbuilder.NewStruct(new(compvar.VarRecDS)).For(sqlbuilder.PostgreSQL)
-	return &sqlBuilder{compExecBuilder, snapBuilder, execJoinBuilder, compVarBuilder}
+	return &sqlBuilder{recBuilder, snapBuilder, compVarBuilder}
 }
 
-func (qb *sqlBuilder) insertRec(rec execRecDS) (string, []any) {
-	return qb.compExecBuilder.InsertInto("pool_comp_execs", rec).Build()
+func (qb *sqlBuilder) insertRec(rec execRec) (string, []any) {
+	return qb.recBuilder.InsertInto(compExecs, rec).Build()
 }
 
 func (qb *sqlBuilder) selectRecByRef(ref compsem.SemRefDS) (string, []any) {
-	compExec := qb.execJoinBuilder.SelectFrom(compExecs + "sem")
+	exec := qb.recBuilder.SelectFrom(compExecs + "exec")
 	structVar := qb.compVarBuilder.SelectFrom(poolStructVars + "var")
 	linearVar := qb.compVarBuilder.SelectFrom(poolLinearVars + "var")
 	vars := sqlbuilder.PostgreSQL.NewCTEBuilder()
@@ -40,13 +38,12 @@ func (qb *sqlBuilder) selectRecByRef(ref compsem.SemRefDS) (string, []any) {
 		sqlbuilder.CTEQuery("struct_vars").As(structVar.Where(structVar.Equal("comp_id", ref.CompID))),
 		sqlbuilder.CTEQuery("linear_vars").As(linearVar.Where(linearVar.Equal("comp_id", ref.CompID))),
 	)
-	return compExec.With(vars).
+	return exec.With(vars).
 		SelectMore(
-			compExec.BuilderAs(sqlbuilder.Buildf(arrayAgg, sqlbuilder.Raw("struct_vars")), "struct_vars"),
-			compExec.BuilderAs(sqlbuilder.Buildf(arrayAgg, sqlbuilder.Raw("linear_vars")), "linear_vars"),
+			exec.BuilderAs(sqlbuilder.Buildf(arrayAgg, sqlbuilder.Raw("struct_vars")), "struct_vars"),
+			exec.BuilderAs(sqlbuilder.Buildf(arrayAgg, sqlbuilder.Raw("linear_vars")), "linear_vars"),
 		).
-		Join(compExecs+"exec", "exec.comp_id = sem.comp_id").
-		Where(compExec.Equal("sem.comp_id", ref.CompID)).
+		Where(exec.Equal("exec.comp_id", ref.CompID)).
 		Build()
 }
 

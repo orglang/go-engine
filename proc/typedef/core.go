@@ -8,6 +8,7 @@ import (
 
 	"orglang/go-engine/lib/db"
 
+	"orglang/go-engine/adt/descsem"
 	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/seqnum"
 	"orglang/go-engine/adt/symbol"
@@ -33,7 +34,6 @@ type DefSpec struct {
 // aka TpDef
 type DefRec struct {
 	TypeRef typesem.SemRef
-	TypeQN  uniqsym.ADT
 	ExpVK   valkey.ADT
 }
 
@@ -50,6 +50,7 @@ type Context struct {
 type service struct {
 	typeDefRepo Repo
 	typeExpRepo typeexp.Repo
+	descSemRepo descsem.Repo
 	operator    db.Operator
 	log         *slog.Logger
 }
@@ -60,12 +61,13 @@ func newAPI() API {
 }
 
 func newService(
-	typeDefs Repo,
-	typeExps typeexp.Repo,
+	typeDefRepo Repo,
+	typeExpRepo typeexp.Repo,
+	descSemRepo descsem.Repo,
 	operator db.Operator,
 	log *slog.Logger,
 ) *service {
-	return &service{typeDefs, typeExps, operator, log}
+	return &service{typeDefRepo, typeExpRepo, descSemRepo, operator, log}
 }
 
 func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
@@ -76,13 +78,18 @@ func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 	if err != nil {
 		return DefSnap{}, err
 	}
-	newDef := DefRec{TypeRef: typesem.New(), TypeQN: spec.TypeQN, ExpVK: newExp.Key()}
+	newDef := DefRec{TypeRef: typesem.New(), ExpVK: newExp.Key()}
+	newDesc := descsem.SemRec{DescQN: spec.TypeQN, DescID: newDef.TypeRef.TypeID, Kind: descsem.TypeKind}
 	err = s.operator.Explicit(ctx, func(ds db.Source) error {
-		err = s.typeExpRepo.InsertRec(ds, newExp)
+		err = s.descSemRepo.AddRec(ds, newDesc)
 		if err != nil {
 			return err
 		}
-		return s.typeDefRepo.InsertRec(ds, newDef)
+		err = s.typeExpRepo.AddRec(ds, newExp)
+		if err != nil {
+			return err
+		}
+		return s.typeDefRepo.AddRec(ds, newDef)
 	})
 	if err != nil {
 		s.log.Error("creation failed", qnAttr)
@@ -124,7 +131,7 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 			if err != nil {
 				return err
 			}
-			err = s.typeExpRepo.InsertRec(ds, newExp)
+			err = s.typeExpRepo.AddRec(ds, newExp)
 			if err != nil {
 				return err
 			}
@@ -132,7 +139,7 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 			rec.TypeRef.TypeRN = snap.TypeRef.TypeRN
 		}
 		if rec.TypeRef.TypeRN == snap.TypeRef.TypeRN {
-			err = s.typeDefRepo.Update(ds, rec)
+			err = s.typeDefRepo.ModifyRec(ds, rec)
 			if err != nil {
 				return err
 			}

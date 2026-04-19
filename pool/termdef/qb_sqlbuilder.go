@@ -5,28 +5,26 @@ import (
 )
 
 type sqlBuilder struct {
-	recBuilder *sqlbuilder.Struct
+	defBuilder *sqlbuilder.Struct
 }
 
 // for compilation purposes
-func newQueryBuikder() queryBuilder {
+func newQueryBuilder() queryBuilder {
 	return new(sqlBuilder)
 }
 
 func newSQLBuilder() *sqlBuilder {
-	recBuilder := sqlbuilder.NewStruct(new(decRecDS)).For(sqlbuilder.PostgreSQL)
-	return &sqlBuilder{recBuilder}
+	defBuilder := sqlbuilder.NewStruct(new(defRecDS)).For(sqlbuilder.PostgreSQL)
+	return &sqlBuilder{defBuilder}
 }
 
-func (qb *sqlBuilder) insertRec(rec decRecDS) (string, []any) {
-	return qb.recBuilder.InsertInto(poolDecs, rec).Build()
+func (qb *sqlBuilder) insertRec(rec defRecDS) (string, []any) {
+	return qb.defBuilder.InsertInto(termDefs, rec).Build()
 }
 
 func (qb *sqlBuilder) selectRecByQN(qn string) (string, []any) {
-	sb := sqlbuilder.PostgreSQL.NewSelectBuilder()
-	return sb.Select("dec.desc_id", "dec.liab_var", "dec.asset_vars").
-		From(poolDecs+" dec").
-		Join(sigBinds+" bind", "bind.desc_id = dec.desc_id").
+	sb := qb.defBuilder.SelectFrom(termDefs + "def")
+	return sb.Join(descBinds+"bind", "bind.desc_id = def.term_id").
 		Where(sb.Equal("bind.desc_qn", qn)).
 		Build()
 }

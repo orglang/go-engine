@@ -15,12 +15,13 @@ import (
 )
 
 type pgxDAO struct {
+	qb  queryBuilder
 	log *slog.Logger
 }
 
-func newPgxDAO(l *slog.Logger) *pgxDAO {
+func newPgxDAO(qb queryBuilder, log *slog.Logger) *pgxDAO {
 	name := slog.String("name", reflect.TypeFor[pgxDAO]().Name())
-	return &pgxDAO{l.With(name)}
+	return &pgxDAO{qb, log.With(name)}
 }
 
 // for compilation purposes
@@ -36,14 +37,10 @@ func (dao *pgxDAO) AddRec(source db.Source, rec DecRec) error {
 		dao.log.Error("model conversion failed", refAttr)
 		return err
 	}
-	args := pgx.NamedArgs{
-		"desc_id":    dto.TermID,
-		"liab_var":   dto.LiabVar,
-		"asset_vars": dto.AssetVars,
-	}
-	_, err = ds.Conn.Exec(ds.Ctx, insertRec, args)
+	sql, args := dao.qb.insertRec(dto)
+	_, err = ds.Conn.Exec(ds.Ctx, sql, args...)
 	if err != nil {
-		dao.log.Error("query execution failed", refAttr)
+		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
 		return err
 	}
 	return nil
@@ -135,13 +132,6 @@ func (dao *pgxDAO) GetRefs(source db.Source) ([]termsem.SemRef, error) {
 }
 
 const (
-	insertRec = `
-		insert into proc_term_decs (
-			desc_id, liab_var, asset_vars
-		) values (
-			@desc_id, @liab_var, @asset_vars
-		)`
-
 	selectByRef = `
 		select
 			pd.desc_id,

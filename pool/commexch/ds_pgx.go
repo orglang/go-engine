@@ -66,9 +66,9 @@ func (dao *pgxDAO) GetRefsByQNs(source db.Source, qns []uniqsym.ADT) (map[uniqsy
 func (dao *pgxDAO) GetSnapByQry(source db.Source, qry ExchQry) (ExchSnap, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("ref", qry.CommRef)
-	dto := DataFromQry(qry)
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "getting started", slog.Any("qry", dto))
-	sql, args := dao.qb.selectSnap(dto)
+	qryDTO := DataFromQry(qry)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "getting started", slog.Any("qry", qryDTO))
+	sql, args := dao.qb.selectSnap(qryDTO)
 	rows, execErr := ds.Conn.Query(ds.Ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))

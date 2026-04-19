@@ -5,7 +5,16 @@ import (
 	"orglang/go-engine/adt/uniqsym"
 )
 
-type SemBind struct {
+type SemRec struct {
 	DescQN uniqsym.ADT
 	DescID identity.ADT
+	Kind   descKind
 }
+
+type descKind int16
+
+const (
+	unkKind descKind = iota
+	TypeKind
+	TermKind
+)

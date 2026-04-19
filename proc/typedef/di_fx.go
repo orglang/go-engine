@@ -4,6 +4,8 @@ import (
 	"go.uber.org/fx"
 
 	"orglang/go-engine/lib/te"
+
+	"orglang/go-engine/adt/descsem"
 )
 
 var Module = fx.Module("adproct/typedef",
@@ -15,7 +17,9 @@ var Module = fx.Module("adproct/typedef",
 		fx.Private,
 		newEchoController,
 		newEchoPresenter,
+		fx.Annotate(newSQLBuilder, fx.As(new(queryBuilder))),
 		fx.Annotate(newRendererStdlib, fx.As(new(te.Renderer))),
+		fx.Annotate(descsem.NewPgxDAO(descBinds), fx.As(new(descsem.Repo))),
 	),
 	fx.Invoke(
 		cfgEchoController,

@@ -19,6 +19,6 @@ type Repo interface {
 
 type defRecDS struct {
 	TypeID string `db:"type_id"`
-	TypeRN string `db:"type_rn"`
+	TypeRN int64  `db:"type_rn"`
 	ExpVK  int64  `db:"exp_vk"`
 }

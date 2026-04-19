@@ -24,10 +24,10 @@ var (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
+// goverter:extend orglang/go-engine/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/adt/valkey:Convert.*
 var (
 	// goverter:map . TypeRef
-	// goverter:ignore TypeQN
 	DataToDefRec    func(defRecDS) (DefRec, error)
 	DataToDefRecs   func([]defRecDS) ([]DefRec, error)
 	DataToDefRecMap func(map[uniqsym.ADT]defRecDS) (map[uniqsym.ADT]DefRec, error)

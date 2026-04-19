@@ -7,7 +7,7 @@ import (
 
 func TestInsertRec(t *testing.T) {
 	qb := newSQLBuilder()
-	sql, _ := qb.insertRec(decRecDS{})
+	sql, _ := qb.insertRec(defRecDS{})
 	fmt.Println(sql)
 }
 

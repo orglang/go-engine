@@ -29,7 +29,7 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func (dao *pgxDAO) InsertRec(source db.Source, rec ExpRec) (err error) {
+func (dao *pgxDAO) AddRec(source db.Source, rec ExpRec) (err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	vkAttr := slog.Any("expVK", rec.Key())
 	dto := dataFromExpRec(rec)

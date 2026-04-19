@@ -17,15 +17,15 @@ type Repo interface {
 }
 
 type decRecDS struct {
-	TermID    string             `db:"desc_id"`
-	TermRN    int64              `db:"desc_rn"`
-	LiabVar   termvar.VarRecDS   `db:"liab_var"`
+	TermID    string             `db:"term_id"`
+	TermRN    int64              `db:"term_rn"`
+	LiabVar   termvar.VarRecDS   `db:"liab_var" fieldopt:"noexpand"`
 	AssetVars []termvar.VarRecDS `db:"asset_vars"`
 }
 
 type decSnapDS struct {
-	TermID    string             `db:"desc_id"`
-	TermRN    int64              `db:"desc_rn"`
+	TermID    string             `db:"term_id"`
+	TermRN    int64              `db:"term_rn"`
 	LiabVar   termvar.VarRecDS   `db:"liab_var"`
 	AssetVars []termvar.VarRecDS `db:"asset_vars"`
 }

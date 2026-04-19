@@ -2,6 +2,8 @@ package typedef
 
 import (
 	"go.uber.org/fx"
+
+	"orglang/go-engine/adt/descsem"
 )
 
 var Module = fx.Module("pool/typedef",
@@ -13,6 +15,7 @@ var Module = fx.Module("pool/typedef",
 		fx.Private,
 		newEchoController,
 		fx.Annotate(newSQLBuilder, fx.As(new(queryBuilder))),
+		fx.Annotate(descsem.NewPgxDAO(descBinds), fx.As(new(descsem.Repo))),
 	),
 	fx.Invoke(
 		cfgEchoController,

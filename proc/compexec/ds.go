@@ -14,8 +14,9 @@ type Repo interface {
 }
 
 type execRecDS struct {
-	CompID   string `db:"impl_id"`
-	LiabMode int16  `db:"mode"`
+	CompID   string `db:"comp_id"`
+	CompRN   int64  `db:"comp_rn"`
+	LiabMode int16  `db:"liab_mode"`
 }
 
 type execModDS struct {

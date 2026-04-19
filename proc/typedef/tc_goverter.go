@@ -35,7 +35,6 @@ var (
 // goverter:extend orglang/go-engine/proc/typeexp:Data.*
 var (
 	// goverter:map . TypeRef
-	// goverter:ignore TypeQN
 	DataToDefRec  func(defRecDS) (DefRec, error)
 	DataToDefRecs func([]defRecDS) ([]DefRec, error)
 	// goverter:autoMap TypeRef

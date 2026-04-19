@@ -16,12 +16,13 @@ import (
 )
 
 type pgxDAO struct {
+	qb  queryBuilder
 	log *slog.Logger
 }
 
-func newPgxDAO(l *slog.Logger) *pgxDAO {
+func newPgxDAO(qb queryBuilder, log *slog.Logger) *pgxDAO {
 	name := slog.String("name", reflect.TypeFor[pgxDAO]().Name())
-	return &pgxDAO{l.With(name)}
+	return &pgxDAO{qb, log.With(name)}
 }
 
 // for compilation purposes
@@ -29,32 +30,29 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func (dao *pgxDAO) InsertRec(source db.Source, rec DefRec) error {
+func (dao *pgxDAO) AddRec(source db.Source, rec DefRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
 	idAttr := slog.Any("typeID", rec.TypeRef.TypeID)
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity insertion started", idAttr)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "addition started", idAttr)
 	dto, err := DataFromDefRec(rec)
 	if err != nil {
 		dao.log.Error("model conversion failed", idAttr)
 		return err
 	}
-	args := pgx.NamedArgs{
-		"desc_id": dto.TypeID,
-		"exp_vk":  dto.ExpVK,
-	}
-	_, err = ds.Conn.Exec(ds.Ctx, insertRec, args)
+	sql, args := dao.qb.insertRec(dto)
+	_, err = ds.Conn.Exec(ds.Ctx, sql, args...)
 	if err != nil {
-		dao.log.Error("query execution failed", idAttr)
+		dao.log.Error("query execution failed", idAttr, slog.String("sql", sql))
 		return err
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity insertion succeed", idAttr)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "addition succeed", idAttr)
 	return nil
 }
 
-func (dao *pgxDAO) Update(source db.Source, rec DefRec) error {
+func (dao *pgxDAO) ModifyRec(source db.Source, rec DefRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
 	idAttr := slog.Any("typeID", rec.TypeRef.TypeID)
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity update started", idAttr)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "modification started", idAttr)
 	dto, err := DataFromDefRec(rec)
 	if err != nil {
 		dao.log.Error("model conversion failed", idAttr)
@@ -73,7 +71,7 @@ func (dao *pgxDAO) Update(source db.Source, rec DefRec) error {
 		dao.log.Error("entity update failed", idAttr)
 		return errOptimisticUpdate(rec.TypeRef.TypeRN - 1)
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity update succeed", idAttr)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "modification succeed", idAttr)
 	return nil
 }
 
@@ -92,10 +90,6 @@ func (dao *pgxDAO) GetRefs(source db.Source) ([]typesem.SemRef, error) {
 	}
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "entities selection succeed", slog.Any("dtos", dtos))
 	return typesem.DataToRefs(dtos)
-}
-
-func (dao *pgxDAO) GetRefsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]typesem.SemRef, error) {
-	panic("unimplemented")
 }
 
 func (dao *pgxDAO) GetRecByRef(source db.Source, ref typesem.SemRef) (DefRec, error) {
@@ -214,13 +208,6 @@ func (dao *pgxDAO) GetRecsByQNs(source db.Source, typeQNs []uniqsym.ADT) (_ []De
 }
 
 const (
-	insertRec = `
-		insert into proc_type_defs (
-			desc_id, exp_vk
-		) values (
-			@desc_id, @exp_vk
-		)`
-
 	updateRec = `
 		update proc_type_defs
 		set def_rn = @def_rn,

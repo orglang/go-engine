@@ -12,7 +12,7 @@ type sqlBuilder struct {
 }
 
 // for compilation purposes
-func newQueryBuikder() queryBuilder {
+func newQueryBuilder() queryBuilder {
 	return new(sqlBuilder)
 }
 
@@ -36,18 +36,17 @@ func (qb *sqlBuilder) updateRec(mod exchModDS) (string, []any) {
 }
 
 func (qb *sqlBuilder) selectSnap(qry exchQryDS) (string, []any) {
-	exch := qb.exchBuilder.SelectFrom(commExchs + "sem")
-	turn := qb.turnBuilder.SelectFrom(commTurns + "step")
+	exch := qb.exchBuilder.SelectFrom(commExchs + "exch")
+	turn := qb.turnBuilder.SelectFrom(commTurns + "turn")
 	turn.Where(turn.Equal("comm_id", qry.CommID))
 	if qry.ChnlID.Valid {
 		turn.Where(turn.Equal("chnl_id", qry.ChnlID.V))
 	}
 	turns := sqlbuilder.PostgreSQL.NewCTEBuilder()
-	return exch.With(turns.With(sqlbuilder.CTEQuery("steps").As(turn))).
+	return exch.With(turns.With(sqlbuilder.CTEQuery("turns").As(turn))).
 		SelectMore(
-			exch.BuilderAs(sqlbuilder.Build("SELECT array_agg(row(step.*)) FROM steps step WHERE step.comm_rn > conn.offset_nr"), "steps"),
+			exch.BuilderAs(sqlbuilder.Build("SELECT array_agg(row(t.*)) FROM turns t WHERE t.comm_rn > exch.offset_nr"), "turns"),
 		).
-		Join(commExchs+"conn", "conn.comm_id = sem.comm_id").
-		Where(exch.Equal("sem.comm_id", qry.CommID)).
+		Where(exch.Equal("exch.comm_id", qry.CommID)).
 		Build()
 }

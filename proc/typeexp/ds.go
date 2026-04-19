@@ -7,7 +7,7 @@ import (
 )
 
 type Repo interface {
-	InsertRec(db.Source, ExpRec) error
+	AddRec(db.Source, ExpRec) error
 	SelectRecByVK(db.Source, valkey.ADT) (ExpRec, error)
 	SelectRecsByVKs(db.Source, []valkey.ADT) ([]ExpRec, error)
 	SelectEnv(db.Source, []valkey.ADT) (map[valkey.ADT]ExpRec, error)

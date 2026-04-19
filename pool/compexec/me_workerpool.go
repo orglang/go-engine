@@ -19,13 +19,13 @@ func newWorkerPoolBroker(pool *workerpool.WorkerPool, log *slog.Logger) *workerP
 	return &workerPoolBroker{nil, pool, log.With(name)}
 }
 
-func cfgWorkerPoolBroker(broker Exch, api API) error {
+func cfgWorkerPoolBroker(broker Broker, api API) error {
 	broker.Subscribe(api)
 	return nil
 }
 
 // for compilation purposes
-func newWorkerPoolExch() Exch {
+func newWorkerPoolExch() Broker {
 	return new(workerPoolBroker)
 }
 

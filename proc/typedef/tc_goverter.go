@@ -1,7 +1,7 @@
 package typedef
 
 import (
-	"github.com/orglang/go-sdk/adt/typedef"
+	"github.com/orglang/go-sdk/proc/typedef"
 )
 
 // goverter:variables
@@ -34,10 +34,11 @@ var (
 // goverter:extend orglang/go-engine/adt/valkey:Convert.*
 // goverter:extend orglang/go-engine/proc/typeexp:Data.*
 var (
-	// goverter:map . DescRef
-	DataToDefRec func(defRecDS) (DefRec, error)
-	// goverter:autoMap DescRef
+	// goverter:map . TypeRef
+	// goverter:ignore TypeQN
+	DataToDefRec  func(defRecDS) (DefRec, error)
+	DataToDefRecs func([]defRecDS) ([]DefRec, error)
+	// goverter:autoMap TypeRef
 	DataFromDefRec  func(DefRec) (defRecDS, error)
-	DataToDefRecs   func([]defRecDS) ([]DefRec, error)
 	DataFromDefRecs func([]DefRec) ([]defRecDS, error)
 )

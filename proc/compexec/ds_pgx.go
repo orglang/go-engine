@@ -10,8 +10,8 @@ import (
 	"orglang/go-engine/lib/db"
 	"orglang/go-engine/lib/lf"
 
+	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/adt/compvar"
-	"orglang/go-engine/adt/semterm"
 	"orglang/go-engine/adt/seqnum"
 )
 
@@ -31,7 +31,7 @@ func newPgxDAO(qb queryBuilder, log *slog.Logger) *pgxDAO {
 	return &pgxDAO{qb, log.With(name)}
 }
 
-func (dao *pgxDAO) InsertRec(source db.Source, rec ExecRec) error {
+func (dao *pgxDAO) AddRec(source db.Source, rec ExecRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
 	dto := DataFromExecRec(rec)
 	refAttr := slog.Any("ref", rec.CompRef)
@@ -45,10 +45,10 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec ExecRec) error {
 	return nil
 }
 
-func (dao *pgxDAO) SelectSnap(source db.Source, ref semterm.TermRef) (ExecSnap, error) {
+func (dao *pgxDAO) SelectSnap(source db.Source, ref compsem.SemRef) (ExecSnap, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("ref", ref)
-	chnlRows, err := ds.Conn.Query(ds.Ctx, selectChnls, ref.TermID.String())
+	chnlRows, err := ds.Conn.Query(ds.Ctx, selectChnls, ref.CompID.String())
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)
 		return ExecSnap{}, err
@@ -84,7 +84,7 @@ func (dao *pgxDAO) UpdateProc(source db.Source, mod ExecMod) (err error) {
 	bindReq := pgx.Batch{}
 	for _, dto := range dto.LinearVars {
 		args := pgx.NamedArgs{
-			"impl_id":  dto.ImplID,
+			"impl_id":  dto.CompID,
 			"chnl_ph":  dto.ChnlPH,
 			"chnl_id":  dto.ChnlID,
 			"state_id": dto.ExpVK,
@@ -108,10 +108,10 @@ func (dao *pgxDAO) UpdateProc(source db.Source, mod ExecMod) (err error) {
 	}
 	// execs
 	execReq := pgx.Batch{}
-	for _, dto := range dto.ImplRefs {
+	for _, dto := range dto.CompRefs {
 		args := pgx.NamedArgs{
-			"impl_id": dto.TermID,
-			"impl_rn": dto.TermRN,
+			"impl_id": dto.CompID,
+			"impl_rn": dto.CompRN,
 		}
 		execReq.Queue(updateExec, args)
 	}
@@ -119,14 +119,14 @@ func (dao *pgxDAO) UpdateProc(source db.Source, mod ExecMod) (err error) {
 	defer func() {
 		err = errors.Join(err, execRes.Close())
 	}()
-	for _, dto := range dto.ImplRefs {
+	for _, dto := range dto.CompRefs {
 		ct, err := execRes.Exec()
 		if err != nil {
 			dao.log.Error("execution failed", slog.Any("dto", dto))
 		}
 		if ct.RowsAffected() == 0 {
 			dao.log.Error("update failed")
-			return errOptimisticUpdate(seqnum.ADT(dto.TermRN))
+			return errOptimisticUpdate(seqnum.ADT(dto.CompRN))
 		}
 	}
 	if err != nil {
@@ -145,14 +145,14 @@ const (
 		)`
 
 	insertStep = `
-		insert into proc_steps (
+		insert into proc_comm_turns (
 			impl_id, chnl_id, kind, proc_er
 		) values (
 			@impl_id, @chnl_id, @kind, @proc_er
 		)`
 
 	updateExec = `
-		update proc_execs
+		update proc_comp_execs
 		set impl_rn = @impl_rn + 1
 		where impl_id = @impl_id
 			and impl_rn = @impl_rn`
@@ -177,7 +177,7 @@ const (
 		from bnds bnd
 		left join liabs liab
 			on liab.proc_id = bnd.proc_id
-		left join pool_execs prvd
+		left join pool_comp_execs prvd
 			on prvd.desc_id = liab.desc_id`
 
 	selectSteps = ``

@@ -1,7 +1,7 @@
 package termexp
 
 import (
-	"github.com/orglang/go-sdk/adt/poolexp"
+	"github.com/orglang/go-sdk/pool/termexp"
 )
 
 // goverter:variables
@@ -12,19 +12,19 @@ import (
 // goverter:extend MsgFromExpSpec
 // goverter:extend MsgToExpSpec
 var (
-	MsgFromAcquireSpec func(AcquireSpec) *poolexp.AcquireSpec
-	MsgFromAcceptSpec  func(AcceptSpec) *poolexp.AcceptSpec
-	MsgFromHireSpec    func(HireSpec) *poolexp.HireSpec
-	MsgFromApplySpec   func(ApplySpec) *poolexp.ApplySpec
-	MsgFromReleaseSpec func(ReleaseSpec) *poolexp.ReleaseSpec
-	MsgFromDetachSpec  func(DetachSpec) *poolexp.DetachSpec
+	MsgFromAcquireSpec func(AcquireSpec) *termexp.AcquireSpec
+	MsgFromAcceptSpec  func(AcceptSpec) *termexp.AcceptSpec
+	MsgFromHireSpec    func(HireSpec) *termexp.HireSpec
+	MsgFromApplySpec   func(ApplySpec) *termexp.ApplySpec
+	MsgFromReleaseSpec func(ReleaseSpec) *termexp.ReleaseSpec
+	MsgFromDetachSpec  func(DetachSpec) *termexp.DetachSpec
 
-	MsgToAcquireSpec func(*poolexp.AcquireSpec) (AcquireSpec, error)
-	MsgToAcceptSpec  func(*poolexp.AcceptSpec) (AcceptSpec, error)
-	MsgToHireSpec    func(*poolexp.HireSpec) (HireSpec, error)
-	MsgToApplySpec   func(*poolexp.ApplySpec) (ApplySpec, error)
-	MsgToReleaseSpec func(*poolexp.ReleaseSpec) (ReleaseSpec, error)
-	MsgToDetachSpec  func(*poolexp.DetachSpec) (DetachSpec, error)
+	MsgToAcquireSpec func(*termexp.AcquireSpec) (AcquireSpec, error)
+	MsgToAcceptSpec  func(*termexp.AcceptSpec) (AcceptSpec, error)
+	MsgToHireSpec    func(*termexp.HireSpec) (HireSpec, error)
+	MsgToApplySpec   func(*termexp.ApplySpec) (ApplySpec, error)
+	MsgToReleaseSpec func(*termexp.ReleaseSpec) (ReleaseSpec, error)
+	MsgToDetachSpec  func(*termexp.DetachSpec) (DetachSpec, error)
 )
 
 // goverter:variables

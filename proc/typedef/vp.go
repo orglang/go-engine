@@ -1,7 +1,7 @@
 package typedef
 
 import (
-	"github.com/orglang/go-sdk/adt/descsem"
+	"github.com/orglang/go-sdk/adt/typesem"
 )
 
 type DefSpecVP struct {
@@ -9,6 +9,6 @@ type DefSpecVP struct {
 }
 
 type DefSnapVP struct {
-	DescRef descsem.SemRef `json:"ref"`
+	TypeRef typesem.SemRef `json:"ref"`
 	DefSpec DefSpecVP      `json:"spec"`
 }

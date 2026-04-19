@@ -11,7 +11,7 @@ import (
 	"orglang/go-engine/lib/lf"
 
 	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/semtype"
+	"orglang/go-engine/adt/termsem"
 )
 
 type pgxDAO struct {
@@ -28,16 +28,16 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
+func (dao *pgxDAO) AddRec(source db.Source, rec DecRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
-	refAttr := slog.Any("ref", rec.DescRef)
+	refAttr := slog.Any("ref", rec.TermRef)
 	dto, err := DataFromDecRec(rec)
 	if err != nil {
 		dao.log.Error("model conversion failed", refAttr)
 		return err
 	}
 	args := pgx.NamedArgs{
-		"desc_id":    dto.DescID,
+		"desc_id":    dto.TermID,
 		"liab_var":   dto.LiabVar,
 		"asset_vars": dto.AssetVars,
 	}
@@ -49,10 +49,10 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DecRec) error {
 	return nil
 }
 
-func (dao *pgxDAO) SelectSnap(source db.Source, ref semtype.TypeRef) (DecSnap, error) {
+func (dao *pgxDAO) GetSnap(source db.Source, ref termsem.SemRef) (DecSnap, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("ref", ref)
-	rows, err := ds.Conn.Query(ds.Ctx, selectByRef, ref.TypeID.String())
+	rows, err := ds.Conn.Query(ds.Ctx, selectByRef, ref.TermID.String())
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)
 		return DecSnap{}, err
@@ -68,18 +68,18 @@ func (dao *pgxDAO) SelectSnap(source db.Source, ref semtype.TypeRef) (DecSnap, e
 }
 
 func (dao *pgxDAO) SelectEnv(source db.Source, ids []identity.ADT) (map[identity.ADT]DecRec, error) {
-	decs, err := dao.SelectRecs(source, ids)
+	decs, err := dao.GetRecs(source, ids)
 	if err != nil {
 		return nil, err
 	}
 	env := make(map[identity.ADT]DecRec, len(decs))
 	for _, dec := range decs {
-		env[dec.DescRef.TypeID] = dec
+		env[dec.TermRef.TermID] = dec
 	}
 	return env, nil
 }
 
-func (dao *pgxDAO) SelectRecs(source db.Source, ids []identity.ADT) (_ []DecRec, err error) {
+func (dao *pgxDAO) GetRecs(source db.Source, ids []identity.ADT) (_ []DecRec, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	if len(ids) == 0 {
 		return []DecRec{}, nil
@@ -114,7 +114,7 @@ func (dao *pgxDAO) SelectRecs(source db.Source, ids []identity.ADT) (_ []DecRec,
 	return DataToDecRecs(dtos)
 }
 
-func (dao *pgxDAO) SelectRefs(source db.Source) ([]semtype.TypeRef, error) {
+func (dao *pgxDAO) GetRefs(source db.Source) ([]termsem.SemRef, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	query := `
 		select
@@ -126,17 +126,17 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]semtype.TypeRef, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[semtype.SemRefDS])
+	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[termsem.SemRefDS])
 	if err != nil {
 		dao.log.Error("rows scanning failed")
 		return nil, err
 	}
-	return semtype.DataToRefs(dtos)
+	return termsem.DataToRefs(dtos)
 }
 
 const (
 	insertRec = `
-		insert into proc_decs (
+		insert into proc_term_decs (
 			desc_id, liab_var, asset_vars
 		) values (
 			@desc_id, @liab_var, @asset_vars
@@ -148,7 +148,7 @@ const (
 			ds.desc_rn,
 			pd.liab_var,
 			pd.asset_vars
-		from proc_decs pd
+		from proc_term_decs pd
 		left join desc_sems ds
 			on ds.desc_id = pd.desc_id
 		where pd.desc_id = $1`

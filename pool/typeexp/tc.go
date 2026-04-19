@@ -6,7 +6,7 @@ import (
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/adt/valkey"
 
-	"github.com/orglang/go-sdk/adt/xactexp"
+	"github.com/orglang/go-sdk/pool/typeexp"
 )
 
 func ConvertSpecToRec(s ExpSpec) (ExpRec, error) {
@@ -96,25 +96,25 @@ func ConvertRecToSpec(r ExpRec) ExpSpec {
 	}
 }
 
-func MsgFromExpSpec(s ExpSpec) xactexp.ExpSpec {
+func MsgFromExpSpec(s ExpSpec) typeexp.ExpSpec {
 	switch spec := s.(type) {
 	case OneSpec:
-		return xactexp.ExpSpec{K: xactexp.One}
+		return typeexp.ExpSpec{K: typeexp.One}
 	case LinkSpec:
-		return xactexp.ExpSpec{
-			K:    xactexp.Link,
-			Link: &xactexp.LinkSpec{XactQN: uniqsym.ConvertToString(spec.TypeQN)}}
+		return typeexp.ExpSpec{
+			K:    typeexp.Link,
+			Link: &typeexp.LinkSpec{XactQN: uniqsym.ConvertToString(spec.TypeQN)}}
 	case WithSpec:
-		return xactexp.ExpSpec{
-			K: xactexp.With,
-			With: &xactexp.LaborSpec{
+		return typeexp.ExpSpec{
+			K: typeexp.With,
+			With: &typeexp.LaborSpec{
 				ProcQNs: uniqsym.ConvertToStrings(spec.ProcQNs),
 				ContExp: MsgFromExpSpec(spec.ContExp)},
 		}
 	case PlusSpec:
-		return xactexp.ExpSpec{
-			K: xactexp.Plus,
-			Plus: &xactexp.LaborSpec{
+		return typeexp.ExpSpec{
+			K: typeexp.Plus,
+			Plus: &typeexp.LaborSpec{
 				ProcQNs: uniqsym.ConvertToStrings(spec.ProcQNs),
 				ContExp: MsgFromExpSpec(spec.ContExp)},
 		}
@@ -123,17 +123,17 @@ func MsgFromExpSpec(s ExpSpec) xactexp.ExpSpec {
 	}
 }
 
-func MsgToExpSpec(dto xactexp.ExpSpec) (ExpSpec, error) {
+func MsgToExpSpec(dto typeexp.ExpSpec) (ExpSpec, error) {
 	switch dto.K {
-	case xactexp.One:
+	case typeexp.One:
 		return OneSpec{}, nil
-	case xactexp.Link:
+	case typeexp.Link:
 		xactQN, err := uniqsym.ConvertFromString(dto.Link.XactQN)
 		if err != nil {
 			return nil, err
 		}
 		return LinkSpec{TypeQN: xactQN}, nil
-	case xactexp.Plus:
+	case typeexp.Plus:
 		procQNs, err := uniqsym.ConvertFromStrings(dto.Plus.ProcQNs)
 		if err != nil {
 			return nil, err
@@ -143,7 +143,7 @@ func MsgToExpSpec(dto xactexp.ExpSpec) (ExpSpec, error) {
 			return nil, err
 		}
 		return PlusSpec{ProcQNs: procQNs, ContExp: contExp}, nil
-	case xactexp.With:
+	case typeexp.With:
 		procQNs, err := uniqsym.ConvertFromStrings(dto.With.ProcQNs)
 		if err != nil {
 			return nil, err
@@ -153,55 +153,55 @@ func MsgToExpSpec(dto xactexp.ExpSpec) (ExpSpec, error) {
 			return nil, err
 		}
 		return WithSpec{ProcQNs: procQNs, ContExp: contExp}, nil
-	case xactexp.Up:
+	case typeexp.Up:
 		contExp, err := MsgToExpSpec(dto.Up.ContExp)
 		if err != nil {
 			return nil, err
 		}
 		return UpSpec{ContExp: contExp}, nil
-	case xactexp.Down:
+	case typeexp.Down:
 		contExp, err := MsgToExpSpec(dto.Down.ContExp)
 		if err != nil {
 			return nil, err
 		}
 		return DownSpec{ContExp: contExp}, nil
 	default:
-		panic(xactexp.ErrKindUnexpected(dto.K))
+		panic(typeexp.ErrKindUnexpected(dto.K))
 	}
 }
 
-func msgFromExpRef(ref ExpRef) xactexp.ExpRef {
+func msgFromExpRef(ref ExpRef) typeexp.ExpRef {
 	expVK := valkey.ConvertToInt(ref.Key())
 	switch ref.(type) {
 	case OneRef, OneRec:
-		return xactexp.ExpRef{K: xactexp.One, ExpVK: expVK}
+		return typeexp.ExpRef{K: typeexp.One, ExpVK: expVK}
 	case LinkRef, LinkRec:
-		return xactexp.ExpRef{K: xactexp.Link, ExpVK: expVK}
+		return typeexp.ExpRef{K: typeexp.Link, ExpVK: expVK}
 	case PlusRef, PlusRec:
-		return xactexp.ExpRef{K: xactexp.Plus, ExpVK: expVK}
+		return typeexp.ExpRef{K: typeexp.Plus, ExpVK: expVK}
 	case WithRef, WithRec:
-		return xactexp.ExpRef{K: xactexp.With, ExpVK: expVK}
+		return typeexp.ExpRef{K: typeexp.With, ExpVK: expVK}
 	default:
 		panic(ErrRefTypeUnexpected(ref))
 	}
 }
 
-func msgToExpRef(dto xactexp.ExpRef) (ExpRef, error) {
+func msgToExpRef(dto typeexp.ExpRef) (ExpRef, error) {
 	expVK, err := valkey.ConvertFromInt(dto.ExpVK)
 	if err != nil {
 		return nil, err
 	}
 	switch dto.K {
-	case xactexp.One:
+	case typeexp.One:
 		return OneRef{expVK}, nil
-	case xactexp.Link:
+	case typeexp.Link:
 		return LinkRef{expVK}, nil
-	case xactexp.Plus:
+	case typeexp.Plus:
 		return PlusRef{expVK}, nil
-	case xactexp.With:
+	case typeexp.With:
 		return WithRef{expVK}, nil
 	default:
-		panic(xactexp.ErrKindUnexpected(dto.K))
+		panic(typeexp.ErrKindUnexpected(dto.K))
 	}
 }
 

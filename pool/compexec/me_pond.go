@@ -19,13 +19,13 @@ func newPondBroker(pool pond.Pool, log *slog.Logger) *pondBroker {
 	return &pondBroker{nil, pool, log.With(name)}
 }
 
-func cfgPondBroker(broker Exch, api API) error {
+func cfgPondBroker(broker Broker, api API) error {
 	broker.Subscribe(api)
 	return nil
 }
 
 // for compilation purposes
-func newPondExch() Exch {
+func newPondExch() Broker {
 	return new(pondBroker)
 }
 

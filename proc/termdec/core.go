@@ -9,20 +9,23 @@ import (
 	"orglang/go-engine/lib/db"
 
 	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/semtype"
+	"orglang/go-engine/adt/termsem"
 	"orglang/go-engine/adt/termvar"
+	"orglang/go-engine/adt/typesem"
 	"orglang/go-engine/adt/uniqsym"
+
+	"orglang/go-engine/proc/typedef"
 )
 
 type API interface {
-	Incept(uniqsym.ADT) (semtype.TypeRef, error)
+	Incept(uniqsym.ADT) (termsem.SemRef, error)
 	Create(DecSpec) (DecSnap, error)
-	RetrieveSnap(semtype.TypeRef) (DecSnap, error)
-	RetreiveRefs() ([]semtype.TypeRef, error)
+	RetrieveSnap(termsem.SemRef) (DecSnap, error)
+	RetreiveRefs() ([]termsem.SemRef, error)
 }
 
 type DecSpec struct {
-	DescQN uniqsym.ADT
+	TermQN uniqsym.ADT
 	// endpoint where process acts as a provider
 	LiabVar termvar.VarSpec
 	// endpoints where process acts as a client
@@ -30,23 +33,24 @@ type DecSpec struct {
 }
 
 type DecRec struct {
-	DescRef   semtype.TypeRef
+	TermRef   termsem.SemRef
+	TermQN    uniqsym.ADT
 	LiabVar   termvar.VarRec
 	AssetVars []termvar.VarRec
 }
 
 // aka ExpDec or ExpDecDef without expression
 type DecSnap struct {
-	DescRef   semtype.TypeRef
+	TermRef   termsem.SemRef
 	LiabVar   termvar.VarRec
 	AssetVars []termvar.VarRec
 }
 
 type service struct {
-	procDecs Repo
-	descSems semtype.Repo
-	operator db.Operator
-	log      *slog.Logger
+	termDecRepo Repo
+	typeDefRepo typedef.Repo
+	operator    db.Operator
+	log         *slog.Logger
 }
 
 // for compilation purposes
@@ -54,23 +58,17 @@ func newAPI() API {
 	return new(service)
 }
 
-func newService(procDecs Repo, descSems semtype.Repo, operator db.Operator, log *slog.Logger) *service {
-	return &service{procDecs, descSems, operator, log}
+func newService(termDecRepo Repo, typeDefRepo typedef.Repo, operator db.Operator, log *slog.Logger) *service {
+	return &service{termDecRepo, typeDefRepo, operator, log}
 }
 
-func (s *service) Incept(procQN uniqsym.ADT) (_ semtype.TypeRef, err error) {
+func (s *service) Incept(termQN uniqsym.ADT) (_ termsem.SemRef, err error) {
 	ctx := context.Background()
-	qnAttr := slog.Any("qn", procQN)
-	s.log.Debug("starting inception...", qnAttr)
-	newRef := semtype.NewRef()
-	newDec := DecRec{DescRef: newRef}
-	newDesc := semtype.SemRec{DescRef: newRef, DescQN: procQN, Kind: semtype.Proc}
+	qnAttr := slog.Any("qn", termQN)
+	s.log.Debug("inception started", qnAttr)
+	newDec := DecRec{TermRef: termsem.New(), TermQN: termQN}
 	err = s.operator.Explicit(ctx, func(ds db.Source) error {
-		err = s.descSems.AddRec(ds, newDesc)
-		if err != nil {
-			return err
-		}
-		err = s.procDecs.InsertRec(ds, newDec)
+		err = s.termDecRepo.AddRec(ds, newDec)
 		if err != nil {
 			return err
 		}
@@ -78,23 +76,23 @@ func (s *service) Incept(procQN uniqsym.ADT) (_ semtype.TypeRef, err error) {
 	})
 	if err != nil {
 		s.log.Error("inception failed", qnAttr)
-		return semtype.TypeRef{}, err
+		return termsem.SemRef{}, err
 	}
-	s.log.Debug("inception succeed", qnAttr, slog.Any("ref", newDec.DescRef))
-	return newDec.DescRef, nil
+	s.log.Debug("inception succeed", qnAttr, slog.Any("ref", newDec.TermRef))
+	return newDec.TermRef, nil
 }
 
 func (s *service) Create(spec DecSpec) (_ DecSnap, err error) {
 	ctx := context.Background()
-	qnAttr := slog.Any("qn", spec.DescQN)
+	qnAttr := slog.Any("qn", spec.TermQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	typeQNs := make([]uniqsym.ADT, 0, len(spec.AssetVars)+1)
 	for _, spec := range spec.AssetVars {
 		typeQNs = append(typeQNs, spec.TypeQN)
 	}
-	var typeRefs map[uniqsym.ADT]semtype.TypeRef
+	var typeRefs map[uniqsym.ADT]typesem.SemRef
 	getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
-		typeRefs, err = s.descSems.GetRefsByQNs(ds, append(typeQNs, spec.LiabVar.TypeQN))
+		typeRefs, err = s.typeDefRepo.GetRefsByQNs(ds, append(typeQNs, spec.LiabVar.TypeQN))
 		return err
 	})
 	if getErr != nil {
@@ -105,34 +103,28 @@ func (s *service) Create(spec DecSpec) (_ DecSnap, err error) {
 		ChnlPH:  spec.LiabVar.ChnlPH,
 	}
 	newAssetVars := make([]termvar.VarRec, 0, len(spec.AssetVars))
-	for _, vs := range spec.AssetVars {
+	for _, assetVar := range spec.AssetVars {
 		newAssetVars = append(newAssetVars, termvar.VarRec{
-			TypeRef: typeRefs[vs.TypeQN],
-			ChnlPH:  vs.ChnlPH,
+			TypeRef: typeRefs[assetVar.TypeQN],
+			ChnlPH:  assetVar.ChnlPH,
 		})
 	}
-	newRef := semtype.NewRef()
-	newDesc := semtype.SemRec{DescRef: newRef, DescQN: spec.DescQN, Kind: semtype.Proc}
-	newDec := DecRec{DescRef: newRef, LiabVar: newLiabVar, AssetVars: newAssetVars}
+	newDec := DecRec{TermRef: termsem.New(), TermQN: spec.TermQN, LiabVar: newLiabVar, AssetVars: newAssetVars}
 	transactErr := s.operator.Explicit(ctx, func(ds db.Source) error {
-		err = s.descSems.AddRec(ds, newDesc)
-		if err != nil {
-			return err
-		}
-		return s.procDecs.InsertRec(ds, newDec)
+		return s.termDecRepo.AddRec(ds, newDec)
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", qnAttr)
 		return DecSnap{}, transactErr
 	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", newRef))
-	return DecSnap{DescRef: newRef, LiabVar: newLiabVar, AssetVars: newAssetVars}, nil
+	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", newDec.TermRef))
+	return DecSnap{TermRef: newDec.TermRef, LiabVar: newLiabVar, AssetVars: newAssetVars}, nil
 }
 
-func (s *service) RetrieveSnap(ref semtype.TypeRef) (snap DecSnap, err error) {
+func (s *service) RetrieveSnap(ref termsem.SemRef) (snap DecSnap, err error) {
 	ctx := context.Background()
 	err = s.operator.Implicit(ctx, func(ds db.Source) error {
-		snap, err = s.procDecs.SelectSnap(ds, ref)
+		snap, err = s.termDecRepo.GetSnap(ds, ref)
 		return err
 	})
 	if err != nil {
@@ -142,10 +134,10 @@ func (s *service) RetrieveSnap(ref semtype.TypeRef) (snap DecSnap, err error) {
 	return snap, nil
 }
 
-func (s *service) RetreiveRefs() (refs []semtype.TypeRef, err error) {
+func (s *service) RetreiveRefs() (refs []termsem.SemRef, err error) {
 	ctx := context.Background()
 	err = s.operator.Implicit(ctx, func(ds db.Source) error {
-		refs, err = s.procDecs.SelectRefs(ds)
+		refs, err = s.termDecRepo.GetRefs(ds)
 		return err
 	})
 	if err != nil {

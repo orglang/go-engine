@@ -10,8 +10,8 @@ import (
 	"orglang/go-engine/lib/db"
 	"orglang/go-engine/lib/lf"
 
-	"orglang/go-engine/adt/semtype"
 	"orglang/go-engine/adt/symbol"
+	"orglang/go-engine/adt/typesem"
 	"orglang/go-engine/adt/valkey"
 )
 
@@ -31,7 +31,7 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func (dao *pgxDAO) AddRec(source db.Source, rec ExpRec, ref semtype.TypeRef) (err error) {
+func (dao *pgxDAO) AddRec(source db.Source, rec ExpRec, ref typesem.SemRef) (err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	vkAttr := slog.Any("vk", rec.Key())
 	dto := dataFromExpRec(rec)

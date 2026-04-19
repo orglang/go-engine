@@ -1,9 +1,8 @@
 package commexch
 
 const (
-	commSems  = "comm_sems "
-	poolConns = "pool_conns "
-	poolSteps = "pool_steps "
+	commExchs = "pool_comm_exchs "
+	commTurns = "pool_comm_turns "
 )
 
 type queryBuilder interface {

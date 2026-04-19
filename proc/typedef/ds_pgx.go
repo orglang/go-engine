@@ -11,7 +11,7 @@ import (
 	"orglang/go-engine/lib/lf"
 
 	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/semtype"
+	"orglang/go-engine/adt/typesem"
 	"orglang/go-engine/adt/uniqsym"
 )
 
@@ -31,7 +31,7 @@ func newRepo() Repo {
 
 func (dao *pgxDAO) InsertRec(source db.Source, rec DefRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
-	idAttr := slog.Any("typeID", rec.DescRef.TypeID)
+	idAttr := slog.Any("typeID", rec.TypeRef.TypeID)
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity insertion started", idAttr)
 	dto, err := DataFromDefRec(rec)
 	if err != nil {
@@ -39,7 +39,7 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DefRec) error {
 		return err
 	}
 	args := pgx.NamedArgs{
-		"desc_id": dto.DescID,
+		"desc_id": dto.TypeID,
 		"exp_vk":  dto.ExpVK,
 	}
 	_, err = ds.Conn.Exec(ds.Ctx, insertRec, args)
@@ -53,7 +53,7 @@ func (dao *pgxDAO) InsertRec(source db.Source, rec DefRec) error {
 
 func (dao *pgxDAO) Update(source db.Source, rec DefRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
-	idAttr := slog.Any("typeID", rec.DescRef.TypeID)
+	idAttr := slog.Any("typeID", rec.TypeRef.TypeID)
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity update started", idAttr)
 	dto, err := DataFromDefRec(rec)
 	if err != nil {
@@ -61,7 +61,7 @@ func (dao *pgxDAO) Update(source db.Source, rec DefRec) error {
 		return err
 	}
 	args := pgx.NamedArgs{
-		"desc_id": dto.DescID,
+		"desc_id": dto.TypeID,
 		"exp_vk":  dto.ExpVK,
 	}
 	ct, err := ds.Conn.Exec(ds.Ctx, updateRec, args)
@@ -71,13 +71,13 @@ func (dao *pgxDAO) Update(source db.Source, rec DefRec) error {
 	}
 	if ct.RowsAffected() == 0 {
 		dao.log.Error("entity update failed", idAttr)
-		return errOptimisticUpdate(rec.DescRef.TypeRN - 1)
+		return errOptimisticUpdate(rec.TypeRef.TypeRN - 1)
 	}
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity update succeed", idAttr)
 	return nil
 }
 
-func (dao *pgxDAO) SelectRefs(source db.Source) ([]semtype.TypeRef, error) {
+func (dao *pgxDAO) GetRefs(source db.Source) ([]typesem.SemRef, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	rows, err := ds.Conn.Query(ds.Ctx, selectRefs)
 	if err != nil {
@@ -85,16 +85,20 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]semtype.TypeRef, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[semtype.SemRefDS])
+	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[typesem.SemRefDS])
 	if err != nil {
 		dao.log.Error("rows scanning failed")
 		return nil, err
 	}
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "entities selection succeed", slog.Any("dtos", dtos))
-	return semtype.DataToRefs(dtos)
+	return typesem.DataToRefs(dtos)
 }
 
-func (dao *pgxDAO) SelectRecByRef(source db.Source, ref semtype.TypeRef) (DefRec, error) {
+func (dao *pgxDAO) GetRefsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]typesem.SemRef, error) {
+	panic("unimplemented")
+}
+
+func (dao *pgxDAO) GetRecByRef(source db.Source, ref typesem.SemRef) (DefRec, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("ref", ref)
 	rows, err := ds.Conn.Query(ds.Ctx, selectRecByID, ref.TypeID.String())
@@ -112,7 +116,7 @@ func (dao *pgxDAO) SelectRecByRef(source db.Source, ref semtype.TypeRef) (DefRec
 	return DataToDefRec(dto)
 }
 
-func (dao *pgxDAO) SelectRecByQN(source db.Source, typeQN uniqsym.ADT) (DefRec, error) {
+func (dao *pgxDAO) GetRecByQN(source db.Source, typeQN uniqsym.ADT) (DefRec, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	qnAttr := slog.Any("typeQN", typeQN)
 	rows, err := ds.Conn.Query(ds.Ctx, selectRecByQN, uniqsym.ConvertToString(typeQN))
@@ -130,7 +134,7 @@ func (dao *pgxDAO) SelectRecByQN(source db.Source, typeQN uniqsym.ADT) (DefRec, 
 	return DataToDefRec(dto)
 }
 
-func (dao *pgxDAO) SelectRecsByRefs(source db.Source, refs []semtype.TypeRef) (_ []DefRec, err error) {
+func (dao *pgxDAO) GetRecsByRefs(source db.Source, refs []typesem.SemRef) (_ []DefRec, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	if len(refs) == 0 {
 		return []DefRec{}, nil
@@ -166,7 +170,7 @@ func (dao *pgxDAO) SelectRecsByRefs(source db.Source, refs []semtype.TypeRef) (_
 }
 
 func (dao *pgxDAO) SelectEnv(source db.Source, typeQNs []uniqsym.ADT) (map[uniqsym.ADT]DefRec, error) {
-	recs, err := dao.SelectRecsByQNs(source, typeQNs)
+	recs, err := dao.GetRecsByQNs(source, typeQNs)
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +181,7 @@ func (dao *pgxDAO) SelectEnv(source db.Source, typeQNs []uniqsym.ADT) (map[uniqs
 	return env, nil
 }
 
-func (dao *pgxDAO) SelectRecsByQNs(source db.Source, typeQNs []uniqsym.ADT) (_ []DefRec, err error) {
+func (dao *pgxDAO) GetRecsByQNs(source db.Source, typeQNs []uniqsym.ADT) (_ []DefRec, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	if len(typeQNs) == 0 {
 		return []DefRec{}, nil
@@ -211,14 +215,14 @@ func (dao *pgxDAO) SelectRecsByQNs(source db.Source, typeQNs []uniqsym.ADT) (_ [
 
 const (
 	insertRec = `
-		insert into type_defs (
+		insert into proc_type_defs (
 			desc_id, exp_vk
 		) values (
 			@desc_id, @exp_vk
 		)`
 
 	updateRec = `
-		update type_defs
+		update proc_type_defs
 		set def_rn = @def_rn,
 			exp_vk = @exp_vk
 		where desc_id = @desc_id
@@ -229,7 +233,7 @@ const (
 			td.desc_id,
 			td.exp_vk,
 			de.desc_rn
-		from type_defs td
+		from proc_type_defs td
 		left join desc_sems de
 			on de.desc_id = td.desc_id
 		left join desc_binds db
@@ -241,7 +245,7 @@ const (
 			td.desc_id,
 			td.exp_vk,
 			de.desc_rn
-		from type_defs td
+		from proc_type_defs td
 		left join desc_sems de
 			on de.desc_id = td.desc_id
 		where td.desc_id = $1`
@@ -250,5 +254,5 @@ const (
 		select
 			desc_id,
 			def_rn
-		from type_defs`
+		from proc_type_defs`
 )

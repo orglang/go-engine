@@ -11,7 +11,7 @@ import (
 	"orglang/go-engine/lib/lf"
 
 	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/semtype"
+	"orglang/go-engine/adt/typesem"
 	"orglang/go-engine/adt/uniqsym"
 )
 
@@ -33,36 +33,33 @@ func newRepo() Repo {
 func (dao *pgxDAO) AddRec(source db.Source, rec DefRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("ref", rec.TypeRef)
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity insertion started", refAttr)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "addition started", refAttr)
 	dto, convErr := DataFromDefRec(rec)
 	if convErr != nil {
 		dao.log.Error("model conversion failed", refAttr)
 		return convErr
 	}
-	args := pgx.NamedArgs{
-		"desc_id": dto.DescID,
-		"exp_vk":  dto.ExpVK,
-	}
-	_, execErr := ds.Conn.Exec(ds.Ctx, insertRec, args)
+	sql, args := dao.qb.insertRec(dto)
+	_, execErr := ds.Conn.Exec(ds.Ctx, sql, args...)
 	if execErr != nil {
-		dao.log.Error("query execution failed", refAttr)
+		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
 		return execErr
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity insertion succeed", refAttr)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "addition succeed", refAttr)
 	return nil
 }
 
 func (dao *pgxDAO) Update(source db.Source, rec DefRec) error {
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("ref", rec.TypeRef)
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity update started", refAttr)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "update started", refAttr)
 	dto, convErr := DataFromDefRec(rec)
 	if convErr != nil {
 		dao.log.Error("model conversion failed", refAttr)
 		return convErr
 	}
 	args := pgx.NamedArgs{
-		"desc_id": dto.DescID,
+		"desc_id": dto.TypeID,
 		"exp_vk":  dto.ExpVK,
 	}
 	_, execErr := ds.Conn.Exec(ds.Ctx, updateRec, args)
@@ -70,11 +67,11 @@ func (dao *pgxDAO) Update(source db.Source, rec DefRec) error {
 		dao.log.Error("query execution failed", refAttr)
 		return execErr
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity update succeed", refAttr)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "update succeed", refAttr)
 	return nil
 }
 
-func (dao *pgxDAO) SelectRefs(source db.Source) ([]semtype.TypeRef, error) {
+func (dao *pgxDAO) SelectRefs(source db.Source) ([]typesem.SemRef, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	rows, err := ds.Conn.Query(ds.Ctx, selectRefs)
 	if err != nil {
@@ -82,16 +79,16 @@ func (dao *pgxDAO) SelectRefs(source db.Source) ([]semtype.TypeRef, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[semtype.SemRefDS])
+	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[typesem.SemRefDS])
 	if err != nil {
 		dao.log.Error("rows scanning failed")
 		return nil, err
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "entities selection succeed", slog.Any("dtos", dtos))
-	return semtype.DataToRefs(dtos)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "getting succeed", slog.Any("dtos", dtos))
+	return typesem.DataToRefs(dtos)
 }
 
-func (dao *pgxDAO) SelectRecByRef(source db.Source, ref semtype.TypeRef) (DefRec, error) {
+func (dao *pgxDAO) SelectRecByRef(source db.Source, ref typesem.SemRef) (DefRec, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("defRef", ref)
 	rows, err := ds.Conn.Query(ds.Ctx, selectRecByID, ref.TypeID.String())
@@ -105,7 +102,7 @@ func (dao *pgxDAO) SelectRecByRef(source db.Source, ref semtype.TypeRef) (DefRec
 		dao.log.Error("row scanning failed", refAttr)
 		return DefRec{}, err
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity selection succeed", refAttr)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "getting succeed", refAttr)
 	return DataToDefRec(dto)
 }
 
@@ -123,11 +120,11 @@ func (dao *pgxDAO) SelectRecByQN(source db.Source, xactQN uniqsym.ADT) (DefRec, 
 		dao.log.Error("row scanning failed", qnAttr)
 		return DefRec{}, err
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "entity selection succeed", qnAttr)
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "getting succeed", qnAttr)
 	return DataToDefRec(dto)
 }
 
-func (dao *pgxDAO) SelectRecsByRefs(source db.Source, refs []semtype.TypeRef) (_ []DefRec, err error) {
+func (dao *pgxDAO) SelectRecsByRefs(source db.Source, refs []typesem.SemRef) (_ []DefRec, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	if len(refs) == 0 {
 		return []DefRec{}, nil
@@ -158,27 +155,27 @@ func (dao *pgxDAO) SelectRecsByRefs(source db.Source, refs []semtype.TypeRef) (_
 	if err != nil {
 		return nil, err
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "entities selection succeed", slog.Any("dtos", dtos))
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "getting succeed", slog.Any("dtos", dtos))
 	return DataToDefRecs(dtos)
 }
 
-func (dao *pgxDAO) GetRecsByQNs(source db.Source, xactQNs []uniqsym.ADT) (_ map[uniqsym.ADT]DefRec, err error) {
+func (dao *pgxDAO) GetRecsByQNs(source db.Source, typeQNs []uniqsym.ADT) (_ map[uniqsym.ADT]DefRec, err error) {
 	ds := db.MustConform[db.SourcePgx](source)
-	if len(xactQNs) == 0 {
+	if len(typeQNs) == 0 {
 		return map[uniqsym.ADT]DefRec{}, nil
 	}
 	batch := pgx.Batch{}
 	sql := dao.qb.selectRecByQN()
-	for _, xactQN := range xactQNs {
-		batch.Queue(sql, uniqsym.ConvertToString(xactQN))
+	for _, typeQN := range typeQNs {
+		batch.Queue(sql, uniqsym.ConvertToString(typeQN))
 	}
 	br := ds.Conn.SendBatch(ds.Ctx, &batch)
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	dtos := make(map[uniqsym.ADT]defRecDS, len(xactQNs))
-	for _, xactQN := range xactQNs {
-		qnAttr := slog.Any("qn", xactQN)
+	dtos := make(map[uniqsym.ADT]defRecDS, len(typeQNs))
+	for _, typeQN := range typeQNs {
+		qnAttr := slog.Any("qn", typeQN)
 		rows, readErr := br.Query()
 		if readErr != nil {
 			dao.log.Error("query execution failed", qnAttr, slog.Any("sql", sql))
@@ -189,22 +186,15 @@ func (dao *pgxDAO) GetRecsByQNs(source db.Source, xactQNs []uniqsym.ADT) (_ map[
 			dao.log.Error("row scanning failed", qnAttr)
 			return map[uniqsym.ADT]DefRec{}, scanErr
 		}
-		dtos[xactQN] = dto
+		dtos[typeQN] = dto
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "selection succeed", slog.Any("dtos", dtos))
+	dao.log.Log(ds.Ctx, lf.LevelTrace, "getting succeed", slog.Any("dtos", dtos))
 	return DataToDefRecMap(dtos)
 }
 
 const (
-	insertRec = `
-		insert into xact_defs (
-			desc_id, exp_vk
-		) values (
-			@desc_id, @exp_vk
-		)`
-
 	updateRec = `
-		update xact_defs
+		update pool_type_defs
 		set def_rn = @def_rn,
 			exp_vk = @exp_vk
 		where desc_id = @desc_id
@@ -214,14 +204,14 @@ const (
 		select
 			desc_id,
 			def_rn
-		from xact_defs`
+		from pool_type_defs`
 
 	selectRecByQN = `
 		select
 			xd.desc_id,
 			xd.def_rn,
 			xd.exp_vk
-		from xact_defs xd
+		from pool_type_defs xd
 		left join desc_binds db
 			on db.desc_id = xd.desc_id
 		where db.desc_qn = $1`
@@ -231,6 +221,6 @@ const (
 			desc_id,
 			def_rn,
 			exp_vk
-		from xact_defs
+		from pool_type_defs
 		where desc_id = $1`
 )

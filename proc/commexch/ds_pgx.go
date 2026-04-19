@@ -2,7 +2,7 @@ package commexch
 
 import (
 	"log/slog"
-	"orglang/go-engine/adt/semcomm"
+	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/lib/db"
 	"reflect"
@@ -26,7 +26,7 @@ func (dao *pgxDAO) InsertRec(db.Source, ExchRec) error {
 	panic("unimplemented")
 }
 
-func (dao *pgxDAO) SelectRefsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]semcomm.CommRef, error) {
+func (dao *pgxDAO) SelectRefsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]commsem.SemRef, error) {
 	panic("unimplemented")
 }
 

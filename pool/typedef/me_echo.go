@@ -7,11 +7,11 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/orglang/go-sdk/adt/xactdef"
+	"github.com/orglang/go-sdk/pool/typedef"
 
 	"orglang/go-engine/lib/lf"
 
-	"orglang/go-engine/adt/semtype"
+	"orglang/go-engine/adt/typesem"
 )
 
 // Server-side primary adapter
@@ -31,7 +31,7 @@ func cfgEchoController(e *echo.Echo, h *echoController) error {
 }
 
 func (h *echoController) PostSpec(c echo.Context) error {
-	var dto xactdef.DefSpec
+	var dto typedef.DefSpec
 	bindErr := c.Bind(&dto)
 	if bindErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
@@ -54,5 +54,5 @@ func (h *echoController) PostSpec(c echo.Context) error {
 		return createErr
 	}
 	h.log.Log(ctx, lf.LevelTrace, "posting succeed", slog.Any("ref", ref))
-	return c.JSON(http.StatusCreated, semtype.MsgFromRef(ref))
+	return c.JSON(http.StatusCreated, typesem.MsgFromRef(ref))
 }

@@ -38,7 +38,7 @@ func (dao *pgxDAO) InsertRecs(source db.Source, recs ...TurnRec) error {
 	for _, dto := range dtos {
 		args := pgx.NamedArgs{
 			"kind":    dto.K,
-			"impl_id": dto.ExecID,
+			"comp_id": dto.ExecID,
 			"chnl_id": dto.ChnlID,
 			"proc_er": dto.ProcER,
 		}
@@ -96,7 +96,7 @@ func (dao *pgxDAO) execute(source db.Source, query string, arg string) (TurnRec,
 
 const (
 	insertStep = `
-		insert into pool_steps (
+		insert into pool_comm_turns (
 			id, kind, pid, vid, spec
 		) values (
 			@id, @kind, @pid, @vid, @spec

@@ -5,8 +5,8 @@ import (
 )
 
 type VarRecDS struct {
-	ImplID sql.NullString `db:"impl_id"`
-	ImplRN sql.NullInt64  `db:"impl_rn"`
+	CompID sql.NullString `db:"comp_id"`
+	CompRN sql.NullInt64  `db:"comp_rn"`
 	CommID sql.NullString `db:"comm_id"`
 	ChnlID sql.NullString `db:"chnl_id"`
 	ChnlPH sql.NullString `db:"chnl_ph"`

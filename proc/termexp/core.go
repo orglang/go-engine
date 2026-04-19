@@ -3,8 +3,8 @@ package termexp
 import (
 	"fmt"
 
+	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/semcomm"
 	"orglang/go-engine/adt/symbol"
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/adt/valkey"
@@ -59,7 +59,7 @@ func (s CaseSpec) Via() symbol.ADT { return s.CommChnlPH }
 
 // aka ExpName
 type LinkSpec struct {
-	ProcDescQN uniqsym.ADT
+	ProcTermQN uniqsym.ADT
 	X          identity.ADT
 	Ys         []identity.ADT
 }
@@ -76,7 +76,7 @@ func (s FwdSpec) Via() symbol.ADT { return s.CommChnlPH }
 type CallSpec struct {
 	CommChnlPH symbol.ADT // TODO удалить
 	NewChnlPH  symbol.ADT
-	ProcDescQN uniqsym.ADT
+	ProcTermQN uniqsym.ADT
 	ValChnlPHs []symbol.ADT // channel bulk
 	ContES     ExpSpec
 }
@@ -85,7 +85,7 @@ func (s CallSpec) Via() symbol.ADT { return s.CommChnlPH }
 
 type SpawnSpec struct {
 	CommChnlPH symbol.ADT
-	ProcDescQN uniqsym.ADT
+	ProcTermQN uniqsym.ADT
 	NewChnlPHs []symbol.ADT
 	ContES     ExpSpec
 }
@@ -145,7 +145,7 @@ type SendRec struct {
 	ContChnlID identity.ADT
 	ValChnlID  identity.ADT
 	ValExpVK   valkey.ADT
-	CommRef    semcomm.CommRef
+	CommRef    commsem.SemRef
 }
 
 func (r SendRec) Via() symbol.ADT { return r.CommChnlPH }

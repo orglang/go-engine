@@ -7,9 +7,9 @@ import (
 
 	"orglang/go-engine/lib/db"
 
+	"orglang/go-engine/adt/commsem"
+	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/semcomm"
-	"orglang/go-engine/adt/semcomp"
 	"orglang/go-engine/pool/compvar"
 	"orglang/go-engine/pool/termexp"
 	"orglang/go-engine/proc/compexec"
@@ -27,8 +27,8 @@ type TurnRec interface {
 // publication (aka msg)
 type PubRec struct {
 	// совпадает со значением в SubRec
-	CommRef semcomm.CommRef
-	CompRef semcomp.CompRef
+	CommRef commsem.SemRef
+	CompRef compsem.SemRef
 	ChnlID  identity.ADT
 	ValExp  termexp.ExpRec
 }
@@ -38,8 +38,8 @@ func (r PubRec) turn() {}
 // subscription (aka srv)
 type SubRec struct {
 	// совпадает со значением в PubRec
-	CommRef semcomm.CommRef
-	CompRef semcomp.CompRef
+	CommRef commsem.SemRef
+	CompRef compsem.SemRef
 	ChnlID  identity.ADT
 	ContExp termexp.ExpRec
 }

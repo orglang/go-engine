@@ -7,9 +7,9 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	sdk "github.com/orglang/go-sdk/adt/poolstep"
+	sdk "github.com/orglang/go-sdk/pool/compstep"
 
-	"orglang/go-engine/adt/semcomp"
+	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/pool/compstep"
 )
 
@@ -75,5 +75,5 @@ func (c *echoController) PostSpec3(ctx echo.Context) error {
 	if apiErr != nil {
 		return apiErr
 	}
-	return ctx.JSON(http.StatusCreated, semcomp.MsgFromRef(ref))
+	return ctx.JSON(http.StatusCreated, compsem.MsgFromRef(ref))
 }

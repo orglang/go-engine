@@ -4,7 +4,7 @@ package commexch
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/seqnum:Convert.*
-// goverter:extend orglang/go-engine/pool/exchstep:Data.*
+// goverter:extend orglang/go-engine/pool/commturn:Data.*
 var (
 	// goverter:autoMap CommRef
 	DataFromRec func(ExchRec) exchRecDS

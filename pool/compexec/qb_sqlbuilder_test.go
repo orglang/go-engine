@@ -2,12 +2,12 @@ package compexec
 
 import (
 	"fmt"
-	"orglang/go-engine/adt/semcomp"
+	"orglang/go-engine/adt/compsem"
 	"testing"
 )
 
 func TestSelectSnap(t *testing.T) {
 	qb := newSQLBuilder()
-	sql, _ := qb.selectRecByRef(semcomp.CompRefDS{})
+	sql, _ := qb.selectRecByRef(compsem.SemRefDS{})
 	fmt.Println(sql)
 }

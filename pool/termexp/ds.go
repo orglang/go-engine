@@ -20,7 +20,7 @@ type upSpecDS struct {
 
 type laborSpecDS struct {
 	CommChnlPH string    `json:"ph"`
-	ProcDescQN string    `json:"qn"`
+	ProcTermQN string    `json:"qn"`
 	ContExp    ExpSpecDS `json:"exp"`
 }
 
@@ -57,7 +57,7 @@ type upRecDS struct {
 
 type laborRecDS struct {
 	ContChnlID string    `json:"id"`
-	ProcDescQN string    `json:"qn"`
+	ProcTermQN string    `json:"qn"`
 	ContExp    ExpSpecDS `json:"exp"`
 }
 

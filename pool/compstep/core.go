@@ -1,11 +1,11 @@
 package compstep
 
 import (
-	"orglang/go-engine/adt/semcomp"
+	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/pool/termexp"
 )
 
 type StepSpec struct {
-	CompRef semcomp.CompRef
+	CompRef compsem.SemRef
 	PoolExp termexp.ExpSpec
 }

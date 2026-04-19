@@ -9,12 +9,11 @@ import (
 	"orglang/go-engine/lib/wp"
 	"orglang/go-engine/lib/ws"
 
-	"orglang/go-engine/adt/poolexec"
 	"orglang/go-engine/pool/commexch"
 	"orglang/go-engine/pool/commturn"
 	poolconfexec "orglang/go-engine/pool/compexec"
 	"orglang/go-engine/pool/compvar"
-	pooltermdef "orglang/go-engine/pool/termdec"
+	pooltermdef "orglang/go-engine/pool/termdef"
 	pooltypedef "orglang/go-engine/pool/typedef"
 	pooltypeexp "orglang/go-engine/pool/typeexp"
 	proccommexch "orglang/go-engine/proc/commexch"
@@ -40,7 +39,6 @@ func main() {
 		pooltypeexp.Module,
 		commexch.Module,
 		pooltermdef.Module,
-		poolexec.Module,
 		poolconfexec.Module,
 		commturn.Module,
 		compvar.Module,

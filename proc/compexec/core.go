@@ -10,12 +10,11 @@ import (
 
 	"orglang/go-engine/lib/db"
 
+	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/adt/compvar"
 	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/option"
 	"orglang/go-engine/adt/polarity"
-	"orglang/go-engine/adt/semcomp"
-	"orglang/go-engine/adt/semterm"
 	"orglang/go-engine/adt/seqnum"
 	"orglang/go-engine/adt/symbol"
 	"orglang/go-engine/adt/uniqsym"
@@ -32,17 +31,17 @@ import (
 
 type API interface {
 	Take(compstep.StepSpec) error
-	RetrieveSnap(semterm.TermRef) (ExecSnap, error)
+	RetrieveSnap(compsem.SemRef) (ExecSnap, error)
 }
 
 type ExecRec struct {
-	CompRef  semcomp.CompRef
+	CompRef  compsem.SemRef
 	LiabMode compvar.Mode
 }
 
 // aka Configuration
 type ExecSnap struct {
-	CompRef    semterm.TermRef
+	CompRef    compsem.SemRef
 	LinearVars map[symbol.ADT]compvar.LinearRec
 }
 
@@ -55,7 +54,7 @@ type Env struct {
 func ChnlPH(rec compvar.LinearRec) symbol.ADT { return rec.ChnlPH }
 
 type ExecMod struct {
-	CompRefs   []semterm.TermRef
+	CompRefs   []compsem.SemRef
 	LinearVars []compvar.LinearRec
 }
 
@@ -87,7 +86,7 @@ func newService(
 	return &service{compExecs, commExchs, termDecs, typeDefs, typeExps, operator, l.With(name)}
 }
 
-func (s *service) RetrieveSnap(ref semterm.TermRef) (_ ExecSnap, err error) {
+func (s *service) RetrieveSnap(ref compsem.SemRef) (_ ExecSnap, err error) {
 	return ExecSnap{}, nil
 }
 
@@ -200,12 +199,12 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed", implAttr)
 			return compstep.StepSpec{}, connMod, ExecMod{}, termdef.ErrMissingInCfg(expSpec.CommChnlPH)
 		}
-		commAttr := slog.Any("comm", commChnl.ExchRef)
+		commAttr := slog.Any("comm", commChnl.CommRef)
 		// получаем снепшот соединения
 		var connSnap commexch.ExchSnap
 		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
 			connSnap, err = s.commExchs.SelectSnapByQry(ds, commexch.ExchQry{
-				CommRef: commChnl.ExchRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
@@ -216,8 +215,8 @@ func (s *service) takeWith(
 		}
 		// обнуляем канал закрывателя
 		execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-			TermRef: commChnl.TermRef,
-			ExchRef: commChnl.ExchRef,
+			CompRef: commChnl.CompRef,
+			CommRef: commChnl.CommRef,
 			ChnlID:  identity.Nil,
 			ChnlPH:  commChnl.ChnlPH,
 			ChnlBS:  commChnl.ChnlBS,
@@ -228,7 +227,7 @@ func (s *service) takeWith(
 			// регистрируем сообщение закрывателя
 			connMod.Turns = append(connMod.Turns, commturn.PubRec{
 				CommRef: connSnap.CommRef,
-				ImplRef: execSnap.CompRef,
+				CompRef: execSnap.CompRef,
 				ChnlID:  commChnl.ChnlID,
 				ValExp:  termexp.CloseRec(expSpec),
 			})
@@ -242,7 +241,7 @@ func (s *service) takeWith(
 		switch contExp := observation.ContExp.(type) {
 		case termexp.WaitRec:
 			stepSpec = compstep.StepSpec{
-				CompRef: observation.ImplRef,
+				CompRef: observation.CompRef,
 				ProcExp: contExp.ContES,
 			}
 			s.log.Debug("step taking succeed", implAttr, commAttr)
@@ -258,8 +257,8 @@ func (s *service) takeWith(
 		}
 		// обнуляем канал наблюдателя
 		execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-			TermRef: commChnl.TermRef,
-			ExchRef: commChnl.ExchRef,
+			CompRef: commChnl.CompRef,
+			CommRef: commChnl.CommRef,
 			ChnlID:  identity.Nil,
 			ChnlPH:  commChnl.ChnlPH,
 			ChnlBS:  commChnl.ChnlBS,
@@ -269,7 +268,7 @@ func (s *service) takeWith(
 		var connSnap commexch.ExchSnap
 		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
 			connSnap, err = s.commExchs.SelectSnapByQry(ds, commexch.ExchQry{
-				CommRef: commChnl.ExchRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
@@ -283,7 +282,7 @@ func (s *service) takeWith(
 			// регистрируем подписку наблюдателя
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
 				CommRef: connSnap.CommRef,
-				ImplRef: execSnap.CompRef,
+				CompRef: execSnap.CompRef,
 				ChnlID:  commChnl.ChnlID,
 				ContExp: termexp.WaitRec(expSpec),
 			})
@@ -305,8 +304,8 @@ func (s *service) takeWith(
 		case termexp.FwdRec:
 			// перенаправляем продолжение наблюдателя
 			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-				TermRef: execSnap.CompRef,
-				ExchRef: connSnap.CommRef,
+				CompRef: execSnap.CompRef,
+				CommRef: connSnap.CommRef,
 				ChnlID:  valExp.ContChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -330,8 +329,8 @@ func (s *service) takeWith(
 		}
 		// лишаем значения отправителя
 		execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-			TermRef: commChnl.TermRef,
-			ExchRef: commChnl.ExchRef,
+			CompRef: commChnl.CompRef,
+			CommRef: commChnl.CommRef,
 			ChnlID:  commChnl.ChnlID,
 			ChnlPH:  expSpec.ValChnlPH,
 			ChnlBS:  commChnl.ChnlBS,
@@ -352,7 +351,7 @@ func (s *service) takeWith(
 		var connSnap commexch.ExchSnap
 		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
 			connSnap, err = s.commExchs.SelectSnapByQry(ds, commexch.ExchQry{
-				CommRef: commChnl.ExchRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
@@ -366,8 +365,8 @@ func (s *service) takeWith(
 			newChnlID := identity.New()
 			// вяжем продолжение отправителя
 			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-				TermRef: commChnl.TermRef,
-				ExchRef: commChnl.ExchRef,
+				CompRef: commChnl.CompRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  newChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -376,7 +375,7 @@ func (s *service) takeWith(
 			// регистрируем сообщение отправителя
 			connMod.Turns = append(connMod.Turns, commturn.PubRec{
 				CommRef: connSnap.CommRef,
-				ImplRef: execSnap.CompRef,
+				CompRef: execSnap.CompRef,
 				ChnlID:  commChnl.ChnlID,
 				ValExp: termexp.SendRec{
 					CommChnlPH: commChnl.ChnlPH,
@@ -396,8 +395,8 @@ func (s *service) takeWith(
 		case termexp.RecvRec:
 			// вяжем продолжение отправителя
 			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-				TermRef: commChnl.TermRef,
-				ExchRef: commChnl.ExchRef,
+				CompRef: commChnl.CompRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  contExp.ContChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -405,15 +404,15 @@ func (s *service) takeWith(
 			})
 			// вяжем значение принимателя
 			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-				TermRef: receival.ImplRef,
-				ExchRef: valChnl.ExchRef,
+				CompRef: receival.CompRef,
+				CommRef: valChnl.CommRef,
 				ChnlID:  valChnl.ChnlID,
 				ChnlPH:  contExp.NewChnlPH,
 				ChnlBS:  valChnl.ChnlBS,
 				ExpVK:   valChnl.ExpVK,
 			})
 			stepSpec = compstep.StepSpec{
-				CompRef: receival.ImplRef,
+				CompRef: receival.CompRef,
 				ProcExp: contExp.ContES,
 			}
 			s.log.Debug("step taking succeed", implAttr)
@@ -437,7 +436,7 @@ func (s *service) takeWith(
 		var connSnap commexch.ExchSnap
 		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
 			connSnap, err = s.commExchs.SelectSnapByQry(ds, commexch.ExchQry{
-				CommRef: commChnl.ExchRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
@@ -451,8 +450,8 @@ func (s *service) takeWith(
 			newChnlID := identity.New()
 			// вяжем продолжение принимателя
 			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-				TermRef: commChnl.TermRef,
-				ExchRef: commChnl.ExchRef,
+				CompRef: commChnl.CompRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  newChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -461,7 +460,7 @@ func (s *service) takeWith(
 			// регистрируем подписку принимателя
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
 				CommRef: connSnap.CommRef,
-				ImplRef: execSnap.CompRef,
+				CompRef: execSnap.CompRef,
 				ChnlID:  commChnl.ChnlID,
 				ContExp: termexp.RecvRec{
 					CommChnlPH: commChnl.ChnlPH,
@@ -481,8 +480,8 @@ func (s *service) takeWith(
 		case termexp.SendRec:
 			// вяжем продолжение принимателя
 			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-				TermRef: commChnl.TermRef,
-				ExchRef: commChnl.ExchRef,
+				CompRef: commChnl.CompRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  valExp.ContChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -490,8 +489,8 @@ func (s *service) takeWith(
 			})
 			// вяжем значение принимателя
 			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-				TermRef: commChnl.TermRef,
-				ExchRef: valExp.CommRef,
+				CompRef: commChnl.CompRef,
+				CommRef: valExp.CommRef,
 				ChnlID:  valExp.ValChnlID,
 				ChnlPH:  expSpec.NewChnlPH,
 				ChnlBS:  compvar.AssetSide,
@@ -523,7 +522,7 @@ func (s *service) takeWith(
 		var connSnap commexch.ExchSnap
 		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
 			connSnap, err = s.commExchs.SelectSnapByQry(ds, commexch.ExchQry{
-				CommRef: commChnl.ExchRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
@@ -537,8 +536,8 @@ func (s *service) takeWith(
 			newChnlID := identity.New()
 			// вяжем продолжение решателя
 			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-				TermRef: commChnl.TermRef,
-				ExchRef: commChnl.ExchRef,
+				CompRef: commChnl.CompRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  newChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -547,7 +546,7 @@ func (s *service) takeWith(
 			// регистрируем сообщение решателя
 			connMod.Turns = append(connMod.Turns, commturn.PubRec{
 				CommRef: connSnap.CommRef,
-				ImplRef: execSnap.CompRef,
+				CompRef: execSnap.CompRef,
 				ChnlID:  commChnl.ChnlID,
 				ValExp: termexp.LabRec{
 					CommChnlPH: commChnl.ChnlPH,
@@ -566,8 +565,8 @@ func (s *service) takeWith(
 		case termexp.CaseRec:
 			// вяжем продолжение решателя
 			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-				TermRef: commChnl.TermRef,
-				ExchRef: commChnl.ExchRef,
+				CompRef: commChnl.CompRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  contExp.ContChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -575,15 +574,15 @@ func (s *service) takeWith(
 			})
 			// вяжем продолжение последователя
 			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-				TermRef: folowing.ImplRef,
-				ExchRef: folowing.CommRef,
+				CompRef: folowing.CompRef,
+				CommRef: folowing.CommRef,
 				ChnlID:  contExp.ContChnlID,
 				ChnlPH:  contExp.CommChnlPH,
 				// TODO значение ChnlBS
 				ExpVK: nextExpVK,
 			})
 			stepSpec = compstep.StepSpec{
-				CompRef: folowing.ImplRef,
+				CompRef: folowing.CompRef,
 				ProcExp: contExp.ContESs[expSpec.ValLabQN],
 			}
 			s.log.Debug("step taking succeed", implAttr)
@@ -602,7 +601,7 @@ func (s *service) takeWith(
 		var connSnap commexch.ExchSnap
 		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
 			connSnap, err = s.commExchs.SelectSnapByQry(ds, commexch.ExchQry{
-				CommRef: commChnl.ExchRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
@@ -616,8 +615,8 @@ func (s *service) takeWith(
 			newChnlID := identity.New()
 			// регистрируем подписку последователя
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
-				CommRef: commChnl.ExchRef,
-				ImplRef: commChnl.TermRef,
+				CommRef: commChnl.CommRef,
+				CompRef: commChnl.CompRef,
 				ChnlID:  commChnl.ChnlID,
 				ContExp: termexp.CaseRec{
 					CommChnlPH: commChnl.ChnlPH,
@@ -636,8 +635,8 @@ func (s *service) takeWith(
 		case termexp.LabRec:
 			// вяжем продолжение последователя
 			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-				TermRef: commChnl.TermRef,
-				ExchRef: commChnl.ExchRef,
+				CompRef: commChnl.CompRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  valExp.ContChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				// TODO значение ChnlBS
@@ -672,7 +671,7 @@ func (s *service) takeWith(
 		var connSnap commexch.ExchSnap
 		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
 			connSnap, err = s.commExchs.SelectSnapByQry(ds, commexch.ExchQry{
-				CommRef: commChnl.ExchRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
@@ -688,15 +687,15 @@ func (s *service) takeWith(
 			case commturn.SubRec:
 				// перенаправляем подписчика
 				execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-					TermRef: forwardable.ImplRef,
-					ExchRef: forwardable.CommRef,
+					CompRef: forwardable.CompRef,
+					CommRef: forwardable.CommRef,
 					ChnlID:  commChnl.ChnlID,
 					ChnlPH:  forwardable.ContExp.Via(),
 					// TODO значение ChnlBS
 					ExpVK: commChnl.ExpVK,
 				})
 				stepSpec = compstep.StepSpec{
-					CompRef: forwardable.ImplRef,
+					CompRef: forwardable.CompRef,
 					ProcExp: forwardable.ContExp,
 				}
 				s.log.Debug("step taking succeed", implAttr)
@@ -704,15 +703,15 @@ func (s *service) takeWith(
 			case commturn.PubRec:
 				// перенаправляем публикатора
 				execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-					TermRef: forwardable.ImplRef,
-					ExchRef: forwardable.CommRef,
+					CompRef: forwardable.CompRef,
+					CommRef: forwardable.CommRef,
 					ChnlID:  contChnl.ChnlID,
 					ChnlPH:  forwardable.ValExp.Via(),
 					// TODO значение ChnlBS
 					ExpVK: contChnl.ExpVK,
 				})
 				stepSpec = compstep.StepSpec{
-					CompRef: forwardable.ImplRef,
+					CompRef: forwardable.CompRef,
 					ProcExp: forwardable.ValExp,
 				}
 				s.log.Debug("step taking succeed", implAttr)
@@ -720,15 +719,15 @@ func (s *service) takeWith(
 			case nil:
 				// лишаем значений схлопывающегося
 				execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-					TermRef: commChnl.TermRef,
-					ExchRef: commChnl.ExchRef,
+					CompRef: commChnl.CompRef,
+					CommRef: commChnl.CommRef,
 					ChnlID:  commChnl.ChnlID,
 					ChnlPH:  expSpec.CommChnlPH,
 					ChnlBS:  commChnl.ChnlBS,
 					ExpVK:   commChnl.ExpVK.Invert(),
 				})
 				execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-					TermRef: commChnl.TermRef,
+					CompRef: commChnl.CompRef,
 					// TODO значение CommRef
 					ChnlID: contChnl.ChnlID,
 					ChnlPH: expSpec.ContChnlPH,
@@ -738,7 +737,7 @@ func (s *service) takeWith(
 				// регистрируем сообщение схлопывающегося
 				connMod.Turns = append(connMod.Turns, commturn.PubRec{
 					CommRef: connSnap.CommRef,
-					ImplRef: execSnap.CompRef,
+					CompRef: execSnap.CompRef,
 					ChnlID:  commChnl.ChnlID,
 					ValExp: termexp.FwdRec{
 						ContChnlID: contChnl.ChnlID,
@@ -754,15 +753,15 @@ func (s *service) takeWith(
 			case commturn.SubRec:
 				// перенаправляем подписчика
 				execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-					TermRef: forwardable.ImplRef,
-					ExchRef: forwardable.CommRef,
+					CompRef: forwardable.CompRef,
+					CommRef: forwardable.CommRef,
 					ChnlID:  contChnl.ChnlID,
 					ChnlPH:  forwardable.ContExp.Via(),
 					// TODO значение ChnlBS
 					ExpVK: contChnl.ExpVK,
 				})
 				stepSpec = compstep.StepSpec{
-					CompRef: forwardable.ImplRef,
+					CompRef: forwardable.CompRef,
 					ProcExp: forwardable.ContExp,
 				}
 				s.log.Debug("step taking succeed", implAttr)
@@ -770,15 +769,15 @@ func (s *service) takeWith(
 			case commturn.PubRec:
 				// перенаправляем публикатора
 				execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-					TermRef: forwardable.ImplRef,
-					ExchRef: forwardable.CommRef,
+					CompRef: forwardable.CompRef,
+					CommRef: forwardable.CommRef,
 					ChnlID:  commChnl.ChnlID,
 					ChnlPH:  forwardable.ValExp.Via(),
 					// TODO значение ChnlBS
 					ExpVK: commChnl.ExpVK,
 				})
 				stepSpec = compstep.StepSpec{
-					CompRef: forwardable.ImplRef,
+					CompRef: forwardable.CompRef,
 					ProcExp: forwardable.ValExp, // TODO: несовпадение типов
 				}
 				s.log.Debug("step taking succeed", implAttr)
@@ -787,7 +786,7 @@ func (s *service) takeWith(
 				// регистрируем подписку схлопывающегося
 				connMod.Turns = append(connMod.Turns, commturn.SubRec{
 					CommRef: connSnap.CommRef,
-					ImplRef: commChnl.TermRef,
+					CompRef: commChnl.CompRef,
 					ChnlID:  commChnl.ChnlID,
 					ContExp: termexp.FwdRec{
 						ContChnlID: contChnl.ChnlID,

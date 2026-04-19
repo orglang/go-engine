@@ -7,13 +7,13 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	sdkstep "github.com/orglang/go-sdk/adt/procstep"
-	sdksem "github.com/orglang/go-sdk/adt/semterm"
+	sdk1 "github.com/orglang/go-sdk/adt/compsem"
+	sdk2 "github.com/orglang/go-sdk/proc/compstep"
 
 	"orglang/go-engine/lib/lf"
-	"orglang/go-engine/proc/compstep"
 
-	"orglang/go-engine/adt/semterm"
+	"orglang/go-engine/adt/compsem"
+	"orglang/go-engine/proc/compstep"
 )
 
 // Server-side primary adapter
@@ -33,13 +33,13 @@ func cfgEchoController(e *echo.Echo, h *echoController) error {
 }
 
 func (h *echoController) GetSnap(c echo.Context) error {
-	var dto sdksem.TermRef
+	var dto sdk1.SemRef
 	bindErr := c.Bind(&dto)
 	if bindErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", dto))
 		return bindErr
 	}
-	ref, convErr := semterm.MsgToRef(dto)
+	ref, convErr := compsem.MsgToRef(dto)
 	if convErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
 		return convErr
@@ -52,7 +52,7 @@ func (h *echoController) GetSnap(c echo.Context) error {
 }
 
 func (h *echoController) PostStep(c echo.Context) error {
-	var dto sdkstep.StepSpec
+	var dto sdk2.StepSpec
 	bindErr := c.Bind(&dto)
 	if bindErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))

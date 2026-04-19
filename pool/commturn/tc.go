@@ -1,17 +1,17 @@
 package commturn
 
 import (
+	"orglang/go-engine/adt/commsem"
+	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/semcomm"
-	"orglang/go-engine/adt/semcomp"
 	"orglang/go-engine/pool/termexp"
 )
 
 func DataFromStepRec(r TurnRec) TurnRecDS {
 	switch rec := r.(type) {
 	case PubRec:
-		commRef := semcomm.DataFromRef(rec.CommRef)
-		implRef := semcomp.DataFromRef(rec.CompRef)
+		commRef := commsem.DataFromRef(rec.CommRef)
+		implRef := compsem.DataFromRef(rec.CompRef)
 		return TurnRecDS{
 			CommID: commRef.CommID,
 			CommRN: commRef.CommRN,
@@ -21,8 +21,8 @@ func DataFromStepRec(r TurnRec) TurnRecDS {
 			Exp:    termexp.DataFromExpRec(rec.ValExp),
 		}
 	case SubRec:
-		commRef := semcomm.DataFromRef(rec.CommRef)
-		implRef := semcomp.DataFromRef(rec.CompRef)
+		commRef := commsem.DataFromRef(rec.CommRef)
+		implRef := compsem.DataFromRef(rec.CompRef)
 		return TurnRecDS{
 			CommID: commRef.CommID,
 			CommRN: commRef.CommRN,

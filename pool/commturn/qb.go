@@ -1,8 +1,7 @@
 package commturn
 
 const (
-	commSems  = "comm_sems"
-	poolSteps = "pool_steps"
+	commTurns = "pool_comm_turns "
 )
 
 type queryBuilder interface {

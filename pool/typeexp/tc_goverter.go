@@ -1,7 +1,7 @@
 package typeexp
 
 import (
-	"github.com/orglang/go-sdk/adt/xactexp"
+	"github.com/orglang/go-sdk/pool/typeexp"
 )
 
 // goverter:variables
@@ -9,8 +9,8 @@ import (
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend msg.*
 var (
-	MsgFromExpRefs func([]ExpRef) []xactexp.ExpRef
-	MsgToExpRefs   func([]xactexp.ExpRef) ([]ExpRef, error)
+	MsgFromExpRefs func([]ExpRef) []typeexp.ExpRef
+	MsgToExpRefs   func([]typeexp.ExpRef) ([]ExpRef, error)
 )
 
 // goverter:variables

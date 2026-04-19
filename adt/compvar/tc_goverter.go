@@ -1,17 +1,17 @@
 package compvar
 
 import (
-	"github.com/orglang/go-sdk/adt/implvar"
+	"github.com/orglang/go-sdk/adt/compvar"
 
-	"orglang/go-engine/adt/semcomm"
-	"orglang/go-engine/adt/semterm"
+	"orglang/go-engine/adt/commsem"
+	"orglang/go-engine/adt/compsem"
 )
 
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend ConvertRecToRef
 var (
-	ConvertRecsToRefs func([]LinearRec) []semterm.TermRef
+	ConvertRecsToRefs func([]LinearRec) []compsem.SemRef
 )
 
 // goverter:variables
@@ -19,10 +19,10 @@ var (
 // goverter:extend orglang/go-engine/adt/symbol:Convert.*
 // goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
 var (
-	MsgFromVarSpec  func(VarSpec) implvar.VarSpec
-	MsgFromVarSpecs func([]VarSpec) []implvar.VarSpec
-	MsgToVarSpec    func(implvar.VarSpec) (VarSpec, error)
-	MsgToVarSpecs   func([]implvar.VarSpec) ([]VarSpec, error)
+	MsgFromVarSpec  func(VarSpec) compvar.VarSpec
+	MsgFromVarSpecs func([]VarSpec) []compvar.VarSpec
+	MsgToVarSpec    func(compvar.VarSpec) (VarSpec, error)
+	MsgToVarSpecs   func([]compvar.VarSpec) ([]VarSpec, error)
 )
 
 // goverter:variables
@@ -34,22 +34,22 @@ var (
 // goverter:extend orglang/go-engine/adt/symbol:Convert.*
 // goverter:extend Convert.*
 var (
-	// goverter:autoMap ImplRef
+	// goverter:autoMap CompRef
 	// goverter:autoMap CommRef
 	DataFromStructRec  func(StructRec) VarRecDS
 	DataFromStructRecs func([]StructRec) []VarRecDS
-	// goverter:autoMap ImplRef
+	// goverter:autoMap CompRef
 	// goverter:autoMap CommRef
 	DataFromLinearRec  func(LinearRec) VarRecDS
 	DataFromLinearRecs func([]LinearRec) []VarRecDS
-	// goverter:map . ImplRef
-	// goverter:map . CommRef | DataToCommRef
+	// goverter:map . CompRef
+	// goverter:map . CommRef | dataToSemRef
 	DataToStructRec  func(VarRecDS) (StructRec, error)
 	DataToStructRecs func([]VarRecDS) ([]StructRec, error)
-	// goverter:map . ImplRef
-	// goverter:map . CommRef | DataToCommRef
+	// goverter:map . CompRef
+	// goverter:map . CommRef | dataToSemRef
 	DataToLinearRec  func(VarRecDS) (LinearRec, error)
 	DataToLinearRecs func([]VarRecDS) ([]LinearRec, error)
 	// goverter:ignore CommRN
-	DataToCommRef func(VarRecDS) (semcomm.CommRef, error)
+	dataToSemRef func(VarRecDS) (commsem.SemRef, error)
 )

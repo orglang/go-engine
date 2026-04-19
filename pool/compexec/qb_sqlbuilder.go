@@ -3,13 +3,15 @@ package compexec
 import (
 	"github.com/huandu/go-sqlbuilder"
 
+	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/adt/compvar"
-	"orglang/go-engine/adt/semcomp"
 )
 
 type sqlBuilder struct {
-	implJoinBuilder *sqlbuilder.Struct
-	varRecBuilder   *sqlbuilder.Struct
+	compExecBuilder *sqlbuilder.Struct
+	snapBuilder     *sqlbuilder.Struct
+	execJoinBuilder *sqlbuilder.Struct
+	compVarBuilder  *sqlbuilder.Struct
 }
 
 // for compilation purposes
@@ -18,27 +20,45 @@ func newQueryBuikder() queryBuilder {
 }
 
 func newSQLBuilder() *sqlBuilder {
-	implJoinBuilder := sqlbuilder.NewStruct(new(implJoinDS)).For(sqlbuilder.PostgreSQL)
-	varRecBuilder := sqlbuilder.NewStruct(new(compvar.VarRecDS)).For(sqlbuilder.PostgreSQL)
-	return &sqlBuilder{implJoinBuilder, varRecBuilder}
+	compExecBuilder := sqlbuilder.NewStruct(new(execRecDS)).For(sqlbuilder.PostgreSQL)
+	snapBuilder := sqlbuilder.NewStruct(new(execSnapDS)).For(sqlbuilder.PostgreSQL)
+	execJoinBuilder := sqlbuilder.NewStruct(new(execJoinDS)).For(sqlbuilder.PostgreSQL)
+	compVarBuilder := sqlbuilder.NewStruct(new(compvar.VarRecDS)).For(sqlbuilder.PostgreSQL)
+	return &sqlBuilder{compExecBuilder, snapBuilder, execJoinBuilder, compVarBuilder}
 }
 
-func (qb *sqlBuilder) selectRecByRef(ref semcomp.CompRefDS) (string, []any) {
-	poolImpl := qb.implJoinBuilder.SelectFrom(implSems + "sem")
-	structVar := qb.varRecBuilder.SelectFrom(poolStructVars + "var")
-	linearVar := qb.varRecBuilder.SelectFrom(poolLinearVars + "var")
+func (qb *sqlBuilder) insertRec(rec execRecDS) (string, []any) {
+	return qb.compExecBuilder.InsertInto("pool_comp_execs", rec).Build()
+}
+
+func (qb *sqlBuilder) selectRecByRef(ref compsem.SemRefDS) (string, []any) {
+	compExec := qb.execJoinBuilder.SelectFrom(compExecs + "sem")
+	structVar := qb.compVarBuilder.SelectFrom(poolStructVars + "var")
+	linearVar := qb.compVarBuilder.SelectFrom(poolLinearVars + "var")
 	vars := sqlbuilder.PostgreSQL.NewCTEBuilder()
 	vars.With(
-		sqlbuilder.CTEQuery("struct_vars").As(structVar.Where(structVar.Equal("impl_id", ref.CompID))),
-		sqlbuilder.CTEQuery("linear_vars").As(linearVar.Where(linearVar.Equal("impl_id", ref.CompID))),
+		sqlbuilder.CTEQuery("struct_vars").As(structVar.Where(structVar.Equal("comp_id", ref.CompID))),
+		sqlbuilder.CTEQuery("linear_vars").As(linearVar.Where(linearVar.Equal("comp_id", ref.CompID))),
 	)
-	return poolImpl.With(vars).
+	return compExec.With(vars).
 		SelectMore(
-			poolImpl.BuilderAs(sqlbuilder.Buildf(arrayAgg, sqlbuilder.Raw("struct_vars")), "struct_vars"),
-			poolImpl.BuilderAs(sqlbuilder.Buildf(arrayAgg, sqlbuilder.Raw("linear_vars")), "linear_vars"),
+			compExec.BuilderAs(sqlbuilder.Buildf(arrayAgg, sqlbuilder.Raw("struct_vars")), "struct_vars"),
+			compExec.BuilderAs(sqlbuilder.Buildf(arrayAgg, sqlbuilder.Raw("linear_vars")), "linear_vars"),
 		).
-		Join(poolExecs+"exec", "exec.impl_id = sem.impl_id").
-		Where(poolImpl.Equal("sem.impl_id", ref.CompID)).
+		Join(compExecs+"exec", "exec.comp_id = sem.comp_id").
+		Where(compExec.Equal("sem.comp_id", ref.CompID)).
+		Build()
+}
+
+func (qb *sqlBuilder) selectSnapByQN(qn string) (string, []any) {
+	sb := qb.snapBuilder.SelectFrom(compExecs)
+	return sb.Join(compExecs, "exec.comp_id = sem.comp_id").
+		Join(poolStructVars, "struct_var.comp_id = sem.comp_id", "struct_var.side = 1", "exec.mode = 1").
+		Join(poolLinearVars, "linear_var.comp_id = sem.comp_id", "linear_var.side = 1", "exec.mode = 2").
+		Join(implBinds, "bind.impl_id = sem.comp_id").
+		Where(sb.Equal("bind.impl_qn", qn)).
+		OrderByDesc("struct_var.comp_rn").OrderByDesc("linear_var.comp_rn").
+		Limit(1).
 		Build()
 }
 

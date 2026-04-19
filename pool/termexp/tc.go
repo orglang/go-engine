@@ -1,13 +1,13 @@
 package termexp
 
 import (
-	"github.com/orglang/go-sdk/adt/poolexp"
+	"github.com/orglang/go-sdk/pool/termexp"
 
-	"orglang/go-engine/adt/semterm"
-	"orglang/go-engine/adt/semtype"
+	"orglang/go-engine/adt/compsem"
+	"orglang/go-engine/adt/termsem"
 )
 
-func MsgFromExpSpecNilable(spec ExpSpec) *poolexp.ExpSpec {
+func MsgFromExpSpecNilable(spec ExpSpec) *termexp.ExpSpec {
 	if spec == nil {
 		return nil
 	}
@@ -15,26 +15,26 @@ func MsgFromExpSpecNilable(spec ExpSpec) *poolexp.ExpSpec {
 	return &dto
 }
 
-func MsgFromExpSpec(s ExpSpec) poolexp.ExpSpec {
+func MsgFromExpSpec(s ExpSpec) termexp.ExpSpec {
 	switch spec := s.(type) {
 	case HireSpec:
-		return poolexp.ExpSpec{K: poolexp.Hire, Hire: MsgFromHireSpec(spec)}
+		return termexp.ExpSpec{K: termexp.Hire, Hire: MsgFromHireSpec(spec)}
 	case ApplySpec:
-		return poolexp.ExpSpec{K: poolexp.Apply, Apply: MsgFromApplySpec(spec)}
+		return termexp.ExpSpec{K: termexp.Apply, Apply: MsgFromApplySpec(spec)}
 	case AcquireSpec:
-		return poolexp.ExpSpec{K: poolexp.Acquire, Acquire: MsgFromAcquireSpec(spec)}
+		return termexp.ExpSpec{K: termexp.Acquire, Acquire: MsgFromAcquireSpec(spec)}
 	case AcceptSpec:
-		return poolexp.ExpSpec{K: poolexp.Accept, Accept: MsgFromAcceptSpec(spec)}
+		return termexp.ExpSpec{K: termexp.Accept, Accept: MsgFromAcceptSpec(spec)}
 	case ReleaseSpec:
-		return poolexp.ExpSpec{K: poolexp.Release, Release: MsgFromReleaseSpec(spec)}
+		return termexp.ExpSpec{K: termexp.Release, Release: MsgFromReleaseSpec(spec)}
 	case DetachSpec:
-		return poolexp.ExpSpec{K: poolexp.Detach, Detach: MsgFromDetachSpec(spec)}
+		return termexp.ExpSpec{K: termexp.Detach, Detach: MsgFromDetachSpec(spec)}
 	case SpawnSpec2:
-		return poolexp.ExpSpec{
-			K: poolexp.Spawn,
-			Spawn: &poolexp.SpawnSpec{
-				ProcDescRef:  semtype.MsgFromRef(spec.ProcDescRef),
-				ProcImplRefs: semterm.MsgFromRefs(spec.ProcImplRefs),
+		return termexp.ExpSpec{
+			K: termexp.Spawn,
+			Spawn: &termexp.SpawnSpec{
+				ProcTermRef:  termsem.MsgFromRef(spec.ProcTermRef),
+				ProcCompRefs: compsem.MsgFromRefs(spec.ProcCompRefs),
 			},
 		}
 	default:
@@ -42,39 +42,39 @@ func MsgFromExpSpec(s ExpSpec) poolexp.ExpSpec {
 	}
 }
 
-func MsgToExpSpecNilable(dto *poolexp.ExpSpec) (ExpSpec, error) {
+func MsgToExpSpecNilable(dto *termexp.ExpSpec) (ExpSpec, error) {
 	if dto == nil {
 		return nil, nil
 	}
 	return MsgToExpSpec(*dto)
 }
 
-func MsgToExpSpec(dto poolexp.ExpSpec) (ExpSpec, error) {
+func MsgToExpSpec(dto termexp.ExpSpec) (ExpSpec, error) {
 	switch dto.K {
-	case poolexp.Acquire:
+	case termexp.Acquire:
 		return MsgToAcquireSpec(dto.Acquire)
-	case poolexp.Accept:
+	case termexp.Accept:
 		return MsgToAcceptSpec(dto.Accept)
-	case poolexp.Hire:
+	case termexp.Hire:
 		return MsgToHireSpec(dto.Hire)
-	case poolexp.Apply:
+	case termexp.Apply:
 		return MsgToApplySpec(dto.Apply)
-	case poolexp.Release:
+	case termexp.Release:
 		return MsgToReleaseSpec(dto.Release)
-	case poolexp.Detach:
+	case termexp.Detach:
 		return MsgToDetachSpec(dto.Detach)
-	case poolexp.Spawn:
-		descRef, err := semtype.MsgToRef(dto.Spawn.ProcDescRef)
+	case termexp.Spawn:
+		termRef, err := termsem.MsgToRef(dto.Spawn.ProcTermRef)
 		if err != nil {
 			return nil, err
 		}
-		implRefs, err := semterm.MsgToRefs(dto.Spawn.ProcImplRefs)
+		compRefs, err := compsem.MsgToRefs(dto.Spawn.ProcCompRefs)
 		if err != nil {
 			return nil, err
 		}
-		return SpawnSpec2{ProcDescRef: descRef, ProcImplRefs: implRefs}, nil
+		return SpawnSpec2{ProcTermRef: termRef, ProcCompRefs: compRefs}, nil
 	default:
-		panic(poolexp.ErrUnexpectedExpKind(dto.K))
+		panic(termexp.ErrUnexpectedExpKind(dto.K))
 	}
 }
 

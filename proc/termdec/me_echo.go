@@ -7,10 +7,10 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	sdk "github.com/orglang/go-sdk/adt/descsem"
-	"github.com/orglang/go-sdk/adt/procdec"
+	sdk "github.com/orglang/go-sdk/adt/termsem"
+	"github.com/orglang/go-sdk/proc/termdec"
 
-	"orglang/go-engine/adt/semtype"
+	"orglang/go-engine/adt/termsem"
 )
 
 // Server-side primary adapter
@@ -31,7 +31,7 @@ func cfgEchoController(e *echo.Echo, h *echoController) error {
 }
 
 func (h *echoController) PostSpec(c echo.Context) error {
-	var dto procdec.DecSpec
+	var dto termdec.DecSpec
 	bindErr := c.Bind(&dto)
 	if bindErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
@@ -61,7 +61,7 @@ func (h *echoController) GetSnap(c echo.Context) error {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
 		return bindErr
 	}
-	ref, convErr := semtype.MsgToRef(dto)
+	ref, convErr := termsem.MsgToRef(dto)
 	if convErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
 		return convErr

@@ -1,14 +1,14 @@
 package compstep
 
 import (
-	"github.com/orglang/go-sdk/adt/poolstep"
+	"github.com/orglang/go-sdk/pool/compstep"
 )
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/adt/semterm:Msg.*
+// goverter:extend orglang/go-engine/adt/compsem:Msg.*
 // goverter:extend orglang/go-engine/pool/termexp:Msg.*
 var (
-	MsgToStepSpec   func(poolstep.StepSpec) (StepSpec, error)
-	MsgFromStepSpec func(StepSpec) poolstep.StepSpec
+	MsgToStepSpec   func(compstep.StepSpec) (StepSpec, error)
+	MsgFromStepSpec func(StepSpec) compstep.StepSpec
 )

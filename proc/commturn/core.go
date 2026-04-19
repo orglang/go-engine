@@ -3,9 +3,9 @@ package commturn
 import (
 	"fmt"
 
+	"orglang/go-engine/adt/commsem"
+	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/semcomm"
-	"orglang/go-engine/adt/semterm"
 	"orglang/go-engine/proc/termexp"
 )
 
@@ -17,8 +17,8 @@ type TurnRec interface {
 func ChnlID(rec TurnRec) identity.ADT { return rec.turn() }
 
 type PubRec struct {
-	CommRef semcomm.CommRef
-	ImplRef semterm.TermRef // TODO выпилить
+	CommRef commsem.SemRef
+	CompRef compsem.SemRef
 	ChnlID  identity.ADT
 	ValExp  termexp.ExpRec
 }
@@ -26,8 +26,8 @@ type PubRec struct {
 func (r PubRec) turn() identity.ADT { return r.ChnlID }
 
 type SubRec struct {
-	CommRef semcomm.CommRef
-	ImplRef semterm.TermRef // TODO выпилить
+	CommRef commsem.SemRef
+	CompRef compsem.SemRef
 	ChnlID  identity.ADT
 	ContExp termexp.ExpRec
 }

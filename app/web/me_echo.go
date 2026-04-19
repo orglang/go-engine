@@ -9,7 +9,7 @@ import (
 
 	"orglang/go-engine/lib/te"
 
-	"orglang/go-engine/adt/semtype"
+	"orglang/go-engine/adt/typesem"
 	"orglang/go-engine/proc/typedef"
 )
 
@@ -34,7 +34,7 @@ func (h *echoController) Home(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	html, err := h.ssr.Render("home.html", semtype.MsgFromRefs(refs))
+	html, err := h.ssr.Render("home.html", typesem.MsgFromRefs(refs))
 	if err != nil {
 		return err
 	}

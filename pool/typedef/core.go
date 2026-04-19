@@ -7,15 +7,16 @@ import (
 
 	"orglang/go-engine/lib/db"
 
-	"orglang/go-engine/adt/semtype"
 	"orglang/go-engine/adt/seqnum"
+	"orglang/go-engine/adt/typesem"
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/adt/valkey"
+
 	"orglang/go-engine/pool/typeexp"
 )
 
 type API interface {
-	Create(DefSpec) (semtype.TypeRef, error)
+	Create(DefSpec) (typesem.SemRef, error)
 }
 
 type DefSpec struct {
@@ -24,13 +25,13 @@ type DefSpec struct {
 }
 
 type DefRec struct {
-	TypeRef semtype.TypeRef
+	TypeRef typesem.SemRef
 	TypeQN  uniqsym.ADT
 	ExpVK   valkey.ADT
 }
 
 type DefSnap struct {
-	TypeRef semtype.TypeRef
+	TypeRef typesem.SemRef
 	TypeExp typeexp.ExpSpec
 }
 
@@ -55,15 +56,15 @@ func newService(
 	return &service{typeDefs, typeExps, operator, log}
 }
 
-func (s *service) Create(spec DefSpec) (_ semtype.TypeRef, err error) {
+func (s *service) Create(spec DefSpec) (_ typesem.SemRef, err error) {
 	ctx := context.Background()
 	qnAttr := slog.Any("qn", spec.TypeQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	newExp, convErr := typeexp.ConvertSpecToRec(spec.TypeExp)
 	if convErr != nil {
-		return semtype.TypeRef{}, convErr
+		return typesem.SemRef{}, convErr
 	}
-	newDef := DefRec{TypeRef: semtype.NewRef(), TypeQN: spec.TypeQN, ExpVK: newExp.Key()}
+	newDef := DefRec{TypeRef: typesem.New(), TypeQN: spec.TypeQN, ExpVK: newExp.Key()}
 	transactErr := s.operator.Explicit(ctx, func(ds db.Source) error {
 		err = s.typeExps.AddRec(ds, newExp, newDef.TypeRef)
 		if err != nil {
@@ -73,7 +74,7 @@ func (s *service) Create(spec DefSpec) (_ semtype.TypeRef, err error) {
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", qnAttr)
-		return semtype.TypeRef{}, transactErr
+		return typesem.SemRef{}, transactErr
 	}
 	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", newDef.TypeRef))
 	return newDef.TypeRef, nil

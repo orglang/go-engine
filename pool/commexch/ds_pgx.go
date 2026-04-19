@@ -7,7 +7,7 @@ import (
 	"orglang/go-engine/lib/db"
 	"orglang/go-engine/lib/lf"
 
-	"orglang/go-engine/adt/semcomm"
+	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/uniqsym"
 
 	"github.com/jackc/pgx/v5"
@@ -59,7 +59,7 @@ func (dao *pgxDAO) ModifyRec(source db.Source, mod ExchMod) error {
 	return nil
 }
 
-func (dao *pgxDAO) GetRefsByQNs(source db.Source, qns []uniqsym.ADT) (map[uniqsym.ADT]semcomm.CommRef, error) {
+func (dao *pgxDAO) GetRefsByQNs(source db.Source, qns []uniqsym.ADT) (map[uniqsym.ADT]commsem.SemRef, error) {
 	panic("unimplemented")
 }
 

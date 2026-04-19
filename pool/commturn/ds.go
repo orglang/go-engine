@@ -14,7 +14,7 @@ type Repo interface {
 type TurnRecDS struct {
 	CommID string           `db:"comm_id"`
 	CommRN int64            `db:"comm_rn"`
-	CompID string           `db:"impl_id"`
+	CompID string           `db:"comp_id"`
 	ChnlID string           `db:"chnl_id"`
 	K      turnKind         `db:"kind"`
 	Exp    termexp.ExpRecDS `db:"exp" fieldopt:"noexpand"`

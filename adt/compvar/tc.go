@@ -3,12 +3,12 @@ package compvar
 import (
 	"database/sql"
 
-	"orglang/go-engine/adt/semterm"
+	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/adt/symbol"
 )
 
-func ConvertRecToRef(rec LinearRec) semterm.TermRef {
-	return rec.TermRef
+func ConvertRecToRef(rec LinearRec) compsem.SemRef {
+	return rec.CompRef
 }
 
 func ConvertRecsToRecMap[T VarRec](recs []T) map[symbol.ADT]T {

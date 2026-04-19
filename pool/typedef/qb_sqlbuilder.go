@@ -2,14 +2,10 @@ package typedef
 
 import (
 	"github.com/huandu/go-sqlbuilder"
-
-	"orglang/go-engine/adt/semtype"
 )
 
 type sqlBuilder struct {
-	semBuilder  *sqlbuilder.Struct
-	bindBuilder *sqlbuilder.Struct
-	defBuilder  *sqlbuilder.Struct
+	defBuilder *sqlbuilder.Struct
 }
 
 // for compilation purposes
@@ -18,15 +14,17 @@ func newQueryBuikder() queryBuilder {
 }
 
 func newSQLBuilder() *sqlBuilder {
-	semBuilder := sqlbuilder.NewStruct(new(semtype.SemRefDS)).For(sqlbuilder.PostgreSQL)
-	bindBuilder := sqlbuilder.NewStruct(new(semtype.SemBindDS)).For(sqlbuilder.PostgreSQL)
 	defBuilder := sqlbuilder.NewStruct(new(defRecDS)).For(sqlbuilder.PostgreSQL)
-	return &sqlBuilder{semBuilder, bindBuilder, defBuilder}
+	return &sqlBuilder{defBuilder}
+}
+
+func (qb *sqlBuilder) insertRec(rec defRecDS) (string, []any) {
+	return qb.defBuilder.InsertInto(typeDefs, rec).Build()
 }
 
 func (qb *sqlBuilder) selectRecByQN() string {
-	sb := qb.defBuilder.SelectFrom(xactDefs)
-	return sb.Join(descBinds, "bind.desc_id = def.desc_id").
+	sb := qb.defBuilder.SelectFrom(typeDefs + "def")
+	return sb.Join(descBinds+"bind", "bind.desc_id = def.type_id").
 		Where(sb.Equal("bind.desc_qn", sb.Var(1))).
 		String()
 }

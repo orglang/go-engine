@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log/slog"
 
+	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/semterm"
-	"orglang/go-engine/adt/semtype"
 	"orglang/go-engine/adt/symbol"
+	"orglang/go-engine/adt/termsem"
 	"orglang/go-engine/adt/uniqsym"
 )
 
@@ -43,7 +43,7 @@ func (s AcceptSpec) LogValue() slog.Value {
 type HireSpec struct {
 	CommChnlPH symbol.ADT
 	// запрашиваемая компетенция
-	ProcDescQN uniqsym.ADT
+	ProcTermQN uniqsym.ADT
 	ContExp    ExpSpec
 }
 
@@ -57,7 +57,7 @@ func (s HireSpec) LogValue() slog.Value {
 type ApplySpec struct {
 	CommChnlPH symbol.ADT
 	// предлагаемая компетенция
-	ProcDescQN uniqsym.ADT
+	ProcTermQN uniqsym.ADT
 	ContExp    ExpSpec
 }
 
@@ -92,7 +92,7 @@ func (s DetachSpec) LogValue() slog.Value {
 // лишение должности по инициативе работодателя
 type FireSpec struct {
 	CommChnlPH symbol.ADT
-	ProcDescQN uniqsym.ADT
+	ProcTermQN uniqsym.ADT
 }
 
 func (s FireSpec) spec() {}
@@ -104,7 +104,7 @@ func (s FireSpec) LogValue() slog.Value {
 // освобождение должности по инициативе сотрудника
 type QuitSpec struct {
 	CommChnlPH symbol.ADT
-	ProcDescQN uniqsym.ADT
+	ProcTermQN uniqsym.ADT
 }
 
 func (s QuitSpec) spec() {}
@@ -115,9 +115,9 @@ func (s QuitSpec) LogValue() slog.Value {
 
 type SpawnSpec struct {
 	// ссылка на описание порождаемого процесса
-	ProcDescQN uniqsym.ADT
+	ProcTermQN uniqsym.ADT
 	// ссылки на воплощения потребляемых процессов
-	ProcImplQNs []uniqsym.ADT
+	ProcCompQNs []uniqsym.ADT
 }
 
 func (s SpawnSpec) spec() {}
@@ -128,9 +128,9 @@ func (s SpawnSpec) LogValue() slog.Value {
 
 type SpawnSpec2 struct {
 	// ссылка на описание порождаемого процесса
-	ProcDescRef semtype.TypeRef
+	ProcTermRef termsem.SemRef
 	// ссылки на воплощения потребляемых процессов
-	ProcImplRefs []semterm.TermRef
+	ProcCompRefs []compsem.SemRef
 }
 
 func (s SpawnSpec2) spec() {}
@@ -159,7 +159,7 @@ func (r AcceptRec) rec() {}
 
 type HireRec struct {
 	ContChnlID identity.ADT
-	ProcDescQN uniqsym.ADT
+	ProcTermQN uniqsym.ADT
 	ContExp    ExpSpec
 }
 
@@ -167,7 +167,7 @@ func (r HireRec) rec() {}
 
 type ApplyRec struct {
 	ContChnlID identity.ADT
-	ProcDescQN uniqsym.ADT
+	ProcTermQN uniqsym.ADT
 	ContExp    ExpSpec
 }
 

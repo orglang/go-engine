@@ -3,22 +3,24 @@ package compexec
 import (
 	"context"
 	"log/slog"
-
 	"reflect"
 
 	"orglang/go-engine/lib/db"
 
-	"orglang/go-engine/adt/compvar"
+	"orglang/go-engine/adt/commsem"
+	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/option"
-	"orglang/go-engine/adt/poolexec"
-	"orglang/go-engine/adt/semcomp"
+	"orglang/go-engine/adt/seqnum"
 	"orglang/go-engine/adt/symbol"
+	"orglang/go-engine/adt/uniqsym"
+	"orglang/go-engine/adt/valkey"
 
 	"orglang/go-engine/pool/commexch"
 	"orglang/go-engine/pool/commturn"
 	"orglang/go-engine/pool/compstep"
-	compvar1 "orglang/go-engine/pool/compvar"
+	"orglang/go-engine/pool/compvar"
+	termdef1 "orglang/go-engine/pool/termdef"
 	"orglang/go-engine/pool/termexp"
 	"orglang/go-engine/pool/typeexp"
 
@@ -27,19 +29,35 @@ import (
 )
 
 type API interface {
+	Run(ExecSpec) (compsem.SemRef, error) // aka Create
 	Take(compstep.StepSpec) error
-	Spawn(compstep.StepSpec) (semcomp.CompRef, error)
+	Spawn(compstep.StepSpec) (compsem.SemRef, error)
+}
+
+type ExecSpec struct {
+	// ссылка на декларацию вновь создаваемого пула
+	TermQN uniqsym.ADT
+	// внутренняя и внешняя ссылки на вновь создаваемый пул
+	LiabVar compvar.VarSpec
+	// внутренние и внешние ссылки на ранее созданные пулы
+	AssetVars []compvar.VarSpec
 }
 
 type ExecRec struct {
-	CompRef    semcomp.CompRef
+	CompRef    compsem.SemRef
+	TermQN     uniqsym.ADT
 	LiabMode   compvar.Mode
 	StructVars []compvar.StructRec
 	LinearVars []compvar.LinearRec
 }
 
+type ExecSnap1 struct {
+	CompRef compsem.SemRef
+	LiabVar compvar.VarRec
+}
+
 type ExecSnap struct {
-	CompRef    semcomp.CompRef
+	CompRef    compsem.SemRef
 	StructVars map[symbol.ADT]compvar.StructRec
 	StructExps map[symbol.ADT]typeexp.ExpRec
 	LinearVars map[symbol.ADT]compvar.LinearRec
@@ -55,16 +73,16 @@ type ExecEff struct {
 }
 
 type service struct {
-	compExecRepo Repo
-	poolImplExch Exch
-	poolExecRepo poolexec.Repo
-	compVarRepo  compvar1.Repo
-	commExchRepo commexch.Repo
-	commTurnRepo commturn.Repo
-	xactExpRepo  typeexp.Repo
-	procExecRepo compexec.Repo
-	operator     db.Operator
-	log          *slog.Logger
+	compExecRepo   Repo
+	compExecBroker Broker
+	compVarRepo    compvar.Repo
+	commExchRepo   commexch.Repo
+	commTurnRepo   commturn.Repo
+	typeExpRepo    typeexp.Repo
+	procExecRepo   compexec.Repo
+	termDecRepo    termdef1.Repo
+	operator       db.Operator
+	log            *slog.Logger
 }
 
 // for compilation purposes
@@ -74,35 +92,117 @@ func newAPI() API {
 
 func newService(
 	compExecRepo Repo,
-	compExecExch Exch,
-	poolExecRepo poolexec.Repo,
-	poolVarRepo compvar1.Repo,
-	poolCommRepo commexch.Repo,
-	poolStepRepo commturn.Repo,
-	xactExpRepo typeexp.Repo,
+	compExecExch Broker,
+	compVarRepo compvar.Repo,
+	commExchRepo commexch.Repo,
+	commTurnRepo commturn.Repo,
+	typeExpRepo typeexp.Repo,
 	procExecRepo compexec.Repo,
+	termDecRepo termdef1.Repo,
 	operator db.Operator,
 	log *slog.Logger,
 ) *service {
 	name := slog.String("name", reflect.TypeFor[service]().Name())
 	return &service{
-		compExecRepo, compExecExch, poolExecRepo, poolVarRepo,
-		poolCommRepo, poolStepRepo, xactExpRepo, procExecRepo,
+		compExecRepo, compExecExch, compVarRepo,
+		commExchRepo, commTurnRepo, typeExpRepo, procExecRepo, termDecRepo,
 		operator, log.With(name),
 	}
 }
 
-func (s *service) Spawn(spec compstep.StepSpec) (_ semcomp.CompRef, err error) {
+func (s *service) Run(spec ExecSpec) (_ compsem.SemRef, err error) {
+	ctx := context.Background()
+	specAttr := slog.Any("spec", spec)
+	s.log.Debug("creation started", specAttr)
+	var termDec termdef1.DefRec
+	getErr1 := s.operator.Implicit(ctx, func(ds db.Source) error {
+		termDec, err = s.termDecRepo.GetRecByQN(ds, spec.TermQN)
+		return err
+	})
+	if getErr1 != nil {
+		s.log.Error("creation failed", specAttr)
+		return compsem.SemRef{}, getErr1
+	}
+	assetQNs := make([]uniqsym.ADT, 0, len(spec.AssetVars))
+	for _, assetVar := range spec.AssetVars {
+		if assetVar.TermQN == spec.LiabVar.TermQN {
+			continue
+		}
+		assetQNs = append(assetQNs, assetVar.TermQN)
+	}
+	var assetExecs map[uniqsym.ADT]ExecSnap1
+	getErr2 := s.operator.Implicit(ctx, func(ds db.Source) error {
+		assetExecs, err = s.compExecRepo.GetSnapMapByQNs(ds, assetQNs)
+		return err
+	})
+	if getErr2 != nil {
+		s.log.Error("creation failed", specAttr)
+		return compsem.SemRef{}, getErr2
+	}
+	newExec := ExecRec{CompRef: compsem.New(), TermQN: spec.LiabVar.TermQN, LiabMode: compvar.StructMode}
+	newComm := commexch.ExchRec{CommRef: commsem.New(), OffsetNr: seqnum.Zero}
+	newLiabVar := compvar.StructRec{
+		CompRef: newExec.CompRef,
+		CommRef: newComm.CommRef,
+		ChnlID:  identity.New(),
+		ChnlPH:  spec.LiabVar.ChnlPH,
+		ChnlBS:  compvar.LiabSide,
+		ExpVK:   termDec.LiabVar.ExpVK,
+	}
+	newAssetVars := make([]compvar.VarRec, 0, len(spec.AssetVars)+1)
+	for _, assetVar := range spec.AssetVars {
+		var commRef commsem.SemRef
+		var chnlID identity.ADT
+		var expVK valkey.ADT
+		assetExec, ok := assetExecs[assetVar.TermQN]
+		if !ok && assetVar.TermQN == spec.LiabVar.TermQN {
+			commRef = newComm.CommRef
+			chnlID = newLiabVar.ChnlID
+			expVK = newLiabVar.ExpVK
+		} else {
+			commRef = assetExec.LiabVar.GetCommRef()
+			chnlID = assetExec.LiabVar.GetChnlID()
+			expVK = assetExec.LiabVar.GetExpVK()
+		}
+		newAssetVars = append(newAssetVars, compvar.StructRec{
+			CompRef: newExec.CompRef,
+			CommRef: commRef,
+			ChnlID:  chnlID,
+			ChnlPH:  assetVar.ChnlPH,
+			ChnlBS:  compvar.AssetSide,
+			ExpVK:   expVK,
+		})
+	}
+	transactErr := s.operator.Explicit(ctx, func(ds db.Source) error {
+		err = s.compExecRepo.AddRec(ds, newExec)
+		if err != nil {
+			return err
+		}
+		err = s.compVarRepo.AddRecs(ds, append(newAssetVars, newLiabVar))
+		if err != nil {
+			return err
+		}
+		return s.commExchRepo.AddRec(ds, newComm)
+	})
+	if transactErr != nil {
+		s.log.Error("creation failed", specAttr)
+		return compsem.SemRef{}, transactErr
+	}
+	s.log.Debug("creation succeed", slog.Any("ref", newExec.CompRef))
+	return newExec.CompRef, nil
+}
+
+func (s *service) Spawn(spec compstep.StepSpec) (_ compsem.SemRef, err error) {
 	ctx := context.Background()
 	refAttr := slog.Any("ref", spec.CompRef)
 	s.log.Debug("proc spawning started", refAttr, slog.Any("exp", spec.PoolExp))
-	newExec := compexec.ExecRec{CompRef: semcomp.NewRef(), LiabMode: compvar.LinearMode}
+	newExec := compexec.ExecRec{CompRef: compsem.New(), LiabMode: compvar.LinearMode}
 	transactErr := s.operator.Explicit(ctx, func(ds db.Source) error {
-		return s.procExecRepo.InsertRec(ds, newExec)
+		return s.procExecRepo.AddRec(ds, newExec)
 	})
 	if transactErr != nil {
 		s.log.Error("proc spawning failed", refAttr)
-		return semcomp.CompRef{}, transactErr
+		return compsem.SemRef{}, transactErr
 	}
 	s.log.Debug("proc spawning succeed", refAttr, slog.Any("proc", newExec.CompRef))
 	return newExec.CompRef, nil
@@ -142,7 +242,7 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 		return transactErr
 	}
 	for _, step := range execEff.Steps {
-		sendErr := s.poolImplExch.SendSpec(step)
+		sendErr := s.compExecBroker.SendSpec(step)
 		if sendErr != nil {
 			s.log.Error("step taking failed", refAttr)
 			return sendErr
@@ -196,8 +296,8 @@ func (s *service) take(
 			newChnlID := identity.New()
 			// вяжем продолжение доступодателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-				TermRef: commChnl.CompRef,
-				ExchRef: commChnl.CommRef,
+				CompRef: commChnl.CompRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  newChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -233,8 +333,8 @@ func (s *service) take(
 			exchMod.OffsetNr = option.Some(acquisition.CommRef.CommRN)
 			// вяжем продолжение доступодателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-				TermRef: commChnl.CompRef,
-				ExchRef: commChnl.CommRef,
+				CompRef: commChnl.CompRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  expRec.ContChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -285,8 +385,8 @@ func (s *service) take(
 			newChnlID := identity.New()
 			// вяжем продолжение доступополучателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-				TermRef: commChnl.CompRef,
-				ExchRef: commChnl.CommRef,
+				CompRef: commChnl.CompRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  newChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -322,8 +422,8 @@ func (s *service) take(
 			exchMod.OffsetNr = option.Some(acception.CommRef.CommRN)
 			// вяжем продолжение доступополучателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-				TermRef: commChnl.CompRef,
-				ExchRef: commChnl.CommRef,
+				CompRef: commChnl.CompRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  expRec.ContChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -358,7 +458,7 @@ func (s *service) take(
 		var commSnap commexch.ExchSnap
 		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
 			commSnap, err = s.commExchRepo.GetSnapByQry(ds, commexch.ExchQry{
-				CommRef: commChnl.ExchRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
@@ -374,8 +474,8 @@ func (s *service) take(
 			newChnlID := identity.New()
 			// вяжем продолжение соискателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-				TermRef: commChnl.TermRef,
-				ExchRef: commChnl.ExchRef,
+				CompRef: commChnl.CompRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  newChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -388,7 +488,7 @@ func (s *service) take(
 				ChnlID:  commChnl.ChnlID,
 				ValExp: termexp.ApplyRec{
 					ContChnlID: newChnlID,
-					ProcDescQN: poolExp.ProcDescQN,
+					ProcTermQN: poolExp.ProcTermQN,
 					ContExp:    poolExp.ContExp,
 				},
 			})
@@ -410,8 +510,8 @@ func (s *service) take(
 		case termexp.HireRec:
 			// вяжем продолжение соискателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-				TermRef: commChnl.TermRef,
-				ExchRef: commChnl.ExchRef,
+				CompRef: commChnl.CompRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  expRec.ContChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -446,7 +546,7 @@ func (s *service) take(
 		var commSnap commexch.ExchSnap
 		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
 			commSnap, err = s.commExchRepo.GetSnapByQry(ds, commexch.ExchQry{
-				CommRef: commChnl.ExchRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
@@ -462,8 +562,8 @@ func (s *service) take(
 			newChnlID := identity.New()
 			// вяжем продолжение нанимателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-				TermRef: commChnl.TermRef,
-				ExchRef: commChnl.ExchRef,
+				CompRef: commChnl.CompRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  newChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -476,7 +576,7 @@ func (s *service) take(
 				ChnlID:  commChnl.ChnlID,
 				ContExp: termexp.HireRec{
 					ContChnlID: newChnlID,
-					ProcDescQN: poolExp.ProcDescQN,
+					ProcTermQN: poolExp.ProcTermQN,
 					ContExp:    poolExp.ContExp,
 				},
 			})
@@ -498,8 +598,8 @@ func (s *service) take(
 		case termexp.ApplyRec:
 			// вяжем продолжение нанимателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-				TermRef: commChnl.TermRef,
-				ExchRef: commChnl.ExchRef,
+				CompRef: commChnl.CompRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  expRec.ContChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -534,7 +634,7 @@ func (s *service) take(
 		var commSnap commexch.ExchSnap
 		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
 			commSnap, err = s.commExchRepo.GetSnapByQry(ds, commexch.ExchQry{
-				CommRef: commChnl.ExchRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
@@ -550,8 +650,8 @@ func (s *service) take(
 			newChnlID := identity.New()
 			// вяжем продолжение доступовозвращателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-				TermRef: commChnl.TermRef,
-				ExchRef: commChnl.ExchRef,
+				CompRef: commChnl.CompRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  newChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -577,8 +677,8 @@ func (s *service) take(
 		case termexp.DetachRec:
 			// вяжем продолжение доступовозвращателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-				TermRef: commChnl.TermRef,
-				ExchRef: commChnl.ExchRef,
+				CompRef: commChnl.CompRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  expRec.ContChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -606,7 +706,7 @@ func (s *service) take(
 		var commSnap commexch.ExchSnap
 		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
 			commSnap, err = s.commExchRepo.GetSnapByQry(ds, commexch.ExchQry{
-				CommRef: commChnl.ExchRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
@@ -622,8 +722,8 @@ func (s *service) take(
 			newChnlID := identity.New()
 			// вяжем продолжение доступопринимателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-				TermRef: commChnl.TermRef,
-				ExchRef: commChnl.ExchRef,
+				CompRef: commChnl.CompRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  newChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -649,8 +749,8 @@ func (s *service) take(
 		case termexp.ReleaseRec:
 			// вяжем продолжение доступопринимателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-				TermRef: commChnl.TermRef,
-				ExchRef: commChnl.ExchRef,
+				CompRef: commChnl.CompRef,
+				CommRef: commChnl.CommRef,
 				ChnlID:  expRec.ContChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -666,7 +766,7 @@ func (s *service) take(
 	}
 }
 
-func (s *service) retrieveSnap(ref semcomp.CompRef) (_ ExecSnap, err error) {
+func (s *service) retrieveSnap(ref compsem.SemRef) (_ ExecSnap, err error) {
 	ctx := context.Background()
 	var execRec ExecRec
 	getErr1 := s.operator.Implicit(ctx, func(ds db.Source) error {
@@ -679,11 +779,11 @@ func (s *service) retrieveSnap(ref semcomp.CompRef) (_ ExecSnap, err error) {
 	var structExps map[symbol.ADT]typeexp.ExpRec
 	var linearExps map[symbol.ADT]typeexp.ExpRec
 	getErr2 := s.operator.Implicit(ctx, func(ds db.Source) error {
-		structExps, err = s.xactExpRepo.GetRecMap(ds, ExtractExpVKs(execRec.StructVars))
+		structExps, err = s.typeExpRepo.GetRecMap(ds, ExtractExpVKs(execRec.StructVars))
 		if err != nil {
 			return err
 		}
-		linearExps, err = s.xactExpRepo.GetRecMap(ds, ExtractExpVKs(execRec.LinearVars))
+		linearExps, err = s.typeExpRepo.GetRecMap(ds, ExtractExpVKs(execRec.LinearVars))
 		return err
 	})
 	if getErr2 != nil {

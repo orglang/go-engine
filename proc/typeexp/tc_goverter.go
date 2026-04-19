@@ -1,7 +1,7 @@
 package typeexp
 
 import (
-	"github.com/orglang/go-sdk/adt/typeexp"
+	"github.com/orglang/go-sdk/proc/typeexp"
 )
 
 // goverter:variables

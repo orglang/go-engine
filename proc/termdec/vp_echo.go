@@ -7,12 +7,12 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	sdk "github.com/orglang/go-sdk/adt/descsem"
+	sdk "github.com/orglang/go-sdk/adt/termsem"
 
 	"orglang/go-engine/lib/lf"
 	"orglang/go-engine/lib/te"
 
-	"orglang/go-engine/adt/semtype"
+	"orglang/go-engine/adt/termsem"
 	"orglang/go-engine/adt/uniqsym"
 )
 
@@ -48,7 +48,7 @@ func (p *echoPresenter) PostSpec(c echo.Context) error {
 		p.log.Error("validation failed", slog.Any("dto", dto))
 		return validateErr
 	}
-	qn, convErr := uniqsym.ConvertFromString(dto.ProcQN)
+	qn, convErr := uniqsym.ConvertFromString(dto.TermQN)
 	if convErr != nil {
 		p.log.Error("conversion failed", slog.Any("dto", dto))
 		return convErr
@@ -57,7 +57,7 @@ func (p *echoPresenter) PostSpec(c echo.Context) error {
 	if inceptionErr != nil {
 		return inceptionErr
 	}
-	html, renderingErr := p.ssr.Render("view-one", semtype.MsgFromRef(ref))
+	html, renderingErr := p.ssr.Render("view-one", termsem.MsgFromRef(ref))
 	if renderingErr != nil {
 		p.log.Error("rendering failed", slog.Any("ref", ref))
 		return renderingErr
@@ -71,7 +71,7 @@ func (p *echoPresenter) GetRefs(c echo.Context) error {
 	if retrieveErr != nil {
 		return retrieveErr
 	}
-	html, renderingErr := p.ssr.Render("view-many", semtype.MsgFromRefs(refs))
+	html, renderingErr := p.ssr.Render("view-many", termsem.MsgFromRefs(refs))
 	if renderingErr != nil {
 		p.log.Error("rendering failed", slog.Any("refs", refs))
 		return renderingErr
@@ -93,7 +93,7 @@ func (p *echoPresenter) GetSnap(c echo.Context) error {
 		p.log.Error("validation failed", slog.Any("dto", dto))
 		return validateErr
 	}
-	ref, convErr := semtype.MsgToRef(dto)
+	ref, convErr := termsem.MsgToRef(dto)
 	if convErr != nil {
 		p.log.Error("conversion failed", slog.Any("dto", dto))
 		return convErr
@@ -107,6 +107,6 @@ func (p *echoPresenter) GetSnap(c echo.Context) error {
 		p.log.Error("rendering failed", slog.Any("snap", snap))
 		return renderingErr
 	}
-	p.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("decRef", snap.DescRef))
+	p.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("decRef", snap.TermRef))
 	return c.HTMLBlob(http.StatusOK, html)
 }

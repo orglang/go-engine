@@ -128,7 +128,7 @@ func (dao *pgxDAO) SelectRecsByVKs(source db.Source, expVKs []valkey.ADT) (_ []E
 
 const (
 	insertRec = `
-		insert into type_exps (
+		insert into proc_type_exps (
 			exp_vk, sup_exp_vk, desc_id, desc_rn, kind, spec
 		) values (
 			@exp_vk, @sup_exp_vk, @desc_id, @desc_rn, @kind, @spec
@@ -138,11 +138,11 @@ const (
 	selectByID = `
 		with recursive exp_tree AS (
 			select top.*
-			from type_exps top
+			from proc_type_exps top
 			where exp_vk = $1
 			union all
 			select sub.*
-			from type_exps sub, exp_tree sup
+			from proc_type_exps sub, exp_tree sup
 			where sub.sup_exp_vk = sup.exp_vk
 		)
 		select * from exp_tree`

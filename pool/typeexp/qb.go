@@ -1,7 +1,7 @@
 package typeexp
 
 const (
-	xactExps string = "xact_exps"
+	xactExps string = "pool_type_exps"
 )
 
 type queryBuilder interface {

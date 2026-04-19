@@ -3,13 +3,13 @@ package typeexp
 import (
 	"orglang/go-engine/lib/db"
 
-	"orglang/go-engine/adt/semtype"
 	"orglang/go-engine/adt/symbol"
+	"orglang/go-engine/adt/typesem"
 	"orglang/go-engine/adt/valkey"
 )
 
 type Repo interface {
-	AddRec(db.Source, ExpRec, semtype.TypeRef) error
+	AddRec(db.Source, ExpRec, typesem.SemRef) error
 	GetRecByVK(db.Source, valkey.ADT) (ExpRec, error)
 	GetRecsByVKs(db.Source, []valkey.ADT) ([]ExpRec, error)
 	GetRecMap(db.Source, map[symbol.ADT]valkey.ADT) (map[symbol.ADT]ExpRec, error)

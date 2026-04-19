@@ -27,7 +27,7 @@ func (qb *sqlBuilder) insertRec(rec stateDS) (string, []any) {
 func (qb *sqlBuilder) selectRecByVK() string {
 	top := qb.stateBuilder.SelectFrom(xactExps + " top")
 	top.Where(top.Equal("top.exp_vk", top.Var(1)))
-	sub := qb.stateBuilder.SelectFrom("exp_tree sup, xact_exps sub")
+	sub := qb.stateBuilder.SelectFrom("exp_tree sup, pool_type_exps sub")
 	sub.Where("sub.sup_exp_vk = sup.exp_vk")
 	tree := sqlbuilder.PostgreSQL.NewCTEBuilder()
 	ub := sqlbuilder.PostgreSQL.NewUnionBuilder()

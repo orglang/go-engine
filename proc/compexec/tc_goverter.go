@@ -1,9 +1,9 @@
 package compexec
 
 import (
-	"orglang/go-engine/adt/semterm"
+	"orglang/go-engine/adt/compsem"
 
-	"github.com/orglang/go-sdk/adt/procexec"
+	"github.com/orglang/go-sdk/proc/compexec"
 )
 
 // goverter:variables
@@ -11,21 +11,21 @@ import (
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 var (
 	// goverter:ignore LinearVars
-	MsgToExecSnap   func(procexec.ExecSnap) (ExecSnap, error)
-	MsgFromExecSnap func(ExecSnap) procexec.ExecSnap
+	MsgToExecSnap   func(compexec.ExecSnap) (ExecSnap, error)
+	MsgFromExecSnap func(ExecSnap) compexec.ExecSnap
 )
 
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/proc/exchstep:Data.*
-// goverter:extend orglang/go-engine/adt/implvar:Data.*
+// goverter:extend orglang/go-engine/proc/commturn:Data.*
+// goverter:extend orglang/go-engine/adt/compvar:Data.*
 var (
-	// goverter:map . ImplRef | DataToImplRef
+	// goverter:map . CompRef | dataToSemRef
 	DataToExecRec func(execRecDS) (ExecRec, error)
-	// goverter:autoMap ImplRef
+	// goverter:autoMap CompRef
 	DataFromExecRec func(ExecRec) execRecDS
 	DataFromMod     func(ExecMod) (execModDS, error)
-	// goverter:ignore ImplRN
-	DataToImplRef func(execRecDS) (semterm.TermRef, error)
+	// goverter:ignore CompRN
+	dataToSemRef func(execRecDS) (compsem.SemRef, error)
 )

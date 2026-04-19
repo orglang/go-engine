@@ -1,11 +1,11 @@
 package typedef
 
 const (
-	descSems  string = "desc_sems sem"
-	descBinds string = "desc_binds bind"
-	xactDefs  string = "xact_defs def"
+	descBinds string = "pool_desc_binds "
+	typeDefs  string = "pool_type_defs "
 )
 
 type queryBuilder interface {
+	insertRec(defRecDS) (string, []any)
 	selectRecByQN() string
 }

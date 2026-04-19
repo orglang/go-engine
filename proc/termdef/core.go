@@ -7,14 +7,14 @@ import (
 	"orglang/go-engine/lib/db"
 
 	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/semtype"
 	"orglang/go-engine/adt/symbol"
+	"orglang/go-engine/adt/typesem"
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/proc/termexp"
 )
 
 type API interface {
-	Create(DefSpec) (semtype.TypeRef, error)
+	Create(DefSpec) (typesem.SemRef, error)
 	Retrieve(identity.ADT) (DefRec, error)
 }
 
@@ -24,11 +24,11 @@ type DefSpec struct {
 }
 
 type DefRec struct {
-	Ref semtype.TypeRef
+	Ref typesem.SemRef
 }
 
 type DefSnap struct {
-	Ref semtype.TypeRef
+	Ref typesem.SemRef
 }
 
 type service struct {
@@ -50,8 +50,8 @@ func newService(
 	return &service{procs, operator, l}
 }
 
-func (s *service) Create(spec DefSpec) (semtype.TypeRef, error) {
-	return semtype.TypeRef{}, nil
+func (s *service) Create(spec DefSpec) (typesem.SemRef, error) {
+	return typesem.SemRef{}, nil
 }
 
 func (s *service) Retrieve(recID identity.ADT) (DefRec, error) {

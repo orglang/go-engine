@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"orglang/go-engine/lib/db"
 
-	"orglang/go-engine/adt/semcomm"
+	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/pool/commturn"
 )
@@ -12,18 +12,18 @@ import (
 type Repo interface {
 	AddRec(db.Source, ExchRec) error
 	ModifyRec(db.Source, ExchMod) error
-	GetRefsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]semcomm.CommRef, error)
+	GetRefsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]commsem.SemRef, error)
 	GetSnapByQry(db.Source, ExchQry) (ExchSnap, error)
 }
 
 type exchRecDS struct {
 	CommID   string `db:"comm_id"`
-	OffsetNr int64  `db:"comm_on"`
+	OffsetNr int64  `db:"offset_nr"`
 }
 
 type exchModDS struct {
 	CommID   string          `db:"comm_id"`
-	OffsetNr sql.Null[int64] `db:"comm_on"`
+	OffsetNr sql.Null[int64] `db:"offset_nr"`
 }
 
 type exchQryDS struct {

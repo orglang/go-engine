@@ -1,13 +1,13 @@
 package termdec
 
 import (
-	"github.com/orglang/go-sdk/adt/descsem"
+	"github.com/orglang/go-sdk/adt/termsem"
 )
 
 type DecSpecVP struct {
-	ProcQN string `form:"qn" json:"qn"`
+	TermQN string `form:"qn" json:"qn"`
 }
 
 type DecSnapVP struct {
-	DescRef descsem.SemRef `json:"ref"`
+	TermRef termsem.SemRef `json:"ref"`
 }

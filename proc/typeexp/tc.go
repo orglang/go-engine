@@ -8,7 +8,7 @@ import (
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/adt/valkey"
 
-	"github.com/orglang/go-sdk/adt/typeexp"
+	"github.com/orglang/go-sdk/proc/typeexp"
 )
 
 func ConvertSpecToRec(s ExpSpec) (ExpRec, error) {

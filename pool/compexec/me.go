@@ -4,7 +4,7 @@ import (
 	"orglang/go-engine/pool/compstep"
 )
 
-type Exch interface {
+type Broker interface {
 	Subscribe(api API)
 	SendSpec(compstep.StepSpec) error
 }

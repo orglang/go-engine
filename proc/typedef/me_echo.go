@@ -7,12 +7,12 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	sdk "github.com/orglang/go-sdk/adt/descsem"
-	"github.com/orglang/go-sdk/adt/typedef"
+	sdk "github.com/orglang/go-sdk/adt/typesem"
+	"github.com/orglang/go-sdk/proc/typedef"
 
 	"orglang/go-engine/lib/lf"
 
-	"orglang/go-engine/adt/semtype"
+	"orglang/go-engine/adt/typesem"
 )
 
 // Server-side primary adapter
@@ -56,7 +56,7 @@ func (h *echoController) PostSpec(c echo.Context) error {
 	if createErr != nil {
 		return createErr
 	}
-	h.log.Log(ctx, lf.LevelTrace, "posting succeed", slog.Any("ref", snap.DescRef))
+	h.log.Log(ctx, lf.LevelTrace, "posting succeed", slog.Any("ref", snap.TypeRef))
 	return c.JSON(http.StatusCreated, MsgFromDefSnap(snap))
 }
 
@@ -72,7 +72,7 @@ func (h *echoController) GetSnap(c echo.Context) error {
 		h.log.Error("validation failed", slog.Any("dto", dto))
 		return validateErr
 	}
-	ref, convErr := semtype.MsgToRef(dto)
+	ref, convErr := typesem.MsgToRef(dto)
 	if convErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
 		return convErr
@@ -107,6 +107,6 @@ func (h *echoController) PatchOne(c echo.Context) error {
 	if modificationErr != nil {
 		return modificationErr
 	}
-	h.log.Log(ctx, lf.LevelTrace, "patching succeed", slog.Any("ref", resSnap.DescRef))
+	h.log.Log(ctx, lf.LevelTrace, "patching succeed", slog.Any("ref", resSnap.TypeRef))
 	return c.JSON(http.StatusOK, MsgFromDefSnap(resSnap))
 }

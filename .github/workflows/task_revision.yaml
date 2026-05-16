@@ -1,13 +1,14 @@
 ---
-name: Branch proposal
+name: task revision
 
 on:
+  push:
+    branches:
+      - 'task/**'
   pull_request:
-    branches-ignore: [main]
+    branches: [main]
     types:
-      - opened
-      - reopened
-      - ready_for_review
+      - synchronize
   workflow_dispatch:
 
 defaults:
@@ -16,9 +17,7 @@ defaults:
 
 jobs:
   distros:
-    timeout-minutes: 20
-    strategy:
-      fail-fast: true
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - name: Checkout workspace repo

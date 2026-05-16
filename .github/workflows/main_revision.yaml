@@ -1,14 +1,8 @@
 ---
-name: Trunk proposal
+name: main revision
 
 on:
-  pull_request:
-    branches: [main]
-    types:
-      - opened
-      - reopened
-      - ready_for_review
-  merge_group:
+  push:
     branches: [main]
   workflow_dispatch:
 
@@ -17,13 +11,8 @@ defaults:
     shell: bash
 
 jobs:
-  stacks:
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        stack:
-          - ops: commons
+  binaries:
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - name: Checkout workspace repo
@@ -35,4 +24,4 @@ jobs:
         with:
           ref: ${{ github.ref }}
       - uses: ./.github/actions/setup-tools
-      - run: task stack:${{ matrix.stack.ops }}
+      - run: task binaries

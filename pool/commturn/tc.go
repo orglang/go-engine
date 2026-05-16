@@ -4,6 +4,7 @@ import (
 	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/adt/identity"
+	"orglang/go-engine/adt/symbol"
 	"orglang/go-engine/pool/termexp"
 )
 
@@ -11,23 +12,23 @@ func DataFromStepRec(r TurnRec) TurnRecDS {
 	switch rec := r.(type) {
 	case PubRec:
 		commRef := commsem.DataFromRef(rec.CommRef)
-		implRef := compsem.DataFromRef(rec.CompRef)
+		compRef := compsem.DataFromRef(rec.CompRef)
 		return TurnRecDS{
 			CommID: commRef.CommID,
 			CommRN: commRef.CommRN,
-			CompID: implRef.CompID,
+			CompID: compRef.CompID,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
 			K:      PubKind,
 			Exp:    termexp.DataFromExpRec(rec.ValExp),
 		}
 	case SubRec:
 		commRef := commsem.DataFromRef(rec.CommRef)
-		implRef := compsem.DataFromRef(rec.CompRef)
+		compRef := compsem.DataFromRef(rec.CompRef)
 		return TurnRecDS{
 			CommID: commRef.CommID,
 			CommRN: commRef.CommRN,
-			CompID: implRef.CompID,
-			ChnlID: identity.ConvertToString(rec.ChnlID),
+			CompID: compRef.CompID,
+			ChnlPH: symbol.ConvertToString(rec.ChnlPH),
 			K:      SubKind,
 			Exp:    termexp.DataFromExpRec(rec.ContExp),
 		}
@@ -39,41 +40,9 @@ func DataFromStepRec(r TurnRec) TurnRecDS {
 func DataToStepRec(dto TurnRecDS) (TurnRec, error) {
 	switch dto.K {
 	case PubKind:
-		commRef, err := DataToCommRef(dto)
-		if err != nil {
-			return nil, err
-		}
-		implRef, err := DataToCompRef(dto)
-		if err != nil {
-			return nil, err
-		}
-		chnlID, err := identity.ConvertFromString(dto.ChnlID)
-		if err != nil {
-			return nil, err
-		}
-		valExp, err := termexp.DataToExpRec(dto.Exp)
-		if err != nil {
-			return nil, err
-		}
-		return PubRec{CommRef: commRef, CompRef: implRef, ChnlID: chnlID, ValExp: valExp}, nil
+		return DataToPubRec(dto)
 	case SubKind:
-		commRef, err := DataToCommRef(dto)
-		if err != nil {
-			return nil, err
-		}
-		implRef, err := DataToCompRef(dto)
-		if err != nil {
-			return nil, err
-		}
-		chnlID, err := identity.ConvertFromString(dto.ChnlID)
-		if err != nil {
-			return nil, err
-		}
-		contExp, err := termexp.DataToExpRec(dto.Exp)
-		if err != nil {
-			return nil, err
-		}
-		return SubRec{CommRef: commRef, CompRef: implRef, ChnlID: chnlID, ContExp: contExp}, nil
+		return DataToSubRec(dto)
 	default:
 		panic(ErrStepKindUnexpected(dto.K))
 	}

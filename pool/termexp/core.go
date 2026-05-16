@@ -145,6 +145,7 @@ type ExpRec interface {
 
 type AcquireRec struct {
 	ContChnlID identity.ADT
+	ContChnlPH symbol.ADT
 	ContExp    ExpSpec
 }
 
@@ -152,6 +153,7 @@ func (r AcquireRec) rec() {}
 
 type AcceptRec struct {
 	ContChnlID identity.ADT
+	ContChnlPH symbol.ADT
 	ContExp    ExpSpec
 }
 

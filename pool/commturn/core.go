@@ -10,6 +10,7 @@ import (
 	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/adt/identity"
+	"orglang/go-engine/adt/symbol"
 	"orglang/go-engine/pool/compvar"
 	"orglang/go-engine/pool/termexp"
 	"orglang/go-engine/proc/compexec"
@@ -41,6 +42,7 @@ type SubRec struct {
 	CommRef commsem.SemRef
 	CompRef compsem.SemRef
 	ChnlID  identity.ADT
+	ChnlPH  symbol.ADT
 	ContExp termexp.ExpRec
 }
 

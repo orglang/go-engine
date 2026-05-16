@@ -16,7 +16,6 @@ type TurnRecDS struct {
 	CommRN int64            `db:"comm_rn"`
 	CompID string           `db:"comp_id"`
 	ChnlID string           `db:"chnl_id"`
-	ChnlPH string           `db:"chnl_ph"`
 	K      turnKind         `db:"kind"`
 	Exp    termexp.ExpRecDS `db:"exp" fieldopt:"noexpand"`
 }

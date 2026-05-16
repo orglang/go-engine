@@ -5,7 +5,6 @@ import (
 	"log/slog"
 
 	"orglang/go-engine/adt/compsem"
-	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/symbol"
 	"orglang/go-engine/adt/termsem"
 	"orglang/go-engine/adt/uniqsym"
@@ -144,7 +143,6 @@ type ExpRec interface {
 }
 
 type AcquireRec struct {
-	ContChnlID identity.ADT
 	ContChnlPH symbol.ADT
 	ContExp    ExpSpec
 }
@@ -152,7 +150,6 @@ type AcquireRec struct {
 func (r AcquireRec) rec() {}
 
 type AcceptRec struct {
-	ContChnlID identity.ADT
 	ContChnlPH symbol.ADT
 	ContExp    ExpSpec
 }
@@ -160,7 +157,7 @@ type AcceptRec struct {
 func (r AcceptRec) rec() {}
 
 type HireRec struct {
-	ContChnlID identity.ADT
+	ContChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
 	ContExp    ExpSpec
 }
@@ -168,7 +165,7 @@ type HireRec struct {
 func (r HireRec) rec() {}
 
 type ApplyRec struct {
-	ContChnlID identity.ADT
+	ContChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
 	ContExp    ExpSpec
 }
@@ -176,13 +173,13 @@ type ApplyRec struct {
 func (r ApplyRec) rec() {}
 
 type ReleaseRec struct {
-	ContChnlID identity.ADT
+	ContChnlPH symbol.ADT
 }
 
 func (r ReleaseRec) rec() {}
 
 type DetachRec struct {
-	ContChnlID identity.ADT
+	ContChnlPH symbol.ADT
 }
 
 func (r DetachRec) rec() {}

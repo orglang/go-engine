@@ -4,7 +4,6 @@ import (
 	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/symbol"
 	"orglang/go-engine/pool/termexp"
 )
 
@@ -28,7 +27,6 @@ func DataFromStepRec(r TurnRec) TurnRecDS {
 			CommID: commRef.CommID,
 			CommRN: commRef.CommRN,
 			CompID: compRef.CompID,
-			ChnlPH: symbol.ConvertToString(rec.ChnlPH),
 			K:      SubKind,
 			Exp:    termexp.DataFromExpRec(rec.ContExp),
 		}

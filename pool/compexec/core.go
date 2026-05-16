@@ -311,26 +311,6 @@ func (s *service) take(
 		commRefAttr := slog.Any("commRef", commSnap.CommRef)
 		subscription := commSnap.NextTurn()
 		if subscription == nil {
-			// newChnlID := identity.New()
-			// вяжем продолжение доступодателя
-			// execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-			// 	CompRef: commChnl.CompRef,
-			// 	CommRef: commChnl.CommRef,
-			// 	ChnlID:  newChnlID,
-			// 	ChnlPH:  commChnl.ChnlPH,
-			// 	ChnlBS:  commChnl.ChnlBS,
-			// 	ExpVK:   nextExpVK,
-			// })
-			// регистрируем публикацию доступодателя
-			// exchMod.Turns = append(exchMod.Turns, commturn.PubRec{
-			// 	CommRef: commSnap.CommRef,
-			// 	CompRef: execSnap.CompRef,
-			// 	ChnlID:  commChnl.ChnlID,
-			// 	ValExp: termexp.AcceptRec{
-			// 		ContChnlID: newChnlID,
-			// 		ContExp:    poolExp.ContExp,
-			// 	},
-			// })
 			// регистрируем подписку доступодателя
 			exchMod.Turns = append(exchMod.Turns, commturn.SubRec{
 				CommRef: commSnap.CommRef,
@@ -420,62 +400,62 @@ func (s *service) take(
 		commAttr := slog.Any("commRef", commSnap.CommRef)
 		subscription := commSnap.NextTurn()
 		if subscription == nil {
-			newChnlID := identity.New()
-			// вяжем продолжение доступополучателя
-			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-				CompRef: commChnl.CompRef,
-				CommRef: commChnl.CommRef,
-				ChnlID:  newChnlID,
-				ChnlPH:  commChnl.ChnlPH,
-				ChnlBS:  commChnl.ChnlBS,
-				ExpVK:   nextExpVK,
-			})
 			// регистрируем подписку доступополучателя
 			exchMod.Turns = append(exchMod.Turns, commturn.SubRec{
 				CommRef: commSnap.CommRef,
 				CompRef: execSnap.CompRef,
 				ChnlID:  commChnl.ChnlID,
 				ContExp: termexp.AcquireRec{
-					ContChnlID: newChnlID,
+					ContChnlPH: commChnl.ChnlPH,
 					ContExp:    poolExp.ContExp,
 				},
 			})
 			s.log.Debug("taking half done", compRefAttr, commAttr)
 			return execMod, execEff, exchMod, nil
 		}
-		acception, ok := subscription.(commturn.PubRec)
+		acception, ok := subscription.(commturn.SubRec)
 		if !ok {
 			panic(commturn.ErrRecTypeUnexpected(subscription))
 		}
+		newChnlID := identity.New()
+		// вяжем продолжение доступополучателя
+		execMod.Vars = append(execMod.Vars, compvar.LinearRec{
+			CompRef: commChnl.CompRef,
+			CommRef: commChnl.CommRef,
+			ChnlID:  newChnlID,
+			ChnlPH:  commChnl.ChnlPH,
+			ChnlBS:  commChnl.ChnlBS,
+			ExpVK:   nextExpVK,
+		})
 		if poolExp.ContExp != nil {
-			// шедулим продолжение доступодателя
+			// шедулим продолжение доступополучателя
 			execEff.Steps = append(execEff.Steps, compstep.StepSpec{
 				CompRef: execSnap.CompRef,
 				PoolExp: poolExp.ContExp,
 			})
 		}
-		switch expRec := acception.ValExp.(type) {
+		switch expRec := acception.ContExp.(type) {
 		case termexp.AcceptRec:
 			// сдвигаем офсет коммуникации
 			exchMod.OffsetNr = option.Some(acception.CommRef.CommRN)
-			// вяжем продолжение доступополучателя
+			// вяжем продолжение доступодателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-				CompRef: commChnl.CompRef,
-				CommRef: commChnl.CommRef,
-				ChnlID:  expRec.ContChnlID,
-				ChnlPH:  commChnl.ChnlPH,
+				CompRef: acception.CompRef,
+				CommRef: acception.CommRef,
+				ChnlID:  newChnlID,
+				ChnlPH:  expRec.ContChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
 				ExpVK:   nextExpVK,
 			})
 			if expRec.ContExp != nil {
-				// шедулим продолжение доступополучателя
+				// шедулим продолжение доступодателя
 				execEff.Steps = append(execEff.Steps, compstep.StepSpec{
 					CompRef: acception.CompRef,
 					PoolExp: expRec.ContExp,
 				})
 			}
 		default:
-			panic(termexp.ErrRecTypeUnexpected(acception.ValExp))
+			panic(termexp.ErrRecTypeUnexpected(acception.ContExp))
 		}
 		s.log.Debug("step taking succeed", compRefAttr, commAttr)
 		return execMod, execEff, exchMod, nil
@@ -509,23 +489,13 @@ func (s *service) take(
 		commRefAttr := slog.Any("commRef", commSnap.CommRef)
 		subscription := commSnap.NextTurn()
 		if subscription == nil {
-			newChnlID := identity.New()
-			// вяжем продолжение соискателя
-			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-				CompRef: commChnl.CompRef,
-				CommRef: commChnl.CommRef,
-				ChnlID:  newChnlID,
-				ChnlPH:  commChnl.ChnlPH,
-				ChnlBS:  commChnl.ChnlBS,
-				ExpVK:   nextExpVK,
-			})
-			// регистрируем сообщение соискателя
-			exchMod.Turns = append(exchMod.Turns, commturn.PubRec{
+			// регистрируем подписку соискателя
+			exchMod.Turns = append(exchMod.Turns, commturn.SubRec{
 				CommRef: commSnap.CommRef,
 				CompRef: execSnap.CompRef,
 				ChnlID:  commChnl.ChnlID,
-				ValExp: termexp.ApplyRec{
-					ContChnlID: newChnlID,
+				ContExp: termexp.ApplyRec{
+					ContChnlPH: commChnl.ChnlPH,
 					ProcTermQN: poolExp.ProcTermQN,
 					ContExp:    poolExp.ContExp,
 				},
@@ -537,8 +507,18 @@ func (s *service) take(
 		if !ok {
 			panic(commturn.ErrRecTypeUnexpected(subscription))
 		}
+		newChnlID := identity.New()
+		// вяжем продолжение соискателя
+		execMod.Vars = append(execMod.Vars, compvar.LinearRec{
+			CompRef: commChnl.CompRef,
+			CommRef: commChnl.CommRef,
+			ChnlID:  newChnlID,
+			ChnlPH:  commChnl.ChnlPH,
+			ChnlBS:  commChnl.ChnlBS,
+			ExpVK:   nextExpVK,
+		})
 		if poolExp.ContExp != nil {
-			// шедулим продолжение нанимателя
+			// шедулим продолжение соискателя
 			execEff.Steps = append(execEff.Steps, compstep.StepSpec{
 				CompRef: execSnap.CompRef,
 				PoolExp: poolExp.ContExp,
@@ -546,17 +526,17 @@ func (s *service) take(
 		}
 		switch expRec := hiring.ContExp.(type) {
 		case termexp.HireRec:
-			// вяжем продолжение соискателя
+			// вяжем продолжение нанимателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-				CompRef: commChnl.CompRef,
-				CommRef: commChnl.CommRef,
-				ChnlID:  expRec.ContChnlID,
-				ChnlPH:  commChnl.ChnlPH,
+				CompRef: hiring.CompRef,
+				CommRef: hiring.CommRef,
+				ChnlID:  newChnlID,
+				ChnlPH:  expRec.ContChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
 				ExpVK:   nextExpVK,
 			})
 			if expRec.ContExp != nil {
-				// шедулим продолжение соискателя
+				// шедулим продолжение нанимателя
 				execEff.Steps = append(execEff.Steps, compstep.StepSpec{
 					CompRef: hiring.CompRef,
 					PoolExp: expRec.ContExp,
@@ -597,23 +577,13 @@ func (s *service) take(
 		commAttr := slog.Any("commRef", commSnap.CommRef)
 		subscription := commSnap.NextTurn()
 		if subscription == nil {
-			newChnlID := identity.New()
-			// вяжем продолжение нанимателя
-			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-				CompRef: commChnl.CompRef,
-				CommRef: commChnl.CommRef,
-				ChnlID:  newChnlID,
-				ChnlPH:  commChnl.ChnlPH,
-				ChnlBS:  commChnl.ChnlBS,
-				ExpVK:   nextExpVK,
-			})
 			// регистрируем подписку нанимателя
 			exchMod.Turns = append(exchMod.Turns, commturn.SubRec{
 				CommRef: commSnap.CommRef,
 				CompRef: execSnap.CompRef,
 				ChnlID:  commChnl.ChnlID,
 				ContExp: termexp.HireRec{
-					ContChnlID: newChnlID,
+					ContChnlPH: commChnl.ChnlPH,
 					ProcTermQN: poolExp.ProcTermQN,
 					ContExp:    poolExp.ContExp,
 				},
@@ -621,37 +591,47 @@ func (s *service) take(
 			s.log.Debug("taking half done", compRefAttr, commAttr)
 			return execMod, execEff, exchMod, nil
 		}
-		application, ok := subscription.(commturn.PubRec)
+		application, ok := subscription.(commturn.SubRec)
 		if !ok {
 			panic(commturn.ErrRecTypeUnexpected(subscription))
 		}
+		newChnlID := identity.New()
+		// вяжем продолжение нанимателя
+		execMod.Vars = append(execMod.Vars, compvar.LinearRec{
+			CompRef: commChnl.CompRef,
+			CommRef: commChnl.CommRef,
+			ChnlID:  newChnlID,
+			ChnlPH:  commChnl.ChnlPH,
+			ChnlBS:  commChnl.ChnlBS,
+			ExpVK:   nextExpVK,
+		})
 		if poolExp.ContExp != nil {
-			// шедулим продолжение соискателя
+			// шедулим продолжение нанимателя
 			execEff.Steps = append(execEff.Steps, compstep.StepSpec{
 				CompRef: execSnap.CompRef,
 				PoolExp: poolExp.ContExp,
 			})
 		}
-		switch expRec := application.ValExp.(type) {
+		switch expRec := application.ContExp.(type) {
 		case termexp.ApplyRec:
-			// вяжем продолжение нанимателя
+			// вяжем продолжение соискателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-				CompRef: commChnl.CompRef,
-				CommRef: commChnl.CommRef,
-				ChnlID:  expRec.ContChnlID,
-				ChnlPH:  commChnl.ChnlPH,
+				CompRef: application.CompRef,
+				CommRef: application.CommRef,
+				ChnlID:  newChnlID,
+				ChnlPH:  expRec.ContChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
 				ExpVK:   nextExpVK,
 			})
 			if expRec.ContExp != nil {
-				// запускаем продолжение нанимателя
+				// запускаем продолжение соискателя
 				execEff.Steps = append(execEff.Steps, compstep.StepSpec{
 					CompRef: application.CompRef,
 					PoolExp: expRec.ContExp,
 				})
 			}
 		default:
-			panic(termexp.ErrRecTypeUnexpected(application.ValExp))
+			panic(termexp.ErrRecTypeUnexpected(application.ContExp))
 		}
 		s.log.Debug("step taking succeed", compRefAttr, commAttr)
 		return execMod, execEff, exchMod, nil
@@ -685,23 +665,13 @@ func (s *service) take(
 		commRefAttr := slog.Any("commRef", commSnap.CommRef)
 		subscription := commSnap.NextTurn()
 		if subscription == nil {
-			newChnlID := identity.New()
-			// вяжем продолжение доступовозвращателя
-			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-				CompRef: commChnl.CompRef,
-				CommRef: commChnl.CommRef,
-				ChnlID:  newChnlID,
-				ChnlPH:  commChnl.ChnlPH,
-				ChnlBS:  commChnl.ChnlBS,
-				ExpVK:   nextExpVK,
-			})
-			// регистрируем сообщение доступовозвращателя
-			exchMod.Turns = append(exchMod.Turns, commturn.PubRec{
+			// регистрируем подписку доступовозвращателя
+			exchMod.Turns = append(exchMod.Turns, commturn.SubRec{
 				CommRef: commSnap.CommRef,
 				CompRef: execSnap.CompRef,
 				ChnlID:  commChnl.ChnlID,
-				ValExp: termexp.ReleaseRec{
-					ContChnlID: newChnlID,
+				ContExp: termexp.ReleaseRec{
+					ContChnlPH: commChnl.ChnlPH,
 				},
 			})
 			s.log.Debug("taking half done", compRefAttr, commRefAttr)
@@ -711,14 +681,24 @@ func (s *service) take(
 		if !ok {
 			panic(commturn.ErrRecTypeUnexpected(subscription))
 		}
+		newChnlID := identity.New()
+		// вяжем продолжение доступовозвращателя
+		execMod.Vars = append(execMod.Vars, compvar.LinearRec{
+			CompRef: commChnl.CompRef,
+			CommRef: commChnl.CommRef,
+			ChnlID:  newChnlID,
+			ChnlPH:  commChnl.ChnlPH,
+			ChnlBS:  commChnl.ChnlBS,
+			ExpVK:   nextExpVK,
+		})
 		switch expRec := detaching.ContExp.(type) {
 		case termexp.DetachRec:
-			// вяжем продолжение доступовозвращателя
+			// вяжем продолжение доступопринимателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-				CompRef: commChnl.CompRef,
-				CommRef: commChnl.CommRef,
-				ChnlID:  expRec.ContChnlID,
-				ChnlPH:  commChnl.ChnlPH,
+				CompRef: detaching.CompRef,
+				CommRef: detaching.CommRef,
+				ChnlID:  newChnlID,
+				ChnlPH:  expRec.ContChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
 				ExpVK:   nextExpVK,
 			})
@@ -757,45 +737,45 @@ func (s *service) take(
 		commAttr := slog.Any("commRef", commSnap.CommRef)
 		subscription := commSnap.NextTurn()
 		if subscription == nil {
-			newChnlID := identity.New()
-			// вяжем продолжение доступопринимателя
-			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-				CompRef: commChnl.CompRef,
-				CommRef: commChnl.CommRef,
-				ChnlID:  newChnlID,
-				ChnlPH:  commChnl.ChnlPH,
-				ChnlBS:  commChnl.ChnlBS,
-				ExpVK:   nextExpVK,
-			})
 			// регистрируем подписку доступопринимателя
 			exchMod.Turns = append(exchMod.Turns, commturn.SubRec{
 				CommRef: commSnap.CommRef,
 				CompRef: execSnap.CompRef,
 				ChnlID:  commChnl.ChnlID,
 				ContExp: termexp.DetachRec{
-					ContChnlID: newChnlID,
+					ContChnlPH: commChnl.ChnlPH,
 				},
 			})
 			s.log.Debug("taking half done", compRefAttr, commAttr)
 			return execMod, execEff, exchMod, nil
 		}
-		releasing, ok := subscription.(commturn.PubRec)
+		releasing, ok := subscription.(commturn.SubRec)
 		if !ok {
 			panic(commturn.ErrRecTypeUnexpected(subscription))
 		}
-		switch expRec := releasing.ValExp.(type) {
+		newChnlID := identity.New()
+		// вяжем продолжение доступопринимателя
+		execMod.Vars = append(execMod.Vars, compvar.LinearRec{
+			CompRef: commChnl.CompRef,
+			CommRef: commChnl.CommRef,
+			ChnlID:  newChnlID,
+			ChnlPH:  commChnl.ChnlPH,
+			ChnlBS:  commChnl.ChnlBS,
+			ExpVK:   nextExpVK,
+		})
+		switch expRec := releasing.ContExp.(type) {
 		case termexp.ReleaseRec:
-			// вяжем продолжение доступопринимателя
+			// вяжем продолжение доступовозвращателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
-				CompRef: commChnl.CompRef,
-				CommRef: commChnl.CommRef,
-				ChnlID:  expRec.ContChnlID,
-				ChnlPH:  commChnl.ChnlPH,
+				CompRef: releasing.CompRef,
+				CommRef: releasing.CommRef,
+				ChnlID:  newChnlID,
+				ChnlPH:  expRec.ContChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
 				ExpVK:   nextExpVK,
 			})
 		default:
-			panic(termexp.ErrRecTypeUnexpected(releasing.ValExp))
+			panic(termexp.ErrRecTypeUnexpected(releasing.ContExp))
 		}
 		s.log.Debug("step taking succeed", compRefAttr, commAttr)
 		return execMod, execEff, exchMod, nil

@@ -4,38 +4,38 @@ type Repo interface {
 }
 
 type ExpSpecDS struct {
-	K       expKind      `json:"k"`
-	Acquire *upSpecDS    `json:"acquire,omitempty"`
-	Accept  *upSpecDS    `json:"accept,omitempty"`
-	Hire    *laborSpecDS `json:"hire,omitempty"`
-	Apply   *laborSpecDS `json:"apply,omitempty"`
-	Release *downSpecDS  `json:"release,omitempty"`
-	Detach  *downSpecDS  `json:"detach,omitempty"`
+	K       expKind       `json:"k"`
+	Acquire *grantSpecDS  `json:"acquire,omitempty"`
+	Accept  *grantSpecDS  `json:"accept,omitempty"`
+	Hire    *coopSpecDS   `json:"hire,omitempty"`
+	Apply   *coopSpecDS   `json:"apply,omitempty"`
+	Release *revokeSpecDS `json:"release,omitempty"`
+	Detach  *revokeSpecDS `json:"detach,omitempty"`
 }
 
-type upSpecDS struct {
+type grantSpecDS struct {
 	CommChnlPH string    `json:"ph"`
 	ContExp    ExpSpecDS `json:"exp"`
 }
 
-type laborSpecDS struct {
+type coopSpecDS struct {
 	CommChnlPH string    `json:"ph"`
 	ProcTermQN string    `json:"qn"`
 	ContExp    ExpSpecDS `json:"exp"`
 }
 
-type downSpecDS struct {
+type revokeSpecDS struct {
 	CommChnlPH string `json:"ph"`
 }
 
 type ExpRecDS struct {
-	K       expKind     `json:"k"`
-	Acquire *upRecDS    `json:"acquire,omitempty"`
-	Accept  *upRecDS    `json:"accept,omitempty"`
-	Hire    *laborRecDS `json:"hire,omitempty"`
-	Apply   *laborRecDS `json:"apply,omitempty"`
-	Release *downRecDS  `json:"release,omitempty"`
-	Detach  *downRecDS  `json:"detach,omitempty"`
+	K       expKind      `json:"k"`
+	Acquire *grantRecDS  `json:"acquire,omitempty"`
+	Accept  *grantRecDS  `json:"accept,omitempty"`
+	Hire    *coopRecDS   `json:"hire,omitempty"`
+	Apply   *coopRecDS   `json:"apply,omitempty"`
+	Release *revokeRecDS `json:"release,omitempty"`
+	Detach  *revokeRecDS `json:"detach,omitempty"`
 }
 
 type expKind int
@@ -50,17 +50,17 @@ const (
 	detachKind
 )
 
-type upRecDS struct {
-	ContChnlID string    `json:"id"`
+type grantRecDS struct {
+	ContChnlPH string    `json:"ph"`
 	ContExp    ExpSpecDS `json:"exp"`
 }
 
-type laborRecDS struct {
-	ContChnlID string    `json:"id"`
+type coopRecDS struct {
+	ContChnlPH string    `json:"ph"`
 	ProcTermQN string    `json:"qn"`
 	ContExp    ExpSpecDS `json:"exp"`
 }
 
-type downRecDS struct {
-	ContChnlID string `json:"id"`
+type revokeRecDS struct {
+	ContChnlPH string `json:"ph"`
 }

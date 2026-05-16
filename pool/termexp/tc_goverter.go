@@ -35,31 +35,31 @@ var (
 // goverter:extend DataFromExpSpec
 // goverter:extend DataToExpSpec
 var (
-	DataFromAcquireSpec func(AcquireSpec) *upSpecDS
-	DataFromAcceptSpec  func(AcceptSpec) *upSpecDS
-	DataFromHireSpec    func(HireSpec) *laborSpecDS
-	DataFromApplySpec   func(ApplySpec) *laborSpecDS
-	DataFromReleaseSpec func(ReleaseSpec) *downSpecDS
-	DataFromDetachSpec  func(DetachSpec) *downSpecDS
+	DataFromAcquireSpec func(AcquireSpec) *grantSpecDS
+	DataFromAcceptSpec  func(AcceptSpec) *grantSpecDS
+	DataFromHireSpec    func(HireSpec) *coopSpecDS
+	DataFromApplySpec   func(ApplySpec) *coopSpecDS
+	DataFromReleaseSpec func(ReleaseSpec) *revokeSpecDS
+	DataFromDetachSpec  func(DetachSpec) *revokeSpecDS
 
-	DataToAcquireSpec func(*upSpecDS) (AcquireSpec, error)
-	DataToAcceptSpec  func(*upSpecDS) (AcceptSpec, error)
-	DataToHireSpec    func(*laborSpecDS) (HireSpec, error)
-	DataToApplySpec   func(*laborSpecDS) (ApplySpec, error)
-	DataToReleaseSpec func(*downSpecDS) (ReleaseSpec, error)
-	DataToDetachSpec  func(*downSpecDS) (DetachSpec, error)
+	DataToAcquireSpec func(*grantSpecDS) (AcquireSpec, error)
+	DataToAcceptSpec  func(*grantSpecDS) (AcceptSpec, error)
+	DataToHireSpec    func(*coopSpecDS) (HireSpec, error)
+	DataToApplySpec   func(*coopSpecDS) (ApplySpec, error)
+	DataToReleaseSpec func(*revokeSpecDS) (ReleaseSpec, error)
+	DataToDetachSpec  func(*revokeSpecDS) (DetachSpec, error)
 
-	DataFromAcquireRec func(AcquireRec) *upRecDS
-	DataFromAcceptRec  func(AcceptRec) *upRecDS
-	DataFromHireRec    func(HireRec) *laborRecDS
-	DataFromApplyRec   func(ApplyRec) *laborRecDS
-	DataFromReleaseRec func(ReleaseRec) *downRecDS
-	DataFromDetachRec  func(DetachRec) *downRecDS
+	DataFromAcquireRec func(AcquireRec) *grantRecDS
+	DataFromAcceptRec  func(AcceptRec) *grantRecDS
+	DataFromHireRec    func(HireRec) *coopRecDS
+	DataFromApplyRec   func(ApplyRec) *coopRecDS
+	DataFromReleaseRec func(ReleaseRec) *revokeRecDS
+	DataFromDetachRec  func(DetachRec) *revokeRecDS
 
-	DataToAcquireRec func(*upRecDS) (AcquireRec, error)
-	DataToAcceptRec  func(*upRecDS) (AcceptRec, error)
-	DataToHireRec    func(*laborRecDS) (HireRec, error)
-	DataToApplyRec   func(*laborRecDS) (ApplyRec, error)
-	DataToReleaseRec func(*downRecDS) (ReleaseRec, error)
-	DataToDetachRec  func(*downRecDS) (DetachRec, error)
+	DataToAcquireRec func(*grantRecDS) (AcquireRec, error)
+	DataToAcceptRec  func(*grantRecDS) (AcceptRec, error)
+	DataToHireRec    func(*coopRecDS) (HireRec, error)
+	DataToApplyRec   func(*coopRecDS) (ApplyRec, error)
+	DataToReleaseRec func(*revokeRecDS) (ReleaseRec, error)
+	DataToDetachRec  func(*revokeRecDS) (DetachRec, error)
 )

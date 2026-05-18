@@ -9,8 +9,8 @@ import (
 
 type Repo interface {
 	AddRec(db.Source, ExecRec) error
-	SelectSnap(db.Source, compsem.SemRef) (ExecSnap, error)
-	UpdateProc(db.Source, ExecMod) error
+	ModifyRec(db.Source, ExecMod) error
+	GetSnapByRef(db.Source, compsem.SemRef) (ExecSnap, error)
 }
 
 type execRecDS struct {

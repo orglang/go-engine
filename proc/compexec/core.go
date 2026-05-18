@@ -39,6 +39,15 @@ type ExecRec struct {
 	LiabMode compvar.Mode
 }
 
+type ExecMod struct {
+	CompRefs   []compsem.SemRef
+	LinearVars []compvar.LinearRec
+}
+
+type ExecEff struct {
+	Steps []compstep.StepSpec
+}
+
 // aka Configuration
 type ExecSnap struct {
 	CompRef    compsem.SemRef
@@ -53,19 +62,14 @@ type Env struct {
 
 func ChnlPH(rec compvar.LinearRec) symbol.ADT { return rec.ChnlPH }
 
-type ExecMod struct {
-	CompRefs   []compsem.SemRef
-	LinearVars []compvar.LinearRec
-}
-
 type service struct {
-	compExecs Repo
-	commExchs commexch.Repo
-	termDecs  termdec.Repo
-	typeDefs  typedef.Repo
-	typeExps  typeexp.Repo
-	operator  db.Operator
-	log       *slog.Logger
+	compExecRepo Repo
+	commExchRepo commexch.Repo
+	termDecRepo  termdec.Repo
+	typeDefRepo  typedef.Repo
+	typeExpRepo  typeexp.Repo
+	operator     db.Operator
+	log          *slog.Logger
 }
 
 // for compilation purposes
@@ -74,16 +78,20 @@ func newAPI() API {
 }
 
 func newService(
-	compExecs Repo,
-	commExchs commexch.Repo,
-	termDecs termdec.Repo,
-	typeDefs typedef.Repo,
-	typeExps typeexp.Repo,
+	compExecRepo Repo,
+	commExchRepo commexch.Repo,
+	termDecRepo termdec.Repo,
+	typeDefRepo typedef.Repo,
+	typeExpRepo typeexp.Repo,
 	operator db.Operator,
-	l *slog.Logger,
+	log *slog.Logger,
 ) *service {
 	name := slog.String("name", reflect.TypeFor[service]().Name())
-	return &service{compExecs, commExchs, termDecs, typeDefs, typeExps, operator, l.With(name)}
+	return &service{
+		compExecRepo, commExchRepo,
+		termDecRepo, typeDefRepo, typeExpRepo,
+		operator, log.With(name),
+	}
 }
 
 func (s *service) RetrieveSnap(ref compsem.SemRef) (_ ExecSnap, err error) {
@@ -95,275 +103,145 @@ func ErrMissingChnl(want symbol.ADT) error {
 }
 
 func (s *service) Take(spec compstep.StepSpec) (err error) {
-	implAttr := slog.Any("proc", spec.CompRef)
-	s.log.Debug("step taking started", implAttr, slog.Any("exp", spec.ProcExp))
+	compAttr := slog.Any("proc", spec.CompRef)
+	s.log.Debug("step taking started", compAttr, slog.Any("exp", spec.ProcExp))
 	ctx := context.Background()
 	// initial values
-	implRef := spec.CompRef
+	compRef := spec.CompRef
 	expSpec := spec.ProcExp
 	for expSpec != nil {
 		var execSnap ExecSnap
-		selectErr1 := s.operator.Implicit(ctx, func(ds db.Source) error {
-			execSnap, err = s.compExecs.SelectSnap(ds, implRef)
+		getErr1 := s.operator.Implicit(ctx, func(ds db.Source) error {
+			execSnap, err = s.compExecRepo.GetSnapByRef(ds, compRef)
 			return err
 		})
-		if selectErr1 != nil {
-			s.log.Error("step taking failed", implAttr)
-			return selectErr1
+		if getErr1 != nil {
+			s.log.Error("step taking failed", compAttr)
+			return getErr1
 		}
 		if len(execSnap.LinearVars) == 0 {
 			panic("zero channel binds")
 		}
 		decIDs := termexp.CollectEnv(expSpec)
 		var procDecs map[identity.ADT]termdec.DecRec
-		selectErr2 := s.operator.Implicit(ctx, func(ds db.Source) error {
-			procDecs, err = s.termDecs.SelectEnv(ds, decIDs)
+		getErr2 := s.operator.Implicit(ctx, func(ds db.Source) error {
+			procDecs, err = s.termDecRepo.SelectEnv(ds, decIDs)
 			return err
 		})
-		if selectErr2 != nil {
-			s.log.Error("step taking failed", implAttr, slog.Any("decs", decIDs))
-			return selectErr2
+		if getErr2 != nil {
+			s.log.Error("step taking failed", compAttr, slog.Any("decs", decIDs))
+			return getErr2
 		}
 		typeQNs := termdec.CollectEnv(maps.Values(procDecs))
 		var typeDefs map[uniqsym.ADT]typedef.DefRec
-		selectErr3 := s.operator.Implicit(ctx, func(ds db.Source) error {
-			typeDefs, err = s.typeDefs.SelectEnv(ds, typeQNs)
+		getErr3 := s.operator.Implicit(ctx, func(ds db.Source) error {
+			typeDefs, err = s.typeDefRepo.SelectEnv(ds, typeQNs)
 			return err
 		})
-		if selectErr3 != nil {
-			s.log.Error("step taking failed", implAttr, slog.Any("types", typeQNs))
-			return selectErr3
+		if getErr3 != nil {
+			s.log.Error("step taking failed", compAttr, slog.Any("types", typeQNs))
+			return getErr3
 		}
 		envIDs := typedef.CollectEnv(maps.Values(typeDefs))
 		ctxIDs := CollectCtx(maps.Values(execSnap.LinearVars))
 		var typeExps map[valkey.ADT]typeexp.ExpRec
-		selectErr4 := s.operator.Implicit(ctx, func(ds db.Source) error {
-			typeExps, err = s.typeExps.SelectEnv(ds, append(envIDs, ctxIDs...))
+		getErr4 := s.operator.Implicit(ctx, func(ds db.Source) error {
+			typeExps, err = s.typeExpRepo.SelectEnv(ds, append(envIDs, ctxIDs...))
 			return err
 		})
-		if selectErr4 != nil {
-			s.log.Error("step taking failed", implAttr, slog.Any("env", envIDs), slog.Any("ctx", ctxIDs))
-			return selectErr4
+		if getErr4 != nil {
+			s.log.Error("step taking failed", compAttr, slog.Any("env", envIDs), slog.Any("ctx", ctxIDs))
+			return getErr4
 		}
 		procEnv := Env{ProcDecs: procDecs, TypeDefs: typeDefs, TypeExps: typeExps}
 		procCtx := convertToCtx(maps.Values(execSnap.LinearVars), typeExps)
 		// type checking
 		err = s.checkType(procEnv, procCtx, execSnap, expSpec)
 		if err != nil {
-			s.log.Error("step taking failed", implAttr)
+			s.log.Error("step taking failed", compAttr)
 			return err
 		}
 		// step taking
 		nextSpec, _, procMod, err := s.takeWith(procEnv, execSnap, expSpec)
 		if err != nil {
-			s.log.Error("step taking failed", implAttr)
+			s.log.Error("step taking failed", compAttr)
 			return err
 		}
 		err = s.operator.Explicit(ctx, func(ds db.Source) error {
-			err = s.compExecs.UpdateProc(ds, procMod)
+			err = s.compExecRepo.ModifyRec(ds, procMod)
 			if err != nil {
-				s.log.Error("step taking failed", implAttr)
+				s.log.Error("step taking failed", compAttr)
 				return err
 			}
 			return nil
 		})
 		if err != nil {
-			s.log.Error("step taking failed", implAttr)
+			s.log.Error("step taking failed", compAttr)
 			return err
 		}
 		// next values
-		implRef = nextSpec.CompRef
+		compRef = nextSpec.CompRef
 		expSpec = nextSpec.ProcExp
 	}
-	s.log.Debug("step taking succeed", implAttr)
+	s.log.Debug("step taking succeed", compAttr)
 	return nil
 }
 
 func (s *service) takeWith(
 	procEnv Env,
 	execSnap ExecSnap,
-	es termexp.ExpSpec,
+	exp termexp.ExpSpec,
 ) (
 	stepSpec compstep.StepSpec,
-	connMod commexch.ExchMod,
+	exchMod commexch.ExchMod,
 	execMod ExecMod,
 	err error,
 ) {
 	ctx := context.Background()
-	implAttr := slog.Any("impl", execSnap.CompRef)
+	compAttr := slog.Any("compRef", execSnap.CompRef)
 	execMod.CompRefs = append(execMod.CompRefs, execSnap.CompRef)
-	switch expSpec := es.(type) {
+	switch termExp := exp.(type) {
 	case termexp.CloseSpec:
-		commChnl, ok := execSnap.LinearVars[expSpec.CommChnlPH]
+		commChnl, ok := execSnap.LinearVars[termExp.ContChnlPH]
 		if !ok {
-			s.log.Error("step taking failed", implAttr)
-			return compstep.StepSpec{}, connMod, ExecMod{}, termdef.ErrMissingInCfg(expSpec.CommChnlPH)
+			s.log.Error("step taking failed", compAttr)
+			return compstep.StepSpec{}, exchMod, ExecMod{}, termdef.ErrMissingInCfg(termExp.ContChnlPH)
 		}
-		commAttr := slog.Any("comm", commChnl.CommRef)
-		// получаем снепшот соединения
-		var connSnap commexch.ExchSnap
+		commAttr := slog.Any("commRef", commChnl.CommRef)
+		// получаем снепшот коммуникации
+		var commSnap commexch.ExchSnap
 		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
-			connSnap, err = s.commExchs.SelectSnapByQry(ds, commexch.ExchQry{
+			commSnap, err = s.commExchRepo.GetSnapByQry(ds, commexch.ExchQry{
 				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
 		if getErr != nil {
-			s.log.Error("step taking failed", implAttr, commAttr)
-			return stepSpec, connMod, execMod, getErr
+			s.log.Error("step taking failed", compAttr, commAttr)
+			return stepSpec, exchMod, execMod, getErr
 		}
-		// обнуляем канал закрывателя
-		execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-			CompRef: commChnl.CompRef,
-			CommRef: commChnl.CommRef,
-			ChnlID:  identity.Nil,
-			ChnlPH:  commChnl.ChnlPH,
-			ChnlBS:  commChnl.ChnlBS,
-			ExpVK:   valkey.Zero,
-		})
-		subscription := connSnap.NextTurn()
+		subscription := commSnap.NextTurn()
 		if subscription == nil {
-			// регистрируем сообщение закрывателя
-			connMod.Turns = append(connMod.Turns, commturn.PubRec{
-				CommRef: connSnap.CommRef,
+			// регистрируем подписку закрывателя
+			exchMod.Turns = append(exchMod.Turns, commturn.SubRec{
+				CommRef: commSnap.CommRef,
 				CompRef: execSnap.CompRef,
 				ChnlID:  commChnl.ChnlID,
-				ValExp:  termexp.CloseRec(expSpec),
+				ContExp: termexp.CloseRec(termExp),
 			})
-			s.log.Debug("taking half done", implAttr, commAttr)
-			return stepSpec, connMod, execMod, nil
+			s.log.Debug("taking half done", compAttr, commAttr)
+			return stepSpec, exchMod, execMod, nil
 		}
 		observation, ok := subscription.(commturn.SubRec)
 		if !ok {
 			panic(commturn.ErrRecTypeUnexpected(subscription))
 		}
-		switch contExp := observation.ContExp.(type) {
+		newChnlID := identity.New()
+		nextExpVK := valkey.One.Invert()
+		switch expRec := observation.ContExp.(type) {
 		case termexp.WaitRec:
-			stepSpec = compstep.StepSpec{
-				CompRef: observation.CompRef,
-				ProcExp: contExp.ContES,
-			}
-			s.log.Debug("step taking succeed", implAttr, commAttr)
-			return stepSpec, connMod, execMod, nil
-		default:
-			panic(termexp.ErrRecTypeUnexpected(observation.ContExp))
-		}
-	case termexp.WaitSpec:
-		commChnl, ok := execSnap.LinearVars[expSpec.CommChnlPH]
-		if !ok {
-			s.log.Error("step taking failed", implAttr)
-			return compstep.StepSpec{}, connMod, ExecMod{}, termdef.ErrMissingInCfg(expSpec.CommChnlPH)
-		}
-		// обнуляем канал наблюдателя
-		execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-			CompRef: commChnl.CompRef,
-			CommRef: commChnl.CommRef,
-			ChnlID:  identity.Nil,
-			ChnlPH:  commChnl.ChnlPH,
-			ChnlBS:  commChnl.ChnlBS,
-			ExpVK:   valkey.Zero,
-		})
-		// получаем снепшот соединения
-		var connSnap commexch.ExchSnap
-		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
-			connSnap, err = s.commExchs.SelectSnapByQry(ds, commexch.ExchQry{
-				CommRef: commChnl.CommRef,
-				ChnlID:  option.Some(commChnl.ChnlID),
-			})
-			return err
-		})
-		if getErr != nil {
-			s.log.Error("step taking failed", implAttr)
-			return stepSpec, connMod, execMod, getErr
-		}
-		publication := connSnap.NextTurn()
-		if publication == nil {
-			// регистрируем подписку наблюдателя
-			connMod.Turns = append(connMod.Turns, commturn.SubRec{
-				CommRef: connSnap.CommRef,
-				CompRef: execSnap.CompRef,
-				ChnlID:  commChnl.ChnlID,
-				ContExp: termexp.WaitRec(expSpec),
-			})
-			s.log.Debug("taking half done", implAttr)
-			return stepSpec, connMod, execMod, nil
-		}
-		closage, ok := publication.(commturn.PubRec)
-		if !ok {
-			panic(commturn.ErrRecTypeUnexpected(publication))
-		}
-		switch valExp := closage.ValExp.(type) {
-		case termexp.CloseRec:
-			stepSpec = compstep.StepSpec{
-				CompRef: execSnap.CompRef,
-				ProcExp: expSpec.ContES,
-			}
-			s.log.Debug("step taking succeed", implAttr)
-			return stepSpec, connMod, execMod, nil
-		case termexp.FwdRec:
-			// перенаправляем продолжение наблюдателя
-			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-				CompRef: execSnap.CompRef,
-				CommRef: connSnap.CommRef,
-				ChnlID:  valExp.ContChnlID,
-				ChnlPH:  commChnl.ChnlPH,
-				ChnlBS:  commChnl.ChnlBS,
-				ExpVK:   commChnl.ExpVK,
-			})
-			stepSpec = compstep.StepSpec{
-				CompRef: execSnap.CompRef,
-				ProcExp: expSpec,
-			}
-			s.log.Debug("step taking succeed", implAttr)
-			return stepSpec, connMod, execMod, nil
-		default:
-			panic(termexp.ErrRecTypeUnexpected(closage.ValExp))
-		}
-	case termexp.SendSpec:
-		commChnl, ok := execSnap.LinearVars[expSpec.CommChnlPH]
-		if !ok {
-			err := termdef.ErrMissingInCfg(expSpec.CommChnlPH)
-			s.log.Error("step taking failed", implAttr)
-			return compstep.StepSpec{}, connMod, ExecMod{}, err
-		}
-		// лишаем значения отправителя
-		execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-			CompRef: commChnl.CompRef,
-			CommRef: commChnl.CommRef,
-			ChnlID:  commChnl.ChnlID,
-			ChnlPH:  expSpec.ValChnlPH,
-			ChnlBS:  commChnl.ChnlBS,
-			ExpVK:   commChnl.ExpVK.Invert(),
-		})
-		typeExp, ok := procEnv.TypeExps[commChnl.ExpVK]
-		if !ok {
-			s.log.Error("step taking failed", implAttr)
-			return compstep.StepSpec{}, connMod, ExecMod{}, typedef.ErrMissingInEnv(commChnl.ExpVK)
-		}
-		nextExpVK := typeExp.(typeexp.ProdRec).Next()
-		valChnl, ok := execSnap.LinearVars[expSpec.ValChnlPH]
-		if !ok {
-			s.log.Error("step taking failed", implAttr)
-			return compstep.StepSpec{}, connMod, ExecMod{}, termdef.ErrMissingInCfg(expSpec.ValChnlPH)
-		}
-		// получаем снепшот соединения
-		var connSnap commexch.ExchSnap
-		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
-			connSnap, err = s.commExchs.SelectSnapByQry(ds, commexch.ExchQry{
-				CommRef: commChnl.CommRef,
-				ChnlID:  option.Some(commChnl.ChnlID),
-			})
-			return err
-		})
-		if getErr != nil {
-			s.log.Error("step taking failed", implAttr)
-			return stepSpec, connMod, execMod, getErr
-		}
-		subscription := connSnap.NextTurn()
-		if subscription == nil {
-			newChnlID := identity.New()
-			// вяжем продолжение отправителя
+			// лишаем продолжения закрывателя
 			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
 				CompRef: commChnl.CompRef,
 				CommRef: commChnl.CommRef,
@@ -372,33 +250,184 @@ func (s *service) takeWith(
 				ChnlBS:  commChnl.ChnlBS,
 				ExpVK:   nextExpVK,
 			})
-			// регистрируем сообщение отправителя
-			connMod.Turns = append(connMod.Turns, commturn.PubRec{
-				CommRef: connSnap.CommRef,
+			// лишаем продолжения наблюдателя
+			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
+				CompRef: observation.CompRef,
+				CommRef: observation.CommRef,
+				ChnlID:  newChnlID,
+				ChnlPH:  expRec.ContChnlPH,
+				ChnlBS:  commChnl.ChnlBS,
+				ExpVK:   nextExpVK,
+			})
+			stepSpec = compstep.StepSpec{
+				CompRef: observation.CompRef,
+				ProcExp: expRec.ContExp,
+			}
+			s.log.Debug("step taking succeed", compAttr, commAttr)
+			return stepSpec, exchMod, execMod, nil
+		default:
+			panic(termexp.ErrRecTypeUnexpected(observation.ContExp))
+		}
+	case termexp.WaitSpec:
+		commChnl, ok := execSnap.LinearVars[termExp.ContChnlPH]
+		if !ok {
+			s.log.Error("step taking failed", compAttr)
+			return compstep.StepSpec{}, exchMod, ExecMod{}, termdef.ErrMissingInCfg(termExp.ContChnlPH)
+		}
+		// получаем снепшот соединения
+		var commSnap commexch.ExchSnap
+		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
+			commSnap, err = s.commExchRepo.GetSnapByQry(ds, commexch.ExchQry{
+				CommRef: commChnl.CommRef,
+				ChnlID:  option.Some(commChnl.ChnlID),
+			})
+			return err
+		})
+		if getErr != nil {
+			s.log.Error("step taking failed", compAttr)
+			return stepSpec, exchMod, execMod, getErr
+		}
+		subscription := commSnap.NextTurn()
+		if subscription == nil {
+			// регистрируем подписку наблюдателя
+			exchMod.Turns = append(exchMod.Turns, commturn.SubRec{
+				CommRef: commSnap.CommRef,
 				CompRef: execSnap.CompRef,
 				ChnlID:  commChnl.ChnlID,
-				ValExp: termexp.SendRec{
+				ContExp: termexp.WaitRec(termExp),
+			})
+			s.log.Debug("taking half done", compAttr)
+			return stepSpec, exchMod, execMod, nil
+		}
+		closage, ok := subscription.(commturn.SubRec)
+		if !ok {
+			panic(commturn.ErrRecTypeUnexpected(subscription))
+		}
+		newChnlID := identity.New()
+		nextExpVK := valkey.One.Invert()
+		switch expRec := closage.ContExp.(type) {
+		case termexp.CloseRec:
+			// лишаем продолжения наблюдателя
+			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
+				CompRef: commChnl.CompRef,
+				CommRef: commChnl.CommRef,
+				ChnlID:  newChnlID,
+				ChnlPH:  commChnl.ChnlPH,
+				ChnlBS:  commChnl.ChnlBS,
+				ExpVK:   nextExpVK,
+			})
+			// лишаем продолжения закрывателя
+			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
+				CompRef: closage.CompRef,
+				CommRef: closage.CommRef,
+				ChnlID:  newChnlID,
+				ChnlPH:  expRec.ContChnlPH,
+				ChnlBS:  commChnl.ChnlBS,
+				ExpVK:   nextExpVK,
+			})
+			stepSpec = compstep.StepSpec{
+				CompRef: execSnap.CompRef,
+				ProcExp: termExp.ContExp,
+			}
+			s.log.Debug("step taking succeed", compAttr)
+			return stepSpec, exchMod, execMod, nil
+		case termexp.FwdRec:
+			// перенаправляем продолжение наблюдателя
+			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
+				CompRef: execSnap.CompRef,
+				CommRef: commSnap.CommRef,
+				ChnlID:  expRec.ContChnlID,
+				ChnlPH:  commChnl.ChnlPH,
+				ChnlBS:  commChnl.ChnlBS,
+				ExpVK:   commChnl.ExpVK,
+			})
+			stepSpec = compstep.StepSpec{
+				CompRef: execSnap.CompRef,
+				ProcExp: termExp,
+			}
+			s.log.Debug("step taking succeed", compAttr)
+			return stepSpec, exchMod, execMod, nil
+		default:
+			panic(termexp.ErrRecTypeUnexpected(closage.ContExp))
+		}
+	case termexp.SendSpec:
+		commChnl, ok := execSnap.LinearVars[termExp.CommChnlPH]
+		if !ok {
+			err := termdef.ErrMissingInCfg(termExp.CommChnlPH)
+			s.log.Error("step taking failed", compAttr)
+			return compstep.StepSpec{}, exchMod, ExecMod{}, err
+		}
+		typeExp, ok := procEnv.TypeExps[commChnl.ExpVK]
+		if !ok {
+			s.log.Error("step taking failed", compAttr)
+			return compstep.StepSpec{}, exchMod, ExecMod{}, typedef.ErrMissingInEnv(commChnl.ExpVK)
+		}
+		nextExpVK := typeExp.(typeexp.ProdRec).Next()
+		valChnl, ok := execSnap.LinearVars[termExp.ValChnlPH]
+		if !ok {
+			s.log.Error("step taking failed", compAttr)
+			return compstep.StepSpec{}, exchMod, ExecMod{}, termdef.ErrMissingInCfg(termExp.ValChnlPH)
+		}
+		// получаем снепшот соединения
+		var commSnap commexch.ExchSnap
+		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
+			commSnap, err = s.commExchRepo.GetSnapByQry(ds, commexch.ExchQry{
+				CommRef: commChnl.CommRef,
+				ChnlID:  option.Some(commChnl.ChnlID),
+			})
+			return err
+		})
+		if getErr != nil {
+			s.log.Error("step taking failed", compAttr)
+			return stepSpec, exchMod, execMod, getErr
+		}
+		subscription := commSnap.NextTurn()
+		if subscription == nil {
+			// регистрируем подписку отправителя
+			exchMod.Turns = append(exchMod.Turns, commturn.SubRec{
+				CommRef: commSnap.CommRef,
+				CompRef: execSnap.CompRef,
+				ChnlID:  commChnl.ChnlID,
+				ContExp: termexp.SendRec{
 					CommChnlPH: commChnl.ChnlPH,
-					ContChnlID: newChnlID,
 					ValChnlID:  valChnl.ChnlID,
 					ValExpVK:   valChnl.ExpVK,
 				},
 			})
-			s.log.Debug("taking half done", implAttr)
-			return stepSpec, connMod, execMod, nil
+			s.log.Debug("taking half done", compAttr)
+			return stepSpec, exchMod, execMod, nil
 		}
 		receival, ok := subscription.(commturn.SubRec)
 		if !ok {
 			panic(commturn.ErrRecTypeUnexpected(subscription))
 		}
-		switch contExp := receival.ContExp.(type) {
+		newChnlID := identity.New()
+		// вяжем продолжение отправителя
+		execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
+			CompRef: commChnl.CompRef,
+			CommRef: commChnl.CommRef,
+			ChnlID:  newChnlID,
+			ChnlPH:  commChnl.ChnlPH,
+			ChnlBS:  commChnl.ChnlBS,
+			ExpVK:   nextExpVK,
+		})
+		// лишаем значения отправителя
+		execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
+			CompRef: commChnl.CompRef,
+			CommRef: commChnl.CommRef,
+			ChnlID:  identity.New(),
+			ChnlPH:  valChnl.ChnlPH,
+			ChnlBS:  valChnl.ChnlBS,
+			ExpVK:   valChnl.ExpVK.Invert(),
+		})
+		switch expRec := receival.ContExp.(type) {
 		case termexp.RecvRec:
-			// вяжем продолжение отправителя
+			// вяжем продолжение принимателя
 			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-				CompRef: commChnl.CompRef,
-				CommRef: commChnl.CommRef,
-				ChnlID:  contExp.ContChnlID,
-				ChnlPH:  commChnl.ChnlPH,
+				CompRef: receival.CompRef,
+				CommRef: receival.CommRef,
+				ChnlID:  newChnlID,
+				ChnlPH:  expRec.CommChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
 				ExpVK:   nextExpVK,
 			})
@@ -407,43 +436,43 @@ func (s *service) takeWith(
 				CompRef: receival.CompRef,
 				CommRef: valChnl.CommRef,
 				ChnlID:  valChnl.ChnlID,
-				ChnlPH:  contExp.NewChnlPH,
+				ChnlPH:  expRec.NewChnlPH,
 				ChnlBS:  valChnl.ChnlBS,
 				ExpVK:   valChnl.ExpVK,
 			})
 			stepSpec = compstep.StepSpec{
 				CompRef: receival.CompRef,
-				ProcExp: contExp.ContES,
+				ProcExp: expRec.ContExp,
 			}
-			s.log.Debug("step taking succeed", implAttr)
-			return stepSpec, connMod, execMod, nil
+			s.log.Debug("step taking succeed", compAttr)
+			return stepSpec, exchMod, execMod, nil
 		default:
 			panic(termexp.ErrRecTypeUnexpected(receival.ContExp))
 		}
 	case termexp.RecvSpec:
-		commChnl, ok := execSnap.LinearVars[expSpec.CommChnlPH]
+		commChnl, ok := execSnap.LinearVars[termExp.CommChnlPH]
 		if !ok {
-			s.log.Error("step taking failed", implAttr)
-			return compstep.StepSpec{}, connMod, ExecMod{}, termdef.ErrMissingInCfg(expSpec.CommChnlPH)
+			s.log.Error("step taking failed", compAttr)
+			return compstep.StepSpec{}, exchMod, ExecMod{}, termdef.ErrMissingInCfg(termExp.CommChnlPH)
 		}
 		typeExp, ok := procEnv.TypeExps[commChnl.ExpVK]
 		if !ok {
-			s.log.Error("step taking failed", implAttr)
-			return compstep.StepSpec{}, connMod, ExecMod{}, typedef.ErrMissingInEnv(commChnl.ExpVK)
+			s.log.Error("step taking failed", compAttr)
+			return compstep.StepSpec{}, exchMod, ExecMod{}, typedef.ErrMissingInEnv(commChnl.ExpVK)
 		}
 		nextExpVK := typeExp.(typeexp.ProdRec).Next()
 		// получаем снепшот соединения
 		var connSnap commexch.ExchSnap
 		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
-			connSnap, err = s.commExchs.SelectSnapByQry(ds, commexch.ExchQry{
+			connSnap, err = s.commExchRepo.GetSnapByQry(ds, commexch.ExchQry{
 				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
 		if getErr != nil {
-			s.log.Error("step taking failed", implAttr)
-			return stepSpec, connMod, execMod, getErr
+			s.log.Error("step taking failed", compAttr)
+			return stepSpec, exchMod, execMod, getErr
 		}
 		publication := connSnap.NextTurn()
 		if publication == nil {
@@ -458,19 +487,19 @@ func (s *service) takeWith(
 				ExpVK:   nextExpVK,
 			})
 			// регистрируем подписку принимателя
-			connMod.Turns = append(connMod.Turns, commturn.SubRec{
+			exchMod.Turns = append(exchMod.Turns, commturn.SubRec{
 				CommRef: connSnap.CommRef,
 				CompRef: execSnap.CompRef,
 				ChnlID:  commChnl.ChnlID,
 				ContExp: termexp.RecvRec{
 					CommChnlPH: commChnl.ChnlPH,
 					ContChnlID: newChnlID,
-					NewChnlPH:  expSpec.NewChnlPH,
-					ContES:     expSpec.ContES,
+					NewChnlPH:  termExp.NewChnlPH,
+					ContExp:    termExp.ContExp,
 				},
 			})
-			s.log.Debug("taking half done", implAttr)
-			return stepSpec, connMod, execMod, nil
+			s.log.Debug("taking half done", compAttr)
+			return stepSpec, exchMod, execMod, nil
 		}
 		sending, ok := publication.(commturn.PubRec)
 		if !ok {
@@ -492,44 +521,44 @@ func (s *service) takeWith(
 				CompRef: commChnl.CompRef,
 				CommRef: valExp.CommRef,
 				ChnlID:  valExp.ValChnlID,
-				ChnlPH:  expSpec.NewChnlPH,
+				ChnlPH:  termExp.NewChnlPH,
 				ChnlBS:  compvar.AssetSide,
 				ExpVK:   valExp.ValExpVK,
 			})
 			stepSpec = compstep.StepSpec{
 				CompRef: execSnap.CompRef,
-				ProcExp: expSpec.ContES,
+				ProcExp: termExp.ContExp,
 			}
-			s.log.Debug("step taking succeed", implAttr)
-			return stepSpec, connMod, execMod, nil
+			s.log.Debug("step taking succeed", compAttr)
+			return stepSpec, exchMod, execMod, nil
 		default:
 			panic(termexp.ErrRecTypeUnexpected(sending.ValExp))
 		}
 	case termexp.LabSpec:
-		commChnl, ok := execSnap.LinearVars[expSpec.CommChnlPH]
+		commChnl, ok := execSnap.LinearVars[termExp.CommChnlPH]
 		if !ok {
-			err := termdef.ErrMissingInCfg(expSpec.CommChnlPH)
+			err := termdef.ErrMissingInCfg(termExp.CommChnlPH)
 			s.log.Error("step taking failed")
-			return compstep.StepSpec{}, connMod, ExecMod{}, err
+			return compstep.StepSpec{}, exchMod, ExecMod{}, err
 		}
 		typeExp, ok := procEnv.TypeExps[commChnl.ExpVK]
 		if !ok {
-			s.log.Error("step taking failed", implAttr)
-			return compstep.StepSpec{}, connMod, ExecMod{}, typedef.ErrMissingInEnv(commChnl.ExpVK)
+			s.log.Error("step taking failed", compAttr)
+			return compstep.StepSpec{}, exchMod, ExecMod{}, typedef.ErrMissingInEnv(commChnl.ExpVK)
 		}
-		nextExpVK := typeExp.(typeexp.SumRec).Next(expSpec.ValLabQN)
+		nextExpVK := typeExp.(typeexp.SumRec).Next(termExp.ValLabQN)
 		// получаем снепшот соединения
 		var connSnap commexch.ExchSnap
 		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
-			connSnap, err = s.commExchs.SelectSnapByQry(ds, commexch.ExchQry{
+			connSnap, err = s.commExchRepo.GetSnapByQry(ds, commexch.ExchQry{
 				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
 		if getErr != nil {
-			s.log.Error("step taking failed", implAttr)
-			return stepSpec, connMod, execMod, getErr
+			s.log.Error("step taking failed", compAttr)
+			return stepSpec, exchMod, execMod, getErr
 		}
 		subscription := connSnap.NextTurn()
 		if subscription == nil {
@@ -544,18 +573,18 @@ func (s *service) takeWith(
 				ExpVK:   nextExpVK,
 			})
 			// регистрируем сообщение решателя
-			connMod.Turns = append(connMod.Turns, commturn.PubRec{
+			exchMod.Turns = append(exchMod.Turns, commturn.PubRec{
 				CommRef: connSnap.CommRef,
 				CompRef: execSnap.CompRef,
 				ChnlID:  commChnl.ChnlID,
 				ValExp: termexp.LabRec{
 					CommChnlPH: commChnl.ChnlPH,
 					ContChnlID: newChnlID,
-					ValLabQN:   expSpec.ValLabQN,
+					ValLabQN:   termExp.ValLabQN,
 				},
 			})
-			s.log.Debug("taking half done", implAttr)
-			return stepSpec, connMod, execMod, nil
+			s.log.Debug("taking half done", compAttr)
+			return stepSpec, exchMod, execMod, nil
 		}
 		folowing, ok := subscription.(commturn.SubRec)
 		if !ok {
@@ -583,49 +612,49 @@ func (s *service) takeWith(
 			})
 			stepSpec = compstep.StepSpec{
 				CompRef: folowing.CompRef,
-				ProcExp: contExp.ContESs[expSpec.ValLabQN],
+				ProcExp: contExp.ContExps[termExp.ValLabQN],
 			}
-			s.log.Debug("step taking succeed", implAttr)
-			return stepSpec, connMod, execMod, nil
+			s.log.Debug("step taking succeed", compAttr)
+			return stepSpec, exchMod, execMod, nil
 		default:
 			panic(termexp.ErrRecTypeUnexpected(folowing.ContExp))
 		}
 	case termexp.CaseSpec:
-		commChnl, ok := execSnap.LinearVars[expSpec.CommChnlPH]
+		commChnl, ok := execSnap.LinearVars[termExp.CommChnlPH]
 		if !ok {
-			err := termdef.ErrMissingInCfg(expSpec.CommChnlPH)
+			err := termdef.ErrMissingInCfg(termExp.CommChnlPH)
 			s.log.Error("step taking failed")
-			return compstep.StepSpec{}, connMod, ExecMod{}, err
+			return compstep.StepSpec{}, exchMod, ExecMod{}, err
 		}
 		// получаем снепшот соединения
 		var connSnap commexch.ExchSnap
 		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
-			connSnap, err = s.commExchs.SelectSnapByQry(ds, commexch.ExchQry{
+			connSnap, err = s.commExchRepo.GetSnapByQry(ds, commexch.ExchQry{
 				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
 		if getErr != nil {
-			s.log.Error("step taking failed", implAttr)
-			return stepSpec, connMod, execMod, getErr
+			s.log.Error("step taking failed", compAttr)
+			return stepSpec, exchMod, execMod, getErr
 		}
 		publication := connSnap.NextTurn()
 		if publication == nil {
 			newChnlID := identity.New()
 			// регистрируем подписку последователя
-			connMod.Turns = append(connMod.Turns, commturn.SubRec{
+			exchMod.Turns = append(exchMod.Turns, commturn.SubRec{
 				CommRef: commChnl.CommRef,
 				CompRef: commChnl.CompRef,
 				ChnlID:  commChnl.ChnlID,
 				ContExp: termexp.CaseRec{
 					CommChnlPH: commChnl.ChnlPH,
 					ContChnlID: newChnlID,
-					ContESs:    expSpec.ContESes,
+					ContExps:   termExp.ContExps,
 				},
 			})
-			s.log.Debug("taking half done", implAttr)
-			return stepSpec, connMod, execMod, nil
+			s.log.Debug("taking half done", compAttr)
+			return stepSpec, exchMod, execMod, nil
 		}
 		decision, ok := publication.(commturn.PubRec)
 		if !ok {
@@ -644,41 +673,41 @@ func (s *service) takeWith(
 			})
 			stepSpec = compstep.StepSpec{
 				CompRef: execSnap.CompRef,
-				ProcExp: expSpec.ContESes[valExp.ValLabQN],
+				ProcExp: termExp.ContExps[valExp.ValLabQN],
 			}
-			s.log.Debug("step taking succeed", implAttr)
-			return stepSpec, connMod, execMod, nil
+			s.log.Debug("step taking succeed", compAttr)
+			return stepSpec, exchMod, execMod, nil
 		default:
 			panic(termexp.ErrRecTypeUnexpected(decision.ValExp))
 		}
 	case termexp.FwdSpec:
-		commChnl, ok := execSnap.LinearVars[expSpec.CommChnlPH]
+		commChnl, ok := execSnap.LinearVars[termExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed")
-			return compstep.StepSpec{}, connMod, ExecMod{}, termdef.ErrMissingInCfg(expSpec.CommChnlPH)
+			return compstep.StepSpec{}, exchMod, ExecMod{}, termdef.ErrMissingInCfg(termExp.CommChnlPH)
 		}
-		contChnl, ok := execSnap.LinearVars[expSpec.ContChnlPH]
+		contChnl, ok := execSnap.LinearVars[termExp.ContChnlPH]
 		if !ok {
 			s.log.Error("step taking failed")
-			return compstep.StepSpec{}, connMod, ExecMod{}, termdef.ErrMissingInCfg(expSpec.ContChnlPH)
+			return compstep.StepSpec{}, exchMod, ExecMod{}, termdef.ErrMissingInCfg(termExp.ContChnlPH)
 		}
 		typeExp, ok := procEnv.TypeExps[commChnl.ExpVK]
 		if !ok {
-			s.log.Error("step taking failed", implAttr)
-			return compstep.StepSpec{}, connMod, ExecMod{}, typedef.ErrMissingInEnv(commChnl.ExpVK)
+			s.log.Error("step taking failed", compAttr)
+			return compstep.StepSpec{}, exchMod, ExecMod{}, typedef.ErrMissingInEnv(commChnl.ExpVK)
 		}
 		// получаем снепшот соединения
 		var connSnap commexch.ExchSnap
 		getErr := s.operator.Implicit(ctx, func(ds db.Source) error {
-			connSnap, err = s.commExchs.SelectSnapByQry(ds, commexch.ExchQry{
+			connSnap, err = s.commExchRepo.GetSnapByQry(ds, commexch.ExchQry{
 				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
 		if getErr != nil {
-			s.log.Error("step taking failed", implAttr)
-			return stepSpec, connMod, execMod, getErr
+			s.log.Error("step taking failed", compAttr)
+			return stepSpec, exchMod, execMod, getErr
 		}
 		communication := connSnap.NextTurn()
 		switch typeExp.Pol() {
@@ -698,8 +727,8 @@ func (s *service) takeWith(
 					CompRef: forwardable.CompRef,
 					ProcExp: forwardable.ContExp,
 				}
-				s.log.Debug("step taking succeed", implAttr)
-				return stepSpec, connMod, execMod, nil
+				s.log.Debug("step taking succeed", compAttr)
+				return stepSpec, exchMod, execMod, nil
 			case commturn.PubRec:
 				// перенаправляем публикатора
 				execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
@@ -714,15 +743,15 @@ func (s *service) takeWith(
 					CompRef: forwardable.CompRef,
 					ProcExp: forwardable.ValExp,
 				}
-				s.log.Debug("step taking succeed", implAttr)
-				return stepSpec, connMod, execMod, nil
+				s.log.Debug("step taking succeed", compAttr)
+				return stepSpec, exchMod, execMod, nil
 			case nil:
 				// лишаем значений схлопывающегося
 				execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
 					CompRef: commChnl.CompRef,
 					CommRef: commChnl.CommRef,
 					ChnlID:  commChnl.ChnlID,
-					ChnlPH:  expSpec.CommChnlPH,
+					ChnlPH:  termExp.CommChnlPH,
 					ChnlBS:  commChnl.ChnlBS,
 					ExpVK:   commChnl.ExpVK.Invert(),
 				})
@@ -730,12 +759,12 @@ func (s *service) takeWith(
 					CompRef: commChnl.CompRef,
 					// TODO значение CommRef
 					ChnlID: contChnl.ChnlID,
-					ChnlPH: expSpec.ContChnlPH,
+					ChnlPH: termExp.ContChnlPH,
 					ChnlBS: contChnl.ChnlBS,
 					ExpVK:  contChnl.ExpVK.Invert(),
 				})
 				// регистрируем сообщение схлопывающегося
-				connMod.Turns = append(connMod.Turns, commturn.PubRec{
+				exchMod.Turns = append(exchMod.Turns, commturn.PubRec{
 					CommRef: connSnap.CommRef,
 					CompRef: execSnap.CompRef,
 					ChnlID:  commChnl.ChnlID,
@@ -743,8 +772,8 @@ func (s *service) takeWith(
 						ContChnlID: contChnl.ChnlID,
 					},
 				})
-				s.log.Debug("taking half done", implAttr)
-				return stepSpec, connMod, execMod, nil
+				s.log.Debug("taking half done", compAttr)
+				return stepSpec, exchMod, execMod, nil
 			default:
 				panic(commturn.ErrRecTypeUnexpected(communication))
 			}
@@ -764,8 +793,8 @@ func (s *service) takeWith(
 					CompRef: forwardable.CompRef,
 					ProcExp: forwardable.ContExp,
 				}
-				s.log.Debug("step taking succeed", implAttr)
-				return stepSpec, connMod, execMod, nil
+				s.log.Debug("step taking succeed", compAttr)
+				return stepSpec, exchMod, execMod, nil
 			case commturn.PubRec:
 				// перенаправляем публикатора
 				execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
@@ -780,11 +809,11 @@ func (s *service) takeWith(
 					CompRef: forwardable.CompRef,
 					ProcExp: forwardable.ValExp, // TODO: несовпадение типов
 				}
-				s.log.Debug("step taking succeed", implAttr)
-				return stepSpec, connMod, execMod, nil
+				s.log.Debug("step taking succeed", compAttr)
+				return stepSpec, exchMod, execMod, nil
 			case nil:
 				// регистрируем подписку схлопывающегося
-				connMod.Turns = append(connMod.Turns, commturn.SubRec{
+				exchMod.Turns = append(exchMod.Turns, commturn.SubRec{
 					CommRef: connSnap.CommRef,
 					CompRef: commChnl.CompRef,
 					ChnlID:  commChnl.ChnlID,
@@ -792,8 +821,8 @@ func (s *service) takeWith(
 						ContChnlID: contChnl.ChnlID,
 					},
 				})
-				s.log.Debug("taking half done", implAttr)
-				return stepSpec, connMod, execMod, nil
+				s.log.Debug("taking half done", compAttr)
+				return stepSpec, exchMod, execMod, nil
 			default:
 				panic(commturn.ErrRecTypeUnexpected(communication))
 			}
@@ -801,7 +830,7 @@ func (s *service) takeWith(
 			panic(typeexp.ErrPolarityUnexpected(typeExp))
 		}
 	default:
-		panic(termexp.ErrExpTypeUnexpected(es))
+		panic(termexp.ErrExpTypeUnexpected(exp))
 	}
 }
 
@@ -853,9 +882,9 @@ func (s *service) checkProvider(
 			return err
 		}
 		// check via
-		gotVia, ok := procCtx.Liabs[expSpec.CommChnlPH]
+		gotVia, ok := procCtx.Liabs[expSpec.ContChnlPH]
 		if !ok {
-			err := typedef.ErrMissingInCtx(expSpec.CommChnlPH)
+			err := typedef.ErrMissingInCtx(expSpec.ContChnlPH)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -865,7 +894,7 @@ func (s *service) checkProvider(
 			return err
 		}
 		// no cont to check
-		delete(procCtx.Liabs, expSpec.CommChnlPH)
+		delete(procCtx.Liabs, expSpec.ContChnlPH)
 		return nil
 	case termexp.WaitSpec:
 		err := termexp.ErrExpTypeMismatch(es, termexp.CloseSpec{})
@@ -930,7 +959,7 @@ func (s *service) checkProvider(
 		// check cont
 		procCtx.Liabs[expSpec.CommChnlPH] = wantVia.Cont
 		procCtx.Assets[expSpec.NewChnlPH] = wantVia.Val
-		return s.checkType(procEnv, procCtx, procCfg, expSpec.ContES)
+		return s.checkType(procEnv, procCtx, procCfg, expSpec.ContExp)
 	case termexp.LabSpec:
 		// check via
 		gotVia, ok := procCtx.Liabs[expSpec.CommChnlPH]
@@ -970,13 +999,13 @@ func (s *service) checkProvider(
 			return err
 		}
 		// check conts
-		if len(expSpec.ContESes) != len(wantVia.Choices) {
-			err := fmt.Errorf("state mismatch: want %v choices, got %v conts", len(wantVia.Choices), len(expSpec.ContESes))
+		if len(expSpec.ContExps) != len(wantVia.Choices) {
+			err := fmt.Errorf("state mismatch: want %v choices, got %v conts", len(wantVia.Choices), len(expSpec.ContExps))
 			s.log.Error("checking failed")
 			return err
 		}
 		for label, choice := range wantVia.Choices {
-			cont, ok := expSpec.ContESes[label]
+			cont, ok := expSpec.ContExps[label]
 			if !ok {
 				err := fmt.Errorf("label mismatch: want %v, got nothing", label)
 				s.log.Error("checking failed")
@@ -1039,9 +1068,9 @@ func (s *service) checkClient(
 		return err
 	case termexp.WaitSpec:
 		// check via
-		gotVia, ok := procCtx.Assets[expSpec.CommChnlPH]
+		gotVia, ok := procCtx.Assets[expSpec.ContChnlPH]
 		if !ok {
-			err := termdef.ErrMissingInCtx(expSpec.CommChnlPH)
+			err := termdef.ErrMissingInCtx(expSpec.ContChnlPH)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -1052,8 +1081,8 @@ func (s *service) checkClient(
 			return err
 		}
 		// check cont
-		delete(procCtx.Assets, expSpec.CommChnlPH)
-		return s.checkType(procEnv, procCtx, procCfg, expSpec.ContES)
+		delete(procCtx.Assets, expSpec.ContChnlPH)
+		return s.checkType(procEnv, procCtx, procCfg, expSpec.ContExp)
 	case termexp.SendSpec:
 		// check via
 		gotVia, ok := procCtx.Assets[expSpec.CommChnlPH]
@@ -1112,7 +1141,7 @@ func (s *service) checkClient(
 		// check cont
 		procCtx.Assets[expSpec.CommChnlPH] = wantVia.Cont
 		procCtx.Assets[expSpec.NewChnlPH] = wantVia.Val
-		return s.checkType(procEnv, procCtx, procCfg, expSpec.ContES)
+		return s.checkType(procEnv, procCtx, procCfg, expSpec.ContExp)
 	case termexp.LabSpec:
 		// check via
 		gotVia, ok := procCtx.Assets[expSpec.CommChnlPH]
@@ -1151,13 +1180,13 @@ func (s *service) checkClient(
 			return err
 		}
 		// check conts
-		if len(expSpec.ContESes) != len(wantVia.Choices) {
-			err := fmt.Errorf("state mismatch: want %v choices, got %v conts", len(wantVia.Choices), len(expSpec.ContESes))
+		if len(expSpec.ContExps) != len(wantVia.Choices) {
+			err := fmt.Errorf("state mismatch: want %v choices, got %v conts", len(wantVia.Choices), len(expSpec.ContExps))
 			s.log.Error("checking failed")
 			return err
 		}
 		for label, choice := range wantVia.Choices {
-			cont, ok := expSpec.ContESes[label]
+			cont, ok := expSpec.ContExps[label]
 			if !ok {
 				err := fmt.Errorf("label mismatch: want %v, got nothing", label)
 				s.log.Error("checking failed")

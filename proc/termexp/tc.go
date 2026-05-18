@@ -24,15 +24,15 @@ func MsgFromExpSpec(s ExpSpec) termexp.ExpSpec {
 		return termexp.ExpSpec{
 			K: termexp.Close,
 			Close: &termexp.CloseSpec{
-				CommChnlPH: symbol.ConvertToString(spec.CommChnlPH),
+				CommChnlPH: symbol.ConvertToString(spec.ContChnlPH),
 			},
 		}
 	case WaitSpec:
 		return termexp.ExpSpec{
 			K: termexp.Wait,
 			Wait: &termexp.WaitSpec{
-				CommChnlPH: symbol.ConvertToString(spec.CommChnlPH),
-				ContES:     MsgFromExpSpec(spec.ContES),
+				CommChnlPH: symbol.ConvertToString(spec.ContChnlPH),
+				ContES:     MsgFromExpSpec(spec.ContExp),
 			},
 		}
 	case SendSpec:
@@ -49,7 +49,7 @@ func MsgFromExpSpec(s ExpSpec) termexp.ExpSpec {
 			Recv: &termexp.RecvSpec{
 				CommChnlPH: symbol.ConvertToString(spec.CommChnlPH),
 				BindChnlPH: symbol.ConvertToString(spec.CommChnlPH),
-				ContES:     MsgFromExpSpec(spec.ContES),
+				ContES:     MsgFromExpSpec(spec.ContExp),
 			},
 		}
 	case LabSpec:
@@ -62,7 +62,7 @@ func MsgFromExpSpec(s ExpSpec) termexp.ExpSpec {
 		}
 	case CaseSpec:
 		brs := []termexp.BranchSpec{}
-		for l, t := range spec.ContESes {
+		for l, t := range spec.ContExps {
 			brs = append(brs, termexp.BranchSpec{PatternQN: uniqsym.ConvertToString(l), ContES: MsgFromExpSpec(t)})
 		}
 		return termexp.ExpSpec{
@@ -99,7 +99,7 @@ func MsgToExpSpec(dto termexp.ExpSpec) (ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return CloseSpec{CommChnlPH: x}, nil
+		return CloseSpec{ContChnlPH: x}, nil
 	case termexp.Wait:
 		x, err := symbol.ConvertFromString(dto.Wait.CommChnlPH)
 		if err != nil {
@@ -109,7 +109,7 @@ func MsgToExpSpec(dto termexp.ExpSpec) (ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return WaitSpec{CommChnlPH: x, ContES: cont}, nil
+		return WaitSpec{ContChnlPH: x, ContExp: cont}, nil
 	case termexp.Send:
 		x, err := symbol.ConvertFromString(dto.Send.CommChnlPH)
 		if err != nil {
@@ -133,7 +133,7 @@ func MsgToExpSpec(dto termexp.ExpSpec) (ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return RecvSpec{CommChnlPH: x, NewChnlPH: y, ContES: cont}, nil
+		return RecvSpec{CommChnlPH: x, NewChnlPH: y, ContExp: cont}, nil
 	case termexp.Lab:
 		x, err := symbol.ConvertFromString(dto.Lab.CommChnlPH)
 		if err != nil {
@@ -161,7 +161,7 @@ func MsgToExpSpec(dto termexp.ExpSpec) (ExpSpec, error) {
 			}
 			conts[label] = cont
 		}
-		return CaseSpec{CommChnlPH: x, ContESes: conts}, nil
+		return CaseSpec{CommChnlPH: x, ContExps: conts}, nil
 	case termexp.Call:
 		bindPH, err := symbol.ConvertFromString(dto.Call.BindChnlPH)
 		if err != nil {
@@ -196,17 +196,17 @@ func DataFromExpRec(r ExpRec) (ExpRecDS, error) {
 	case CloseRec:
 		return ExpRecDS{
 			K:     closeExp,
-			Close: &closeRecDS{symbol.ConvertToString(rec.CommChnlPH)},
+			Close: &closeRecDS{symbol.ConvertToString(rec.ContChnlPH)},
 		}, nil
 	case WaitRec:
-		dto, err := dataFromExpSpec(rec.ContES)
+		dto, err := dataFromExpSpec(rec.ContExp)
 		if err != nil {
 			return ExpRecDS{}, err
 		}
 		return ExpRecDS{
 			K: waitExp,
 			Wait: &waitRecDS{
-				X:      symbol.ConvertToString(rec.CommChnlPH),
+				X:      symbol.ConvertToString(rec.ContChnlPH),
 				ContES: dto,
 			},
 		}, nil
@@ -220,7 +220,7 @@ func DataFromExpRec(r ExpRec) (ExpRecDS, error) {
 			},
 		}, nil
 	case RecvRec:
-		dto, err := dataFromExpSpec(rec.ContES)
+		dto, err := dataFromExpSpec(rec.ContExp)
 		if err != nil {
 			return ExpRecDS{}, err
 		}
@@ -239,7 +239,7 @@ func DataFromExpRec(r ExpRec) (ExpRecDS, error) {
 		}, nil
 	case CaseRec:
 		brs := []branchRecDS{}
-		for l, cont := range rec.ContESs {
+		for l, cont := range rec.ContExps {
 			dto, err := dataFromExpSpec(cont)
 			if err != nil {
 				return ExpRecDS{}, err
@@ -273,7 +273,7 @@ func DataToExpRec(dto ExpRecDS) (ExpRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return CloseRec{CommChnlPH: a}, nil
+		return CloseRec{ContChnlPH: a}, nil
 	case waitExp:
 		x, err := symbol.ConvertFromString(dto.Wait.X)
 		if err != nil {
@@ -283,7 +283,7 @@ func DataToExpRec(dto ExpRecDS) (ExpRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return WaitRec{CommChnlPH: x, ContES: cont}, nil
+		return WaitRec{ContChnlPH: x, ContExp: cont}, nil
 	case sendExp:
 		x, err := symbol.ConvertFromString(dto.Send.X)
 		if err != nil {
@@ -307,7 +307,7 @@ func DataToExpRec(dto ExpRecDS) (ExpRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return RecvRec{CommChnlPH: x, NewChnlPH: y, ContES: cont}, nil
+		return RecvRec{CommChnlPH: x, NewChnlPH: y, ContExp: cont}, nil
 	case labExp:
 		a, err := symbol.ConvertFromString(dto.Lab.X)
 		if err != nil {
@@ -335,7 +335,7 @@ func DataToExpRec(dto ExpRecDS) (ExpRec, error) {
 			}
 			conts[label] = cont
 		}
-		return CaseRec{CommChnlPH: x, ContESs: conts}, nil
+		return CaseRec{CommChnlPH: x, ContExps: conts}, nil
 	case fwdExp:
 		x, err := symbol.ConvertFromString(dto.Fwd.X)
 		if err != nil {
@@ -356,17 +356,17 @@ func dataFromExpSpec(s ExpSpec) (ExpSpecDS, error) {
 	case CloseSpec:
 		return ExpSpecDS{
 			K:     closeExp,
-			Close: &closeSpecDS{symbol.ConvertToString(spec.CommChnlPH)},
+			Close: &closeSpecDS{symbol.ConvertToString(spec.ContChnlPH)},
 		}, nil
 	case WaitSpec:
-		dto, err := dataFromExpSpec(spec.ContES)
+		dto, err := dataFromExpSpec(spec.ContExp)
 		if err != nil {
 			return ExpSpecDS{}, err
 		}
 		return ExpSpecDS{
 			K: waitExp,
 			Wait: &waitSpecDS{
-				X:      symbol.ConvertToString(spec.CommChnlPH),
+				X:      symbol.ConvertToString(spec.ContChnlPH),
 				ContES: dto,
 			},
 		}, nil
@@ -379,7 +379,7 @@ func dataFromExpSpec(s ExpSpec) (ExpSpecDS, error) {
 			},
 		}, nil
 	case RecvSpec:
-		dto, err := dataFromExpSpec(spec.ContES)
+		dto, err := dataFromExpSpec(spec.ContExp)
 		if err != nil {
 			return ExpSpecDS{}, err
 		}
@@ -398,7 +398,7 @@ func dataFromExpSpec(s ExpSpec) (ExpSpecDS, error) {
 		}, nil
 	case CaseSpec:
 		brs := []branchSpecDS{}
-		for l, cont := range spec.ContESes {
+		for l, cont := range spec.ContExps {
 			dto, err := dataFromExpSpec(cont)
 			if err != nil {
 				return ExpSpecDS{}, err
@@ -432,7 +432,7 @@ func dataToExpSpec(dto ExpSpecDS) (ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return CloseSpec{CommChnlPH: a}, nil
+		return CloseSpec{ContChnlPH: a}, nil
 	case waitExp:
 		x, err := symbol.ConvertFromString(dto.Wait.X)
 		if err != nil {
@@ -442,7 +442,7 @@ func dataToExpSpec(dto ExpSpecDS) (ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return WaitSpec{CommChnlPH: x, ContES: cont}, nil
+		return WaitSpec{ContChnlPH: x, ContExp: cont}, nil
 	case sendExp:
 		x, err := symbol.ConvertFromString(dto.Send.X)
 		if err != nil {
@@ -466,7 +466,7 @@ func dataToExpSpec(dto ExpSpecDS) (ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return RecvSpec{CommChnlPH: x, NewChnlPH: y, ContES: cont}, nil
+		return RecvSpec{CommChnlPH: x, NewChnlPH: y, ContExp: cont}, nil
 	case labExp:
 		x, err := symbol.ConvertFromString(dto.Lab.X)
 		if err != nil {
@@ -494,7 +494,7 @@ func dataToExpSpec(dto ExpSpecDS) (ExpSpec, error) {
 			}
 			conts[label] = cont
 		}
-		return CaseSpec{CommChnlPH: x, ContESes: conts}, nil
+		return CaseSpec{CommChnlPH: x, ContExps: conts}, nil
 	case fwdExp:
 		x, err := symbol.ConvertFromString(dto.Fwd.X)
 		if err != nil {

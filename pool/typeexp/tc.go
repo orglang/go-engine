@@ -103,7 +103,7 @@ func MsgFromExpSpec(s ExpSpec) typeexp.ExpSpec {
 	case LinkSpec:
 		return typeexp.ExpSpec{
 			K:    typeexp.Link,
-			Link: &typeexp.LinkSpec{XactQN: uniqsym.ConvertToString(spec.TypeQN)}}
+			Link: &typeexp.LinkSpec{TypeQN: uniqsym.ConvertToString(spec.TypeQN)}}
 	case WithSpec:
 		return typeexp.ExpSpec{
 			K: typeexp.With,
@@ -128,7 +128,7 @@ func MsgToExpSpec(dto typeexp.ExpSpec) (ExpSpec, error) {
 	case typeexp.One:
 		return OneSpec{}, nil
 	case typeexp.Link:
-		xactQN, err := uniqsym.ConvertFromString(dto.Link.XactQN)
+		xactQN, err := uniqsym.ConvertFromString(dto.Link.TypeQN)
 		if err != nil {
 			return nil, err
 		}

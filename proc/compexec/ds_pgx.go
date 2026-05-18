@@ -45,7 +45,7 @@ func (dao *pgxDAO) AddRec(source db.Source, rec ExecRec) error {
 	return nil
 }
 
-func (dao *pgxDAO) SelectSnap(source db.Source, ref compsem.SemRef) (ExecSnap, error) {
+func (dao *pgxDAO) GetSnapByRef(source db.Source, ref compsem.SemRef) (ExecSnap, error) {
 	ds := db.MustConform[db.SourcePgx](source)
 	refAttr := slog.Any("ref", ref)
 	chnlRows, err := ds.Conn.Query(ds.Ctx, selectChnls, ref.CompID.String())
@@ -70,7 +70,7 @@ func (dao *pgxDAO) SelectSnap(source db.Source, ref compsem.SemRef) (ExecSnap, e
 	}, nil
 }
 
-func (dao *pgxDAO) UpdateProc(source db.Source, mod ExecMod) (err error) {
+func (dao *pgxDAO) ModifyRec(source db.Source, mod ExecMod) (err error) {
 	if len(mod.CompRefs) == 0 {
 		panic("empty locks")
 	}
@@ -144,13 +144,6 @@ const (
 			@impl_id, @chnl_ph, @chnl_id, @state_id, @impl_rn
 		)`
 
-	insertStep = `
-		insert into proc_comm_turns (
-			impl_id, chnl_id, kind, proc_er
-		) values (
-			@impl_id, @chnl_id, @kind, @proc_er
-		)`
-
 	updateExec = `
 		update proc_comp_execs
 		set impl_rn = @impl_rn + 1
@@ -179,6 +172,4 @@ const (
 			on liab.proc_id = bnd.proc_id
 		left join pool_comp_execs prvd
 			on prvd.desc_id = liab.desc_id`
-
-	selectSteps = ``
 )

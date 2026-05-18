@@ -18,13 +18,13 @@ import (
 	"github.com/orglang/go-sdk/adt/termvar"
 	"github.com/orglang/go-sdk/pool/compexec"
 	"github.com/orglang/go-sdk/pool/compstep"
-	termdec1 "github.com/orglang/go-sdk/pool/termdec"
-	"github.com/orglang/go-sdk/pool/termexp"
-	typedef1 "github.com/orglang/go-sdk/pool/typedef"
-	typeexp1 "github.com/orglang/go-sdk/pool/typeexp"
-	compstep1 "github.com/orglang/go-sdk/proc/compstep"
+	pooltermdec "github.com/orglang/go-sdk/pool/termdec"
+	pooltermexp "github.com/orglang/go-sdk/pool/termexp"
+	pooltypedef "github.com/orglang/go-sdk/pool/typedef"
+	pooltypeexp "github.com/orglang/go-sdk/pool/typeexp"
+	proccompstep "github.com/orglang/go-sdk/proc/compstep"
 	"github.com/orglang/go-sdk/proc/termdec"
-	termexp1 "github.com/orglang/go-sdk/proc/termexp"
+	proctermexp "github.com/orglang/go-sdk/proc/termexp"
 	"github.com/orglang/go-sdk/proc/typedef"
 	"github.com/orglang/go-sdk/proc/typeexp"
 )
@@ -92,23 +92,23 @@ func (s *suite) waitClose(t *testing.T) {
 	closerProcQN := "closer-proc-qn"
 	waiterProcQN := "waiter-proc-qn"
 	// and
-	withTypeQN := "with-xact-qn"
-	_, err := s.XactDefAPI.Create(typedef1.DefSpec{
-		TypeQN: withTypeQN,
-		TypeExp: typeexp1.ExpSpec{
-			K: typeexp1.Up,
-			Up: &typeexp1.ShiftSpec{
-				ContExp: typeexp1.ExpSpec{
-					K: typeexp1.With,
-					With: &typeexp1.LaborSpec{
+	poolTypeQN := "pool-type-qn"
+	_, err := s.XactDefAPI.Create(pooltypedef.DefSpec{
+		TypeQN: poolTypeQN,
+		TypeExp: pooltypeexp.ExpSpec{
+			K: pooltypeexp.Up,
+			Up: &pooltypeexp.ShiftSpec{
+				ContExp: pooltypeexp.ExpSpec{
+					K: pooltypeexp.With,
+					With: &pooltypeexp.LaborSpec{
 						// пул заявляет компетенции
 						ProcQNs: []string{closerProcQN, waiterProcQN},
-						ContExp: typeexp1.ExpSpec{
-							K: typeexp1.Down,
-							Down: &typeexp1.ShiftSpec{
-								ContExp: typeexp1.ExpSpec{
-									K:    typeexp1.Link,
-									Link: &typeexp1.LinkSpec{XactQN: withTypeQN},
+						ContExp: pooltypeexp.ExpSpec{
+							K: pooltypeexp.Down,
+							Down: &pooltypeexp.ShiftSpec{
+								ContExp: pooltypeexp.ExpSpec{
+									K:    pooltypeexp.Link,
+									Link: &pooltypeexp.LinkSpec{TypeQN: poolTypeQN},
 								},
 							},
 						},
@@ -125,22 +125,22 @@ func (s *suite) waitClose(t *testing.T) {
 	poolCompQN := "pool-comp-qn"
 	poolAssetPH := "pool-asset-ph"
 	poolLiabPH := "pool-liab-ph"
-	_, err = s.PoolDecAPI.Create(termdec1.DecSpec{
+	_, err = s.PoolDecAPI.Create(pooltermdec.DecSpec{
 		TermQN: poolTermQN,
 		LiabVar: termvar.VarSpec{
 			ChnlPH: poolLiabPH,
-			TypeQN: withTypeQN,
+			TypeQN: poolTypeQN,
 		},
 		AssetVars: []termvar.VarSpec{{
 			ChnlPH: poolAssetPH,
-			TypeQN: withTypeQN,
+			TypeQN: poolTypeQN,
 		}},
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	// and
-	myPoolExec, err := s.PoolExecAPI.Create(compexec.ExecSpec{
+	poolExecRef, err := s.PoolExecAPI.Create(compexec.ExecSpec{
 		TermQN: poolTermQN,
 		LiabVar: compvar.VarSpec{
 			ChnlPH: poolLiabPH,
@@ -156,19 +156,19 @@ func (s *suite) waitClose(t *testing.T) {
 	}
 	// and
 	err = s.PoolExecAPI.Take(compstep.StepSpec{
-		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Acquire, // пул запрашивает доступ к самому себе
-			Acquire: &termexp.AcquireSpec{
+		CompRef: poolExecRef,
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Acquire, // пул запрашивает доступ к самому себе
+			Acquire: &pooltermexp.AcquireSpec{
 				CommChnlPH: poolAssetPH,
-				ContExp: termexp.ExpSpec{
-					K: termexp.Hire, // пул запрашивает компетенцию closerProcQN
-					Hire: &termexp.HireSpec{
+				ContExp: pooltermexp.ExpSpec{
+					K: pooltermexp.Hire, // пул запрашивает компетенцию closerProcQN
+					Hire: &pooltermexp.HireSpec{
 						CommChnlPH: poolAssetPH, // пул выступает нанимателем самого себя
 						ProcTermQN: closerProcQN,
-						ContExp: termexp.ExpSpec{
-							K: termexp.Release,
-							Release: &termexp.ReleaseSpec{
+						ContExp: pooltermexp.ExpSpec{
+							K: pooltermexp.Release,
+							Release: &pooltermexp.ReleaseSpec{
 								CommChnlPH: poolAssetPH,
 							},
 						},
@@ -182,19 +182,19 @@ func (s *suite) waitClose(t *testing.T) {
 	}
 	// and
 	err = s.PoolExecAPI.Take(compstep.StepSpec{
-		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Accept, // пул одобряет доступ к самому себе
-			Accept: &termexp.AcceptSpec{
+		CompRef: poolExecRef,
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Accept, // пул одобряет доступ к самому себе
+			Accept: &pooltermexp.AcceptSpec{
 				CommChnlPH: poolLiabPH,
-				ContExp: termexp.ExpSpec{
-					K: termexp.Apply, // пул предлагает компетенцию closerProcQN
-					Apply: &termexp.ApplySpec{
+				ContExp: pooltermexp.ExpSpec{
+					K: pooltermexp.Apply, // пул предлагает компетенцию closerProcQN
+					Apply: &pooltermexp.ApplySpec{
 						CommChnlPH: poolLiabPH, // пул выступает соискателем
 						ProcTermQN: closerProcQN,
-						ContExp: termexp.ExpSpec{
-							K: termexp.Detach,
-							Detach: &termexp.DetachSpec{
+						ContExp: pooltermexp.ExpSpec{
+							K: pooltermexp.Detach,
+							Detach: &pooltermexp.DetachSpec{
 								CommChnlPH: poolLiabPH,
 							},
 						},
@@ -230,10 +230,10 @@ func (s *suite) waitClose(t *testing.T) {
 	}
 	// and
 	closerProcExec, err := s.PoolExecAPI.Spawn(compstep.StepSpec{
-		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Spawn,
-			Spawn: &termexp.SpawnSpec{
+		CompRef: poolExecRef,
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Spawn,
+			Spawn: &pooltermexp.SpawnSpec{
 				ProcTermRef: closerProcDec.TermRef,
 			},
 		},
@@ -243,19 +243,19 @@ func (s *suite) waitClose(t *testing.T) {
 	}
 	// and
 	err = s.PoolExecAPI.Take(compstep.StepSpec{
-		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Acquire,
-			Acquire: &termexp.AcquireSpec{
+		CompRef: poolExecRef,
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Acquire,
+			Acquire: &pooltermexp.AcquireSpec{
 				CommChnlPH: poolAssetPH,
-				ContExp: termexp.ExpSpec{
-					K: termexp.Hire,
-					Hire: &termexp.HireSpec{
+				ContExp: pooltermexp.ExpSpec{
+					K: pooltermexp.Hire,
+					Hire: &pooltermexp.HireSpec{
 						CommChnlPH: poolAssetPH,
 						ProcTermQN: waiterProcQN,
-						ContExp: termexp.ExpSpec{
-							K: termexp.Release,
-							Release: &termexp.ReleaseSpec{
+						ContExp: pooltermexp.ExpSpec{
+							K: pooltermexp.Release,
+							Release: &pooltermexp.ReleaseSpec{
 								CommChnlPH: poolAssetPH,
 							},
 						},
@@ -269,19 +269,19 @@ func (s *suite) waitClose(t *testing.T) {
 	}
 	// and
 	err = s.PoolExecAPI.Take(compstep.StepSpec{
-		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Accept,
-			Accept: &termexp.AcceptSpec{
+		CompRef: poolExecRef,
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Accept,
+			Accept: &pooltermexp.AcceptSpec{
 				CommChnlPH: poolAssetPH,
-				ContExp: termexp.ExpSpec{
-					K: termexp.Apply,
-					Apply: &termexp.ApplySpec{
+				ContExp: pooltermexp.ExpSpec{
+					K: pooltermexp.Apply,
+					Apply: &pooltermexp.ApplySpec{
 						CommChnlPH: poolLiabPH,
 						ProcTermQN: waiterProcQN,
-						ContExp: termexp.ExpSpec{
-							K: termexp.Detach,
-							Detach: &termexp.DetachSpec{
+						ContExp: pooltermexp.ExpSpec{
+							K: pooltermexp.Detach,
+							Detach: &pooltermexp.DetachSpec{
 								CommChnlPH: poolAssetPH,
 							},
 						},
@@ -306,10 +306,10 @@ func (s *suite) waitClose(t *testing.T) {
 	}
 	// and
 	waiterProcExec, err := s.PoolExecAPI.Spawn(compstep.StepSpec{
-		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Spawn,
-			Spawn: &termexp.SpawnSpec{
+		CompRef: poolExecRef,
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Spawn,
+			Spawn: &pooltermexp.SpawnSpec{
 				ProcTermRef:  waiterProcDec.TermRef,
 				ProcCompRefs: []compsem.SemRef{closerProcExec},
 			},
@@ -319,11 +319,11 @@ func (s *suite) waitClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	// when
-	err = s.ProcExecAPI.Take(compstep1.StepSpec{
+	err = s.ProcExecAPI.Take(proccompstep.StepSpec{
 		CompRef: closerProcExec,
-		ProcExp: termexp1.ExpSpec{
-			K: termexp1.Close,
-			Close: &termexp1.CloseSpec{
+		ProcExp: proctermexp.ExpSpec{
+			K: proctermexp.Close,
+			Close: &proctermexp.CloseSpec{
 				CommChnlPH: closerProcDec.LiabVar.ChnlPH,
 			},
 		},
@@ -332,15 +332,15 @@ func (s *suite) waitClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	err = s.ProcExecAPI.Take(compstep1.StepSpec{
+	err = s.ProcExecAPI.Take(proccompstep.StepSpec{
 		CompRef: waiterProcExec,
-		ProcExp: termexp1.ExpSpec{
-			K: termexp1.Wait,
-			Wait: &termexp1.WaitSpec{
+		ProcExp: proctermexp.ExpSpec{
+			K: proctermexp.Wait,
+			Wait: &proctermexp.WaitSpec{
 				CommChnlPH: waiterProcDec.AssetVars[0].ChnlPH,
-				ContES: termexp1.ExpSpec{
-					K: termexp1.Close,
-					Close: &termexp1.CloseSpec{
+				ContES: proctermexp.ExpSpec{
+					K: proctermexp.Close,
+					Close: &proctermexp.CloseSpec{
 						CommChnlPH: waiterProcDec.LiabVar.ChnlPH,
 					},
 				},
@@ -362,21 +362,21 @@ func (s *suite) recvSend(t *testing.T) {
 	receiverProcQN := "receiver-proc-qn"
 	// and
 	withXactQN := "with-xact-qn"
-	_, err := s.XactDefAPI.Create(typedef1.DefSpec{
+	_, err := s.XactDefAPI.Create(pooltypedef.DefSpec{
 		TypeQN: withXactQN,
-		TypeExp: typeexp1.ExpSpec{
-			K: typeexp1.Up,
-			Up: &typeexp1.ShiftSpec{
-				ContExp: typeexp1.ExpSpec{
-					K: typeexp1.With,
-					With: &typeexp1.LaborSpec{
+		TypeExp: pooltypeexp.ExpSpec{
+			K: pooltypeexp.Up,
+			Up: &pooltypeexp.ShiftSpec{
+				ContExp: pooltypeexp.ExpSpec{
+					K: pooltypeexp.With,
+					With: &pooltypeexp.LaborSpec{
 						ProcQNs: []string{senderProcQN, receiverProcQN, messageProcQN},
-						ContExp: typeexp1.ExpSpec{
-							K: typeexp1.Down,
-							Down: &typeexp1.ShiftSpec{
-								ContExp: typeexp1.ExpSpec{
-									K:    typeexp1.Link,
-									Link: &typeexp1.LinkSpec{XactQN: withXactQN},
+						ContExp: pooltypeexp.ExpSpec{
+							K: pooltypeexp.Down,
+							Down: &pooltypeexp.ShiftSpec{
+								ContExp: pooltypeexp.ExpSpec{
+									K:    pooltypeexp.Link,
+									Link: &pooltypeexp.LinkSpec{TypeQN: withXactQN},
 								},
 							},
 						},
@@ -392,7 +392,7 @@ func (s *suite) recvSend(t *testing.T) {
 	myPoolQN := "my-pool-qn"
 	poolProviderPH := "pool-provider-ph"
 	poolClientPH := "pool-client-ph"
-	_, err = s.PoolDecAPI.Create(termdec1.DecSpec{
+	_, err = s.PoolDecAPI.Create(pooltermdec.DecSpec{
 		TermQN: myPoolQN,
 		LiabVar: termvar.VarSpec{
 			ChnlPH: poolProviderPH,
@@ -477,9 +477,9 @@ func (s *suite) recvSend(t *testing.T) {
 	// and
 	err = s.PoolExecAPI.Take(compstep.StepSpec{
 		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Hire,
-			Hire: &termexp.HireSpec{
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Hire,
+			Hire: &pooltermexp.HireSpec{
 				CommChnlPH: poolClientPH,
 				ProcTermQN: receiverProcQN,
 			},
@@ -490,9 +490,9 @@ func (s *suite) recvSend(t *testing.T) {
 	}
 	receiverProcExec, err := s.PoolExecAPI.Spawn(compstep.StepSpec{
 		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Spawn,
-			Spawn: &termexp.SpawnSpec{
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Spawn,
+			Spawn: &pooltermexp.SpawnSpec{
 				ProcTermRef: receiverProcDec.TermRef,
 			},
 		},
@@ -503,9 +503,9 @@ func (s *suite) recvSend(t *testing.T) {
 	// and
 	err = s.PoolExecAPI.Take(compstep.StepSpec{
 		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Hire,
-			Hire: &termexp.HireSpec{
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Hire,
+			Hire: &pooltermexp.HireSpec{
 				CommChnlPH: poolClientPH,
 				ProcTermQN: messageProcQN,
 			},
@@ -516,9 +516,9 @@ func (s *suite) recvSend(t *testing.T) {
 	}
 	messageProcExec, err := s.PoolExecAPI.Spawn(compstep.StepSpec{
 		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Spawn,
-			Spawn: &termexp.SpawnSpec{
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Spawn,
+			Spawn: &pooltermexp.SpawnSpec{
 				ProcTermRef: messageProcDec.TermRef,
 			},
 		},
@@ -529,9 +529,9 @@ func (s *suite) recvSend(t *testing.T) {
 	// and
 	err = s.PoolExecAPI.Take(compstep.StepSpec{
 		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Hire,
-			Hire: &termexp.HireSpec{
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Hire,
+			Hire: &pooltermexp.HireSpec{
 				CommChnlPH: poolClientPH,
 				ProcTermQN: senderProcQN,
 			},
@@ -542,9 +542,9 @@ func (s *suite) recvSend(t *testing.T) {
 	}
 	senderProcExec, err := s.PoolExecAPI.Spawn(compstep.StepSpec{
 		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Spawn,
-			Spawn: &termexp.SpawnSpec{
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Spawn,
+			Spawn: &pooltermexp.SpawnSpec{
 				ProcTermRef:  senderProcDec.TermRef,
 				ProcCompRefs: []compsem.SemRef{receiverProcExec, messageProcExec},
 			},
@@ -554,11 +554,11 @@ func (s *suite) recvSend(t *testing.T) {
 		t.Fatal(err)
 	}
 	// when
-	err = s.ProcExecAPI.Take(compstep1.StepSpec{
+	err = s.ProcExecAPI.Take(proccompstep.StepSpec{
 		CompRef: receiverProcExec,
-		ProcExp: termexp1.ExpSpec{
-			K: termexp1.Recv,
-			Recv: &termexp1.RecvSpec{
+		ProcExp: proctermexp.ExpSpec{
+			K: proctermexp.Recv,
+			Recv: &proctermexp.RecvSpec{
 				CommChnlPH: receiverProcDec.LiabVar.ChnlPH,
 				BindChnlPH: "receiver-message-ph",
 			},
@@ -568,11 +568,11 @@ func (s *suite) recvSend(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	err = s.ProcExecAPI.Take(compstep1.StepSpec{
+	err = s.ProcExecAPI.Take(proccompstep.StepSpec{
 		CompRef: senderProcExec,
-		ProcExp: termexp1.ExpSpec{
-			K: termexp1.Send,
-			Send: &termexp1.SendSpec{
+		ProcExp: proctermexp.ExpSpec{
+			K: proctermexp.Send,
+			Send: &proctermexp.SendSpec{
 				CommChnlPH: senderProcDec.AssetVars[0].ChnlPH,
 				ValChnlPH:  senderProcDec.AssetVars[1].ChnlPH,
 			},
@@ -649,9 +649,9 @@ func (s *suite) caseLab(t *testing.T) {
 	poolFollowerPH := "pool-follower-ph"
 	err = s.PoolExecAPI.Take(compstep.StepSpec{
 		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Hire,
-			Hire: &termexp.HireSpec{
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Hire,
+			Hire: &pooltermexp.HireSpec{
 				ProcTermQN: followerProcQN,
 			},
 		},
@@ -661,9 +661,9 @@ func (s *suite) caseLab(t *testing.T) {
 	}
 	followerProcExec, err := s.PoolExecAPI.Spawn(compstep.StepSpec{
 		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Spawn,
-			Spawn: &termexp.SpawnSpec{
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Spawn,
+			Spawn: &pooltermexp.SpawnSpec{
 				ProcTermRef: followerProcDec2.TermRef,
 			},
 		},
@@ -674,9 +674,9 @@ func (s *suite) caseLab(t *testing.T) {
 	// and
 	err = s.PoolExecAPI.Take(compstep.StepSpec{
 		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Hire,
-			Hire: &termexp.HireSpec{
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Hire,
+			Hire: &pooltermexp.HireSpec{
 				ProcTermQN: deciderProcQN,
 			},
 		},
@@ -686,9 +686,9 @@ func (s *suite) caseLab(t *testing.T) {
 	}
 	deciderProcExec, err := s.PoolExecAPI.Spawn(compstep.StepSpec{
 		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Spawn,
-			Spawn: &termexp.SpawnSpec{
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Spawn,
+			Spawn: &pooltermexp.SpawnSpec{
 				ProcTermRef:  deciderProcDec.TermRef,
 				ProcCompRefs: []compsem.SemRef{followerProcExec},
 			},
@@ -698,16 +698,16 @@ func (s *suite) caseLab(t *testing.T) {
 		t.Fatal(err)
 	}
 	// when
-	err = s.ProcExecAPI.Take(compstep1.StepSpec{
+	err = s.ProcExecAPI.Take(proccompstep.StepSpec{
 		CompRef: followerProcExec,
-		ProcExp: termexp1.ExpSpec{
-			K: termexp1.Case,
-			Case: &termexp1.CaseSpec{
+		ProcExp: proctermexp.ExpSpec{
+			K: proctermexp.Case,
+			Case: &proctermexp.CaseSpec{
 				CommChnlPH: poolFollowerPH,
-				ContBSes: []termexp1.BranchSpec{
-					{PatternQN: patternQN, ContES: termexp1.ExpSpec{
-						K: termexp1.Close,
-						Close: &termexp1.CloseSpec{
+				ContBSes: []proctermexp.BranchSpec{
+					{PatternQN: patternQN, ContES: proctermexp.ExpSpec{
+						K: proctermexp.Close,
+						Close: &proctermexp.CloseSpec{
 							CommChnlPH: poolFollowerPH,
 						},
 					},
@@ -720,11 +720,11 @@ func (s *suite) caseLab(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	err = s.ProcExecAPI.Take(compstep1.StepSpec{
+	err = s.ProcExecAPI.Take(proccompstep.StepSpec{
 		CompRef: deciderProcExec,
-		ProcExp: termexp1.ExpSpec{
-			K: termexp1.Lab,
-			Lab: &termexp1.LabSpec{
+		ProcExp: proctermexp.ExpSpec{
+			K: proctermexp.Lab,
+			Lab: &proctermexp.LabSpec{
 				CommChnlPH: poolFollowerPH,
 				PatternQN:  patternQN,
 			},
@@ -772,9 +772,9 @@ func (s *suite) call(t *testing.T) {
 	// and
 	err = s.PoolExecAPI.Take(compstep.StepSpec{
 		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Hire,
-			Hire: &termexp.HireSpec{
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Hire,
+			Hire: &pooltermexp.HireSpec{
 				ProcTermQN: injecteeProcQN,
 			},
 		},
@@ -785,9 +785,9 @@ func (s *suite) call(t *testing.T) {
 	// and
 	injecteeProcExec, err := s.PoolExecAPI.Spawn(compstep.StepSpec{
 		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Spawn,
-			Spawn: &termexp.SpawnSpec{
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Spawn,
+			Spawn: &pooltermexp.SpawnSpec{
 				ProcTermRef: injecteeProcDec.TermRef,
 			},
 		},
@@ -813,9 +813,9 @@ func (s *suite) call(t *testing.T) {
 	// and
 	err = s.PoolExecAPI.Take(compstep.StepSpec{
 		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Hire,
-			Hire: &termexp.HireSpec{
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Hire,
+			Hire: &pooltermexp.HireSpec{
 				ProcTermQN: callerProcQN,
 			},
 		},
@@ -826,9 +826,9 @@ func (s *suite) call(t *testing.T) {
 	// and
 	callerProcExec, err := s.PoolExecAPI.Spawn(compstep.StepSpec{
 		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Spawn,
-			Spawn: &termexp.SpawnSpec{
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Spawn,
+			Spawn: &pooltermexp.SpawnSpec{
 				ProcTermRef:  callerProcDec.TermRef,
 				ProcCompRefs: []compsem.SemRef{injecteeProcExec},
 			},
@@ -855,21 +855,21 @@ func (s *suite) call(t *testing.T) {
 	// and
 	callerCalleePH := "caller-callee-ph"
 	// when
-	err = s.ProcExecAPI.Take(compstep1.StepSpec{
+	err = s.ProcExecAPI.Take(proccompstep.StepSpec{
 		CompRef: callerProcExec,
-		ProcExp: termexp1.ExpSpec{
-			K: termexp1.Call,
-			Call: &termexp1.CallSpec{
+		ProcExp: proctermexp.ExpSpec{
+			K: proctermexp.Call,
+			Call: &proctermexp.CallSpec{
 				BindChnlPH: callerCalleePH,
 				ProcTermQN: calleeProcQN,
 				ValChnlPHs: []string{callerProcDec.AssetVars[0].ChnlPH},
-				ContES: termexp1.ExpSpec{
-					K: termexp1.Wait,
-					Wait: &termexp1.WaitSpec{
+				ContES: proctermexp.ExpSpec{
+					K: proctermexp.Wait,
+					Wait: &proctermexp.WaitSpec{
 						CommChnlPH: callerCalleePH,
-						ContES: termexp1.ExpSpec{
-							K: termexp1.Close,
-							Close: &termexp1.CloseSpec{
+						ContES: proctermexp.ExpSpec{
+							K: proctermexp.Close,
+							Close: &proctermexp.CloseSpec{
 								CommChnlPH: callerProcDec.LiabVar.ChnlPH,
 							},
 						},
@@ -948,9 +948,9 @@ func (s *suite) fwd(t *testing.T) {
 	// and
 	err = s.PoolExecAPI.Take(compstep.StepSpec{
 		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Hire,
-			Hire: &termexp.HireSpec{
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Hire,
+			Hire: &pooltermexp.HireSpec{
 				ProcTermQN: closerProcQN,
 			},
 		},
@@ -961,9 +961,9 @@ func (s *suite) fwd(t *testing.T) {
 	// and
 	closerProcExec, err := s.PoolExecAPI.Spawn(compstep.StepSpec{
 		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Spawn,
-			Spawn: &termexp.SpawnSpec{
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Spawn,
+			Spawn: &pooltermexp.SpawnSpec{
 				ProcTermRef: closerProcDec.TermRef,
 			},
 		},
@@ -974,9 +974,9 @@ func (s *suite) fwd(t *testing.T) {
 	// and
 	err = s.PoolExecAPI.Take(compstep.StepSpec{
 		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Hire,
-			Hire: &termexp.HireSpec{
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Hire,
+			Hire: &pooltermexp.HireSpec{
 				ProcTermQN: forwarderProcQN,
 			},
 		},
@@ -987,9 +987,9 @@ func (s *suite) fwd(t *testing.T) {
 	// and
 	forwarderProcExec, err := s.PoolExecAPI.Spawn(compstep.StepSpec{
 		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Spawn,
-			Spawn: &termexp.SpawnSpec{
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Spawn,
+			Spawn: &pooltermexp.SpawnSpec{
 				ProcTermRef:  forwarderProcDec.TermRef,
 				ProcCompRefs: []compsem.SemRef{closerProcExec},
 			},
@@ -1001,9 +1001,9 @@ func (s *suite) fwd(t *testing.T) {
 	// and
 	err = s.PoolExecAPI.Take(compstep.StepSpec{
 		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Hire,
-			Hire: &termexp.HireSpec{
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Hire,
+			Hire: &pooltermexp.HireSpec{
 				ProcTermQN: waiterProcQN,
 			},
 		},
@@ -1013,9 +1013,9 @@ func (s *suite) fwd(t *testing.T) {
 	}
 	waiterProcExec, err := s.PoolExecAPI.Spawn(compstep.StepSpec{
 		CompRef: myPoolExec,
-		PoolExp: termexp.ExpSpec{
-			K: termexp.Spawn,
-			Spawn: &termexp.SpawnSpec{
+		PoolExp: pooltermexp.ExpSpec{
+			K: pooltermexp.Spawn,
+			Spawn: &pooltermexp.SpawnSpec{
 				ProcTermRef:  waiterProcDec.TermRef,
 				ProcCompRefs: []compsem.SemRef{forwarderProcExec},
 			},
@@ -1025,11 +1025,11 @@ func (s *suite) fwd(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	err = s.ProcExecAPI.Take(compstep1.StepSpec{
+	err = s.ProcExecAPI.Take(proccompstep.StepSpec{
 		CompRef: closerProcExec,
-		ProcExp: termexp1.ExpSpec{
-			K: termexp1.Close,
-			Close: &termexp1.CloseSpec{
+		ProcExp: proctermexp.ExpSpec{
+			K: proctermexp.Close,
+			Close: &proctermexp.CloseSpec{
 				CommChnlPH: closerProcDec.LiabVar.ChnlPH,
 			},
 		},
@@ -1038,11 +1038,11 @@ func (s *suite) fwd(t *testing.T) {
 		t.Fatal(err)
 	}
 	// when
-	err = s.ProcExecAPI.Take(compstep1.StepSpec{
+	err = s.ProcExecAPI.Take(proccompstep.StepSpec{
 		CompRef: forwarderProcExec,
-		ProcExp: termexp1.ExpSpec{
-			K: termexp1.Fwd,
-			Fwd: &termexp1.FwdSpec{
+		ProcExp: proctermexp.ExpSpec{
+			K: proctermexp.Fwd,
+			Fwd: &proctermexp.FwdSpec{
 				CommChnlPH: forwarderProcDec.LiabVar.ChnlPH,
 				ContChnlPH: forwarderProcDec.AssetVars[0].ChnlPH,
 			},
@@ -1052,15 +1052,15 @@ func (s *suite) fwd(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	err = s.ProcExecAPI.Take(compstep1.StepSpec{
+	err = s.ProcExecAPI.Take(proccompstep.StepSpec{
 		CompRef: waiterProcExec,
-		ProcExp: termexp1.ExpSpec{
-			K: termexp1.Wait,
-			Wait: &termexp1.WaitSpec{
+		ProcExp: proctermexp.ExpSpec{
+			K: proctermexp.Wait,
+			Wait: &proctermexp.WaitSpec{
 				CommChnlPH: waiterProcDec.AssetVars[0].ChnlPH,
-				ContES: termexp1.ExpSpec{
-					K: termexp1.Close,
-					Close: &termexp1.CloseSpec{
+				ContES: proctermexp.ExpSpec{
+					K: proctermexp.Close,
+					Close: &proctermexp.CloseSpec{
 						CommChnlPH: waiterProcDec.LiabVar.ChnlPH,
 					},
 				},

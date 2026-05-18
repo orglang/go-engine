@@ -15,17 +15,17 @@ type ExpSpec interface {
 }
 
 type CloseSpec struct {
-	CommChnlPH symbol.ADT
+	ContChnlPH symbol.ADT
 }
 
-func (s CloseSpec) Via() symbol.ADT { return s.CommChnlPH }
+func (s CloseSpec) Via() symbol.ADT { return s.ContChnlPH }
 
 type WaitSpec struct {
-	CommChnlPH symbol.ADT
-	ContES     ExpSpec
+	ContChnlPH symbol.ADT
+	ContExp    ExpSpec
 }
 
-func (s WaitSpec) Via() symbol.ADT { return s.CommChnlPH }
+func (s WaitSpec) Via() symbol.ADT { return s.ContChnlPH }
 
 type SendSpec struct {
 	CommChnlPH symbol.ADT
@@ -37,7 +37,7 @@ func (s SendSpec) Via() symbol.ADT { return s.CommChnlPH }
 type RecvSpec struct {
 	CommChnlPH symbol.ADT
 	NewChnlPH  symbol.ADT
-	ContES     ExpSpec
+	ContExp    ExpSpec
 }
 
 func (s RecvSpec) Via() symbol.ADT { return s.CommChnlPH }
@@ -45,14 +45,14 @@ func (s RecvSpec) Via() symbol.ADT { return s.CommChnlPH }
 type LabSpec struct {
 	CommChnlPH symbol.ADT
 	ValLabQN   uniqsym.ADT
-	ContES     ExpSpec
+	ContExp    ExpSpec
 }
 
 func (s LabSpec) Via() symbol.ADT { return s.CommChnlPH }
 
 type CaseSpec struct {
 	CommChnlPH symbol.ADT
-	ContESes   map[uniqsym.ADT]ExpSpec
+	ContExps   map[uniqsym.ADT]ExpSpec
 }
 
 func (s CaseSpec) Via() symbol.ADT { return s.CommChnlPH }
@@ -78,7 +78,7 @@ type CallSpec struct {
 	NewChnlPH  symbol.ADT
 	ProcTermQN uniqsym.ADT
 	ValChnlPHs []symbol.ADT // channel bulk
-	ContES     ExpSpec
+	ContExp    ExpSpec
 }
 
 func (s CallSpec) Via() symbol.ADT { return s.CommChnlPH }
@@ -87,21 +87,21 @@ type SpawnSpec struct {
 	CommChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
 	NewChnlPHs []symbol.ADT
-	ContES     ExpSpec
+	ContExp    ExpSpec
 }
 
 func (s SpawnSpec) Via() symbol.ADT { return s.CommChnlPH }
 
 type AcqureSpec struct {
 	CommChnlPH symbol.ADT
-	ContES     ExpSpec
+	ContExp    ExpSpec
 }
 
 func (s AcqureSpec) Via() symbol.ADT { return s.CommChnlPH }
 
 type AcceptSpec struct {
 	CommChnlPH symbol.ADT
-	ContES     ExpSpec
+	ContExp    ExpSpec
 }
 
 func (s AcceptSpec) Via() symbol.ADT { return s.CommChnlPH }
@@ -124,19 +124,19 @@ type ExpRec interface {
 }
 
 type CloseRec struct {
-	CommChnlPH symbol.ADT
+	ContChnlPH symbol.ADT
 }
 
-func (r CloseRec) Via() symbol.ADT { return r.CommChnlPH }
+func (r CloseRec) Via() symbol.ADT { return r.ContChnlPH }
 
 func (CloseRec) impl() {}
 
 type WaitRec struct {
-	CommChnlPH symbol.ADT
-	ContES     ExpSpec
+	ContChnlPH symbol.ADT
+	ContExp    ExpSpec
 }
 
-func (r WaitRec) Via() symbol.ADT { return r.CommChnlPH }
+func (r WaitRec) Via() symbol.ADT { return r.ContChnlPH }
 
 func (WaitRec) impl() {}
 
@@ -156,7 +156,7 @@ type RecvRec struct {
 	CommChnlPH symbol.ADT
 	ContChnlID identity.ADT
 	NewChnlPH  symbol.ADT
-	ContES     ExpSpec
+	ContExp    ExpSpec
 }
 
 func (r RecvRec) Via() symbol.ADT { return r.CommChnlPH }
@@ -177,7 +177,7 @@ func (LabRec) impl() {}
 type CaseRec struct {
 	CommChnlPH symbol.ADT
 	ContChnlID identity.ADT
-	ContESs    map[uniqsym.ADT]ExpSpec
+	ContExps   map[uniqsym.ADT]ExpSpec
 }
 
 func (r CaseRec) Via() symbol.ADT { return r.CommChnlPH }
@@ -200,9 +200,9 @@ func CollectEnv(spec ExpSpec) []identity.ADT {
 func collectEnvRec(s ExpSpec, env []identity.ADT) []identity.ADT {
 	switch spec := s.(type) {
 	case RecvSpec:
-		return collectEnvRec(spec.ContES, env)
+		return collectEnvRec(spec.ContExp, env)
 	case CaseSpec:
-		for _, cont := range spec.ContESes {
+		for _, cont := range spec.ContExps {
 			env = collectEnvRec(cont, env)
 		}
 		return env

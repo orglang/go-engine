@@ -22,18 +22,18 @@ func newRepo() Repo {
 	return new(pgxDAO)
 }
 
-func (dao *pgxDAO) InsertRec(db.Source, ExchRec) error {
+func (dao *pgxDAO) AddRec(db.Source, ExchRec) error {
 	panic("unimplemented")
 }
 
-func (dao *pgxDAO) SelectRefsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]commsem.SemRef, error) {
+func (dao *pgxDAO) GetRefsByQNs(db.Source, []uniqsym.ADT) (map[uniqsym.ADT]commsem.SemRef, error) {
 	panic("unimplemented")
 }
 
-func (dao *pgxDAO) SelectSnapByQry(db.Source, ExchQry) (ExchSnap, error) {
+func (dao *pgxDAO) GetSnapByQry(db.Source, ExchQry) (ExchSnap, error) {
 	panic("unimplemented")
 }
 
-func (dao *pgxDAO) UpdateRec(db.Source, ExchMod) error {
+func (dao *pgxDAO) Modifyec(db.Source, ExchMod) error {
 	panic("unimplemented")
 }

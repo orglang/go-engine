@@ -6,22 +6,13 @@ on:
     branches: [main]
   workflow_dispatch:
 
-defaults:
-  run:
-    shell: bash
+permissions:
+  contents: read
 
 jobs:
   binaries:
-    timeout-minutes: 10
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout workspace repo
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ github.ref }}
-          repository: orglang/go-workspace
-      - uses: ./.github/actions/checkout-repos
-        with:
-          ref: ${{ github.ref }}
-      - uses: ./.github/actions/setup-tools
-      - run: task binaries
+    uses: orglang/go-workspace/.github/workflows/binaries.yaml@main
+    with:
+      engine_ref: ${{ github.sha }}
+      sdk_ref: main
+      workspace_ref: main

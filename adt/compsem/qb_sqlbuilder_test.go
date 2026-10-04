@@ -1,12 +1,9 @@
 package compsem
 
-import (
-	"fmt"
-	"testing"
-)
+import "testing"
 
 func TestUpdateRef(t *testing.T) {
 	qb := newSQLBuilder("foo")
 	sql, _ := qb.updateRef(SemRefDS{})
-	fmt.Println(sql)
+	t.Log(sql)
 }

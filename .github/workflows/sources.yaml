@@ -1,4 +1,4 @@
-name: sources
+name: CI
 
 on:
   pull_request:
@@ -15,9 +15,8 @@ permissions:
 
 jobs:
   sources:
-    uses: orglang/go-workspace/.github/workflows/engine-ci.yaml@main
+    uses: orglang/go-workspace/.github/workflows/sources.yaml@main
     with:
       engine_ref: ${{ github.event.pull_request.head.sha || github.sha }}
       sdk_ref: main
       workspace_ref: main
-      stage: sources

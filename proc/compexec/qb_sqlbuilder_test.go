@@ -1,12 +1,9 @@
 package compexec
 
-import (
-	"fmt"
-	"testing"
-)
+import "testing"
 
 func TestInsertRec(t *testing.T) {
 	qb := newSQLBuilder()
 	sql, _ := qb.insertRec(execRecDS{})
-	fmt.Println(sql)
+	t.Log(sql)
 }

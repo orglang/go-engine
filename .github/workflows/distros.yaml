@@ -1,4 +1,4 @@
-name: CI / Distros
+name: CI
 
 on:
   merge_group:

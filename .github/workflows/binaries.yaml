@@ -1,4 +1,4 @@
-name: CI
+name: Binaries Workflow
 
 on:
   pull_request:

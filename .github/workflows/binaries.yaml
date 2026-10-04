@@ -1,14 +1,9 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
     types:
-      - opened
-      - reopened
-      - synchronize
       - ready_for_review
   merge_group:
     branches: [main]
@@ -18,8 +13,8 @@ permissions:
   contents: read
 
 jobs:
-  sources:
-    uses: orglang/go-workspace/.github/workflows/sources.yaml@main
+  binaries:
+    uses: orglang/go-workspace/.github/workflows/binaries.yaml@main
     with:
       engine_ref: ${{ github.event.pull_request.head.sha || github.sha }}
       sdk_ref: main

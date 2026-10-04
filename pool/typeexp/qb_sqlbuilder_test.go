@@ -1,18 +1,17 @@
 package typeexp
 
 import (
-	"fmt"
 	"testing"
 )
 
 func TestInsertRec(t *testing.T) {
 	qb := newSQLBuilder()
 	sql, _ := qb.insertRec(stateDS{})
-	fmt.Println(sql)
+	t.Log(sql)
 }
 
 func TestSelectRec(t *testing.T) {
 	qb := newSQLBuilder()
 	sql := qb.selectRecByVK()
-	fmt.Println(sql)
+	t.Log(sql)
 }

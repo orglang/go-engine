@@ -74,9 +74,9 @@ func ConvertSideToNullInt(val side) sql.NullInt16 {
 	return sql.NullInt16{Int16: int16(val), Valid: true}
 }
 
-func ConvertSideFromNullInt(val sql.NullInt16) side {
+func ConvertSideFromNullInt(val sql.NullInt16) Side {
 	if val.Valid {
-		return side(val.Int16)
+		return Side(val.Int16)
 	}
 	return unkSide
 }

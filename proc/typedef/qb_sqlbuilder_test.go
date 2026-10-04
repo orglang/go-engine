@@ -1,18 +1,15 @@
 package typedef
 
-import (
-	"fmt"
-	"testing"
-)
+import "testing"
 
 func TestInsertRec(t *testing.T) {
 	qb := newSQLBuilder()
 	sql, _ := qb.insertRec(defRecDS{})
-	fmt.Println(sql)
+	t.Log(sql)
 }
 
 func TestSelectRecByQN(t *testing.T) {
 	qb := newSQLBuilder()
 	sql := qb.selectRecByQN()
-	fmt.Println(sql)
+	t.Log(sql)
 }

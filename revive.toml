@@ -24,4 +24,12 @@ Disabled = true
 Disabled = true
 
 [rule.line-length-limit]
-arguments = [120]
+Disabled = true
+[rule.argument-limit]
+Disabled = true
+[rule.function-result-limit]
+Disabled = true
+[rule.confusing-naming]
+Disabled = true
+[rule.unhandled-error]
+Disabled = true

@@ -16,8 +16,8 @@ func New(sym symbol.ADT) ADT {
 	return ADT{sym, nil}
 }
 
-func (ns ADT) New(sym symbol.ADT) ADT {
-	return ADT{sym, &ns}
+func (a ADT) New(sym symbol.ADT) ADT {
+	return ADT{sym, &a}
 }
 
 // symbol

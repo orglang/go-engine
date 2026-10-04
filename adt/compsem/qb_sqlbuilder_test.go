@@ -1,6 +1,8 @@
 package compsem
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestUpdateRef(t *testing.T) {
 	qb := newSQLBuilder("foo")

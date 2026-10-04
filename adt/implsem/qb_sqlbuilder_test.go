@@ -1,12 +1,9 @@
 package implsem
 
-import (
-	"fmt"
-	"testing"
-)
+import "testing"
 
 func TestInsertRec(t *testing.T) {
 	qb := newSQLBuilder("foo")
 	sql, _ := qb.insertRec(SemRecDS{})
-	fmt.Println(sql)
+	t.Log(sql)
 }

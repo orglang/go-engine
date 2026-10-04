@@ -1,6 +1,8 @@
 package implsem
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestInsertRec(t *testing.T) {
 	qb := newSQLBuilder("foo")

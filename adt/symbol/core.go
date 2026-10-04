@@ -4,7 +4,7 @@ import (
 	"orglang/go-engine/adt/valkey"
 )
 
-const Zero = ADT("")
+const Zero ADT = ADT("")
 
 type ADT string
 

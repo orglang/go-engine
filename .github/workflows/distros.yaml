@@ -1,6 +1,11 @@
 name: CI
 
 on:
+  pull_request:
+    branches: [main]
+    types:
+      - ready_for_review
+      - synchronize
   merge_group:
     branches: [main]
   workflow_dispatch:
@@ -10,6 +15,7 @@ permissions:
 
 jobs:
   distros:
+    if: ${{ github.event_name == 'merge_group' }}
     uses: orglang/go-workspace/.github/workflows/distros.yaml@main
     with:
       engine_ref: ${{ github.event.pull_request.head.sha || github.sha }}

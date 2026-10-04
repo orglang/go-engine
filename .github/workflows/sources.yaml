@@ -20,5 +20,3 @@ jobs:
       sdk_ref: main
       workspace_ref: main
       stage: sources
-    permissions:
-      contents: read

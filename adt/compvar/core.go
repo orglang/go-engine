@@ -75,10 +75,12 @@ func (r StructRec) GetChnlPH() symbol.ADT { return r.ChnlPH }
 
 func (r StructRec) GetExpVK() valkey.ADT { return r.ExpVK }
 
-type side int16
+type Side int16
+
+type side = Side
 
 const (
-	unkSide side = iota
+	unkSide Side = iota
 	LiabSide
 	AssetSide
 )

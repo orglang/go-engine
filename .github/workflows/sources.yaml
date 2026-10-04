@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   sources:
-    uses: orglang/go-workspace/.github/workflows/engine-ci.yaml@main
+    uses: orglang/go-workspace/.github/workflows/engine-ci.yaml@6393b0a7f8eb258b2e7a1104e6002c766b9bafe3
     with:
       engine_ref: ${{ github.event.pull_request.head.sha }}
       sdk_ref: main

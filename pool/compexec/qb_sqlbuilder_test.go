@@ -1,7 +1,6 @@
 package compexec
 
 import (
-	"fmt"
 	"orglang/go-engine/adt/compsem"
 	"testing"
 )

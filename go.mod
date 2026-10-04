@@ -107,5 +107,5 @@ tool (
 	github.com/kisielk/errcheck
 	github.com/mgechev/revive
 	github.com/quasilyte/go-consistent
-	honnef.co/go/tools/cmd/staticcheck
+	honnef.co/go/tools/cmd/staticcheck v0.6.1
 )

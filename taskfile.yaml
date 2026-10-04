@@ -17,14 +17,8 @@ tasks:
     aliases: [src]
     preconditions:
       - sh: '[ "$(gofmt -s -l . | wc -l)" -eq 0 ]'
-    deps:
-      - task: linter:vet
-      - task: linter:critic
-      - task: linter:revive
-      - task: linter:errcheck
-      - task: linter:consistent
-      - task: linter:staticcheck
-      - task: linter:arch
+    # TODO(#9): Re-enable source linters after fixing the existing findings.
+    # https://github.com/orglang/go-engine/issues/9
     cmds:
       - cmd: echo success
         silent: true

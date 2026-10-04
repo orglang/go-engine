@@ -491,5 +491,5 @@ func statesFromExpRec(fromID int64, r ExpRec, dto *expRecDS) int64 {
 }
 
 func errUnexpectedKind(k expKindDS) error {
-	return fmt.Errorf("unexpected kind %q", k)
+	return fmt.Errorf("unexpected kind %v", k)
 }

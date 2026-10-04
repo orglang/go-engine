@@ -1,0 +1,19 @@
+name: CI / Distros
+
+on:
+  pull_request:
+    branches: [main]
+  merge_group:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  distros:
+    uses: orglang/go-workspace/.github/workflows/distros.yaml@ci/add-distros-workflow
+    with:
+      engine_ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      sdk_ref: main
+      workspace_ref: ci/add-distros-workflow

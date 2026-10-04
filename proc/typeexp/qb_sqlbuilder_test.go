@@ -11,5 +11,5 @@ func TestInsertRec(t *testing.T) {
 func TestSelectRec(t *testing.T) {
 	qb := newSQLBuilder()
 	sql := qb.selectRecByVK()
-	fmt.Println(sql)
+	t.Log(sql)
 }

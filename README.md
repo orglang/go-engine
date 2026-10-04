@@ -7,3 +7,5 @@
 1. Процессная парадигма (aka session types)
 2. Персистентность (aka хранение структур языка в БД)
 
+
+<!-- merge queue required distros test -->

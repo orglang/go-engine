@@ -4,6 +4,7 @@ on:
   pull_request:
     branches: [main]
     types:
+      - opened
       - ready_for_review
       - synchronize
   merge_group:
@@ -15,9 +16,9 @@ permissions:
 
 jobs:
   binaries:
-    if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.draft }}
     uses: orglang/go-workspace/.github/workflows/binaries.yaml@main
     with:
       engine_ref: ${{ github.event.pull_request.head.sha || github.sha }}
       sdk_ref: main
       workspace_ref: main
+      run: ${{ github.event_name != 'pull_request' || !github.event.pull_request.draft }}

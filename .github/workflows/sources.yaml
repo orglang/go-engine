@@ -16,6 +16,6 @@ jobs:
   sources:
     uses: orglang/go-workspace/.github/workflows/sources.yaml@main
     with:
-      project_ref: ${{ github.event.pull_request.head.sha }}
+      engine_ref: ${{ github.event.pull_request.head.sha }}
       sdk_ref: main
       workspace_ref: main

@@ -8,6 +8,7 @@ on:
       - reopened
       - synchronize
       - ready_for_review
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -16,7 +17,7 @@ jobs:
   sources:
     uses: orglang/go-workspace/.github/workflows/engine-ci.yaml@main
     with:
-      engine_ref: ${{ github.event.pull_request.head.sha }}
+      engine_ref: ${{ github.event.pull_request.head.sha || github.sha }}
       sdk_ref: main
       workspace_ref: main
       stage: sources

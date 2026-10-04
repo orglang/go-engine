@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+    types:
+      - ready_for_review
+  merge_group:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  binaries:
+    uses: orglang/go-workspace/.github/workflows/binaries.yaml@main
+    with:
+      engine_ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      sdk_ref: main
+      workspace_ref: main

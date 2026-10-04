@@ -21,3 +21,5 @@ jobs:
       sdk_ref: main
       workspace_ref: main
       stage: sources
+
+# retrigger after allowing go-task/setup-task

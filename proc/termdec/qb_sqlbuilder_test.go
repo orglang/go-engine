@@ -1,12 +1,9 @@
 package termdec
 
-import (
-	"fmt"
-	"testing"
-)
+import "testing"
 
 func TestInsertRec(t *testing.T) {
 	qb := newSQLBuilder()
 	sql, _ := qb.insertRec(decRecDS{})
-	fmt.Println(sql)
+	t.Log(sql)
 }

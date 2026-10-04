@@ -15,9 +15,9 @@ permissions:
 
 jobs:
   distros:
-    if: ${{ github.event_name == 'merge_group' }}
     uses: orglang/go-workspace/.github/workflows/distros.yaml@main
     with:
       engine_ref: ${{ github.event.pull_request.head.sha || github.sha }}
       sdk_ref: main
       workspace_ref: main
+      run: ${{ github.event_name == 'merge_group' }}

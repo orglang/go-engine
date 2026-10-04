@@ -24,6 +24,7 @@ tasks:
       - task: linter:errcheck
       - task: linter:consistent
       - task: linter:staticcheck
+      - task: linter:arch
     cmds:
       - cmd: echo success
         silent: true
@@ -84,6 +85,8 @@ tasks:
         if: '{{eq .TOOL "staticcheck"}}'
       - cmd: go run github.com/kisielk/errcheck ./lib/... ./adt/... ./app/...
         if: '{{eq .TOOL "errcheck"}}'
+      - cmd: go run ./test/arch/cmd
+        if: '{{eq .TOOL "arch"}}'
 
   generator:*:
     vars:

@@ -11,6 +11,7 @@ require (
 	github.com/huandu/go-sqlbuilder v1.40.2
 	github.com/jackc/pgx/v5 v5.8.0
 	github.com/labstack/echo/v4 v4.15.0
+	github.com/orglang/go-sdk v0.0.0-20260912152343-a8600e41f90d
 	github.com/rs/xid v1.6.0
 	github.com/spf13/viper v1.21.0
 	go.uber.org/fx v1.24.0
@@ -20,6 +21,7 @@ require (
 	codeberg.org/chavacava/garif v0.2.0 // indirect
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/BurntSushi/toml v1.5.0 // indirect
+	github.com/alecthomas/participle/v2 v2.1.4 // indirect
 	github.com/cristalhq/acmd v0.12.0 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/fatih/structtag v1.2.0 // indirect

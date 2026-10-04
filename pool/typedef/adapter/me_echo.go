@@ -1,4 +1,4 @@
-package typedef
+package adapter
 
 import (
 	"log/slog"
@@ -7,20 +7,22 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/orglang/go-sdk/pool/typedef"
+	sdktypedef "github.com/orglang/go-sdk/pool/typedef"
 
 	"orglang/go-engine/lib/lf"
 
 	"orglang/go-engine/adt/typesem"
+
+	pooltypedef "orglang/go-engine/pool/typedef/core"
 )
 
 // Server-side primary adapter
 type controllerEcho struct {
-	api API
+	api pooltypedef.API
 	log *slog.Logger
 }
 
-func newControllerEcho(a API, l *slog.Logger) *controllerEcho {
+func newControllerEcho(a pooltypedef.API, l *slog.Logger) *controllerEcho {
 	name := slog.String("name", reflect.TypeFor[controllerEcho]().Name())
 	return &controllerEcho{a, l.With(name)}
 }
@@ -31,7 +33,7 @@ func cfgEchoController(e *echo.Echo, h *controllerEcho) error {
 }
 
 func (h *controllerEcho) PostSpec(c echo.Context) error {
-	var dto typedef.DefSpec
+	var dto sdktypedef.DefSpec
 	bindErr := c.Bind(&dto)
 	if bindErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))

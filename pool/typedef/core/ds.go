@@ -1,4 +1,4 @@
-package typedef
+package core
 
 import (
 	"orglang/go-engine/lib/db"
@@ -17,7 +17,7 @@ type Repo interface {
 	GetRecsByQNs(db.UoW, []uniqsym.ADT) (map[uniqsym.ADT]DefRec, error)
 }
 
-type defRecDS struct {
+type DefRecDS struct {
 	TypeID string `db:"type_id"`
 	TypeRN int64  `db:"type_rn"`
 	ExpVK  int64  `db:"exp_vk"`

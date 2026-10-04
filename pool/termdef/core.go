@@ -10,7 +10,7 @@ import (
 	"orglang/go-engine/adt/termsem"
 	"orglang/go-engine/adt/termvar"
 	"orglang/go-engine/adt/uniqsym"
-	"orglang/go-engine/pool/typedef"
+	pooltypedef "orglang/go-engine/pool/typedef/core"
 )
 
 type API interface {
@@ -40,7 +40,7 @@ type DefSnap struct {
 
 func newService(
 	termDefRepo Repo,
-	typeDefRepo typedef.Repo,
+	typeDefRepo pooltypedef.Repo,
 	descSemRepo descsem.Repo,
 	transactor db.Transactor,
 	log *slog.Logger,
@@ -50,7 +50,7 @@ func newService(
 
 type service struct {
 	termDefRepo Repo
-	typeDefRepo typedef.Repo
+	typeDefRepo pooltypedef.Repo
 	descSemRepo descsem.Repo
 	transactor  db.Transactor
 	log         *slog.Logger
@@ -64,7 +64,7 @@ func (s *service) Create(spec DefSpec) (_ termsem.SemRef, err error) {
 	for _, varSpec := range spec.AssetVars {
 		assetQNs = append(assetQNs, varSpec.TypeQN)
 	}
-	var typeDefs map[uniqsym.ADT]typedef.DefRec
+	var typeDefs map[uniqsym.ADT]pooltypedef.DefRec
 	getErr := s.transactor.ImplicitTx(ctx, func(uow db.UoW) error {
 		typeDefs, err = s.typeDefRepo.GetRecsByQNs(uow, append(assetQNs, spec.LiabVar.TypeQN))
 		return err

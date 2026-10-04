@@ -3,7 +3,7 @@ package prog
 import (
 	"log/slog"
 
-	pooltypedef "orglang/go-engine/pool/typedef"
+	pooltypedef "orglang/go-engine/pool/typedef/core"
 	proctypedef "orglang/go-engine/proc/typedef"
 )
 

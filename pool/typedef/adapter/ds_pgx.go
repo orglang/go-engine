@@ -1,4 +1,4 @@
-package typedef
+package adapter
 
 import (
 	"errors"
@@ -13,24 +13,26 @@ import (
 	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/typesem"
 	"orglang/go-engine/adt/uniqsym"
+
+	pooltypedef "orglang/go-engine/pool/typedef/core"
 )
 
 type daoPgx struct {
-	qb  queryBuilder
+	qb  pooltypedef.QueryBuilder
 	log *slog.Logger
 }
 
-func newDaoPgx(qb queryBuilder, log *slog.Logger) *daoPgx {
+func NewDaoPgx(qb pooltypedef.QueryBuilder, log *slog.Logger) pooltypedef.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }
 
 // for compilation purposes
-func newRepo() Repo {
+func newRepo() pooltypedef.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRec(uow db.UoW, rec DefRec) error {
+func (dao *daoPgx) AddRec(uow db.UoW, rec pooltypedef.DefRec) error {
 	refAttr := slog.Any("ref", rec.TypeRef)
 	dao.log.Log(uow.Ctx, lf.LevelTrace, "addition started", refAttr)
 	dto, convErr := DataFromDefRec(rec)
@@ -38,7 +40,7 @@ func (dao *daoPgx) AddRec(uow db.UoW, rec DefRec) error {
 		dao.log.Error("model conversion failed", refAttr)
 		return convErr
 	}
-	sql, args := dao.qb.insertRec(dto)
+	sql, args := dao.qb.InsertRec(dto)
 	_, execErr := uow.Pgx.Exec(uow.Ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
@@ -48,7 +50,7 @@ func (dao *daoPgx) AddRec(uow db.UoW, rec DefRec) error {
 	return nil
 }
 
-func (dao *daoPgx) Update(uow db.UoW, rec DefRec) error {
+func (dao *daoPgx) Update(uow db.UoW, rec pooltypedef.DefRec) error {
 	refAttr := slog.Any("ref", rec.TypeRef)
 	dao.log.Log(uow.Ctx, lf.LevelTrace, "update started", refAttr)
 	dto, convErr := DataFromDefRec(rec)
@@ -85,43 +87,43 @@ func (dao *daoPgx) SelectRefs(uow db.UoW) ([]typesem.SemRef, error) {
 	return typesem.DataToRefs(dtos)
 }
 
-func (dao *daoPgx) SelectRecByRef(uow db.UoW, ref typesem.SemRef) (DefRec, error) {
+func (dao *daoPgx) SelectRecByRef(uow db.UoW, ref typesem.SemRef) (pooltypedef.DefRec, error) {
 	refAttr := slog.Any("defRef", ref)
 	rows, err := uow.Pgx.Query(uow.Ctx, selectRecByID, ref.TypeID.String())
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("q", selectRecByID))
-		return DefRec{}, err
+		return pooltypedef.DefRec{}, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRecDS])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[pooltypedef.DefRecDS])
 	if err != nil {
 		dao.log.Error("row scanning failed", refAttr)
-		return DefRec{}, err
+		return pooltypedef.DefRec{}, err
 	}
 	dao.log.Log(uow.Ctx, lf.LevelTrace, "getting succeed", refAttr)
 	return DataToDefRec(dto)
 }
 
-func (dao *daoPgx) SelectRecByQN(uow db.UoW, xactQN uniqsym.ADT) (DefRec, error) {
+func (dao *daoPgx) SelectRecByQN(uow db.UoW, xactQN uniqsym.ADT) (pooltypedef.DefRec, error) {
 	qnAttr := slog.Any("xactQN", xactQN)
 	rows, err := uow.Pgx.Query(uow.Ctx, selectRecByQN, uniqsym.ConvertToString(xactQN))
 	if err != nil {
 		dao.log.Error("query execution failed", qnAttr, slog.String("q", selectRecByQN))
-		return DefRec{}, err
+		return pooltypedef.DefRec{}, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRecDS])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[pooltypedef.DefRecDS])
 	if err != nil {
 		dao.log.Error("row scanning failed", qnAttr)
-		return DefRec{}, err
+		return pooltypedef.DefRec{}, err
 	}
 	dao.log.Log(uow.Ctx, lf.LevelTrace, "getting succeed", qnAttr)
 	return DataToDefRec(dto)
 }
 
-func (dao *daoPgx) SelectRecsByRefs(uow db.UoW, refs []typesem.SemRef) (_ []DefRec, err error) {
+func (dao *daoPgx) SelectRecsByRefs(uow db.UoW, refs []typesem.SemRef) (_ []pooltypedef.DefRec, err error) {
 	if len(refs) == 0 {
-		return []DefRec{}, nil
+		return []pooltypedef.DefRec{}, nil
 	}
 	batch := pgx.Batch{}
 	for _, ref := range refs {
@@ -134,13 +136,13 @@ func (dao *daoPgx) SelectRecsByRefs(uow db.UoW, refs []typesem.SemRef) (_ []DefR
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	var dtos []defRecDS
+	var dtos []pooltypedef.DefRecDS
 	for _, defRef := range refs {
 		rows, err := br.Query()
 		if err != nil {
 			dao.log.Error("query execution failed", slog.Any("defRef", defRef), slog.String("q", selectRecByID))
 		}
-		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRecDS])
+		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[pooltypedef.DefRecDS])
 		if err != nil {
 			dao.log.Error("row scanning failed", slog.Any("defRef", defRef))
 		}
@@ -153,12 +155,12 @@ func (dao *daoPgx) SelectRecsByRefs(uow db.UoW, refs []typesem.SemRef) (_ []DefR
 	return DataToDefRecs(dtos)
 }
 
-func (dao *daoPgx) GetRecsByQNs(uow db.UoW, typeQNs []uniqsym.ADT) (_ map[uniqsym.ADT]DefRec, err error) {
+func (dao *daoPgx) GetRecsByQNs(uow db.UoW, typeQNs []uniqsym.ADT) (_ map[uniqsym.ADT]pooltypedef.DefRec, err error) {
 	if len(typeQNs) == 0 {
-		return map[uniqsym.ADT]DefRec{}, nil
+		return map[uniqsym.ADT]pooltypedef.DefRec{}, nil
 	}
 	batch := pgx.Batch{}
-	sql := dao.qb.selectRecByQN()
+	sql := dao.qb.SelectRecByQN()
 	for _, typeQN := range typeQNs {
 		batch.Queue(sql, uniqsym.ConvertToString(typeQN))
 	}
@@ -166,18 +168,18 @@ func (dao *daoPgx) GetRecsByQNs(uow db.UoW, typeQNs []uniqsym.ADT) (_ map[uniqsy
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	dtos := make(map[uniqsym.ADT]defRecDS, len(typeQNs))
+	dtos := make(map[uniqsym.ADT]pooltypedef.DefRecDS, len(typeQNs))
 	for _, typeQN := range typeQNs {
 		qnAttr := slog.Any("qn", typeQN)
 		rows, readErr := br.Query()
 		if readErr != nil {
 			dao.log.Error("query execution failed", qnAttr, slog.Any("sql", sql))
-			return map[uniqsym.ADT]DefRec{}, readErr
+			return map[uniqsym.ADT]pooltypedef.DefRec{}, readErr
 		}
-		dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRecDS])
+		dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[pooltypedef.DefRecDS])
 		if scanErr != nil {
 			dao.log.Error("row scanning failed", qnAttr)
-			return map[uniqsym.ADT]DefRec{}, scanErr
+			return map[uniqsym.ADT]pooltypedef.DefRec{}, scanErr
 		}
 		dtos[typeQN] = dto
 	}

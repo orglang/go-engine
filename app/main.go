@@ -14,7 +14,7 @@ import (
 	poolconfexec "orglang/go-engine/pool/compexec"
 	"orglang/go-engine/pool/compvar"
 	pooltermdef "orglang/go-engine/pool/termdef"
-	pooltypedef "orglang/go-engine/pool/typedef"
+	pooltypedef "orglang/go-engine/pool/typedef/adapter"
 	pooltypeexp "orglang/go-engine/pool/typeexp"
 	proccommexch "orglang/go-engine/proc/commexch"
 	"orglang/go-engine/proc/compexec"

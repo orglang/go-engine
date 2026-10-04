@@ -1,4 +1,4 @@
-package typedef
+package core
 
 import (
 	"context"
@@ -48,13 +48,13 @@ func newAPI() API {
 	return new(service)
 }
 
-func newService(
+func NewService(
 	typeDefRepo Repo,
 	typeExpRepo typeexp.Repo,
 	descSemRepo descsem.Repo,
 	transactor db.Transactor,
 	log *slog.Logger,
-) *service {
+) API {
 	return &service{typeDefRepo, typeExpRepo, descSemRepo, transactor, log}
 }
 

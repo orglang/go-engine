@@ -1,3 +1,3 @@
 #!/bin/sh
 set -e
-task check2
+task sources:verify

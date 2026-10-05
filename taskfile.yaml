@@ -13,12 +13,9 @@ vars:
   PSV: shell # shell, docker
 
 tasks:
-  sources:prepare:
-    desc: Prepare and validate source changes
+  sources:check:
+    desc: Check prepared source artifact
     cmds:
-      - gofmt -s -w .
-      - task: sources:generate
-      - git add -A
       - task: linter:vet
       - task: linter:critic
       - task: linter:revive
@@ -26,6 +23,12 @@ tasks:
       - task: linter:consistent
       - task: linter:staticcheck
       - task: linter:arch
+
+  sources:prepare:
+    desc: Prepare source artifact
+    cmds:
+      - gofmt -s -w .
+      - task: sources:generate
 
   sources:generate:
     desc: Generate source artifacts with goverter

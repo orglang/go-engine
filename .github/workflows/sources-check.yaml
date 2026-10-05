@@ -1,6 +1,7 @@
 name: Sources Check
 
 on:
+  workflow_dispatch:
   workflow_call:
   pull_request:
     branches: [main]
@@ -22,7 +23,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
-          go-version: '1.26'
+          go-version-file: go.mod
 
       - name: Check formatting
         run: test -z "$(gofmt -s -l .)"

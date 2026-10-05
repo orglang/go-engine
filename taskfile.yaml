@@ -18,7 +18,6 @@ tasks:
     desc: Prepare and validate source changes
     cmds:
       - gofmt -s -w .
-      - git add -A
       - task: sources:generate
       - git add -A
       - task: linter:vet

@@ -1,4 +1,4 @@
-name: Source Sanity
+name: Sources Check
 
 on:
   workflow_call:
@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 jobs:
-  source-sanity:
+  sources-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout engine

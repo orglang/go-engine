@@ -65,9 +65,9 @@ tasks:
   binaries:
     aliases: [bins]
     desc: Build all binaries if checks passed
-    deps:
-      - task: tests:unit
     cmds:
+      - task: sources:generate
+      - task: tests:unit
       - task: app:binary
 
   tests:*:

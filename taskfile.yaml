@@ -14,7 +14,7 @@ vars:
 
 tasks:
   sources:check:
-    desc: Check source changes
+    desc: Check prepared source artifact
     cmds:
       - task: linter:vet
       - task: linter:critic
@@ -29,8 +29,6 @@ tasks:
     cmds:
       - gofmt -s -w .
       - task: sources:generate
-      - git add -A
-      - task: sources:check
 
   sources:generate:
     desc: Generate source artifacts with goverter

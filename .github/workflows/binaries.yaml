@@ -39,9 +39,9 @@ jobs:
 
   binaries:
     needs: changes
-    uses: orglang/go-workspace/.github/workflows/binaries.yaml@main
+    uses: orglang/go-workspace/.github/workflows/binaries.yaml@51a00172a5f4058b862534d745cfc9edcd160ccf
     with:
       engine_ref: ${{ github.event.pull_request.head.sha || github.sha }}
       sdk_ref: main
-      workspace_ref: main
+      workspace_ref: fix/go-engine-16-db-ready
       run: ${{ (needs.changes.outputs.app == 'true' || needs.changes.outputs.gear == 'true') && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }}

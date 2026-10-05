@@ -20,5 +20,5 @@ jobs:
     with:
       engine_ref: ${{ github.event.pull_request.head.sha || github.sha }}
       sdk_ref: main
-      workspace_ref: fix/go-engine-16-db-ready
+      workspace_ref: cf9f0abe54c4fc8b9072a7425c838612961c58a2
       run: true

@@ -39,7 +39,7 @@ jobs:
 
   binaries:
     needs: changes
-    uses: orglang/go-workspace/.github/workflows/binaries.yaml@51a00172a5f4058b862534d745cfc9edcd160ccf
+    uses: orglang/go-workspace/.github/workflows/binaries.yaml@b1041f164e7939ffba248218a05f5f89dfe7c78f
     with:
       engine_ref: ${{ github.event.pull_request.head.sha || github.sha }}
       sdk_ref: main

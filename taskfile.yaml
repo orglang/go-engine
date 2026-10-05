@@ -13,8 +13,7 @@ vars:
   PSV: shell # shell, docker
 
 tasks:
-  check1:
-    aliases: [sources, src]
+  sources:prepare:
     desc: Prepare and validate source changes
     cmds:
       - gofmt -s -w .
@@ -33,7 +32,7 @@ tasks:
     cmds:
       - go run github.com/jmattheis/goverter/cmd/goverter gen -global 'skipCopySameType' ./...
 
-  check2:
+  sources:verify:
     desc: Verify the current HEAD before publishing
     cmds:
       - task: tests:unit

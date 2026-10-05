@@ -13,12 +13,35 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      app: ${{ steps.app.outputs.changed }}
+      gear: ${{ steps.gear.outputs.changed }}
+    steps:
+      - name: Checkout workspace actions
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          repository: orglang/go-workspace
+          path: .ci
+
+      - name: Detect application changes
+        id: app
+        uses: ./.ci/.github/actions/app-changes
+
+      - name: Detect gear changes
+        id: gear
+        uses: ./.ci/.github/actions/gear-changes
+
   binaries:
+    needs: changes
     uses: orglang/go-workspace/.github/workflows/binaries.yaml@main
     with:
       engine_ref: ${{ github.event.pull_request.head.sha || github.sha }}
       sdk_ref: main
       workspace_ref: main
-      run: ${{ github.event_name != 'pull_request' || !github.event.pull_request.draft }}
+      run: ${{ (needs.changes.outputs.app == 'true' || needs.changes.outputs.gear == 'true') && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }}

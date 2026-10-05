@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   distros:
-    uses: orglang/go-workspace/.github/workflows/distros.yaml@fix/go-engine-16-db-ready
+    uses: orglang/go-workspace/.github/workflows/distros.yaml@1826e8e915190d4bf37befd7169d35533c253446
     with:
       engine_ref: ${{ github.event.pull_request.head.sha || github.sha }}
       sdk_ref: main

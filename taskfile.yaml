@@ -13,11 +13,12 @@ vars:
   PSV: shell # shell, docker
 
 tasks:
-  sources:
-    aliases: [src]
-    preconditions:
-      - sh: '[ "$(gofmt -s -l . | wc -l)" -eq 0 ]'
-    deps:
+  sources:prepare:
+    desc: Prepare and validate source changes
+    cmds:
+      - gofmt -s -w .
+      - task: sources:generate
+      - git add -A
       - task: linter:vet
       - task: linter:critic
       - task: linter:revive
@@ -25,9 +26,21 @@ tasks:
       - task: linter:consistent
       - task: linter:staticcheck
       - task: linter:arch
+
+  sources:generate:
+    desc: Generate source artifacts with goverter
     cmds:
-      - cmd: echo success
-        silent: true
+      - go run github.com/jmattheis/goverter/cmd/goverter gen -global 'skipCopySameType' ./...
+
+  sources:verify:
+    desc: Verify the current HEAD before publishing
+    cmds:
+      - task: tests:unit
+
+  hooks:install:
+    desc: Configure this repository to use versioned Git hooks
+    cmds:
+      - git config core.hooksPath .githooks
 
   process:
     aliases: [proc]
@@ -50,17 +63,15 @@ tasks:
   binaries:
     aliases: [bins]
     desc: Build all binaries if checks passed
-    deps:
-      - task: tests:unit
     cmds:
+      - task: sources:generate
+      - task: tests:unit
       - task: app:binary
 
   tests:*:
     desc: Run tests of specified level (unit, it, e2e).
     vars:
       LEVEL: '{{index .MATCH 0}}'
-    deps:
-      - task: generator:goverter
     cmds:
       - cmd: go test -tags=unit ./lib/... ./adt/... ./app/... ./pool/... ./proc/...
         if: '{{eq .LEVEL "unit"}}'

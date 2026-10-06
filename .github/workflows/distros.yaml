@@ -20,5 +20,5 @@ jobs:
     with:
       engine_ref: ${{ github.event.pull_request.head.sha || github.sha }}
       sdk_ref: main
-      workspace_ref: 4a2ad65b2831f6965b0f9d89c85c29b8cc0e44f7
+      workspace_ref: bf3beafcb1a64c8bfa39165bbbc3662815c76ca2
       run: true

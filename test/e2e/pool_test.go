@@ -218,17 +218,6 @@ func (s *suite) waitClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	closerProcDec, err := s.ProcDecAPI.Create(proctermdec.DecSpec{
-		TermQN: closerProcQN,
-		LiabVar: termvar.VarSpec{
-			ChnlPH: "closer-provider-ph",
-			TypeQN: oneTypeQN,
-		},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	// and
 	// and
 	err = s.PoolExecAPI.Take(compstep.StepSpec{
 		CompRef: poolExecRef,

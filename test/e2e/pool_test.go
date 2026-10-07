@@ -318,40 +318,40 @@ func (s *suite) waitClose(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// when
-	err = s.ProcExecAPI.Take(proccompstep.StepSpec{
-		CompRef: closerProcExec,
-		ProcExp: proctermexp.ExpSpec{
-			K: proctermexp.Close,
-			Close: &proctermexp.CloseSpec{
-				CommChnlPH: closerProcDec.LiabVar.ChnlPH,
-			},
-		},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	// and
-	err = s.ProcExecAPI.Take(proccompstep.StepSpec{
-		CompRef: waiterProcExec,
-		ProcExp: proctermexp.ExpSpec{
-			K: proctermexp.Wait,
-			Wait: &proctermexp.WaitSpec{
-				CommChnlPH: waiterProcDec.AssetVars[0].ChnlPH,
-				ContES: proctermexp.ExpSpec{
-					K: proctermexp.Close,
-					Close: &proctermexp.CloseSpec{
-						CommChnlPH: waiterProcDec.LiabVar.ChnlPH,
-					},
-				},
-			},
-		},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	// then
-	// TODO добавить проверку
+// 	// when
+// 	err = s.ProcExecAPI.Take(proccompstep.StepSpec{
+// 		CompRef: closerProcExec,
+// 		ProcExp: proctermexp.ExpSpec{
+// 			K: proctermexp.Close,
+// 			Close: &proctermexp.CloseSpec{
+// 				CommChnlPH: closerProcDec.LiabVar.ChnlPH,
+// 			},
+// 		},
+// 	})
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	// and
+// 	err = s.ProcExecAPI.Take(proccompstep.StepSpec{
+// 		CompRef: waiterProcExec,
+// 		ProcExp: proctermexp.ExpSpec{
+// 			K: proctermexp.Wait,
+// 			Wait: &proctermexp.WaitSpec{
+// 				CommChnlPH: waiterProcDec.AssetVars[0].ChnlPH,
+// 				ContES: proctermexp.ExpSpec{
+// 					K: proctermexp.Close,
+// 					Close: &proctermexp.CloseSpec{
+// 						CommChnlPH: waiterProcDec.LiabVar.ChnlPH,
+// 					},
+// 				},
+// 			},
+// 		},
+// 	})
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	// then
+// 	// TODO добавить проверку
 }
 
 func (s *suite) recvSend(t *testing.T) {

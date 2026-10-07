@@ -8,16 +8,16 @@ networks:
 
 services:
   storage:
-    image: postgres:alpine
+    image: postgres:17.11-alpine3.24
     networks:
       - orglang
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "password"
+      POSTGRES_USER: ${POSTGRES_ADMIN_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:-password}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_ADMIN_USER:-postgres} -d postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -31,19 +31,23 @@ services:
     depends_on:
       storage:
         condition: service_healthy
-    command: >-
-      --show-banner=false
-      --classpath=/liquibase/changelog
-      --changelog-file=dba/changelog.yaml
-      --url=jdbc:postgresql://storage:5432/postgres
-      --liquibase-schema-name=public
-      --default-schema-name=public
-      --username=postgres
-      --password=password
-      update
-      -Ddatabase.name=orglang
-      -Downer.username=orglang
-      -Downer.password=orglang
+    environment:
+      DBA_DSN: ${DBA_DSN:-postgres://postgres:password@storage:5432/postgres?sslmode=disable}
+      DB_NAME: ${DB_NAME:-orglang}
+      DB_SCHEMA: ${DB_SCHEMA:-orglang}
+      DB_OWNER: ${DB_OWNER:-orglang}
+      DB_OWNER_PASSWORD: ${DB_OWNER_PASSWORD:-orglang}
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        psql "$$DBA_DSN" \
+          -v ON_ERROR_STOP=1 \
+          -v DB_NAME="$$DB_NAME" \
+          -v DB_SCHEMA="$$DB_SCHEMA" \
+          -v DB_OWNER="$$DB_OWNER" \
+          -v DB_OWNER_PASSWORD="$$DB_OWNER_PASSWORD" \
+          -f /migrations/dba/bootstrap.sql
     labels:
       image.key: orglang/postgres
 
@@ -54,16 +58,15 @@ services:
     depends_on:
       database:
         condition: service_completed_successfully
-    command: >-
-      --show-banner=false
-      --classpath=/liquibase/changelog
-      --changelog-file=owner/changelog.yaml
-      --url=jdbc:postgresql://storage:5432/orglang
-      --liquibase-schema-name=public
-      --default-schema-name=orglang
-      --username=orglang
-      --password=orglang
-      update
-      -Dschema.name=orglang
+    environment:
+      OWNER_DSN: ${OWNER_DSN:-postgres://orglang:orglang@storage:5432/orglang?sslmode=disable&search_path=orglang&x-multi-statement=true}
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        migrate \
+          -source file:///migrations/owner \
+          -database "$$OWNER_DSN" \
+          up
     labels:
       image.key: orglang/postgres

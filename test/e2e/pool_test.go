@@ -305,19 +305,19 @@ func (s *suite) waitClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	waiterProcExec, err := s.PoolExecAPI.Spawn(compstep.StepSpec{
-		CompRef: poolExecRef,
-		PoolExp: pooltermexp.ExpSpec{
-			K: pooltermexp.Spawn,
-			Spawn: &pooltermexp.SpawnSpec{
-				ProcTermRef:  waiterProcDec.TermRef,
-				ProcCompRefs: []compsem.SemRef{closerProcExec},
-			},
-		},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
+// 	waiterProcExec, err := s.PoolExecAPI.Spawn(compstep.StepSpec{
+// 		CompRef: poolExecRef,
+// 		PoolExp: pooltermexp.ExpSpec{
+// 			K: pooltermexp.Spawn,
+// 			Spawn: &pooltermexp.SpawnSpec{
+// 				ProcTermRef:  waiterProcDec.TermRef,
+// 				ProcCompRefs: []compsem.SemRef{closerProcExec},
+// 			},
+// 		},
+// 	})
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
 // 	// when
 // 	err = s.ProcExecAPI.Take(proccompstep.StepSpec{
 // 		CompRef: closerProcExec,

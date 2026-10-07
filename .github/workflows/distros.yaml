@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   distros:
-    uses: orglang/go-workspace/.github/workflows/distros.yaml@b2c1ce7f6b2457e6808d6e15af5e652341b99f80
+    uses: orglang/go-workspace/.github/workflows/distros.yaml@main
     with:
       engine_ref: ${{ github.event.pull_request.head.sha || github.sha }}
       sdk_ref: main

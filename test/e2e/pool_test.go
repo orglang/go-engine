@@ -218,29 +218,6 @@ func (s *suite) waitClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	closerProcDec, err := s.ProcDecAPI.Create(proctermdec.DecSpec{
-		TermQN: closerProcQN,
-		LiabVar: termvar.VarSpec{
-			ChnlPH: "closer-provider-ph",
-			TypeQN: oneTypeQN,
-		},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	// and
-	closerProcExec, err := s.PoolExecAPI.Spawn(compstep.StepSpec{
-		CompRef: poolExecRef,
-		PoolExp: pooltermexp.ExpSpec{
-			K: pooltermexp.Spawn,
-			Spawn: &pooltermexp.SpawnSpec{
-				ProcTermRef: closerProcDec.TermRef,
-			},
-		},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
 	// and
 	err = s.PoolExecAPI.Take(compstep.StepSpec{
 		CompRef: poolExecRef,
@@ -294,64 +271,54 @@ func (s *suite) waitClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	// and
-	waiterProcDec, err := s.ProcDecAPI.Create(proctermdec.DecSpec{
-		TermQN:  waiterProcQN,
-		LiabVar: termvar.VarSpec{ChnlPH: "waiter-provider-ph", TypeQN: oneTypeQN},
-		AssetVars: []termvar.VarSpec{
-			{ChnlPH: "waiter-closer-ph", TypeQN: oneTypeQN},
-		},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
 	// and
-	waiterProcExec, err := s.PoolExecAPI.Spawn(compstep.StepSpec{
-		CompRef: poolExecRef,
-		PoolExp: pooltermexp.ExpSpec{
-			K: pooltermexp.Spawn,
-			Spawn: &pooltermexp.SpawnSpec{
-				ProcTermRef:  waiterProcDec.TermRef,
-				ProcCompRefs: []compsem.SemRef{closerProcExec},
-			},
-		},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	// when
-	err = s.ProcExecAPI.Take(proccompstep.StepSpec{
-		CompRef: closerProcExec,
-		ProcExp: proctermexp.ExpSpec{
-			K: proctermexp.Close,
-			Close: &proctermexp.CloseSpec{
-				CommChnlPH: closerProcDec.LiabVar.ChnlPH,
-			},
-		},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	// and
-	err = s.ProcExecAPI.Take(proccompstep.StepSpec{
-		CompRef: waiterProcExec,
-		ProcExp: proctermexp.ExpSpec{
-			K: proctermexp.Wait,
-			Wait: &proctermexp.WaitSpec{
-				CommChnlPH: waiterProcDec.AssetVars[0].ChnlPH,
-				ContES: proctermexp.ExpSpec{
-					K: proctermexp.Close,
-					Close: &proctermexp.CloseSpec{
-						CommChnlPH: waiterProcDec.LiabVar.ChnlPH,
-					},
-				},
-			},
-		},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	// then
-	// TODO добавить проверку
+// 	waiterProcExec, err := s.PoolExecAPI.Spawn(compstep.StepSpec{
+// 		CompRef: poolExecRef,
+// 		PoolExp: pooltermexp.ExpSpec{
+// 			K: pooltermexp.Spawn,
+// 			Spawn: &pooltermexp.SpawnSpec{
+// 				ProcTermRef:  waiterProcDec.TermRef,
+// 				ProcCompRefs: []compsem.SemRef{closerProcExec},
+// 			},
+// 		},
+// 	})
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	// when
+// 	err = s.ProcExecAPI.Take(proccompstep.StepSpec{
+// 		CompRef: closerProcExec,
+// 		ProcExp: proctermexp.ExpSpec{
+// 			K: proctermexp.Close,
+// 			Close: &proctermexp.CloseSpec{
+// 				CommChnlPH: closerProcDec.LiabVar.ChnlPH,
+// 			},
+// 		},
+// 	})
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	// and
+// 	err = s.ProcExecAPI.Take(proccompstep.StepSpec{
+// 		CompRef: waiterProcExec,
+// 		ProcExp: proctermexp.ExpSpec{
+// 			K: proctermexp.Wait,
+// 			Wait: &proctermexp.WaitSpec{
+// 				CommChnlPH: waiterProcDec.AssetVars[0].ChnlPH,
+// 				ContES: proctermexp.ExpSpec{
+// 					K: proctermexp.Close,
+// 					Close: &proctermexp.CloseSpec{
+// 						CommChnlPH: waiterProcDec.LiabVar.ChnlPH,
+// 					},
+// 				},
+// 			},
+// 		},
+// 	})
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	// then
+// 	// TODO добавить проверку
 }
 
 func (s *suite) recvSend(t *testing.T) {

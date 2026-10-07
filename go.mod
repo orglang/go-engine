@@ -1,6 +1,6 @@
 module orglang/go-engine
 
-go 1.25.5
+go 1.27.0
 
 require (
 	github.com/alitto/pond/v2 v2.7.0

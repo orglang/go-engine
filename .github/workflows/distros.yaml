@@ -21,5 +21,4 @@ jobs:
       engine_ref: ${{ github.event.pull_request.head.sha || github.sha }}
       sdk_ref: main
       workspace_ref: main
-      # Temporarily disabled while the PostgreSQL/e2e setup is fixed in https://github.com/orglang/go-engine/issues/16.
-      run: false
+      run: ${{ github.event_name == 'merge_group' }}

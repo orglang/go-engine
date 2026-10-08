@@ -15,9 +15,9 @@ The Compose workflow accepts:
 - `OWNER_PASSWORD` — password used only when the owner role is created.
 - `OWNER_URL` — connection URL for the owner migration stage.
 
-The defaults match the local development stack: database `orglang`, schema `orglang`, owner `orglang`, owner password `orglang`, and PostgreSQL admin credentials `postgres` / `password`. Credentials and identifiers can be overridden through the environment. URL credentials must be URL-encoded when they contain reserved characters.
+These parameters have no defaults in the Compose file and must be provided by the environment. The local development stack defines them in `stack/ops/commons/.env`. URL credentials must be URL-encoded when they contain reserved characters.
 
-`OWNER_URL` uses `search_path=orglang` and `x-multi-statement=true` by default. For a different schema, set `OWNER_URL` explicitly with `search_path=<DB_SCHEMA>`. This keeps golang-migrate's `schema_migrations` table in the target schema and executes the multi-statement migration transactionally.
+`OWNER_URL` should use `search_path=<DB_SCHEMA>` and `x-multi-statement=true`. This keeps golang-migrate's `schema_migrations` table in the target schema and executes the multi-statement migration transactionally. This keeps golang-migrate's `schema_migrations` table in the target schema and executes the multi-statement migration transactionally.
 
 ## Build
 

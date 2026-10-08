@@ -9,8 +9,8 @@ The Compose workflow accepts:
 - `DBA_URL` — administrative PostgreSQL connection URL.
 - `DB_NAME` — target database name.
 - `DB_SCHEMA` — target schema name.
-- `DB_OWNER` — owner role name.
-- `DB_OWNER_PASSWORD` — password used only when the owner role is created.
+- `OWNER_USER` — owner role name.
+- `OWNER_PASSWORD` — password used only when the owner role is created.
 - `OWNER_URL` — connection URL for the owner migration stage.
 
 The defaults match the local development stack: database `orglang`, schema `orglang`, owner `orglang`, owner password `orglang`, and PostgreSQL admin credentials `postgres` / `password`. Credentials and identifiers can be overridden through the environment. URL credentials must be URL-encoded when they contain reserved characters.

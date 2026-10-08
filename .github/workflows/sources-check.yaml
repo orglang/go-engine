@@ -32,5 +32,8 @@ jobs:
           gofmt -s -l .
           test -z "$(gofmt -s -l .)"
 
+      - name: Generate source artifacts
+        run: go run github.com/jmattheis/goverter/cmd/goverter gen -global 'skipCopySameType' ./...
+
       - name: Run unit tests
         run: go test -tags=unit ./lib/... ./adt/... ./app/... ./pool/... ./proc/...

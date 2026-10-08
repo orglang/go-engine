@@ -36,3 +36,5 @@ The Compose workflow starts PostgreSQL, then the `database` one-shot service run
 The same migration image is used for both stages; only the command and credentials differ. Repeated runs are safe: bootstrap only creates missing objects, while golang-migrate records the applied migration in `schema_migrations` and does not reapply it.
 
 <!-- CI trigger -->
+
+<!-- CI diagnostics trigger -->

@@ -6,6 +6,8 @@ The PostgreSQL migration image contains `psql`, the golang-migrate CLI, the DBA 
 
 The Compose workflow accepts:
 
+- `DBA_USER` — administrative PostgreSQL user.
+- `DBA_PASSWORD` — administrative PostgreSQL password.
 - `DBA_URL` — administrative PostgreSQL connection URL.
 - `DB_NAME` — target database name.
 - `DB_SCHEMA` — target schema name.

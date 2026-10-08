@@ -107,7 +107,7 @@ CREATE TABLE proc_impl_binds (
     kind smallint
 );
 
-CREATE INDEX proc_impl_qn_gist_idx ON proc_impl_binds USING GIST (proc_impl_binds);
+CREATE INDEX proc_impl_qn_gist_idx ON proc_impl_binds USING GIST (impl_qn);
 
 CREATE TABLE proc_comp_execs (
     comp_id varchar UNIQUE,

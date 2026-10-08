@@ -17,7 +17,7 @@ The Compose workflow accepts:
 
 These parameters have no defaults in the Compose file and must be provided by the environment. The local development stack defines them in `stack/ops/commons/.env`. URL credentials must be URL-encoded when they contain reserved characters.
 
-`OWNER_URL` should use `search_path=<DB_SCHEMA>` and `x-multi-statement=true`. This keeps golang-migrate's `schema_migrations` table in the target schema and executes the multi-statement migration transactionally. This keeps golang-migrate's `schema_migrations` table in the target schema and executes the multi-statement migration transactionally.
+`OWNER_URL` should use `search_path=<DB_SCHEMA>` and `x-multi-statement=true`. This keeps golang-migrate's `schema_migrations` table in the target schema and executes the multi-statement migration transactionally.
 
 ## Build
 

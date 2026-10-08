@@ -32,7 +32,7 @@ services:
       storage:
         condition: service_healthy
     environment:
-      DBA_DSN: $DBA_DSN
+      DBA_URL: $DBA_URL
       DB_NAME: $DB_NAME
       DB_SCHEMA: $DB_SCHEMA
       DB_OWNER: $DB_OWNER
@@ -41,7 +41,7 @@ services:
       - /bin/sh
       - -ec
       - |
-        psql "$$DBA_DSN" \
+        psql "$$DBA_URL" \
           -v ON_ERROR_STOP=1 \
           -v DB_NAME="$$DB_NAME" \
           -v DB_SCHEMA="$$DB_SCHEMA" \
@@ -59,14 +59,14 @@ services:
       database:
         condition: service_completed_successfully
     environment:
-      OWNER_DSN: $OWNER_DSN
+      OWNER_URL: $OWNER_URL
     command:
       - /bin/sh
       - -ec
       - |
         migrate \
           -source file:///migrations/owner \
-          -database "$$OWNER_DSN" \
+          -database "$$OWNER_URL" \
           up
     labels:
       image.key: orglang/postgres

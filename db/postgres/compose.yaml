@@ -35,8 +35,8 @@ services:
       DBA_URL: $DBA_URL
       DB_NAME: $DB_NAME
       DB_SCHEMA: $DB_SCHEMA
-      DB_OWNER: $DB_OWNER
-      DB_OWNER_PASSWORD: $DB_OWNER_PASSWORD
+      OWNER_USER: $OWNER_USER
+      OWNER_PASSWORD: $OWNER_PASSWORD
     command:
       - /bin/sh
       - -ec
@@ -45,8 +45,8 @@ services:
           -v ON_ERROR_STOP=1 \
           -v DB_NAME="$$DB_NAME" \
           -v DB_SCHEMA="$$DB_SCHEMA" \
-          -v DB_OWNER="$$DB_OWNER" \
-          -v DB_OWNER_PASSWORD="$$DB_OWNER_PASSWORD" \
+          -v OWNER_USER="$OWNER_USER" \
+          -v OWNER_PASSWORD="$OWNER_PASSWORD" \
           -f /migrations/dba/bootstrap.sql
     labels:
       image.key: orglang/postgres

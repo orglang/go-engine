@@ -34,3 +34,5 @@ The existing database task remains the entry point:
 The Compose workflow starts PostgreSQL, then the `database` one-shot service runs `dba/bootstrap.sql` with the administrative URL. After it exits successfully, the `schema` one-shot service runs golang-migrate with the filesystem source `file:///migrations/owner` and the owner URL.
 
 The same migration image is used for both stages; only the command and credentials differ. Repeated runs are safe: bootstrap only creates missing objects, while golang-migrate records the applied migration in `schema_migrations` and does not reapply it.
+
+<!-- CI trigger -->

@@ -2,17 +2,17 @@
 
 SELECT format(
     'CREATE ROLE %I LOGIN PASSWORD %L',
-    :'DB_OWNER',
-    :'DB_OWNER_PASSWORD'
+    :'OWNER_USER',
+    :'OWNER_PASSWORD'
 )
 WHERE NOT EXISTS (
-    SELECT 1 FROM pg_roles WHERE rolname = :'DB_OWNER'
+    SELECT 1 FROM pg_roles WHERE rolname = :'OWNER_USER'
 ) \gexec
 
 SELECT format(
     'CREATE DATABASE %I OWNER %I',
     :'DB_NAME',
-    :'DB_OWNER'
+    :'OWNER_USER'
 )
 WHERE NOT EXISTS (
     SELECT 1 FROM pg_database WHERE datname = :'DB_NAME'
@@ -23,7 +23,7 @@ WHERE NOT EXISTS (
 SELECT format(
     'CREATE SCHEMA %I AUTHORIZATION %I',
     :'DB_SCHEMA',
-    :'DB_OWNER'
+    :'OWNER_USER'
 )
 WHERE NOT EXISTS (
     SELECT 1 FROM pg_namespace WHERE nspname = :'DB_SCHEMA'

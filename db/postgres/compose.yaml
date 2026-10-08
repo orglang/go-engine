@@ -14,10 +14,10 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: ${POSTGRES_ADMIN_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:-password}
+      POSTGRES_USER: $POSTGRES_ADMIN_USER
+      POSTGRES_PASSWORD: $POSTGRES_ADMIN_PASSWORD
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_ADMIN_USER:-postgres} -d postgres"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_ADMIN_USER -d postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -32,11 +32,11 @@ services:
       storage:
         condition: service_healthy
     environment:
-      DBA_DSN: ${DBA_DSN:-postgres://postgres:password@storage:5432/postgres?sslmode=disable}
-      DB_NAME: ${DB_NAME:-orglang}
-      DB_SCHEMA: ${DB_SCHEMA:-orglang}
-      DB_OWNER: ${DB_OWNER:-orglang}
-      DB_OWNER_PASSWORD: ${DB_OWNER_PASSWORD:-orglang}
+      DBA_DSN: $DBA_DSN
+      DB_NAME: $DB_NAME
+      DB_SCHEMA: $DB_SCHEMA
+      DB_OWNER: $DB_OWNER
+      DB_OWNER_PASSWORD: $DB_OWNER_PASSWORD
     command:
       - /bin/sh
       - -ec
@@ -59,7 +59,7 @@ services:
       database:
         condition: service_completed_successfully
     environment:
-      OWNER_DSN: ${OWNER_DSN:-postgres://orglang:orglang@storage:5432/orglang?sslmode=disable&search_path=orglang&x-multi-statement=true}
+      OWNER_DSN: $OWNER_DSN
     command:
       - /bin/sh
       - -ec

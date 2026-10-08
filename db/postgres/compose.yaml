@@ -37,6 +37,7 @@ services:
       DB_SCHEMA: $DB_SCHEMA
       OWNER_USER: $OWNER_USER
       OWNER_PASSWORD: $OWNER_PASSWORD
+    entrypoint: []
     command:
       - psql
       - "$DBA_URL"
@@ -64,6 +65,7 @@ services:
         condition: service_completed_successfully
     environment:
       OWNER_URL: $OWNER_URL
+    entrypoint: []
     command:
       - migrate
       - -source

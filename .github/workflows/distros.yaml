@@ -20,5 +20,5 @@ jobs:
     with:
       engine_ref: ${{ github.event.pull_request.head.sha || github.sha }}
       sdk_ref: main
-      workspace_ref: issue-48-postgres-migrate
+      workspace_ref: c01b8a4c04dd06ed2a9b0097b1085b9d91c35581
       run: ${{ github.event_name == 'merge_group' }}

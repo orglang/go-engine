@@ -7,6 +7,7 @@ on:
     branches: [main]
     types:
       - opened
+      - synchronize
 
 permissions:
   contents: read
@@ -26,7 +27,13 @@ jobs:
           go-version-file: go.mod
 
       - name: Check formatting
-        run: test -z "$(gofmt -s -l .)"
+        run: |
+          echo "Unformatted files:"
+          gofmt -s -l .
+          test -z "$(gofmt -s -l .)"
+
+      - name: Generate source artifacts
+        run: go run github.com/jmattheis/goverter/cmd/goverter gen -global 'skipCopySameType' ./...
 
       - name: Run unit tests
         run: go test -tags=unit ./lib/... ./adt/... ./app/... ./pool/... ./proc/...

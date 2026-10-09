@@ -8,16 +8,16 @@ networks:
 
 services:
   storage:
-    image: postgres:alpine
+    image: postgres:17.11-alpine3.24
     networks:
       - orglang
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "password"
+      POSTGRES_USER: $DBA_USER
+      POSTGRES_PASSWORD: $DBA_PASSWORD
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
+      test: ["CMD-SHELL", "pg_isready -U $$DBA_USER -d postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -31,19 +31,28 @@ services:
     depends_on:
       storage:
         condition: service_healthy
-    command: >-
-      --show-banner=false
-      --classpath=/liquibase/changelog
-      --changelog-file=dba/changelog.yaml
-      --url=jdbc:postgresql://storage:5432/postgres
-      --liquibase-schema-name=public
-      --default-schema-name=public
-      --username=postgres
-      --password=password
-      update
-      -Ddatabase.name=orglang
-      -Downer.username=orglang
-      -Downer.password=orglang
+    environment:
+      DBA_URL: $DBA_URL
+      DB_NAME: $DB_NAME
+      DB_SCHEMA: $DB_SCHEMA
+      OWNER_USER: $OWNER_USER
+      OWNER_PASSWORD: $OWNER_PASSWORD
+    entrypoint:
+      - psql
+    command:
+      - "$DBA_URL"
+      - -v
+      - ON_ERROR_STOP=1
+      - -v
+      - DB_NAME=$DB_NAME
+      - -v
+      - DB_SCHEMA=$DB_SCHEMA
+      - -v
+      - OWNER_USER=$OWNER_USER
+      - -v
+      - OWNER_PASSWORD=$OWNER_PASSWORD
+      - -f
+      - /migrations/dba/bootstrap.sql
     labels:
       image.key: orglang/postgres
 
@@ -54,16 +63,15 @@ services:
     depends_on:
       database:
         condition: service_completed_successfully
-    command: >-
-      --show-banner=false
-      --classpath=/liquibase/changelog
-      --changelog-file=owner/changelog.yaml
-      --url=jdbc:postgresql://storage:5432/orglang
-      --liquibase-schema-name=public
-      --default-schema-name=orglang
-      --username=orglang
-      --password=orglang
-      update
-      -Dschema.name=orglang
+    environment:
+      OWNER_URL: $OWNER_URL
+    entrypoint:
+      - migrate
+    command:
+      - -source
+      - file:///migrations/owner
+      - -database
+      - "$OWNER_URL"
+      - up
     labels:
       image.key: orglang/postgres

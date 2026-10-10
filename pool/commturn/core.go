@@ -10,8 +10,8 @@ import (
 	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/pool/compvar"
-	"orglang/go-engine/pool/termexp"
+	compvar "orglang/go-engine/pool/compvar/core"
+	termexp "orglang/go-engine/pool/termexp/core"
 	"orglang/go-engine/proc/compexec"
 	"orglang/go-engine/proc/termdec"
 )

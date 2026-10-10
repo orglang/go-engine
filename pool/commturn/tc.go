@@ -4,7 +4,7 @@ import (
 	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/pool/termexp"
+	termexp "orglang/go-engine/pool/termexp/adapter"
 )
 
 func DataFromStepRec(r TurnRec) TurnRecDS {

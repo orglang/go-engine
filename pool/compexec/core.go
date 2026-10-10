@@ -20,10 +20,10 @@ import (
 	"orglang/go-engine/pool/commexch"
 	"orglang/go-engine/pool/commturn"
 	"orglang/go-engine/pool/compstep"
-	"orglang/go-engine/pool/compvar"
+	compvar "orglang/go-engine/pool/compvar/core"
 	"orglang/go-engine/pool/termdef"
-	"orglang/go-engine/pool/termexp"
-	"orglang/go-engine/pool/typeexp"
+	termexp "orglang/go-engine/pool/termexp/core"
+	typeexp "orglang/go-engine/pool/typeexp/core"
 
 	proccompexec "orglang/go-engine/proc/compexec"
 	proctermdef "orglang/go-engine/proc/termdef"

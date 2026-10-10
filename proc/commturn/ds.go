@@ -5,7 +5,7 @@ import (
 
 	"orglang/go-engine/lib/db"
 
-	"orglang/go-engine/proc/termexp"
+	termexp "orglang/go-engine/proc/termexp/core"
 )
 
 type Repo interface {

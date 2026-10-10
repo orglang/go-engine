@@ -9,7 +9,7 @@ import (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/seqnum:Convert.*
-// goverter:extend orglang/go-engine/pool/termexp:Data.*
+// goverter:extend orglang/go-engine/pool/termexp/adapter:Data.*
 var (
 	DataToCommRef func(TurnRecDS) (commsem.SemRef, error)
 	// goverter:ignore CompRN

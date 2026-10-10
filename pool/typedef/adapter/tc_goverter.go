@@ -12,7 +12,7 @@ import (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
-// goverter:extend orglang/go-engine/pool/typeexp:Msg.*
+// goverter:extend orglang/go-engine/pool/typeexp/adapter:Msg.*
 var (
 	MsgFromDefSpec  func(pooltypedef.DefSpec) typedef.DefSpec
 	MsgToDefSpec    func(typedef.DefSpec) (pooltypedef.DefSpec, error)

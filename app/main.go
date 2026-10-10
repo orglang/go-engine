@@ -26,7 +26,7 @@ import (
 	"orglang/go-engine/app/web"
 )
 
-// Cache validation (follow-up run): source-only edits should keep module-download layers cached.
+// Cache validation (runtime-export follow-up): source-only edits should keep module-download layers cached.
 func main() {
 	fx.New(
 		// lib

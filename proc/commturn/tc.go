@@ -3,7 +3,7 @@ package commturn
 import (
 	"fmt"
 
-	"orglang/go-engine/proc/termexp"
+	termexp "orglang/go-engine/proc/termexp/adapter"
 )
 
 func dataFromStepRec(r TurnRec) (StepRecDS, error) {

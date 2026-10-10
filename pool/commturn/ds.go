@@ -3,7 +3,7 @@ package commturn
 import (
 	"orglang/go-engine/lib/db"
 
-	"orglang/go-engine/pool/termexp"
+	termexp "orglang/go-engine/pool/termexp/core"
 )
 
 type Repo interface {

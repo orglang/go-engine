@@ -6,7 +6,7 @@ import (
 	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/proc/termexp"
+	termexp "orglang/go-engine/proc/termexp/core"
 )
 
 // aka Sem

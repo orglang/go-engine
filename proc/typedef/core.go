@@ -15,7 +15,7 @@ import (
 	"orglang/go-engine/adt/typesem"
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/adt/valkey"
-	"orglang/go-engine/proc/typeexp"
+	typeexp "orglang/go-engine/proc/typeexp/core"
 )
 
 type API interface {

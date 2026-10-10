@@ -2,7 +2,7 @@ package compstep
 
 import (
 	"orglang/go-engine/adt/compsem"
-	"orglang/go-engine/proc/termexp"
+	termexp "orglang/go-engine/proc/termexp/core"
 )
 
 type StepSpec struct {

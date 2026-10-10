@@ -8,7 +8,7 @@ import (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
-// goverter:extend orglang/go-engine/proc/typeexp:Msg.*
+// goverter:extend orglang/go-engine/proc/typeexp/adapter:Msg.*
 var (
 	MsgFromDefSpec  func(DefSpec) typedef.DefSpec
 	MsgToDefSpec    func(typedef.DefSpec) (DefSpec, error)
@@ -22,7 +22,7 @@ var (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
-// goverter:extend orglang/go-engine/proc/typeexp:Msg.*
+// goverter:extend orglang/go-engine/proc/typeexp/adapter:Msg.*
 var (
 	ViewFromDefSnap func(DefSnap) DefSnapVP
 )
@@ -32,7 +32,7 @@ var (
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/adt/valkey:Convert.*
-// goverter:extend orglang/go-engine/proc/typeexp:Data.*
+// goverter:extend orglang/go-engine/proc/typeexp/adapter:Data.*
 var (
 	// goverter:map . TypeRef
 	DataToDefRec  func(defRecDS) (DefRec, error)

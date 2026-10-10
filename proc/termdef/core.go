@@ -10,7 +10,7 @@ import (
 	"orglang/go-engine/adt/symbol"
 	"orglang/go-engine/adt/typesem"
 	"orglang/go-engine/adt/uniqsym"
-	"orglang/go-engine/proc/termexp"
+	termexp "orglang/go-engine/proc/termexp/core"
 )
 
 type API interface {

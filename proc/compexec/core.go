@@ -24,9 +24,9 @@ import (
 	"orglang/go-engine/proc/compstep"
 	"orglang/go-engine/proc/termdec"
 	"orglang/go-engine/proc/termdef"
-	"orglang/go-engine/proc/termexp"
+	termexp "orglang/go-engine/proc/termexp/core"
 	"orglang/go-engine/proc/typedef"
-	"orglang/go-engine/proc/typeexp"
+	typeexp "orglang/go-engine/proc/typeexp/core"
 )
 
 type API interface {

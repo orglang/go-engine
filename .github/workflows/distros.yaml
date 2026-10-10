@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   distros:
-    uses: orglang/go-workspace/.github/workflows/distros.yaml@main
+    uses: orglang/go-workspace/.github/workflows/distros.yaml@issue-50-optimize-engine-docker-build
     with:
       engine_ref: ${{ github.event.pull_request.head.sha || github.sha }}
       sdk_ref: main

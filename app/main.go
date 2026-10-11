@@ -26,7 +26,7 @@ import (
 	"orglang/go-engine/app/web"
 )
 
-// Cache validation (second runtime-export follow-up): source-only edits should keep module-download layers cached.
+// Diagnostic retry: re-trigger CI after the previous reusable workflow startup failure.
 func main() {
 	fx.New(
 		// lib

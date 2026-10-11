@@ -26,7 +26,7 @@ import (
 	"orglang/go-engine/app/web"
 )
 
-// Diagnostic retry: re-trigger CI after the previous reusable workflow startup failure.
+// Diagnostic retry (second trigger): verify reusable workflow dispatch and Docker cache import.
 func main() {
 	fx.New(
 		// lib

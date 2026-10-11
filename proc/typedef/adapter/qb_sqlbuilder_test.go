@@ -4,13 +4,13 @@ import (
 	"slices"
 	"testing"
 
-	proctypedef "orglang/go-engine/proc/typedef/core"
+	typedef "orglang/go-engine/proc/typedef/core"
 )
 
 func TestInsertRec(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
-	gotSQL, gotArgs := qb.InsertRec(proctypedef.DefRecDS{
+	gotSQL, gotArgs := qb.InsertRec(typedef.DefRecDS{
 		TypeID: "type-id-1",
 		TypeRN: 7,
 		ExpVK:  42,

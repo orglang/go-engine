@@ -8,21 +8,21 @@ import (
 	"github.com/labstack/echo/v4"
 
 	sdk "github.com/orglang/go-sdk/adt/typesem"
-	"github.com/orglang/go-sdk/proc/typedef"
+	sdktypedef "github.com/orglang/go-sdk/proc/typedef"
 
 	"orglang/go-engine/lib/lf"
 
 	"orglang/go-engine/adt/typesem"
-	proctypedef "orglang/go-engine/proc/typedef/core"
+	typedef "orglang/go-engine/proc/typedef/core"
 )
 
 // Server-side primary adapter
 type controllerEcho struct {
-	api proctypedef.API
+	api typedef.API
 	log *slog.Logger
 }
 
-func newControllerEcho(a proctypedef.API, l *slog.Logger) *controllerEcho {
+func newControllerEcho(a typedef.API, l *slog.Logger) *controllerEcho {
 	name := slog.String("name", reflect.TypeFor[controllerEcho]().Name())
 	return &controllerEcho{a, l.With(name)}
 }
@@ -35,7 +35,7 @@ func cfgEchoController(e *echo.Echo, h *controllerEcho) error {
 }
 
 func (h *controllerEcho) PostSpec(c echo.Context) error {
-	var dto typedef.DefSpec
+	var dto sdktypedef.DefSpec
 	bindErr := c.Bind(&dto)
 	if bindErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
@@ -86,7 +86,7 @@ func (h *controllerEcho) GetSnap(c echo.Context) error {
 }
 
 func (h *controllerEcho) PatchOne(c echo.Context) error {
-	var dto typedef.DefSnap
+	var dto sdktypedef.DefSnap
 	bindErr := c.Bind(&dto)
 	if bindErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))

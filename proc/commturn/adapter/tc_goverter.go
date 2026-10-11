@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	proccommturn "orglang/go-engine/proc/commturn/core"
+	commturn "orglang/go-engine/proc/commturn/core"
 )
 
 // goverter:variables
@@ -9,6 +9,6 @@ import (
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend data.*
 var (
-	DataToStepRecs   func([]proccommturn.StepRecDS) ([]proccommturn.TurnRec, error)
-	DataFromStepRecs func([]proccommturn.TurnRec) ([]proccommturn.StepRecDS, error)
+	DataToStepRecs   func([]commturn.StepRecDS) ([]commturn.TurnRec, error)
+	DataFromStepRecs func([]commturn.TurnRec) ([]commturn.StepRecDS, error)
 )

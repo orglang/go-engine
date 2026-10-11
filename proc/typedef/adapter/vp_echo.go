@@ -14,18 +14,18 @@ import (
 
 	"orglang/go-engine/adt/typesem"
 	"orglang/go-engine/adt/uniqsym"
-	proctypedef "orglang/go-engine/proc/typedef/core"
+	typedef "orglang/go-engine/proc/typedef/core"
 	typeexp "orglang/go-engine/proc/typeexp/core"
 )
 
 // Adapter
 type echoPresenter struct {
-	api proctypedef.API
+	api typedef.API
 	ssr te.Renderer
 	log *slog.Logger
 }
 
-func newEchoPresenter(a proctypedef.API, r te.Renderer, l *slog.Logger) *echoPresenter {
+func newEchoPresenter(a typedef.API, r te.Renderer, l *slog.Logger) *echoPresenter {
 	name := slog.String("name", reflect.TypeFor[echoPresenter]().Name())
 	return &echoPresenter{a, r, l.With(name)}
 }
@@ -56,7 +56,7 @@ func (p *echoPresenter) PostOne(c echo.Context) error {
 		p.log.Error("conversion failed", slog.Any("dto", dto))
 		return convErr
 	}
-	snap, createErr := p.api.Create(proctypedef.DefSpec{TypeQN: qn, TypeExp: typeexp.OneSpec{}})
+	snap, createErr := p.api.Create(typedef.DefSpec{TypeQN: qn, TypeExp: typeexp.OneSpec{}})
 	if createErr != nil {
 		return createErr
 	}

@@ -6,7 +6,7 @@ import (
 
 	"orglang/go-engine/lib/db"
 
-	proctermdef "orglang/go-engine/proc/termdef/core"
+	termdef "orglang/go-engine/proc/termdef/core"
 )
 
 // Adapter
@@ -15,15 +15,15 @@ type daoPgx struct {
 }
 
 // for compilation purposes
-func newRepo() proctermdef.Repo {
+func newRepo() termdef.Repo {
 	return new(daoPgx)
 }
 
-func NewDaoPgx(l *slog.Logger) proctermdef.Repo {
+func NewDaoPgx(l *slog.Logger) termdef.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{l.With(name)}
 }
 
-func (dao *daoPgx) InsertProc(db.UoW, proctermdef.DefRec) error {
+func (dao *daoPgx) InsertProc(db.UoW, termdef.DefRec) error {
 	return nil
 }

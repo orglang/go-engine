@@ -1,9 +1,9 @@
 package adapter
 
 import (
-	"github.com/orglang/go-sdk/pool/termexp"
+	sdktermexp "github.com/orglang/go-sdk/pool/termexp"
 
-	pooltermexp "orglang/go-engine/pool/termexp/core"
+	termexp "orglang/go-engine/pool/termexp/core"
 )
 
 // goverter:variables
@@ -14,19 +14,19 @@ import (
 // goverter:extend MsgFromExpSpec
 // goverter:extend MsgToExpSpec
 var (
-	MsgFromAcquireSpec func(pooltermexp.AcquireSpec) *termexp.AcquireSpec
-	MsgFromAcceptSpec  func(pooltermexp.AcceptSpec) *termexp.AcceptSpec
-	MsgFromHireSpec    func(pooltermexp.HireSpec) *termexp.HireSpec
-	MsgFromApplySpec   func(pooltermexp.ApplySpec) *termexp.ApplySpec
-	MsgFromReleaseSpec func(pooltermexp.ReleaseSpec) *termexp.ReleaseSpec
-	MsgFromDetachSpec  func(pooltermexp.DetachSpec) *termexp.DetachSpec
+	MsgFromAcquireSpec func(termexp.AcquireSpec) *sdktermexp.AcquireSpec
+	MsgFromAcceptSpec  func(termexp.AcceptSpec) *sdktermexp.AcceptSpec
+	MsgFromHireSpec    func(termexp.HireSpec) *sdktermexp.HireSpec
+	MsgFromApplySpec   func(termexp.ApplySpec) *sdktermexp.ApplySpec
+	MsgFromReleaseSpec func(termexp.ReleaseSpec) *sdktermexp.ReleaseSpec
+	MsgFromDetachSpec  func(termexp.DetachSpec) *sdktermexp.DetachSpec
 
-	MsgToAcquireSpec func(*termexp.AcquireSpec) (pooltermexp.AcquireSpec, error)
-	MsgToAcceptSpec  func(*termexp.AcceptSpec) (pooltermexp.AcceptSpec, error)
-	MsgToHireSpec    func(*termexp.HireSpec) (pooltermexp.HireSpec, error)
-	MsgToApplySpec   func(*termexp.ApplySpec) (pooltermexp.ApplySpec, error)
-	MsgToReleaseSpec func(*termexp.ReleaseSpec) (pooltermexp.ReleaseSpec, error)
-	MsgToDetachSpec  func(*termexp.DetachSpec) (pooltermexp.DetachSpec, error)
+	MsgToAcquireSpec func(*sdktermexp.AcquireSpec) (termexp.AcquireSpec, error)
+	MsgToAcceptSpec  func(*sdktermexp.AcceptSpec) (termexp.AcceptSpec, error)
+	MsgToHireSpec    func(*sdktermexp.HireSpec) (termexp.HireSpec, error)
+	MsgToApplySpec   func(*sdktermexp.ApplySpec) (termexp.ApplySpec, error)
+	MsgToReleaseSpec func(*sdktermexp.ReleaseSpec) (termexp.ReleaseSpec, error)
+	MsgToDetachSpec  func(*sdktermexp.DetachSpec) (termexp.DetachSpec, error)
 )
 
 // goverter:variables
@@ -37,31 +37,31 @@ var (
 // goverter:extend DataFromExpSpec
 // goverter:extend DataToExpSpec
 var (
-	DataFromAcquireSpec func(pooltermexp.AcquireSpec) *pooltermexp.GrantSpecDS
-	DataFromAcceptSpec  func(pooltermexp.AcceptSpec) *pooltermexp.GrantSpecDS
-	DataFromHireSpec    func(pooltermexp.HireSpec) *pooltermexp.CoopSpecDS
-	DataFromApplySpec   func(pooltermexp.ApplySpec) *pooltermexp.CoopSpecDS
-	DataFromReleaseSpec func(pooltermexp.ReleaseSpec) *pooltermexp.RevokeSpecDS
-	DataFromDetachSpec  func(pooltermexp.DetachSpec) *pooltermexp.RevokeSpecDS
+	DataFromAcquireSpec func(termexp.AcquireSpec) *termexp.GrantSpecDS
+	DataFromAcceptSpec  func(termexp.AcceptSpec) *termexp.GrantSpecDS
+	DataFromHireSpec    func(termexp.HireSpec) *termexp.CoopSpecDS
+	DataFromApplySpec   func(termexp.ApplySpec) *termexp.CoopSpecDS
+	DataFromReleaseSpec func(termexp.ReleaseSpec) *termexp.RevokeSpecDS
+	DataFromDetachSpec  func(termexp.DetachSpec) *termexp.RevokeSpecDS
 
-	DataToAcquireSpec func(*pooltermexp.GrantSpecDS) (pooltermexp.AcquireSpec, error)
-	DataToAcceptSpec  func(*pooltermexp.GrantSpecDS) (pooltermexp.AcceptSpec, error)
-	DataToHireSpec    func(*pooltermexp.CoopSpecDS) (pooltermexp.HireSpec, error)
-	DataToApplySpec   func(*pooltermexp.CoopSpecDS) (pooltermexp.ApplySpec, error)
-	DataToReleaseSpec func(*pooltermexp.RevokeSpecDS) (pooltermexp.ReleaseSpec, error)
-	DataToDetachSpec  func(*pooltermexp.RevokeSpecDS) (pooltermexp.DetachSpec, error)
+	DataToAcquireSpec func(*termexp.GrantSpecDS) (termexp.AcquireSpec, error)
+	DataToAcceptSpec  func(*termexp.GrantSpecDS) (termexp.AcceptSpec, error)
+	DataToHireSpec    func(*termexp.CoopSpecDS) (termexp.HireSpec, error)
+	DataToApplySpec   func(*termexp.CoopSpecDS) (termexp.ApplySpec, error)
+	DataToReleaseSpec func(*termexp.RevokeSpecDS) (termexp.ReleaseSpec, error)
+	DataToDetachSpec  func(*termexp.RevokeSpecDS) (termexp.DetachSpec, error)
 
-	DataFromAcquireRec func(pooltermexp.AcquireRec) *pooltermexp.GrantRecDS
-	DataFromAcceptRec  func(pooltermexp.AcceptRec) *pooltermexp.GrantRecDS
-	DataFromHireRec    func(pooltermexp.HireRec) *pooltermexp.CoopRecDS
-	DataFromApplyRec   func(pooltermexp.ApplyRec) *pooltermexp.CoopRecDS
-	DataFromReleaseRec func(pooltermexp.ReleaseRec) *pooltermexp.RevokeRecDS
-	DataFromDetachRec  func(pooltermexp.DetachRec) *pooltermexp.RevokeRecDS
+	DataFromAcquireRec func(termexp.AcquireRec) *termexp.GrantRecDS
+	DataFromAcceptRec  func(termexp.AcceptRec) *termexp.GrantRecDS
+	DataFromHireRec    func(termexp.HireRec) *termexp.CoopRecDS
+	DataFromApplyRec   func(termexp.ApplyRec) *termexp.CoopRecDS
+	DataFromReleaseRec func(termexp.ReleaseRec) *termexp.RevokeRecDS
+	DataFromDetachRec  func(termexp.DetachRec) *termexp.RevokeRecDS
 
-	DataToAcquireRec func(*pooltermexp.GrantRecDS) (pooltermexp.AcquireRec, error)
-	DataToAcceptRec  func(*pooltermexp.GrantRecDS) (pooltermexp.AcceptRec, error)
-	DataToHireRec    func(*pooltermexp.CoopRecDS) (pooltermexp.HireRec, error)
-	DataToApplyRec   func(*pooltermexp.CoopRecDS) (pooltermexp.ApplyRec, error)
-	DataToReleaseRec func(*pooltermexp.RevokeRecDS) (pooltermexp.ReleaseRec, error)
-	DataToDetachRec  func(*pooltermexp.RevokeRecDS) (pooltermexp.DetachRec, error)
+	DataToAcquireRec func(*termexp.GrantRecDS) (termexp.AcquireRec, error)
+	DataToAcceptRec  func(*termexp.GrantRecDS) (termexp.AcceptRec, error)
+	DataToHireRec    func(*termexp.CoopRecDS) (termexp.HireRec, error)
+	DataToApplyRec   func(*termexp.CoopRecDS) (termexp.ApplyRec, error)
+	DataToReleaseRec func(*termexp.RevokeRecDS) (termexp.ReleaseRec, error)
+	DataToDetachRec  func(*termexp.RevokeRecDS) (termexp.DetachRec, error)
 )

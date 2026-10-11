@@ -14,25 +14,25 @@ import (
 	"orglang/go-engine/adt/typesem"
 	"orglang/go-engine/adt/uniqsym"
 
-	proctypedef "orglang/go-engine/proc/typedef/core"
+	typedef "orglang/go-engine/proc/typedef/core"
 )
 
 type daoPgx struct {
-	qb  proctypedef.QueryBuilder
+	qb  typedef.QueryBuilder
 	log *slog.Logger
 }
 
-func NewDaoPgx(qb proctypedef.QueryBuilder, log *slog.Logger) proctypedef.Repo {
+func NewDaoPgx(qb typedef.QueryBuilder, log *slog.Logger) typedef.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }
 
 // for compilation purposes
-func newRepo() proctypedef.Repo {
+func newRepo() typedef.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRec(uow db.UoW, rec proctypedef.DefRec) error {
+func (dao *daoPgx) AddRec(uow db.UoW, rec typedef.DefRec) error {
 	idAttr := slog.Any("typeID", rec.TypeRef.TypeID)
 	dao.log.Log(uow.Ctx, lf.LevelTrace, "addition started", idAttr)
 	dto, err := DataFromDefRec(rec)
@@ -50,7 +50,7 @@ func (dao *daoPgx) AddRec(uow db.UoW, rec proctypedef.DefRec) error {
 	return nil
 }
 
-func (dao *daoPgx) ModifyRec(uow db.UoW, rec proctypedef.DefRec) error {
+func (dao *daoPgx) ModifyRec(uow db.UoW, rec typedef.DefRec) error {
 	idAttr := slog.Any("typeID", rec.TypeRef.TypeID)
 	dao.log.Log(uow.Ctx, lf.LevelTrace, "modification started", idAttr)
 	dto, err := DataFromDefRec(rec)
@@ -69,7 +69,7 @@ func (dao *daoPgx) ModifyRec(uow db.UoW, rec proctypedef.DefRec) error {
 	}
 	if ct.RowsAffected() == 0 {
 		dao.log.Error("entity update failed", idAttr)
-		return proctypedef.ErrOptimisticUpdate(rec.TypeRef.TypeRN - 1)
+		return typedef.ErrOptimisticUpdate(rec.TypeRef.TypeRN - 1)
 	}
 	dao.log.Log(uow.Ctx, lf.LevelTrace, "modification succeed", idAttr)
 	return nil
@@ -91,43 +91,43 @@ func (dao *daoPgx) GetRefs(uow db.UoW) ([]typesem.SemRef, error) {
 	return typesem.DataToRefs(dtos)
 }
 
-func (dao *daoPgx) GetRecByRef(uow db.UoW, ref typesem.SemRef) (proctypedef.DefRec, error) {
+func (dao *daoPgx) GetRecByRef(uow db.UoW, ref typesem.SemRef) (typedef.DefRec, error) {
 	refAttr := slog.Any("ref", ref)
 	rows, err := uow.Pgx.Query(uow.Ctx, selectRecByID, ref.TypeID.String())
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)
-		return proctypedef.DefRec{}, err
+		return typedef.DefRec{}, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[proctypedef.DefRecDS])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[typedef.DefRecDS])
 	if err != nil {
 		dao.log.Error("row scanning failed", refAttr)
-		return proctypedef.DefRec{}, err
+		return typedef.DefRec{}, err
 	}
 	dao.log.Log(uow.Ctx, lf.LevelTrace, "entity selection succeed", refAttr)
 	return DataToDefRec(dto)
 }
 
-func (dao *daoPgx) GetRecByQN(uow db.UoW, typeQN uniqsym.ADT) (proctypedef.DefRec, error) {
+func (dao *daoPgx) GetRecByQN(uow db.UoW, typeQN uniqsym.ADT) (typedef.DefRec, error) {
 	qnAttr := slog.Any("typeQN", typeQN)
 	rows, err := uow.Pgx.Query(uow.Ctx, selectRecByQN, uniqsym.ConvertToString(typeQN))
 	if err != nil {
 		dao.log.Error("query execution failed", qnAttr)
-		return proctypedef.DefRec{}, err
+		return typedef.DefRec{}, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[proctypedef.DefRecDS])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[typedef.DefRecDS])
 	if err != nil {
 		dao.log.Error("row scanning failed", qnAttr)
-		return proctypedef.DefRec{}, err
+		return typedef.DefRec{}, err
 	}
 	dao.log.Log(uow.Ctx, lf.LevelTrace, "entity selection succeed", qnAttr)
 	return DataToDefRec(dto)
 }
 
-func (dao *daoPgx) GetRecsByRefs(uow db.UoW, refs []typesem.SemRef) (_ []proctypedef.DefRec, err error) {
+func (dao *daoPgx) GetRecsByRefs(uow db.UoW, refs []typesem.SemRef) (_ []typedef.DefRec, err error) {
 	if len(refs) == 0 {
-		return []proctypedef.DefRec{}, nil
+		return []typedef.DefRec{}, nil
 	}
 	batch := pgx.Batch{}
 	for _, ref := range refs {
@@ -140,13 +140,13 @@ func (dao *daoPgx) GetRecsByRefs(uow db.UoW, refs []typesem.SemRef) (_ []proctyp
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	var dtos []proctypedef.DefRecDS
+	var dtos []typedef.DefRecDS
 	for _, defRef := range refs {
 		rows, err := br.Query()
 		if err != nil {
 			dao.log.Error("query execution failed", slog.Any("defRef", defRef), slog.String("q", selectRecByID))
 		}
-		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[proctypedef.DefRecDS])
+		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[typedef.DefRecDS])
 		if err != nil {
 			dao.log.Error("row scanning failed", slog.Any("defRef", defRef))
 		}
@@ -159,21 +159,21 @@ func (dao *daoPgx) GetRecsByRefs(uow db.UoW, refs []typesem.SemRef) (_ []proctyp
 	return DataToDefRecs(dtos)
 }
 
-func (dao *daoPgx) SelectEnv(uow db.UoW, typeQNs []uniqsym.ADT) (map[uniqsym.ADT]proctypedef.DefRec, error) {
+func (dao *daoPgx) SelectEnv(uow db.UoW, typeQNs []uniqsym.ADT) (map[uniqsym.ADT]typedef.DefRec, error) {
 	recs, err := dao.GetRecsByQNs(uow, typeQNs)
 	if err != nil {
 		return nil, err
 	}
-	env := make(map[uniqsym.ADT]proctypedef.DefRec, len(recs))
+	env := make(map[uniqsym.ADT]typedef.DefRec, len(recs))
 	for i, root := range recs {
 		env[typeQNs[i]] = root
 	}
 	return env, nil
 }
 
-func (dao *daoPgx) GetRecsByQNs(uow db.UoW, typeQNs []uniqsym.ADT) (_ []proctypedef.DefRec, err error) {
+func (dao *daoPgx) GetRecsByQNs(uow db.UoW, typeQNs []uniqsym.ADT) (_ []typedef.DefRec, err error) {
 	if len(typeQNs) == 0 {
-		return []proctypedef.DefRec{}, nil
+		return []typedef.DefRec{}, nil
 	}
 	batch := pgx.Batch{}
 	for _, typeQN := range typeQNs {
@@ -183,13 +183,13 @@ func (dao *daoPgx) GetRecsByQNs(uow db.UoW, typeQNs []uniqsym.ADT) (_ []proctype
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	var dtos []proctypedef.DefRecDS
+	var dtos []typedef.DefRecDS
 	for _, typeQN := range typeQNs {
 		rows, err := br.Query()
 		if err != nil {
 			dao.log.Error("query execution failed", slog.Any("typeQN", typeQN), slog.String("q", selectRecByQN))
 		}
-		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[proctypedef.DefRecDS])
+		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[typedef.DefRecDS])
 		if err != nil {
 			dao.log.Error("row scanning failed", slog.Any("typeQN", typeQN))
 		}

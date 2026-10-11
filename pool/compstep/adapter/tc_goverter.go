@@ -1,9 +1,9 @@
 package adapter
 
 import (
-	"github.com/orglang/go-sdk/pool/compstep"
+	sdkcompstep "github.com/orglang/go-sdk/pool/compstep"
 
-	poolcompstep "orglang/go-engine/pool/compstep/core"
+	compstep "orglang/go-engine/pool/compstep/core"
 )
 
 // goverter:variables
@@ -11,6 +11,6 @@ import (
 // goverter:extend orglang/go-engine/adt/compsem:Msg.*
 // goverter:extend orglang/go-engine/pool/termexp/adapter:Msg.*
 var (
-	MsgToStepSpec   func(compstep.StepSpec) (poolcompstep.StepSpec, error)
-	MsgFromStepSpec func(poolcompstep.StepSpec) compstep.StepSpec
+	MsgToStepSpec   func(sdkcompstep.StepSpec) (compstep.StepSpec, error)
+	MsgFromStepSpec func(compstep.StepSpec) sdkcompstep.StepSpec
 )

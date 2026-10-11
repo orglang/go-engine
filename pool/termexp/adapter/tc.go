@@ -1,15 +1,15 @@
 package adapter
 
 import (
-	"github.com/orglang/go-sdk/pool/termexp"
+	sdktermexp "github.com/orglang/go-sdk/pool/termexp"
 
 	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/adt/termsem"
 
-	pooltermexp "orglang/go-engine/pool/termexp/core"
+	termexp "orglang/go-engine/pool/termexp/core"
 )
 
-func MsgFromExpSpecNilable(spec pooltermexp.ExpSpec) *termexp.ExpSpec {
+func MsgFromExpSpecNilable(spec termexp.ExpSpec) *sdktermexp.ExpSpec {
 	if spec == nil {
 		return nil
 	}
@@ -17,55 +17,55 @@ func MsgFromExpSpecNilable(spec pooltermexp.ExpSpec) *termexp.ExpSpec {
 	return &dto
 }
 
-func MsgFromExpSpec(s pooltermexp.ExpSpec) termexp.ExpSpec {
+func MsgFromExpSpec(s termexp.ExpSpec) sdktermexp.ExpSpec {
 	switch spec := s.(type) {
-	case pooltermexp.HireSpec:
-		return termexp.ExpSpec{K: termexp.Hire, Hire: MsgFromHireSpec(spec)}
-	case pooltermexp.ApplySpec:
-		return termexp.ExpSpec{K: termexp.Apply, Apply: MsgFromApplySpec(spec)}
-	case pooltermexp.AcquireSpec:
-		return termexp.ExpSpec{K: termexp.Acquire, Acquire: MsgFromAcquireSpec(spec)}
-	case pooltermexp.AcceptSpec:
-		return termexp.ExpSpec{K: termexp.Accept, Accept: MsgFromAcceptSpec(spec)}
-	case pooltermexp.ReleaseSpec:
-		return termexp.ExpSpec{K: termexp.Release, Release: MsgFromReleaseSpec(spec)}
-	case pooltermexp.DetachSpec:
-		return termexp.ExpSpec{K: termexp.Detach, Detach: MsgFromDetachSpec(spec)}
-	case pooltermexp.SpawnSpec2:
-		return termexp.ExpSpec{
-			K: termexp.Spawn,
-			Spawn: &termexp.SpawnSpec{
+	case termexp.HireSpec:
+		return sdktermexp.ExpSpec{K: sdktermexp.Hire, Hire: MsgFromHireSpec(spec)}
+	case termexp.ApplySpec:
+		return sdktermexp.ExpSpec{K: sdktermexp.Apply, Apply: MsgFromApplySpec(spec)}
+	case termexp.AcquireSpec:
+		return sdktermexp.ExpSpec{K: sdktermexp.Acquire, Acquire: MsgFromAcquireSpec(spec)}
+	case termexp.AcceptSpec:
+		return sdktermexp.ExpSpec{K: sdktermexp.Accept, Accept: MsgFromAcceptSpec(spec)}
+	case termexp.ReleaseSpec:
+		return sdktermexp.ExpSpec{K: sdktermexp.Release, Release: MsgFromReleaseSpec(spec)}
+	case termexp.DetachSpec:
+		return sdktermexp.ExpSpec{K: sdktermexp.Detach, Detach: MsgFromDetachSpec(spec)}
+	case termexp.SpawnSpec2:
+		return sdktermexp.ExpSpec{
+			K: sdktermexp.Spawn,
+			Spawn: &sdktermexp.SpawnSpec{
 				ProcTermRef:  termsem.MsgFromRef(spec.ProcTermRef),
 				ProcCompRefs: compsem.MsgFromRefs(spec.ProcCompRefs),
 			},
 		}
 	default:
-		panic(pooltermexp.ErrSpecTypeUnexpected(s))
+		panic(termexp.ErrSpecTypeUnexpected(s))
 	}
 }
 
-func MsgToExpSpecNilable(dto *termexp.ExpSpec) (pooltermexp.ExpSpec, error) {
+func MsgToExpSpecNilable(dto *sdktermexp.ExpSpec) (termexp.ExpSpec, error) {
 	if dto == nil {
 		return nil, nil
 	}
 	return MsgToExpSpec(*dto)
 }
 
-func MsgToExpSpec(dto termexp.ExpSpec) (pooltermexp.ExpSpec, error) {
+func MsgToExpSpec(dto sdktermexp.ExpSpec) (termexp.ExpSpec, error) {
 	switch dto.K {
-	case termexp.Acquire:
+	case sdktermexp.Acquire:
 		return MsgToAcquireSpec(dto.Acquire)
-	case termexp.Accept:
+	case sdktermexp.Accept:
 		return MsgToAcceptSpec(dto.Accept)
-	case termexp.Hire:
+	case sdktermexp.Hire:
 		return MsgToHireSpec(dto.Hire)
-	case termexp.Apply:
+	case sdktermexp.Apply:
 		return MsgToApplySpec(dto.Apply)
-	case termexp.Release:
+	case sdktermexp.Release:
 		return MsgToReleaseSpec(dto.Release)
-	case termexp.Detach:
+	case sdktermexp.Detach:
 		return MsgToDetachSpec(dto.Detach)
-	case termexp.Spawn:
+	case sdktermexp.Spawn:
 		termRef, err := termsem.MsgToRef(dto.Spawn.ProcTermRef)
 		if err != nil {
 			return nil, err
@@ -74,84 +74,84 @@ func MsgToExpSpec(dto termexp.ExpSpec) (pooltermexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return pooltermexp.SpawnSpec2{ProcTermRef: termRef, ProcCompRefs: compRefs}, nil
+		return termexp.SpawnSpec2{ProcTermRef: termRef, ProcCompRefs: compRefs}, nil
 	default:
-		panic(termexp.ErrUnexpectedExpKind(dto.K))
+		panic(sdktermexp.ErrUnexpectedExpKind(dto.K))
 	}
 }
 
-func DataFromExpSpec(s pooltermexp.ExpSpec) pooltermexp.ExpSpecDS {
+func DataFromExpSpec(s termexp.ExpSpec) termexp.ExpSpecDS {
 	switch spec := s.(type) {
-	case pooltermexp.AcquireSpec:
-		return pooltermexp.ExpSpecDS{K: pooltermexp.AcquireKind, Acquire: DataFromAcquireSpec(spec)}
-	case pooltermexp.AcceptSpec:
-		return pooltermexp.ExpSpecDS{K: pooltermexp.AcceptKind, Accept: DataFromAcceptSpec(spec)}
-	case pooltermexp.HireSpec:
-		return pooltermexp.ExpSpecDS{K: pooltermexp.HireKind, Hire: DataFromHireSpec(spec)}
-	case pooltermexp.ApplySpec:
-		return pooltermexp.ExpSpecDS{K: pooltermexp.ApplyKind, Hire: DataFromApplySpec(spec)}
-	case pooltermexp.ReleaseSpec:
-		return pooltermexp.ExpSpecDS{K: pooltermexp.ReleaseKind, Release: DataFromReleaseSpec(spec)}
-	case pooltermexp.DetachSpec:
-		return pooltermexp.ExpSpecDS{K: pooltermexp.DetachKind, Detach: DataFromDetachSpec(spec)}
+	case termexp.AcquireSpec:
+		return termexp.ExpSpecDS{K: termexp.AcquireKind, Acquire: DataFromAcquireSpec(spec)}
+	case termexp.AcceptSpec:
+		return termexp.ExpSpecDS{K: termexp.AcceptKind, Accept: DataFromAcceptSpec(spec)}
+	case termexp.HireSpec:
+		return termexp.ExpSpecDS{K: termexp.HireKind, Hire: DataFromHireSpec(spec)}
+	case termexp.ApplySpec:
+		return termexp.ExpSpecDS{K: termexp.ApplyKind, Hire: DataFromApplySpec(spec)}
+	case termexp.ReleaseSpec:
+		return termexp.ExpSpecDS{K: termexp.ReleaseKind, Release: DataFromReleaseSpec(spec)}
+	case termexp.DetachSpec:
+		return termexp.ExpSpecDS{K: termexp.DetachKind, Detach: DataFromDetachSpec(spec)}
 	default:
-		panic(pooltermexp.ErrSpecTypeUnexpected(s))
+		panic(termexp.ErrSpecTypeUnexpected(s))
 	}
 }
 
-func DataToExpSpec(dto pooltermexp.ExpSpecDS) (pooltermexp.ExpSpec, error) {
+func DataToExpSpec(dto termexp.ExpSpecDS) (termexp.ExpSpec, error) {
 	switch dto.K {
-	case pooltermexp.AcquireKind:
+	case termexp.AcquireKind:
 		return DataToAcquireSpec(dto.Acquire)
-	case pooltermexp.AcceptKind:
+	case termexp.AcceptKind:
 		return DataToAcceptSpec(dto.Accept)
-	case pooltermexp.HireKind:
+	case termexp.HireKind:
 		return DataToHireSpec(dto.Hire)
-	case pooltermexp.ApplyKind:
+	case termexp.ApplyKind:
 		return DataToApplySpec(dto.Apply)
-	case pooltermexp.ReleaseKind:
+	case termexp.ReleaseKind:
 		return DataToReleaseSpec(dto.Release)
-	case pooltermexp.DetachKind:
+	case termexp.DetachKind:
 		return DataToDetachSpec(dto.Detach)
 	default:
-		panic(pooltermexp.ErrExpKindUnexpected(dto.K))
+		panic(termexp.ErrExpKindUnexpected(dto.K))
 	}
 }
 
-func DataFromExpRec(r pooltermexp.ExpRec) pooltermexp.ExpRecDS {
+func DataFromExpRec(r termexp.ExpRec) termexp.ExpRecDS {
 	switch rec := r.(type) {
-	case pooltermexp.AcquireRec:
-		return pooltermexp.ExpRecDS{K: pooltermexp.AcquireKind, Acquire: DataFromAcquireRec(rec)}
-	case pooltermexp.AcceptRec:
-		return pooltermexp.ExpRecDS{K: pooltermexp.AcceptKind, Accept: DataFromAcceptRec(rec)}
-	case pooltermexp.HireRec:
-		return pooltermexp.ExpRecDS{K: pooltermexp.HireKind, Hire: DataFromHireRec(rec)}
-	case pooltermexp.ApplyRec:
-		return pooltermexp.ExpRecDS{K: pooltermexp.ApplyKind, Apply: DataFromApplyRec(rec)}
-	case pooltermexp.ReleaseRec:
-		return pooltermexp.ExpRecDS{K: pooltermexp.ReleaseKind, Release: DataFromReleaseRec(rec)}
-	case pooltermexp.DetachRec:
-		return pooltermexp.ExpRecDS{K: pooltermexp.DetachKind, Detach: DataFromDetachRec(rec)}
+	case termexp.AcquireRec:
+		return termexp.ExpRecDS{K: termexp.AcquireKind, Acquire: DataFromAcquireRec(rec)}
+	case termexp.AcceptRec:
+		return termexp.ExpRecDS{K: termexp.AcceptKind, Accept: DataFromAcceptRec(rec)}
+	case termexp.HireRec:
+		return termexp.ExpRecDS{K: termexp.HireKind, Hire: DataFromHireRec(rec)}
+	case termexp.ApplyRec:
+		return termexp.ExpRecDS{K: termexp.ApplyKind, Apply: DataFromApplyRec(rec)}
+	case termexp.ReleaseRec:
+		return termexp.ExpRecDS{K: termexp.ReleaseKind, Release: DataFromReleaseRec(rec)}
+	case termexp.DetachRec:
+		return termexp.ExpRecDS{K: termexp.DetachKind, Detach: DataFromDetachRec(rec)}
 	default:
-		panic(pooltermexp.ErrRecTypeUnexpected(r))
+		panic(termexp.ErrRecTypeUnexpected(r))
 	}
 }
 
-func DataToExpRec(dto pooltermexp.ExpRecDS) (pooltermexp.ExpRec, error) {
+func DataToExpRec(dto termexp.ExpRecDS) (termexp.ExpRec, error) {
 	switch dto.K {
-	case pooltermexp.AcquireKind:
+	case termexp.AcquireKind:
 		return DataToAcquireRec(dto.Acquire)
-	case pooltermexp.AcceptKind:
+	case termexp.AcceptKind:
 		return DataToAcceptRec(dto.Accept)
-	case pooltermexp.HireKind:
+	case termexp.HireKind:
 		return DataToHireRec(dto.Hire)
-	case pooltermexp.ApplyKind:
+	case termexp.ApplyKind:
 		return DataToApplyRec(dto.Apply)
-	case pooltermexp.ReleaseKind:
+	case termexp.ReleaseKind:
 		return DataToReleaseRec(dto.Release)
-	case pooltermexp.DetachKind:
+	case termexp.DetachKind:
 		return DataToDetachRec(dto.Detach)
 	default:
-		panic(pooltermexp.ErrExpKindUnexpected(dto.K))
+		panic(termexp.ErrExpKindUnexpected(dto.K))
 	}
 }

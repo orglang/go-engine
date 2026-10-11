@@ -13,16 +13,16 @@ import (
 
 	"orglang/go-engine/adt/typesem"
 
-	pooltypedef "orglang/go-engine/pool/typedef/core"
+	typedef "orglang/go-engine/pool/typedef/core"
 )
 
 // Server-side primary adapter
 type controllerEcho struct {
-	api pooltypedef.API
+	api typedef.API
 	log *slog.Logger
 }
 
-func newControllerEcho(a pooltypedef.API, l *slog.Logger) *controllerEcho {
+func newControllerEcho(a typedef.API, l *slog.Logger) *controllerEcho {
 	name := slog.String("name", reflect.TypeFor[controllerEcho]().Name())
 	return &controllerEcho{a, l.With(name)}
 }

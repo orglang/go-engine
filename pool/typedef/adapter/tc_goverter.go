@@ -3,9 +3,9 @@ package adapter
 import (
 	"orglang/go-engine/adt/uniqsym"
 
-	"github.com/orglang/go-sdk/pool/typedef"
+	sdktypedef "github.com/orglang/go-sdk/pool/typedef"
 
-	pooltypedef "orglang/go-engine/pool/typedef/core"
+	typedef "orglang/go-engine/pool/typedef/core"
 )
 
 // goverter:variables
@@ -14,12 +14,12 @@ import (
 // goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
 // goverter:extend orglang/go-engine/pool/typeexp/adapter:Msg.*
 var (
-	MsgFromDefSpec  func(pooltypedef.DefSpec) typedef.DefSpec
-	MsgToDefSpec    func(typedef.DefSpec) (pooltypedef.DefSpec, error)
-	MsgFromDefSnap  func(pooltypedef.DefSnap) typedef.DefSnap
-	MsgToDefSnap    func(typedef.DefSnap) (pooltypedef.DefSnap, error)
-	MsgFromDefSnaps func([]pooltypedef.DefSnap) []typedef.DefSnap
-	MsgToDefSnaps   func([]typedef.DefSnap) ([]pooltypedef.DefSnap, error)
+	MsgFromDefSpec  func(typedef.DefSpec) sdktypedef.DefSpec
+	MsgToDefSpec    func(sdktypedef.DefSpec) (typedef.DefSpec, error)
+	MsgFromDefSnap  func(typedef.DefSnap) sdktypedef.DefSnap
+	MsgToDefSnap    func(sdktypedef.DefSnap) (typedef.DefSnap, error)
+	MsgFromDefSnaps func([]typedef.DefSnap) []sdktypedef.DefSnap
+	MsgToDefSnaps   func([]sdktypedef.DefSnap) ([]typedef.DefSnap, error)
 )
 
 // goverter:variables
@@ -30,10 +30,10 @@ var (
 // goverter:extend orglang/go-engine/adt/valkey:Convert.*
 var (
 	// goverter:map . TypeRef
-	DataToDefRec    func(pooltypedef.DefRecDS) (pooltypedef.DefRec, error)
-	DataToDefRecs   func([]pooltypedef.DefRecDS) ([]pooltypedef.DefRec, error)
-	DataToDefRecMap func(map[uniqsym.ADT]pooltypedef.DefRecDS) (map[uniqsym.ADT]pooltypedef.DefRec, error)
+	DataToDefRec    func(typedef.DefRecDS) (typedef.DefRec, error)
+	DataToDefRecs   func([]typedef.DefRecDS) ([]typedef.DefRec, error)
+	DataToDefRecMap func(map[uniqsym.ADT]typedef.DefRecDS) (map[uniqsym.ADT]typedef.DefRec, error)
 	// goverter:autoMap TypeRef
-	DataFromDefRec  func(pooltypedef.DefRec) (pooltypedef.DefRecDS, error)
-	DataFromDefRecs func([]pooltypedef.DefRec) ([]pooltypedef.DefRecDS, error)
+	DataFromDefRec  func(typedef.DefRec) (typedef.DefRecDS, error)
+	DataFromDefRecs func([]typedef.DefRec) ([]typedef.DefRecDS, error)
 )

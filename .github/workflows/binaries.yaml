@@ -43,5 +43,4 @@ jobs:
     with:
       engine_ref: ${{ github.event.pull_request.head.sha || github.sha }}
       sdk_ref: main
-      workspace_ref: main
       run: ${{ (needs.changes.outputs.app == 'true' || needs.changes.outputs.gear == 'true') && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }}

@@ -1,8 +1,6 @@
 package termvar
 
-import (
-	"orglang/go-engine/adt/typesem"
-)
+import "orglang/go-engine/adt/typesem"
 
 // goverter:variables
 // goverter:output:format assign-variable

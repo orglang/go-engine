@@ -20,4 +20,4 @@ jobs:
     with:
       engine_ref: ${{ github.event.pull_request.head.sha || github.sha }}
       sdk_ref: main
-      run: ${{ github.event_name == 'merge_group' }}
+      run: true

@@ -20,12 +20,12 @@ import (
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/adt/valkey"
 	"orglang/go-engine/proc/commexch"
-	"orglang/go-engine/proc/commturn"
-	"orglang/go-engine/proc/compstep"
+	commturn "orglang/go-engine/proc/commturn/core"
+	compstep "orglang/go-engine/proc/compstep/core"
 	"orglang/go-engine/proc/termdec"
-	"orglang/go-engine/proc/termdef"
+	termdef "orglang/go-engine/proc/termdef/core"
 	termexp "orglang/go-engine/proc/termexp/core"
-	"orglang/go-engine/proc/typedef"
+	typedef "orglang/go-engine/proc/typedef/core"
 	typeexp "orglang/go-engine/proc/typeexp/core"
 )
 

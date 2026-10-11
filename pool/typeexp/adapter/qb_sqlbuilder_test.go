@@ -4,19 +4,19 @@ import (
 	"slices"
 	"testing"
 
-	pooltypeexp "orglang/go-engine/pool/typeexp/core"
+	typeexp "orglang/go-engine/pool/typeexp/core"
 )
 
 func TestInsertRec(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
-	gotSQL, gotArgs := qb.InsertRec(pooltypeexp.StateDS{})
+	gotSQL, gotArgs := qb.InsertRec(typeexp.StateDS{})
 	wantSQL := "INSERT INTO pool_type_exps (exp_vk, sup_exp_vk, kind, spec) " +
 		"VALUES ($1, $2, $3, $4) ON CONFLICT (exp_vk) DO NOTHING"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)
 	}
-	wantArgs := []any{int64(0), int64(0), pooltypeexp.ExpKind(0), pooltypeexp.ExpSpecDS{}}
+	wantArgs := []any{int64(0), int64(0), typeexp.ExpKind(0), typeexp.ExpSpecDS{}}
 	if !slices.Equal(gotArgs, wantArgs) {
 		t.Errorf("got args %v, want %v", gotArgs, wantArgs)
 	}

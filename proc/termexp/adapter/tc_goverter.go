@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	proctermexp "orglang/go-engine/proc/termexp/core"
+	termexp "orglang/go-engine/proc/termexp/core"
 )
 
 // goverter:variables
@@ -9,8 +9,8 @@ import (
 // goverter:extend Data.*
 // goverter:extend data.*
 var (
-	DataToExpSpecs   func([]proctermexp.ExpSpecDS) ([]proctermexp.ExpSpec, error)
-	DataFromExpSpecs func([]proctermexp.ExpSpec) ([]proctermexp.ExpSpecDS, error)
-	DataToExpRecs    func([]proctermexp.ExpRecDS) ([]proctermexp.ExpRec, error)
-	DataFromExpRecs  func([]proctermexp.ExpRec) ([]proctermexp.ExpRecDS, error)
+	DataToExpSpecs   func([]termexp.ExpSpecDS) ([]termexp.ExpSpec, error)
+	DataFromExpSpecs func([]termexp.ExpSpec) ([]termexp.ExpSpecDS, error)
+	DataToExpRecs    func([]termexp.ExpRecDS) ([]termexp.ExpRec, error)
+	DataFromExpRecs  func([]termexp.ExpRec) ([]termexp.ExpRecDS, error)
 )

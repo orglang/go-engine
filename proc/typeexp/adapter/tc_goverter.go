@@ -1,9 +1,9 @@
 package adapter
 
 import (
-	"github.com/orglang/go-sdk/proc/typeexp"
+	sdktypeexp "github.com/orglang/go-sdk/proc/typeexp"
 
-	proctypeexp "orglang/go-engine/proc/typeexp/core"
+	typeexp "orglang/go-engine/proc/typeexp/core"
 )
 
 // goverter:variables
@@ -12,8 +12,8 @@ import (
 // goverter:extend orglang/go-engine/adt/seqnum:Convert.*
 // goverter:extend Msg.*
 var (
-	MsgFromExpRefs func([]proctypeexp.ExpRef) []typeexp.ExpRef
-	MsgToExpRefs   func([]typeexp.ExpRef) ([]proctypeexp.ExpRef, error)
+	MsgFromExpRefs func([]typeexp.ExpRef) []sdktypeexp.ExpRef
+	MsgToExpRefs   func([]sdktypeexp.ExpRef) ([]typeexp.ExpRef, error)
 )
 
 // goverter:variables
@@ -22,8 +22,8 @@ var (
 // goverter:extend orglang/go-engine/adt/seqnum:Convert.*
 // goverter:extend data.*
 var (
-	DataToExpRefs   func([]proctypeexp.ExpRefDS) ([]proctypeexp.ExpRef, error)
-	DataFromExpRefs func([]proctypeexp.ExpRef) []proctypeexp.ExpRefDS
-	DataToExpRecs   func([]proctypeexp.ExpRecDS) ([]proctypeexp.ExpRec, error)
-	DataFromExpRecs func([]proctypeexp.ExpRec) []proctypeexp.ExpRecDS
+	DataToExpRefs   func([]typeexp.ExpRefDS) ([]typeexp.ExpRef, error)
+	DataFromExpRefs func([]typeexp.ExpRef) []typeexp.ExpRefDS
+	DataToExpRecs   func([]typeexp.ExpRecDS) ([]typeexp.ExpRec, error)
+	DataFromExpRecs func([]typeexp.ExpRec) []typeexp.ExpRecDS
 )

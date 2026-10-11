@@ -14,26 +14,26 @@ import (
 	"orglang/go-engine/adt/typesem"
 	"orglang/go-engine/adt/valkey"
 
-	pooltypeexp "orglang/go-engine/pool/typeexp/core"
+	typeexp "orglang/go-engine/pool/typeexp/core"
 )
 
 // Adapter
 type daoPgx struct {
-	qb  pooltypeexp.QueryBuilder
+	qb  typeexp.QueryBuilder
 	log *slog.Logger
 }
 
-func NewDaoPgx(qb pooltypeexp.QueryBuilder, log *slog.Logger) pooltypeexp.Repo {
+func NewDaoPgx(qb typeexp.QueryBuilder, log *slog.Logger) typeexp.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }
 
 // for compilation purposes
-func newRepo() pooltypeexp.Repo {
+func newRepo() typeexp.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRec(uow db.UoW, rec pooltypeexp.ExpRec, ref typesem.SemRef) (err error) {
+func (dao *daoPgx) AddRec(uow db.UoW, rec typeexp.ExpRec, ref typesem.SemRef) (err error) {
 	vkAttr := slog.Any("vk", rec.Key())
 	dto := dataFromExpRec(rec)
 	batch := pgx.Batch{}
@@ -55,7 +55,7 @@ func (dao *daoPgx) AddRec(uow db.UoW, rec pooltypeexp.ExpRec, ref typesem.SemRef
 	return nil
 }
 
-func (dao *daoPgx) GetRecByVK(uow db.UoW, expVK valkey.ADT) (pooltypeexp.ExpRec, error) {
+func (dao *daoPgx) GetRecByVK(uow db.UoW, expVK valkey.ADT) (typeexp.ExpRec, error) {
 	vkAttr := slog.Any("vk", expVK)
 	sql := dao.qb.SelectRecByVK()
 	rows, err := uow.Pgx.Query(uow.Ctx, sql, valkey.ConvertToInt(expVK))
@@ -64,7 +64,7 @@ func (dao *daoPgx) GetRecByVK(uow db.UoW, expVK valkey.ADT) (pooltypeexp.ExpRec,
 		return nil, err
 	}
 	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[pooltypeexp.StateDS])
+	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[typeexp.StateDS])
 	if err != nil {
 		dao.log.Error("rows scanning failed", vkAttr)
 		return nil, err
@@ -74,14 +74,14 @@ func (dao *daoPgx) GetRecByVK(uow db.UoW, expVK valkey.ADT) (pooltypeexp.ExpRec,
 		return nil, errors.New("no rows selected")
 	}
 	dao.log.Log(uow.Ctx, lf.LevelTrace, "selection succeed", slog.Any("dtos", dtos))
-	states := make(map[int64]pooltypeexp.StateDS, len(dtos))
+	states := make(map[int64]typeexp.StateDS, len(dtos))
 	for _, dto := range dtos {
 		states[dto.ExpVK] = dto
 	}
 	return statesToExpRec(states, states[valkey.ConvertToInt(expVK)])
 }
 
-func (dao *daoPgx) GetRecsByVKs(uow db.UoW, expVKs []valkey.ADT) (_ []pooltypeexp.ExpRec, err error) {
+func (dao *daoPgx) GetRecsByVKs(uow db.UoW, expVKs []valkey.ADT) (_ []typeexp.ExpRec, err error) {
 	batch := pgx.Batch{}
 	sql := dao.qb.SelectRecByVK()
 	for _, expVK := range expVKs {
@@ -91,7 +91,7 @@ func (dao *daoPgx) GetRecsByVKs(uow db.UoW, expVKs []valkey.ADT) (_ []pooltypeex
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	recs := make([]pooltypeexp.ExpRec, 0, len(expVKs))
+	recs := make([]typeexp.ExpRec, 0, len(expVKs))
 	for _, expVK := range expVKs {
 		vkAttr := slog.Any("vk", expVK)
 		rows, readErr := br.Query()
@@ -99,16 +99,16 @@ func (dao *daoPgx) GetRecsByVKs(uow db.UoW, expVKs []valkey.ADT) (_ []pooltypeex
 			dao.log.Error("query execution failed", vkAttr, slog.String("sql", sql))
 			return nil, readErr
 		}
-		dtos, scanErr := pgx.CollectRows(rows, pgx.RowToStructByName[pooltypeexp.StateDS])
+		dtos, scanErr := pgx.CollectRows(rows, pgx.RowToStructByName[typeexp.StateDS])
 		if scanErr != nil {
 			dao.log.Error("rows scanning failed", vkAttr)
 			return nil, scanErr
 		}
 		if len(dtos) == 0 {
 			dao.log.Error("selection failed", vkAttr)
-			return nil, pooltypeexp.ErrDoesNotExist(expVK)
+			return nil, typeexp.ErrDoesNotExist(expVK)
 		}
-		rec, convErr := dataToExpRec(pooltypeexp.ExpRecDS{ExpVK: valkey.ConvertToInt(expVK), States: dtos})
+		rec, convErr := dataToExpRec(typeexp.ExpRecDS{ExpVK: valkey.ConvertToInt(expVK), States: dtos})
 		if convErr != nil {
 			dao.log.Error("model conversion failed", vkAttr)
 			return nil, convErr
@@ -119,7 +119,7 @@ func (dao *daoPgx) GetRecsByVKs(uow db.UoW, expVKs []valkey.ADT) (_ []pooltypeex
 	return recs, err
 }
 
-func (dao *daoPgx) GetRecMap(uow db.UoW, expVKs map[symbol.ADT]valkey.ADT) (_ map[symbol.ADT]pooltypeexp.ExpRec, err error) {
+func (dao *daoPgx) GetRecMap(uow db.UoW, expVKs map[symbol.ADT]valkey.ADT) (_ map[symbol.ADT]typeexp.ExpRec, err error) {
 	batch := pgx.Batch{}
 	sql := dao.qb.SelectRecByVK()
 	for _, expVK := range expVKs {
@@ -129,7 +129,7 @@ func (dao *daoPgx) GetRecMap(uow db.UoW, expVKs map[symbol.ADT]valkey.ADT) (_ ma
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	recs := make(map[symbol.ADT]pooltypeexp.ExpRec, len(expVKs))
+	recs := make(map[symbol.ADT]typeexp.ExpRec, len(expVKs))
 	for expPH, expVK := range expVKs {
 		vkAttr := slog.Any("vk", expVK)
 		rows, readErr := br.Query()
@@ -137,7 +137,7 @@ func (dao *daoPgx) GetRecMap(uow db.UoW, expVKs map[symbol.ADT]valkey.ADT) (_ ma
 			dao.log.Error("query execution failed", vkAttr, slog.String("sql", sql))
 			return nil, readErr
 		}
-		dtos, scanErr := pgx.CollectRows(rows, pgx.RowToStructByName[pooltypeexp.StateDS])
+		dtos, scanErr := pgx.CollectRows(rows, pgx.RowToStructByName[typeexp.StateDS])
 		if scanErr != nil {
 			dao.log.Error("rows scanning failed", vkAttr)
 			return nil, scanErr
@@ -145,9 +145,9 @@ func (dao *daoPgx) GetRecMap(uow db.UoW, expVKs map[symbol.ADT]valkey.ADT) (_ ma
 		dao.log.Log(uow.Ctx, lf.LevelTrace, "selection succeed", slog.Any("dtos", dtos))
 		if len(dtos) == 0 {
 			dao.log.Error("selection failed", vkAttr)
-			return nil, pooltypeexp.ErrDoesNotExist(expVK)
+			return nil, typeexp.ErrDoesNotExist(expVK)
 		}
-		rec, convErr := dataToExpRec(pooltypeexp.ExpRecDS{ExpVK: valkey.ConvertToInt(expVK), States: dtos})
+		rec, convErr := dataToExpRec(typeexp.ExpRecDS{ExpVK: valkey.ConvertToInt(expVK), States: dtos})
 		if convErr != nil {
 			dao.log.Error("model conversion failed", vkAttr)
 			return nil, convErr

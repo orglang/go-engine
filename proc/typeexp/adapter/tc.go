@@ -8,69 +8,69 @@ import (
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/adt/valkey"
 
-	"github.com/orglang/go-sdk/proc/typeexp"
+	sdktypeexp "github.com/orglang/go-sdk/proc/typeexp"
 
-	proctypeexp "orglang/go-engine/proc/typeexp/core"
+	typeexp "orglang/go-engine/proc/typeexp/core"
 )
 
-func MsgFromExpSpec(s proctypeexp.ExpSpec) typeexp.ExpSpec {
+func MsgFromExpSpec(s typeexp.ExpSpec) sdktypeexp.ExpSpec {
 	switch spec := s.(type) {
-	case proctypeexp.OneSpec:
-		return typeexp.ExpSpec{K: typeexp.One}
-	case proctypeexp.LinkSpec:
-		return typeexp.ExpSpec{
-			K:    typeexp.Link,
-			Link: &typeexp.LinkSpec{TypeQN: uniqsym.ConvertToString(spec.TypeQN)}}
-	case proctypeexp.TensorSpec:
-		return typeexp.ExpSpec{
-			K: typeexp.Tensor,
-			Tensor: &typeexp.ProdSpec{
+	case typeexp.OneSpec:
+		return sdktypeexp.ExpSpec{K: sdktypeexp.One}
+	case typeexp.LinkSpec:
+		return sdktypeexp.ExpSpec{
+			K:    sdktypeexp.Link,
+			Link: &sdktypeexp.LinkSpec{TypeQN: uniqsym.ConvertToString(spec.TypeQN)}}
+	case typeexp.TensorSpec:
+		return sdktypeexp.ExpSpec{
+			K: sdktypeexp.Tensor,
+			Tensor: &sdktypeexp.ProdSpec{
 				Val:  MsgFromExpSpec(spec.Val),
 				Cont: MsgFromExpSpec(spec.Cont),
 			},
 		}
-	case proctypeexp.LolliSpec:
-		return typeexp.ExpSpec{
-			K: typeexp.Lolli,
-			Lolli: &typeexp.ProdSpec{
+	case typeexp.LolliSpec:
+		return sdktypeexp.ExpSpec{
+			K: sdktypeexp.Lolli,
+			Lolli: &sdktypeexp.ProdSpec{
 				Val:  MsgFromExpSpec(spec.Val),
 				Cont: MsgFromExpSpec(spec.Cont),
 			},
 		}
-	case proctypeexp.WithSpec:
-		choices := make([]typeexp.ChoiceSpec, len(spec.Choices))
+	case typeexp.WithSpec:
+		choices := make([]sdktypeexp.ChoiceSpec, len(spec.Choices))
 		for i, l := range maps.Keys(spec.Choices) {
-			choices[i] = typeexp.ChoiceSpec{
+			choices[i] = sdktypeexp.ChoiceSpec{
 				LabQN: uniqsym.ConvertToString(l),
 				Cont:  MsgFromExpSpec(spec.Choices[l]),
 			}
 		}
-		return typeexp.ExpSpec{K: typeexp.With, With: &typeexp.SumSpec{Choices: choices}}
-	case proctypeexp.PlusSpec:
-		choices := make([]typeexp.ChoiceSpec, len(spec.Choices))
+		return sdktypeexp.ExpSpec{K: sdktypeexp.With, With: &sdktypeexp.SumSpec{Choices: choices}}
+	case typeexp.PlusSpec:
+		choices := make([]sdktypeexp.ChoiceSpec, len(spec.Choices))
 		for i, l := range maps.Keys(spec.Choices) {
-			choices[i] = typeexp.ChoiceSpec{
+			choices[i] = sdktypeexp.ChoiceSpec{
 				LabQN: uniqsym.ConvertToString(l),
 				Cont:  MsgFromExpSpec(spec.Choices[l]),
 			}
 		}
-		return typeexp.ExpSpec{K: typeexp.Plus, Plus: &typeexp.SumSpec{Choices: choices}}
+		return sdktypeexp.ExpSpec{K: sdktypeexp.Plus, Plus: &sdktypeexp.SumSpec{Choices: choices}}
 	default:
-		panic(proctypeexp.ErrSpecTypeUnexpected(s))
+		panic(typeexp.ErrSpecTypeUnexpected(s))
 	}
 }
 
-func MsgToExpSpec(dto typeexp.ExpSpec) (proctypeexp.ExpSpec, error) {
+func MsgToExpSpec(dto sdktypeexp.ExpSpec) (typeexp.ExpSpec, error) {
 	switch dto.K {
-	case typeexp.One:
-		return proctypeexp.OneSpec{}, nil
-	case typeexp.Link:
+	case sdktypeexp.One:
+		return typeexp.OneSpec{}, nil
+	case sdktypeexp.Link:
 		typeQN, err := uniqsym.ConvertFromString(dto.Link.TypeQN)
 		if err != nil {
 			return nil, err
 		}
-		return proctypeexp.LinkSpec{TypeQN: typeQN}, nil
-	case typeexp.Tensor:
+		return typeexp.LinkSpec{TypeQN: typeQN}, nil
+	case sdktypeexp.Tensor:
 		valES, err := MsgToExpSpec(dto.Tensor.Val)
 		if err != nil {
 			return nil, err
@@ -79,8 +79,8 @@ func MsgToExpSpec(dto typeexp.ExpSpec) (proctypeexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return proctypeexp.TensorSpec{Val: valES, Cont: contES}, nil
-	case typeexp.Lolli:
+		return typeexp.TensorSpec{Val: valES, Cont: contES}, nil
+	case sdktypeexp.Lolli:
 		valES, err := MsgToExpSpec(dto.Lolli.Val)
 		if err != nil {
 			return nil, err
@@ -89,9 +89,9 @@ func MsgToExpSpec(dto typeexp.ExpSpec) (proctypeexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return proctypeexp.LolliSpec{Val: valES, Cont: contES}, nil
-	case typeexp.Plus:
-		choices := make(map[uniqsym.ADT]proctypeexp.ExpSpec, len(dto.Plus.Choices))
+		return typeexp.LolliSpec{Val: valES, Cont: contES}, nil
+	case sdktypeexp.Plus:
+		choices := make(map[uniqsym.ADT]typeexp.ExpSpec, len(dto.Plus.Choices))
 		for _, ch := range dto.Plus.Choices {
 			choice, err := MsgToExpSpec(ch.Cont)
 			if err != nil {
@@ -103,9 +103,9 @@ func MsgToExpSpec(dto typeexp.ExpSpec) (proctypeexp.ExpSpec, error) {
 			}
 			choices[label] = choice
 		}
-		return proctypeexp.PlusSpec{Choices: choices}, nil
-	case typeexp.With:
-		choices := make(map[uniqsym.ADT]proctypeexp.ExpSpec, len(dto.With.Choices))
+		return typeexp.PlusSpec{Choices: choices}, nil
+	case sdktypeexp.With:
+		choices := make(map[uniqsym.ADT]typeexp.ExpSpec, len(dto.With.Choices))
 		for _, ch := range dto.With.Choices {
 			choice, err := MsgToExpSpec(ch.Cont)
 			if err != nil {
@@ -117,114 +117,114 @@ func MsgToExpSpec(dto typeexp.ExpSpec) (proctypeexp.ExpSpec, error) {
 			}
 			choices[label] = choice
 		}
-		return proctypeexp.WithSpec{Choices: choices}, nil
+		return typeexp.WithSpec{Choices: choices}, nil
 	default:
-		panic(typeexp.ErrKindUnexpected(dto.K))
+		panic(sdktypeexp.ErrKindUnexpected(dto.K))
 	}
 }
 
-func MsgFromExpRef(ref proctypeexp.ExpRef) typeexp.ExpRef {
+func MsgFromExpRef(ref typeexp.ExpRef) sdktypeexp.ExpRef {
 	expVK := valkey.ConvertToInt(ref.Key())
 	switch ref.(type) {
-	case proctypeexp.OneRef, proctypeexp.OneRec:
-		return typeexp.ExpRef{K: typeexp.One, ExpVK: expVK}
-	case proctypeexp.LinkRef, proctypeexp.LinkRec:
-		return typeexp.ExpRef{K: typeexp.Link, ExpVK: expVK}
-	case proctypeexp.TensorRef, proctypeexp.TensorRec:
-		return typeexp.ExpRef{K: typeexp.Tensor, ExpVK: expVK}
-	case proctypeexp.LolliRef, proctypeexp.LolliRec:
-		return typeexp.ExpRef{K: typeexp.Lolli, ExpVK: expVK}
-	case proctypeexp.PlusRef, proctypeexp.PlusRec:
-		return typeexp.ExpRef{K: typeexp.Plus, ExpVK: expVK}
-	case proctypeexp.WithRef, proctypeexp.WithRec:
-		return typeexp.ExpRef{K: typeexp.With, ExpVK: expVK}
+	case typeexp.OneRef, typeexp.OneRec:
+		return sdktypeexp.ExpRef{K: sdktypeexp.One, ExpVK: expVK}
+	case typeexp.LinkRef, typeexp.LinkRec:
+		return sdktypeexp.ExpRef{K: sdktypeexp.Link, ExpVK: expVK}
+	case typeexp.TensorRef, typeexp.TensorRec:
+		return sdktypeexp.ExpRef{K: sdktypeexp.Tensor, ExpVK: expVK}
+	case typeexp.LolliRef, typeexp.LolliRec:
+		return sdktypeexp.ExpRef{K: sdktypeexp.Lolli, ExpVK: expVK}
+	case typeexp.PlusRef, typeexp.PlusRec:
+		return sdktypeexp.ExpRef{K: sdktypeexp.Plus, ExpVK: expVK}
+	case typeexp.WithRef, typeexp.WithRec:
+		return sdktypeexp.ExpRef{K: sdktypeexp.With, ExpVK: expVK}
 	default:
-		panic(proctypeexp.ErrRefTypeUnexpected(ref))
+		panic(typeexp.ErrRefTypeUnexpected(ref))
 	}
 }
 
-func MsgToExpRef(dto typeexp.ExpRef) (proctypeexp.ExpRef, error) {
+func MsgToExpRef(dto sdktypeexp.ExpRef) (typeexp.ExpRef, error) {
 	expVK, err := valkey.ConvertFromInt(dto.ExpVK)
 	if err != nil {
 		return nil, err
 	}
 	switch dto.K {
-	case typeexp.One:
-		return proctypeexp.OneRef{ExpVK: expVK}, nil
-	case typeexp.Link:
-		return proctypeexp.LinkRef{ExpVK: expVK}, nil
-	case typeexp.Tensor:
-		return proctypeexp.TensorRef{ExpVK: expVK}, nil
-	case typeexp.Lolli:
-		return proctypeexp.LolliRef{ExpVK: expVK}, nil
-	case typeexp.Plus:
-		return proctypeexp.PlusRef{ExpVK: expVK}, nil
-	case typeexp.With:
-		return proctypeexp.WithRef{ExpVK: expVK}, nil
+	case sdktypeexp.One:
+		return typeexp.OneRef{ExpVK: expVK}, nil
+	case sdktypeexp.Link:
+		return typeexp.LinkRef{ExpVK: expVK}, nil
+	case sdktypeexp.Tensor:
+		return typeexp.TensorRef{ExpVK: expVK}, nil
+	case sdktypeexp.Lolli:
+		return typeexp.LolliRef{ExpVK: expVK}, nil
+	case sdktypeexp.Plus:
+		return typeexp.PlusRef{ExpVK: expVK}, nil
+	case sdktypeexp.With:
+		return typeexp.WithRef{ExpVK: expVK}, nil
 	default:
-		panic(typeexp.ErrKindUnexpected(dto.K))
+		panic(sdktypeexp.ErrKindUnexpected(dto.K))
 	}
 }
 
-func dataFromExpRef(ref proctypeexp.ExpRef) proctypeexp.ExpRefDS {
+func dataFromExpRef(ref typeexp.ExpRef) typeexp.ExpRefDS {
 	if ref == nil {
 		panic("can't be null")
 	}
 	expVK := valkey.ConvertToInt(ref.Key())
 	switch ref.(type) {
-	case proctypeexp.OneRef, proctypeexp.OneRec:
-		return proctypeexp.ExpRefDS{K: proctypeexp.OneKind, ExpVK: expVK}
-	case proctypeexp.LinkRef, proctypeexp.LinkRec:
-		return proctypeexp.ExpRefDS{K: proctypeexp.LinkKind, ExpVK: expVK}
-	case proctypeexp.TensorRef, proctypeexp.TensorRec:
-		return proctypeexp.ExpRefDS{K: proctypeexp.TensorKind, ExpVK: expVK}
-	case proctypeexp.LolliRef, proctypeexp.LolliRec:
-		return proctypeexp.ExpRefDS{K: proctypeexp.LolliKind, ExpVK: expVK}
-	case proctypeexp.PlusRef, proctypeexp.PlusRec:
-		return proctypeexp.ExpRefDS{K: proctypeexp.PlusKind, ExpVK: expVK}
-	case proctypeexp.WithRef, proctypeexp.WithRec:
-		return proctypeexp.ExpRefDS{K: proctypeexp.WithKind, ExpVK: expVK}
+	case typeexp.OneRef, typeexp.OneRec:
+		return typeexp.ExpRefDS{K: typeexp.OneKind, ExpVK: expVK}
+	case typeexp.LinkRef, typeexp.LinkRec:
+		return typeexp.ExpRefDS{K: typeexp.LinkKind, ExpVK: expVK}
+	case typeexp.TensorRef, typeexp.TensorRec:
+		return typeexp.ExpRefDS{K: typeexp.TensorKind, ExpVK: expVK}
+	case typeexp.LolliRef, typeexp.LolliRec:
+		return typeexp.ExpRefDS{K: typeexp.LolliKind, ExpVK: expVK}
+	case typeexp.PlusRef, typeexp.PlusRec:
+		return typeexp.ExpRefDS{K: typeexp.PlusKind, ExpVK: expVK}
+	case typeexp.WithRef, typeexp.WithRec:
+		return typeexp.ExpRefDS{K: typeexp.WithKind, ExpVK: expVK}
 	default:
-		panic(proctypeexp.ErrRefTypeUnexpected(ref))
+		panic(typeexp.ErrRefTypeUnexpected(ref))
 	}
 }
 
-func dataToExpRef(dto proctypeexp.ExpRefDS) (proctypeexp.ExpRef, error) {
+func dataToExpRef(dto typeexp.ExpRefDS) (typeexp.ExpRef, error) {
 	expVK, err := valkey.ConvertFromInt(dto.ExpVK)
 	if err != nil {
 		return nil, err
 	}
 	switch dto.K {
-	case proctypeexp.OneKind:
-		return proctypeexp.OneRef{ExpVK: expVK}, nil
-	case proctypeexp.LinkKind:
-		return proctypeexp.LinkRef{ExpVK: expVK}, nil
-	case proctypeexp.TensorKind:
-		return proctypeexp.TensorRef{ExpVK: expVK}, nil
-	case proctypeexp.LolliKind:
-		return proctypeexp.LolliRef{ExpVK: expVK}, nil
-	case proctypeexp.PlusKind:
-		return proctypeexp.PlusRef{ExpVK: expVK}, nil
-	case proctypeexp.WithKind:
-		return proctypeexp.WithRef{ExpVK: expVK}, nil
+	case typeexp.OneKind:
+		return typeexp.OneRef{ExpVK: expVK}, nil
+	case typeexp.LinkKind:
+		return typeexp.LinkRef{ExpVK: expVK}, nil
+	case typeexp.TensorKind:
+		return typeexp.TensorRef{ExpVK: expVK}, nil
+	case typeexp.LolliKind:
+		return typeexp.LolliRef{ExpVK: expVK}, nil
+	case typeexp.PlusKind:
+		return typeexp.PlusRef{ExpVK: expVK}, nil
+	case typeexp.WithKind:
+		return typeexp.WithRef{ExpVK: expVK}, nil
 	default:
 		panic(errUnexpectedKind(dto.K))
 	}
 }
 
-func dataToExpRec(dto proctypeexp.ExpRecDS) (proctypeexp.ExpRec, error) {
-	states := make(map[int64]proctypeexp.StateDS, len(dto.States))
+func dataToExpRec(dto typeexp.ExpRecDS) (typeexp.ExpRec, error) {
+	states := make(map[int64]typeexp.StateDS, len(dto.States))
 	for _, dto := range dto.States {
 		states[dto.ExpVK] = dto
 	}
 	return statesToExpRec(states, states[dto.ExpVK])
 }
 
-func dataFromExpRec(rec proctypeexp.ExpRec) proctypeexp.ExpRecDS {
+func dataFromExpRec(rec typeexp.ExpRec) typeexp.ExpRecDS {
 	if rec == nil {
 		panic("can't be nil")
 	}
-	dto := &proctypeexp.ExpRecDS{
+	dto := &typeexp.ExpRecDS{
 		ExpVK:  valkey.ConvertToInt(rec.Key()),
 		States: nil,
 	}
@@ -232,21 +232,21 @@ func dataFromExpRec(rec proctypeexp.ExpRec) proctypeexp.ExpRecDS {
 	return *dto
 }
 
-func statesToExpRec(states map[int64]proctypeexp.StateDS, st proctypeexp.StateDS) (proctypeexp.ExpRec, error) {
+func statesToExpRec(states map[int64]typeexp.StateDS, st typeexp.StateDS) (typeexp.ExpRec, error) {
 	expVK, err := valkey.ConvertFromInt(st.ExpVK)
 	if err != nil {
 		return nil, err
 	}
 	switch st.K {
-	case proctypeexp.OneKind:
-		return proctypeexp.OneRec{ExpVK: expVK}, nil
-	case proctypeexp.LinkKind:
+	case typeexp.OneKind:
+		return typeexp.OneRec{ExpVK: expVK}, nil
+	case typeexp.LinkKind:
 		typeQN, err := uniqsym.ConvertFromString(st.Spec.Link)
 		if err != nil {
 			return nil, err
 		}
-		return proctypeexp.LinkRec{ExpVK: expVK, TypeQN: typeQN}, nil
-	case proctypeexp.TensorKind:
+		return typeexp.LinkRec{ExpVK: expVK, TypeQN: typeQN}, nil
+	case typeexp.TensorKind:
 		b, err := statesToExpRec(states, states[st.Spec.Tensor.ValExpVK])
 		if err != nil {
 			return nil, err
@@ -255,8 +255,8 @@ func statesToExpRec(states map[int64]proctypeexp.StateDS, st proctypeexp.StateDS
 		if err != nil {
 			return nil, err
 		}
-		return proctypeexp.TensorRec{ExpVK: expVK, Val: b, Cont: c}, nil
-	case proctypeexp.LolliKind:
+		return typeexp.TensorRec{ExpVK: expVK, Val: b, Cont: c}, nil
+	case typeexp.LolliKind:
 		y, err := statesToExpRec(states, states[st.Spec.Lolli.ValExpVK])
 		if err != nil {
 			return nil, err
@@ -265,9 +265,9 @@ func statesToExpRec(states map[int64]proctypeexp.StateDS, st proctypeexp.StateDS
 		if err != nil {
 			return nil, err
 		}
-		return proctypeexp.LolliRec{ExpVK: expVK, Val: y, Cont: z}, nil
-	case proctypeexp.PlusKind:
-		choices := make(map[uniqsym.ADT]proctypeexp.ExpRec, len(st.Spec.Plus))
+		return typeexp.LolliRec{ExpVK: expVK, Val: y, Cont: z}, nil
+	case typeexp.PlusKind:
+		choices := make(map[uniqsym.ADT]typeexp.ExpRec, len(st.Spec.Plus))
 		for _, ch := range st.Spec.Plus {
 			choice, err := statesToExpRec(states, states[ch.ContExpVK])
 			if err != nil {
@@ -279,9 +279,9 @@ func statesToExpRec(states map[int64]proctypeexp.StateDS, st proctypeexp.StateDS
 			}
 			choices[label] = choice
 		}
-		return proctypeexp.PlusRec{ExpVK: expVK, Choices: choices}, nil
-	case proctypeexp.WithKind:
-		choices := make(map[uniqsym.ADT]proctypeexp.ExpRec, len(st.Spec.With))
+		return typeexp.PlusRec{ExpVK: expVK, Choices: choices}, nil
+	case typeexp.WithKind:
+		choices := make(map[uniqsym.ADT]typeexp.ExpRec, len(st.Spec.With))
 		for _, ch := range st.Spec.With {
 			choice, err := statesToExpRec(states, states[ch.ContExpVK])
 			if err != nil {
@@ -293,89 +293,89 @@ func statesToExpRec(states map[int64]proctypeexp.StateDS, st proctypeexp.StateDS
 			}
 			choices[label] = choice
 		}
-		return proctypeexp.WithRec{ExpVK: expVK, Choices: choices}, nil
+		return typeexp.WithRec{ExpVK: expVK, Choices: choices}, nil
 	default:
 		panic(errUnexpectedKind(st.K))
 	}
 }
 
-func statesFromExpRec(fromID int64, r proctypeexp.ExpRec, dto *proctypeexp.ExpRecDS) int64 {
+func statesFromExpRec(fromID int64, r typeexp.ExpRec, dto *typeexp.ExpRecDS) int64 {
 	expVK := valkey.ConvertToInt(r.Key())
 	switch rec := r.(type) {
-	case proctypeexp.OneRec:
-		st := proctypeexp.StateDS{ExpVK: expVK, K: proctypeexp.OneKind, SupExpVK: fromID}
+	case typeexp.OneRec:
+		st := typeexp.StateDS{ExpVK: expVK, K: typeexp.OneKind, SupExpVK: fromID}
 		dto.States = append(dto.States, st)
 		return expVK
-	case proctypeexp.LinkRec:
-		st := proctypeexp.StateDS{
+	case typeexp.LinkRec:
+		st := typeexp.StateDS{
 			ExpVK:    expVK,
-			K:        proctypeexp.LinkKind,
+			K:        typeexp.LinkKind,
 			SupExpVK: fromID,
-			Spec: proctypeexp.ExpSpecDS{
+			Spec: typeexp.ExpSpecDS{
 				Link: uniqsym.ConvertToString(rec.TypeQN),
 			},
 		}
 		dto.States = append(dto.States, st)
 		return expVK
-	case proctypeexp.TensorRec:
+	case typeexp.TensorRec:
 		val := statesFromExpRec(expVK, rec.Val, dto)
 		cont := statesFromExpRec(expVK, rec.Cont, dto)
-		st := proctypeexp.StateDS{
+		st := typeexp.StateDS{
 			ExpVK:    expVK,
-			K:        proctypeexp.TensorKind,
+			K:        typeexp.TensorKind,
 			SupExpVK: fromID,
-			Spec: proctypeexp.ExpSpecDS{
-				Tensor: &proctypeexp.ProdDS{ValExpVK: val, ContExpVK: cont},
+			Spec: typeexp.ExpSpecDS{
+				Tensor: &typeexp.ProdDS{ValExpVK: val, ContExpVK: cont},
 			},
 		}
 		dto.States = append(dto.States, st)
 		return expVK
-	case proctypeexp.LolliRec:
+	case typeexp.LolliRec:
 		val := statesFromExpRec(expVK, rec.Val, dto)
 		cont := statesFromExpRec(expVK, rec.Cont, dto)
-		st := proctypeexp.StateDS{
+		st := typeexp.StateDS{
 			ExpVK:    expVK,
-			K:        proctypeexp.LolliKind,
+			K:        typeexp.LolliKind,
 			SupExpVK: fromID,
-			Spec: proctypeexp.ExpSpecDS{
-				Lolli: &proctypeexp.ProdDS{ValExpVK: val, ContExpVK: cont},
+			Spec: typeexp.ExpSpecDS{
+				Lolli: &typeexp.ProdDS{ValExpVK: val, ContExpVK: cont},
 			},
 		}
 		dto.States = append(dto.States, st)
 		return expVK
-	case proctypeexp.PlusRec:
-		var choices []proctypeexp.SumDS
+	case typeexp.PlusRec:
+		var choices []typeexp.SumDS
 		for label, choice := range rec.Choices {
 			cont := statesFromExpRec(expVK, choice, dto)
-			choices = append(choices, proctypeexp.SumDS{LabQN: uniqsym.ConvertToString(label), ContExpVK: cont})
+			choices = append(choices, typeexp.SumDS{LabQN: uniqsym.ConvertToString(label), ContExpVK: cont})
 		}
-		st := proctypeexp.StateDS{
+		st := typeexp.StateDS{
 			ExpVK:    expVK,
-			K:        proctypeexp.PlusKind,
+			K:        typeexp.PlusKind,
 			SupExpVK: fromID,
-			Spec:     proctypeexp.ExpSpecDS{Plus: choices},
+			Spec:     typeexp.ExpSpecDS{Plus: choices},
 		}
 		dto.States = append(dto.States, st)
 		return expVK
-	case proctypeexp.WithRec:
-		var choices []proctypeexp.SumDS
+	case typeexp.WithRec:
+		var choices []typeexp.SumDS
 		for label, choice := range rec.Choices {
 			cont := statesFromExpRec(expVK, choice, dto)
-			choices = append(choices, proctypeexp.SumDS{LabQN: uniqsym.ConvertToString(label), ContExpVK: cont})
+			choices = append(choices, typeexp.SumDS{LabQN: uniqsym.ConvertToString(label), ContExpVK: cont})
 		}
-		st := proctypeexp.StateDS{
+		st := typeexp.StateDS{
 			ExpVK:    expVK,
-			K:        proctypeexp.WithKind,
+			K:        typeexp.WithKind,
 			SupExpVK: fromID,
-			Spec:     proctypeexp.ExpSpecDS{With: choices},
+			Spec:     typeexp.ExpSpecDS{With: choices},
 		}
 		dto.States = append(dto.States, st)
 		return expVK
 	default:
-		panic(proctypeexp.ErrRecTypeUnexpected(r))
+		panic(typeexp.ErrRecTypeUnexpected(r))
 	}
 }
 
-func errUnexpectedKind(k proctypeexp.ExpKindDS) error {
+func errUnexpectedKind(k typeexp.ExpKindDS) error {
 	return fmt.Errorf("unexpected kind %v", k)
 }

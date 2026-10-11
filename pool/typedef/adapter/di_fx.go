@@ -5,18 +5,18 @@ import (
 
 	"orglang/go-engine/adt/descsem"
 
-	pooltypedef "orglang/go-engine/pool/typedef/core"
+	typedef "orglang/go-engine/pool/typedef/core"
 )
 
 var Module = fx.Module("pool/typedef",
 	fx.Provide(
-		fx.Annotate(pooltypedef.NewService, fx.As(new(pooltypedef.API))),
-		fx.Annotate(NewDaoPgx, fx.As(new(pooltypedef.Repo))),
+		fx.Annotate(typedef.NewService, fx.As(new(typedef.API))),
+		fx.Annotate(NewDaoPgx, fx.As(new(typedef.Repo))),
 	),
 	fx.Provide(
 		fx.Private,
 		newControllerEcho,
-		fx.Annotate(newSQLBuilder, fx.As(new(pooltypedef.QueryBuilder))),
+		fx.Annotate(newSQLBuilder, fx.As(new(typedef.QueryBuilder))),
 		fx.Annotate(descsem.NewDaoPgx(descBinds), fx.As(new(descsem.Repo))),
 	),
 	fx.Invoke(

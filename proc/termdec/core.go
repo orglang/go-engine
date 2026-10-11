@@ -14,7 +14,7 @@ import (
 	"orglang/go-engine/adt/typesem"
 	"orglang/go-engine/adt/uniqsym"
 
-	"orglang/go-engine/proc/typedef"
+	typedef "orglang/go-engine/proc/typedef/core"
 )
 
 type API interface {

@@ -33,7 +33,15 @@ func (k Kind) String() string {
 	}
 }
 
-const modulePrefix = "orglang/go-engine/"
+const (
+	modulePrefix = "orglang/go-engine/"
+	sdkPrefix    = "github.com/orglang/go-sdk"
+)
+
+// isSDK reports whether pkgPath belongs to the wire-format SDK module.
+func isSDK(pkgPath string) bool {
+	return pkgPath == sdkPrefix || strings.HasPrefix(pkgPath, sdkPrefix+"/")
+}
 
 func Classify(pkgPath string) Kind {
 	rest, ok := strings.CutPrefix(pkgPath, modulePrefix)
@@ -66,6 +74,8 @@ func (v Violation) String() string {
 	return fmt.Sprintf("%s imports %s", v.From, v.To)
 }
 
+// Check reports agnostic core packages that depend on a toolkit-specific
+// adapter or on the wire-format SDK.
 func Check(imports map[string][]string) []Violation {
 	var violations []Violation
 	for from, tos := range imports {
@@ -73,7 +83,7 @@ func Check(imports map[string][]string) []Violation {
 			continue
 		}
 		for _, to := range tos {
-			if Classify(to) == Specific {
+			if Classify(to) == Specific || isSDK(to) {
 				violations = append(violations, Violation{From: from, To: to})
 			}
 		}

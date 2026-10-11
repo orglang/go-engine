@@ -52,6 +52,36 @@ func TestCheckIgnoresNonAgnosticSources(t *testing.T) {
 	}
 }
 
+func TestCheckRejectsCoreSDKImport(t *testing.T) {
+	imports := map[string][]string{
+		"orglang/go-engine/proc/typedef/core": {
+			"github.com/orglang/go-sdk/proc/typedef",
+		},
+	}
+	want := []Violation{{
+		From: "orglang/go-engine/proc/typedef/core",
+		To:   "github.com/orglang/go-sdk/proc/typedef",
+	}}
+	got := Check(imports)
+	if len(got) != len(want) {
+		t.Fatalf("got %d violations, want %d: %v", len(got), len(want), got)
+	}
+	if got[0] != want[0] {
+		t.Errorf("violation 0 = %v, want %v", got[0], want[0])
+	}
+}
+
+func TestCheckAllowsAdapterSDKImport(t *testing.T) {
+	imports := map[string][]string{
+		"orglang/go-engine/proc/typedef/adapter": {
+			"github.com/orglang/go-sdk/proc/typedef",
+		},
+	}
+	if got := Check(imports); len(got) != 0 {
+		t.Errorf("got %v, want no violations", got)
+	}
+}
+
 func TestCheckMessageNamesBothEdges(t *testing.T) {
 	v := Violation{
 		From: "orglang/go-engine/pool/typedef/core",

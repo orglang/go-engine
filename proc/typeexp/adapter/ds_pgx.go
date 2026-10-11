@@ -12,26 +12,26 @@ import (
 
 	"orglang/go-engine/adt/valkey"
 
-	proctypeexp "orglang/go-engine/proc/typeexp/core"
+	typeexp "orglang/go-engine/proc/typeexp/core"
 )
 
 // Adapter
 type daoPgx struct {
-	qb  proctypeexp.QueryBuilder
+	qb  typeexp.QueryBuilder
 	log *slog.Logger
 }
 
-func NewDaoPgx(qb proctypeexp.QueryBuilder, log *slog.Logger) proctypeexp.Repo {
+func NewDaoPgx(qb typeexp.QueryBuilder, log *slog.Logger) typeexp.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }
 
 // for compilation purposes
-func newRepo() proctypeexp.Repo {
+func newRepo() typeexp.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRec(uow db.UoW, rec proctypeexp.ExpRec) (err error) {
+func (dao *daoPgx) AddRec(uow db.UoW, rec typeexp.ExpRec) (err error) {
 	vkAttr := slog.Any("expVK", rec.Key())
 	dto := dataFromExpRec(rec)
 	batch := pgx.Batch{}
@@ -53,7 +53,7 @@ func (dao *daoPgx) AddRec(uow db.UoW, rec proctypeexp.ExpRec) (err error) {
 	return nil
 }
 
-func (dao *daoPgx) SelectRecByVK(uow db.UoW, expVK valkey.ADT) (proctypeexp.ExpRec, error) {
+func (dao *daoPgx) SelectRecByVK(uow db.UoW, expVK valkey.ADT) (typeexp.ExpRec, error) {
 	vkAttr := slog.Any("expVK", expVK)
 	rows, queryErr := uow.Pgx.Query(uow.Ctx, selectByID, valkey.ConvertToInt(expVK))
 	if queryErr != nil {
@@ -61,7 +61,7 @@ func (dao *daoPgx) SelectRecByVK(uow db.UoW, expVK valkey.ADT) (proctypeexp.ExpR
 		return nil, queryErr
 	}
 	defer rows.Close()
-	dtos, scanErr := pgx.CollectRows(rows, pgx.RowToStructByName[proctypeexp.StateDS])
+	dtos, scanErr := pgx.CollectRows(rows, pgx.RowToStructByName[typeexp.StateDS])
 	if scanErr != nil {
 		dao.log.Error("row scanning failed", vkAttr)
 		return nil, scanErr
@@ -71,26 +71,26 @@ func (dao *daoPgx) SelectRecByVK(uow db.UoW, expVK valkey.ADT) (proctypeexp.ExpR
 		return nil, errors.New("no rows selected")
 	}
 	dao.log.Log(uow.Ctx, lf.LevelTrace, "entity selection succeed", slog.Any("dtos", dtos))
-	states := make(map[int64]proctypeexp.StateDS, len(dtos))
+	states := make(map[int64]typeexp.StateDS, len(dtos))
 	for _, dto := range dtos {
 		states[dto.ExpVK] = dto
 	}
 	return statesToExpRec(states, states[valkey.ConvertToInt(expVK)])
 }
 
-func (dao *daoPgx) SelectEnv(uow db.UoW, expVKs []valkey.ADT) (map[valkey.ADT]proctypeexp.ExpRec, error) {
+func (dao *daoPgx) SelectEnv(uow db.UoW, expVKs []valkey.ADT) (map[valkey.ADT]typeexp.ExpRec, error) {
 	recs, err := dao.SelectRecsByVKs(uow, expVKs)
 	if err != nil {
 		return nil, err
 	}
-	env := make(map[valkey.ADT]proctypeexp.ExpRec, len(recs))
+	env := make(map[valkey.ADT]typeexp.ExpRec, len(recs))
 	for _, rec := range recs {
 		env[rec.Key()] = rec
 	}
 	return env, nil
 }
 
-func (dao *daoPgx) SelectRecsByVKs(uow db.UoW, expVKs []valkey.ADT) (_ []proctypeexp.ExpRec, err error) {
+func (dao *daoPgx) SelectRecsByVKs(uow db.UoW, expVKs []valkey.ADT) (_ []typeexp.ExpRec, err error) {
 	batch := pgx.Batch{}
 	for _, expVK := range expVKs {
 		batch.Queue(selectByID, valkey.ConvertToInt(expVK))
@@ -99,22 +99,22 @@ func (dao *daoPgx) SelectRecsByVKs(uow db.UoW, expVKs []valkey.ADT) (_ []proctyp
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	var recs []proctypeexp.ExpRec
+	var recs []typeexp.ExpRec
 	for _, expVK := range expVKs {
 		vkAttr := slog.Any("expVK", expVK)
 		rows, err := br.Query()
 		if err != nil {
 			dao.log.Error("query execution failed", vkAttr)
 		}
-		dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[proctypeexp.StateDS])
+		dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[typeexp.StateDS])
 		if err != nil {
 			dao.log.Error("rows scanning failed", vkAttr)
 		}
 		if len(dtos) == 0 {
 			dao.log.Error("entity selection failed", vkAttr)
-			return nil, proctypeexp.ErrDoesNotExist(expVK)
+			return nil, typeexp.ErrDoesNotExist(expVK)
 		}
-		rec, err := dataToExpRec(proctypeexp.ExpRecDS{ExpVK: valkey.ConvertToInt(expVK), States: dtos})
+		rec, err := dataToExpRec(typeexp.ExpRecDS{ExpVK: valkey.ConvertToInt(expVK), States: dtos})
 		if err != nil {
 			dao.log.Error("model conversion failed", vkAttr)
 			return nil, err

@@ -3,9 +3,9 @@ package adapter
 import (
 	"github.com/huandu/go-sqlbuilder"
 
-	"orglang/go-engine/adt/compvar"
+	adtcompvar "orglang/go-engine/adt/compvar"
 
-	poolcompvar "orglang/go-engine/pool/compvar/core"
+	compvar "orglang/go-engine/pool/compvar/core"
 )
 
 type sqlBuilder struct {
@@ -13,15 +13,15 @@ type sqlBuilder struct {
 }
 
 // for compilation purposes
-func newQueryBuilder() poolcompvar.QueryBuilder {
+func newQueryBuilder() compvar.QueryBuilder {
 	return new(sqlBuilder)
 }
 
 func newSQLBuilder() *sqlBuilder {
-	varBuilder := sqlbuilder.NewStruct(new(compvar.VarRecDS)).For(sqlbuilder.PostgreSQL)
+	varBuilder := sqlbuilder.NewStruct(new(adtcompvar.VarRecDS)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{varBuilder}
 }
 
-func (qb *sqlBuilder) InsertRec(table string, rec compvar.VarRecDS) (string, []any) {
+func (qb *sqlBuilder) InsertRec(table string, rec adtcompvar.VarRecDS) (string, []any) {
 	return qb.varBuilder.InsertInto(table, rec).Build()
 }

@@ -3,7 +3,7 @@ package adapter
 import (
 	"github.com/huandu/go-sqlbuilder"
 
-	proctypeexp "orglang/go-engine/proc/typeexp/core"
+	typeexp "orglang/go-engine/proc/typeexp/core"
 )
 
 type sqlBuilder struct {
@@ -11,16 +11,16 @@ type sqlBuilder struct {
 }
 
 // for compilation purposes
-func newQueryBuilder() proctypeexp.QueryBuilder {
+func newQueryBuilder() typeexp.QueryBuilder {
 	return new(sqlBuilder)
 }
 
 func newSQLBuilder() *sqlBuilder {
-	stateBuilder := sqlbuilder.NewStruct(new(proctypeexp.StateDS)).For(sqlbuilder.PostgreSQL)
+	stateBuilder := sqlbuilder.NewStruct(new(typeexp.StateDS)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{stateBuilder}
 }
 
-func (qb *sqlBuilder) InsertRec(rec proctypeexp.StateDS) (string, []any) {
+func (qb *sqlBuilder) InsertRec(rec typeexp.StateDS) (string, []any) {
 	return qb.stateBuilder.InsertInto(xactExps, rec).
 		SQL("ON CONFLICT (exp_vk) DO NOTHING").
 		Build()

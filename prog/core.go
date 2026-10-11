@@ -4,7 +4,7 @@ import (
 	"log/slog"
 
 	pooltypedef "orglang/go-engine/pool/typedef/core"
-	proctypedef "orglang/go-engine/proc/typedef"
+	proctypedef "orglang/go-engine/proc/typedef/core"
 )
 
 type API interface {

@@ -8,7 +8,7 @@ import (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
-// goverter:extend orglang/go-engine/proc/typedef:Msg.*
+// goverter:extend orglang/go-engine/proc/typedef/adapter:Msg.*
 var (
 	MsgToDecSpec    func(termdec.DecSpec) (DecSpec, error)
 	MsgFromDecSpec  func(DecSpec) termdec.DecSpec

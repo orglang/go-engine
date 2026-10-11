@@ -10,30 +10,30 @@ import (
 	"orglang/go-engine/lib/db"
 	"orglang/go-engine/lib/lf"
 
-	"orglang/go-engine/adt/compvar"
+	adtcompvar "orglang/go-engine/adt/compvar"
 
-	poolcompvar "orglang/go-engine/pool/compvar/core"
+	compvar "orglang/go-engine/pool/compvar/core"
 )
 
 type daoPgx struct {
-	qb  poolcompvar.QueryBuilder
+	qb  compvar.QueryBuilder
 	log *slog.Logger
 }
 
-func NewDaoPgx(qb poolcompvar.QueryBuilder, log *slog.Logger) poolcompvar.Repo {
+func NewDaoPgx(qb compvar.QueryBuilder, log *slog.Logger) compvar.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }
 
 // for compilation purposes
-func newRepo() poolcompvar.Repo {
+func newRepo() compvar.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRecs(uow db.UoW, recs []compvar.VarRec) (err error) {
+func (dao *daoPgx) AddRecs(uow db.UoW, recs []adtcompvar.VarRec) (err error) {
 	batch := pgx.Batch{}
 	for _, rec := range recs {
-		dto := compvar.DataFromVarRec(rec)
+		dto := adtcompvar.DataFromVarRec(rec)
 		sql, args := dao.qb.InsertRec(getTableName(rec), dto)
 		batch.Queue(sql, args...)
 	}
@@ -52,13 +52,13 @@ func (dao *daoPgx) AddRecs(uow db.UoW, recs []compvar.VarRec) (err error) {
 	return nil
 }
 
-func getTableName(rec compvar.VarRec) string {
+func getTableName(rec adtcompvar.VarRec) string {
 	switch rec.(type) {
-	case compvar.StructRec:
+	case adtcompvar.StructRec:
 		return poolStructVars
-	case compvar.LinearRec:
+	case adtcompvar.LinearRec:
 		return poolLinearVars
 	default:
-		panic(compvar.ErrUnexpectedRecType(rec))
+		panic(adtcompvar.ErrUnexpectedRecType(rec))
 	}
 }

@@ -19,14 +19,14 @@ import (
 
 	"orglang/go-engine/pool/commexch"
 	"orglang/go-engine/pool/commturn"
-	"orglang/go-engine/pool/compstep"
+	compstep "orglang/go-engine/pool/compstep/core"
 	compvar "orglang/go-engine/pool/compvar/core"
 	"orglang/go-engine/pool/termdef"
 	termexp "orglang/go-engine/pool/termexp/core"
 	typeexp "orglang/go-engine/pool/typeexp/core"
 
 	proccompexec "orglang/go-engine/proc/compexec"
-	proctermdef "orglang/go-engine/proc/termdef"
+	proctermdef "orglang/go-engine/proc/termdef/core"
 )
 
 type API interface {

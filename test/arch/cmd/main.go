@@ -21,6 +21,6 @@ func main() {
 	for _, v := range violations {
 		_, _ = fmt.Fprintf(os.Stderr, "  %s\n", v)
 	}
-	_, _ = fmt.Fprintln(os.Stderr, "an agnostic core must not import a toolkit-specific adapter")
+	_, _ = fmt.Fprintln(os.Stderr, "an agnostic core must not import a toolkit-specific adapter or the wire-format SDK")
 	os.Exit(1)
 }

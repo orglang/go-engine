@@ -11,7 +11,7 @@ import (
 	sdk "github.com/orglang/go-sdk/pool/compstep"
 
 	"orglang/go-engine/adt/compsem"
-	"orglang/go-engine/pool/compstep"
+	compstep "orglang/go-engine/pool/compstep/adapter"
 )
 
 // Server-side primary adapter

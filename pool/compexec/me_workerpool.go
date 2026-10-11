@@ -2,7 +2,7 @@ package compexec
 
 import (
 	"log/slog"
-	"orglang/go-engine/pool/compstep"
+	compstep "orglang/go-engine/pool/compstep/core"
 	"reflect"
 
 	"github.com/gammazero/workerpool"

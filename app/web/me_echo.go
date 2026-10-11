@@ -10,7 +10,7 @@ import (
 	"orglang/go-engine/lib/te"
 
 	"orglang/go-engine/adt/typesem"
-	"orglang/go-engine/proc/typedef"
+	typedef "orglang/go-engine/proc/typedef/core"
 )
 
 // Adapter

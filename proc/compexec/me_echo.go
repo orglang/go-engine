@@ -13,7 +13,7 @@ import (
 	"orglang/go-engine/lib/lf"
 
 	"orglang/go-engine/adt/compsem"
-	"orglang/go-engine/proc/compstep"
+	compstep "orglang/go-engine/proc/compstep/adapter"
 )
 
 // Server-side primary adapter

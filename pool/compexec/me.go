@@ -1,7 +1,7 @@
 package compexec
 
 import (
-	"orglang/go-engine/pool/compstep"
+	compstep "orglang/go-engine/pool/compstep/core"
 )
 
 type Broker interface {

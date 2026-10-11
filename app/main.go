@@ -19,8 +19,8 @@ import (
 	proccommexch "orglang/go-engine/proc/commexch"
 	"orglang/go-engine/proc/compexec"
 	"orglang/go-engine/proc/termdec"
-	"orglang/go-engine/proc/termdef"
-	"orglang/go-engine/proc/typedef"
+	termdef "orglang/go-engine/proc/termdef/adapter"
+	typedef "orglang/go-engine/proc/typedef/adapter"
 	typeexp "orglang/go-engine/proc/typeexp/adapter"
 
 	"orglang/go-engine/app/web"

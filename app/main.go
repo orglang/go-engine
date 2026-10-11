@@ -26,7 +26,7 @@ import (
 	"orglang/go-engine/app/web"
 )
 
-// Diagnostic retry (second trigger): verify reusable workflow dispatch and Docker cache import.
+// Cache verification: dependency layers should be reused after the cache warm-up run.
 func main() {
 	fx.New(
 		// lib

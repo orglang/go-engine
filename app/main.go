@@ -16,7 +16,8 @@ import (
 	pooltermdef "orglang/go-engine/pool/termdef"
 	pooltypedef "orglang/go-engine/pool/typedef/adapter"
 	pooltypeexp "orglang/go-engine/pool/typeexp/adapter"
-	proccommexch "orglang/go-engine/proc/commexch"
+	proccommexchadapter "orglang/go-engine/proc/commexch/adapter"
+
 	"orglang/go-engine/proc/compexec"
 	"orglang/go-engine/proc/termdec"
 	termdef "orglang/go-engine/proc/termdef/adapter"
@@ -44,7 +45,8 @@ func main() {
 		compvar.Module,
 		typedef.Module,
 		typeexp.Module,
-		proccommexch.Module,
+
+		proccommexchadapter.Module,
 		termdef.Module,
 		termdec.Module,
 		compexec.Module,

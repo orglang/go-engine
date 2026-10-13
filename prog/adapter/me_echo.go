@@ -1,4 +1,4 @@
-package prog
+package adapter
 
 import (
 	"io"
@@ -8,14 +8,16 @@ import (
 
 	"github.com/labstack/echo/v4"
 	sdkprog "github.com/orglang/go-sdk/prog"
+
+	coreprog "orglang/go-engine/prog/core"
 )
 
 type controllerEcho struct {
-	api API
+	api coreprog.API
 	log *slog.Logger
 }
 
-func newControllerEcho(a API, l *slog.Logger) *controllerEcho {
+func newControllerEcho(a coreprog.API, l *slog.Logger) *controllerEcho {
 	name := slog.String("name", reflect.TypeFor[controllerEcho]().Name())
 	return &controllerEcho{a, l.With(name)}
 }

@@ -19,7 +19,7 @@ import (
 	"orglang/go-engine/adt/symbol"
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/adt/valkey"
-	"orglang/go-engine/proc/commexch"
+	commexch "orglang/go-engine/proc/commexch/core"
 	commturn "orglang/go-engine/proc/commturn/core"
 	compstep "orglang/go-engine/proc/compstep/core"
 	"orglang/go-engine/proc/termdec"

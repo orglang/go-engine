@@ -16,8 +16,7 @@ import (
 	"orglang/go-engine/proc/termdec"
 )
 
-type API interface {
-}
+type API any
 
 // step (aka Sem)
 type TurnRec interface {

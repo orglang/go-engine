@@ -1,4 +1,4 @@
-package prog
+package core
 
 import (
 	"log/slog"

@@ -1,7 +1,6 @@
 package core
 
-type Repo interface {
-}
+type Repo any
 
 type ExpSpecDS struct {
 	K       ExpKind       `json:"k"`

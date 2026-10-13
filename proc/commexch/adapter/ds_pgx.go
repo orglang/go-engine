@@ -1,4 +1,4 @@
-package commexch
+package adapter
 
 import (
 	"log/slog"
@@ -6,6 +6,8 @@ import (
 	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/lib/db"
 	"reflect"
+
+	corecommexch "orglang/go-engine/proc/commexch/core"
 )
 
 type daoPgx struct {
@@ -18,11 +20,11 @@ func newDaoPgx(log *slog.Logger) *daoPgx {
 }
 
 // for compilation purposes
-func newRepo() Repo {
+func newRepo() corecommexch.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRec(db.UoW, ExchRec) error {
+func (dao *daoPgx) AddRec(db.UoW, corecommexch.ExchRec) error {
 	panic("unimplemented")
 }
 
@@ -30,10 +32,10 @@ func (dao *daoPgx) GetRefsByQNs(db.UoW, []uniqsym.ADT) (map[uniqsym.ADT]commsem.
 	panic("unimplemented")
 }
 
-func (dao *daoPgx) GetSnapByQry(db.UoW, ExchQry) (ExchSnap, error) {
+func (dao *daoPgx) GetSnapByQry(db.UoW, corecommexch.ExchQry) (corecommexch.ExchSnap, error) {
 	panic("unimplemented")
 }
 
-func (dao *daoPgx) Modifyec(db.UoW, ExchMod) error {
+func (dao *daoPgx) Modifyec(db.UoW, corecommexch.ExchMod) error {
 	panic("unimplemented")
 }

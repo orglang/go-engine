@@ -8,6 +8,6 @@ import (
 
 var Module = fx.Module("proc/commexch",
 	fx.Provide(
-		fx.Annotate(newDaoPgx, fx.As(new(corecommexch.Repo))),
+		fx.Annotate(NewDaoPgx, fx.As(new(corecommexch.Repo))),
 	),
 )

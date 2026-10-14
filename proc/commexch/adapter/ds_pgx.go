@@ -14,7 +14,7 @@ type daoPgx struct {
 	log *slog.Logger
 }
 
-func newDaoPgx(log *slog.Logger) *daoPgx {
+func NewDaoPgx(log *slog.Logger) corecommexch.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{log.With(name)}
 }

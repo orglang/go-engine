@@ -18,7 +18,7 @@ type daoPgx struct {
 	log *slog.Logger
 }
 
-func newDaoPgx(qb termdef.QueryBuilder, log *slog.Logger) *daoPgx {
+func NewDaoPgx(qb termdef.QueryBuilder, log *slog.Logger) termdef.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }

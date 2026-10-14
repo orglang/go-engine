@@ -11,7 +11,7 @@ import (
 var Module = fx.Module("pool/termdef",
 	fx.Provide(
 		fx.Annotate(termdef.NewService, fx.As(new(termdef.API))),
-		fx.Annotate(newDaoPgx, fx.As(new(termdef.Repo))),
+		fx.Annotate(NewDaoPgx, fx.As(new(termdef.Repo))),
 	),
 	fx.Provide(
 		fx.Private,

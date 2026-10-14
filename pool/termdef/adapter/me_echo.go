@@ -11,16 +11,16 @@ import (
 
 	"orglang/go-engine/adt/termsem"
 
-	typedef "orglang/go-engine/pool/termdef/core"
+	termdef "orglang/go-engine/pool/termdef/core"
 )
 
 // Server-side primary adapter
 type controllerEcho struct {
-	api typedef.API
+	api termdef.API
 	log *slog.Logger
 }
 
-func newControllerEcho(a typedef.API, l *slog.Logger) *controllerEcho {
+func newControllerEcho(a termdef.API, l *slog.Logger) *controllerEcho {
 	name := slog.String("name", reflect.TypeFor[controllerEcho]().Name())
 	return &controllerEcho{a, l.With(name)}
 }

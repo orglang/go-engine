@@ -12,7 +12,7 @@ import (
 var Module = fx.Module("proc/termdec",
 	fx.Provide(
 		fx.Annotate(termdec.NewService, fx.As(new(termdec.API))),
-		fx.Annotate(newDaoPgx, fx.As(new(termdec.Repo))),
+		fx.Annotate(NewDaoPgx, fx.As(new(termdec.Repo))),
 	),
 	fx.Provide(
 		fx.Private,

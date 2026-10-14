@@ -1,7 +1,9 @@
-package termdef
+package adapter
 
 import (
 	"github.com/huandu/go-sqlbuilder"
+
+	termdef "orglang/go-engine/pool/termdef/core"
 )
 
 type sqlBuilder struct {
@@ -9,20 +11,20 @@ type sqlBuilder struct {
 }
 
 // for compilation purposes
-func newQueryBuilder() queryBuilder {
+func newQueryBuilder() termdef.QueryBuilder {
 	return new(sqlBuilder)
 }
 
 func newSQLBuilder() *sqlBuilder {
-	defBuilder := sqlbuilder.NewStruct(new(defRecDS)).For(sqlbuilder.PostgreSQL)
+	defBuilder := sqlbuilder.NewStruct(new(termdef.DefRecDS)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{defBuilder}
 }
 
-func (qb *sqlBuilder) insertRec(rec defRecDS) (string, []any) {
+func (qb *sqlBuilder) InsertRec(rec termdef.DefRecDS) (string, []any) {
 	return qb.defBuilder.InsertInto(termDefs, rec).Build()
 }
 
-func (qb *sqlBuilder) selectRecByQN(qn string) (string, []any) {
+func (qb *sqlBuilder) SelectRecByQN(qn string) (string, []any) {
 	sb := qb.defBuilder.SelectFrom(termDefs + "def")
 	return sb.Join(descBinds+"bind", "bind.desc_id = def.term_id").
 		Where(sb.Equal("bind.desc_qn", qn)).

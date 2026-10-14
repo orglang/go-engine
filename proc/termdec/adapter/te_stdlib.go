@@ -1,4 +1,4 @@
-package termdec
+package adapter
 
 import (
 	"embed"

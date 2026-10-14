@@ -1,4 +1,4 @@
-package termdef
+package adapter
 
 import (
 	"log/slog"
@@ -9,31 +9,33 @@ import (
 	"orglang/go-engine/lib/db"
 
 	"orglang/go-engine/adt/uniqsym"
+
+	termdef "orglang/go-engine/pool/termdef/core"
 )
 
 type daoPgx struct {
-	qb  queryBuilder
+	qb  termdef.QueryBuilder
 	log *slog.Logger
 }
 
-func newDaoPgx(qb queryBuilder, log *slog.Logger) *daoPgx {
+func newDaoPgx(qb termdef.QueryBuilder, log *slog.Logger) *daoPgx {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }
 
 // for compilation purposes
-func newRepo() Repo {
+func newRepo() termdef.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRec(uow db.UoW, rec DefRec) error {
+func (dao *daoPgx) AddRec(uow db.UoW, rec termdef.DefRec) error {
 	refAttr := slog.Any("ref", rec.TermRef)
 	dto, convErr := DataFromDecRec(rec)
 	if convErr != nil {
 		dao.log.Error("model conversion failed", refAttr)
 		return convErr
 	}
-	sql, args := dao.qb.insertRec(dto)
+	sql, args := dao.qb.InsertRec(dto)
 	_, execErr := uow.Pgx.Exec(uow.Ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr)
@@ -42,23 +44,23 @@ func (dao *daoPgx) AddRec(uow db.UoW, rec DefRec) error {
 	return nil
 }
 
-func (dao *daoPgx) GetRecByQN(uow db.UoW, qn uniqsym.ADT) (DefRec, error) {
+func (dao *daoPgx) GetRecByQN(uow db.UoW, qn uniqsym.ADT) (termdef.DefRec, error) {
 	qnAttr := slog.Any("qn", qn)
-	sql, args := dao.qb.selectRecByQN(uniqsym.ConvertToString(qn))
+	sql, args := dao.qb.SelectRecByQN(uniqsym.ConvertToString(qn))
 	rows, execErr := uow.Pgx.Query(uow.Ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", qnAttr)
-		return DefRec{}, execErr
+		return termdef.DefRec{}, execErr
 	}
-	dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRecDS])
+	dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[termdef.DefRecDS])
 	if scanErr != nil {
 		dao.log.Error("rows scanning failed", qnAttr)
-		return DefRec{}, scanErr
+		return termdef.DefRec{}, scanErr
 	}
 	rec, convErr := DataToDecRec(dto)
 	if convErr != nil {
 		dao.log.Error("model conversion failed", qnAttr)
-		return DefRec{}, convErr
+		return termdef.DefRec{}, convErr
 	}
 	return rec, nil
 }

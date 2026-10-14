@@ -1,4 +1,4 @@
-package termdec
+package adapter
 
 import (
 	"log/slog"
@@ -14,15 +14,17 @@ import (
 
 	"orglang/go-engine/adt/termsem"
 	"orglang/go-engine/adt/uniqsym"
+
+	termdec "orglang/go-engine/proc/termdec/core"
 )
 
 type echoPresenter struct {
-	api API
+	api termdec.API
 	ssr te.Renderer
 	log *slog.Logger
 }
 
-func newEchoPresenter(a API, r te.Renderer, l *slog.Logger) *echoPresenter {
+func newEchoPresenter(a termdec.API, r te.Renderer, l *slog.Logger) *echoPresenter {
 	name := slog.String("name", reflect.TypeFor[echoPresenter]().Name())
 	return &echoPresenter{a, r, l.With(name)}
 }

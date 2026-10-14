@@ -1,4 +1,4 @@
-package termdec
+package adapter
 
 import (
 	"errors"
@@ -12,31 +12,33 @@ import (
 
 	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/termsem"
+
+	termdec "orglang/go-engine/proc/termdec/core"
 )
 
 type daoPgx struct {
-	qb  queryBuilder
+	qb  termdec.QueryBuilder
 	log *slog.Logger
 }
 
-func newDaoPgx(qb queryBuilder, log *slog.Logger) *daoPgx {
+func newDaoPgx(qb termdec.QueryBuilder, log *slog.Logger) *daoPgx {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }
 
 // for compilation purposes
-func newRepo() Repo {
+func newRepo() termdec.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRec(uow db.UoW, rec DecRec) error {
+func (dao *daoPgx) AddRec(uow db.UoW, rec termdec.DecRec) error {
 	refAttr := slog.Any("ref", rec.TermRef)
 	dto, err := DataFromDecRec(rec)
 	if err != nil {
 		dao.log.Error("model conversion failed", refAttr)
 		return err
 	}
-	sql, args := dao.qb.insertRec(dto)
+	sql, args := dao.qb.InsertRec(dto)
 	_, err = uow.Pgx.Exec(uow.Ctx, sql, args...)
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
@@ -45,38 +47,38 @@ func (dao *daoPgx) AddRec(uow db.UoW, rec DecRec) error {
 	return nil
 }
 
-func (dao *daoPgx) GetSnap(uow db.UoW, ref termsem.SemRef) (DecSnap, error) {
+func (dao *daoPgx) GetSnap(uow db.UoW, ref termsem.SemRef) (termdec.DecSnap, error) {
 	refAttr := slog.Any("ref", ref)
 	rows, err := uow.Pgx.Query(uow.Ctx, selectByRef, ref.TermID.String())
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)
-		return DecSnap{}, err
+		return termdec.DecSnap{}, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[decSnapDS])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[termdec.DecSnapDS])
 	if err != nil {
 		dao.log.Error("row scanning failed", refAttr)
-		return DecSnap{}, err
+		return termdec.DecSnap{}, err
 	}
 	dao.log.Log(uow.Ctx, lf.LevelTrace, "entitiy selection succeed", slog.Any("dto", dto))
 	return DataToDecSnap(dto)
 }
 
-func (dao *daoPgx) SelectEnv(uow db.UoW, ids []identity.ADT) (map[identity.ADT]DecRec, error) {
+func (dao *daoPgx) SelectEnv(uow db.UoW, ids []identity.ADT) (map[identity.ADT]termdec.DecRec, error) {
 	decs, err := dao.GetRecs(uow, ids)
 	if err != nil {
 		return nil, err
 	}
-	env := make(map[identity.ADT]DecRec, len(decs))
+	env := make(map[identity.ADT]termdec.DecRec, len(decs))
 	for _, dec := range decs {
 		env[dec.TermRef.TermID] = dec
 	}
 	return env, nil
 }
 
-func (dao *daoPgx) GetRecs(uow db.UoW, ids []identity.ADT) (_ []DecRec, err error) {
+func (dao *daoPgx) GetRecs(uow db.UoW, ids []identity.ADT) (_ []termdec.DecRec, err error) {
 	if len(ids) == 0 {
-		return []DecRec{}, nil
+		return []termdec.DecRec{}, nil
 	}
 	batch := pgx.Batch{}
 	for _, rid := range ids {
@@ -89,13 +91,13 @@ func (dao *daoPgx) GetRecs(uow db.UoW, ids []identity.ADT) (_ []DecRec, err erro
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	var dtos []decRecDS
+	var dtos []termdec.DecRecDS
 	for _, rid := range ids {
 		rows, err := br.Query()
 		if err != nil {
 			dao.log.Error("query execution failed", slog.Any("id", rid), slog.String("q", selectByRef))
 		}
-		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[decRecDS])
+		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[termdec.DecRecDS])
 		if err != nil {
 			dao.log.Error("row scanning failed", slog.Any("id", rid))
 		}

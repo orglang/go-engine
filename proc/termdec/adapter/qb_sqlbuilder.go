@@ -1,7 +1,9 @@
-package termdec
+package adapter
 
 import (
 	"github.com/huandu/go-sqlbuilder"
+
+	termdec "orglang/go-engine/proc/termdec/core"
 )
 
 type sqlBuilder struct {
@@ -9,15 +11,15 @@ type sqlBuilder struct {
 }
 
 // for compilation purposes
-func newQueryBuilder() queryBuilder {
+func newQueryBuilder() termdec.QueryBuilder {
 	return new(sqlBuilder)
 }
 
 func newSQLBuilder() *sqlBuilder {
-	decBuilder := sqlbuilder.NewStruct(new(decRecDS)).For(sqlbuilder.PostgreSQL)
+	decBuilder := sqlbuilder.NewStruct(new(termdec.DecRecDS)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{decBuilder}
 }
 
-func (qb *sqlBuilder) insertRec(rec decRecDS) (string, []any) {
+func (qb *sqlBuilder) InsertRec(rec termdec.DecRecDS) (string, []any) {
 	return qb.decBuilder.InsertInto(termDecs, rec).Build()
 }

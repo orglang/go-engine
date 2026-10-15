@@ -2,6 +2,7 @@ package adapter
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"reflect"
 
@@ -172,3 +173,7 @@ const (
 		left join pool_comp_execs prvd
 			on prvd.desc_id = liab.desc_id`
 )
+
+func errOptimisticUpdate(got seqnum.ADT) error {
+	return fmt.Errorf("entity concurrent modification: got revision %v", got)
+}

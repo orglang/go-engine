@@ -23,7 +23,7 @@ type controllerEcho struct {
 	log *slog.Logger
 }
 
-func newControllerEcho(a API, l *slog.Logger) *controllerEcho {
+func newControllerEcho(a compexec.API, l *slog.Logger) *controllerEcho {
 	return &controllerEcho{a, l}
 }
 

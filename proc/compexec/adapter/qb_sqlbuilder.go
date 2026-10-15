@@ -1,10 +1,12 @@
-package compexec
+package adapter
 
 import (
 	"github.com/huandu/go-sqlbuilder"
 
 	"orglang/go-engine/adt/compvar"
 	"orglang/go-engine/adt/termsem"
+
+	compexec "orglang/go-engine/proc/compexec/core"
 )
 
 type sqlBuilder struct {
@@ -14,17 +16,17 @@ type sqlBuilder struct {
 }
 
 // for compilation purposes
-func newQueryBuilder() queryBuilder {
+func newQueryBuilder() compexec.QueryBuilder {
 	return new(sqlBuilder)
 }
 
 func newSQLBuilder() *sqlBuilder {
 	semBuilder := sqlbuilder.NewStruct(new(termsem.SemRefDS)).For(sqlbuilder.PostgreSQL)
-	execBuilder := sqlbuilder.NewStruct(new(execRecDS)).For(sqlbuilder.PostgreSQL)
+	execBuilder := sqlbuilder.NewStruct(new(compexec.ExecRecDS)).For(sqlbuilder.PostgreSQL)
 	varBuilder := sqlbuilder.NewStruct(new(compvar.VarRecDS)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{semBuilder, execBuilder, varBuilder}
 }
 
-func (qb *sqlBuilder) insertRec(rec execRecDS) (string, []any) {
-	return qb.execBuilder.InsertInto(compExecs, rec).Build()
+func (qb *sqlBuilder) InsertRec(rec compexec.ExecRecDS) (string, []any) {
+	return qb.execBuilder.InsertInto(compexec.CompExecs, rec).Build()
 }

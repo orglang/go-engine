@@ -12,7 +12,7 @@ import (
 	"orglang/go-engine/adt/identity"
 	compvar "orglang/go-engine/pool/compvar/core"
 	termexp "orglang/go-engine/pool/termexp/core"
-	"orglang/go-engine/proc/compexec"
+	proccompexec "orglang/go-engine/proc/compexec/core"
 	termdec "orglang/go-engine/proc/termdec/core"
 )
 
@@ -47,7 +47,7 @@ func (r SubRec) turn() {}
 
 type service struct {
 	poolSteps  Repo
-	procExecs  compexec.Repo
+	procExecs  proccompexec.Repo
 	poolVars   compvar.Repo
 	procDecs   termdec.Repo
 	transactor db.Transactor
@@ -61,7 +61,7 @@ func newAPI() API {
 
 func newService(
 	poolSteps Repo,
-	procExecs compexec.Repo,
+	procExecs proccompexec.Repo,
 	poolVars compvar.Repo,
 	procDecs termdec.Repo,
 	transactor db.Transactor,

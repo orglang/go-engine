@@ -1,7 +1,8 @@
-package compexec
+package adapter
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"reflect"
 
@@ -13,28 +14,30 @@ import (
 	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/adt/compvar"
 	"orglang/go-engine/adt/seqnum"
+
+	compexec "orglang/go-engine/proc/compexec/core"
 )
 
 // Adapter
 type daoPgx struct {
-	qb  queryBuilder
+	qb  compexec.QueryBuilder
 	log *slog.Logger
 }
 
 // for compilation purposes
-func newRepo() Repo {
+func newRepo() compexec.Repo {
 	return new(daoPgx)
 }
 
-func newDaoPgx(qb queryBuilder, log *slog.Logger) *daoPgx {
+func newDaoPgx(qb compexec.QueryBuilder, log *slog.Logger) *daoPgx {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }
 
-func (dao *daoPgx) AddRec(uow db.UoW, rec ExecRec) error {
+func (dao *daoPgx) AddRec(uow db.UoW, rec compexec.ExecRec) error {
 	dto := DataFromExecRec(rec)
 	refAttr := slog.Any("ref", rec.CompRef)
-	sql, args := dao.qb.insertRec(dto)
+	sql, args := dao.qb.InsertRec(dto)
 	_, execErr := uow.Pgx.Exec(uow.Ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
@@ -44,31 +47,31 @@ func (dao *daoPgx) AddRec(uow db.UoW, rec ExecRec) error {
 	return nil
 }
 
-func (dao *daoPgx) GetSnapByRef(uow db.UoW, ref compsem.SemRef) (ExecSnap, error) {
+func (dao *daoPgx) GetSnapByRef(uow db.UoW, ref compsem.SemRef) (compexec.ExecSnap, error) {
 	refAttr := slog.Any("ref", ref)
 	chnlRows, err := uow.Pgx.Query(uow.Ctx, selectChnls, ref.CompID.String())
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)
-		return ExecSnap{}, err
+		return compexec.ExecSnap{}, err
 	}
 	defer chnlRows.Close()
 	chnlDtos, err := pgx.CollectRows(chnlRows, pgx.RowToStructByName[compvar.VarRecDS])
 	if err != nil {
 		dao.log.Error("row scanning failed", refAttr, slog.Any("t", reflect.TypeOf(chnlDtos)))
-		return ExecSnap{}, err
+		return compexec.ExecSnap{}, err
 	}
 	chnls, err := compvar.DataToLinearRecs(chnlDtos)
 	if err != nil {
 		dao.log.Error("model conversion failed", refAttr)
-		return ExecSnap{}, err
+		return compexec.ExecSnap{}, err
 	}
 	dao.log.Debug("snap selection succeed", refAttr)
-	return ExecSnap{
-		LinearVars: compvar.IndexBy(ChnlPH, chnls),
+	return compexec.ExecSnap{
+		LinearVars: compvar.IndexBy(compexec.ChnlPH, chnls),
 	}, nil
 }
 
-func (dao *daoPgx) ModifyRec(uow db.UoW, mod ExecMod) (err error) {
+func (dao *daoPgx) ModifyRec(uow db.UoW, mod compexec.ExecMod) (err error) {
 	if len(mod.CompRefs) == 0 {
 		panic("empty locks")
 	}
@@ -170,3 +173,7 @@ const (
 		left join pool_comp_execs prvd
 			on prvd.desc_id = liab.desc_id`
 )
+
+func errOptimisticUpdate(got seqnum.ADT) error {
+	return fmt.Errorf("entity concurrent modification: got revision %v", got)
+}

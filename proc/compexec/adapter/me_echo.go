@@ -12,8 +12,8 @@ import (
 
 	"orglang/go-engine/lib/lf"
 
-	compexec "orglang/go-engine/proc/compexec/core"
 	"orglang/go-engine/adt/compsem"
+	compexec "orglang/go-engine/proc/compexec/core"
 	compstep "orglang/go-engine/proc/compstep/adapter"
 )
 

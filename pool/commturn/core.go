@@ -61,7 +61,7 @@ func newAPI() API {
 
 func newService(
 	poolSteps Repo,
-	procExecs compexec.Repo,
+	procExecs proccompexec.Repo,
 	poolVars compvar.Repo,
 	procDecs termdec.Repo,
 	transactor db.Transactor,

@@ -25,7 +25,7 @@ import (
 	termexp "orglang/go-engine/pool/termexp/core"
 	typeexp "orglang/go-engine/pool/typeexp/core"
 
-	proccompexec "orglang/go-engine/proc/compexec"
+	proccompexec "orglang/go-engine/proc/compexec/core"
 	proctermdef "orglang/go-engine/proc/termdef/core"
 )
 

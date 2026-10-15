@@ -17,7 +17,14 @@ func TestCheck(t *testing.T) {
 			"orglang/go-engine/pool/typedef/core",
 		},
 		"orglang/go-engine/proc/compexec/core": {
+			"orglang/go-engine/proc/commexch/core",
+			"orglang/go-engine/proc/commturn/core",
+			"orglang/go-engine/proc/compstep/core",
 			"orglang/go-engine/proc/termdec/core",
+			"orglang/go-engine/proc/termdef/core",
+			"orglang/go-engine/proc/termexp/core",
+			"orglang/go-engine/proc/typedef/core",
+			"orglang/go-engine/proc/typeexp/core",
 		},
 	}
 	want := []Violation{{

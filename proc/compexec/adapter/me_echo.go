@@ -1,4 +1,4 @@
-package compexec
+package adapter
 
 import (
 	"log/slog"
@@ -14,11 +14,12 @@ import (
 
 	"orglang/go-engine/adt/compsem"
 	compstep "orglang/go-engine/proc/compstep/adapter"
+	compexec "orglang/go-engine/proc/compexec/core"
 )
 
 // Server-side primary adapter
 type controllerEcho struct {
-	api API
+	api compexec.API
 	log *slog.Logger
 }
 

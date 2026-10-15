@@ -1,4 +1,4 @@
-package compexec
+package core
 
 import (
 	"orglang/go-engine/lib/db"
@@ -13,13 +13,13 @@ type Repo interface {
 	GetSnapByRef(db.UoW, compsem.SemRef) (ExecSnap, error)
 }
 
-type execRecDS struct {
+type ExecRecDS struct {
 	CompID   string `db:"comp_id"`
 	CompRN   int64  `db:"comp_rn"`
 	LiabMode int16  `db:"liab_mode"`
 }
 
-type execModDS struct {
+type ExecModDS struct {
 	CompRefs   []compsem.SemRefDS
 	LinearVars []compvar.VarRecDS
 }

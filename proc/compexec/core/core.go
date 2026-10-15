@@ -1,4 +1,4 @@
-package compexec
+package core
 
 import (
 	"context"
@@ -77,7 +77,7 @@ func newAPI() API {
 	return new(service)
 }
 
-func newService(
+func NewService(
 	compExecRepo Repo,
 	commExchRepo commexch.Repo,
 	termDecRepo termdec.Repo,

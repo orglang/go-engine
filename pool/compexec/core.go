@@ -21,7 +21,7 @@ import (
 	"orglang/go-engine/pool/commturn"
 	compstep "orglang/go-engine/pool/compstep/core"
 	compvar "orglang/go-engine/pool/compvar/core"
-	"orglang/go-engine/pool/termdef"
+	termdef "orglang/go-engine/pool/termdef/core"
 	termexp "orglang/go-engine/pool/termexp/core"
 	typeexp "orglang/go-engine/pool/typeexp/core"
 

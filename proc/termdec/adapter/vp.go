@@ -1,4 +1,4 @@
-package termdec
+package adapter
 
 import (
 	"github.com/orglang/go-sdk/adt/termsem"

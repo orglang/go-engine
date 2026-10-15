@@ -1,4 +1,4 @@
-package termdef
+package core
 
 import (
 	"context"
@@ -38,13 +38,13 @@ type DefSnap struct {
 	TermRef termsem.SemRef
 }
 
-func newService(
+func NewService(
 	termDefRepo Repo,
 	typeDefRepo typedef.Repo,
 	descSemRepo descsem.Repo,
 	transactor db.Transactor,
 	log *slog.Logger,
-) *service {
+) API {
 	return &service{termDefRepo, typeDefRepo, descSemRepo, transactor, log}
 }
 

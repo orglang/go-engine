@@ -1,4 +1,4 @@
-package termdec
+package adapter
 
 import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"

@@ -13,7 +13,7 @@ import (
 	compvar "orglang/go-engine/pool/compvar/core"
 	termexp "orglang/go-engine/pool/termexp/core"
 	"orglang/go-engine/proc/compexec"
-	"orglang/go-engine/proc/termdec"
+	termdec "orglang/go-engine/proc/termdec/core"
 )
 
 type API any

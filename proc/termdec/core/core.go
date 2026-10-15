@@ -1,4 +1,4 @@
-package termdec
+package core
 
 import (
 	"context"
@@ -59,13 +59,13 @@ func newAPI() API {
 	return new(service)
 }
 
-func newService(
+func NewService(
 	termDecRepo Repo,
 	typeDefRepo typedef.Repo,
 	typeSemRepo typesem.Repo,
 	transactor db.Transactor,
 	log *slog.Logger,
-) *service {
+) API {
 	return &service{termDecRepo, typeDefRepo, typeSemRepo, transactor, log}
 }
 

@@ -51,7 +51,7 @@ func (dao *daoPgx) TouchRef(uow db.UoW, ref SemRef) error {
 func (dao *daoPgx) GetRefsByQNs(uow db.UoW, typeQNs []uniqsym.ADT) (_ map[uniqsym.ADT]SemRef, err error) {
 	dao.log.Log(uow.Ctx, lf.LevelTrace, "getting started", slog.Any("qns", typeQNs))
 	if len(typeQNs) == 0 {
-		return map[uniqsym.ADT]SemRef{}, nil
+		return make(map[uniqsym.ADT]SemRef), nil
 	}
 	batch := pgx.Batch{}
 	for _, typeQN := range typeQNs {

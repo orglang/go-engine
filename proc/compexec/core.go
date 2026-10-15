@@ -22,7 +22,7 @@ import (
 	commexch "orglang/go-engine/proc/commexch/core"
 	commturn "orglang/go-engine/proc/commturn/core"
 	compstep "orglang/go-engine/proc/compstep/core"
-	"orglang/go-engine/proc/termdec"
+	termdec "orglang/go-engine/proc/termdec/core"
 	termdef "orglang/go-engine/proc/termdef/core"
 	termexp "orglang/go-engine/proc/termexp/core"
 	typedef "orglang/go-engine/proc/typedef/core"

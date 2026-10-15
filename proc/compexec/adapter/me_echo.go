@@ -12,9 +12,9 @@ import (
 
 	"orglang/go-engine/lib/lf"
 
+	compexec "orglang/go-engine/proc/compexec/core"
 	"orglang/go-engine/adt/compsem"
 	compstep "orglang/go-engine/proc/compstep/adapter"
-	compexec "orglang/go-engine/proc/compexec/core"
 )
 
 // Server-side primary adapter

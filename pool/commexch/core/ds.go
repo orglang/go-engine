@@ -1,4 +1,4 @@
-package commexch
+package core
 
 import (
 	"database/sql"
@@ -16,23 +16,23 @@ type Repo interface {
 	GetSnapByQry(db.UoW, ExchQry) (ExchSnap, error)
 }
 
-type exchRecDS struct {
+type ExchRecDS struct {
 	CommID   string `db:"comm_id"`
 	CommRN   int64  `db:"comm_rn"`
 	OffsetNr int64  `db:"offset_nr"`
 }
 
-type exchModDS struct {
+type ExchModDS struct {
 	CommID   string          `db:"comm_id"`
 	OffsetNr sql.Null[int64] `db:"offset_nr"`
 }
 
-type exchQryDS struct {
+type ExchQryDS struct {
 	CommID string           `db:"comm_id"`
 	ChnlID sql.Null[string] `db:"chnl_id"`
 }
 
-type exchSnapDS struct {
+type ExchSnapDS struct {
 	CommID   string               `db:"comm_id"`
 	CommRN   int64                `db:"comm_rn"`
 	OffsetNr int64                `db:"offset_nr"`

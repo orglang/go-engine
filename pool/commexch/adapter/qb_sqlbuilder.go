@@ -1,8 +1,9 @@
-package commexch
+package adapter
 
 import (
 	"github.com/huandu/go-sqlbuilder"
 
+	commexch "orglang/go-engine/pool/commexch/core"
 	commturn "orglang/go-engine/pool/commturn/core"
 )
 
@@ -12,21 +13,21 @@ type sqlBuilder struct {
 }
 
 // for compilation purposes
-func newQueryBuilder() queryBuilder {
+func newQueryBuilder() commexch.QueryBuilder {
 	return new(sqlBuilder)
 }
 
 func newSQLBuilder() *sqlBuilder {
-	exchBuilder := sqlbuilder.NewStruct(new(exchRecDS)).For(sqlbuilder.PostgreSQL)
+	exchBuilder := sqlbuilder.NewStruct(new(commexch.ExchRecDS)).For(sqlbuilder.PostgreSQL)
 	turnBuilder := sqlbuilder.NewStruct(new(commturn.TurnRecDS)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{exchBuilder, turnBuilder}
 }
 
-func (qb *sqlBuilder) insertRec(rec exchRecDS) (string, []any) {
+func (qb *sqlBuilder) InsertRec(rec commexch.ExchRecDS) (string, []any) {
 	return qb.exchBuilder.InsertInto(commExchs, rec).Build()
 }
 
-func (qb *sqlBuilder) updateRec(mod exchModDS) (string, []any) {
+func (qb *sqlBuilder) UpdateRec(mod commexch.ExchModDS) (string, []any) {
 	conn := qb.exchBuilder.Update(commExchs, mod)
 	if mod.OffsetNr.Valid {
 		conn.Set(conn.Assign("offset_nr", mod.OffsetNr.V))
@@ -35,7 +36,7 @@ func (qb *sqlBuilder) updateRec(mod exchModDS) (string, []any) {
 	return conn.Build()
 }
 
-func (qb *sqlBuilder) selectSnap(qry exchQryDS) (string, []any) {
+func (qb *sqlBuilder) SelectSnap(qry commexch.ExchQryDS) (string, []any) {
 	exch := qb.exchBuilder.SelectFrom(commExchs + "exch")
 	turn := qb.turnBuilder.SelectFrom(commTurns + "turn")
 	turn.Where(turn.Equal("comm_id", qry.CommID))

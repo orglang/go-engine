@@ -1,4 +1,4 @@
-package commexch
+package adapter
 
 import (
 	"log/slog"
@@ -10,28 +10,30 @@ import (
 	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/uniqsym"
 
+	commexch "orglang/go-engine/pool/commexch/core"
+
 	"github.com/jackc/pgx/v5"
 )
 
 type daoPgx struct {
-	qb  queryBuilder
+	qb  commexch.QueryBuilder
 	log *slog.Logger
 }
 
-func newDaoPgx(qb queryBuilder, log *slog.Logger) *daoPgx {
+func NewDaoPgx(qb commexch.QueryBuilder, log *slog.Logger) commexch.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }
 
 // for compilation purposes
-func newRepo() Repo {
+func newRepo() commexch.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRec(ouw db.UoW, rec ExchRec) error {
+func (dao *daoPgx) AddRec(ouw db.UoW, rec commexch.ExchRec) error {
 	dto := DataFromRec(rec)
 	refAttr := slog.Any("ref", rec.CommRef)
-	sql, args := dao.qb.insertRec(dto)
+	sql, args := dao.qb.InsertRec(dto)
 	_, execErr := ouw.Pgx.Exec(ouw.Ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
@@ -41,13 +43,13 @@ func (dao *daoPgx) AddRec(ouw db.UoW, rec ExchRec) error {
 	return nil
 }
 
-func (dao *daoPgx) ModifyRec(uow db.UoW, mod ExchMod) error {
+func (dao *daoPgx) ModifyRec(uow db.UoW, mod commexch.ExchMod) error {
 	if mod.OffsetNr == nil {
 		return nil
 	}
 	dto := DataFromMod(mod)
 	refAttr := slog.Any("ref", mod.CommRef)
-	sql, args := dao.qb.updateRec(dto)
+	sql, args := dao.qb.UpdateRec(dto)
 	_, execErr := uow.Pgx.Exec(uow.Ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
@@ -61,27 +63,27 @@ func (dao *daoPgx) GetRefsByQNs(uow db.UoW, qns []uniqsym.ADT) (map[uniqsym.ADT]
 	panic("unimplemented")
 }
 
-func (dao *daoPgx) GetSnapByQry(ds db.UoW, qry ExchQry) (ExchSnap, error) {
+func (dao *daoPgx) GetSnapByQry(ds db.UoW, qry commexch.ExchQry) (commexch.ExchSnap, error) {
 	refAttr := slog.Any("ref", qry.CommRef)
 	qryDTO := DataFromQry(qry)
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "getting started", slog.Any("qry", qryDTO))
-	sql, args := dao.qb.selectSnap(qryDTO)
+	sql, args := dao.qb.SelectSnap(qryDTO)
 	rows, execErr := ds.Pgx.Query(ds.Ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
-		return ExchSnap{}, execErr
+		return commexch.ExchSnap{}, execErr
 	}
 	defer rows.Close()
-	snapDTO, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[exchSnapDS])
+	snapDTO, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[commexch.ExchSnapDS])
 	if scanErr != nil {
 		dao.log.Error("rows scanning failed", refAttr)
-		return ExchSnap{}, scanErr
+		return commexch.ExchSnap{}, scanErr
 	}
 	dao.log.Log(ds.Ctx, lf.LevelTrace, "getting succeed", slog.Any("dto", snapDTO))
 	snap, convErr := DataToSnap(snapDTO)
 	if convErr != nil {
 		dao.log.Error("model conversion failed", refAttr)
-		return ExchSnap{}, convErr
+		return commexch.ExchSnap{}, convErr
 	}
 	return snap, nil
 }

@@ -1,4 +1,4 @@
-package commexch
+package core
 
 import (
 	"orglang/go-engine/adt/commsem"

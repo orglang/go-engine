@@ -1,4 +1,4 @@
-package commturn
+package core
 
 import (
 	"fmt"
@@ -59,14 +59,14 @@ func newAPI() API {
 	return new(service)
 }
 
-func newService(
+func NewService(
 	poolSteps Repo,
 	procExecs proccompexec.Repo,
 	poolVars compvar.Repo,
 	procDecs termdec.Repo,
 	transactor db.Transactor,
 	log *slog.Logger,
-) *service {
+) API {
 	name := slog.String("name", reflect.TypeFor[service]().Name())
 	return &service{poolSteps, procExecs, poolVars, procDecs, transactor, log.With(name)}
 }

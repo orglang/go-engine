@@ -18,7 +18,7 @@ import (
 	"orglang/go-engine/adt/valkey"
 
 	"orglang/go-engine/pool/commexch"
-	"orglang/go-engine/pool/commturn"
+	commturn "orglang/go-engine/pool/commturn/core"
 	compstep "orglang/go-engine/pool/compstep/core"
 	compvar "orglang/go-engine/pool/compvar/core"
 	termdef "orglang/go-engine/pool/termdef/core"

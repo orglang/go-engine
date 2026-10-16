@@ -1,8 +1,10 @@
-package commturn
+package adapter
 
 import (
 	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/compsem"
+
+	commturn "orglang/go-engine/pool/commturn/core"
 )
 
 // goverter:variables
@@ -11,15 +13,15 @@ import (
 // goverter:extend orglang/go-engine/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/pool/termexp/adapter:Data.*
 var (
-	DataToCommRef func(TurnRecDS) (commsem.SemRef, error)
+	DataToCommRef func(commturn.TurnRecDS) (commsem.SemRef, error)
 	// goverter:ignore CompRN
-	DataToCompRef func(TurnRecDS) (compsem.SemRef, error)
+	DataToCompRef func(commturn.TurnRecDS) (compsem.SemRef, error)
 	// goverter:map . CommRef
 	// goverter:map . CompRef
 	// goverter:map Exp ValExp
-	DataToPubRec func(TurnRecDS) (PubRec, error)
+	DataToPubRec func(commturn.TurnRecDS) (commturn.PubRec, error)
 	// goverter:map . CommRef
 	// goverter:map . CompRef
 	// goverter:map Exp ContExp
-	DataToSubRec func(TurnRecDS) (SubRec, error)
+	DataToSubRec func(commturn.TurnRecDS) (commturn.SubRec, error)
 )

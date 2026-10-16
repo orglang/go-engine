@@ -16,6 +16,16 @@ func TestCheck(t *testing.T) {
 		"orglang/go-engine/pool/typedef/adapter": {
 			"orglang/go-engine/pool/typedef/core",
 		},
+		"orglang/go-engine/pool/commturn/core": {
+			"orglang/go-engine/adt/commsem",
+			"orglang/go-engine/adt/compsem",
+			"orglang/go-engine/adt/identity",
+			"orglang/go-engine/lib/db",
+			"orglang/go-engine/pool/compvar/core",
+			"orglang/go-engine/pool/termexp/core",
+			"orglang/go-engine/proc/compexec/core",
+			"orglang/go-engine/proc/termdec/core",
+		},
 		"orglang/go-engine/proc/compexec/core": {
 			"orglang/go-engine/proc/commexch/core",
 			"orglang/go-engine/proc/commturn/core",

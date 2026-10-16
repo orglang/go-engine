@@ -3,7 +3,7 @@ package commexch
 import (
 	"github.com/huandu/go-sqlbuilder"
 
-	"orglang/go-engine/pool/commturn"
+	commturn "orglang/go-engine/pool/commturn/core"
 )
 
 type sqlBuilder struct {

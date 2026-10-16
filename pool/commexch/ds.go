@@ -6,7 +6,7 @@ import (
 
 	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/uniqsym"
-	"orglang/go-engine/pool/commturn"
+	commturn "orglang/go-engine/pool/commturn/core"
 )
 
 type Repo interface {

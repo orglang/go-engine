@@ -6,7 +6,7 @@ import (
 	"orglang/go-engine/adt/option"
 	"orglang/go-engine/adt/seqnum"
 
-	"orglang/go-engine/pool/commturn"
+	commturn "orglang/go-engine/pool/commturn/core"
 )
 
 type ExchRec struct {

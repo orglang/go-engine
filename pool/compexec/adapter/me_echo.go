@@ -1,4 +1,4 @@
-package compexec
+package adapter
 
 import (
 	"log/slog"
@@ -7,20 +7,21 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/orglang/go-sdk/pool/compexec"
+	sdkcompexec "github.com/orglang/go-sdk/pool/compexec"
 	sdk "github.com/orglang/go-sdk/pool/compstep"
 
 	"orglang/go-engine/adt/compsem"
+	compexec "orglang/go-engine/pool/compexec/core"
 	compstep "orglang/go-engine/pool/compstep/adapter"
 )
 
 // Server-side primary adapter
 type controllerEcho struct {
-	api API
+	api compexec.API
 	log *slog.Logger
 }
 
-func newControllerEcho(api API, log *slog.Logger) *controllerEcho {
+func newControllerEcho(api compexec.API, log *slog.Logger) *controllerEcho {
 	name := slog.String("name", reflect.TypeFor[controllerEcho]().Name())
 	return &controllerEcho{api, log.With(name)}
 }
@@ -33,7 +34,7 @@ func cfgEchoController(server *echo.Echo, controller *controllerEcho) error {
 }
 
 func (c *controllerEcho) PostSpec(ctx echo.Context) error {
-	var dto compexec.ExecSpec
+	var dto sdkcompexec.ExecSpec
 	bindErr := ctx.Bind(&dto)
 	if bindErr != nil {
 		c.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))

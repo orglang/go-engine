@@ -11,7 +11,7 @@ import (
 
 	poolcommexch "orglang/go-engine/pool/commexch/adapter"
 	poolcommturn "orglang/go-engine/pool/commturn/adapter"
-	poolconfexec "orglang/go-engine/pool/compexec"
+	poolconfexec "orglang/go-engine/pool/compexec/adapter"
 	compvar "orglang/go-engine/pool/compvar/adapter"
 	pooltermdef "orglang/go-engine/pool/termdef/adapter"
 	pooltypedef "orglang/go-engine/pool/typedef/adapter"

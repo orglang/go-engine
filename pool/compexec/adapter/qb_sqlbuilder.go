@@ -1,10 +1,12 @@
-package compexec
+package adapter
 
 import (
 	"github.com/huandu/go-sqlbuilder"
 
 	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/adt/compvar"
+
+	compexec "orglang/go-engine/pool/compexec/core"
 )
 
 type sqlBuilder struct {
@@ -14,22 +16,22 @@ type sqlBuilder struct {
 }
 
 // for compilation purposes
-func newQueryBuilder() queryBuilder {
+func newQueryBuilder() compexec.QueryBuilder {
 	return new(sqlBuilder)
 }
 
 func newSQLBuilder() *sqlBuilder {
-	recBuilder := sqlbuilder.NewStruct(new(execRec)).For(sqlbuilder.PostgreSQL)
-	snapBuilder := sqlbuilder.NewStruct(new(execSnap1)).For(sqlbuilder.PostgreSQL)
+	recBuilder := sqlbuilder.NewStruct(new(compexec.ExecRecDS)).For(sqlbuilder.PostgreSQL)
+	snapBuilder := sqlbuilder.NewStruct(new(compexec.ExecSnap1DS)).For(sqlbuilder.PostgreSQL)
 	compVarBuilder := sqlbuilder.NewStruct(new(compvar.VarRecDS)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{recBuilder, snapBuilder, compVarBuilder}
 }
 
-func (qb *sqlBuilder) insertRec(rec execRec) (string, []any) {
+func (qb *sqlBuilder) InsertRec(rec compexec.ExecRecDS) (string, []any) {
 	return qb.recBuilder.InsertInto(compExecs, rec).Build()
 }
 
-func (qb *sqlBuilder) selectRecByRef(ref compsem.SemRefDS) (string, []any) {
+func (qb *sqlBuilder) SelectRecByRef(ref compsem.SemRefDS) (string, []any) {
 	exec := qb.recBuilder.SelectFrom(compExecs + "exec")
 	structVar := qb.compVarBuilder.SelectFrom(poolStructVars + "var")
 	linearVar := qb.compVarBuilder.SelectFrom(poolLinearVars + "var")
@@ -47,7 +49,7 @@ func (qb *sqlBuilder) selectRecByRef(ref compsem.SemRefDS) (string, []any) {
 		Build()
 }
 
-func (qb *sqlBuilder) selectSnapByQN(qn string) (string, []any) {
+func (qb *sqlBuilder) SelectSnapByQN(qn string) (string, []any) {
 	sb := qb.snapBuilder.SelectFrom(compExecs)
 	return sb.Join(compExecs, "exec.comp_id = sem.comp_id").
 		Join(poolStructVars, "struct_var.comp_id = sem.comp_id", "struct_var.side = 1", "exec.mode = 1").

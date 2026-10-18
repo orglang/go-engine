@@ -1,4 +1,4 @@
-package compexec
+package core
 
 import (
 	"orglang/go-engine/lib/db"
@@ -15,20 +15,20 @@ type Repo interface {
 	GetSnapMapByQNs(db.UoW, []uniqsym.ADT) (map[uniqsym.ADT]ExecSnap1, error)
 }
 
-type execRec struct {
+type ExecRecDS struct {
 	CompID   string `db:"comp_id"`
 	CompRN   int64  `db:"comp_rn"`
 	LiabMode int16  `db:"liab_mode"`
 }
 
-type execSnap1 struct {
+type ExecSnap1DS struct {
 	CompRef   compsem.SemRefDS  `db:"sem"`
 	LiabMode  int16             `db:"exec.liab_mode"`
 	StructVar *compvar.VarRecDS `db:"struct_var"`
 	LinearVar *compvar.VarRecDS `db:"linear_var"`
 }
 
-type execSnap2 struct {
+type ExecSnap2DS struct {
 	CompID     string             `db:"comp_id"`
 	CompRN     int64              `db:"comp_rn"`
 	LiabMode   int16              `db:"liab_mode"`

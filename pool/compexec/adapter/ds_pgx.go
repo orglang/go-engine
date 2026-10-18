@@ -1,4 +1,4 @@
-package compexec
+package adapter
 
 import (
 	"errors"
@@ -13,27 +13,29 @@ import (
 
 	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/adt/uniqsym"
+
+	compexec "orglang/go-engine/pool/compexec/core"
 )
 
 type daoPgx struct {
-	qb  queryBuilder
+	qb  compexec.QueryBuilder
 	log *slog.Logger
 }
 
-func newDaoPgx(qb queryBuilder, log *slog.Logger) *daoPgx {
+func NewDaoPgx(qb compexec.QueryBuilder, log *slog.Logger) compexec.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }
 
 // for compilation purposes
-func newRepo() Repo {
+func newRepo() compexec.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRec(uow db.UoW, rec ExecRec) error {
+func (dao *daoPgx) AddRec(uow db.UoW, rec compexec.ExecRec) error {
 	dto := DataFromExecRec(rec)
 	refAttr := slog.Any("ref", rec.CompRef)
-	sql, args := dao.qb.insertRec(dto)
+	sql, args := dao.qb.InsertRec(dto)
 	_, execErr := uow.Pgx.Exec(uow.Ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
@@ -43,48 +45,48 @@ func (dao *daoPgx) AddRec(uow db.UoW, rec ExecRec) error {
 	return nil
 }
 
-func (dao *daoPgx) ModifyRec(db.UoW, ExecMod) error {
+func (dao *daoPgx) ModifyRec(db.UoW, compexec.ExecMod) error {
 	panic("unimplemented")
 }
 
-func (dao *daoPgx) GetSnapByRef(uow db.UoW, ref compsem.SemRef) (ExecSnap2, error) {
+func (dao *daoPgx) GetSnapByRef(uow db.UoW, ref compsem.SemRef) (compexec.ExecSnap2, error) {
 	refAttr := slog.Any("ref", ref)
-	sql, args := dao.qb.selectRecByRef(compsem.DataFromRef(ref))
+	sql, args := dao.qb.SelectRecByRef(compsem.DataFromRef(ref))
 	rows, execErr := uow.Pgx.Query(uow.Ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
-		return ExecSnap2{}, execErr
+		return compexec.ExecSnap2{}, execErr
 	}
 	defer rows.Close()
-	dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[execSnap2])
+	dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[compexec.ExecSnap2DS])
 	if scanErr != nil {
 		dao.log.Error("rows scanning failed", refAttr, slog.Any("dto", dto))
-		return ExecSnap2{}, scanErr
+		return compexec.ExecSnap2{}, scanErr
 	}
 	dao.log.Log(uow.Ctx, lf.LevelTrace, "getting succeed", slog.Any("dto", dto))
 	rec, convErr := DataToExecSnap2(dto)
 	if convErr != nil {
 		dao.log.Error("model conversion failed", refAttr)
-		return ExecSnap2{}, convErr
+		return compexec.ExecSnap2{}, convErr
 	}
 	return rec, nil
 }
 
-func (dao *daoPgx) GetSnapMapByQNs(uow db.UoW, termQNs []uniqsym.ADT) (_ map[uniqsym.ADT]ExecSnap1, err error) {
+func (dao *daoPgx) GetSnapMapByQNs(uow db.UoW, termQNs []uniqsym.ADT) (_ map[uniqsym.ADT]compexec.ExecSnap1, err error) {
 	dao.log.Log(uow.Ctx, lf.LevelTrace, "getting started", slog.Any("qns", termQNs))
 	if len(termQNs) == 0 {
-		return map[uniqsym.ADT]ExecSnap1{}, nil
+		return map[uniqsym.ADT]compexec.ExecSnap1{}, nil
 	}
 	batch := pgx.Batch{}
 	for _, termQN := range termQNs {
-		sql, args := dao.qb.selectSnapByQN(uniqsym.ConvertToString(termQN))
+		sql, args := dao.qb.SelectSnapByQN(uniqsym.ConvertToString(termQN))
 		batch.Queue(sql, args...)
 	}
 	br := uow.Pgx.SendBatch(uow.Ctx, &batch)
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	dtos := make(map[uniqsym.ADT]execSnap1, len(termQNs))
+	dtos := make(map[uniqsym.ADT]compexec.ExecSnap1DS, len(termQNs))
 	for _, termQN := range termQNs {
 		qnAttr := slog.Any("qn", termQN)
 		rows, readErr := br.Query()
@@ -92,7 +94,7 @@ func (dao *daoPgx) GetSnapMapByQNs(uow db.UoW, termQNs []uniqsym.ADT) (_ map[uni
 			dao.log.Error("query execution failed", qnAttr)
 			return nil, readErr
 		}
-		var dto execSnap1
+		var dto compexec.ExecSnap1DS
 		scanErr := pgxscan.ScanOne(dto, rows)
 		if scanErr != nil {
 			dao.log.Error("row scanning failed", qnAttr)

@@ -1,15 +1,17 @@
-package compexec
+package adapter
 
 import (
 	"log/slog"
-	compstep "orglang/go-engine/pool/compstep/core"
 	"reflect"
 
 	"github.com/gammazero/workerpool"
+
+	compexec "orglang/go-engine/pool/compexec/core"
+	compstep "orglang/go-engine/pool/compstep/core"
 )
 
 type workerPoolBroker struct {
-	api  API
+	api  compexec.API
 	pool *workerpool.WorkerPool
 	log  *slog.Logger
 }
@@ -19,17 +21,17 @@ func newWorkerPoolBroker(pool *workerpool.WorkerPool, log *slog.Logger) *workerP
 	return &workerPoolBroker{nil, pool, log.With(name)}
 }
 
-func cfgWorkerPoolBroker(broker Broker, api API) error {
+func cfgWorkerPoolBroker(broker compexec.Broker, api compexec.API) error {
 	broker.Subscribe(api)
 	return nil
 }
 
 // for compilation purposes
-func newWorkerPoolExch() Broker {
+func newWorkerPoolExch() compexec.Broker {
 	return new(workerPoolBroker)
 }
 
-func (b *workerPoolBroker) Subscribe(api API) {
+func (b *workerPoolBroker) Subscribe(api compexec.API) {
 	b.api = api
 }
 

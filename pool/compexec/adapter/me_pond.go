@@ -1,15 +1,17 @@
-package compexec
+package adapter
 
 import (
 	"log/slog"
-	compstep "orglang/go-engine/pool/compstep/core"
 	"reflect"
 
 	"github.com/alitto/pond/v2"
+
+	compexec "orglang/go-engine/pool/compexec/core"
+	compstep "orglang/go-engine/pool/compstep/core"
 )
 
 type pondBroker struct {
-	api  API
+	api  compexec.API
 	pool pond.Pool
 	log  *slog.Logger
 }
@@ -19,17 +21,17 @@ func newPondBroker(pool pond.Pool, log *slog.Logger) *pondBroker {
 	return &pondBroker{nil, pool, log.With(name)}
 }
 
-func cfgPondBroker(broker Broker, api API) error {
+func cfgPondBroker(broker compexec.Broker, api compexec.API) error {
 	broker.Subscribe(api)
 	return nil
 }
 
 // for compilation purposes
-func newPondExch() Broker {
+func newPondExch() compexec.Broker {
 	return new(pondBroker)
 }
 
-func (b *pondBroker) Subscribe(api API) {
+func (b *pondBroker) Subscribe(api compexec.API) {
 	b.api = api
 }
 

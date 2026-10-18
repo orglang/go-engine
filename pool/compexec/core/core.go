@@ -1,4 +1,4 @@
-package compexec
+package core
 
 import (
 	"context"
@@ -33,6 +33,11 @@ type API interface {
 	Run(ExecSpec) (compsem.SemRef, error) // aka Create
 	Take(compstep.StepSpec) error
 	Spawn(compstep.StepSpec) (compsem.SemRef, error)
+}
+
+type Broker interface {
+	Subscribe(api API)
+	SendSpec(compstep.StepSpec) error
 }
 
 type ExecSpec struct {
@@ -100,7 +105,7 @@ func newAPI() API {
 	return new(service)
 }
 
-func newService(
+func NewService(
 	compExecRepo Repo,
 	compExecExch Broker,
 	compVarRepo compvar.Repo,
@@ -113,7 +118,7 @@ func newService(
 	compSemRepo compsem.Repo,
 	transactor db.Transactor,
 	log *slog.Logger,
-) *service {
+) API {
 	name := slog.String("name", reflect.TypeFor[service]().Name())
 	return &service{
 		compExecRepo, compExecExch, compVarRepo,

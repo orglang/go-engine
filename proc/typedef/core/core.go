@@ -80,7 +80,7 @@ func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 	}
 	newDef := DefRec{TypeRef: typesem.New(), ExpVK: newExp.Key()}
 	newDesc := descsem.SemRec{DescQN: spec.TypeQN, DescID: newDef.TypeRef.TypeID, Kind: descsem.TypeKind}
-	err = s.transactor.ExplicitTx(ctx, func(uow db.UoW) error {
+	err = s.transactor.ExplicitTxOld(ctx, func(uow db.UoW) error {
 		err = s.descSemRepo.AddRec(uow, newDesc)
 		if err != nil {
 			return err
@@ -107,7 +107,7 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 	refAttr := slog.Any("defRef", snap.TypeRef)
 	s.log.Debug("modification started", refAttr)
 	var rec DefRec
-	err = s.transactor.ImplicitTx(ctx, func(uow db.UoW) error {
+	err = s.transactor.ImplicitTxOld(ctx, func(uow db.UoW) error {
 		rec, err = s.typeDefRepo.GetRecByRef(uow, snap.TypeRef)
 		return err
 	})
@@ -125,7 +125,7 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 		s.log.Error("modification failed", refAttr)
 		return DefSnap{}, err
 	}
-	err = s.transactor.ExplicitTx(ctx, func(uow db.UoW) error {
+	err = s.transactor.ExplicitTxOld(ctx, func(uow db.UoW) error {
 		if typeexp.CheckSpec(snap.DefSpec.TypeExp, curSnap.DefSpec.TypeExp) != nil {
 			newExp, err := typeexp.ConvertSpecToRec(snap.DefSpec.TypeExp)
 			if err != nil {
@@ -157,7 +157,7 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 func (s *service) RetrieveSnap(ref typesem.SemRef) (_ DefSnap, err error) {
 	ctx := context.Background()
 	var rec DefRec
-	getErr := s.transactor.ImplicitTx(ctx, func(uow db.UoW) error {
+	getErr := s.transactor.ImplicitTxOld(ctx, func(uow db.UoW) error {
 		rec, err = s.typeDefRepo.GetRecByRef(uow, ref)
 		return err
 	})
@@ -171,7 +171,7 @@ func (s *service) RetrieveSnap(ref typesem.SemRef) (_ DefSnap, err error) {
 func (s *service) retrieveSnap(rec DefRec) (_ DefSnap, err error) { // revive:disable-line:confusing-naming
 	ctx := context.Background()
 	var expRec typeexp.ExpRec
-	err = s.transactor.ImplicitTx(ctx, func(uow db.UoW) error {
+	err = s.transactor.ImplicitTxOld(ctx, func(uow db.UoW) error {
 		expRec, err = s.typeExpRepo.SelectRecByVK(uow, rec.ExpVK)
 		return err
 	})
@@ -187,7 +187,7 @@ func (s *service) retrieveSnap(rec DefRec) (_ DefSnap, err error) { // revive:di
 
 func (s *service) RetreiveRefs() (refs []typesem.SemRef, err error) {
 	ctx := context.Background()
-	err = s.transactor.ImplicitTx(ctx, func(uow db.UoW) error {
+	err = s.transactor.ImplicitTxOld(ctx, func(uow db.UoW) error {
 		refs, err = s.typeDefRepo.GetRefs(uow)
 		return err
 	})

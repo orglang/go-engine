@@ -65,7 +65,7 @@ func (s *service) Create(spec DefSpec) (_ termsem.SemRef, err error) {
 		assetQNs = append(assetQNs, varSpec.TypeQN)
 	}
 	var typeDefs map[uniqsym.ADT]typedef.DefRec
-	getErr := s.transactor.ImplicitTx(ctx, func(uow db.UoW) error {
+	getErr := s.transactor.ImplicitTxOld(ctx, func(uow db.UoW) error {
 		typeDefs, err = s.typeDefRepo.GetRecsByQNs(uow, append(assetQNs, spec.LiabVar.TypeQN))
 		return err
 	})
@@ -87,7 +87,7 @@ func (s *service) Create(spec DefSpec) (_ termsem.SemRef, err error) {
 	}
 	newDef := DefRec{TermRef: termsem.New(), LiabVar: newLiabVar, AssetVars: newAssetVars}
 	newBind := descsem.SemRec{DescQN: spec.TermQN, DescID: newDef.TermRef.TermID, Kind: descsem.TermKind}
-	transactErr := s.transactor.ExplicitTx(ctx, func(uow db.UoW) error {
+	transactErr := s.transactor.ExplicitTxOld(ctx, func(uow db.UoW) error {
 		err = s.descSemRepo.AddRec(uow, newBind)
 		if err != nil {
 			return err

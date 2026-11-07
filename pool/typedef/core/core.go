@@ -68,7 +68,7 @@ func (s *service) Create(spec DefSpec) (_ typesem.SemRef, err error) {
 	}
 	newDef := DefRec{TypeRef: typesem.New(), ExpVK: newExp.Key()}
 	newBind := descsem.SemRec{DescQN: spec.TypeQN, DescID: newDef.TypeRef.TypeID, Kind: descsem.TypeKind}
-	transactErr := s.transactor.ExplicitTx(ctx, func(uow db.UoW) error {
+	transactErr := s.transactor.ExplicitTxOld(ctx, func(uow db.UoW) error {
 		err = s.descSemRepo.AddRec(uow, newBind)
 		if err != nil {
 			return err

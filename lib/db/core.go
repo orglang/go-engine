@@ -1,13 +1,12 @@
 package db
 
 import (
-	"context"
 	"fmt"
+
+	"go.uber.org/fx"
 
 	"orglang/go-engine/lib/db/adapter"
 	"orglang/go-engine/lib/tx"
-
-	"go.uber.org/fx"
 )
 
 // UoW is kept as an alias for source compatibility.

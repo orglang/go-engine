@@ -1,0 +1,19 @@
+version: "2"
+
+linters:
+  default: none
+  enable:
+    - depguard
+  settings:
+    depguard:
+      rules:
+        core-boundaries:
+          list-mode: regex
+          files:
+            - "**/core/**/*.go"
+            - "**/domain/**/*.go"
+          deny:
+            - pkg: "^orglang/go-engine/.*/(adapter|adapters)(/.*)?$"
+              desc: "Core and domain packages must not depend on concrete adapters; depend on a port instead."
+            - pkg: "^github\\.com/orglang/go-sdk(/.*)?$"
+              desc: "Core and domain packages must not depend on the wire-format SDK."

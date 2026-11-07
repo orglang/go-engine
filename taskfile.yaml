@@ -99,7 +99,7 @@ tasks:
         if: '{{eq .TOOL "staticcheck"}}'
       - cmd: go tool errcheck ./lib/... ./adt/... ./app/...
         if: '{{eq .TOOL "errcheck"}}'
-      - cmd: go run ./test/arch/cmd
+      - cmd: go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0 run --config=.golangci.yml ./...
         if: '{{eq .TOOL "arch"}}'
 
   generator:*:

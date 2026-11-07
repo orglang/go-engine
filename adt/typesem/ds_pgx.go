@@ -1,6 +1,7 @@
 package typesem
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -8,7 +9,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/tx"
 	"orglang/go-engine/lib/lf"
 
 	"orglang/go-engine/adt/uniqsym"
@@ -31,11 +32,11 @@ func newRepo() Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) TouchRef(uow db.UoW, ref SemRef) error {
+func (dao *daoPgx) TouchRef(ctx context.Context, conn tx.Conn, ref SemRef) error {
 	dto := DataFromRef(ref)
 	refAttr := slog.Any("ref", ref)
 	sql, args := dao.qb.updateRef(dto)
-	ct, execErr := uow.Pgx.Exec(uow.Ctx, sql, args...)
+	ct, execErr := conn.Pgx.Exec(ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
 		return execErr
@@ -44,12 +45,12 @@ func (dao *daoPgx) TouchRef(uow db.UoW, ref SemRef) error {
 		dao.log.Error("touching failed", refAttr)
 		return errConcurrentModification(ref)
 	}
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "touching succeed", refAttr)
+	dao.log.Log(ctx, lf.LevelTrace, "touching succeed", refAttr)
 	return nil
 }
 
-func (dao *daoPgx) GetRefsByQNs(uow db.UoW, typeQNs []uniqsym.ADT) (_ map[uniqsym.ADT]SemRef, err error) {
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "getting started", slog.Any("qns", typeQNs))
+func (dao *daoPgx) GetRefsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uniqsym.ADT) (_ map[uniqsym.ADT]SemRef, err error) {
+	dao.log.Log(ctx, lf.LevelTrace, "getting started", slog.Any("qns", typeQNs))
 	if len(typeQNs) == 0 {
 		return make(map[uniqsym.ADT]SemRef), nil
 	}
@@ -58,7 +59,7 @@ func (dao *daoPgx) GetRefsByQNs(uow db.UoW, typeQNs []uniqsym.ADT) (_ map[uniqsy
 		sql := dao.qb.selectRefByQN()
 		batch.Queue(sql, uniqsym.ConvertToString(typeQN))
 	}
-	br := uow.Pgx.SendBatch(uow.Ctx, &batch)
+	br := conn.Pgx.SendBatch(ctx, &batch)
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
@@ -77,7 +78,7 @@ func (dao *daoPgx) GetRefsByQNs(uow db.UoW, typeQNs []uniqsym.ADT) (_ map[uniqsy
 		}
 		dtos[typeQN] = dto
 	}
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "getting succeed", slog.Any("dtos", dtos))
+	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("dtos", dtos))
 	return DataToRefMap(dtos)
 }
 

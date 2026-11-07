@@ -6,7 +6,7 @@ import (
 	"iter"
 	"log/slog"
 
-	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/tx"
 
 	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/termsem"
@@ -50,7 +50,7 @@ type service struct {
 	termDecRepo Repo
 	typeDefRepo typedef.Repo
 	typeSemRepo typesem.Repo
-	transactor  db.Transactor
+	transactor  tx.Transactor
 	log         *slog.Logger
 }
 
@@ -63,7 +63,7 @@ func NewService(
 	termDecRepo Repo,
 	typeDefRepo typedef.Repo,
 	typeSemRepo typesem.Repo,
-	transactor db.Transactor,
+	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
 	return &service{termDecRepo, typeDefRepo, typeSemRepo, transactor, log}
@@ -74,8 +74,8 @@ func (s *service) Incept(termQN uniqsym.ADT) (_ termsem.SemRef, err error) {
 	qnAttr := slog.Any("qn", termQN)
 	s.log.Debug("inception started", qnAttr)
 	newDec := DecRec{TermRef: termsem.New(), TermQN: termQN}
-	err = s.transactor.ExplicitTxOld(ctx, func(uow db.UoW) error {
-		err = s.termDecRepo.AddRec(uow, newDec)
+	err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
+		err = s.termDecRepo.AddRec(txCtx, conn, newDec)
 		if err != nil {
 			return err
 		}
@@ -98,8 +98,8 @@ func (s *service) Create(spec DecSpec) (_ DecSnap, err error) {
 		assetQNs = append(assetQNs, spec.TypeQN)
 	}
 	var typeRefs map[uniqsym.ADT]typesem.SemRef
-	getErr := s.transactor.ImplicitTxOld(ctx, func(uow db.UoW) error {
-		typeRefs, err = s.typeSemRepo.GetRefsByQNs(uow, append(assetQNs, spec.LiabVar.TypeQN))
+	getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
+		typeRefs, err = s.typeSemRepo.GetRefsByQNs(txCtx, conn, append(assetQNs, spec.LiabVar.TypeQN))
 		return err
 	})
 	if getErr != nil {
@@ -117,8 +117,8 @@ func (s *service) Create(spec DecSpec) (_ DecSnap, err error) {
 		})
 	}
 	newDec := DecRec{TermRef: termsem.New(), TermQN: spec.TermQN, LiabVar: newLiabVar, AssetVars: newAssetVars}
-	transactErr := s.transactor.ExplicitTxOld(ctx, func(uow db.UoW) error {
-		return s.termDecRepo.AddRec(uow, newDec)
+	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
+		return s.termDecRepo.AddRec(txCtx, conn, newDec)
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", qnAttr)
@@ -130,8 +130,8 @@ func (s *service) Create(spec DecSpec) (_ DecSnap, err error) {
 
 func (s *service) RetrieveSnap(ref termsem.SemRef) (snap DecSnap, err error) {
 	ctx := context.Background()
-	err = s.transactor.ImplicitTxOld(ctx, func(uow db.UoW) error {
-		snap, err = s.termDecRepo.GetSnap(uow, ref)
+	err = s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
+		snap, err = s.termDecRepo.GetSnap(txCtx, conn, ref)
 		return err
 	})
 	if err != nil {
@@ -143,8 +143,8 @@ func (s *service) RetrieveSnap(ref termsem.SemRef) (snap DecSnap, err error) {
 
 func (s *service) RetreiveRefs() (refs []termsem.SemRef, err error) {
 	ctx := context.Background()
-	err = s.transactor.ImplicitTxOld(ctx, func(uow db.UoW) error {
-		refs, err = s.termDecRepo.GetRefs(uow)
+	err = s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
+		refs, err = s.termDecRepo.GetRefs(txCtx, conn)
 		return err
 	})
 	if err != nil {

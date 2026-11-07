@@ -1,11 +1,12 @@
 package adapter
 
 import (
+	"context"
 	"errors"
 	"log/slog"
 	"reflect"
 
-	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/tx"
 	"orglang/go-engine/lib/lf"
 
 	"github.com/jackc/pgx/v5"
@@ -28,19 +29,19 @@ func newRepo() commturn.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRec(db.UoW, commturn.TurnRec) error {
+func (dao *daoPgx) AddRec(context.Context, tx.Conn, commturn.TurnRec) error {
 	panic("unimplemented")
 }
 
-func (dao *daoPgx) AddRecs(uow db.UoW, recs []commturn.TurnRec) (err error) {
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "insertion started", slog.Any("recs", recs))
+func (dao *daoPgx) AddRecs(ctx context.Context, conn tx.Conn, recs []commturn.TurnRec) (err error) {
+	dao.log.Log(ctx, lf.LevelTrace, "insertion started", slog.Any("recs", recs))
 	batch := pgx.Batch{}
 	for _, rec := range recs {
 		dto := DataFromStepRec(rec)
 		sql, args := dao.qb.InsertRec(dto)
 		batch.Queue(sql, args...)
 	}
-	br := uow.Pgx.SendBatch(uow.Ctx, &batch)
+	br := conn.Pgx.SendBatch(ctx, &batch)
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
@@ -51,6 +52,6 @@ func (dao *daoPgx) AddRecs(uow db.UoW, recs []commturn.TurnRec) (err error) {
 			return readErr
 		}
 	}
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "insertion succeed")
+	dao.log.Log(ctx, lf.LevelTrace, "insertion succeed")
 	return nil
 }

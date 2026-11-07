@@ -1,16 +1,17 @@
 package core
 
 import (
-	"orglang/go-engine/lib/db"
+	"context"
+	"orglang/go-engine/lib/tx"
 
 	"orglang/go-engine/adt/valkey"
 )
 
 type Repo interface {
-	AddRec(db.UoW, ExpRec) error
-	SelectRecByVK(db.UoW, valkey.ADT) (ExpRec, error)
-	SelectRecsByVKs(db.UoW, []valkey.ADT) ([]ExpRec, error)
-	SelectEnv(db.UoW, []valkey.ADT) (map[valkey.ADT]ExpRec, error)
+	AddRec(context.Context, tx.Conn, ExpRec) error
+	SelectRecByVK(context.Context, tx.Conn, valkey.ADT) (ExpRec, error)
+	SelectRecsByVKs(context.Context, tx.Conn, []valkey.ADT) ([]ExpRec, error)
+	SelectEnv(context.Context, tx.Conn, []valkey.ADT) (map[valkey.ADT]ExpRec, error)
 }
 
 type ExpKindDS int

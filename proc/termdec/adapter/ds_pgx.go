@@ -1,13 +1,14 @@
 package adapter
 
 import (
+	"context"
 	"errors"
 	"log/slog"
 	"reflect"
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/tx"
 	"orglang/go-engine/lib/lf"
 
 	"orglang/go-engine/adt/identity"
@@ -31,7 +32,7 @@ func newRepo() termdec.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRec(uow db.UoW, rec termdec.DecRec) error {
+func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec termdec.DecRec) error {
 	refAttr := slog.Any("ref", rec.TermRef)
 	dto, err := DataFromDecRec(rec)
 	if err != nil {
@@ -39,7 +40,7 @@ func (dao *daoPgx) AddRec(uow db.UoW, rec termdec.DecRec) error {
 		return err
 	}
 	sql, args := dao.qb.InsertRec(dto)
-	_, err = uow.Pgx.Exec(uow.Ctx, sql, args...)
+	_, err = conn.Pgx.Exec(ctx, sql, args...)
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
 		return err
@@ -47,9 +48,9 @@ func (dao *daoPgx) AddRec(uow db.UoW, rec termdec.DecRec) error {
 	return nil
 }
 
-func (dao *daoPgx) GetSnap(uow db.UoW, ref termsem.SemRef) (termdec.DecSnap, error) {
+func (dao *daoPgx) GetSnap(ctx context.Context, conn tx.Conn, ref termsem.SemRef) (termdec.DecSnap, error) {
 	refAttr := slog.Any("ref", ref)
-	rows, err := uow.Pgx.Query(uow.Ctx, selectByRef, ref.TermID.String())
+	rows, err := conn.Pgx.Query(ctx, selectByRef, ref.TermID.String())
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)
 		return termdec.DecSnap{}, err
@@ -60,12 +61,12 @@ func (dao *daoPgx) GetSnap(uow db.UoW, ref termsem.SemRef) (termdec.DecSnap, err
 		dao.log.Error("row scanning failed", refAttr)
 		return termdec.DecSnap{}, err
 	}
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "entitiy selection succeed", slog.Any("dto", dto))
+	dao.log.Log(ctx, lf.LevelTrace, "entitiy selection succeed", slog.Any("dto", dto))
 	return DataToDecSnap(dto)
 }
 
-func (dao *daoPgx) SelectEnv(uow db.UoW, ids []identity.ADT) (map[identity.ADT]termdec.DecRec, error) {
-	decs, err := dao.GetRecs(uow, ids)
+func (dao *daoPgx) SelectEnv(ctx context.Context, conn tx.Conn, ids []identity.ADT) (map[identity.ADT]termdec.DecRec, error) {
+	decs, err := dao.GetRecs(ctx, conn, ids)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +77,7 @@ func (dao *daoPgx) SelectEnv(uow db.UoW, ids []identity.ADT) (map[identity.ADT]t
 	return env, nil
 }
 
-func (dao *daoPgx) GetRecs(uow db.UoW, ids []identity.ADT) (_ []termdec.DecRec, err error) {
+func (dao *daoPgx) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT) (_ []termdec.DecRec, err error) {
 	if len(ids) == 0 {
 		return []termdec.DecRec{}, nil
 	}
@@ -87,7 +88,7 @@ func (dao *daoPgx) GetRecs(uow db.UoW, ids []identity.ADT) (_ []termdec.DecRec, 
 		}
 		batch.Queue(selectByRef, rid.String())
 	}
-	br := uow.Pgx.SendBatch(uow.Ctx, &batch)
+	br := conn.Pgx.SendBatch(ctx, &batch)
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
@@ -106,16 +107,16 @@ func (dao *daoPgx) GetRecs(uow db.UoW, ids []identity.ADT) (_ []termdec.DecRec, 
 	if err != nil {
 		return nil, err
 	}
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "selection succeed", slog.Any("dtos", dtos))
+	dao.log.Log(ctx, lf.LevelTrace, "selection succeed", slog.Any("dtos", dtos))
 	return DataToDecRecs(dtos)
 }
 
-func (dao *daoPgx) GetRefs(uow db.UoW) ([]termsem.SemRef, error) {
+func (dao *daoPgx) GetRefs(ctx context.Context, conn tx.Conn) ([]termsem.SemRef, error) {
 	query := `
 		select
 			desc_id, rev, title
 		from dec_roots`
-	rows, err := uow.Pgx.Query(uow.Ctx, query)
+	rows, err := conn.Pgx.Query(ctx, query)
 	if err != nil {
 		dao.log.Error("query execution failed")
 		return nil, err

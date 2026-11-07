@@ -1,13 +1,14 @@
 package adapter
 
 import (
+	"context"
 	"errors"
 	"log/slog"
 	"reflect"
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/tx"
 	"orglang/go-engine/lib/lf"
 
 	"orglang/go-engine/adt/identity"
@@ -29,7 +30,7 @@ func NewDaoPgx(l *slog.Logger) commturn.Repo {
 	return &daoPgx{l.With(name)}
 }
 
-func (dao *daoPgx) InsertRecs(uow db.UoW, recs ...commturn.TurnRec) error {
+func (dao *daoPgx) InsertRecs(ctx context.Context, conn tx.Conn, recs ...commturn.TurnRec) error {
 	dtos, err := DataFromStepRecs(recs)
 	if err != nil {
 		dao.log.Error("conversion failed")
@@ -45,7 +46,7 @@ func (dao *daoPgx) InsertRecs(uow db.UoW, recs ...commturn.TurnRec) error {
 		}
 		batch.Queue(insertStep, args)
 	}
-	br := uow.Pgx.SendBatch(uow.Ctx, &batch)
+	br := conn.Pgx.SendBatch(ctx, &batch)
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
@@ -61,17 +62,17 @@ func (dao *daoPgx) InsertRecs(uow db.UoW, recs ...commturn.TurnRec) error {
 	return nil
 }
 
-func (dao *daoPgx) SelectRecs(uow db.UoW, rid identity.ADT) (commturn.TurnRec, error) {
+func (dao *daoPgx) SelectRecs(ctx context.Context, conn tx.Conn, rid identity.ADT) (commturn.TurnRec, error) {
 	query := `
 		select
 			id, kind, pid, vid, spec
 		from steps
 		WHERE id = $1`
-	return dao.execute(uow, query, rid.String())
+	return dao.execute(ctx, conn, query, rid.String())
 }
 
-func (dao *daoPgx) execute(uow db.UoW, query string, arg string) (commturn.TurnRec, error) {
-	rows, err := uow.Pgx.Query(uow.Ctx, query, arg)
+func (dao *daoPgx) execute(ctx context.Context, conn tx.Conn, query string, arg string) (commturn.TurnRec, error) {
+	rows, err := conn.Pgx.Query(ctx, query, arg)
 	if err != nil {
 		dao.log.Error("query execution failed", slog.String("q", query))
 		return nil, err
@@ -90,7 +91,7 @@ func (dao *daoPgx) execute(uow db.UoW, query string, arg string) (commturn.TurnR
 		dao.log.Error("model conversion failed")
 		return nil, err
 	}
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "entity selection succeed", slog.Any("root", root))
+	dao.log.Log(ctx, lf.LevelTrace, "entity selection succeed", slog.Any("root", root))
 	return root, nil
 }
 

@@ -1,14 +1,15 @@
 package typesem
 
 import (
-	"orglang/go-engine/lib/db"
+	"context"
+	"orglang/go-engine/lib/tx"
 
 	"orglang/go-engine/adt/uniqsym"
 )
 
 type Repo interface {
-	TouchRef(db.UoW, SemRef) error
-	GetRefsByQNs(db.UoW, []uniqsym.ADT) (map[uniqsym.ADT]SemRef, error)
+	TouchRef(context.Context, tx.Conn, SemRef) error
+	GetRefsByQNs(context.Context, tx.Conn, []uniqsym.ADT) (map[uniqsym.ADT]SemRef, error)
 }
 
 type SemRefDS struct {

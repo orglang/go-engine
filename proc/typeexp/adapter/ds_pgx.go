@@ -1,13 +1,14 @@
 package adapter
 
 import (
+	"context"
 	"errors"
 	"log/slog"
 	"reflect"
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/tx"
 	"orglang/go-engine/lib/lf"
 
 	"orglang/go-engine/adt/valkey"
@@ -31,7 +32,7 @@ func newRepo() typeexp.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRec(uow db.UoW, rec typeexp.ExpRec) (err error) {
+func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec typeexp.ExpRec) (err error) {
 	vkAttr := slog.Any("expVK", rec.Key())
 	dto := dataFromExpRec(rec)
 	batch := pgx.Batch{}
@@ -39,7 +40,7 @@ func (dao *daoPgx) AddRec(uow db.UoW, rec typeexp.ExpRec) (err error) {
 		sql, args := dao.qb.InsertRec(st)
 		batch.Queue(sql, args...)
 	}
-	br := uow.Pgx.SendBatch(uow.Ctx, &batch)
+	br := conn.Pgx.SendBatch(ctx, &batch)
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
@@ -53,9 +54,9 @@ func (dao *daoPgx) AddRec(uow db.UoW, rec typeexp.ExpRec) (err error) {
 	return nil
 }
 
-func (dao *daoPgx) SelectRecByVK(uow db.UoW, expVK valkey.ADT) (typeexp.ExpRec, error) {
+func (dao *daoPgx) SelectRecByVK(ctx context.Context, conn tx.Conn, expVK valkey.ADT) (typeexp.ExpRec, error) {
 	vkAttr := slog.Any("expVK", expVK)
-	rows, queryErr := uow.Pgx.Query(uow.Ctx, selectByID, valkey.ConvertToInt(expVK))
+	rows, queryErr := conn.Pgx.Query(ctx, selectByID, valkey.ConvertToInt(expVK))
 	if queryErr != nil {
 		dao.log.Error("query execution failed", vkAttr)
 		return nil, queryErr
@@ -70,7 +71,7 @@ func (dao *daoPgx) SelectRecByVK(uow db.UoW, expVK valkey.ADT) (typeexp.ExpRec, 
 		dao.log.Error("entity selection failed", vkAttr)
 		return nil, errors.New("no rows selected")
 	}
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "entity selection succeed", slog.Any("dtos", dtos))
+	dao.log.Log(ctx, lf.LevelTrace, "entity selection succeed", slog.Any("dtos", dtos))
 	states := make(map[int64]typeexp.StateDS, len(dtos))
 	for _, dto := range dtos {
 		states[dto.ExpVK] = dto
@@ -78,8 +79,8 @@ func (dao *daoPgx) SelectRecByVK(uow db.UoW, expVK valkey.ADT) (typeexp.ExpRec, 
 	return statesToExpRec(states, states[valkey.ConvertToInt(expVK)])
 }
 
-func (dao *daoPgx) SelectEnv(uow db.UoW, expVKs []valkey.ADT) (map[valkey.ADT]typeexp.ExpRec, error) {
-	recs, err := dao.SelectRecsByVKs(uow, expVKs)
+func (dao *daoPgx) SelectEnv(ctx context.Context, conn tx.Conn, expVKs []valkey.ADT) (map[valkey.ADT]typeexp.ExpRec, error) {
+	recs, err := dao.SelectRecsByVKs(ctx, conn, expVKs)
 	if err != nil {
 		return nil, err
 	}
@@ -90,12 +91,12 @@ func (dao *daoPgx) SelectEnv(uow db.UoW, expVKs []valkey.ADT) (map[valkey.ADT]ty
 	return env, nil
 }
 
-func (dao *daoPgx) SelectRecsByVKs(uow db.UoW, expVKs []valkey.ADT) (_ []typeexp.ExpRec, err error) {
+func (dao *daoPgx) SelectRecsByVKs(ctx context.Context, conn tx.Conn, expVKs []valkey.ADT) (_ []typeexp.ExpRec, err error) {
 	batch := pgx.Batch{}
 	for _, expVK := range expVKs {
 		batch.Queue(selectByID, valkey.ConvertToInt(expVK))
 	}
-	br := uow.Pgx.SendBatch(uow.Ctx, &batch)
+	br := conn.Pgx.SendBatch(ctx, &batch)
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
@@ -121,7 +122,7 @@ func (dao *daoPgx) SelectRecsByVKs(uow db.UoW, expVKs []valkey.ADT) (_ []typeexp
 		}
 		recs = append(recs, rec)
 	}
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "entities selection succeed", slog.Any("recs", recs))
+	dao.log.Log(ctx, lf.LevelTrace, "entities selection succeed", slog.Any("recs", recs))
 	return recs, err
 }
 

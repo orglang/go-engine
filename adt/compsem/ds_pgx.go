@@ -1,11 +1,12 @@
 package compsem
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"reflect"
 
-	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/tx"
 	"orglang/go-engine/lib/lf"
 )
 
@@ -26,11 +27,11 @@ func newRepo() Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) TouchRef(uow db.UoW, ref SemRef) error {
+func (dao *daoPgx) TouchRef(ctx context.Context, conn tx.Conn, ref SemRef) error {
 	dto := DataFromRef(ref)
 	refAttr := slog.Any("ref", ref)
 	sql, args := dao.qb.updateRef(dto)
-	ct, execErr := uow.Pgx.Exec(uow.Ctx, sql, args...)
+	ct, execErr := conn.Pgx.Exec(ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
 		return execErr
@@ -39,7 +40,7 @@ func (dao *daoPgx) TouchRef(uow db.UoW, ref SemRef) error {
 		dao.log.Error("touching failed", refAttr)
 		return errConcurrentModification(ref)
 	}
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "touching succeed", refAttr)
+	dao.log.Log(ctx, lf.LevelTrace, "touching succeed", refAttr)
 	return nil
 }
 

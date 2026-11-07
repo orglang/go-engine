@@ -1,11 +1,12 @@
 package implsem
 
 import (
-	"orglang/go-engine/lib/db"
+	"context"
+	"orglang/go-engine/lib/tx"
 )
 
 type Repo interface {
-	AddRec(db.UoW, SemRec) error
+	AddRec(context.Context, tx.Conn, SemRec) error
 }
 
 type SemRecDS struct {

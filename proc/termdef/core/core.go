@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/tx"
 
 	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/symbol"
@@ -33,7 +33,7 @@ type DefSnap struct {
 
 type service struct {
 	procDefs   Repo
-	transactor db.Transactor
+	transactor tx.Transactor
 	log        *slog.Logger
 }
 
@@ -44,7 +44,7 @@ func newAPI() API {
 
 func NewService(
 	procs Repo,
-	transactor db.Transactor,
+	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
 	return &service{procs, transactor, log}

@@ -1,20 +1,21 @@
 package core
 
 import (
-	"orglang/go-engine/lib/db"
+	"context"
+	"orglang/go-engine/lib/tx"
 
 	"orglang/go-engine/adt/typesem"
 	"orglang/go-engine/adt/uniqsym"
 )
 
 type Repo interface {
-	AddRec(db.UoW, DefRec) error
-	Update(db.UoW, DefRec) error
-	SelectRefs(db.UoW) ([]typesem.SemRef, error)
-	SelectRecByRef(db.UoW, typesem.SemRef) (DefRec, error)
-	SelectRecsByRefs(db.UoW, []typesem.SemRef) ([]DefRec, error)
-	SelectRecByQN(db.UoW, uniqsym.ADT) (DefRec, error)
-	GetRecsByQNs(db.UoW, []uniqsym.ADT) (map[uniqsym.ADT]DefRec, error)
+	AddRec(context.Context, tx.Conn, DefRec) error
+	Update(context.Context, tx.Conn, DefRec) error
+	SelectRefs(context.Context, tx.Conn) ([]typesem.SemRef, error)
+	SelectRecByRef(context.Context, tx.Conn, typesem.SemRef) (DefRec, error)
+	SelectRecsByRefs(context.Context, tx.Conn, []typesem.SemRef) ([]DefRec, error)
+	SelectRecByQN(context.Context, tx.Conn, uniqsym.ADT) (DefRec, error)
+	GetRecsByQNs(context.Context, tx.Conn, []uniqsym.ADT) (map[uniqsym.ADT]DefRec, error)
 }
 
 type DefRecDS struct {

@@ -1,6 +1,7 @@
 package adapter
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -8,7 +9,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/tx"
 	"orglang/go-engine/lib/lf"
 
 	"orglang/go-engine/adt/compsem"
@@ -34,22 +35,22 @@ func newDaoPgx(qb compexec.QueryBuilder, log *slog.Logger) *daoPgx {
 	return &daoPgx{qb, log.With(name)}
 }
 
-func (dao *daoPgx) AddRec(uow db.UoW, rec compexec.ExecRec) error {
+func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec compexec.ExecRec) error {
 	dto := DataFromExecRec(rec)
 	refAttr := slog.Any("ref", rec.CompRef)
 	sql, args := dao.qb.InsertRec(dto)
-	_, execErr := uow.Pgx.Exec(uow.Ctx, sql, args...)
+	_, execErr := conn.Pgx.Exec(ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
 		return execErr
 	}
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "insertion succeed", slog.Any("dto", dto))
+	dao.log.Log(ctx, lf.LevelTrace, "insertion succeed", slog.Any("dto", dto))
 	return nil
 }
 
-func (dao *daoPgx) GetSnapByRef(uow db.UoW, ref compsem.SemRef) (compexec.ExecSnap, error) {
+func (dao *daoPgx) GetSnapByRef(ctx context.Context, conn tx.Conn, ref compsem.SemRef) (compexec.ExecSnap, error) {
 	refAttr := slog.Any("ref", ref)
-	chnlRows, err := uow.Pgx.Query(uow.Ctx, selectChnls, ref.CompID.String())
+	chnlRows, err := conn.Pgx.Query(ctx, selectChnls, ref.CompID.String())
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)
 		return compexec.ExecSnap{}, err
@@ -71,7 +72,7 @@ func (dao *daoPgx) GetSnapByRef(uow db.UoW, ref compsem.SemRef) (compexec.ExecSn
 	}, nil
 }
 
-func (dao *daoPgx) ModifyRec(uow db.UoW, mod compexec.ExecMod) (err error) {
+func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod compexec.ExecMod) (err error) {
 	if len(mod.CompRefs) == 0 {
 		panic("empty locks")
 	}
@@ -92,7 +93,7 @@ func (dao *daoPgx) ModifyRec(uow db.UoW, mod compexec.ExecMod) (err error) {
 		bindReq.Queue(insertBind, args)
 	}
 	if bindReq.Len() > 0 {
-		bindRes := uow.Pgx.SendBatch(uow.Ctx, &bindReq)
+		bindRes := conn.Pgx.SendBatch(ctx, &bindReq)
 		defer func() {
 			err = errors.Join(err, bindRes.Close())
 		}()
@@ -115,7 +116,7 @@ func (dao *daoPgx) ModifyRec(uow db.UoW, mod compexec.ExecMod) (err error) {
 		}
 		execReq.Queue(updateExec, args)
 	}
-	execRes := uow.Pgx.SendBatch(uow.Ctx, &execReq)
+	execRes := conn.Pgx.SendBatch(ctx, &execReq)
 	defer func() {
 		err = errors.Join(err, execRes.Close())
 	}()

@@ -46,13 +46,25 @@ func (t *transactorPgx) ExplicitTx(ctx context.Context, fn func(context.Context,
 		return err
 	}
 
+	finished := false
+	defer func() {
+		if !finished {
+			_ = pgxTx.Rollback(context.WithoutCancel(ctx))
+		}
+	}()
+
 	callbackErr := fn(txCtx, tx.Conn{Pgx: pgxTx})
 	if callbackErr != nil {
-		return errors.Join(callbackErr, pgxTx.Rollback(ctx))
+		rollbackErr := pgxTx.Rollback(context.WithoutCancel(ctx))
+		finished = true
+		return errors.Join(callbackErr, rollbackErr)
 	}
 	if err := pgxTx.Commit(ctx); err != nil {
-		return errors.Join(err, pgxTx.Rollback(ctx))
+		rollbackErr := pgxTx.Rollback(context.WithoutCancel(ctx))
+		finished = true
+		return errors.Join(err, rollbackErr)
 	}
+	finished = true
 	return nil
 }
 
@@ -96,4 +108,7 @@ func (t *transactorPgx) ImplicitTxOld(ctx context.Context, fn func(tx.UoW) error
 
 // Compile-time assertion that the concrete driver transaction satisfies the
 // minimal interface used by Conn.
-var _ tx.Pgx = (pgx.Tx)(nil)
+var (
+	_ tx.Pgx = (pgx.Tx)(nil)
+	_ tx.Pgx = (*pgxpool.Conn)(nil)
+)

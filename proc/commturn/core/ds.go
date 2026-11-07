@@ -1,15 +1,16 @@
 package core
 
 import (
+	"context"
 	"database/sql"
 
-	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/tx"
 
 	termexp "orglang/go-engine/proc/termexp/core"
 )
 
 type Repo interface {
-	InsertRecs(db.UoW, ...TurnRec) error
+	InsertRecs(context.Context, tx.Conn, ...TurnRec) error
 }
 
 type StepRecDS struct {

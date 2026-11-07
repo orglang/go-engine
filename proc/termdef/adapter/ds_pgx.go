@@ -1,10 +1,11 @@
 package adapter
 
 import (
+	"context"
 	"log/slog"
 	"reflect"
 
-	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/tx"
 
 	termdef "orglang/go-engine/proc/termdef/core"
 )
@@ -24,6 +25,6 @@ func NewDaoPgx(l *slog.Logger) termdef.Repo {
 	return &daoPgx{l.With(name)}
 }
 
-func (dao *daoPgx) InsertProc(db.UoW, termdef.DefRec) error {
+func (dao *daoPgx) InsertProc(context.Context, tx.Conn, termdef.DefRec) error {
 	return nil
 }

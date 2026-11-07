@@ -1,14 +1,15 @@
 package core
 
 import (
-	"orglang/go-engine/lib/db"
+	"context"
+	"orglang/go-engine/lib/tx"
 
 	termexp "orglang/go-engine/pool/termexp/core"
 )
 
 type Repo interface {
-	AddRec(db.UoW, TurnRec) error
-	AddRecs(db.UoW, []TurnRec) error
+	AddRec(context.Context, tx.Conn, TurnRec) error
+	AddRecs(context.Context, tx.Conn, []TurnRec) error
 }
 
 type TurnRecDS struct {

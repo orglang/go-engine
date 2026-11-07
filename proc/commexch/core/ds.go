@@ -1,15 +1,16 @@
 package core
 
 import (
-	"orglang/go-engine/lib/db"
+	"context"
+	"orglang/go-engine/lib/tx"
 
 	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/uniqsym"
 )
 
 type Repo interface {
-	AddRec(db.UoW, ExchRec) error
-	Modifyec(db.UoW, ExchMod) error
-	GetRefsByQNs(db.UoW, []uniqsym.ADT) (map[uniqsym.ADT]commsem.SemRef, error)
-	GetSnapByQry(db.UoW, ExchQry) (ExchSnap, error)
+	AddRec(context.Context, tx.Conn, ExchRec) error
+	Modifyec(context.Context, tx.Conn, ExchMod) error
+	GetRefsByQNs(context.Context, tx.Conn, []uniqsym.ADT) (map[uniqsym.ADT]commsem.SemRef, error)
+	GetSnapByQry(context.Context, tx.Conn, ExchQry) (ExchSnap, error)
 }

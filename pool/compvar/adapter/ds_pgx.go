@@ -1,14 +1,15 @@
 package adapter
 
 import (
+	"context"
 	"errors"
 	"log/slog"
 	"reflect"
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/lib/db"
 	"orglang/go-engine/lib/lf"
+	"orglang/go-engine/lib/tx"
 
 	adtcompvar "orglang/go-engine/adt/compvar"
 
@@ -30,14 +31,14 @@ func newRepo() compvar.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRecs(uow db.UoW, recs []adtcompvar.VarRec) (err error) {
+func (dao *daoPgx) AddRecs(ctx context.Context, conn tx.Conn, recs []adtcompvar.VarRec) (err error) {
 	batch := pgx.Batch{}
 	for _, rec := range recs {
 		dto := adtcompvar.DataFromVarRec(rec)
 		sql, args := dao.qb.InsertRec(getTableName(rec), dto)
 		batch.Queue(sql, args...)
 	}
-	br := uow.Pgx.SendBatch(uow.Ctx, &batch)
+	br := conn.Pgx.SendBatch(ctx, &batch)
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
@@ -48,7 +49,7 @@ func (dao *daoPgx) AddRecs(uow db.UoW, recs []adtcompvar.VarRec) (err error) {
 			return readErr
 		}
 	}
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "insertion succeed")
+	dao.log.Log(ctx, lf.LevelTrace, "insertion succeed")
 	return nil
 }
 

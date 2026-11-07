@@ -1,14 +1,15 @@
 package adapter
 
 import (
+	"context"
 	"errors"
 	"log/slog"
 	"reflect"
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/lib/db"
 	"orglang/go-engine/lib/lf"
+	"orglang/go-engine/lib/tx"
 
 	"orglang/go-engine/adt/symbol"
 	"orglang/go-engine/adt/typesem"
@@ -33,7 +34,7 @@ func newRepo() typeexp.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRec(uow db.UoW, rec typeexp.ExpRec, ref typesem.SemRef) (err error) {
+func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec typeexp.ExpRec, ref typesem.SemRef) (err error) {
 	vkAttr := slog.Any("vk", rec.Key())
 	dto := dataFromExpRec(rec)
 	batch := pgx.Batch{}
@@ -41,7 +42,7 @@ func (dao *daoPgx) AddRec(uow db.UoW, rec typeexp.ExpRec, ref typesem.SemRef) (e
 		sql, args := dao.qb.InsertRec(st)
 		batch.Queue(sql, args...)
 	}
-	br := uow.Pgx.SendBatch(uow.Ctx, &batch)
+	br := conn.Pgx.SendBatch(ctx, &batch)
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
@@ -55,10 +56,10 @@ func (dao *daoPgx) AddRec(uow db.UoW, rec typeexp.ExpRec, ref typesem.SemRef) (e
 	return nil
 }
 
-func (dao *daoPgx) GetRecByVK(uow db.UoW, expVK valkey.ADT) (typeexp.ExpRec, error) {
+func (dao *daoPgx) GetRecByVK(ctx context.Context, conn tx.Conn, expVK valkey.ADT) (typeexp.ExpRec, error) {
 	vkAttr := slog.Any("vk", expVK)
 	sql := dao.qb.SelectRecByVK()
-	rows, err := uow.Pgx.Query(uow.Ctx, sql, valkey.ConvertToInt(expVK))
+	rows, err := conn.Pgx.Query(ctx, sql, valkey.ConvertToInt(expVK))
 	if err != nil {
 		dao.log.Error("query execution failed", vkAttr, slog.String("sql", sql))
 		return nil, err
@@ -73,7 +74,7 @@ func (dao *daoPgx) GetRecByVK(uow db.UoW, expVK valkey.ADT) (typeexp.ExpRec, err
 		dao.log.Error("selection failed", vkAttr)
 		return nil, errors.New("no rows selected")
 	}
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "selection succeed", slog.Any("dtos", dtos))
+	dao.log.Log(ctx, lf.LevelTrace, "selection succeed", slog.Any("dtos", dtos))
 	states := make(map[int64]typeexp.StateDS, len(dtos))
 	for _, dto := range dtos {
 		states[dto.ExpVK] = dto
@@ -81,13 +82,13 @@ func (dao *daoPgx) GetRecByVK(uow db.UoW, expVK valkey.ADT) (typeexp.ExpRec, err
 	return statesToExpRec(states, states[valkey.ConvertToInt(expVK)])
 }
 
-func (dao *daoPgx) GetRecsByVKs(uow db.UoW, expVKs []valkey.ADT) (_ []typeexp.ExpRec, err error) {
+func (dao *daoPgx) GetRecsByVKs(ctx context.Context, conn tx.Conn, expVKs []valkey.ADT) (_ []typeexp.ExpRec, err error) {
 	batch := pgx.Batch{}
 	sql := dao.qb.SelectRecByVK()
 	for _, expVK := range expVKs {
 		batch.Queue(sql, valkey.ConvertToInt(expVK))
 	}
-	br := uow.Pgx.SendBatch(uow.Ctx, &batch)
+	br := conn.Pgx.SendBatch(ctx, &batch)
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
@@ -115,17 +116,17 @@ func (dao *daoPgx) GetRecsByVKs(uow db.UoW, expVKs []valkey.ADT) (_ []typeexp.Ex
 		}
 		recs = append(recs, rec)
 	}
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "selection succeed", slog.Any("recs", recs))
+	dao.log.Log(ctx, lf.LevelTrace, "selection succeed", slog.Any("recs", recs))
 	return recs, err
 }
 
-func (dao *daoPgx) GetRecMap(uow db.UoW, expVKs map[symbol.ADT]valkey.ADT) (_ map[symbol.ADT]typeexp.ExpRec, err error) {
+func (dao *daoPgx) GetRecMap(ctx context.Context, conn tx.Conn, expVKs map[symbol.ADT]valkey.ADT) (_ map[symbol.ADT]typeexp.ExpRec, err error) {
 	batch := pgx.Batch{}
 	sql := dao.qb.SelectRecByVK()
 	for _, expVK := range expVKs {
 		batch.Queue(sql, valkey.ConvertToInt(expVK))
 	}
-	br := uow.Pgx.SendBatch(uow.Ctx, &batch)
+	br := conn.Pgx.SendBatch(ctx, &batch)
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
@@ -142,7 +143,7 @@ func (dao *daoPgx) GetRecMap(uow db.UoW, expVKs map[symbol.ADT]valkey.ADT) (_ ma
 			dao.log.Error("rows scanning failed", vkAttr)
 			return nil, scanErr
 		}
-		dao.log.Log(uow.Ctx, lf.LevelTrace, "selection succeed", slog.Any("dtos", dtos))
+		dao.log.Log(ctx, lf.LevelTrace, "selection succeed", slog.Any("dtos", dtos))
 		if len(dtos) == 0 {
 			dao.log.Error("selection failed", vkAttr)
 			return nil, typeexp.ErrDoesNotExist(expVK)
@@ -154,6 +155,6 @@ func (dao *daoPgx) GetRecMap(uow db.UoW, expVKs map[symbol.ADT]valkey.ADT) (_ ma
 		}
 		recs[expPH] = rec
 	}
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "getting succeed", slog.Any("recs", recs))
+	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("recs", recs))
 	return recs, err
 }

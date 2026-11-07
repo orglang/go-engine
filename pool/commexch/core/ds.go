@@ -1,8 +1,9 @@
 package core
 
 import (
+	"context"
 	"database/sql"
-	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/tx"
 
 	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/uniqsym"
@@ -10,10 +11,10 @@ import (
 )
 
 type Repo interface {
-	AddRec(db.UoW, ExchRec) error
-	ModifyRec(db.UoW, ExchMod) error
-	GetRefsByQNs(db.UoW, []uniqsym.ADT) (map[uniqsym.ADT]commsem.SemRef, error)
-	GetSnapByQry(db.UoW, ExchQry) (ExchSnap, error)
+	AddRec(context.Context, tx.Conn, ExchRec) error
+	ModifyRec(context.Context, tx.Conn, ExchMod) error
+	GetRefsByQNs(context.Context, tx.Conn, []uniqsym.ADT) (map[uniqsym.ADT]commsem.SemRef, error)
+	GetSnapByQry(context.Context, tx.Conn, ExchQry) (ExchSnap, error)
 }
 
 type ExchRecDS struct {

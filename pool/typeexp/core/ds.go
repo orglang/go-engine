@@ -1,7 +1,8 @@
 package core
 
 import (
-	"orglang/go-engine/lib/db"
+	"context"
+	"orglang/go-engine/lib/tx"
 
 	"orglang/go-engine/adt/symbol"
 	"orglang/go-engine/adt/typesem"
@@ -9,10 +10,10 @@ import (
 )
 
 type Repo interface {
-	AddRec(db.UoW, ExpRec, typesem.SemRef) error
-	GetRecByVK(db.UoW, valkey.ADT) (ExpRec, error)
-	GetRecsByVKs(db.UoW, []valkey.ADT) ([]ExpRec, error)
-	GetRecMap(db.UoW, map[symbol.ADT]valkey.ADT) (map[symbol.ADT]ExpRec, error)
+	AddRec(context.Context, tx.Conn, ExpRec, typesem.SemRef) error
+	GetRecByVK(context.Context, tx.Conn, valkey.ADT) (ExpRec, error)
+	GetRecsByVKs(context.Context, tx.Conn, []valkey.ADT) ([]ExpRec, error)
+	GetRecMap(context.Context, tx.Conn, map[symbol.ADT]valkey.ADT) (map[symbol.ADT]ExpRec, error)
 }
 
 type ExpKind int16

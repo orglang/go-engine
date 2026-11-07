@@ -1,7 +1,8 @@
 package core
 
 import (
-	"orglang/go-engine/lib/db"
+	"context"
+	"orglang/go-engine/lib/tx"
 
 	"orglang/go-engine/adt/termsem"
 	"orglang/go-engine/adt/termvar"
@@ -9,8 +10,8 @@ import (
 )
 
 type Repo interface {
-	AddRec(db.UoW, DefRec) error
-	GetRecByQN(db.UoW, uniqsym.ADT) (DefRec, error)
+	AddRec(context.Context, tx.Conn, DefRec) error
+	GetRecByQN(context.Context, tx.Conn, uniqsym.ADT) (DefRec, error)
 }
 
 type DefRecDS struct {

@@ -9,6 +9,10 @@ import (
 	"orglang/go-engine/internal/adt/identity"
 )
 
+func dataToConnID(dto VarRecDS) (identity.ADT, error) {
+	return identity.ConvertFromNullString(dto.ConnID)
+}
+
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend ConvertRecToRef

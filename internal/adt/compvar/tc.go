@@ -4,7 +4,6 @@ import (
 	"database/sql"
 
 	"orglang/go-engine/internal/adt/compsem"
-	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
 )
 
@@ -93,6 +92,3 @@ func ConvertModeFromNullInt(val sql.NullInt16) Mode {
 	return unkMode
 }
 
-func dataToConnID(dto VarRecDS) (identity.ADT, error) {
-	return identity.ConvertFromNullString(dto.ConnID)
-}

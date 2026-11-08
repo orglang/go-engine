@@ -170,6 +170,9 @@ func (s *service) Run(spec ExecSpec) (_ compsem.SemRef, err error) {
 		ExpVK:   termDec.LiabVar.ExpVK,
 	}
 	newAssetVars := make([]compvar.VarRec, 0, len(spec.AssetVars)+1)
+	// Each existing provider execution contributes a reserved ConnID. Materialize
+	// one Connection row when the client Computation attaches; multiple asset
+	// variables may point to the same provider, so deduplicate by ConnID.
 	newConns := make([]commconn.ConnRec, 0, len(assetExecs))
 	seenConnIDs := make(map[string]struct{}, len(assetExecs))
 	for _, assetVar := range spec.AssetVars {

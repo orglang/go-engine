@@ -3,7 +3,7 @@ package adapter
 import (
 	"go.uber.org/fx"
 
-	termdef "orglang/go-engine/proc/termdef/core"
+	termdef "orglang/go-engine/internal/proc/termdef/core"
 )
 
 var Module = fx.Module("proc/termdef",

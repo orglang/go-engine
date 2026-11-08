@@ -9,8 +9,8 @@ import (
 	"orglang/go-engine/internal/adt/identity"
 )
 
-func dataToConnID(dto VarRecDS) (identity.ADT, error) {
-	return identity.ConvertFromNullString(dto.ConnID)
+func dataToConnID(id sql.NullString) (identity.ADT, error) {
+	return identity.ConvertFromNullString(id)
 }
 
 // goverter:variables
@@ -49,7 +49,7 @@ var (
 	DataFromLinearRec  func(LinearRec) VarRecDS
 	DataFromLinearRecs func([]LinearRec) []VarRecDS
 	// goverter:map . CompRef
-	// goverter:map . ConnID | dataToConnID
+	// goverter:map ConnID | dataToConnID
 	DataToStructRec  func(VarRecDS) (StructRec, error)
 	DataToStructRecs func([]VarRecDS) ([]StructRec, error)
 	// goverter:map . CompRef

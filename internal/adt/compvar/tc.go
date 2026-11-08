@@ -91,4 +91,3 @@ func ConvertModeFromNullInt(val sql.NullInt16) Mode {
 	}
 	return unkMode
 }
-

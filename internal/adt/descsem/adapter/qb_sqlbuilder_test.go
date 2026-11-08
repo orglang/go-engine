@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	descsem "orglang/go-engine/adt/descsem"
+	descsem "orglang/go-engine/internal/adt/descsem"
 )
 
 func TestInsertRec(t *testing.T) {

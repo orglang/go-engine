@@ -32,7 +32,7 @@ jobs:
             gear.sum
 
       - name: Check sources
-        run: go run github.com/go-task/task/v3/cmd/task@v3.54.0 sources:check
+        run: GOWORK=off go tool -modfile=gear.mod task sources:check
 
       - name: Run unit tests
-        run: go run github.com/go-task/task/v3/cmd/task@v3.54.0 tests:unit
+        run: GOWORK=off go tool -modfile=gear.mod task tests:unit

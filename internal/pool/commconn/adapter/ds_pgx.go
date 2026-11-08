@@ -60,9 +60,13 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 	}
 	dto := DataFromMod(mod)
 	sql, args := dao.qb.UpdateRec(dto)
-	if _, execErr := conn.Pgx.Exec(ctx, sql, args...); execErr != nil {
+	tag, execErr := conn.Pgx.Exec(ctx, sql, args...)
+	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
 		return execErr
+	}
+	if tag.RowsAffected() == 0 {
+		return commconn.ErrOffsetConflict(mod.PrevOffsetNr)
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "modification succeed", slog.Any("dto", dto))
 	return nil

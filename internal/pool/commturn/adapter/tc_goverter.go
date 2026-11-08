@@ -1,8 +1,8 @@
 package adapter
 
 import (
-	"orglang/go-engine/internal/adt/connsem"
 	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/connsem"
 
 	commturn "orglang/go-engine/internal/pool/commturn/core"
 )

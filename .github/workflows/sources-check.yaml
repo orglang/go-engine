@@ -32,6 +32,9 @@ jobs:
           gofmt -s -l .
           test -z "$(gofmt -s -l .)"
 
+      - name: Download tooling dependencies
+        run: go mod download -modfile=gear.mod
+
       - name: Run linters
         run: |
           go tool -modfile=gear.mod golangci-lint run ./...

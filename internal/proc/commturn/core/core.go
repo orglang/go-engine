@@ -25,6 +25,8 @@ type PubRec struct {
 
 func (r PubRec) turn() identity.ADT { return r.ChnlID }
 
+func (r PubRec) GetConnRef() connsem.SemRef { return r.ConnRef }
+
 type SubRec struct {
 	ConnRef connsem.SemRef
 	CompRef compsem.SemRef
@@ -33,6 +35,8 @@ type SubRec struct {
 }
 
 func (r SubRec) turn() identity.ADT { return r.ChnlID }
+
+func (r SubRec) GetConnRef() connsem.SemRef { return r.ConnRef }
 
 func ErrRecTypeUnexpected(got TurnRec) error {
 	return fmt.Errorf("step rec unexpected: %T", got)

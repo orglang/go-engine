@@ -5,7 +5,7 @@ import (
 	"slices"
 	"testing"
 
-	commexch "orglang/go-engine/pool/commexch/core"
+	commexch "orglang/go-engine/internal/pool/commexch/core"
 )
 
 func TestInsertRec(t *testing.T) {

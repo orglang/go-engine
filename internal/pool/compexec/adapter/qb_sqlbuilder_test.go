@@ -4,9 +4,9 @@ import (
 	"slices"
 	"testing"
 
-	"orglang/go-engine/adt/compsem"
+	"orglang/go-engine/internal/adt/compsem"
 
-	compexec "orglang/go-engine/pool/compexec/core"
+	compexec "orglang/go-engine/internal/pool/compexec/core"
 )
 
 func TestInsertRec(t *testing.T) {

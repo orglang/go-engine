@@ -35,15 +35,15 @@ type ConnSnap struct {
 }
 
 func ErrOffsetConflict(got seqnum.ADT) error {
-	return fmt.Errorf("Connection offset changed concurrently: got %v", got)
+	return fmt.Errorf("connection offset changed concurrently: got %v", got)
 }
 
 func ErrRevisionConflict(got seqnum.ADT) error {
-	return fmt.Errorf("Connection revision changed concurrently: got %v", got)
+	return fmt.Errorf("connection revision changed concurrently: got %v", got)
 }
 
 func ErrSnapshotConflict(revision, offset seqnum.ADT) error {
-	return fmt.Errorf("Connection snapshot changed concurrently: revision %v, offset %v", revision, offset)
+	return fmt.Errorf("connection snapshot changed concurrently: revision %v, offset %v", revision, offset)
 }
 
 func (s ConnSnap) NextTurn() commturn.TurnRec {

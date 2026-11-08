@@ -7,8 +7,8 @@ import (
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/symbol"
-	"orglang/go-engine/internal/adt/valkey"
 	"orglang/go-engine/internal/adt/uniqsym"
+	"orglang/go-engine/internal/adt/valkey"
 
 	sdktermexp "github.com/orglang/go-sdk/proc/termexp"
 

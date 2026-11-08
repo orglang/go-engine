@@ -18,9 +18,6 @@ var (
 	DataFromQry func(commconn.ConnQry) commconn.ConnQryDS
 	// goverter:map ConnID | identityToString
 	DataFromMod func(commconn.ConnMod) commconn.ConnModDS
-	// goverter:ignore CompID
-	// goverter:ignore CompRN
-	// goverter:ignore ActNr
 	// goverter:map . ConnID | dataToConnID
 	DataToSnap func(commconn.ConnSnapDS) (commconn.ConnSnap, error)
 )

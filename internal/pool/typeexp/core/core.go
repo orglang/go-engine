@@ -3,9 +3,9 @@ package core
 import (
 	"fmt"
 
-	"orglang/go-engine/adt/polarity"
-	"orglang/go-engine/adt/uniqsym"
-	"orglang/go-engine/adt/valkey"
+	"orglang/go-engine/internal/adt/polarity"
+	"orglang/go-engine/internal/adt/uniqsym"
+	"orglang/go-engine/internal/adt/valkey"
 )
 
 type ExpSpec interface {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"reflect"
+	"sort"
 
 	"orglang/go-engine/internal/lib/tx"
 
@@ -272,16 +273,44 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 		s.log.Error("step taking failed", refAttr)
 		return takeErr
 	}
+	// Every changed Computation aggregate is guarded by its own root revision.
+	// Connection changes always include the provider aggregate, regardless of
+	// which endpoint initiated the step.
+	compIDs := map[string]identity.ADT{
+		execSnap.CompRef.CompID.String(): execSnap.CompRef.CompID,
+	}
+	if !connMod.ProviderCompID.IsEmpty() {
+		compIDs[connMod.ProviderCompID.String()] = connMod.ProviderCompID
+	}
+	for _, variable := range execMod.Vars {
+		switch rec := variable.(type) {
+		case compvar.StructRec:
+			compIDs[rec.CompRef.CompID.String()] = rec.CompRef.CompID
+		case compvar.LinearRec:
+			compIDs[rec.CompRef.CompID.String()] = rec.CompRef.CompID
+		}
+	}
+	compKeys := make([]string, 0, len(compIDs))
+	for key := range compIDs {
+		compKeys = append(compKeys, key)
+	}
+	sort.Strings(compKeys)
+
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		err = s.connRepo.ModifyRec(txCtx, conn, connMod)
-		if err != nil {
+		// Read each current root revision and CAS it before writing any child state.
+		for _, key := range compKeys {
+			rootSnap, getErr := s.compExecRepo.GetSnapByRef(txCtx, conn, compsem.SemRef{CompID: compIDs[key]})
+			if getErr != nil {
+				return getErr
+			}
+			if touchErr := s.compSemRepo.TouchRef(txCtx, conn, rootSnap.CompRef); touchErr != nil {
+				return touchErr
+			}
+		}
+		if err = s.connRepo.ModifyRec(txCtx, conn, connMod); err != nil {
 			return err
 		}
-		err = s.compVarRepo.AddRecs(txCtx, conn, execMod.Vars)
-		if err != nil {
-			return err
-		}
-		return s.compSemRepo.TouchRef(txCtx, conn, execSnap.CompRef)
+		return s.compVarRepo.AddRecs(txCtx, conn, execMod.Vars)
 	})
 	if transactErr != nil {
 		s.log.Error("step taking failed", refAttr)
@@ -336,11 +365,12 @@ func (s *service) takeStep(
 			return execMod, execEff, connMod, getErr
 		}
 		connMod.ConnID = connSnap.ConnID
+		connMod.ProviderCompID = connSnap.ProviderCompID
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
-			connMod.PrevOffsetNr = connSnap.OffsetNr
+		connMod.ProviderCompID = connSnap.ProviderCompID
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {
@@ -429,11 +459,12 @@ func (s *service) takeStep(
 			return execMod, execEff, connMod, getErr
 		}
 		connMod.ConnID = connSnap.ConnID
+		connMod.ProviderCompID = connSnap.ProviderCompID
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
-			connMod.PrevOffsetNr = connSnap.OffsetNr
+		connMod.ProviderCompID = connSnap.ProviderCompID
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {
@@ -522,11 +553,12 @@ func (s *service) takeStep(
 			return execMod, execEff, connMod, getErr
 		}
 		connMod.ConnID = connSnap.ConnID
+		connMod.ProviderCompID = connSnap.ProviderCompID
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
-			connMod.PrevOffsetNr = connSnap.OffsetNr
+		connMod.ProviderCompID = connSnap.ProviderCompID
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {
@@ -615,11 +647,12 @@ func (s *service) takeStep(
 			return execMod, execEff, connMod, getErr
 		}
 		connMod.ConnID = connSnap.ConnID
+		connMod.ProviderCompID = connSnap.ProviderCompID
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
-			connMod.PrevOffsetNr = connSnap.OffsetNr
+		connMod.ProviderCompID = connSnap.ProviderCompID
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {
@@ -708,11 +741,12 @@ func (s *service) takeStep(
 			return execMod, execEff, connMod, getErr
 		}
 		connMod.ConnID = connSnap.ConnID
+		connMod.ProviderCompID = connSnap.ProviderCompID
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
-			connMod.PrevOffsetNr = connSnap.OffsetNr
+		connMod.ProviderCompID = connSnap.ProviderCompID
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {
@@ -785,11 +819,12 @@ func (s *service) takeStep(
 			return execMod, execEff, connMod, getErr
 		}
 		connMod.ConnID = connSnap.ConnID
+		connMod.ProviderCompID = connSnap.ProviderCompID
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
-			connMod.PrevOffsetNr = connSnap.OffsetNr
+		connMod.ProviderCompID = connSnap.ProviderCompID
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {

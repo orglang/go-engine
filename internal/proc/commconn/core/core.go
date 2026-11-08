@@ -10,12 +10,6 @@ import (
 	commturn "orglang/go-engine/internal/proc/commturn/core"
 )
 
-type ConnRec struct {
-	ConnID          identity.ADT
-	OffsetNr        seqnum.ADT
-	ActNr           seqnum.ADT
-}
-
 type ConnMod struct {
 	ConnID          identity.ADT
 	OffsetNr        option.ADT[seqnum.ADT]

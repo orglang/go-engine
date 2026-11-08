@@ -5,8 +5,8 @@ import (
 )
 
 type TurnRecDS struct {
-	CommID string           `db:"comm_id"`
-	CommRN int64            `db:"comm_rn"`
+	ConnID string           `db:"comm_id"`
+	ConnRN int64            `db:"comm_rn"`
 	CompID string           `db:"comp_id"`
 	ChnlID string           `db:"chnl_id"`
 	K      turnKind         `db:"kind"`

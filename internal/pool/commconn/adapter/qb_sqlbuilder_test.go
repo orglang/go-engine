@@ -40,11 +40,11 @@ func TestUpdateRec(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
 	gotSQL, gotArgs := qb.UpdateRec(commconn.ConnModDS{OffsetNr: sql.Null[int64]{Valid: true}})
-	wantSQL := "UPDATE pool_connections  SET offset_nr = $1 WHERE conn_id = $2"
+	wantSQL := "UPDATE pool_connections  SET offset_nr = $1 WHERE conn_id = $2 AND offset_nr = $3"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)
 	}
-	wantArgs := []any{int64(0), ""}
+	wantArgs := []any{int64(0), "", int64(0)}
 	if !slices.Equal(gotArgs, wantArgs) {
 		t.Errorf("got args %v, want %v", gotArgs, wantArgs)
 	}

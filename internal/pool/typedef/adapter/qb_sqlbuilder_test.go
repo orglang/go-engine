@@ -4,7 +4,7 @@ import (
 	"slices"
 	"testing"
 
-	typedef "orglang/go-engine/pool/typedef/core"
+	typedef "orglang/go-engine/internal/pool/typedef/core"
 )
 
 func TestInsertRec(t *testing.T) {

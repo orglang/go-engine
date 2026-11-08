@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"testing"
 
-	"orglang/go-engine/adt/valkey"
-	typeexp "orglang/go-engine/pool/typeexp/core"
+	"orglang/go-engine/internal/adt/valkey"
+	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 )
 
 func TestDownRecRoundTrip(t *testing.T) {

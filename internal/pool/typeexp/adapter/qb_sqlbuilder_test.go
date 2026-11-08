@@ -4,7 +4,7 @@ import (
 	"slices"
 	"testing"
 
-	typeexp "orglang/go-engine/pool/typeexp/core"
+	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 )
 
 func TestInsertRec(t *testing.T) {

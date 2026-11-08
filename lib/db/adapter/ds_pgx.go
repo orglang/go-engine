@@ -11,8 +11,13 @@ import (
 	"orglang/go-engine/lib/tx"
 )
 
+type pgxPool interface {
+	Begin(context.Context) (pgx.Tx, error)
+	Acquire(context.Context) (*pgxpool.Conn, error)
+}
+
 type transactorPgx struct {
-	pool *pgxpool.Pool
+	pool pgxPool
 }
 
 // NewTransactorPgx creates a PostgreSQL-backed transactor.
@@ -78,9 +83,5 @@ func (t *transactorPgx) ImplicitTxOld(ctx context.Context, fn func(tx.UoW) error
 	})
 }
 
-// Compile-time assertion that the concrete driver transaction satisfies the
-// minimal interface used by Conn.
-var (
-	_ tx.Pgx = (pgx.Tx)(nil)
-	_ tx.Pgx = (*pgxpool.Conn)(nil)
-)
+// Compile-time assertion that pgxpool.Pool satisfies the narrow pool contract.
+var _ pgxPool = (*pgxpool.Pool)(nil)

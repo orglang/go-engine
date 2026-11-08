@@ -34,7 +34,7 @@ type UoW struct {
 //
 // ExplicitTx starts a PostgreSQL transaction and commits it when the callback
 // succeeds; it rolls back when the callback fails. ImplicitTx acquires a
-// connection without starting a transaction. Both callbacks receive a derived
+// connection without starting a transaction. Both callbacks receive the caller's
 // context and a Conn that is valid only until the callback returns.
 //
 // Nested transactor calls are not supported. Conn deliberately exposes no

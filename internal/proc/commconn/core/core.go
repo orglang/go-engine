@@ -8,29 +8,29 @@ import (
 	commturn "orglang/go-engine/internal/proc/commturn/core"
 )
 
-type ExchRec struct {
+type ConnRec struct {
 	CommRef  commsem.SemRef
 	OffsetNr seqnum.ADT
 }
 
-type ExchMod struct {
+type ConnMod struct {
 	CommRef commsem.SemRef
 	CommON  option.ADT[seqnum.ADT]
 	Turns   []commturn.TurnRec
 }
 
-type ExchQry struct {
+type ConnQry struct {
 	CommRef commsem.SemRef
 	ChnlID  option.ADT[identity.ADT]
 }
 
 // aka Configuration
-type ExchSnap struct {
+type ConnSnap struct {
 	CommRef commsem.SemRef
 	Turns   []commturn.TurnRec
 }
 
-func (s ExchSnap) NextTurn() commturn.TurnRec {
+func (s ConnSnap) NextTurn() commturn.TurnRec {
 	if len(s.Turns) > 0 {
 		return s.Turns[0]
 	}

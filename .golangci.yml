@@ -42,7 +42,7 @@ linters:
               desc: Core/domain code must depend on a port, not an adapter.
             - pkg: orglang/go-engine/internal/proc/compstep/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/proc/commexch/adapter
+            - pkg: orglang/go-engine/internal/proc/commconn/adapter
               desc: Core/domain code must depend on a port, not an adapter.
             - pkg: orglang/go-engine/internal/proc/commturn/adapter
               desc: Core/domain code must depend on a port, not an adapter.
@@ -60,7 +60,7 @@ linters:
               desc: Core/domain code must depend on a port, not an adapter.
             - pkg: orglang/go-engine/internal/pool/compstep/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/pool/commexch/adapter
+            - pkg: orglang/go-engine/internal/pool/commconn/adapter
               desc: Core/domain code must depend on a port, not an adapter.
             - pkg: orglang/go-engine/internal/pool/commturn/adapter
               desc: Core/domain code must depend on a port, not an adapter.
@@ -134,6 +134,8 @@ linters:
           disabled: true
         - name: function-length
           disabled: true
+        - name: function-result-limit
+          arguments: [4]
         - name: var-declaration
           disabled: true
         - name: line-length-limit

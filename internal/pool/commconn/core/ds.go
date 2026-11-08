@@ -11,29 +11,29 @@ import (
 )
 
 type Repo interface {
-	AddRec(context.Context, tx.Conn, ExchRec) error
-	ModifyRec(context.Context, tx.Conn, ExchMod) error
+	AddRec(context.Context, tx.Conn, ConnRec) error
+	ModifyRec(context.Context, tx.Conn, ConnMod) error
 	GetRefsByQNs(context.Context, tx.Conn, []uniqsym.ADT) (map[uniqsym.ADT]commsem.SemRef, error)
-	GetSnapByQry(context.Context, tx.Conn, ExchQry) (ExchSnap, error)
+	GetSnapByQry(context.Context, tx.Conn, ConnQry) (ConnSnap, error)
 }
 
-type ExchRecDS struct {
+type ConnRecDS struct {
 	CommID   string `db:"comm_id"`
 	CommRN   int64  `db:"comm_rn"`
 	OffsetNr int64  `db:"offset_nr"`
 }
 
-type ExchModDS struct {
+type ConnModDS struct {
 	CommID   string          `db:"comm_id"`
 	OffsetNr sql.Null[int64] `db:"offset_nr"`
 }
 
-type ExchQryDS struct {
+type ConnQryDS struct {
 	CommID string           `db:"comm_id"`
 	ChnlID sql.Null[string] `db:"chnl_id"`
 }
 
-type ExchSnapDS struct {
+type ConnSnapDS struct {
 	CommID   string               `db:"comm_id"`
 	CommRN   int64                `db:"comm_rn"`
 	OffsetNr int64                `db:"offset_nr"`

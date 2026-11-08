@@ -9,8 +9,8 @@ import (
 )
 
 type Repo interface {
-	AddRec(context.Context, tx.Conn, ExchRec) error
-	Modifyec(context.Context, tx.Conn, ExchMod) error
+	AddRec(context.Context, tx.Conn, ConnRec) error
+	Modifyec(context.Context, tx.Conn, ConnMod) error
 	GetRefsByQNs(context.Context, tx.Conn, []uniqsym.ADT) (map[uniqsym.ADT]commsem.SemRef, error)
-	GetSnapByQry(context.Context, tx.Conn, ExchQry) (ExchSnap, error)
+	GetSnapByQry(context.Context, tx.Conn, ConnQry) (ConnSnap, error)
 }

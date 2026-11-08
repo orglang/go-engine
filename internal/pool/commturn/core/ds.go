@@ -2,9 +2,9 @@ package core
 
 import (
 	"context"
-	"orglang/go-engine/lib/tx"
+	"orglang/go-engine/internal/lib/tx"
 
-	termexp "orglang/go-engine/pool/termexp/core"
+	termexp "orglang/go-engine/internal/pool/termexp/core"
 )
 
 type Repo interface {

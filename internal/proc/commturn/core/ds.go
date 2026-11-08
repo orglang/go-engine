@@ -4,9 +4,9 @@ import (
 	"context"
 	"database/sql"
 
-	"orglang/go-engine/lib/tx"
+	"orglang/go-engine/internal/lib/tx"
 
-	termexp "orglang/go-engine/proc/termexp/core"
+	termexp "orglang/go-engine/internal/proc/termexp/core"
 )
 
 type Repo interface {

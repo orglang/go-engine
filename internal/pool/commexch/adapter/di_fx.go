@@ -3,7 +3,7 @@ package adapter
 import (
 	"go.uber.org/fx"
 
-	commexch "orglang/go-engine/pool/commexch/core"
+	commexch "orglang/go-engine/internal/pool/commexch/core"
 )
 
 var Module = fx.Module("pool/commexch",

@@ -3,7 +3,7 @@ package adapter
 import (
 	"go.uber.org/fx"
 
-	commturn "orglang/go-engine/pool/commturn/core"
+	commturn "orglang/go-engine/internal/pool/commturn/core"
 )
 
 var Module = fx.Module("pool/commturn",

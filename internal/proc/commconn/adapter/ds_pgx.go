@@ -71,20 +71,20 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 	}
 	for _, turn := range mod.Turns {
 		connID := turn.GetConnID()
-		// Materialize both endpoints from the authoritative pool Connection.
+		// Create the process-side Connection from process-side endpoint references.
 		const ensureConnection = `
 			INSERT INTO proc_comp_conns (
 				conn_id, provider_comp_id, provider_comp_rn,
 				client_comp_id, client_comp_rn, offset_nr, act_nr
 			)
-			SELECT
-				conn_id, provider_comp_id, provider_comp_rn,
-				client_comp_id, client_comp_rn, 0, 0
-			FROM pool_comp_conns
-			WHERE conn_id = $1
+			VALUES ($1, $2, $3, $4, $5, 0, 0)
 			ON CONFLICT (conn_id) DO NOTHING
 		`
-		if _, err := conn.Pgx.Exec(ctx, ensureConnection, identity.ConvertToString(connID)); err != nil {
+		if _, err := conn.Pgx.Exec(ctx, ensureConnection,
+			identity.ConvertToString(connID),
+			mod.ProviderCompRef.CompID.String(), int64(mod.ProviderCompRef.CompRN),
+			mod.ClientCompRef.CompID.String(), int64(mod.ClientCompRef.CompRN),
+		); err != nil {
 			return err
 		}
 		switch turn.(type) {

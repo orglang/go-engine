@@ -6,18 +6,47 @@ import (
 	"errors"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"orglang/go-engine/lib/tx"
 )
 
-type transactorPgx struct {
+type pgxTransaction interface {
+	tx.Pgx
+	Commit(context.Context) error
+	Rollback(context.Context) error
+}
+
+type pgxConnection interface {
+	tx.Pgx
+	Release()
+}
+
+type pgxPool interface {
+	Begin(context.Context) (pgxTransaction, error)
+	Acquire(context.Context) (pgxConnection, error)
+}
+
+type pgxPoolAdapter struct {
 	pool *pgxpool.Pool
+}
+
+func (p pgxPoolAdapter) Begin(ctx context.Context) (pgxTransaction, error) {
+	return p.pool.Begin(ctx)
+}
+
+func (p pgxPoolAdapter) Acquire(ctx context.Context) (pgxConnection, error) {
+	return p.pool.Acquire(ctx)
+}
+
+type transactorPgx struct {
+	pool pgxPool
 }
 
 // NewTransactorPgx creates a PostgreSQL-backed transactor.
 func NewTransactorPgx(pool *pgxpool.Pool) tx.Transactor {
-	return &transactorPgx{pool: pool}
+	return &transactorPgx{pool: pgxPoolAdapter{pool: pool}}
 }
 
 func (t *transactorPgx) ExplicitTx(ctx context.Context, fn func(context.Context, tx.Conn) error) (retErr error) {
@@ -78,9 +107,11 @@ func (t *transactorPgx) ImplicitTxOld(ctx context.Context, fn func(tx.UoW) error
 	})
 }
 
-// Compile-time assertion that the concrete driver transaction satisfies the
-// minimal interface used by Conn.
+// Compile-time assertions for the concrete pgx resources and command-tag type.
 var (
-	_ tx.Pgx = (pgx.Tx)(nil)
-	_ tx.Pgx = (*pgxpool.Conn)(nil)
+	_ tx.Pgx           = (pgx.Tx)(nil)
+	_ tx.Pgx           = (*pgxpool.Conn)(nil)
+	_ pgxTransaction   = (pgx.Tx)(nil)
+	_ pgxConnection    = (*pgxpool.Conn)(nil)
+	_ pgconn.CommandTag = pgconn.CommandTag{}
 )

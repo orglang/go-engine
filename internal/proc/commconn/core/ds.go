@@ -32,8 +32,8 @@ type ConnQryDS struct {
 }
 
 type ConnSnapDS struct {
-	CommID   string                `db:"comm_id"`
-	CommRN   int64                 `db:"comm_rn"`
-	OffsetNr int64                 `db:"offset_nr"`
-	Turns    []commturn.TurnRecDS  `db:"turns"`
+	CommID   string               `db:"comm_id"`
+	CommRN   int64                `db:"comm_rn"`
+	OffsetNr int64                `db:"offset_nr"`
+	Turns    []commturn.TurnRecDS `db:"turns"`
 }

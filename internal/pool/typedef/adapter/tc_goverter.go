@@ -10,9 +10,9 @@ import (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
-// goverter:extend orglang/go-engine/pool/typeexp/adapter:Msg.*
+// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
+// goverter:extend orglang/go-engine/internal/pool/typeexp/adapter:Msg.*
 var (
 	MsgFromDefSpec  func(typedef.DefSpec) sdktypedef.DefSpec
 	MsgToDefSpec    func(sdktypedef.DefSpec) (typedef.DefSpec, error)
@@ -24,10 +24,10 @@ var (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
-// goverter:extend orglang/go-engine/adt/seqnum:Convert.*
-// goverter:extend orglang/go-engine/adt/valkey:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/valkey:Convert.*
 var (
 	// goverter:map . TypeRef
 	DataToDefRec    func(typedef.DefRecDS) (typedef.DefRec, error)

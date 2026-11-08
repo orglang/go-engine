@@ -9,7 +9,7 @@ import (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
 var (
 	// goverter:ignore LinearVars
 	MsgToExecSnap   func(compexec.ExecSnap) (core.ExecSnap, error)
@@ -18,9 +18,9 @@ var (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/proc/commturn/adapter:Data.*
-// goverter:extend orglang/go-engine/adt/compvar:Data.*
+// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/internal/proc/commturn/adapter:Data.*
+// goverter:extend orglang/go-engine/internal/adt/compvar:Data.*
 var (
 	// goverter:map . CompRef | dataToSemRef
 	DataToExecRec func(core.ExecRecDS) (core.ExecRec, error)

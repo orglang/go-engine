@@ -8,9 +8,9 @@ import (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
-// goverter:extend orglang/go-engine/proc/typedef/adapter:Msg.*
+// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
+// goverter:extend orglang/go-engine/internal/proc/typedef/adapter:Msg.*
 var (
 	MsgToDecSpec    func(sdktermdec.DecSpec) (termdec.DecSpec, error)
 	MsgFromDecSpec  func(termdec.DecSpec) sdktermdec.DecSpec
@@ -21,18 +21,18 @@ var (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
 var (
 	ViewFromDecSnap func(termdec.DecSnap) DecSnapVP
 )
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
-// goverter:extend orglang/go-engine/adt/valkey:Convert.*
-// goverter:extend orglang/go-engine/adt/termvar:Data.*
+// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/valkey:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/termvar:Data.*
 var (
 	// goverter:map . TermRef
 	// goverter:ignore TermQN

@@ -8,7 +8,7 @@ import (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
 // goverter:extend msg.*
 var (
 	MsgFromExpRefs func([]typeexp.ExpRef) []sdktypeexp.ExpRef
@@ -17,7 +17,7 @@ var (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
 // goverter:extend data.*
 var (
 	DataToExpRefs   func([]typeexp.ExpRefDS) ([]typeexp.ExpRef, error)

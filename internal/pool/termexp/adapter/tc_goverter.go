@@ -9,8 +9,8 @@ import (
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:useZeroValueOnPointerInconsistency
-// goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
 // goverter:extend MsgFromExpSpec
 // goverter:extend MsgToExpSpec
 var (
@@ -32,8 +32,8 @@ var (
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:useZeroValueOnPointerInconsistency
-// goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
 // goverter:extend DataFromExpSpec
 // goverter:extend DataToExpSpec
 var (

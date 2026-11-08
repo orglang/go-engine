@@ -1,8 +1,8 @@
 package termsem
 
 import (
-	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/seqnum"
+	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/seqnum"
 )
 
 type SemRef struct {

@@ -1,8 +1,8 @@
 package descsem
 
 import (
-	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/uniqsym"
+	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/uniqsym"
 )
 
 type SemRec struct {

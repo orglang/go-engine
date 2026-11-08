@@ -1,10 +1,10 @@
 package termvar
 
 import (
-	"orglang/go-engine/adt/symbol"
-	"orglang/go-engine/adt/typesem"
-	"orglang/go-engine/adt/uniqsym"
-	"orglang/go-engine/adt/valkey"
+	"orglang/go-engine/internal/adt/symbol"
+	"orglang/go-engine/internal/adt/typesem"
+	"orglang/go-engine/internal/adt/uniqsym"
+	"orglang/go-engine/internal/adt/valkey"
 )
 
 // human-readable specification of term variable

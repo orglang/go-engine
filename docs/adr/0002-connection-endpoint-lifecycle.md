@@ -54,7 +54,7 @@
 
 ## Решение
 
-Запись Connection хранит обе endpoint-ссылки явно: `ProviderCompRef` и `ClientCompRef`. В `pool_comp_conns` соответствующие `provider_comp_id`/`provider_comp_rn` и `client_comp_id`/`client_comp_rn` обязательны, поскольку pool-запись создаётся только после появления обеих сторон. В `proc_comp_conns` те же пары колонок допускают временное отсутствие ещё не наблюдавшейся стороны: process-запись может быть создана при первом Act, а вторая endpoint-ссылка фиксируется при первом событии от другой стороны. Повторная регистрация той же стороны должна совпадать с уже сохранённой ссылкой.
+Запись Connection хранит обе endpoint-ссылки явно: `ProviderCompRef` и `ClientCompRef`. В `pool_comp_conns` и `proc_comp_conns` соответствующие `provider_comp_id`/`provider_comp_rn` и `client_comp_id`/`client_comp_rn` обязательны. Pool-запись создаётся при создании client Computation, когда известны оба endpoint. Process-запись материализуется при первом process-side Act копированием обеих endpoint-ссылок из соответствующей `pool_comp_conns`; тип первого события не влияет на состав или значения ссылок. Каждый PubRec/SubRec проверяет, что его Computation соответствует provider/client endpoint соответственно, и только затем добавляется в общий поток Acts.
 
 Генерировать `ConnID` при создании provider Computation и сохранять его в её liability-переменной. Сам Connection создавать в транзакции создания client Computation, когда известны оба endpoint.
 
@@ -76,6 +76,7 @@
 - При выбранном варианте C запись Connection создаётся только после появления обоих endpoints; принадлежность endpoint-ов определяется переменными Computation, содержащими общий `ConnID`.
 - До создания клиента provider liability-переменная может содержать зарезервированный `ConnID`, для которого запись Connection ещё отсутствует.
 - Для одной пары endpoints используется один Connection и один `ConnID`.
+- Process-side Connection создаётся из уже созданной pool-side Connection и сразу получает обе endpoint-ссылки; `PubRec`/`SubRec` проверяют соответствие стороны, но не создают и не дополняют endpoint-ссылки.
 - Создание Connection с обоими endpoints и клиентской стороны выполняется атомарно с созданием клиентской Computation и её переменных.
 - Первый Act допустим только после заполнения обоих endpoints.
 - `ChnlID` остаётся отдельной идентичностью interaction channel и не заменяет `ConnID`.

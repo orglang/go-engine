@@ -36,53 +36,53 @@ linters:
             - "!**/*_test.go"
             - "!**/tc_goverter.go"
           deny:
-            - pkg: orglang/go-engine/lib/db/adapter
+            - pkg: orglang/go-engine/internal/lib/db/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/prog/adapter
+            - pkg: orglang/go-engine/internal/prog/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/proc/compstep/adapter
+            - pkg: orglang/go-engine/internal/proc/compstep/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/proc/commexch/adapter
+            - pkg: orglang/go-engine/internal/proc/commexch/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/proc/commturn/adapter
+            - pkg: orglang/go-engine/internal/proc/commturn/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/proc/compexec/adapter
+            - pkg: orglang/go-engine/internal/proc/compexec/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/proc/termdec/adapter
+            - pkg: orglang/go-engine/internal/proc/termdec/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/proc/termdef/adapter
+            - pkg: orglang/go-engine/internal/proc/termdef/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/proc/termexp/adapter
+            - pkg: orglang/go-engine/internal/proc/termexp/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/proc/typedef/adapter
+            - pkg: orglang/go-engine/internal/proc/typedef/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/proc/typeexp/adapter
+            - pkg: orglang/go-engine/internal/proc/typeexp/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/pool/compstep/adapter
+            - pkg: orglang/go-engine/internal/pool/compstep/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/pool/commexch/adapter
+            - pkg: orglang/go-engine/internal/pool/commexch/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/pool/commturn/adapter
+            - pkg: orglang/go-engine/internal/pool/commturn/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/pool/compexec/adapter
+            - pkg: orglang/go-engine/internal/pool/compexec/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/pool/compvar/adapter
+            - pkg: orglang/go-engine/internal/pool/compvar/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/pool/termdef/adapter
+            - pkg: orglang/go-engine/internal/pool/termdef/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/pool/termexp/adapter
+            - pkg: orglang/go-engine/internal/pool/termexp/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/pool/typedef/adapter
+            - pkg: orglang/go-engine/internal/pool/typedef/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/pool/typeexp/adapter
+            - pkg: orglang/go-engine/internal/pool/typeexp/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/adt/compsem/adapter
+            - pkg: orglang/go-engine/internal/adt/compsem/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/adt/descsem/adapter
+            - pkg: orglang/go-engine/internal/adt/descsem/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/adt/implsem/adapter
+            - pkg: orglang/go-engine/internal/adt/implsem/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/adt/typesem/adapter
+            - pkg: orglang/go-engine/internal/adt/typesem/adapter
               desc: Core/domain code must depend on a port, not an adapter.
             - pkg: github.com/orglang/go-sdk
               desc: Keep wire-format SDK dependencies in inbound/outbound adapters.
@@ -97,13 +97,13 @@ linters:
             - "!**/*_test.go"
             - "!**/tc_goverter.go"
           deny:
-            - pkg: orglang/go-engine/adt/compsem/adapter
+            - pkg: orglang/go-engine/internal/adt/compsem/adapter
               desc: Domain types must not depend on concrete adapters.
-            - pkg: orglang/go-engine/adt/descsem/adapter
+            - pkg: orglang/go-engine/internal/adt/descsem/adapter
               desc: Domain types must not depend on concrete adapters.
-            - pkg: orglang/go-engine/adt/implsem/adapter
+            - pkg: orglang/go-engine/internal/adt/implsem/adapter
               desc: Domain types must not depend on concrete adapters.
-            - pkg: orglang/go-engine/adt/typesem/adapter
+            - pkg: orglang/go-engine/internal/adt/typesem/adapter
               desc: Domain types must not depend on concrete adapters.
             - pkg: github.com/orglang/go-sdk
               desc: Keep SDK mapping in adapters.
@@ -150,7 +150,7 @@ linters:
           disabled: true
   exclusions:
     paths:
-      - proto/
+      - internal/proto/
 
 issues:
   max-issues-per-linter: 0

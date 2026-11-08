@@ -3,7 +3,7 @@ version: '3'
 vars:
   CID:
     sh: >-
-      find lib adt app cmd/engine
+      find internal/lib internal/adt internal/app internal/pool internal/proc internal/prog internal/proto cmd/engine
       -name "*.go" -exec md5sum {} + -o
       -name "Dockerfile" -exec md5sum {} +
       | LC_ALL=C sort -k 2

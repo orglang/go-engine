@@ -27,13 +27,8 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - name: Setup Task
-        uses: go-task/setup-task@v1
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Check sources
-        run: task sources:check
+        run: go run github.com/go-task/task/v3/cmd/task@v3.54.0 sources:check
 
       - name: Run unit tests
-        run: task tests:unit
+        run: go run github.com/go-task/task/v3/cmd/task@v3.54.0 tests:unit

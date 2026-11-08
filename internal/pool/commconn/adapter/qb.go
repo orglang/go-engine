@@ -1,6 +1,6 @@
 package adapter
 
 const (
-	commConns = "pool_comm_conns "
-	commTurns = "pool_comm_turns "
+	connections = "pool_connections "
+	connectionActs = "pool_connection_acts "
 )

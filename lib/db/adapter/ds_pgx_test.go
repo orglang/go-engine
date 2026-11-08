@@ -151,10 +151,11 @@ func TestTransactorPgxExplicitTx(t *testing.T) {
 
 	t.Run("rollback uses context without parent cancellation", func(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
-		cancel()
+		defer cancel()
 		pgxTx := &testPgxTx{rollbackErr: pgx.ErrTxClosed}
 		pool := &testPgxPool{tx: pgxTx}
 		err := (&transactorPgx{pool: pool}).ExplicitTx(ctx, func(context.Context, tx.Conn) error {
+			cancel()
 			return errors.New("callback failed")
 		})
 		if err == nil {

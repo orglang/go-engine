@@ -3,7 +3,7 @@ package core
 import (
 	"fmt"
 
-	"orglang/go-engine/internal/adt/commsem"
+	"orglang/go-engine/internal/adt/connsem"
 	"orglang/go-engine/internal/adt/compsem"
 	"orglang/go-engine/internal/adt/identity"
 	termexp "orglang/go-engine/internal/proc/termexp/core"
@@ -17,7 +17,7 @@ type TurnRec interface {
 func ChnlID(rec TurnRec) identity.ADT { return rec.turn() }
 
 type PubRec struct {
-	CommRef commsem.SemRef
+	ConnRef connsem.SemRef
 	CompRef compsem.SemRef
 	ChnlID  identity.ADT
 	ValExp  termexp.ExpRec
@@ -26,7 +26,7 @@ type PubRec struct {
 func (r PubRec) turn() identity.ADT { return r.ChnlID }
 
 type SubRec struct {
-	CommRef commsem.SemRef
+	ConnRef connsem.SemRef
 	CompRef compsem.SemRef
 	ChnlID  identity.ADT
 	ContExp termexp.ExpRec

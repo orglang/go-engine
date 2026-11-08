@@ -20,20 +20,11 @@ func NewTransactorPgx(pool *pgxpool.Pool) tx.Transactor {
 	return &transactorPgx{pool: pool}
 }
 
-type transactorContextKey struct{}
-
-func nested(ctx context.Context) bool {
-	return ctx.Value(transactorContextKey{}) == true
-}
-
 func callbackContext(ctx context.Context) (context.Context, context.CancelFunc) {
-	return context.WithCancel(context.WithValue(ctx, transactorContextKey{}, true))
+	return context.WithCancel(ctx)
 }
 
 func (t *transactorPgx) ExplicitTx(ctx context.Context, fn func(context.Context, tx.Conn) error) error {
-	if nested(ctx) {
-		return tx.ErrNestedTransaction
-	}
 	if fn == nil {
 		return errors.New("transaction callback is nil")
 	}
@@ -69,9 +60,6 @@ func (t *transactorPgx) ExplicitTx(ctx context.Context, fn func(context.Context,
 }
 
 func (t *transactorPgx) ImplicitTx(ctx context.Context, fn func(context.Context, tx.Conn) error) error {
-	if nested(ctx) {
-		return tx.ErrNestedTransaction
-	}
 	if fn == nil {
 		return errors.New("connection callback is nil")
 	}

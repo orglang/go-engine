@@ -26,12 +26,12 @@ jobs:
         with:
           go-version-file: go.mod
 
+      - name: Download tooling dependencies
+        run: go get -tool -modfile=gear.mod github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0 github.com/jmattheis/goverter@v1.9.3
+
       - name: Check formatting
         run: |
           diff="$(go tool -modfile=gear.mod golangci-lint fmt --diff)" && test -z "$diff"
-
-      - name: Download tooling dependencies
-        run: go get -tool -modfile=gear.mod github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0 github.com/jmattheis/goverter@v1.9.3
 
       - name: Run linters
         run: |

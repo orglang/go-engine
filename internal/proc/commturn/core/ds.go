@@ -3,8 +3,8 @@ package core
 import termexp "orglang/go-engine/internal/proc/termexp/core"
 
 type TurnRecDS struct {
-	ConnID string           `db:"comm_id"`
-	ConnRN int64            `db:"comm_rn"`
+	ConnID string           `db:"conn_id"`
+	ConnRN int64            `db:"conn_rn"`
 	CompID string           `db:"comp_id"`
 	ChnlID string           `db:"chnl_id"`
 	K      StepKindDS       `db:"kind"`

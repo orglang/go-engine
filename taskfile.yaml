@@ -13,6 +13,11 @@ vars:
   PSV: shell # shell, docker
 
 tasks:
+  gear:sum:
+    desc: Generate checksums for tooling dependencies
+    cmds:
+      - GOWORK=off go mod download -modfile=gear.mod
+
   sources:check:
     desc: Check prepared source artifact
     cmds:

@@ -6,20 +6,18 @@ import (
 	"go.uber.org/fx"
 
 	"orglang/go-engine/internal/adt/compsem"
+	compsemadapter "orglang/go-engine/internal/adt/compsem/adapter"
 	"orglang/go-engine/internal/adt/implsem"
 	implsemadapter "orglang/go-engine/internal/adt/implsem/adapter"
-	compsemadapter "orglang/go-engine/internal/adt/compsem/adapter"
+	"orglang/go-engine/internal/lib/tx"
 	commexch "orglang/go-engine/internal/pool/commexch/core"
 	commturn "orglang/go-engine/internal/pool/commturn/core"
+	compexec "orglang/go-engine/internal/pool/compexec/core"
 	compvarcore "orglang/go-engine/internal/pool/compvar/core"
 	termdef "orglang/go-engine/internal/pool/termdef/core"
 	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 	proccompexec "orglang/go-engine/internal/proc/compexec/core"
-	"orglang/go-engine/internal/lib/tx"
-
-	compexec "orglang/go-engine/internal/pool/compexec/core"
 )
-
 
 type serviceParams struct {
 	fx.In

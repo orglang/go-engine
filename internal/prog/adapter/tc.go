@@ -7,8 +7,8 @@ import (
 	sdkproctypedef "github.com/orglang/go-sdk/proc/typedef"
 	sdkprog "github.com/orglang/go-sdk/prog"
 
-	pooltypedef "orglang/go-engine/pool/typedef/adapter"
-	proctypedef "orglang/go-engine/proc/typedef/adapter"
+	pooltypedef "orglang/go-engine/internal/pool/typedef/adapter"
+	proctypedef "orglang/go-engine/internal/proc/typedef/adapter"
 	coreprog "orglang/go-engine/internal/prog/core"
 )
 

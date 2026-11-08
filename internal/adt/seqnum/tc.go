@@ -2,7 +2,7 @@ package seqnum
 
 import (
 	"database/sql"
-	"orglang/go-engine/adt/option"
+	"orglang/go-engine/internal/adt/option"
 )
 
 func ConvertToInt(a ADT) int64 {

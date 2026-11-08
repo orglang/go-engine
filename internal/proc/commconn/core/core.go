@@ -15,7 +15,7 @@ type ConnRec struct {
 
 type ConnMod struct {
 	ConnRef connsem.SemRef
-	CommON  option.ADT[seqnum.ADT]
+	OffsetNr  option.ADT[seqnum.ADT]
 	Turns   []commturn.TurnRec
 }
 

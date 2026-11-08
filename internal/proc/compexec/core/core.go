@@ -228,6 +228,11 @@ func (s *service) takeWith(
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, getErr
 		}
 		subscription := commSnap.NextTurn()
+		if subscription != nil {
+			connMod.ConnRef = subscription.ConnRef
+			connMod.PrevOffsetNr = subscription.OffsetNr
+			connMod.OffsetNr = option.Some(subscription.OffsetNr.Next())
+		}
 		if subscription == nil {
 			// регистрируем подписку закрывателя
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
@@ -297,6 +302,11 @@ func (s *service) takeWith(
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, getErr
 		}
 		subscription := commSnap.NextTurn()
+		if subscription != nil {
+			connMod.ConnRef = subscription.ConnRef
+			connMod.PrevOffsetNr = subscription.OffsetNr
+			connMod.OffsetNr = option.Some(subscription.OffsetNr.Next())
+		}
 		if subscription == nil {
 			// регистрируем подписку наблюдателя
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
@@ -393,6 +403,11 @@ func (s *service) takeWith(
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, getErr
 		}
 		subscription := commSnap.NextTurn()
+		if subscription != nil {
+			connMod.ConnRef = subscription.ConnRef
+			connMod.PrevOffsetNr = subscription.OffsetNr
+			connMod.OffsetNr = option.Some(subscription.OffsetNr.Next())
+		}
 		if subscription == nil {
 			// регистрируем подписку отправителя
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
@@ -488,6 +503,11 @@ func (s *service) takeWith(
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, getErr
 		}
 		publication := connSnap.NextTurn()
+		if publication != nil {
+			connMod.ConnRef = publication.ConnRef
+			connMod.PrevOffsetNr = publication.OffsetNr
+			connMod.OffsetNr = option.Some(publication.OffsetNr.Next())
+		}
 		if publication == nil {
 			newChnlID := identity.New()
 			// вяжем продолжение принимателя
@@ -657,6 +677,11 @@ func (s *service) takeWith(
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, getErr
 		}
 		publication := caseConnSnap.NextTurn()
+		if publication != nil {
+			connMod.ConnRef = publication.ConnRef
+			connMod.PrevOffsetNr = publication.OffsetNr
+			connMod.OffsetNr = option.Some(publication.OffsetNr.Next())
+		}
 		if publication == nil {
 			newChnlID := identity.New()
 			// регистрируем подписку последователя
@@ -729,6 +754,11 @@ func (s *service) takeWith(
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, getErr
 		}
 		communication := fwdConnSnap.NextTurn()
+		if communication != nil {
+			connMod.ConnRef = communication.ConnRef
+			connMod.PrevOffsetNr = communication.OffsetNr
+			connMod.OffsetNr = option.Some(communication.OffsetNr.Next())
+		}
 		switch typeExp.Pol() {
 		case polarity.Pos:
 			switch forwardable := communication.(type) {

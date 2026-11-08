@@ -2,9 +2,9 @@ package core
 
 import (
 	"context"
-	"orglang/go-engine/lib/tx"
+	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/adt/valkey"
+	"orglang/go-engine/internal/adt/valkey"
 )
 
 type Repo interface {

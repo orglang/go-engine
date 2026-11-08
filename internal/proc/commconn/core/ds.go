@@ -16,24 +16,24 @@ type Repo interface {
 }
 
 type ConnRecDS struct {
-	CommID   string `db:"comm_id"`
-	CommRN   int64  `db:"comm_rn"`
+	ConnID   string `db:"comm_id"`
+	ConnRN   int64  `db:"comm_rn"`
 	OffsetNr int64  `db:"offset_nr"`
 }
 
 type ConnModDS struct {
-	CommID   string          `db:"comm_id"`
+	ConnID   string          `db:"comm_id"`
 	OffsetNr sql.Null[int64] `db:"offset_nr"`
 }
 
 type ConnQryDS struct {
-	CommID string           `db:"comm_id"`
+	ConnID string           `db:"comm_id"`
 	ChnlID sql.Null[string] `db:"chnl_id"`
 }
 
 type ConnSnapDS struct {
-	CommID   string               `db:"comm_id"`
-	CommRN   int64                `db:"comm_rn"`
+	ConnID   string               `db:"comm_id"`
+	ConnRN   int64                `db:"comm_rn"`
 	OffsetNr int64                `db:"offset_nr"`
 	Turns    []commturn.TurnRecDS `db:"turns"`
 }

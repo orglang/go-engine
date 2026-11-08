@@ -43,8 +43,8 @@ func ErrOffsetConflict(got seqnum.ADT) error {
 	return fmt.Errorf("connection offset changed concurrently: got %v", got)
 }
 
-func ErrSnapshotConflict(got seqnum.ADT) error {
-	return fmt.Errorf("connection snapshot changed concurrently: offset %v", got)
+func ErrMissingConn(id identity.ADT) error {
+	return fmt.Errorf("connection missing: %v", id)
 }
 
 func (s ConnSnap) NextTurn() commturn.TurnRec {

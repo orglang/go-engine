@@ -286,10 +286,14 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 		compRefs[key] = ref
 		return nil
 	}
-	if err = addCompRef(execSnap.CompRef); err != nil {
-		return err
-	}
-	if !connMod.ProviderCompID.IsEmpty() {
+	if connMod.ProviderCompID.IsEmpty() {
+		// Non-connection steps still mutate the executing Computation root.
+		if err = addCompRef(execSnap.CompRef); err != nil {
+			return err
+		}
+	} else {
+		// A connection step always mutates the provider aggregate. The
+		// initiating client root is added only if its own variables change.
 		if err = addCompRef(compsem.SemRef{
 			CompID: connMod.ProviderCompID,
 			CompRN: connMod.ProviderCompRN,

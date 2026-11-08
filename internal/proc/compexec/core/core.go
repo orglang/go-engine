@@ -506,7 +506,7 @@ func (s *service) takeWith(
 		if publication != nil {
 			connMod.ConnRef = connSnap.ConnRef
 			connMod.PrevOffsetNr = connSnap.OffsetNr
-			connMod.OffsetNr = option.Some(connSnap.OffsetNr.Next())
+			connMod.OffsetNr = option.Some(publication.GetConnRef().ConnRN)
 		}
 		if publication == nil {
 			newChnlID := identity.New()

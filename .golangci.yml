@@ -1,0 +1,118 @@
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  default: standard
+  enable:
+    - bodyclose
+    - contextcheck
+    - copyloopvar
+    - depguard
+    - durationcheck
+    - errname
+    - errorlint
+    - gocritic
+    - gocyclo
+    - misspell
+    - nilerr
+    - noctx
+    - prealloc
+    - revive
+    - unconvert
+    - unparam
+    - wastedassign
+  settings:
+    depguard:
+      rules:
+        AgnosticCore:
+          list-mode: lax
+          files:
+            - "**/core/**/*.go"
+            - "**/domain/**/*.go"
+            - "!**/*_test.go"
+          deny:
+            - pkg: orglang/go-engine/lib/db/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/prog/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/proc/compstep/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/proc/commexch/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/proc/commturn/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/proc/compexec/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/proc/termdec/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/proc/termdef/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/proc/termexp/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/proc/typedef/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/proc/typeexp/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/pool/compstep/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/pool/commexch/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/pool/commturn/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/pool/compexec/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/pool/compvar/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/pool/termdef/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/pool/termexp/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/pool/typedef/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/pool/typeexp/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/adt/compsem/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/adt/descsem/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/adt/implsem/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: orglang/go-engine/adt/typesem/adapter
+              desc: Core/domain code must depend on a port, not an adapter.
+            - pkg: github.com/orglang/go-sdk
+              desc: Keep wire-format SDK dependencies in inbound/outbound adapters.
+            - pkg: github.com/jackc/pgx
+              desc: Use lib/tx contracts; keep pgx in infrastructure adapters.
+        ADT:
+          list-mode: lax
+          files:
+            - "**/adt/**/*.go"
+            - "!**/adt/**/adapter/**/*.go"
+            - "!**/*_test.go"
+          deny:
+            - pkg: orglang/go-engine/adt/compsem/adapter
+              desc: Domain types must not depend on concrete adapters.
+            - pkg: orglang/go-engine/adt/descsem/adapter
+              desc: Domain types must not depend on concrete adapters.
+            - pkg: orglang/go-engine/adt/implsem/adapter
+              desc: Domain types must not depend on concrete adapters.
+            - pkg: orglang/go-engine/adt/typesem/adapter
+              desc: Domain types must not depend on concrete adapters.
+            - pkg: github.com/orglang/go-sdk
+              desc: Keep SDK mapping in adapters.
+            - pkg: github.com/jackc/pgx
+              desc: Keep database drivers outside the domain.
+            - pkg: github.com/huandu/go-sqlbuilder
+              desc: Keep SQL construction in persistence adapters.
+    revive:
+      config: revive.toml
+  exclusions:
+    paths:
+      - proto/
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0

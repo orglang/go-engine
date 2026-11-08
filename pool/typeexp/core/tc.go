@@ -49,6 +49,9 @@ func ConvertSpecToRec(s ExpSpec) (ExpRec, error) {
 			vks = append(vks, vk)
 		}
 		expVK, err := valkey.Compose(append(vks, contExp.Key())...)
+		if err != nil {
+			return nil, err
+		}
 		return PlusRec{ExpVK: expVK, ProcQNs: spec.ProcQNs, ContExp: contExp}, nil
 	case UpSpec:
 		contExp, err := ConvertSpecToRec(spec.ContExp)
@@ -56,6 +59,9 @@ func ConvertSpecToRec(s ExpSpec) (ExpRec, error) {
 			return nil, err
 		}
 		expVK, err := valkey.Compose([]valkey.ADT{valkey.Two, contExp.Key()}...)
+		if err != nil {
+			return nil, err
+		}
 		return UpRec{ExpVK: expVK, ContExp: contExp}, nil
 	case DownSpec:
 		contExp, err := ConvertSpecToRec(spec.ContExp)
@@ -63,7 +69,10 @@ func ConvertSpecToRec(s ExpSpec) (ExpRec, error) {
 			return nil, err
 		}
 		expVK, err := valkey.Compose([]valkey.ADT{valkey.Three, contExp.Key()}...)
-		return UpRec{ExpVK: expVK, ContExp: contExp}, nil
+		if err != nil {
+			return nil, err
+		}
+		return DownRec{ExpVK: expVK, ContExp: contExp}, nil
 	default:
 		panic(ErrSpecTypeUnexpected(spec))
 	}

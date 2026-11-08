@@ -1,0 +1,22 @@
+AgnosticCore:
+  files:
+    - "**/core/**/*.go"
+    - "**/domain/**/*.go"
+    - "!**/*_test.go"
+  listMode: Lax
+  deny:
+    "orglang/go-engine/**/adapter": "Depend on a port; keep adapter implementations at the edge."
+    "github.com/orglang/go-sdk": "Keep wire-format SDK dependencies in inbound/outbound adapters."
+    "github.com/jackc/pgx": "Use lib/tx contracts; keep pgx in infrastructure adapters."
+
+ADT:
+  files:
+    - "**/adt/**/*.go"
+    - "!**/adt/**/adapter/**/*.go"
+    - "!**/*_test.go"
+  listMode: Lax
+  deny:
+    "orglang/go-engine/**/adapter": "Domain types must not depend on concrete adapters."
+    "github.com/orglang/go-sdk": "Keep SDK mapping in adapters."
+    "github.com/jackc/pgx": "Keep database drivers outside the domain."
+    "github.com/huandu/go-sqlbuilder": "Keep SQL construction in persistence adapters."

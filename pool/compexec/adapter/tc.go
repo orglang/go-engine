@@ -19,7 +19,7 @@ func DataToExecSnap1(dto compexec.ExecSnap1DS) (compexec.ExecSnap1, error) {
 		if err != nil {
 			return compexec.ExecSnap1{}, err
 		}
-		return compexec.ExecSnap1{ref, rec}, nil
+		return compexec.ExecSnap1{CompRef: ref, LiabVar: rec}, nil
 	case compvar.LinearMode:
 		rec, err := compvar.DataToLinearRec(*dto.LinearVar)
 		if err != nil {

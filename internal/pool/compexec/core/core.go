@@ -314,7 +314,7 @@ func (s *service) takeStep(
 		if subscription != nil {
 			connMod.ConnRef = commSnap.ConnRef
 			connMod.PrevOffsetNr = commSnap.OffsetNr
-			connMod.OffsetNr = option.Some(commSnap.OffsetNr.Next())
+			connMod.OffsetNr = option.Some(subscription.GetConnRef().ConnRN)
 		}
 		if subscription == nil {
 			// регистрируем подписку доступодателя
@@ -407,7 +407,7 @@ func (s *service) takeStep(
 		if subscription != nil {
 			connMod.ConnRef = commSnap.ConnRef
 			connMod.PrevOffsetNr = commSnap.OffsetNr
-			connMod.OffsetNr = option.Some(commSnap.OffsetNr.Next())
+			connMod.OffsetNr = option.Some(subscription.GetConnRef().ConnRN)
 		}
 		if subscription == nil {
 			// регистрируем подписку доступополучателя
@@ -500,7 +500,7 @@ func (s *service) takeStep(
 		if subscription != nil {
 			connMod.ConnRef = commSnap.ConnRef
 			connMod.PrevOffsetNr = commSnap.OffsetNr
-			connMod.OffsetNr = option.Some(commSnap.OffsetNr.Next())
+			connMod.OffsetNr = option.Some(subscription.GetConnRef().ConnRN)
 		}
 		if subscription == nil {
 			// регистрируем подписку соискателя
@@ -593,7 +593,7 @@ func (s *service) takeStep(
 		if subscription != nil {
 			connMod.ConnRef = commSnap.ConnRef
 			connMod.PrevOffsetNr = commSnap.OffsetNr
-			connMod.OffsetNr = option.Some(commSnap.OffsetNr.Next())
+			connMod.OffsetNr = option.Some(subscription.GetConnRef().ConnRN)
 		}
 		if subscription == nil {
 			// регистрируем подписку нанимателя
@@ -686,7 +686,7 @@ func (s *service) takeStep(
 		if subscription != nil {
 			connMod.ConnRef = commSnap.ConnRef
 			connMod.PrevOffsetNr = commSnap.OffsetNr
-			connMod.OffsetNr = option.Some(commSnap.OffsetNr.Next())
+			connMod.OffsetNr = option.Some(subscription.GetConnRef().ConnRN)
 		}
 		if subscription == nil {
 			// регистрируем подписку доступовозвращателя
@@ -763,7 +763,7 @@ func (s *service) takeStep(
 		if subscription != nil {
 			connMod.ConnRef = commSnap.ConnRef
 			connMod.PrevOffsetNr = commSnap.OffsetNr
-			connMod.OffsetNr = option.Some(commSnap.OffsetNr.Next())
+			connMod.OffsetNr = option.Some(subscription.GetConnRef().ConnRN)
 		}
 		if subscription == nil {
 			// регистрируем подписку доступопринимателя

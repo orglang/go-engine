@@ -1,8 +1,8 @@
 package adapter
 
 import (
-	"orglang/go-engine/adt/compsem"
-	core "orglang/go-engine/proc/compexec/core"
+	"orglang/go-engine/internal/adt/compsem"
+	core "orglang/go-engine/internal/proc/compexec/core"
 
 	"github.com/orglang/go-sdk/proc/compexec"
 )

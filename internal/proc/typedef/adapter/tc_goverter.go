@@ -3,7 +3,7 @@ package adapter
 import (
 	sdktypedef "github.com/orglang/go-sdk/proc/typedef"
 
-	typedef "orglang/go-engine/proc/typedef/core"
+	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
 // goverter:variables

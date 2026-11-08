@@ -3,7 +3,7 @@ package adapter
 import (
 	sdktermdec "github.com/orglang/go-sdk/proc/termdec"
 
-	termdec "orglang/go-engine/proc/termdec/core"
+	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
 // goverter:variables

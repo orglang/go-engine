@@ -3,7 +3,7 @@ package adapter
 import (
 	sdktypeexp "github.com/orglang/go-sdk/proc/typeexp"
 
-	typeexp "orglang/go-engine/proc/typeexp/core"
+	typeexp "orglang/go-engine/internal/proc/typeexp/core"
 )
 
 // goverter:variables

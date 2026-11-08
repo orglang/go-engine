@@ -5,7 +5,7 @@ import (
 	"slices"
 	"testing"
 
-	"orglang/go-engine/adt/compvar"
+	"orglang/go-engine/internal/adt/compvar"
 )
 
 func TestInsert(t *testing.T) {

@@ -6,12 +6,12 @@ import (
 	"log/slog"
 	"reflect"
 
-	"orglang/go-engine/lib/lf"
-	"orglang/go-engine/lib/tx"
+	"orglang/go-engine/internal/lib/lf"
+	"orglang/go-engine/internal/lib/tx"
 
 	"github.com/jackc/pgx/v5"
 
-	commturn "orglang/go-engine/pool/commturn/core"
+	commturn "orglang/go-engine/internal/pool/commturn/core"
 )
 
 type daoPgx struct {

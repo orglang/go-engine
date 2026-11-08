@@ -8,14 +8,14 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/lib/lf"
-	"orglang/go-engine/lib/tx"
+	"orglang/go-engine/internal/lib/lf"
+	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/typesem"
-	"orglang/go-engine/adt/uniqsym"
+	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/typesem"
+	"orglang/go-engine/internal/adt/uniqsym"
 
-	typedef "orglang/go-engine/pool/typedef/core"
+	typedef "orglang/go-engine/internal/pool/typedef/core"
 )
 
 type daoPgx struct {

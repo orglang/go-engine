@@ -58,13 +58,13 @@ CREATE TABLE pool_struct_vars (
 CREATE TABLE pool_linear_vars (
 ) INHERITS (pool_comp_vars);
 
-CREATE TABLE pool_connections (
+CREATE TABLE pool_comp_conns (
     conn_id varchar UNIQUE,
     conn_rn bigint,
     offset_nr bigint
 );
 
-CREATE TABLE pool_connection_acts (
+CREATE TABLE pool_conn_acts (
     conn_id varchar,
     conn_rn bigint,
     comp_id varchar,
@@ -131,13 +131,13 @@ CREATE TABLE proc_struct_vars (
 CREATE TABLE proc_linear_vars (
 ) INHERITS (proc_comp_vars);
 
-CREATE TABLE proc_connections (
+CREATE TABLE proc_comp_conns (
     conn_id varchar UNIQUE,
     conn_rn bigint,
     offset_nr bigint
 );
 
-CREATE TABLE proc_connection_acts (
+CREATE TABLE proc_conn_acts (
     conn_id varchar,
     conn_rn bigint,
     comp_id varchar,

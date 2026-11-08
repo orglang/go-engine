@@ -36,7 +36,7 @@ func newRepo() commconn.Repo {
 func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec commconn.ConnRec) error {
 	ref := connsem.DataFromRef(rec.ConnRef)
 	const query = `
-		INSERT INTO proc_connections (conn_id, conn_rn, offset_nr)
+		INSERT INTO proc_comp_conns (conn_id, conn_rn, offset_nr)
 		VALUES ($1, $2, $3)
 	`
 	_, err := conn.Pgx.Exec(ctx, query, ref.ConnID, ref.ConnRN, int64(rec.OffsetNr))
@@ -52,7 +52,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 	ensureConnection := func(ref connsem.SemRef) error {
 		dto := connsem.DataFromRef(ref)
 		const query = `
-			INSERT INTO proc_connections (conn_id, conn_rn, offset_nr)
+			INSERT INTO proc_comp_conns (conn_id, conn_rn, offset_nr)
 			VALUES ($1, $2, 0)
 			ON CONFLICT (conn_id) DO NOTHING
 		`
@@ -65,7 +65,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 		}
 		ref := connsem.DataFromRef(mod.ConnRef)
 		const query = `
-			UPDATE proc_connections
+			UPDATE proc_comp_conns
 			SET offset_nr = $1
 			WHERE conn_id = $2 AND conn_rn = $3 AND offset_nr = $4
 		`
@@ -91,7 +91,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 			expectedRN = ref.ConnRN
 		}
 		const updateRevision = `
-			UPDATE proc_connections
+			UPDATE proc_comp_conns
 			SET conn_rn = conn_rn + 1
 			WHERE conn_id = $1 AND conn_rn = $2
 		`
@@ -109,7 +109,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 		}
 		dto.ConnRN = int64(expectedRN)
 		const insertAct = `
-			INSERT INTO proc_connection_acts (conn_id, conn_rn, comp_id, chnl_id, kind, exp)
+			INSERT INTO proc_conn_acts (conn_id, conn_rn, comp_id, chnl_id, kind, exp)
 			VALUES ($1, $2, $3, $4, $5, $6)
 		`
 		_, err = conn.Pgx.Exec(ctx, insertAct, dto.ConnID, dto.ConnRN, dto.CompID, dto.ChnlID, dto.K, dto.Exp)
@@ -127,7 +127,7 @@ func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.
 	query := `
 		WITH turns AS (
 			SELECT turn.*
-			FROM proc_connection_acts turn
+			FROM proc_conn_acts turn
 			WHERE turn.conn_id = $1
 	`
 	args := []any{ref.ConnID}
@@ -142,7 +142,7 @@ func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.
 			conn.conn_rn,
 			conn.offset_nr,
 			(SELECT array_agg(row(t.*) ORDER BY t.conn_rn) FROM turns t WHERE t.conn_rn > conn.offset_nr) AS turns
-		FROM proc_connections conn
+		FROM proc_comp_conns conn
 		WHERE conn.conn_id = $1
 	`
 	rows, err := conn.Pgx.Query(ctx, query, args...)

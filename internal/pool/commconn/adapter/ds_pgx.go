@@ -68,7 +68,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 			expectedRN = ref.ConnRN
 		}
 		const updateRevision = `
-			UPDATE pool_connections
+			UPDATE pool_comp_conns
 			SET conn_rn = conn_rn + 1
 			WHERE conn_id = $1 AND conn_rn = $2
 		`

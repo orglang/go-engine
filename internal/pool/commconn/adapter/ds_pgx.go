@@ -8,6 +8,8 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 
+	"orglang/go-engine/internal/adt/seqnum"
+
 	commconn "orglang/go-engine/internal/pool/commconn/core"
 	commturnadapter "orglang/go-engine/internal/pool/commturn/adapter"
 
@@ -44,28 +46,52 @@ func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec commconn.ConnRe
 
 func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.ConnMod) error {
 	refAttr := slog.Any("ref", mod.ConnRef)
+	if mod.OffsetNr != nil {
+		dto := DataFromMod(mod)
+		sql, args := dao.qb.UpdateRec(dto)
+		tag, execErr := conn.Pgx.Exec(ctx, sql, args...)
+		if execErr != nil {
+			dao.log.Error("Connection offset update failed", refAttr, slog.String("sql", sql))
+			return execErr
+		}
+		if tag.RowsAffected() == 0 {
+			return commconn.ErrOffsetConflict(mod.PrevOffsetNr)
+		}
+	}
+
+	nextRNs := make(map[string]seqnum.ADT)
 	for _, turn := range mod.Turns {
+		ref := turn.GetConnRef()
+		key := ref.ConnID.String()
+		expectedRN, ok := nextRNs[key]
+		if !ok {
+			expectedRN = ref.ConnRN
+		}
+		const updateRevision = `
+			UPDATE pool_connections
+			SET conn_rn = conn_rn + 1
+			WHERE conn_id = $1 AND conn_rn = $2
+			RETURNING conn_rn
+		`
+		var nextRN int64
+		err := conn.Pgx.QueryRow(ctx, updateRevision, key, int64(expectedRN)).Scan(&nextRN)
+		if err == pgx.ErrNoRows {
+			return commconn.ErrRevisionConflict(expectedRN)
+		}
+		if err != nil {
+			dao.log.Error("Connection revision update failed", refAttr)
+			return err
+		}
 		dto := commturnadapter.DataFromStepRec(turn)
+		dto.ConnRN = int64(expectedRN)
 		sql, args := dao.qb.InsertTurnRec(dto)
 		if _, execErr := conn.Pgx.Exec(ctx, sql, args...); execErr != nil {
 			dao.log.Error("Act insertion failed", refAttr, slog.String("sql", sql))
 			return execErr
 		}
+		nextRNs[key] = seqnum.ADT(nextRN)
 	}
-	if mod.OffsetNr == nil {
-		return nil
-	}
-	dto := DataFromMod(mod)
-	sql, args := dao.qb.UpdateRec(dto)
-	tag, execErr := conn.Pgx.Exec(ctx, sql, args...)
-	if execErr != nil {
-		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
-		return execErr
-	}
-	if tag.RowsAffected() == 0 {
-		return commconn.ErrOffsetConflict(mod.PrevOffsetNr)
-	}
-	dao.log.Log(ctx, lf.LevelTrace, "modification succeed", slog.Any("dto", dto))
+	dao.log.Log(ctx, lf.LevelTrace, "Connection modification succeed", refAttr)
 	return nil
 }
 

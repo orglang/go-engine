@@ -13,7 +13,7 @@ func TestInsertRec(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
 	gotSQL, gotArgs := qb.InsertRec(commconn.ConnRecDS{})
-	wantSQL := "INSERT INTO pool_comm_conns  (comm_id, comm_rn, offset_nr) VALUES ($1, $2, $3)"
+	wantSQL := "INSERT INTO pool_connections  (conn_id, conn_rn, offset_nr) VALUES ($1, $2, $3)"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)
 	}
@@ -27,7 +27,7 @@ func TestInsertTurnRec(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
 	gotSQL, gotArgs := qb.InsertTurnRec(commturn.TurnRecDS{})
-	wantSQL := "INSERT INTO pool_comm_turns  (comm_id, comm_rn, comp_id, chnl_id, kind, exp) VALUES ($1, $2, $3, $4, $5, $6)"
+	wantSQL := "INSERT INTO pool_connection_acts  (conn_id, conn_rn, comp_id, chnl_id, kind, exp) VALUES ($1, $2, $3, $4, $5, $6)"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)
 	}
@@ -40,7 +40,7 @@ func TestUpdateRec(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
 	gotSQL, gotArgs := qb.UpdateRec(commconn.ConnModDS{OffsetNr: sql.Null[int64]{Valid: true}})
-	wantSQL := "UPDATE pool_comm_conns  SET offset_nr = $1 WHERE comm_id = $2"
+	wantSQL := "UPDATE pool_connections  SET offset_nr = $1 WHERE conn_id = $2"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)
 	}
@@ -54,11 +54,11 @@ func TestSelectSnap(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
 	gotSQL, gotArgs := qb.SelectSnap(commconn.ConnQryDS{ChnlID: sql.Null[string]{Valid: true}})
-	wantSQL := "WITH turns AS (SELECT turn.comm_id, turn.comm_rn, turn.comp_id, turn.chnl_id, turn.kind, turn.exp " +
-		"FROM pool_comm_turns turn WHERE comm_id = $1 AND chnl_id = $2) " +
-		"SELECT conn.comm_id, conn.comm_rn, conn.offset_nr, " +
-		"(SELECT array_agg(row(t.*)) FROM turns t WHERE t.comm_rn > conn.offset_nr) AS turns " +
-		"FROM pool_comm_conns conn WHERE conn.comm_id = $3"
+	wantSQL := "WITH turns AS (SELECT turn.conn_id, turn.conn_rn, turn.comp_id, turn.chnl_id, turn.kind, turn.exp " +
+		"FROM pool_connection_acts turn WHERE conn_id = $1 AND chnl_id = $2) " +
+		"SELECT conn.conn_id, conn.conn_rn, conn.offset_nr, " +
+		"(SELECT array_agg(row(t.*)) FROM turns t WHERE t.conn_rn > conn.offset_nr) AS turns " +
+		"FROM pool_connections conn WHERE conn.conn_id = $3"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)
 	}

@@ -56,7 +56,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 			return err
 		}
 		if tag.RowsAffected() == 0 {
-			return commconn.ErrSnapshotConflict(mod.PrevOffsetNr)
+			return commconn.ErrMissingConn(mod.ConnID)
 		}
 	}
 	for _, turn := range mod.Turns {

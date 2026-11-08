@@ -3,14 +3,10 @@ package tx
 
 import (
 	"context"
-	"errors"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 )
-
-// ErrMissingPgx is returned when a connection does not contain a PostgreSQL resource.
-var ErrMissingPgx = errors.New("connection does not contain a pgx resource")
 
 // Pgx is the minimal set of PostgreSQL operations currently used by adapters.
 // pgx.Tx and *pgxpool.Conn satisfy this interface.
@@ -24,14 +20,6 @@ type Pgx interface {
 // It must not be retained or used after the callback returns.
 type Conn struct {
 	Pgx Pgx
-}
-
-// RequirePgx returns the PostgreSQL resource or a regular error when it is absent.
-func (c Conn) RequirePgx() (Pgx, error) {
-	if c.Pgx == nil {
-		return nil, ErrMissingPgx
-	}
-	return c.Pgx, nil
 }
 
 // UoW is the legacy callback payload. Use Conn and the callback context in new code.

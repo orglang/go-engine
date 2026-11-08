@@ -22,6 +22,7 @@ type ConnRec struct {
 type ConnMod struct {
 	ConnID         identity.ADT
 	ProviderCompID identity.ADT
+	ProviderCompRN seqnum.ADT
 	OffsetNr       option.ADT[seqnum.ADT]
 	Turns          []commturn.TurnRec
 }
@@ -35,6 +36,7 @@ type ConnQry struct {
 type ConnSnap struct {
 	ConnID         identity.ADT
 	ProviderCompID identity.ADT
+	ProviderCompRN seqnum.ADT
 	OffsetNr       seqnum.ADT
 	Turns          []commturn.TurnRec
 }

@@ -58,6 +58,14 @@
 
 Для Pool Connection генерировать `ConnID` при создании provider Computation и сохранять его в liability-переменной. Сам Pool Connection создавать в транзакции создания client Computation, когда известны оба endpoint. Это решение о Pool Connection не задаёт момент создания Process Connection: process-side attachment lifecycle вынесен в [go-workspace issue #112](https://github.com/orglang/go-workspace/issues/112).
 
+### Владение Connection и конкурентные изменения
+
+`Connection` является вложенной сущностью агрегата provider Computation. Provider Computation — единственный aggregate root, через который выполняются все изменения соответствующего Connection, включая добавление Act и изменение общего состояния взаимодействия. Это правило не зависит от того, какая сторона инициировала операцию: client может инициировать PubRec или SubRec, но запись Connection всё равно изменяется в транзакции с проверкой версии provider Computation.
+
+Каждая операция, изменяющая Connection, должна проверять ожидаемый `provider.comp_rn` и атомарно увеличивать `provider.comp_rn` в той же транзакции, что и изменение Connection. Поэтому две разные Computation, конкурирующие за один Connection, конфликтуют на версии одного и того же provider aggregate root. Отдельная версия `Connection` для optimistic concurrency control не вводится; `act_nr` остаётся только порядковым номером Act в общем потоке.
+
+`client.comp_rn` увеличивается только тогда, когда операция одновременно изменяет собственное состояние client Computation (например, её переменные). Сам факт изменения общего Connection не является основанием увеличивать ревизию client Computation.
+
 При создании клиентской Computation система получает зарезервированный `ConnID` из provider liability-переменной и в той же транзакции создаёт запись Connection и asset-переменные клиента. Liability-переменная провайдера и asset-переменная клиента тем самым образуют два endpoint-а одной Connection и ссылаются на один `ConnID`. До этой транзакции строки Connection нет.
 
 Оба endpoint должны быть определены до первого Act. Первый Act не создаёт Connection и не выполняет отложенную привязку endpoints.
@@ -72,7 +80,10 @@
 
 - `ConnID` глобально идентифицирует Connection; отдельный составной reference для него не вводится.
 - Connection явно хранит `ProviderCompRef` и `ClientCompRef`; ссылки включают идентификатор и ревизию Computation.
-- Connection принадлежит агрегату Computation; он не является самостоятельным корнем агрегата.
+- Connection принадлежит агрегату provider Computation; provider Computation является единственным aggregate root для изменений Connection, а Connection не является самостоятельным корнем агрегата.
+- Любое изменение Connection проверяет ожидаемый `provider.comp_rn` и атомарно увеличивает `provider.comp_rn`; отдельная версия Connection для optimistic concurrency control не используется.
+- `client.comp_rn` увеличивается только при изменении собственного состояния client Computation, а не только из-за изменения общего Connection.
+- `act_nr` задаёт порядок Act и не используется как версия агрегата или механизм optimistic concurrency control.
 - При выбранном варианте C запись Connection создаётся только после появления обоих endpoints; принадлежность endpoint-ов определяется переменными Computation, содержащими общий `ConnID`.
 - До создания клиента provider liability-переменная может содержать зарезервированный `ConnID`, для которого запись Connection ещё отсутствует.
 - Для одной пары endpoints используется один Connection и один `ConnID`.
@@ -88,12 +99,14 @@
 - Провайдер получает стабильный `ConnID` сразу при создании своей Computation.
 - Обе стороны используют одну запись Connection и одну идентичность канала.
 - Connection создаётся сразу с обоими endpoint; не требуется отложенная привязка.
-- Жизненный цикл Connection согласован с тем, что корнем агрегата является Computation.
+- Жизненный цикл Connection согласован с тем, что provider Computation является его единственным aggregate root.
+- Конкурирующие изменения одного Connection сериализуются optimistic concurrency control на `provider.comp_rn`, даже если операции инициированы разными endpoint-ами.
 
 ### Отрицательные
 
 - До создания клиента существует зарезервированный `ConnID` без строки Connection.
 - Операции, которым нужна сущность Connection, должны отличать зарезервированный идентификатор от созданного Connection.
+- Все операции изменения Connection, включая инициированные client-стороной, должны иметь доступ к provider aggregate root и выполнять запись в его транзакционном контексте.
 
 ## Когда пересмотреть решение
 

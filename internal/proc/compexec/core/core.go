@@ -245,7 +245,7 @@ func (s *service) takeWith(
 		if subscription == nil {
 			// регистрируем подписку закрывателя
 			setConnectionEndpoints(connChnl)
-connMod.Turns = append(connMod.Turns, commturn.SubRec{
+			connMod.Turns = append(connMod.Turns, commturn.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -320,7 +320,7 @@ connMod.Turns = append(connMod.Turns, commturn.SubRec{
 		if subscription == nil {
 			// регистрируем подписку наблюдателя
 			setConnectionEndpoints(connChnl)
-connMod.Turns = append(connMod.Turns, commturn.SubRec{
+			connMod.Turns = append(connMod.Turns, commturn.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -422,7 +422,7 @@ connMod.Turns = append(connMod.Turns, commturn.SubRec{
 		if subscription == nil {
 			// регистрируем подписку отправителя
 			setConnectionEndpoints(connChnl)
-connMod.Turns = append(connMod.Turns, commturn.SubRec{
+			connMod.Turns = append(connMod.Turns, commturn.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -533,7 +533,7 @@ connMod.Turns = append(connMod.Turns, commturn.SubRec{
 			})
 			// регистрируем подписку принимателя
 			setConnectionEndpoints(connChnl)
-connMod.Turns = append(connMod.Turns, commturn.SubRec{
+			connMod.Turns = append(connMod.Turns, commturn.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -622,7 +622,7 @@ connMod.Turns = append(connMod.Turns, commturn.SubRec{
 			})
 			// регистрируем сообщение решателя
 			setConnectionEndpoints(connChnl)
-connMod.Turns = append(connMod.Turns, commturn.PubRec{
+			connMod.Turns = append(connMod.Turns, commturn.PubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -700,7 +700,7 @@ connMod.Turns = append(connMod.Turns, commturn.PubRec{
 			newChnlID := identity.New()
 			// регистрируем подписку последователя
 			setConnectionEndpoints(connChnl)
-connMod.Turns = append(connMod.Turns, commturn.SubRec{
+			connMod.Turns = append(connMod.Turns, commturn.SubRec{
 				ConnID:  connChnl.ConnID,
 				CompRef: connChnl.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -831,7 +831,7 @@ connMod.Turns = append(connMod.Turns, commturn.SubRec{
 				})
 				// регистрируем сообщение схлопывающегося
 				setConnectionEndpoints(connChnl)
-connMod.Turns = append(connMod.Turns, commturn.PubRec{
+				connMod.Turns = append(connMod.Turns, commturn.PubRec{
 					ConnID:  fwdConnSnap.ConnID,
 					CompRef: execSnap.CompRef,
 					ChnlID:  connChnl.ChnlID,
@@ -883,7 +883,7 @@ connMod.Turns = append(connMod.Turns, commturn.PubRec{
 			case nil:
 				// регистрируем подписку схлопывающегося
 				setConnectionEndpoints(connChnl)
-connMod.Turns = append(connMod.Turns, commturn.SubRec{
+				connMod.Turns = append(connMod.Turns, commturn.SubRec{
 					ConnID:  fwdConnSnap.ConnID,
 					CompRef: connChnl.CompRef,
 					ChnlID:  connChnl.ChnlID,

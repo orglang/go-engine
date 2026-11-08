@@ -37,10 +37,15 @@ func newRepo() commconn.Repo { return new(daoPgx) }
 
 func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec commconn.ConnRec) error {
 	const query = `
-		INSERT INTO proc_comp_conns (conn_id, comp_id, comp_rn, offset_nr, act_nr)
-		VALUES ($1, $2, $3, $4, $5)
+		INSERT INTO proc_comp_conns (conn_id, provider_comp_id, provider_comp_rn, client_comp_id, client_comp_rn, offset_nr, act_nr)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
 	`
-	_, err := conn.Pgx.Exec(ctx, query, identity.ConvertToString(rec.ConnID), rec.CompRef.CompID.String(), int64(rec.CompRef.CompRN), int64(rec.OffsetNr), int64(rec.ActNr))
+	_, err := conn.Pgx.Exec(ctx, query,
+		identity.ConvertToString(rec.ConnID),
+		rec.ProviderCompRef.CompID.String(), int64(rec.ProviderCompRef.CompRN),
+		rec.ClientCompRef.CompID.String(), int64(rec.ClientCompRef.CompRN),
+		int64(rec.OffsetNr), int64(rec.ActNr),
+	)
 	if err != nil {
 		dao.log.Error("Connection insertion failed", slog.Any("conn_id", rec.ConnID))
 		return err
@@ -138,8 +143,6 @@ func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.
 		)
 		SELECT
 			conn.conn_id,
-			conn.comp_id,
-			conn.comp_rn,
 			conn.offset_nr,
 			conn.act_nr,
 			(SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM turns t WHERE t.act_nr > conn.offset_nr) AS turns

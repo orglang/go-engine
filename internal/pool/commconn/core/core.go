@@ -1,7 +1,7 @@
 package core
 
 import (
-	"orglang/go-engine/internal/adt/commsem"
+	"orglang/go-engine/internal/adt/connsem"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/option"
 	"orglang/go-engine/internal/adt/seqnum"
@@ -10,24 +10,24 @@ import (
 )
 
 type ConnRec struct {
-	CommRef  commsem.SemRef
+	ConnRef  connsem.SemRef
 	OffsetNr seqnum.ADT
 }
 
 type ConnMod struct {
-	CommRef  commsem.SemRef
+	ConnRef  connsem.SemRef
 	OffsetNr option.ADT[seqnum.ADT]
 	Turns    []commturn.TurnRec
 }
 
 type ConnQry struct {
-	CommRef commsem.SemRef
+	ConnRef connsem.SemRef
 	ChnlID  option.ADT[identity.ADT]
 }
 
 // aka Configuration
 type ConnSnap struct {
-	CommRef commsem.SemRef
+	ConnRef connsem.SemRef
 	Turns   []commturn.TurnRec
 }
 

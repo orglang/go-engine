@@ -16,7 +16,7 @@ tasks:
   tools:install:
     desc: Download tooling dependencies declared in gear.mod
     cmds:
-      - GOWORK=off go mod download -modfile=gear.mod all
+      - GOWORK=off go get -tool -modfile=gear.mod github.com/golangci/golangci-lint/v2/cmd/golangci-lint github.com/jmattheis/goverter/cmd/goverter
 
   gear:sum:
     desc: Generate checksums for tooling dependencies

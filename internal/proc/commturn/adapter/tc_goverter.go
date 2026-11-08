@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	commturn "orglang/go-engine/proc/commturn/core"
+	commturn "orglang/go-engine/internal/proc/commturn/core"
 )
 
 // goverter:variables

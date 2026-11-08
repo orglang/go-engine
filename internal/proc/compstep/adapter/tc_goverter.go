@@ -3,7 +3,7 @@ package adapter
 import (
 	sdkcompstep "github.com/orglang/go-sdk/proc/compstep"
 
-	compstep "orglang/go-engine/proc/compstep/core"
+	compstep "orglang/go-engine/internal/proc/compstep/core"
 )
 
 // goverter:variables

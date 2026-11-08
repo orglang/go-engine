@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"reflect"
 
-	implsem "orglang/go-engine/internal/adt/implsem"
+	"orglang/go-engine/internal/adt/implsem"
 	"orglang/go-engine/internal/lib/tx"
 )
 

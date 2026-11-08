@@ -9,5 +9,5 @@ require (
 
 tool (
 	github.com/golangci/golangci-lint/v2/cmd/golangci-lint
-	github.com/jmattheis/goverter
+	github.com/jmattheis/goverter/cmd/goverter
 )

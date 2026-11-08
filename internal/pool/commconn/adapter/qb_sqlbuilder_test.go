@@ -40,8 +40,8 @@ func TestUpdateRec(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
 	gotSQL, gotArgs := qb.UpdateRec(commconn.ConnModDS{
-		ConnID:       "",
-		OffsetNr:     sql.Null[int64]{V: 3, Valid: true},
+		ConnID:   "",
+		OffsetNr: sql.Null[int64]{V: 3, Valid: true},
 	})
 	wantSQL := "UPDATE pool_comp_conns  SET offset_nr = $1 WHERE conn_id = $2"
 	if gotSQL != wantSQL {

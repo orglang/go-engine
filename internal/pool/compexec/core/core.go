@@ -107,7 +107,7 @@ func newAPI() API {
 
 func NewService(
 	compExecRepo Repo,
-	compExecConn Broker,
+	compExecExch Broker,
 	compVarRepo compvar.Repo,
 	commConnRepo commconn.Repo,
 	commTurnRepo commturn.Repo,

@@ -7,6 +7,7 @@ on:
     branches: [main]
     types:
       - opened
+      - ready_for_review
       - synchronize
 
 permissions:
@@ -27,7 +28,7 @@ jobs:
           go-version-file: go.mod
 
       - name: Setup Task
-        uses: arduino/setup-task@v2
+        uses: go-task/setup-task@v1
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 

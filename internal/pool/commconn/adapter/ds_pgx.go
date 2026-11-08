@@ -71,16 +71,14 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 			UPDATE pool_connections
 			SET conn_rn = conn_rn + 1
 			WHERE conn_id = $1 AND conn_rn = $2
-			RETURNING conn_rn
 		`
-		var nextRN int64
-		err := conn.Pgx.QueryRow(ctx, updateRevision, key, int64(expectedRN)).Scan(&nextRN)
-		if err == pgx.ErrNoRows {
-			return commconn.ErrRevisionConflict(expectedRN)
-		}
+		tag, err := conn.Pgx.Exec(ctx, updateRevision, key, int64(expectedRN))
 		if err != nil {
 			dao.log.Error("Connection revision update failed", refAttr)
 			return err
+		}
+		if tag.RowsAffected() == 0 {
+			return commconn.ErrRevisionConflict(expectedRN)
 		}
 		dto := commturnadapter.DataFromStepRec(turn)
 		dto.ConnRN = int64(expectedRN)
@@ -89,7 +87,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 			dao.log.Error("Act insertion failed", refAttr, slog.String("sql", sql))
 			return execErr
 		}
-		nextRNs[key] = seqnum.ADT(nextRN)
+		nextRNs[key] = expectedRN.Next()
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "Connection modification succeed", refAttr)
 	return nil

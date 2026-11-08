@@ -11,12 +11,12 @@ import (
 )
 
 type ConnRec struct {
-	ConnRef      connsem.SemRef
+	ConnRef  connsem.SemRef
 	OffsetNr seqnum.ADT
 }
 
 type ConnMod struct {
-	ConnRef  connsem.SemRef
+	ConnRef      connsem.SemRef
 	OffsetNr     option.ADT[seqnum.ADT]
 	PrevOffsetNr seqnum.ADT
 	Turns        []commturn.TurnRec

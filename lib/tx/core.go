@@ -9,10 +9,6 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
-// ErrNestedTransaction is returned when a transactor is invoked from within
-// another transactor callback. Nested transactions are not supported.
-var ErrNestedTransaction = errors.New("nested transactions are not supported")
-
 // ErrMissingPgx is returned when a connection does not contain a PostgreSQL resource.
 var ErrMissingPgx = errors.New("connection does not contain a pgx resource")
 
@@ -53,8 +49,10 @@ type UoW struct {
 // connection without starting a transaction. Both callbacks receive a derived
 // context and a Conn that is valid only until the callback returns.
 //
-// Nested calls to any transactor method are not supported. Operations involving
-// multiple drivers are not atomic across drivers.
+// Nested transactor calls are not supported. Conn deliberately exposes no
+// transaction-management methods, so repository code cannot start transactions
+// through the connection. Operations involving multiple drivers are not atomic
+// across drivers.
 //
 // The Old methods preserve the previous callback contract during migration.
 type Transactor interface {

@@ -41,7 +41,7 @@ func (qb *sqlBuilder) UpdateRec(mod commconn.ConnModDS) (string, []any) {
 }
 
 func (qb *sqlBuilder) SelectSnap(qry commconn.ConnQryDS) (string, []any) {
-	conn := sqlbuilder.PostgreSQL.NewSelectBuilder().Select("conn.conn_id", "conn.provider_comp_id", "exec.comp_rn AS provider_comp_rn", "conn.offset_nr", "conn.act_nr").From(compConns + "conn").Join("pool_comp_execs exec", "exec.comp_id = conn.provider_comp_id")
+	conn := sqlbuilder.PostgreSQL.NewSelectBuilder().Select("conn.conn_id", "conn.provider_comp_id", "exec.comp_rn AS provider_comp_rn", "conn.offset_nr", "conn.act_nr").From(compConns+"conn").Join("pool_comp_execs exec", "exec.comp_id = conn.provider_comp_id")
 	turn := qb.turnBuilder.SelectFrom(connActs + "turn")
 	turn.Where(turn.Equal("conn_id", qry.ConnID))
 	if qry.ChnlID.Valid {

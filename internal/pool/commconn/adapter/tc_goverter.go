@@ -17,7 +17,6 @@ var (
 	// goverter:map ConnID | identityToString
 	DataFromQry func(commconn.ConnQry) commconn.ConnQryDS
 	// goverter:map ConnID | identityToString
-	// goverter:ignore Turns
 	DataFromMod func(commconn.ConnMod) commconn.ConnModDS
 	// goverter:ignore CompID
 	// goverter:ignore CompRN

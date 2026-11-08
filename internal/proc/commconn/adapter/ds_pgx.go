@@ -19,6 +19,10 @@ import (
 	commturn "orglang/go-engine/internal/proc/commturn/core"
 )
 
+type actSequenceDS struct {
+	ActNr int64 `db:"act_nr"`
+}
+
 type daoPgx struct {
 	log *slog.Logger
 }
@@ -78,10 +82,16 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 			WHERE conn_id = $1
 			RETURNING act_nr
 		`
-		var actNr int64
-		if err := conn.Pgx.QueryRow(ctx, nextAct, identity.ConvertToString(connID)).Scan(&actNr); err != nil {
+		rows, err := conn.Pgx.Query(ctx, nextAct, identity.ConvertToString(connID))
+		if err != nil {
 			return err
 		}
+		act, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[actSequenceDS])
+		rows.Close()
+		if err != nil {
+			return err
+		}
+		actNr := act.ActNr
 		dto, err := commturnadapter.DataFromStepRec(turn)
 		if err != nil {
 			return err

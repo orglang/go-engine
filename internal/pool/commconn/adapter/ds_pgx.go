@@ -15,6 +15,10 @@ import (
 	commturnadapter "orglang/go-engine/internal/pool/commturn/adapter"
 )
 
+type actSequenceDS struct {
+	ActNr int64 `db:"act_nr"`
+}
+
 type daoPgx struct {
 	qb  commconn.QueryBuilder
 	log *slog.Logger
@@ -63,10 +67,18 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 			WHERE conn_id = $1
 			RETURNING act_nr
 		`
-		if err := conn.Pgx.QueryRow(ctx, nextAct, identity.ConvertToString(turn.GetConnID())).Scan(&dto.ActNr); err != nil {
+		rows, err := conn.Pgx.Query(ctx, nextAct, identity.ConvertToString(turn.GetConnID()))
+		if err != nil {
 			dao.log.Error("Connection Act sequence update failed", refAttr)
 			return err
 		}
+		act, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[actSequenceDS])
+		rows.Close()
+		if err != nil {
+			dao.log.Error("Connection Act sequence scan failed", refAttr)
+			return err
+		}
+		dto.ActNr = act.ActNr
 		sql, args := dao.qb.InsertTurnRec(dto)
 		if _, err := conn.Pgx.Exec(ctx, sql, args...); err != nil {
 			dao.log.Error("Act insertion failed", refAttr, slog.String("sql", sql))

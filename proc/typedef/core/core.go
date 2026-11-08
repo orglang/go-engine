@@ -106,10 +106,8 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 	ctx := context.Background()
 	refAttr := slog.Any("defRef", snap.TypeRef)
 	s.log.Debug("modification started", refAttr)
-	var rec DefRec
-	err = s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		rec, err = s.typeDefRepo.GetRecByRef(txCtx, conn, snap.TypeRef)
-		return err
+	rec, err := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DefRec, error) {
+		return s.typeDefRepo.GetRecByRef(txCtx, conn, snap.TypeRef)
 	})
 	if err != nil {
 		s.log.Error("modification failed", refAttr)
@@ -156,10 +154,8 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 
 func (s *service) RetrieveSnap(ref typesem.SemRef) (_ DefSnap, err error) {
 	ctx := context.Background()
-	var rec DefRec
-	getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		rec, err = s.typeDefRepo.GetRecByRef(txCtx, conn, ref)
-		return err
+	rec, getErr := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DefRec, error) {
+		return s.typeDefRepo.GetRecByRef(txCtx, conn, ref)
 	})
 	if getErr != nil {
 		s.log.Error("retrieval failed", slog.Any("ref", ref))
@@ -170,10 +166,8 @@ func (s *service) RetrieveSnap(ref typesem.SemRef) (_ DefSnap, err error) {
 
 func (s *service) retrieveSnap(rec DefRec) (_ DefSnap, err error) { // revive:disable-line:confusing-naming
 	ctx := context.Background()
-	var expRec typeexp.ExpRec
-	err = s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		expRec, err = s.typeExpRepo.SelectRecByVK(txCtx, conn, rec.ExpVK)
-		return err
+	expRec, err := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (typeexp.ExpRec, error) {
+		return s.typeExpRepo.SelectRecByVK(txCtx, conn, rec.ExpVK)
 	})
 	if err != nil {
 		s.log.Error("retrieval failed", slog.Any("ref", rec.TypeRef))
@@ -187,9 +181,8 @@ func (s *service) retrieveSnap(rec DefRec) (_ DefSnap, err error) { // revive:di
 
 func (s *service) RetreiveRefs() (refs []typesem.SemRef, err error) {
 	ctx := context.Background()
-	err = s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		refs, err = s.typeDefRepo.GetRefs(txCtx, conn)
-		return err
+	refs, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) ([]typesem.SemRef, error) {
+		return s.typeDefRepo.GetRefs(txCtx, conn)
 	})
 	if err != nil {
 		s.log.Error("retrieval failed")

@@ -18,7 +18,6 @@ import (
 	"orglang/go-engine/internal/adt/valkey"
 
 	commconn "orglang/go-engine/internal/pool/commconn/core"
-	commturn "orglang/go-engine/internal/pool/commturn/core"
 	compstep "orglang/go-engine/internal/pool/compstep/core"
 	compvar "orglang/go-engine/internal/pool/compvar/core"
 	termdef "orglang/go-engine/internal/pool/termdef/core"
@@ -90,7 +89,6 @@ type service struct {
 	compExecBroker Broker
 	compVarRepo    compvar.Repo
 	commConnRepo   commconn.Repo
-	commTurnRepo   commturn.Repo
 	typeExpRepo    typeexp.Repo
 	procExecRepo   proccompexec.Repo
 	termDefRepo    termdef.Repo
@@ -110,7 +108,6 @@ type ServiceDeps struct {
 	CompExecBroker Broker
 	CompVarRepo    compvar.Repo
 	CommConnRepo   commconn.Repo
-	CommTurnRepo   commturn.Repo
 	TypeExpRepo    typeexp.Repo
 	ProcExecRepo   proccompexec.Repo
 	TermDefRepo    termdef.Repo
@@ -124,7 +121,7 @@ func NewService(deps ServiceDeps) API {
 	name := slog.String("name", reflect.TypeFor[service]().Name())
 	return &service{
 		deps.CompExecRepo, deps.CompExecBroker, deps.CompVarRepo,
-		deps.CommConnRepo, deps.CommTurnRepo, deps.TypeExpRepo, deps.ProcExecRepo, deps.TermDefRepo,
+		deps.CommConnRepo, deps.TypeExpRepo, deps.ProcExecRepo, deps.TermDefRepo,
 		deps.ImplSemRepo, deps.CompSemRepo,
 		deps.Transactor, deps.Logger.With(name),
 	}
@@ -248,10 +245,6 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 		return takeErr
 	}
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		err = s.commTurnRepo.AddRecs(txCtx, conn, connMod.Turns)
-		if err != nil {
-			return err
-		}
 		err = s.commConnRepo.ModifyRec(txCtx, conn, connMod)
 		if err != nil {
 			return err

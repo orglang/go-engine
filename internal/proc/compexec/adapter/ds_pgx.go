@@ -9,14 +9,14 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/lib/lf"
-	"orglang/go-engine/lib/tx"
+	"orglang/go-engine/internal/lib/lf"
+	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/adt/compsem"
-	"orglang/go-engine/adt/compvar"
-	"orglang/go-engine/adt/seqnum"
+	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/compvar"
+	"orglang/go-engine/internal/adt/seqnum"
 
-	compexec "orglang/go-engine/proc/compexec/core"
+	compexec "orglang/go-engine/internal/proc/compexec/core"
 )
 
 // Adapter

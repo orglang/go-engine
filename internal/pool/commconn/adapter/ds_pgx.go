@@ -8,9 +8,6 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/internal/adt/connsem"
-	"orglang/go-engine/internal/adt/uniqsym"
-
 	commconn "orglang/go-engine/internal/pool/commconn/core"
 	commturnadapter "orglang/go-engine/internal/pool/commturn/adapter"
 
@@ -70,10 +67,6 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "modification succeed", slog.Any("dto", dto))
 	return nil
-}
-
-func (dao *daoPgx) GetRefsByQNs(ctx context.Context, conn tx.Conn, qns []uniqsym.ADT) (map[uniqsym.ADT]connsem.SemRef, error) {
-	panic("unimplemented")
 }
 
 func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.ConnQry) (commconn.ConnSnap, error) {

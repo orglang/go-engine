@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"reflect"
 
-	descsem "orglang/go-engine/internal/adt/descsem"
+	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/lib/tx"
 )
 

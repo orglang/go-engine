@@ -3,6 +3,7 @@ package tx
 
 import (
 	"context"
+	"errors"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -36,4 +37,52 @@ type Conn struct {
 type Transactor interface {
 	ExplicitTx(context.Context, func(context.Context, Conn) error) error
 	ImplicitTx(context.Context, func(context.Context, Conn) error) error
+}
+
+// Explicit executes fn within a transaction and returns its result.
+// It returns the zero value of T when the callback or transaction fails.
+func Explicit[T any](
+	ctx context.Context,
+	transactor Transactor,
+	fn func(context.Context, Conn) (T, error),
+) (T, error) {
+	var zero T
+	if fn == nil {
+		return zero, errors.New("transaction callback is nil")
+	}
+
+	var result T
+	err := transactor.ExplicitTx(ctx, func(ctx context.Context, conn Conn) error {
+		var err error
+		result, err = fn(ctx, conn)
+		return err
+	})
+	if err != nil {
+		return zero, err
+	}
+	return result, nil
+}
+
+// Implicit executes fn with a pooled connection but without starting a transaction.
+// It returns the zero value of T when the callback or connection acquisition fails.
+func Implicit[T any](
+	ctx context.Context,
+	transactor Transactor,
+	fn func(context.Context, Conn) (T, error),
+) (T, error) {
+	var zero T
+	if fn == nil {
+		return zero, errors.New("connection callback is nil")
+	}
+
+	var result T
+	err := transactor.ImplicitTx(ctx, func(ctx context.Context, conn Conn) error {
+		var err error
+		result, err = fn(ctx, conn)
+		return err
+	})
+	if err != nil {
+		return zero, err
+	}
+	return result, nil
 }

@@ -67,9 +67,9 @@ func (dao *daoPgx) GetRefsByQNs(ctx context.Context, conn tx.Conn, qns []uniqsym
 func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commexch.ExchQry) (commexch.ExchSnap, error) {
 	refAttr := slog.Any("ref", qry.CommRef)
 	qryDTO := DataFromQry(qry)
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "getting started", slog.Any("qry", qryDTO))
+	dao.log.Log(ctx, lf.LevelTrace, "getting started", slog.Any("qry", qryDTO))
 	sql, args := dao.qb.SelectSnap(qryDTO)
-	rows, execErr := ds.Pgx.Query(ds.Ctx, sql, args...)
+	rows, execErr := conn.Pgx.Query(ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
 		return commexch.ExchSnap{}, execErr
@@ -80,7 +80,7 @@ func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commexch.
 		dao.log.Error("rows scanning failed", refAttr)
 		return commexch.ExchSnap{}, scanErr
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "getting succeed", slog.Any("dto", snapDTO))
+	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("dto", snapDTO))
 	snap, convErr := DataToSnap(snapDTO)
 	if convErr != nil {
 		dao.log.Error("model conversion failed", refAttr)

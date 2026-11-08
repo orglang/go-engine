@@ -49,8 +49,8 @@ type ExecEff struct {
 }
 
 type takeResult struct {
-	Mod      ExecMod
-	Effects  ExecEff
+	Mod        ExecMod
+	Effects    ExecEff
 	Connection commconn.ConnMod
 }
 

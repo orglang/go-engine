@@ -1,7 +1,7 @@
 package ws
 
 import (
-	"orglang/go-engine/lib/kv"
+	"orglang/go-engine/internal/lib/kv"
 )
 
 func newExchangeCS(loader kv.Loader) (exchangeCS, error) {

@@ -1,7 +1,7 @@
 package db
 
 import (
-	"orglang/go-engine/lib/kv"
+	"orglang/go-engine/internal/lib/kv"
 )
 
 func newStorageProps(l kv.Loader) (storageProps, error) {

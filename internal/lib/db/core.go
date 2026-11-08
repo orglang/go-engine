@@ -5,8 +5,8 @@ import (
 
 	"go.uber.org/fx"
 
-	"orglang/go-engine/lib/db/adapter"
-	"orglang/go-engine/lib/tx"
+	"orglang/go-engine/internal/lib/db/adapter"
+	"orglang/go-engine/internal/lib/tx"
 )
 
 func newTransactor(props storageProps, lc fx.Lifecycle) (tx.Transactor, error) {

@@ -8,8 +8,8 @@ import (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/seqnum:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
 var (
 	MsgFromRef  func(SemRef) typesem.SemRef
 	MsgFromRefs func([]SemRef) []typesem.SemRef
@@ -19,8 +19,8 @@ var (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/seqnum:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
 var (
 	DataFromRef  func(SemRef) SemRefDS
 	DataFromRefs func([]SemRef) ([]SemRefDS, error)

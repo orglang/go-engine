@@ -110,10 +110,8 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 	compRef := spec.CompRef
 	expSpec := spec.ProcExp
 	for expSpec != nil {
-		var execSnap ExecSnap
-		getErr1 := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			execSnap, err = s.compExecRepo.GetSnapByRef(txCtx, conn, compRef)
-			return err
+		execSnap, getErr1 := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (ExecSnap, error) {
+			return s.compExecRepo.GetSnapByRef(txCtx, conn, compRef)
 		})
 		if getErr1 != nil {
 			s.log.Error("step taking failed", compAttr)
@@ -123,20 +121,16 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 			panic("zero channel binds")
 		}
 		decIDs := termexp.CollectEnv(expSpec)
-		var procDecs map[identity.ADT]termdec.DecRec
-		getErr2 := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			procDecs, err = s.termDecRepo.SelectEnv(txCtx, conn, decIDs)
-			return err
+		procDecs, getErr2 := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[identity.ADT]termdec.DecRec, error) {
+			return s.termDecRepo.SelectEnv(txCtx, conn, decIDs)
 		})
 		if getErr2 != nil {
 			s.log.Error("step taking failed", compAttr, slog.Any("decs", decIDs))
 			return getErr2
 		}
 		typeQNs := termdec.CollectEnv(maps.Values(procDecs))
-		var typeDefs map[uniqsym.ADT]typedef.DefRec
-		getErr3 := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			typeDefs, err = s.typeDefRepo.SelectEnv(txCtx, conn, typeQNs)
-			return err
+		typeDefs, getErr3 := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[uniqsym.ADT]typedef.DefRec, error) {
+			return s.typeDefRepo.SelectEnv(txCtx, conn, typeQNs)
 		})
 		if getErr3 != nil {
 			s.log.Error("step taking failed", compAttr, slog.Any("types", typeQNs))
@@ -144,10 +138,8 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 		}
 		envIDs := typedef.CollectEnv(maps.Values(typeDefs))
 		ctxIDs := CollectCtx(maps.Values(execSnap.LinearVars))
-		var typeExps map[valkey.ADT]typeexp.ExpRec
-		getErr4 := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			typeExps, err = s.typeExpRepo.SelectEnv(txCtx, conn, append(envIDs, ctxIDs...))
-			return err
+		typeExps, getErr4 := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[valkey.ADT]typeexp.ExpRec, error) {
+			return s.typeExpRepo.SelectEnv(txCtx, conn, append(envIDs, ctxIDs...))
 		})
 		if getErr4 != nil {
 			s.log.Error("step taking failed", compAttr, slog.Any("env", envIDs), slog.Any("ctx", ctxIDs))

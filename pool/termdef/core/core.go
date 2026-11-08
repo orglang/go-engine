@@ -64,10 +64,8 @@ func (s *service) Create(spec DefSpec) (_ termsem.SemRef, err error) {
 	for _, varSpec := range spec.AssetVars {
 		assetQNs = append(assetQNs, varSpec.TypeQN)
 	}
-	var typeDefs map[uniqsym.ADT]typedef.DefRec
-	getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		typeDefs, err = s.typeDefRepo.GetRecsByQNs(txCtx, conn, append(assetQNs, spec.LiabVar.TypeQN))
-		return err
+	typeDefs, getErr := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[uniqsym.ADT]typedef.DefRec, error) {
+		return s.typeDefRepo.GetRecsByQNs(txCtx, conn, append(assetQNs, spec.LiabVar.TypeQN))
 	})
 	if getErr != nil {
 		return termsem.SemRef{}, getErr

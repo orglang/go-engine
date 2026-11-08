@@ -65,23 +65,5 @@ func (t *transactorPgx) ImplicitTx(ctx context.Context, fn func(context.Context,
 	return fn(ctx, tx.Conn{Pgx: conn})
 }
 
-func (t *transactorPgx) ExplicitTxOld(ctx context.Context, fn func(tx.UoW) error) error {
-	if fn == nil {
-		return errors.New("transaction callback is nil")
-	}
-	return t.ExplicitTx(ctx, func(callbackCtx context.Context, conn tx.Conn) error {
-		return fn(tx.UoW{Ctx: callbackCtx, Pgx: conn.Pgx})
-	})
-}
-
-func (t *transactorPgx) ImplicitTxOld(ctx context.Context, fn func(tx.UoW) error) error {
-	if fn == nil {
-		return errors.New("connection callback is nil")
-	}
-	return t.ImplicitTx(ctx, func(callbackCtx context.Context, conn tx.Conn) error {
-		return fn(tx.UoW{Ctx: callbackCtx, Pgx: conn.Pgx})
-	})
-}
-
 // Compile-time assertion that pgxpool.Pool satisfies the narrow pool contract.
 var _ pgxPool = (*pgxpool.Pool)(nil)

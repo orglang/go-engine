@@ -12,9 +12,6 @@ import (
 // goverter:extend orglang/go-engine/internal/pool/commturn/adapter:Data.*
 var (
 	// goverter:map ConnID | identityToString
-	// goverter:autoMap CompRef
-	DataFromRec func(commconn.ConnRec) commconn.ConnRecDS
-	// goverter:map ConnID | identityToString
 	DataFromQry func(commconn.ConnQry) commconn.ConnQryDS
 	// goverter:map ConnID | identityToString
 	DataFromMod func(commconn.ConnMod) commconn.ConnModDS

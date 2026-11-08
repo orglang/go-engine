@@ -5,15 +5,15 @@ import (
 	"log/slog"
 	"reflect"
 
-	"orglang/go-engine/lib/tx"
+	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/adt/commsem"
-	"orglang/go-engine/adt/compsem"
-	"orglang/go-engine/adt/identity"
-	compvar "orglang/go-engine/pool/compvar/core"
-	termexp "orglang/go-engine/pool/termexp/core"
-	proccompexec "orglang/go-engine/proc/compexec/core"
-	termdec "orglang/go-engine/proc/termdec/core"
+	"orglang/go-engine/internal/adt/commsem"
+	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/identity"
+	compvar "orglang/go-engine/internal/pool/compvar/core"
+	termexp "orglang/go-engine/internal/pool/termexp/core"
+	proccompexec "orglang/go-engine/internal/proc/compexec/core"
+	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
 type API any

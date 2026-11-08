@@ -1,12 +1,12 @@
 package core
 
 import (
-	"orglang/go-engine/adt/commsem"
-	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/option"
-	"orglang/go-engine/adt/seqnum"
+	"orglang/go-engine/internal/adt/commsem"
+	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/option"
+	"orglang/go-engine/internal/adt/seqnum"
 
-	commturn "orglang/go-engine/pool/commturn/core"
+	commturn "orglang/go-engine/internal/pool/commturn/core"
 )
 
 type ExchRec struct {

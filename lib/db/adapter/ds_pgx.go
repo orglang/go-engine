@@ -33,20 +33,17 @@ func (t *transactorPgx) ExplicitTx(ctx context.Context, fn func(context.Context,
 		return err
 	}
 
-	// Always attempt rollback on exit. pgx returns ErrTxClosed after a
-	// successful commit or an earlier rollback; that cleanup error is ignored.
+	// Rollback is attempted on every exit. After a successful commit pgx
+	// returns ErrTxClosed, which is expected and ignored here.
 	defer func() {
 		_ = pgxTx.Rollback(context.WithoutCancel(ctx))
 	}()
 
-	callbackErr := fn(txCtx, tx.Conn{Pgx: pgxTx})
-	if callbackErr != nil {
-		return errors.Join(callbackErr, pgxTx.Rollback(context.WithoutCancel(ctx)))
+	if err := fn(txCtx, tx.Conn{Pgx: pgxTx}); err != nil {
+		return err
 	}
-	if err := pgxTx.Commit(ctx); err != nil {
-		return errors.Join(err, pgxTx.Rollback(context.WithoutCancel(ctx)))
-	}
-	return nil
+
+	return pgxTx.Commit(ctx)
 }
 
 func (t *transactorPgx) ImplicitTx(ctx context.Context, fn func(context.Context, tx.Conn) error) error {

@@ -57,7 +57,7 @@ func TestSelectSnap(t *testing.T) {
 	wantSQL := "WITH turns AS (SELECT turn.conn_id, turn.conn_rn, turn.comp_id, turn.chnl_id, turn.kind, turn.exp " +
 		"FROM pool_connection_acts turn WHERE conn_id = $1 AND chnl_id = $2) " +
 		"SELECT conn.conn_id, conn.conn_rn, conn.offset_nr, " +
-		"(SELECT array_agg(row(t.*)) FROM turns t WHERE t.conn_rn > conn.offset_nr) AS turns " +
+		"(SELECT array_agg(row(t.*) ORDER BY t.conn_rn) FROM turns t WHERE t.conn_rn > conn.offset_nr) AS turns " +
 		"FROM pool_connections conn WHERE conn.conn_id = $3"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)

@@ -3,11 +3,11 @@ package adapter
 import (
 	"go.uber.org/fx"
 
-	"orglang/go-engine/adt/typesem"
-	typesemadapter "orglang/go-engine/adt/typesem/adapter"
-	"orglang/go-engine/lib/te"
+	"orglang/go-engine/internal/adt/typesem"
+	typesemadapter "orglang/go-engine/internal/adt/typesem/adapter"
+	"orglang/go-engine/internal/lib/te"
 
-	termdec "orglang/go-engine/proc/termdec/core"
+	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
 var Module = fx.Module("proc/termdec",

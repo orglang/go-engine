@@ -5,9 +5,9 @@ import (
 	"log/slog"
 	"reflect"
 
-	"orglang/go-engine/lib/tx"
+	"orglang/go-engine/internal/lib/tx"
 
-	termdef "orglang/go-engine/proc/termdef/core"
+	termdef "orglang/go-engine/internal/proc/termdef/core"
 )
 
 // Adapter

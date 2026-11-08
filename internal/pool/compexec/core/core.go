@@ -311,6 +311,11 @@ func (s *service) takeStep(
 		connMod.ConnRef = commSnap.ConnRef
 		commAttr := slog.Any("connRef", commSnap.ConnRef)
 		subscription := commSnap.NextTurn()
+		if subscription != nil {
+			connMod.ConnRef = subscription.ConnRef
+			connMod.PrevOffsetNr = subscription.OffsetNr
+			connMod.OffsetNr = option.Some(subscription.OffsetNr.Next())
+		}
 		if subscription == nil {
 			// регистрируем подписку доступодателя
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
@@ -400,6 +405,11 @@ func (s *service) takeStep(
 		connMod.ConnRef = commSnap.ConnRef
 		commAttr := slog.Any("connRef", commSnap.ConnRef)
 		subscription := commSnap.NextTurn()
+		if subscription != nil {
+			connMod.ConnRef = subscription.ConnRef
+			connMod.PrevOffsetNr = subscription.OffsetNr
+			connMod.OffsetNr = option.Some(subscription.OffsetNr.Next())
+		}
 		if subscription == nil {
 			// регистрируем подписку доступополучателя
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
@@ -489,6 +499,11 @@ func (s *service) takeStep(
 		connMod.ConnRef = commSnap.ConnRef
 		commAttr := slog.Any("connRef", commSnap.ConnRef)
 		subscription := commSnap.NextTurn()
+		if subscription != nil {
+			connMod.ConnRef = subscription.ConnRef
+			connMod.PrevOffsetNr = subscription.OffsetNr
+			connMod.OffsetNr = option.Some(subscription.OffsetNr.Next())
+		}
 		if subscription == nil {
 			// регистрируем подписку соискателя
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
@@ -577,6 +592,11 @@ func (s *service) takeStep(
 		connMod.ConnRef = commSnap.ConnRef
 		commAttr := slog.Any("connRef", commSnap.ConnRef)
 		subscription := commSnap.NextTurn()
+		if subscription != nil {
+			connMod.ConnRef = subscription.ConnRef
+			connMod.PrevOffsetNr = subscription.OffsetNr
+			connMod.OffsetNr = option.Some(subscription.OffsetNr.Next())
+		}
 		if subscription == nil {
 			// регистрируем подписку нанимателя
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
@@ -665,6 +685,11 @@ func (s *service) takeStep(
 		connMod.ConnRef = commSnap.ConnRef
 		commAttr := slog.Any("connRef", commSnap.ConnRef)
 		subscription := commSnap.NextTurn()
+		if subscription != nil {
+			connMod.ConnRef = subscription.ConnRef
+			connMod.PrevOffsetNr = subscription.OffsetNr
+			connMod.OffsetNr = option.Some(subscription.OffsetNr.Next())
+		}
 		if subscription == nil {
 			// регистрируем подписку доступовозвращателя
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
@@ -737,6 +762,11 @@ func (s *service) takeStep(
 		connMod.ConnRef = commSnap.ConnRef
 		commAttr := slog.Any("connRef", commSnap.ConnRef)
 		subscription := commSnap.NextTurn()
+		if subscription != nil {
+			connMod.ConnRef = subscription.ConnRef
+			connMod.PrevOffsetNr = subscription.OffsetNr
+			connMod.OffsetNr = option.Some(subscription.OffsetNr.Next())
+		}
 		if subscription == nil {
 			// регистрируем подписку доступопринимателя
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{

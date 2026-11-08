@@ -231,7 +231,7 @@ func (s *service) takeWith(
 		if subscription != nil {
 			connMod.ConnRef = commSnap.ConnRef
 			connMod.PrevOffsetNr = commSnap.OffsetNr
-			connMod.OffsetNr = option.Some(commSnap.OffsetNr.Next())
+			connMod.OffsetNr = option.Some(subscription.GetConnRef().ConnRN)
 		}
 		if subscription == nil {
 			// регистрируем подписку закрывателя
@@ -305,7 +305,7 @@ func (s *service) takeWith(
 		if subscription != nil {
 			connMod.ConnRef = commSnap.ConnRef
 			connMod.PrevOffsetNr = commSnap.OffsetNr
-			connMod.OffsetNr = option.Some(commSnap.OffsetNr.Next())
+			connMod.OffsetNr = option.Some(subscription.GetConnRef().ConnRN)
 		}
 		if subscription == nil {
 			// регистрируем подписку наблюдателя
@@ -406,7 +406,7 @@ func (s *service) takeWith(
 		if subscription != nil {
 			connMod.ConnRef = commSnap.ConnRef
 			connMod.PrevOffsetNr = commSnap.OffsetNr
-			connMod.OffsetNr = option.Some(commSnap.OffsetNr.Next())
+			connMod.OffsetNr = option.Some(subscription.GetConnRef().ConnRN)
 		}
 		if subscription == nil {
 			// регистрируем подписку отправителя

@@ -29,6 +29,7 @@ type ConnModDS struct {
 	ConnID       string          `db:"conn_id"`
 	OffsetNr     sql.Null[int64] `db:"offset_nr"`
 	ProviderCompID string          `db:"-"`
+	ProviderCompRN int64           `db:"-"`
 }
 
 type ConnQryDS struct {
@@ -39,6 +40,7 @@ type ConnQryDS struct {
 type ConnSnapDS struct {
 	ConnID         string               `db:"conn_id"`
 	ProviderCompID string               `db:"provider_comp_id"`
+	ProviderCompRN int64                `db:"provider_comp_rn"`
 	OffsetNr       int64                `db:"offset_nr"`
 	ActNr          int64                `db:"act_nr"`
 	Turns          []commturn.TurnRecDS `db:"turns"`

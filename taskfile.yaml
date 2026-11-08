@@ -17,6 +17,7 @@ tasks:
     desc: Check prepared source artifact
     cmds:
       - go get -tool -modfile=gear.mod github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0 github.com/jmattheis/goverter/cmd/goverter@v1.9.3
+      - go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...
       - go tool -modfile=gear.mod golangci-lint fmt --diff
       - go tool -modfile=gear.mod golangci-lint run ./...
 

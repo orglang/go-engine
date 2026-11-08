@@ -31,7 +31,7 @@ jobs:
 
       - name: Check formatting
         run: |
-          diff="$(go tool -modfile=gear.mod golangci-lint fmt --diff)" && test -z "$diff"
+          go tool -modfile=gear.mod golangci-lint fmt --diff
 
       - name: Run linters
         run: |

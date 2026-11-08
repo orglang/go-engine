@@ -20,7 +20,7 @@ func NewTransactorPgx(pool *pgxpool.Pool) tx.Transactor {
 	return &transactorPgx{pool: pool}
 }
 
-func (t *transactorPgx) ExplicitTx(ctx context.Context, fn func(context.Context, tx.Conn) error) error {
+func (t *transactorPgx) ExplicitTx(ctx context.Context, fn func(context.Context, tx.Conn) error) (retErr error) {
 	if fn == nil {
 		return errors.New("transaction callback is nil")
 	}
@@ -33,10 +33,13 @@ func (t *transactorPgx) ExplicitTx(ctx context.Context, fn func(context.Context,
 		return err
 	}
 
-	// Rollback is attempted on every exit. After a successful commit pgx
-	// returns ErrTxClosed, which is expected and ignored here.
+	// Rollback is attempted on every exit. ErrTxClosed is expected after a
+	// successful commit; any other rollback error is joined with the result.
 	defer func() {
-		_ = pgxTx.Rollback(context.WithoutCancel(ctx))
+		if rollbackErr := pgxTx.Rollback(context.WithoutCancel(ctx)); rollbackErr != nil &&
+			!errors.Is(rollbackErr, pgx.ErrTxClosed) {
+			retErr = errors.Join(retErr, rollbackErr)
+		}
 	}()
 
 	if err := fn(txCtx, tx.Conn{Pgx: pgxTx}); err != nil {

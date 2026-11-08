@@ -27,11 +27,11 @@ func (stubPgx) SendBatch(context.Context, *pgx.Batch) pgx.BatchResults {
 
 type stubTransaction struct {
 	stubPgx
-	commitErr   error
-	rollbackErr error
-	commitCalls int
+	commitErr     error
+	rollbackErr   error
+	commitCalls   int
 	rollbackCalls int
-	rollbackCtx context.Context
+	rollbackCtx   context.Context
 }
 
 func (s *stubTransaction) Commit(context.Context) error {
@@ -55,11 +55,11 @@ func (s *stubConnection) Release() {
 }
 
 type stubPool struct {
-	transaction pgxTransaction
-	connection  pgxConnection
-	beginErr    error
-	acquireErr  error
-	beginCalls  int
+	transaction  pgxTransaction
+	connection   pgxConnection
+	beginErr     error
+	acquireErr   error
+	beginCalls   int
 	acquireCalls int
 }
 
@@ -98,7 +98,7 @@ func TestExplicitTxCommitsOnSuccess(t *testing.T) {
 
 func TestExplicitTxRollsBackOnCallbackError(t *testing.T) {
 	callbackErr := errors.New("callback failed")
-	txStub := &stubTransaction{rollbackErr: pgx.ErrTxClosed}
+	txStub := &stubTransaction{}
 	pool := &stubPool{transaction: txStub}
 	transactor := &transactorPgx{pool: pool}
 
@@ -108,6 +108,9 @@ func TestExplicitTxRollsBackOnCallbackError(t *testing.T) {
 
 	if !errors.Is(err, callbackErr) {
 		t.Fatalf("ExplicitTx() error = %v, want callback error", err)
+	}
+	if errors.Is(err, pgx.ErrTxClosed) {
+		t.Errorf("ExplicitTx() error = %v, must not include expected ErrTxClosed", err)
 	}
 	if txStub.commitCalls != 0 {
 		t.Errorf("commit calls = %d, want 0", txStub.commitCalls)
@@ -119,7 +122,7 @@ func TestExplicitTxRollsBackOnCallbackError(t *testing.T) {
 
 func TestExplicitTxReturnsCommitError(t *testing.T) {
 	commitErr := errors.New("commit failed")
-	txStub := &stubTransaction{commitErr: commitErr, rollbackErr: pgx.ErrTxClosed}
+	txStub := &stubTransaction{commitErr: commitErr}
 	pool := &stubPool{transaction: txStub}
 	transactor := &transactorPgx{pool: pool}
 
@@ -160,7 +163,7 @@ func TestExplicitTxJoinsCallbackAndRollbackErrors(t *testing.T) {
 	}
 }
 
-func TestExplicitTxReturnsRollbackErrorWithoutCallbackError(t *testing.T) {
+func TestExplicitTxReturnsRollbackError(t *testing.T) {
 	rollbackErr := errors.New("rollback failed")
 	txStub := &stubTransaction{rollbackErr: rollbackErr}
 	pool := &stubPool{transaction: txStub}
@@ -178,7 +181,7 @@ func TestExplicitTxReturnsRollbackErrorWithoutCallbackError(t *testing.T) {
 func TestExplicitTxRollbackIgnoresCanceledParentContext(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
-	txStub := &stubTransaction{rollbackErr: pgx.ErrTxClosed}
+	txStub := &stubTransaction{}
 	pool := &stubPool{transaction: txStub}
 	transactor := &transactorPgx{pool: pool}
 

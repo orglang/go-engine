@@ -170,11 +170,12 @@ func (s *service) Run(spec ExecSpec) (_ compsem.SemRef, err error) {
 		ExpVK:   termDec.LiabVar.ExpVK,
 	}
 	newAssetVars := make([]compvar.VarRec, 0, len(spec.AssetVars)+1)
-	// Each existing provider execution contributes a reserved ConnID. Materialize
-	// one Connection row when the client Computation attaches; multiple asset
-	// variables may point to the same provider, so deduplicate by ConnID.
-	newConns := make([]commconn.ConnRec, 0, len(assetExecs))
-	seenConnIDs := make(map[string]struct{}, len(assetExecs))
+	// Materialize one Connection row for each distinct provider ConnID.
+	// A self-reference uses the new liability endpoint, so both endpoints and
+	// its Connection are created atomically with this Computation.
+	// Multiple asset variables may point to the same provider; deduplicate by ConnID.
+	newConns := make([]commconn.ConnRec, 0, len(assetExecs)+1)
+	seenConnIDs := make(map[string]struct{}, len(assetExecs)+1)
 	for _, assetVar := range spec.AssetVars {
 		var connID identity.ADT
 		var chnlID identity.ADT
@@ -188,18 +189,19 @@ func (s *service) Run(spec ExecSpec) (_ compsem.SemRef, err error) {
 			connID = assetExec.LiabVar.GetConnID()
 			chnlID = assetExec.LiabVar.GetChnlID()
 			expVK = assetExec.LiabVar.GetExpVK()
-			if ok {
-				connIDKey := connID.String()
-				if _, exists := seenConnIDs[connIDKey]; !exists {
-					newConns = append(newConns, commconn.ConnRec{
-						ConnID:   connID,
-						CompRef:  newExec.CompRef,
-						OffsetNr: seqnum.Zero,
-					})
-					seenConnIDs[connIDKey] = struct{}{}
-				}
+		}
+		if ok || assetVar.TermQN == spec.LiabVar.TermQN {
+			connIDKey := connID.String()
+			if _, exists := seenConnIDs[connIDKey]; !exists {
+				newConns = append(newConns, commconn.ConnRec{
+					ConnID:   connID,
+					CompRef:  newExec.CompRef,
+					OffsetNr: seqnum.Zero,
+				})
+				seenConnIDs[connIDKey] = struct{}{}
 			}
 		}
+	}
 		newAssetVars = append(newAssetVars, compvar.StructRec{
 			CompRef: newExec.CompRef,
 			ConnID:  connID,

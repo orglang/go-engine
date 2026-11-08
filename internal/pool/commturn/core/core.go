@@ -43,3 +43,7 @@ func ErrRecTypeUnexpected(got TurnRec) error {
 func ErrRecTypeMismatch(got, want TurnRec) error {
 	return fmt.Errorf("step rec mismatch: want %T, got %T", want, got)
 }
+
+func ErrStepKindUnexpected(got turnKind) error {
+	return fmt.Errorf("step kind unexpected: %v", got)
+}

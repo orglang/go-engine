@@ -26,6 +26,10 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
+          cache-dependency-path: |
+            go.sum
+            gear.mod
+            gear.sum
 
       - name: Check sources
         run: go run github.com/go-task/task/v3/cmd/task@v3.54.0 sources:check

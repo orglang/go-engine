@@ -1,11 +1,11 @@
 package adapter
 
 import (
-	"orglang/go-engine/adt/uniqsym"
+	"orglang/go-engine/internal/adt/uniqsym"
 
 	sdktypedef "github.com/orglang/go-sdk/pool/typedef"
 
-	typedef "orglang/go-engine/pool/typedef/core"
+	typedef "orglang/go-engine/internal/pool/typedef/core"
 )
 
 // goverter:variables

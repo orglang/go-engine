@@ -1,10 +1,10 @@
 package adapter
 
 import (
-	"orglang/go-engine/adt/commsem"
-	"orglang/go-engine/adt/compsem"
+	"orglang/go-engine/internal/adt/commsem"
+	"orglang/go-engine/internal/adt/compsem"
 
-	commturn "orglang/go-engine/pool/commturn/core"
+	commturn "orglang/go-engine/internal/pool/commturn/core"
 )
 
 // goverter:variables

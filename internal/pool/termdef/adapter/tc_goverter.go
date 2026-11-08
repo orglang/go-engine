@@ -1,11 +1,11 @@
 package adapter
 
 import (
-	"orglang/go-engine/adt/termsem"
+	"orglang/go-engine/internal/adt/termsem"
 
 	"github.com/orglang/go-sdk/pool/termdec"
 
-	termdef "orglang/go-engine/pool/termdef/core"
+	termdef "orglang/go-engine/internal/pool/termdef/core"
 )
 
 // goverter:variables

@@ -1,4 +1,4 @@
 .task
 
 *.gen.go
-app/engine
+/engine

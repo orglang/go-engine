@@ -1,0 +1,39 @@
+package core
+
+import (
+	"orglang/go-engine/internal/adt/commsem"
+	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/option"
+	"orglang/go-engine/internal/adt/seqnum"
+
+	commturn "orglang/go-engine/internal/pool/commturn/core"
+)
+
+type ExchRec struct {
+	CommRef  commsem.SemRef
+	OffsetNr seqnum.ADT
+}
+
+type ExchMod struct {
+	CommRef  commsem.SemRef
+	OffsetNr option.ADT[seqnum.ADT]
+	Turns    []commturn.TurnRec
+}
+
+type ExchQry struct {
+	CommRef commsem.SemRef
+	ChnlID  option.ADT[identity.ADT]
+}
+
+// aka Configuration
+type ExchSnap struct {
+	CommRef commsem.SemRef
+	Turns   []commturn.TurnRec
+}
+
+func (s ExchSnap) NextTurn() commturn.TurnRec {
+	if len(s.Turns) > 0 {
+		return s.Turns[0]
+	}
+	return nil
+}

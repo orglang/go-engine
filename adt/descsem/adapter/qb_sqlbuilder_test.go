@@ -1,9 +1,10 @@
 package adapter
 
 import (
-	descsem "orglang/go-engine/adt/descsem"
 	"fmt"
 	"testing"
+
+	descsem "orglang/go-engine/adt/descsem"
 )
 
 func TestInsertRec(t *testing.T) {

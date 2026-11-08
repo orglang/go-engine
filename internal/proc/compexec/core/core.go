@@ -197,6 +197,7 @@ func (s *service) takeWith(
 	var execEff ExecEff
 	var exchMod commexch.ExchMod
 	ctx := context.Background()
+	var err error
 	compAttr := slog.Any("compRef", execSnap.CompRef)
 	execMod.CompRefs = append(execMod.CompRefs, execSnap.CompRef)
 	switch termExp := exp.(type) {

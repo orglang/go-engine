@@ -4,13 +4,13 @@ import (
 	"context"
 	"log/slog"
 
-	"orglang/go-engine/lib/tx"
+	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/adt/descsem"
-	"orglang/go-engine/adt/termsem"
-	"orglang/go-engine/adt/termvar"
-	"orglang/go-engine/adt/uniqsym"
-	typedef "orglang/go-engine/pool/typedef/core"
+	"orglang/go-engine/internal/adt/descsem"
+	"orglang/go-engine/internal/adt/termsem"
+	"orglang/go-engine/internal/adt/termvar"
+	"orglang/go-engine/internal/adt/uniqsym"
+	typedef "orglang/go-engine/internal/pool/typedef/core"
 )
 
 type API interface {

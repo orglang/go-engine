@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"log/slog"
 
-	"orglang/go-engine/lib/tx"
+	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/adt/descsem"
-	"orglang/go-engine/adt/seqnum"
-	"orglang/go-engine/adt/typesem"
-	"orglang/go-engine/adt/uniqsym"
-	"orglang/go-engine/adt/valkey"
+	"orglang/go-engine/internal/adt/descsem"
+	"orglang/go-engine/internal/adt/seqnum"
+	"orglang/go-engine/internal/adt/typesem"
+	"orglang/go-engine/internal/adt/uniqsym"
+	"orglang/go-engine/internal/adt/valkey"
 
-	typeexp "orglang/go-engine/pool/typeexp/core"
+	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 )
 
 type API interface {

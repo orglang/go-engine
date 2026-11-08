@@ -6,8 +6,8 @@ import (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/symbol:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/symbol:Convert.*
 var (
 	// goverter:autoMap TypeRef
 	DataFromVarRec func(VarRec) (VarRecDS, error)

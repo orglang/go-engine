@@ -10,8 +10,8 @@ import (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
-// goverter:extend orglang/go-engine/pool/typedef/adapter:Msg.*
+// goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
+// goverter:extend orglang/go-engine/internal/pool/typedef/adapter:Msg.*
 var (
 	MsgToDecSpec   func(termdec.DecSpec) (termdef.DefSpec, error)
 	MsgFromDecSpec func(termdef.DefSpec) termdec.DecSpec
@@ -19,8 +19,8 @@ var (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/termvar:Data.*
+// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/termvar:Data.*
 var (
 	// goverter:map . TermRef | dataToTermRef
 	DataToDecRec func(termdef.DefRecDS) (termdef.DefRec, error)

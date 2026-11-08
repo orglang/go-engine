@@ -8,8 +8,8 @@ import (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/adt/compsem:Msg.*
-// goverter:extend orglang/go-engine/pool/termexp/adapter:Msg.*
+// goverter:extend orglang/go-engine/internal/adt/compsem:Msg.*
+// goverter:extend orglang/go-engine/internal/pool/termexp/adapter:Msg.*
 var (
 	MsgToStepSpec   func(sdkcompstep.StepSpec) (compstep.StepSpec, error)
 	MsgFromStepSpec func(compstep.StepSpec) sdkcompstep.StepSpec

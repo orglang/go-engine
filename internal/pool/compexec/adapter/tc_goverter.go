@@ -10,9 +10,9 @@ import (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
-// goverter:extend orglang/go-engine/adt/compsem:Msg.*
+// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/compsem:Msg.*
 var (
 	MsgToExecSpec   func(sdkcompexec.ExecSpec) (compexec.ExecSpec, error)
 	MsgFromExecSpec func(compexec.ExecSpec) sdkcompexec.ExecSpec
@@ -20,9 +20,9 @@ var (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/compvar:Convert.*
-// goverter:extend orglang/go-engine/adt/compvar:Data.*
+// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/compvar:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/compvar:Data.*
 // goverter:extend DataToExecSnap1
 var (
 	// goverter:map . CompRef

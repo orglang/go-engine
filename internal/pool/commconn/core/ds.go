@@ -26,8 +26,8 @@ type ConnRecDS struct {
 }
 
 type ConnModDS struct {
-	ConnID       string          `db:"conn_id"`
-	OffsetNr     sql.Null[int64] `db:"offset_nr"`
+	ConnID         string          `db:"conn_id"`
+	OffsetNr       sql.Null[int64] `db:"offset_nr"`
 	ProviderCompID string          `db:"-"`
 	ProviderCompRN int64           `db:"-"`
 }

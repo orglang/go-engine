@@ -2,10 +2,10 @@ package core
 
 import (
 	"context"
-	"orglang/go-engine/lib/tx"
+	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/adt/commsem"
-	"orglang/go-engine/adt/uniqsym"
+	"orglang/go-engine/internal/adt/commsem"
+	"orglang/go-engine/internal/adt/uniqsym"
 )
 
 type Repo interface {

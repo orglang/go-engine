@@ -3,11 +3,11 @@ package core
 import (
 	"context"
 	"database/sql"
-	"orglang/go-engine/lib/tx"
+	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/adt/commsem"
-	"orglang/go-engine/adt/uniqsym"
-	commturn "orglang/go-engine/pool/commturn/core"
+	"orglang/go-engine/internal/adt/commsem"
+	"orglang/go-engine/internal/adt/uniqsym"
+	commturn "orglang/go-engine/internal/pool/commturn/core"
 )
 
 type Repo interface {

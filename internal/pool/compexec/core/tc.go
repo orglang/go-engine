@@ -1,10 +1,10 @@
 package core
 
 import (
-	"orglang/go-engine/adt/compsem"
-	"orglang/go-engine/adt/compvar"
-	"orglang/go-engine/adt/symbol"
-	"orglang/go-engine/adt/valkey"
+	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/compvar"
+	"orglang/go-engine/internal/adt/symbol"
+	"orglang/go-engine/internal/adt/valkey"
 )
 
 func ConvertRecToRef(rec ExecSnap2) compsem.SemRef {

@@ -180,13 +180,16 @@ func (s *service) Run(spec ExecSpec) (_ compsem.SemRef, err error) {
 		var connID identity.ADT
 		var chnlID identity.ADT
 		var expVK valkey.ADT
+		var providerCompRef compsem.SemRef
 		assetExec, ok := assetExecs[assetVar.TermQN]
 		if !ok && assetVar.TermQN == spec.LiabVar.TermQN {
 			connID = newConnID
 			chnlID = newLiabVar.ChnlID
 			expVK = newLiabVar.ExpVK
+			providerCompRef = newExec.CompRef
 		} else {
 			connID = assetExec.LiabVar.GetConnID()
+			providerCompRef = assetExec.CompRef
 			chnlID = assetExec.LiabVar.GetChnlID()
 			expVK = assetExec.LiabVar.GetExpVK()
 		}
@@ -194,9 +197,10 @@ func (s *service) Run(spec ExecSpec) (_ compsem.SemRef, err error) {
 			connIDKey := connID.String()
 			if _, exists := seenConnIDs[connIDKey]; !exists {
 				newConns = append(newConns, commconn.ConnRec{
-					ConnID:   connID,
-					CompRef:  newExec.CompRef,
-					OffsetNr: seqnum.Zero,
+					ConnID:          connID,
+					ProviderCompRef: providerCompRef,
+					ClientCompRef:   newExec.CompRef,
+					OffsetNr:        seqnum.Zero,
 				})
 				seenConnIDs[connIDKey] = struct{}{}
 			}

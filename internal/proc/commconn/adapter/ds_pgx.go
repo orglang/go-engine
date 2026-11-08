@@ -8,7 +8,6 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/internal/adt/compsem"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/lib/lf"
@@ -72,7 +71,6 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 	}
 	for _, turn := range mod.Turns {
 		connID := turn.GetConnID()
-		compRef := turnCompRef(turn)
 		// Materialize both endpoints from the authoritative pool Connection.
 		const ensureConnection = `
 			INSERT INTO proc_comp_conns (
@@ -97,26 +95,18 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 		if _, err := conn.Pgx.Exec(ctx, ensureConnection, identity.ConvertToString(connID)); err != nil {
 			return err
 		}
-		var nextAct string
 		switch turn.(type) {
-		case commturn.PubRec:
-			nextAct = `
-				UPDATE proc_comp_conns
-				SET act_nr = act_nr + 1
-				WHERE conn_id = $1 AND provider_comp_id = $2 AND provider_comp_rn = $3
-				RETURNING act_nr
-			`
-		case commturn.SubRec:
-			nextAct = `
-				UPDATE proc_comp_conns
-				SET act_nr = act_nr + 1
-				WHERE conn_id = $1 AND client_comp_id = $2 AND client_comp_rn = $3
-				RETURNING act_nr
-			`
+		case commturn.PubRec, commturn.SubRec:
 		default:
 			panic(commturn.ErrRecTypeUnexpected(turn))
 		}
-		rows, err := conn.Pgx.Query(ctx, nextAct, identity.ConvertToString(connID), compRef.CompID.String(), int64(compRef.CompRN))
+		const nextAct = `
+			UPDATE proc_comp_conns
+			SET act_nr = act_nr + 1
+			WHERE conn_id = $1
+			RETURNING act_nr
+		`
+		rows, err := conn.Pgx.Query(ctx, nextAct, identity.ConvertToString(connID))
 		if err != nil {
 			return err
 		}
@@ -142,17 +132,6 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 		}
 	}
 	return nil
-}
-
-func turnCompRef(turn commturn.TurnRec) compsem.SemRef {
-	switch rec := turn.(type) {
-	case commturn.PubRec:
-		return rec.CompRef
-	case commturn.SubRec:
-		return rec.CompRef
-	default:
-		panic(commturn.ErrRecTypeUnexpected(turn))
-	}
 }
 
 func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.ConnQry) (commconn.ConnSnap, error) {

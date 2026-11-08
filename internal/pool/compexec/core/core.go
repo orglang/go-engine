@@ -88,7 +88,7 @@ type service struct {
 	compExecRepo   Repo
 	compExecBroker Broker
 	compVarRepo    compvar.Repo
-	connRepo   commconn.Repo
+	connRepo       commconn.Repo
 	typeExpRepo    typeexp.Repo
 	procExecRepo   proccompexec.Repo
 	termDefRepo    termdef.Repo

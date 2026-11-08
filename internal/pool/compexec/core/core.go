@@ -240,7 +240,7 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 		s.log.Error("step taking failed", refAttr)
 		return retErr
 	}
-	execMod, execEff, exchMod, takeErr := s.take(execSnap, spec.PoolExp)
+	execMod, execEff, exchMod, takeErr := s.takeStep(execSnap, spec.PoolExp)
 	if takeErr != nil {
 		s.log.Error("step taking failed", refAttr)
 		return takeErr
@@ -274,7 +274,7 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 	return nil
 }
 
-func (s *service) take(
+func (s *service) takeStep(
 	execSnap ExecSnap3,
 	exp termexp.ExpSpec,
 ) (

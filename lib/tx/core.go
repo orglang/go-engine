@@ -22,14 +22,6 @@ type Conn struct {
 	Pgx Pgx
 }
 
-// UoW is the legacy callback payload. Use Conn and the callback context in new code.
-//
-// Deprecated: use Conn with Transactor.ExplicitTx or Transactor.ImplicitTx.
-type UoW struct {
-	Ctx context.Context
-	Pgx Pgx
-}
-
 // Transactor owns the lifetime of all resources passed to callbacks.
 //
 // ExplicitTx starts a PostgreSQL transaction and commits it when the callback
@@ -41,14 +33,7 @@ type UoW struct {
 // transaction-management methods, so repository code cannot start transactions
 // through the connection. Operations involving multiple drivers are not atomic
 // across drivers.
-//
-// The Old methods preserve the previous callback contract during migration.
 type Transactor interface {
 	ExplicitTx(context.Context, func(context.Context, Conn) error) error
 	ImplicitTx(context.Context, func(context.Context, Conn) error) error
-
-	// Deprecated: use ExplicitTx.
-	ExplicitTxOld(context.Context, func(UoW) error) error
-	// Deprecated: use ImplicitTx.
-	ImplicitTxOld(context.Context, func(UoW) error) error
 }

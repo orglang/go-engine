@@ -24,7 +24,7 @@ import (
 	typedef "orglang/go-engine/proc/typedef/adapter"
 	typeexp "orglang/go-engine/proc/typeexp/adapter"
 
-	"orglang/go-engine/app/web"
+	"orglang/go-engine/internal/app/web"
 )
 
 func main() {

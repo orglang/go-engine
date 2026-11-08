@@ -202,15 +202,6 @@ func (s *service) takeWith(
 	var execMod ExecMod
 	var execEff ExecEff
 	var connMod commconn.ConnMod
-	setConnectionEndpoints := func(connChnl compvar.LinearRec) {
-		if connChnl.ChnlBS == compvar.LiabSide {
-			connMod.ProviderCompRef = execSnap.CompRef
-			connMod.ClientCompRef = connChnl.CompRef
-		} else {
-			connMod.ProviderCompRef = connChnl.CompRef
-			connMod.ClientCompRef = execSnap.CompRef
-		}
-	}
 	ctx := context.Background()
 	var err error
 	compAttr := slog.Any("compRef", execSnap.CompRef)
@@ -244,7 +235,6 @@ func (s *service) takeWith(
 		}
 		if subscription == nil {
 			// регистрируем подписку закрывателя
-			setConnectionEndpoints(connChnl)
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
@@ -319,7 +309,6 @@ func (s *service) takeWith(
 		}
 		if subscription == nil {
 			// регистрируем подписку наблюдателя
-			setConnectionEndpoints(connChnl)
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
@@ -421,7 +410,6 @@ func (s *service) takeWith(
 		}
 		if subscription == nil {
 			// регистрируем подписку отправителя
-			setConnectionEndpoints(connChnl)
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
@@ -532,7 +520,6 @@ func (s *service) takeWith(
 				ExpVK:   nextExpVK,
 			})
 			// регистрируем подписку принимателя
-			setConnectionEndpoints(connChnl)
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
@@ -621,7 +608,6 @@ func (s *service) takeWith(
 				ExpVK:   nextExpVK,
 			})
 			// регистрируем сообщение решателя
-			setConnectionEndpoints(connChnl)
 			connMod.Turns = append(connMod.Turns, commturn.PubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
@@ -699,7 +685,6 @@ func (s *service) takeWith(
 		if publication == nil {
 			newChnlID := identity.New()
 			// регистрируем подписку последователя
-			setConnectionEndpoints(connChnl)
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
 				ConnID:  connChnl.ConnID,
 				CompRef: connChnl.CompRef,
@@ -830,7 +815,6 @@ func (s *service) takeWith(
 					ExpVK:  contChnl.ExpVK.Invert(),
 				})
 				// регистрируем сообщение схлопывающегося
-				setConnectionEndpoints(connChnl)
 				connMod.Turns = append(connMod.Turns, commturn.PubRec{
 					ConnID:  fwdConnSnap.ConnID,
 					CompRef: execSnap.CompRef,
@@ -882,7 +866,6 @@ func (s *service) takeWith(
 				return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 			case nil:
 				// регистрируем подписку схлопывающегося
-				setConnectionEndpoints(connChnl)
 				connMod.Turns = append(connMod.Turns, commturn.SubRec{
 					ConnID:  fwdConnSnap.ConnID,
 					CompRef: connChnl.CompRef,

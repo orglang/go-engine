@@ -74,45 +74,41 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 	for _, turn := range mod.Turns {
 		connID := turn.GetConnID()
 		compRef := turnCompRef(turn)
-		var ensureConnection string
+		const ensureConnection = `
+			INSERT INTO proc_comp_conns (
+				conn_id, provider_comp_id, provider_comp_rn,
+				client_comp_id, client_comp_rn, offset_nr, act_nr
+			)
+			SELECT
+				conn_id, provider_comp_id, provider_comp_rn,
+				client_comp_id, client_comp_rn, 0, 0
+			FROM pool_comp_conns
+			WHERE conn_id = $1
+			ON CONFLICT (conn_id) DO NOTHING
+		`
+		if _, err := conn.Pgx.Exec(ctx, ensureConnection, identity.ConvertToString(connID)); err != nil {
+			return err
+		}
+		var nextAct string
 		switch turn.(type) {
 		case commturn.PubRec:
-			ensureConnection = `
-				INSERT INTO proc_comp_conns (conn_id, provider_comp_id, provider_comp_rn, offset_nr, act_nr)
-				VALUES ($1, $2, $3, 0, 0)
-				ON CONFLICT (conn_id) DO UPDATE SET
-					provider_comp_id = EXCLUDED.provider_comp_id,
-					provider_comp_rn = EXCLUDED.provider_comp_rn
-				WHERE proc_comp_conns.provider_comp_id IS NULL OR
-					(proc_comp_conns.provider_comp_id = EXCLUDED.provider_comp_id AND proc_comp_conns.provider_comp_rn = EXCLUDED.provider_comp_rn)
+			nextAct = `
+				UPDATE proc_comp_conns
+				SET act_nr = act_nr + 1
+				WHERE conn_id = $1 AND provider_comp_id = $2 AND provider_comp_rn = $3
+				RETURNING act_nr
 			`
 		case commturn.SubRec:
-			ensureConnection = `
-				INSERT INTO proc_comp_conns (conn_id, client_comp_id, client_comp_rn, offset_nr, act_nr)
-				VALUES ($1, $2, $3, 0, 0)
-				ON CONFLICT (conn_id) DO UPDATE SET
-					client_comp_id = EXCLUDED.client_comp_id,
-					client_comp_rn = EXCLUDED.client_comp_rn
-				WHERE proc_comp_conns.client_comp_id IS NULL OR
-					(proc_comp_conns.client_comp_id = EXCLUDED.client_comp_id AND proc_comp_conns.client_comp_rn = EXCLUDED.client_comp_rn)
+			nextAct = `
+				UPDATE proc_comp_conns
+				SET act_nr = act_nr + 1
+				WHERE conn_id = $1 AND client_comp_id = $2 AND client_comp_rn = $3
+				RETURNING act_nr
 			`
 		default:
 			panic(commturn.ErrRecTypeUnexpected(turn))
 		}
-		tag, err := conn.Pgx.Exec(ctx, ensureConnection, identity.ConvertToString(connID), compRef.CompID.String(), int64(compRef.CompRN))
-		if err != nil {
-			return err
-		}
-		if tag.RowsAffected() == 0 {
-			return fmt.Errorf("connection %v endpoint reference conflicts with an existing endpoint", connID)
-		}
-		const nextAct = `
-			UPDATE proc_comp_conns
-			SET act_nr = act_nr + 1
-			WHERE conn_id = $1
-			RETURNING act_nr
-		`
-		rows, err := conn.Pgx.Query(ctx, nextAct, identity.ConvertToString(connID))
+		rows, err := conn.Pgx.Query(ctx, nextAct, identity.ConvertToString(connID), compRef.CompID.String(), int64(compRef.CompRN))
 		if err != nil {
 			return err
 		}

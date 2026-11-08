@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"reflect"
 
-	compsem "orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/compsem"
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 )

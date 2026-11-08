@@ -158,30 +158,44 @@ func (s *service) Run(spec ExecSpec) (_ compsem.SemRef, err error) {
 		return compsem.SemRef{}, getErr2
 	}
 	newExec := ExecRec{CompRef: compsem.New(), LiabMode: compvar.StructMode}
-	newConn := commconn.ConnRec{ConnRef: connsem.New(), OffsetNr: seqnum.Zero}
+	// Reserve the provider-side connection identity in its liability variable.
+	// The Connection record itself is created when a client Computation attaches.
+	newConnRef := connsem.New()
 	newImpl := implsem.SemRec{ImplQN: spec.TermQN, ImplID: newExec.CompRef.CompID}
 	newLiabVar := compvar.StructRec{
 		CompRef: newExec.CompRef,
-		ConnRef: newConn.ConnRef,
+		ConnRef: newConnRef,
 		ChnlID:  identity.New(),
 		ChnlPH:  spec.LiabVar.ChnlPH,
 		ChnlBS:  compvar.LiabSide,
 		ExpVK:   termDec.LiabVar.ExpVK,
 	}
 	newAssetVars := make([]compvar.VarRec, 0, len(spec.AssetVars)+1)
+	newConns := make([]commconn.ConnRec, 0, len(assetExecs))
+	seenConnIDs := make(map[string]struct{}, len(assetExecs))
 	for _, assetVar := range spec.AssetVars {
 		var connRef connsem.SemRef
 		var chnlID identity.ADT
 		var expVK valkey.ADT
 		assetExec, ok := assetExecs[assetVar.TermQN]
 		if !ok && assetVar.TermQN == spec.LiabVar.TermQN {
-			connRef = newConn.ConnRef
+			connRef = newConnRef
 			chnlID = newLiabVar.ChnlID
 			expVK = newLiabVar.ExpVK
 		} else {
 			connRef = assetExec.LiabVar.GetConnRef()
 			chnlID = assetExec.LiabVar.GetChnlID()
 			expVK = assetExec.LiabVar.GetExpVK()
+			if ok {
+				connID := connRef.ConnID.String()
+				if _, exists := seenConnIDs[connID]; !exists {
+					newConns = append(newConns, commconn.ConnRec{
+						ConnRef:  connRef,
+						OffsetNr: seqnum.Zero,
+					})
+					seenConnIDs[connID] = struct{}{}
+				}
+			}
 		}
 		newAssetVars = append(newAssetVars, compvar.StructRec{
 			CompRef: newExec.CompRef,
@@ -205,7 +219,12 @@ func (s *service) Run(spec ExecSpec) (_ compsem.SemRef, err error) {
 		if err != nil {
 			return err
 		}
-		return s.commConnRepo.AddRec(txCtx, conn, newConn)
+		for _, newConn := range newConns {
+			if err = s.commConnRepo.AddRec(txCtx, conn, newConn); err != nil {
+				return err
+			}
+		}
+		return nil
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", specAttr)

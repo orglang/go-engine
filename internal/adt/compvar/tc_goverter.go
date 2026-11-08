@@ -16,8 +16,8 @@ var (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/adt/symbol:Convert.*
-// goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/symbol:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
 var (
 	MsgFromVarSpec  func(VarSpec) compvar.VarSpec
 	MsgFromVarSpecs func([]VarSpec) []compvar.VarSpec
@@ -27,11 +27,11 @@ var (
 
 // goverter:variables
 // goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/adt/uniqsym:Convert.*
-// goverter:extend orglang/go-engine/adt/seqnum:Convert.*
-// goverter:extend orglang/go-engine/adt/valkey:Convert.*
-// goverter:extend orglang/go-engine/adt/symbol:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/valkey:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/symbol:Convert.*
 // goverter:extend Convert.*
 var (
 	// goverter:autoMap CompRef

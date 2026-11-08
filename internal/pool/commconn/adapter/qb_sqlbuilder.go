@@ -36,22 +36,22 @@ func (qb *sqlBuilder) UpdateRec(mod commconn.ConnModDS) (string, []any) {
 	if mod.OffsetNr.Valid {
 		conn.Set(conn.Assign("offset_nr", mod.OffsetNr.V))
 	}
-	conn.Where(conn.Equal("comm_id", mod.ConnID))
+	conn.Where(conn.Equal("conn_id", mod.ConnID))
 	return conn.Build()
 }
 
 func (qb *sqlBuilder) SelectSnap(qry commconn.ConnQryDS) (string, []any) {
 	conn := qb.connBuilder.SelectFrom(commConns + "conn")
 	turn := qb.turnBuilder.SelectFrom(commTurns + "turn")
-	turn.Where(turn.Equal("comm_id", qry.ConnID))
+	turn.Where(turn.Equal("conn_id", qry.ConnID))
 	if qry.ChnlID.Valid {
 		turn.Where(turn.Equal("chnl_id", qry.ChnlID.V))
 	}
 	turns := sqlbuilder.PostgreSQL.NewCTEBuilder()
 	return conn.With(turns.With(sqlbuilder.CTEQuery("turns").As(turn))).
 		SelectMore(
-			conn.BuilderAs(sqlbuilder.Build("SELECT array_agg(row(t.*)) FROM turns t WHERE t.comm_rn > conn.offset_nr"), "turns"),
+			conn.BuilderAs(sqlbuilder.Build("SELECT array_agg(row(t.*)) FROM turns t WHERE t.conn_rn > conn.offset_nr"), "turns"),
 		).
-		Where(conn.Equal("conn.comm_id", qry.ConnID)).
+		Where(conn.Equal("conn.conn_id", qry.ConnID)).
 		Build()
 }

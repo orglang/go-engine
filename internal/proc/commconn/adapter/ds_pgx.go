@@ -2,6 +2,7 @@ package adapter
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"reflect"
 
@@ -48,7 +49,25 @@ func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec commconn.ConnRe
 }
 
 func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.ConnMod) error {
+	ensureConnection := func(ref connsem.SemRef) error {
+		dto := connsem.DataFromRef(ref)
+		const query = `
+			INSERT INTO proc_connections (conn_id, conn_rn, offset_nr)
+			VALUES ($1, $2, 0)
+			ON CONFLICT (conn_id) DO NOTHING
+		`
+		_, err := conn.Pgx.Exec(ctx, query, dto.ConnID, dto.ConnRN)
+		return err
+	}
+	if mod.OffsetNr != nil && !mod.OffsetNr.IsEmpty() {
+		if err := ensureConnection(mod.ConnRef); err != nil {
+			return err
+		}
+	}
 	for _, turn := range mod.Turns {
+		if err := ensureConnection(turn.GetConnRef()); err != nil {
+			return err
+		}
 		dto, err := commturnadapter.DataFromStepRec(turn)
 		if err != nil {
 			return err
@@ -113,6 +132,9 @@ func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.
 	}
 	defer rows.Close()
 	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[commconn.ConnSnapDS])
+	if errors.Is(err, pgx.ErrNoRows) {
+		return commconn.ConnSnap{ConnRef: qry.ConnRef}, nil
+	}
 	if err != nil {
 		dao.log.Error("Connection snapshot scan failed", slog.Any("ref", qry.ConnRef))
 		return commconn.ConnSnap{}, err

@@ -1,7 +1,7 @@
 package core
 
 import (
-	"orglang/go-engine/adt/valkey"
+	"orglang/go-engine/internal/adt/valkey"
 )
 
 func ConvertSpecToRec(s ExpSpec) (ExpRec, error) {

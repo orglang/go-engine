@@ -5,15 +5,12 @@ import (
 	"database/sql"
 	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/internal/adt/connsem"
-	"orglang/go-engine/internal/adt/uniqsym"
 	commturn "orglang/go-engine/internal/pool/commturn/core"
 )
 
 type Repo interface {
 	AddRec(context.Context, tx.Conn, ConnRec) error
 	ModifyRec(context.Context, tx.Conn, ConnMod) error
-	GetRefsByQNs(context.Context, tx.Conn, []uniqsym.ADT) (map[uniqsym.ADT]connsem.SemRef, error)
 	GetSnapByQry(context.Context, tx.Conn, ConnQry) (ConnSnap, error)
 }
 

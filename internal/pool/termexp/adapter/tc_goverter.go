@@ -3,7 +3,7 @@ package adapter
 import (
 	sdktermexp "github.com/orglang/go-sdk/pool/termexp"
 
-	termexp "orglang/go-engine/pool/termexp/core"
+	termexp "orglang/go-engine/internal/pool/termexp/core"
 )
 
 // goverter:variables

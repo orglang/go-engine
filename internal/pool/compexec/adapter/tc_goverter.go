@@ -1,9 +1,9 @@
 package adapter
 
 import (
-	"orglang/go-engine/adt/uniqsym"
+	"orglang/go-engine/internal/adt/uniqsym"
 
-	compexec "orglang/go-engine/pool/compexec/core"
+	compexec "orglang/go-engine/internal/pool/compexec/core"
 
 	sdkcompexec "github.com/orglang/go-sdk/pool/compexec"
 )

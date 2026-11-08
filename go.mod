@@ -92,11 +92,3 @@ require (
 	honnef.co/go/tools v0.8.1 // indirect
 )
 
-tool (
-	github.com/go-critic/go-critic/cmd/go-critic
-	github.com/jmattheis/goverter
-	github.com/kisielk/errcheck
-	github.com/mgechev/revive
-	github.com/quasilyte/go-consistent
-	honnef.co/go/tools/cmd/staticcheck
-)

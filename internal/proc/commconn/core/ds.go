@@ -17,8 +17,10 @@ type Repo interface {
 
 type ConnRecDS struct {
 	ConnID   string `db:"conn_id"`
-	CompID   string `db:"comp_id"`
-	CompRN   int64  `db:"comp_rn"`
+	ProviderCompID string `db:"provider_comp_id"`
+	ProviderCompRN int64  `db:"provider_comp_rn"`
+	ClientCompID   string `db:"client_comp_id"`
+	ClientCompRN   int64  `db:"client_comp_rn"`
 	OffsetNr int64  `db:"offset_nr"`
 	ActNr    int64  `db:"act_nr"`
 }

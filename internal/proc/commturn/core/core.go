@@ -12,6 +12,7 @@ import (
 // aka Sem
 type TurnRec interface {
 	turn() identity.ADT
+	GetConnRef() connsem.SemRef
 }
 
 func ChnlID(rec TurnRec) identity.ADT { return rec.turn() }

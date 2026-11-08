@@ -284,12 +284,7 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 func (s *service) takeStep(
 	execSnap ExecSnap3,
 	exp termexp.ExpSpec,
-) (
-	result.Mod ExecMod,
-	result.Eff ExecEff,
-	connMod commconn.ConnMod,
-	err error,
-) {
+) (result ExecResult, connMod commconn.ConnMod, err error) {
 	ctx := context.Background()
 	compAttr := slog.Any("compRef", execSnap.CompRef)
 	switch termExp := exp.(type) {

@@ -178,8 +178,8 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 			return err
 		}
 		// next values
-		if len(execEff.Steps) > 0 {
-			nextSpec := execEff.Steps[len(execEff.Steps)-1]
+		if len(result.Effects.Steps) > 0 {
+			nextSpec := result.Effects.Steps[len(result.Effects.Steps)-1]
 			compRef = nextSpec.CompRef
 			expSpec = nextSpec.ProcExp
 		}
@@ -260,7 +260,7 @@ func (s *service) takeWith(
 			})
 			if expRec.ContExp != nil {
 				// шедулим продолжение наблюдателя
-				execEff.Steps = append(execEff.Steps, compstep.StepSpec{
+				result.Effects.Steps = append(result.Effects.Steps, compstep.StepSpec{
 					CompRef: observation.CompRef,
 					ProcExp: expRec.ContExp,
 				})
@@ -328,7 +328,7 @@ func (s *service) takeWith(
 				ExpVK:   nextExpVK,
 			})
 			if termExp.ContExp != nil {
-				execEff.Steps = append(execEff.Steps, compstep.StepSpec{
+				result.Effects.Steps = append(result.Effects.Steps, compstep.StepSpec{
 					CompRef: execSnap.CompRef,
 					ProcExp: termExp.ContExp,
 				})
@@ -345,7 +345,7 @@ func (s *service) takeWith(
 				ChnlBS:  commChnl.ChnlBS,
 				ExpVK:   commChnl.ExpVK,
 			})
-			execEff.Steps = append(execEff.Steps, compstep.StepSpec{
+			result.Effects.Steps = append(result.Effects.Steps, compstep.StepSpec{
 				CompRef: execSnap.CompRef,
 				ProcExp: termExp,
 			})
@@ -445,7 +445,7 @@ func (s *service) takeWith(
 				ExpVK:   valChnl.ExpVK,
 			})
 			if expRec.ContExp != nil {
-				execEff.Steps = append(execEff.Steps, compstep.StepSpec{
+				result.Effects.Steps = append(result.Effects.Steps, compstep.StepSpec{
 					CompRef: receival.CompRef,
 					ProcExp: expRec.ContExp,
 				})
@@ -532,7 +532,7 @@ func (s *service) takeWith(
 				ExpVK:   valExp.ValExpVK,
 			})
 			if termExp.ContExp != nil {
-				execEff.Steps = append(execEff.Steps, compstep.StepSpec{
+				result.Effects.Steps = append(result.Effects.Steps, compstep.StepSpec{
 					CompRef: execSnap.CompRef,
 					ProcExp: termExp.ContExp,
 				})
@@ -619,7 +619,7 @@ func (s *service) takeWith(
 				ExpVK: nextExpVK,
 			})
 			if contExp.ContExps[termExp.ValLabQN] != nil {
-				execEff.Steps = append(execEff.Steps, compstep.StepSpec{
+				result.Effects.Steps = append(result.Effects.Steps, compstep.StepSpec{
 					CompRef: following.CompRef,
 					ProcExp: contExp.ContExps[termExp.ValLabQN],
 				})
@@ -682,7 +682,7 @@ func (s *service) takeWith(
 				ExpVK: valExp.ValExpVK,
 			})
 			if termExp.ContExps[valExp.ValLabQN] != nil {
-				execEff.Steps = append(execEff.Steps, compstep.StepSpec{
+				result.Effects.Steps = append(result.Effects.Steps, compstep.StepSpec{
 					CompRef: execSnap.CompRef,
 					ProcExp: termExp.ContExps[valExp.ValLabQN],
 				})
@@ -736,7 +736,7 @@ func (s *service) takeWith(
 					ExpVK: commChnl.ExpVK,
 				})
 				if forwardable.ContExp != nil {
-					execEff.Steps = append(execEff.Steps, compstep.StepSpec{
+					result.Effects.Steps = append(result.Effects.Steps, compstep.StepSpec{
 						CompRef: forwardable.CompRef,
 						ProcExp: forwardable.ContExp,
 					})
@@ -753,7 +753,7 @@ func (s *service) takeWith(
 					// TODO значение ChnlBS
 					ExpVK: contChnl.ExpVK,
 				})
-				execEff.Steps = append(execEff.Steps, compstep.StepSpec{
+				result.Effects.Steps = append(result.Effects.Steps, compstep.StepSpec{
 					CompRef: forwardable.CompRef,
 					ProcExp: forwardable.ValExp,
 				})
@@ -804,7 +804,7 @@ func (s *service) takeWith(
 					ExpVK: contChnl.ExpVK,
 				})
 				if forwardable.ContExp != nil {
-					execEff.Steps = append(execEff.Steps, compstep.StepSpec{
+					result.Effects.Steps = append(result.Effects.Steps, compstep.StepSpec{
 						CompRef: forwardable.CompRef,
 						ProcExp: forwardable.ContExp,
 					})
@@ -821,7 +821,7 @@ func (s *service) takeWith(
 					// TODO значение ChnlBS
 					ExpVK: commChnl.ExpVK,
 				})
-				execEff.Steps = append(execEff.Steps, compstep.StepSpec{
+				result.Effects.Steps = append(result.Effects.Steps, compstep.StepSpec{
 					CompRef: forwardable.CompRef,
 					ProcExp: forwardable.ValExp, // TODO: несовпадение типов
 				})

@@ -143,7 +143,7 @@ func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.
 			conn.conn_id,
 			conn.conn_rn,
 			conn.offset_nr,
-			(SELECT array_agg(row(t.*)) FROM turns t WHERE t.conn_rn > conn.offset_nr) AS turns
+			(SELECT array_agg(row(t.*) ORDER BY t.conn_rn) FROM turns t WHERE t.conn_rn > conn.offset_nr) AS turns
 		FROM proc_connections conn
 		WHERE conn.conn_id = $1
 	`

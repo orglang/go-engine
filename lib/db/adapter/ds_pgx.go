@@ -25,10 +25,7 @@ func (t *transactorPgx) ExplicitTx(ctx context.Context, fn func(context.Context,
 		return errors.New("transaction callback is nil")
 	}
 
-	txCtx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
-	pgxTx, err := t.pool.Begin(txCtx)
+	pgxTx, err := t.pool.Begin(ctx)
 	if err != nil {
 		return err
 	}
@@ -42,7 +39,7 @@ func (t *transactorPgx) ExplicitTx(ctx context.Context, fn func(context.Context,
 		}
 	}()
 
-	if err := fn(txCtx, tx.Conn{Pgx: pgxTx}); err != nil {
+	if err := fn(ctx, tx.Conn{Pgx: pgxTx}); err != nil {
 		return err
 	}
 
@@ -60,10 +57,7 @@ func (t *transactorPgx) ImplicitTx(ctx context.Context, fn func(context.Context,
 	}
 	defer conn.Release()
 
-	txCtx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
-	return fn(txCtx, tx.Conn{Pgx: conn})
+	return fn(ctx, tx.Conn{Pgx: conn})
 }
 
 func (t *transactorPgx) ExplicitTxOld(ctx context.Context, fn func(tx.UoW) error) error {

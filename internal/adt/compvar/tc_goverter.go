@@ -49,5 +49,5 @@ var (
 	// goverter:map . ConnID | dataToConnID
 	DataToLinearRec  func(VarRecDS) (LinearRec, error)
 	DataToLinearRecs func([]VarRecDS) ([]LinearRec, error)
-	
+
 )

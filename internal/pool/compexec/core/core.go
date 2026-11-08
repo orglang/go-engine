@@ -163,7 +163,7 @@ func (s *service) Run(spec ExecSpec) (_ compsem.SemRef, err error) {
 	newImpl := implsem.SemRec{ImplQN: spec.TermQN, ImplID: newExec.CompRef.CompID}
 	newLiabVar := compvar.StructRec{
 		CompRef: newExec.CompRef,
-		ConnID: newConnID,
+		ConnID:  newConnID,
 		ChnlID:  identity.New(),
 		ChnlPH:  spec.LiabVar.ChnlPH,
 		ChnlBS:  compvar.LiabSide,
@@ -199,7 +199,7 @@ func (s *service) Run(spec ExecSpec) (_ compsem.SemRef, err error) {
 		}
 		newAssetVars = append(newAssetVars, compvar.StructRec{
 			CompRef: newExec.CompRef,
-			ConnID: connID,
+			ConnID:  connID,
 			ChnlID:  chnlID,
 			ChnlPH:  assetVar.ChnlPH,
 			ChnlBS:  compvar.AssetSide,
@@ -319,7 +319,7 @@ func (s *service) takeStep(
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 			commSnap, err = s.commConnRepo.GetSnapByQry(txCtx, conn, commconn.ConnQry{
 				ConnID: commChnl.ConnID,
-				ChnlID:  option.Some(commChnl.ChnlID),
+				ChnlID: option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
@@ -338,7 +338,7 @@ func (s *service) takeStep(
 		if subscription == nil {
 			// регистрируем подписку доступодателя
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
-				ConnID: commSnap.ConnID,
+				ConnID:  commSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  commChnl.ChnlID,
 				ContExp: termexp.AcceptRec{
@@ -357,7 +357,7 @@ func (s *service) takeStep(
 		// вяжем продолжение доступодателя
 		execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 			CompRef: commChnl.CompRef,
-			ConnID: commChnl.ConnID,
+			ConnID:  commChnl.ConnID,
 			ChnlID:  newChnlID,
 			ChnlPH:  commChnl.ChnlPH,
 			ChnlBS:  commChnl.ChnlBS,
@@ -376,7 +376,7 @@ func (s *service) takeStep(
 			// вяжем продолжение доступополучателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 				CompRef: acquisition.CompRef,
-				ConnID: acquisition.ConnID,
+				ConnID:  acquisition.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -412,7 +412,7 @@ func (s *service) takeStep(
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 			commSnap, err = s.commConnRepo.GetSnapByQry(txCtx, conn, commconn.ConnQry{
 				ConnID: commChnl.ConnID,
-				ChnlID:  option.Some(commChnl.ChnlID),
+				ChnlID: option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
@@ -431,7 +431,7 @@ func (s *service) takeStep(
 		if subscription == nil {
 			// регистрируем подписку доступополучателя
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
-				ConnID: commSnap.ConnID,
+				ConnID:  commSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  commChnl.ChnlID,
 				ContExp: termexp.AcquireRec{
@@ -450,7 +450,7 @@ func (s *service) takeStep(
 		// вяжем продолжение доступополучателя
 		execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 			CompRef: commChnl.CompRef,
-			ConnID: commChnl.ConnID,
+			ConnID:  commChnl.ConnID,
 			ChnlID:  newChnlID,
 			ChnlPH:  commChnl.ChnlPH,
 			ChnlBS:  commChnl.ChnlBS,
@@ -469,7 +469,7 @@ func (s *service) takeStep(
 			// вяжем продолжение доступодателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 				CompRef: acception.CompRef,
-				ConnID: acception.ConnID,
+				ConnID:  acception.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -505,7 +505,7 @@ func (s *service) takeStep(
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 			commSnap, err = s.commConnRepo.GetSnapByQry(txCtx, conn, commconn.ConnQry{
 				ConnID: commChnl.ConnID,
-				ChnlID:  option.Some(commChnl.ChnlID),
+				ChnlID: option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
@@ -524,7 +524,7 @@ func (s *service) takeStep(
 		if subscription == nil {
 			// регистрируем подписку соискателя
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
-				ConnID: commSnap.ConnID,
+				ConnID:  commSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  commChnl.ChnlID,
 				ContExp: termexp.ApplyRec{
@@ -544,7 +544,7 @@ func (s *service) takeStep(
 		// вяжем продолжение соискателя
 		execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 			CompRef: commChnl.CompRef,
-			ConnID: commChnl.ConnID,
+			ConnID:  commChnl.ConnID,
 			ChnlID:  newChnlID,
 			ChnlPH:  commChnl.ChnlPH,
 			ChnlBS:  commChnl.ChnlBS,
@@ -562,7 +562,7 @@ func (s *service) takeStep(
 			// вяжем продолжение нанимателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 				CompRef: hiring.CompRef,
-				ConnID: hiring.ConnID,
+				ConnID:  hiring.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -598,7 +598,7 @@ func (s *service) takeStep(
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 			commSnap, err = s.commConnRepo.GetSnapByQry(txCtx, conn, commconn.ConnQry{
 				ConnID: commChnl.ConnID,
-				ChnlID:  option.Some(commChnl.ChnlID),
+				ChnlID: option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
@@ -617,7 +617,7 @@ func (s *service) takeStep(
 		if subscription == nil {
 			// регистрируем подписку нанимателя
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
-				ConnID: commSnap.ConnID,
+				ConnID:  commSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  commChnl.ChnlID,
 				ContExp: termexp.HireRec{
@@ -637,7 +637,7 @@ func (s *service) takeStep(
 		// вяжем продолжение нанимателя
 		execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 			CompRef: commChnl.CompRef,
-			ConnID: commChnl.ConnID,
+			ConnID:  commChnl.ConnID,
 			ChnlID:  newChnlID,
 			ChnlPH:  commChnl.ChnlPH,
 			ChnlBS:  commChnl.ChnlBS,
@@ -655,7 +655,7 @@ func (s *service) takeStep(
 			// вяжем продолжение соискателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 				CompRef: application.CompRef,
-				ConnID: application.ConnID,
+				ConnID:  application.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -691,7 +691,7 @@ func (s *service) takeStep(
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 			commSnap, err = s.commConnRepo.GetSnapByQry(txCtx, conn, commconn.ConnQry{
 				ConnID: commChnl.ConnID,
-				ChnlID:  option.Some(commChnl.ChnlID),
+				ChnlID: option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
@@ -710,7 +710,7 @@ func (s *service) takeStep(
 		if subscription == nil {
 			// регистрируем подписку доступовозвращателя
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
-				ConnID: commSnap.ConnID,
+				ConnID:  commSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  commChnl.ChnlID,
 				ContExp: termexp.ReleaseRec{
@@ -728,7 +728,7 @@ func (s *service) takeStep(
 		// вяжем продолжение доступовозвращателя
 		execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 			CompRef: commChnl.CompRef,
-			ConnID: commChnl.ConnID,
+			ConnID:  commChnl.ConnID,
 			ChnlID:  newChnlID,
 			ChnlPH:  commChnl.ChnlPH,
 			ChnlBS:  commChnl.ChnlBS,
@@ -739,7 +739,7 @@ func (s *service) takeStep(
 			// вяжем продолжение доступопринимателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 				CompRef: detaching.CompRef,
-				ConnID: detaching.ConnID,
+				ConnID:  detaching.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -768,7 +768,7 @@ func (s *service) takeStep(
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 			commSnap, err = s.commConnRepo.GetSnapByQry(txCtx, conn, commconn.ConnQry{
 				ConnID: commChnl.ConnID,
-				ChnlID:  option.Some(commChnl.ChnlID),
+				ChnlID: option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
@@ -787,7 +787,7 @@ func (s *service) takeStep(
 		if subscription == nil {
 			// регистрируем подписку доступопринимателя
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
-				ConnID: commSnap.ConnID,
+				ConnID:  commSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  commChnl.ChnlID,
 				ContExp: termexp.DetachRec{
@@ -805,7 +805,7 @@ func (s *service) takeStep(
 		// вяжем продолжение доступопринимателя
 		execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 			CompRef: commChnl.CompRef,
-			ConnID: commChnl.ConnID,
+			ConnID:  commChnl.ConnID,
 			ChnlID:  newChnlID,
 			ChnlPH:  commChnl.ChnlPH,
 			ChnlBS:  commChnl.ChnlBS,
@@ -816,7 +816,7 @@ func (s *service) takeStep(
 			// вяжем продолжение доступовозвращателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 				CompRef: releasing.CompRef,
-				ConnID: releasing.ConnID,
+				ConnID:  releasing.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
 				ChnlBS:  commChnl.ChnlBS,

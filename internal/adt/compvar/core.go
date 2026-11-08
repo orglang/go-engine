@@ -30,7 +30,7 @@ type VarRec interface {
 
 type LinearRec struct {
 	CompRef compsem.SemRef
-	ConnID identity.ADT
+	ConnID  identity.ADT
 	ChnlID  identity.ADT
 	ChnlPH  symbol.ADT
 	ChnlBS  side
@@ -53,7 +53,7 @@ func (r LinearRec) GetExpVK() valkey.ADT { return r.ExpVK }
 
 type StructRec struct {
 	CompRef compsem.SemRef
-	ConnID identity.ADT
+	ConnID  identity.ADT
 	ChnlID  identity.ADT
 	ChnlPH  symbol.ADT
 	ChnlBS  side

@@ -14,9 +14,9 @@ vars:
 
 tasks:
   tools:install:
-    desc: Install tooling dependencies
+    desc: Download tooling dependencies declared in gear.mod
     cmds:
-      - GOWORK=off go get -tool -modfile=gear.mod github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0 github.com/jmattheis/goverter/cmd/goverter@v1.9.3
+      - GOWORK=off go mod download -modfile=gear.mod
 
   gear:sum:
     desc: Generate checksums for tooling dependencies
@@ -27,9 +27,9 @@ tasks:
     desc: Check prepared source artifact
     cmds:
       - task: tools:install
-      - go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...
-      - go tool -modfile=gear.mod golangci-lint fmt --diff
-      - go tool -modfile=gear.mod golangci-lint run ./...
+      - GOWORK=off go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...
+      - GOWORK=off go tool -modfile=gear.mod golangci-lint fmt --diff
+      - GOWORK=off go tool -modfile=gear.mod golangci-lint run ./...
 
   sources:prepare:
     desc: Prepare source artifact
@@ -41,7 +41,7 @@ tasks:
     desc: Generate source artifacts with goverter
     cmds:
       - task: tools:install
-      - go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...
+      - GOWORK=off go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...
 
   sources:verify:
     desc: Verify the current HEAD before publishing
@@ -82,4 +82,3 @@ tasks:
         if: '{{eq .LEVEL "it"}}'
       - cmd: go test -failfast ./test/...
         if: '{{eq .LEVEL "e2e"}}'
-

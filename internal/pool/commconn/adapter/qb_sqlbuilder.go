@@ -24,15 +24,15 @@ func newSQLBuilder() *sqlBuilder {
 }
 
 func (qb *sqlBuilder) InsertRec(rec commconn.ConnRecDS) (string, []any) {
-	return qb.connBuilder.InsertInto(commConns, rec).Build()
+	return qb.connBuilder.InsertInto(connections, rec).Build()
 }
 
 func (qb *sqlBuilder) InsertTurnRec(rec commturn.TurnRecDS) (string, []any) {
-	return qb.turnBuilder.InsertInto(commTurns, rec).Build()
+	return qb.turnBuilder.InsertInto(connectionActs, rec).Build()
 }
 
 func (qb *sqlBuilder) UpdateRec(mod commconn.ConnModDS) (string, []any) {
-	conn := qb.connBuilder.Update(commConns, mod)
+	conn := qb.connBuilder.Update(connections, mod)
 	if mod.OffsetNr.Valid {
 		conn.Set(conn.Assign("offset_nr", mod.OffsetNr.V))
 	}
@@ -41,8 +41,8 @@ func (qb *sqlBuilder) UpdateRec(mod commconn.ConnModDS) (string, []any) {
 }
 
 func (qb *sqlBuilder) SelectSnap(qry commconn.ConnQryDS) (string, []any) {
-	conn := qb.connBuilder.SelectFrom(commConns + "conn")
-	turn := qb.turnBuilder.SelectFrom(commTurns + "turn")
+	conn := qb.connBuilder.SelectFrom(connections + "conn")
+	turn := qb.turnBuilder.SelectFrom(connectionActs + "turn")
 	turn.Where(turn.Equal("conn_id", qry.ConnID))
 	if qry.ChnlID.Valid {
 		turn.Where(turn.Equal("chnl_id", qry.ChnlID.V))

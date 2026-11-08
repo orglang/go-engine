@@ -23,6 +23,11 @@ tasks:
     cmds:
       - GOWORK=off go mod download -modfile=gear.mod all
 
+  binaries:
+    desc: Build application binaries
+    cmds:
+      - task: app:binary
+
   sources:check:
     desc: Check prepared source artifact
     cmds:

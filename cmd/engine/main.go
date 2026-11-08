@@ -10,7 +10,6 @@ import (
 	"orglang/go-engine/internal/lib/ws"
 
 	poolcommconn "orglang/go-engine/internal/pool/commconn/adapter"
-	poolcommturn "orglang/go-engine/internal/pool/commturn/adapter"
 	poolconfexec "orglang/go-engine/internal/pool/compexec/adapter"
 	compvar "orglang/go-engine/internal/pool/compvar/adapter"
 	pooltermdef "orglang/go-engine/internal/pool/termdef/adapter"
@@ -41,7 +40,6 @@ func main() {
 		poolcommconn.Module,
 		pooltermdef.Module,
 		poolconfexec.Module,
-		poolcommturn.Module,
 		compvar.Module,
 		typedef.Module,
 		typeexp.Module,

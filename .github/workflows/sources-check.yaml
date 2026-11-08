@@ -27,7 +27,7 @@ jobs:
           go-version-file: go.mod
 
       - name: Download tooling dependencies
-        run: GOWORK=off go mod download -modfile=gear.mod
+        run: GOWORK=off go mod download -modfile=gear.mod all
 
       - name: Generate source artifacts
         run: GOWORK=off go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...

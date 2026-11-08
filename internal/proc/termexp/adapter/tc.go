@@ -309,6 +309,10 @@ func DataToExpRec(dto termexp.ExpRecDS) (termexp.ExpRec, error) {
 		if err != nil {
 			return nil, err
 		}
+		valID, err := identity.ConvertFromString(dto.Send.B)
+		if err != nil {
+			return nil, err
+		}
 		commID, err := identity.ConvertFromString(dto.Send.CommID)
 		if err != nil {
 			return nil, err
@@ -316,7 +320,7 @@ func DataToExpRec(dto termexp.ExpRecDS) (termexp.ExpRec, error) {
 		return termexp.SendRec{
 			CommChnlPH: x,
 			ContChnlID: a,
-			ValChnlID:  mustIdentity(dto.Send.B),
+			ValChnlID:  valID,
 			ValExpVK:   valkey.ADT(dto.Send.ValExpVK),
 			CommRef:    commsem.SemRef{CommID: commID, CommRN: seqnum.ADT(dto.Send.CommRN)},
 		}, nil

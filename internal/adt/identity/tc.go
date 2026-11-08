@@ -27,20 +27,6 @@ func ConvertPtrToStringPtr(id *ADT) *string {
 	return &s
 }
 
-func ConvertFromNullString(s sql.NullString) (ADT, error) {
-	if !s.Valid || s.String == "" {
-		return ADT{}, nil
-	}
-	return ConvertFromString(s.String)
-}
-
-func ConvertToNullString(id ADT) sql.NullString {
-	if id.IsEmpty() {
-		return sql.NullString{}
-	}
-	return sql.NullString{String: ConvertToString(id), Valid: true}
-}
-
 func ConvertOptionToNullString(id option.ADT[ADT]) sql.Null[string] {
 	if id.IsEmpty() {
 		return sql.Null[string]{}

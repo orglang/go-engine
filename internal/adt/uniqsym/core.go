@@ -3,8 +3,8 @@ package uniqsym
 import (
 	"hash/fnv"
 
-	"orglang/go-engine/adt/symbol"
-	"orglang/go-engine/adt/valkey"
+	"orglang/go-engine/internal/adt/symbol"
+	"orglang/go-engine/internal/adt/valkey"
 )
 
 type ADT struct {

@@ -3,12 +3,12 @@ package compvar
 import (
 	"fmt"
 
-	"orglang/go-engine/adt/commsem"
-	"orglang/go-engine/adt/compsem"
-	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/symbol"
-	"orglang/go-engine/adt/uniqsym"
-	"orglang/go-engine/adt/valkey"
+	"orglang/go-engine/internal/adt/commsem"
+	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/symbol"
+	"orglang/go-engine/internal/adt/uniqsym"
+	"orglang/go-engine/internal/adt/valkey"
 )
 
 // human-readable specification of computation variable

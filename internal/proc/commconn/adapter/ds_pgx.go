@@ -95,6 +95,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 					client_comp_rn = EXCLUDED.client_comp_rn
 				WHERE proc_comp_conns.client_comp_id IS NULL OR
 					(proc_comp_conns.client_comp_id = EXCLUDED.client_comp_id AND proc_comp_conns.client_comp_rn = EXCLUDED.client_comp_rn)
+			`
 		default:
 			panic(commturn.ErrRecTypeUnexpected(turn))
 		}

@@ -38,6 +38,8 @@ type SubRec struct {
 
 func (r SubRec) turn() {}
 
+func (r SubRec) GetConnRef() connsem.SemRef { return r.ConnRef }
+
 func ErrRecTypeUnexpected(got TurnRec) error {
 	return fmt.Errorf("step rec unexpected: %T%+v", got, got)
 }

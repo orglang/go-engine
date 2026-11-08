@@ -371,7 +371,7 @@ func DataToExpRec(dto termexp.ExpRecDS) (termexp.ExpRec, error) {
 			if err != nil {
 				return nil, err
 			}
-			label, err := uniqsym.ConvertFromString(dto.Lab.Label)
+			label, err := uniqsym.ConvertFromString(branch.Label)
 			if err != nil {
 				return nil, err
 			}

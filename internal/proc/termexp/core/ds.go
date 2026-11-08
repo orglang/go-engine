@@ -73,8 +73,8 @@ type SendRecDS struct {
 	X        string `json:"x"`
 	A        string `json:"a"`
 	B        string `json:"b"`
-	ConnID   string `json:"comm_id"`
-	ConnRN   int64  `json:"comm_rn"`
+	ConnID   string `json:"conn_id"`
+	ConnRN   int64  `json:"conn_rn"`
 	ValExpVK int64  `json:"val_exp_vk"`
 }
 

@@ -70,12 +70,15 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 	const query = `
 		UPDATE proc_connections
 		SET offset_nr = $1
-		WHERE conn_id = $2
+		WHERE conn_id = $2 AND offset_nr = $3
 	`
-	_, err := conn.Pgx.Exec(ctx, query, int64(mod.OffsetNr.Get()), ref.ConnID)
+	tag, err := conn.Pgx.Exec(ctx, query, int64(mod.OffsetNr.Get()), ref.ConnID, int64(mod.PrevOffsetNr))
 	if err != nil {
 		dao.log.Error("Connection offset update failed", slog.Any("ref", mod.ConnRef))
 		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return commconn.ErrOffsetConflict(mod.PrevOffsetNr)
 	}
 	return nil
 }
@@ -119,7 +122,8 @@ func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.
 		return commconn.ConnSnap{}, err
 	}
 	snap := commconn.ConnSnap{
-		ConnRef: connsem.SemRef{ConnID: connID, ConnRN: seqnum.ADT(dto.ConnRN)},
+		ConnRef:  connsem.SemRef{ConnID: connID, ConnRN: seqnum.ADT(dto.ConnRN)},
+		OffsetNr: seqnum.ADT(dto.OffsetNr),
 		Turns:   make([]commturn.TurnRec, 0, len(dto.Turns)),
 	}
 	for _, turnDTO := range dto.Turns {

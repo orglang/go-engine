@@ -229,9 +229,9 @@ func (s *service) takeWith(
 		}
 		subscription := commSnap.NextTurn()
 		if subscription != nil {
-			connMod.ConnRef = subscription.ConnRef
-			connMod.PrevOffsetNr = subscription.OffsetNr
-			connMod.OffsetNr = option.Some(subscription.OffsetNr.Next())
+			connMod.ConnRef = commSnap.ConnRef
+			connMod.PrevOffsetNr = commSnap.OffsetNr
+			connMod.OffsetNr = option.Some(commSnap.OffsetNr.Next())
 		}
 		if subscription == nil {
 			// регистрируем подписку закрывателя

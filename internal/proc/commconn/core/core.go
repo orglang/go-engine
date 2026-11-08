@@ -12,11 +12,11 @@ import (
 )
 
 type ConnRec struct {
-	ConnID   identity.ADT
+	ConnID          identity.ADT
 	ProviderCompRef compsem.SemRef
 	ClientCompRef   compsem.SemRef
-	OffsetNr seqnum.ADT
-	ActNr    seqnum.ADT
+	OffsetNr        seqnum.ADT
+	ActNr           seqnum.ADT
 }
 
 type ConnMod struct {

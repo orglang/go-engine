@@ -9,7 +9,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/fx"
 
-	"orglang/go-engine/lib/e2e"
+	"orglang/go-engine/internal/lib/e2e"
 
 	"github.com/orglang/go-sdk/lib/rc"
 

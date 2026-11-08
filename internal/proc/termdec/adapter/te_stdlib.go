@@ -7,7 +7,7 @@ import (
 
 	"github.com/Masterminds/sprig/v3"
 
-	"orglang/go-engine/lib/te"
+	"orglang/go-engine/internal/lib/te"
 )
 
 //go:embed all:vp

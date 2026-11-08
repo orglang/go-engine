@@ -53,7 +53,7 @@ var (
 	DataToStructRec  func(VarRecDS) (StructRec, error)
 	DataToStructRecs func([]VarRecDS) ([]StructRec, error)
 	// goverter:map . CompRef
-	// goverter:map . ConnID | dataToConnID
+	// goverter:map ConnID | dataToConnID
 	DataToLinearRec  func(VarRecDS) (LinearRec, error)
 	DataToLinearRecs func([]VarRecDS) ([]LinearRec, error)
 )

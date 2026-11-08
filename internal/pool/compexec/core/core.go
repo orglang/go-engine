@@ -273,37 +273,51 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 		s.log.Error("step taking failed", refAttr)
 		return takeErr
 	}
-	// Every changed Computation aggregate is guarded by its own root revision.
+	// Every changed Computation aggregate is guarded by its observed root revision.
 	// Connection changes always include the provider aggregate, regardless of
 	// which endpoint initiated the step.
-	compIDs := map[string]identity.ADT{
-		execSnap.CompRef.CompID.String(): execSnap.CompRef.CompID,
+	compRefs := map[string]compsem.SemRef{}
+	addCompRef := func(ref compsem.SemRef) error {
+		key := ref.CompID.String()
+		if previous, ok := compRefs[key]; ok && previous.CompRN != ref.CompRN {
+			return errOptimisticUpdate(previous.CompRN)
+		}
+		compRefs[key] = ref
+		return nil
+	}
+	if err = addCompRef(execSnap.CompRef); err != nil {
+		return err
 	}
 	if !connMod.ProviderCompID.IsEmpty() {
-		compIDs[connMod.ProviderCompID.String()] = connMod.ProviderCompID
+		if err = addCompRef(compsem.SemRef{
+			CompID: connMod.ProviderCompID,
+			CompRN: connMod.ProviderCompRN,
+		}); err != nil {
+			return err
+		}
 	}
 	for _, variable := range execMod.Vars {
 		switch rec := variable.(type) {
 		case compvar.StructRec:
-			compIDs[rec.CompRef.CompID.String()] = rec.CompRef.CompID
+			if err = addCompRef(rec.CompRef); err != nil {
+				return err
+			}
 		case compvar.LinearRec:
-			compIDs[rec.CompRef.CompID.String()] = rec.CompRef.CompID
+			if err = addCompRef(rec.CompRef); err != nil {
+				return err
+			}
 		}
 	}
-	compKeys := make([]string, 0, len(compIDs))
-	for key := range compIDs {
+	compKeys := make([]string, 0, len(compRefs))
+	for key := range compRefs {
 		compKeys = append(compKeys, key)
 	}
 	sort.Strings(compKeys)
 
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		// Read each current root revision and CAS it before writing any child state.
+		// CAS all affected aggregate roots before writing any child state.
 		for _, key := range compKeys {
-			rootSnap, getErr := s.compExecRepo.GetSnapByRef(txCtx, conn, compsem.SemRef{CompID: compIDs[key]})
-			if getErr != nil {
-				return getErr
-			}
-			if touchErr := s.compSemRepo.TouchRef(txCtx, conn, rootSnap.CompRef); touchErr != nil {
+			if touchErr := s.compSemRepo.TouchRef(txCtx, conn, compRefs[key]); touchErr != nil {
 				return touchErr
 			}
 		}
@@ -366,10 +380,14 @@ func (s *service) takeStep(
 		}
 		connMod.ConnID = connSnap.ConnID
 		connMod.ProviderCompID = connSnap.ProviderCompID
+		connMod.ProviderCompRN = connSnap.ProviderCompRN
+		connMod.ProviderCompID = connSnap.ProviderCompID
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
+		connMod.ProviderCompID = connSnap.ProviderCompID
+		connMod.ProviderCompRN = connSnap.ProviderCompRN
 		connMod.ProviderCompID = connSnap.ProviderCompID
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
@@ -460,10 +478,14 @@ func (s *service) takeStep(
 		}
 		connMod.ConnID = connSnap.ConnID
 		connMod.ProviderCompID = connSnap.ProviderCompID
+		connMod.ProviderCompRN = connSnap.ProviderCompRN
+		connMod.ProviderCompID = connSnap.ProviderCompID
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
+		connMod.ProviderCompID = connSnap.ProviderCompID
+		connMod.ProviderCompRN = connSnap.ProviderCompRN
 		connMod.ProviderCompID = connSnap.ProviderCompID
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
@@ -554,10 +576,14 @@ func (s *service) takeStep(
 		}
 		connMod.ConnID = connSnap.ConnID
 		connMod.ProviderCompID = connSnap.ProviderCompID
+		connMod.ProviderCompRN = connSnap.ProviderCompRN
+		connMod.ProviderCompID = connSnap.ProviderCompID
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
+		connMod.ProviderCompID = connSnap.ProviderCompID
+		connMod.ProviderCompRN = connSnap.ProviderCompRN
 		connMod.ProviderCompID = connSnap.ProviderCompID
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
@@ -648,10 +674,14 @@ func (s *service) takeStep(
 		}
 		connMod.ConnID = connSnap.ConnID
 		connMod.ProviderCompID = connSnap.ProviderCompID
+		connMod.ProviderCompRN = connSnap.ProviderCompRN
+		connMod.ProviderCompID = connSnap.ProviderCompID
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
+		connMod.ProviderCompID = connSnap.ProviderCompID
+		connMod.ProviderCompRN = connSnap.ProviderCompRN
 		connMod.ProviderCompID = connSnap.ProviderCompID
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
@@ -742,10 +772,14 @@ func (s *service) takeStep(
 		}
 		connMod.ConnID = connSnap.ConnID
 		connMod.ProviderCompID = connSnap.ProviderCompID
+		connMod.ProviderCompRN = connSnap.ProviderCompRN
+		connMod.ProviderCompID = connSnap.ProviderCompID
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
+		connMod.ProviderCompID = connSnap.ProviderCompID
+		connMod.ProviderCompRN = connSnap.ProviderCompRN
 		connMod.ProviderCompID = connSnap.ProviderCompID
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
@@ -820,10 +854,14 @@ func (s *service) takeStep(
 		}
 		connMod.ConnID = connSnap.ConnID
 		connMod.ProviderCompID = connSnap.ProviderCompID
+		connMod.ProviderCompRN = connSnap.ProviderCompRN
+		connMod.ProviderCompID = connSnap.ProviderCompID
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
+		connMod.ProviderCompID = connSnap.ProviderCompID
+		connMod.ProviderCompRN = connSnap.ProviderCompRN
 		connMod.ProviderCompID = connSnap.ProviderCompID
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}

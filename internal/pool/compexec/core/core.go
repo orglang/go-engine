@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"reflect"
 	"sort"
@@ -280,7 +281,7 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 	addCompRef := func(ref compsem.SemRef) error {
 		key := ref.CompID.String()
 		if previous, ok := compRefs[key]; ok && previous.CompRN != ref.CompRN {
-			return errOptimisticUpdate(previous.CompRN)
+			return fmt.Errorf("inconsistent revisions for Computation %v: %v and %v", ref.CompID, previous.CompRN, ref.CompRN)
 		}
 		compRefs[key] = ref
 		return nil

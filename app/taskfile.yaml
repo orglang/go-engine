@@ -14,7 +14,6 @@ tasks:
   binary:
     aliases: [bin]
     cmds:
-      - cmd: go run github.com/jmattheis/goverter/cmd/goverter gen -global 'skipCopySameType' ../...
       - cmd: go build -o engine main.go
 
   process:

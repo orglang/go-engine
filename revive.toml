@@ -1,35 +1,35 @@
 enableAllRules = true
 
 [rule.package-comments]
-Disabled = true
+disabled = true
 [rule.unused-parameter]
-Disabled = true
+disabled = true
 [rule.unused-receiver]
-Disabled = true
+disabled = true
 [rule.exported]
-Disabled = true
+disabled = true
 [rule.max-public-structs]
-Disabled = true
+disabled = true
 [rule.use-errors-new]
-Disabled = true
+disabled = true
 [rule.cyclomatic]
-Disabled = true
+disabled = true
 [rule.cognitive-complexity]
-Disabled = true
+disabled = true
 [rule.add-constant]
-Disabled = true
+disabled = true
 [rule.function-length]
-Disabled = true
+disabled = true
 [rule.var-declaration]
-Disabled = true
+disabled = true
 
 [rule.line-length-limit]
-Disabled = true
+disabled = true
 [rule.argument-limit]
-Disabled = true
+disabled = true
 [rule.function-result-limit]
-Disabled = true
+disabled = true
 [rule.confusing-naming]
-Disabled = true
+disabled = true
 [rule.unhandled-error]
-Disabled = true
+disabled = true

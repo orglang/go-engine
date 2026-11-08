@@ -12,6 +12,7 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 
 	commconn "orglang/go-engine/internal/pool/commconn/core"
+	commturnadapter "orglang/go-engine/internal/pool/commturn/adapter"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -45,14 +46,21 @@ func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec commconn.ConnRe
 }
 
 func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.ConnMod) error {
+	refAttr := slog.Any("ref", mod.CommRef)
+	for _, turn := range mod.Turns {
+		dto := commturnadapter.DataFromStepRec(turn)
+		sql, args := dao.qb.InsertTurnRec(dto)
+		if _, execErr := conn.Pgx.Exec(ctx, sql, args...); execErr != nil {
+			dao.log.Error("Act insertion failed", refAttr, slog.String("sql", sql))
+			return execErr
+		}
+	}
 	if mod.OffsetNr == nil {
 		return nil
 	}
 	dto := DataFromMod(mod)
-	refAttr := slog.Any("ref", mod.CommRef)
 	sql, args := dao.qb.UpdateRec(dto)
-	_, execErr := conn.Pgx.Exec(ctx, sql, args...)
-	if execErr != nil {
+	if _, execErr := conn.Pgx.Exec(ctx, sql, args...); execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
 		return execErr
 	}

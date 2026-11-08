@@ -1,9 +1,12 @@
 package compvar
 
 import (
+	"database/sql"
+
 	"github.com/orglang/go-sdk/adt/compvar"
 
 	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/identity"
 )
 
 // goverter:variables
@@ -34,11 +37,11 @@ var (
 // goverter:extend Convert.*
 var (
 	// goverter:autoMap CompRef
-	// goverter:map ConnID | ConvertToNullString
+	// goverter:map ConnID | identityToNullString
 	DataFromStructRec  func(StructRec) VarRecDS
 	DataFromStructRecs func([]StructRec) []VarRecDS
 	// goverter:autoMap CompRef
-	// goverter:map ConnID | ConvertToNullString
+	// goverter:map ConnID | identityToNullString
 	DataFromLinearRec  func(LinearRec) VarRecDS
 	DataFromLinearRecs func([]LinearRec) []VarRecDS
 	// goverter:map . CompRef
@@ -50,3 +53,7 @@ var (
 	DataToLinearRec  func(VarRecDS) (LinearRec, error)
 	DataToLinearRecs func([]VarRecDS) ([]LinearRec, error)
 )
+
+func identityToNullString(id identity.ADT) sql.NullString {
+	return identity.ConvertToNullString(id)
+}

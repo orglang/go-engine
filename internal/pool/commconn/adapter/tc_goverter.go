@@ -10,12 +10,12 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/internal/pool/commturn/adapter:Data.*
 var (
-	// goverter:autoMap CommRef
+	// goverter:autoMap ConnRef
 	DataFromRec func(commconn.ConnRec) commconn.ConnRecDS
-	// goverter:autoMap CommRef
+	// goverter:autoMap ConnRef
 	DataFromQry func(commconn.ConnQry) commconn.ConnQryDS
-	// goverter:autoMap CommRef
+	// goverter:autoMap ConnRef
 	DataFromMod func(commconn.ConnMod) commconn.ConnModDS
-	// goverter:map . CommRef
+	// goverter:map . ConnRef
 	DataToSnap func(commconn.ConnSnapDS) (commconn.ConnSnap, error)
 )

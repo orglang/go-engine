@@ -12,6 +12,7 @@ import (
 // step (aka Act)
 type TurnRec interface {
 	turn()
+	GetConnRef() connsem.SemRef
 }
 
 // publication (aka msg)

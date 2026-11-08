@@ -89,8 +89,9 @@ linters:
         ADT:
           list-mode: lax
           files:
-            - "**/adt/**/*.go"
-            - "!**/adt/**/adapter/**/*.go"
+            - "**/adt/*/*.go"
+            - "**/adt/*/core/**/*.go"
+            - "**/adt/*/domain/**/*.go"
             - "!**/*_test.go"
           deny:
             - pkg: orglang/go-engine/adt/compsem/adapter

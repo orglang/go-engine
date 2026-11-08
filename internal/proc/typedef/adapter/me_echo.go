@@ -10,10 +10,10 @@ import (
 	sdk "github.com/orglang/go-sdk/adt/typesem"
 	sdktypedef "github.com/orglang/go-sdk/proc/typedef"
 
-	"orglang/go-engine/lib/lf"
+	"orglang/go-engine/internal/lib/lf"
 
-	"orglang/go-engine/adt/typesem"
-	typedef "orglang/go-engine/proc/typedef/core"
+	"orglang/go-engine/internal/adt/typesem"
+	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
 // Server-side primary adapter

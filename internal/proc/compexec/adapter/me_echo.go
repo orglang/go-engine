@@ -10,11 +10,11 @@ import (
 	sdk1 "github.com/orglang/go-sdk/adt/compsem"
 	sdk2 "github.com/orglang/go-sdk/proc/compstep"
 
-	"orglang/go-engine/lib/lf"
+	"orglang/go-engine/internal/lib/lf"
 
-	"orglang/go-engine/adt/compsem"
-	compexec "orglang/go-engine/proc/compexec/core"
-	compstep "orglang/go-engine/proc/compstep/adapter"
+	"orglang/go-engine/internal/adt/compsem"
+	compexec "orglang/go-engine/internal/proc/compexec/core"
+	compstep "orglang/go-engine/internal/proc/compstep/adapter"
 )
 
 // Server-side primary adapter

@@ -9,13 +9,13 @@ import (
 
 	sdk "github.com/orglang/go-sdk/adt/typesem"
 
-	"orglang/go-engine/lib/lf"
-	"orglang/go-engine/lib/te"
+	"orglang/go-engine/internal/lib/lf"
+	"orglang/go-engine/internal/lib/te"
 
-	"orglang/go-engine/adt/typesem"
-	"orglang/go-engine/adt/uniqsym"
-	typedef "orglang/go-engine/proc/typedef/core"
-	typeexp "orglang/go-engine/proc/typeexp/core"
+	"orglang/go-engine/internal/adt/typesem"
+	"orglang/go-engine/internal/adt/uniqsym"
+	typedef "orglang/go-engine/internal/proc/typedef/core"
+	typeexp "orglang/go-engine/internal/proc/typeexp/core"
 )
 
 // Adapter

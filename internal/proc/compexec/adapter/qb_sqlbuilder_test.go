@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	core "orglang/go-engine/proc/compexec/core"
+	core "orglang/go-engine/internal/proc/compexec/core"
 )
 
 func TestInsertRec(t *testing.T) {

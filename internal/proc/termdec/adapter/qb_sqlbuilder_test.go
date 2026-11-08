@@ -4,9 +4,9 @@ import (
 	"reflect"
 	"testing"
 
-	"orglang/go-engine/adt/termvar"
+	"orglang/go-engine/internal/adt/termvar"
 
-	termdec "orglang/go-engine/proc/termdec/core"
+	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
 func TestInsertRec(t *testing.T) {

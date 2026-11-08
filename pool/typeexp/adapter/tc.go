@@ -287,7 +287,7 @@ func statesFromExpRec(supExpVK int64, r typeexp.ExpRec, dto *typeexp.ExpRecDS) i
 			ExpVK:    expVK,
 			K:        typeexp.DownKind,
 			SupExpVK: supExpVK,
-			Spec: typeexp.ExpSpecDS{Up: &typeexp.ShiftDS{
+			Spec: typeexp.ExpSpecDS{Down: &typeexp.ShiftDS{
 				ContExpVK: statesFromExpRec(expVK, rec.ContExp, dto),
 			}},
 		}

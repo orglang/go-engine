@@ -1,4 +1,4 @@
-package compsem
+package adapter
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"reflect"
 
+	compsem "orglang/go-engine/adt/compsem"
 	"orglang/go-engine/lib/lf"
 	"orglang/go-engine/lib/tx"
 )
@@ -23,12 +24,12 @@ func NewDaoPgx(table string) func(log *slog.Logger) *daoPgx {
 }
 
 // for compilation purposes
-func newRepo() Repo {
+func newRepo() compsem.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) TouchRef(ctx context.Context, conn tx.Conn, ref SemRef) error {
-	dto := DataFromRef(ref)
+func (dao *daoPgx) TouchRef(ctx context.Context, conn tx.Conn, ref compsem.SemRef) error {
+	dto := compsem.DataFromRef(ref)
 	refAttr := slog.Any("ref", ref)
 	sql, args := dao.qb.updateRef(dto)
 	ct, execErr := conn.Pgx.Exec(ctx, sql, args...)
@@ -44,6 +45,6 @@ func (dao *daoPgx) TouchRef(ctx context.Context, conn tx.Conn, ref SemRef) error
 	return nil
 }
 
-func errConcurrentModification(got SemRef) error {
+func errConcurrentModification(got compsem.SemRef) error {
 	return fmt.Errorf("concurrent modification: %v", got)
 }

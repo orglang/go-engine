@@ -1,7 +1,9 @@
-package descsem
+package adapter
 
 import (
 	"github.com/huandu/go-sqlbuilder"
+
+	implsem "orglang/go-engine/adt/implsem"
 )
 
 type sqlBuilder struct {
@@ -15,10 +17,10 @@ func newQueryBuilder() queryBuilder {
 }
 
 func newSQLBuilder(tableName string) *sqlBuilder {
-	semBuilder := sqlbuilder.NewStruct(new(SemRecDS)).For(sqlbuilder.PostgreSQL)
+	semBuilder := sqlbuilder.NewStruct(new(implsem.SemRecDS)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{tableName, semBuilder}
 }
 
-func (qb *sqlBuilder) insertRec(rec SemRecDS) (string, []any) {
+func (qb *sqlBuilder) insertRec(rec implsem.SemRecDS) (string, []any) {
 	return qb.semBuilder.InsertInto(qb.tableName, rec).Build()
 }

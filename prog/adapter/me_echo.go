@@ -22,9 +22,8 @@ func newControllerEcho(a coreprog.API, l *slog.Logger) *controllerEcho {
 	return &controllerEcho{a, l.With(name)}
 }
 
-func cfgControllerEcho(e *echo.Echo, h *controllerEcho) error {
+func cfgControllerEcho(e *echo.Echo, h *controllerEcho) {
 	e.POST("/api/v1/progs", h.PostSpec)
-	return nil
 }
 
 func (h *controllerEcho) PostSpec(ctx echo.Context) error {

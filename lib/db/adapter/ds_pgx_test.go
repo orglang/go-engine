@@ -11,6 +11,8 @@ import (
 	"orglang/go-engine/lib/tx"
 )
 
+type testContextKey struct{}
+
 type testPgxPool struct {
 	tx         pgx.Tx
 	beginErr   error
@@ -113,7 +115,7 @@ func TestTransactorPgxExplicitTx(t *testing.T) {
 	t.Run("success commits and ignores closed transaction rollback", func(t *testing.T) {
 		pgxTx := &testPgxTx{rollbackErr: pgx.ErrTxClosed}
 		pool := &testPgxPool{tx: pgxTx}
-		callbackCtx := context.WithValue(context.Background(), struct{}{}, "callback")
+		callbackCtx := context.WithValue(context.Background(), testContextKey{}, "callback")
 		err := (&transactorPgx{pool: pool}).ExplicitTx(callbackCtx, func(ctx context.Context, conn tx.Conn) error {
 			if ctx != callbackCtx {
 				t.Fatal("callback did not receive the original context")

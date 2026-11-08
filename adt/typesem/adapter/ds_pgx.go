@@ -1,4 +1,4 @@
-package typesem
+package adapter
 
 import (
 	"context"
@@ -9,10 +9,10 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	typesem "orglang/go-engine/adt/typesem"
+	"orglang/go-engine/adt/uniqsym"
 	"orglang/go-engine/lib/lf"
 	"orglang/go-engine/lib/tx"
-
-	"orglang/go-engine/adt/uniqsym"
 )
 
 type daoPgx struct {
@@ -28,12 +28,12 @@ func NewDaoPgx(typeTable, descTable string) func(log *slog.Logger) *daoPgx {
 }
 
 // for compilation purposes
-func newRepo() Repo {
+func newRepo() typesem.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) TouchRef(ctx context.Context, conn tx.Conn, ref SemRef) error {
-	dto := DataFromRef(ref)
+func (dao *daoPgx) TouchRef(ctx context.Context, conn tx.Conn, ref typesem.SemRef) error {
+	dto := typesem.DataFromRef(ref)
 	refAttr := slog.Any("ref", ref)
 	sql, args := dao.qb.updateRef(dto)
 	ct, execErr := conn.Pgx.Exec(ctx, sql, args...)
@@ -49,10 +49,10 @@ func (dao *daoPgx) TouchRef(ctx context.Context, conn tx.Conn, ref SemRef) error
 	return nil
 }
 
-func (dao *daoPgx) GetRefsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uniqsym.ADT) (_ map[uniqsym.ADT]SemRef, err error) {
+func (dao *daoPgx) GetRefsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uniqsym.ADT) (_ map[uniqsym.ADT]typesem.SemRef, err error) {
 	dao.log.Log(ctx, lf.LevelTrace, "getting started", slog.Any("qns", typeQNs))
 	if len(typeQNs) == 0 {
-		return make(map[uniqsym.ADT]SemRef), nil
+		return make(map[uniqsym.ADT]typesem.SemRef), nil
 	}
 	batch := pgx.Batch{}
 	for _, typeQN := range typeQNs {
@@ -63,7 +63,7 @@ func (dao *daoPgx) GetRefsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	dtos := make(map[uniqsym.ADT]SemRefDS, len(typeQNs))
+	dtos := make(map[uniqsym.ADT]typesem.SemRefDS, len(typeQNs))
 	for _, typeQN := range typeQNs {
 		qnAttr := slog.Any("qn", typeQN)
 		rows, readErr := br.Query()
@@ -71,7 +71,7 @@ func (dao *daoPgx) GetRefsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 			dao.log.Error("query execution failed", qnAttr)
 			return nil, readErr
 		}
-		dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[SemRefDS])
+		dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[typesem.SemRefDS])
 		if scanErr != nil {
 			dao.log.Error("row scanning failed", qnAttr)
 			return nil, scanErr
@@ -79,9 +79,9 @@ func (dao *daoPgx) GetRefsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 		dtos[typeQN] = dto
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("dtos", dtos))
-	return DataToRefMap(dtos)
+	return typesem.DataToRefMap(dtos)
 }
 
-func errConcurrentModification(got SemRef) error {
+func errConcurrentModification(got typesem.SemRef) error {
 	return fmt.Errorf("concurrent modification: %v", got)
 }

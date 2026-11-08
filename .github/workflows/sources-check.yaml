@@ -7,6 +7,7 @@ on:
     branches: [main]
     types:
       - opened
+      - ready_for_review
       - synchronize
 
 permissions:
@@ -25,15 +26,13 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
+          cache-dependency-path: |
+            go.sum
+            gear.mod
+            gear.sum
 
-      - name: Check formatting
-        run: |
-          echo "Unformatted files:"
-          gofmt -s -l .
-          test -z "$(gofmt -s -l .)"
-
-      - name: Generate source artifacts
-        run: go run github.com/jmattheis/goverter/cmd/goverter gen -global 'skipCopySameType' ./...
+      - name: Check sources
+        run: GOWORK=off go tool -modfile=gear.mod task sources:check
 
       - name: Run unit tests
-        run: go test -tags=unit ./lib/... ./adt/... ./app/... ./pool/... ./proc/...
+        run: GOWORK=off go tool -modfile=gear.mod task tests:unit

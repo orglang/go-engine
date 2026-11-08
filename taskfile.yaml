@@ -13,16 +13,29 @@ vars:
   PSV: shell # shell, docker
 
 tasks:
+  tools:install:
+    desc: Download tooling dependencies declared in gear.mod
+    cmds:
+      - GOWORK=off go get -tool -modfile=gear.mod github.com/golangci/golangci-lint/v2/cmd/golangci-lint github.com/jmattheis/goverter/cmd/goverter
+
+  gear:sum:
+    desc: Generate checksums for tooling dependencies
+    cmds:
+      - GOWORK=off go mod download -modfile=gear.mod all
+
+  binaries:
+    desc: Build application binaries
+    cmds:
+      - task: sources:generate
+      - task: app:binary
+
   sources:check:
     desc: Check prepared source artifact
     cmds:
-      - task: linter:vet
-      - task: linter:critic
-      - task: linter:revive
-      - task: linter:errcheck
-      - task: linter:consistent
-      - task: linter:staticcheck
-      - task: linter:arch
+      - task: tools:install
+      - GOWORK=off go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...
+      - GOWORK=off go tool -modfile=gear.mod golangci-lint fmt --diff
+      - GOWORK=off go tool -modfile=gear.mod golangci-lint run ./...
 
   sources:prepare:
     desc: Prepare source artifact
@@ -33,7 +46,8 @@ tasks:
   sources:generate:
     desc: Generate source artifacts with goverter
     cmds:
-      - go run github.com/jmattheis/goverter/cmd/goverter gen -global 'skipCopySameType' ./...
+      - task: tools:install
+      - GOWORK=off go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...
 
   sources:verify:
     desc: Verify the current HEAD before publishing
@@ -63,14 +77,6 @@ tasks:
     cmds:
       - task: app:process
 
-  binaries:
-    aliases: [bins]
-    desc: Build all binaries if checks passed
-    cmds:
-      - task: sources:generate
-      - task: tests:unit
-      - task: app:binary
-
   tests:*:
     desc: Run tests of specified level (unit, it, e2e).
     vars:
@@ -82,30 +88,3 @@ tasks:
         if: '{{eq .LEVEL "it"}}'
       - cmd: go test -failfast ./test/...
         if: '{{eq .LEVEL "e2e"}}'
-
-  linter:*:
-    vars:
-      TOOL: '{{index .MATCH 0}}'
-    cmds:
-      - cmd: go vet ./lib/... ./adt/... ./app/...
-        if: '{{eq .TOOL "vet"}}'
-      - cmd: go tool revive -formatter unix -exclude ./proto/... -config ./revive.toml ./...
-        if: '{{eq .TOOL "revive"}}'
-      - cmd: go tool go-critic check ./lib/... ./adt/... ./app/...
-        if: '{{eq .TOOL "critic"}}'
-      - cmd: go tool go-consistent ./lib/... ./adt/... ./app/...
-        if: '{{eq .TOOL "consistent"}}'
-      - cmd: go tool staticcheck ./lib/... ./adt/... ./app/...
-        if: '{{eq .TOOL "staticcheck"}}'
-      - cmd: go tool errcheck ./lib/... ./adt/... ./app/...
-        if: '{{eq .TOOL "errcheck"}}'
-      - cmd: go run ./test/arch/cmd
-        if: '{{eq .TOOL "arch"}}'
-
-  generator:*:
-    vars:
-      TOOL: '{{index .MATCH 0}}'
-    run: once
-    cmds:
-      - cmd: go run github.com/jmattheis/goverter/cmd/goverter gen -global 'skipCopySameType' ./...
-        if: '{{eq .TOOL "goverter"}}'

@@ -21,9 +21,8 @@ func newWorkerPoolBroker(pool *workerpool.WorkerPool, log *slog.Logger) *workerP
 	return &workerPoolBroker{nil, pool, log.With(name)}
 }
 
-func cfgWorkerPoolBroker(broker compexec.Broker, api compexec.API) error {
+func cfgWorkerPoolBroker(broker compexec.Broker, api compexec.API) {
 	broker.Subscribe(api)
-	return nil
 }
 
 // for compilation purposes

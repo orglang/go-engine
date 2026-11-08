@@ -1,10 +1,11 @@
-package implsem
+package adapter
 
 import (
 	"context"
 	"log/slog"
 	"reflect"
 
+	descsem "orglang/go-engine/adt/descsem"
 	"orglang/go-engine/lib/tx"
 )
 
@@ -21,13 +22,13 @@ func NewDaoPgx(table string) func(log *slog.Logger) *daoPgx {
 }
 
 // for compilation purposes
-func newRepo() Repo {
+func newRepo() descsem.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec SemRec) error {
+func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec descsem.SemRec) error {
 	recAttr := slog.Any("rec", rec)
-	dto, convErr := DataFromRec(rec)
+	dto, convErr := descsem.DataFromRec(rec)
 	if convErr != nil {
 		dao.log.Error("model conversion failed", recAttr)
 		return convErr

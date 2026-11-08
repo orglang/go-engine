@@ -7,8 +7,8 @@ import (
 
 	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/internal/adt/connsem"
 	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/connsem"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/implsem"
 	"orglang/go-engine/internal/adt/option"

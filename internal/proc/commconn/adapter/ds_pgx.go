@@ -63,7 +63,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 			return err
 		}
 	}
-	if mod.CommON == nil || mod.CommON.IsEmpty() {
+	if mod.OffsetNr == nil || mod.OffsetNr.IsEmpty() {
 		return nil
 	}
 	ref := connsem.DataFromRef(mod.ConnRef)
@@ -72,7 +72,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 		SET offset_nr = $1
 		WHERE comm_id = $2
 	`
-	_, err := conn.Pgx.Exec(ctx, query, int64(mod.CommON.Get()), ref.ConnID)
+	_, err := conn.Pgx.Exec(ctx, query, int64(mod.OffsetNr.Get()), ref.ConnID)
 	if err != nil {
 		dao.log.Error("Connection offset update failed", slog.Any("ref", mod.ConnRef))
 		return err

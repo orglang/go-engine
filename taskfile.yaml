@@ -16,7 +16,7 @@ tasks:
   sources:check:
     desc: Check prepared source artifact
     cmds:
-      - go mod download -modfile=gear.mod github.com/golangci/golangci-lint/v2@v2.15.0 github.com/jmattheis/goverter@v1.9.3 github.com/quasilyte/go-consistent@v0.6.2
+      - go get -tool -modfile=gear.mod github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0 github.com/jmattheis/goverter@v1.9.3 github.com/quasilyte/go-consistent@v0.6.2
       - go tool -modfile=gear.mod golangci-lint run ./...
       - go tool -modfile=gear.mod go-consistent ./lib/... ./adt/... ./app/...
 
@@ -29,7 +29,7 @@ tasks:
   sources:generate:
     desc: Generate source artifacts with goverter
     cmds:
-      - go mod download -modfile=gear.mod
+      - go get -tool -modfile=gear.mod github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0 github.com/jmattheis/goverter@v1.9.3 github.com/quasilyte/go-consistent@v0.6.2
       - go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...
 
   sources:verify:
@@ -77,5 +77,5 @@ tasks:
       TOOL: '{{index .MATCH 0}}'
     run: once
     cmds:
-      - cmd: go mod download -modfile=gear.mod && go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...
+      - cmd: go get -tool -modfile=gear.mod github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0 github.com/jmattheis/goverter@v1.9.3 github.com/quasilyte/go-consistent@v0.6.2
         if: '{{eq .TOOL "goverter"}}'

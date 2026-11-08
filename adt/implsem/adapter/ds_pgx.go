@@ -1,11 +1,11 @@
 package adapter
 
 import (
-	implsem "orglang/go-engine/adt/implsem"
 	"context"
 	"log/slog"
 	"reflect"
 
+	implsem "orglang/go-engine/adt/implsem"
 	"orglang/go-engine/lib/tx"
 )
 

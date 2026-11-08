@@ -11,8 +11,13 @@ import (
 	"orglang/go-engine/lib/tx"
 )
 
+type pgxPool interface {
+	Begin(context.Context) (pgx.Tx, error)
+	Acquire(context.Context) (*pgxpool.Conn, error)
+}
+
 type transactorPgx struct {
-	pool *pgxpool.Pool
+	pool pgxPool
 }
 
 // NewTransactorPgx creates a PostgreSQL-backed transactor.
@@ -77,3 +82,6 @@ func (t *transactorPgx) ImplicitTxOld(ctx context.Context, fn func(tx.UoW) error
 		return fn(tx.UoW{Ctx: callbackCtx, Pgx: conn.Pgx})
 	})
 }
+
+// Compile-time assertion that pgxpool.Pool satisfies the narrow pool contract.
+var _ pgxPool = (*pgxpool.Pool)(nil)

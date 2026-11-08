@@ -4,9 +4,9 @@ includes:
   db:
     taskfile: ./db/taskfile.yaml
     dir: ./db
-  app:
-    taskfile: ./app/taskfile.yaml
-    dir: ./app
+  engine:
+    taskfile: ./cmd/engine/taskfile.yaml
+    dir: .
 
 vars:
   # process supervisor
@@ -27,7 +27,7 @@ tasks:
     desc: Build application binaries
     cmds:
       - task: sources:generate
-      - task: app:binary
+      - task: engine:binary
 
   sources:check:
     desc: Check prepared source artifact
@@ -63,7 +63,7 @@ tasks:
     aliases: [proc]
     desc: Run specified process in foreground
     cmds:
-      - task: app:process
+      - task: engine:process
 
   container:
     aliases: [cnt]
@@ -75,16 +75,16 @@ tasks:
     aliases: [procs]
     desc: Run and interrupt all processes
     cmds:
-      - task: app:process
+      - task: engine:process
 
   tests:*:
     desc: Run tests of specified level (unit, it, e2e).
     vars:
       LEVEL: '{{index .MATCH 0}}'
     cmds:
-      - cmd: go test -tags=unit ./lib/... ./adt/... ./app/... ./pool/... ./proc/...
+      - cmd: go test -tags=unit ./lib/... ./adt/... ./app/... ./cmd/... ./pool/... ./proc/...
         if: '{{eq .LEVEL "unit"}}'
-      - cmd: go test -run=TestIntegration ./lib/... ./adt/... ./app/...
+      - cmd: go test -run=TestIntegration ./lib/... ./adt/... ./app/... ./cmd/...
         if: '{{eq .LEVEL "it"}}'
       - cmd: go test -failfast ./test/...
         if: '{{eq .LEVEL "e2e"}}'

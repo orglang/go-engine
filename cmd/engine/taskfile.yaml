@@ -3,7 +3,7 @@ version: '3'
 vars:
   CID:
     sh: >-
-      find ../lib ../adt .
+      find lib adt app cmd/engine
       -name "*.go" -exec md5sum {} + -o
       -name "Dockerfile" -exec md5sum {} +
       | LC_ALL=C sort -k 2
@@ -14,10 +14,10 @@ tasks:
   binary:
     aliases: [bin]
     cmds:
-      - cmd: go build -o engine main.go
+      - cmd: go build -o app/engine ./cmd/engine
 
   process:
     aliases: [proc]
     cmds:
-      - cmd: go run github.com/jmattheis/goverter/cmd/goverter gen -global 'skipCopySameType' ../...
-      - cmd: go run main.go
+      - cmd: go run github.com/jmattheis/goverter/cmd/goverter gen -global 'skipCopySameType' ./...
+      - cmd: go run ./cmd/engine

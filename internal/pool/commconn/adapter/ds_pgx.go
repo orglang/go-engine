@@ -8,7 +8,7 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/internal/adt/commsem"
+	"orglang/go-engine/internal/adt/connsem"
 	"orglang/go-engine/internal/adt/uniqsym"
 
 	commconn "orglang/go-engine/internal/pool/commconn/core"
@@ -34,7 +34,7 @@ func newRepo() commconn.Repo {
 
 func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec commconn.ConnRec) error {
 	dto := DataFromRec(rec)
-	refAttr := slog.Any("ref", rec.CommRef)
+	refAttr := slog.Any("ref", rec.ConnRef)
 	sql, args := dao.qb.InsertRec(dto)
 	_, execErr := conn.Pgx.Exec(ctx, sql, args...)
 	if execErr != nil {
@@ -46,7 +46,7 @@ func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec commconn.ConnRe
 }
 
 func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.ConnMod) error {
-	refAttr := slog.Any("ref", mod.CommRef)
+	refAttr := slog.Any("ref", mod.ConnRef)
 	for _, turn := range mod.Turns {
 		dto := commturnadapter.DataFromStepRec(turn)
 		sql, args := dao.qb.InsertTurnRec(dto)
@@ -68,12 +68,12 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 	return nil
 }
 
-func (dao *daoPgx) GetRefsByQNs(ctx context.Context, conn tx.Conn, qns []uniqsym.ADT) (map[uniqsym.ADT]commsem.SemRef, error) {
+func (dao *daoPgx) GetRefsByQNs(ctx context.Context, conn tx.Conn, qns []uniqsym.ADT) (map[uniqsym.ADT]connsem.SemRef, error) {
 	panic("unimplemented")
 }
 
 func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.ConnQry) (commconn.ConnSnap, error) {
-	refAttr := slog.Any("ref", qry.CommRef)
+	refAttr := slog.Any("ref", qry.ConnRef)
 	qryDTO := DataFromQry(qry)
 	dao.log.Log(ctx, lf.LevelTrace, "getting started", slog.Any("qry", qryDTO))
 	sql, args := dao.qb.SelectSnap(qryDTO)

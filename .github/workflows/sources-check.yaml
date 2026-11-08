@@ -26,19 +26,13 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - name: Download tooling dependencies
-        run: GOWORK=off go get -tool -modfile=gear.mod github.com/golangci/golangci-lint/v2/cmd/golangci-lint github.com/jmattheis/goverter/cmd/goverter
+      - name: Setup Task
+        uses: arduino/setup-task@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Generate source artifacts
-        run: GOWORK=off go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...
-
-      - name: Check formatting
-        run: |
-          GOWORK=off go tool -modfile=gear.mod golangci-lint fmt --diff
-
-      - name: Run linters
-        run: |
-          GOWORK=off go tool -modfile=gear.mod golangci-lint run ./...
+      - name: Check sources
+        run: task sources:check
 
       - name: Run unit tests
-        run: go test -tags=unit ./lib/... ./adt/... ./app/... ./pool/... ./proc/...
+        run: task tests:unit

@@ -27,6 +27,10 @@ func (qb *sqlBuilder) InsertRec(rec commconn.ConnRecDS) (string, []any) {
 	return qb.connBuilder.InsertInto(commConns, rec).Build()
 }
 
+func (qb *sqlBuilder) InsertTurnRec(rec commturn.TurnRecDS) (string, []any) {
+	return qb.turnBuilder.InsertInto(commTurns, rec).Build()
+}
+
 func (qb *sqlBuilder) UpdateRec(mod commconn.ConnModDS) (string, []any) {
 	conn := qb.connBuilder.Update(commConns, mod)
 	if mod.OffsetNr.Valid {

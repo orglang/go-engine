@@ -167,7 +167,7 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 		}
 		err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 			if len(result.Connection.Turns) > 0 ||
-				(result.Connection.CommON != nil && !result.Connection.CommON.IsEmpty()) {
+				(result.Connection.OffsetNr != nil && !result.Connection.OffsetNr.IsEmpty()) {
 				if err := s.commConnRepo.ModifyRec(txCtx, conn, result.Connection); err != nil {
 					s.log.Error("Connection modification failed", compAttr)
 					return err

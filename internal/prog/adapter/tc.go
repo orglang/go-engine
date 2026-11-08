@@ -9,7 +9,7 @@ import (
 
 	pooltypedef "orglang/go-engine/pool/typedef/adapter"
 	proctypedef "orglang/go-engine/proc/typedef/adapter"
-	coreprog "orglang/go-engine/prog/core"
+	coreprog "orglang/go-engine/internal/prog/core"
 )
 
 func MsgToSpec(dto sdkprog.Spec) (coreprog.Spec, error) {

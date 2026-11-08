@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 	sdkprog "github.com/orglang/go-sdk/prog"
 
-	coreprog "orglang/go-engine/prog/core"
+	coreprog "orglang/go-engine/internal/prog/core"
 )
 
 type controllerEcho struct {

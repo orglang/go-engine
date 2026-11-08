@@ -10,6 +10,10 @@ A Connection is the aggregate root for one logical communication stream. Publica
 - `offset_nr` is the revision of the last Act consumed by the reader.
 - A snapshot returns Acts with `conn_rn > offset_nr`, ordered by `conn_rn`.
 
+## Interaction Channels
+
+Each interaction retains its own physical `chnl_id`. The first Act establishes that channel and its endpoint association; the complementary Publication or Subscription is matched against the same Connection and channel. Acts from different channels are not interchangeable.
+
 ## Consuming and appending Acts
 
 Consuming an Act advances `offset_nr` to that Act's revision. The update compares both the snapshot's `conn_rn` and previous `offset_nr`; if either changed, the operation returns a concurrency conflict and must be retried from a fresh snapshot.

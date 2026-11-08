@@ -2,11 +2,11 @@ package core
 
 import (
 	"context"
-	"orglang/go-engine/lib/tx"
+	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/termsem"
-	"orglang/go-engine/adt/termvar"
+	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/termsem"
+	"orglang/go-engine/internal/adt/termvar"
 )
 
 type Repo interface {

@@ -1,7 +1,7 @@
 package core
 
 import (
-	"orglang/go-engine/adt/compvar"
+	"orglang/go-engine/internal/adt/compvar"
 )
 
 type QueryBuilder interface {

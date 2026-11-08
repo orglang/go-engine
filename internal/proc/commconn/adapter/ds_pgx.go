@@ -63,41 +63,63 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 		if err := ensureConnection(mod.ConnRef); err != nil {
 			return err
 		}
+		ref := connsem.DataFromRef(mod.ConnRef)
+		const query = `
+			UPDATE proc_connections
+			SET offset_nr = $1
+			WHERE conn_id = $2 AND conn_rn = $3 AND offset_nr = $4
+		`
+		tag, err := conn.Pgx.Exec(ctx, query, int64(mod.OffsetNr.Get()), ref.ConnID, ref.ConnRN, int64(mod.PrevOffsetNr))
+		if err != nil {
+			dao.log.Error("Connection offset update failed", slog.Any("ref", mod.ConnRef))
+			return err
+		}
+		if tag.RowsAffected() == 0 {
+			return commconn.ErrOffsetConflict(mod.PrevOffsetNr)
+		}
 	}
+
+	nextRNs := make(map[string]seqnum.ADT)
 	for _, turn := range mod.Turns {
-		if err := ensureConnection(turn.GetConnRef()); err != nil {
+		ref := turn.GetConnRef()
+		if err := ensureConnection(ref); err != nil {
+			return err
+		}
+		key := ref.ConnID.String()
+		expectedRN, ok := nextRNs[key]
+		if !ok {
+			expectedRN = ref.ConnRN
+		}
+		const updateRevision = `
+			UPDATE proc_connections
+			SET conn_rn = conn_rn + 1
+			WHERE conn_id = $1 AND conn_rn = $2
+			RETURNING conn_rn
+		`
+		var nextRN int64
+		err := conn.Pgx.QueryRow(ctx, updateRevision, key, int64(expectedRN)).Scan(&nextRN)
+		if err == pgx.ErrNoRows {
+			return commconn.ErrRevisionConflict(expectedRN)
+		}
+		if err != nil {
+			dao.log.Error("Connection revision update failed", slog.Any("ref", ref))
 			return err
 		}
 		dto, err := commturnadapter.DataFromStepRec(turn)
 		if err != nil {
 			return err
 		}
-		const query = `
+		dto.ConnRN = int64(expectedRN)
+		const insertAct = `
 			INSERT INTO proc_connection_acts (conn_id, conn_rn, comp_id, chnl_id, kind, exp)
 			VALUES ($1, $2, $3, $4, $5, $6)
 		`
-		_, err = conn.Pgx.Exec(ctx, query, dto.ConnID, dto.ConnRN, dto.CompID, dto.ChnlID, dto.K, dto.Exp)
+		_, err = conn.Pgx.Exec(ctx, insertAct, dto.ConnID, dto.ConnRN, dto.CompID, dto.ChnlID, dto.K, dto.Exp)
 		if err != nil {
 			dao.log.Error("Act insertion failed", slog.Any("act", turn))
 			return err
 		}
-	}
-	if mod.OffsetNr == nil || mod.OffsetNr.IsEmpty() {
-		return nil
-	}
-	ref := connsem.DataFromRef(mod.ConnRef)
-	const query = `
-		UPDATE proc_connections
-		SET offset_nr = $1
-		WHERE conn_id = $2 AND offset_nr = $3
-	`
-	tag, err := conn.Pgx.Exec(ctx, query, int64(mod.OffsetNr.Get()), ref.ConnID, int64(mod.PrevOffsetNr))
-	if err != nil {
-		dao.log.Error("Connection offset update failed", slog.Any("ref", mod.ConnRef))
-		return err
-	}
-	if tag.RowsAffected() == 0 {
-		return commconn.ErrOffsetConflict(mod.PrevOffsetNr)
+		nextRNs[key] = seqnum.ADT(nextRN)
 	}
 	return nil
 }

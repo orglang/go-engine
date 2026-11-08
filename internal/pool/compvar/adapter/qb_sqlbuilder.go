@@ -3,9 +3,9 @@ package adapter
 import (
 	"github.com/huandu/go-sqlbuilder"
 
-	adtcompvar "orglang/go-engine/adt/compvar"
+	adtcompvar "orglang/go-engine/internal/adt/compvar"
 
-	compvar "orglang/go-engine/pool/compvar/core"
+	compvar "orglang/go-engine/internal/pool/compvar/core"
 )
 
 type sqlBuilder struct {

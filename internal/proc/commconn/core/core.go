@@ -3,7 +3,6 @@ package core
 import (
 	"fmt"
 
-	"orglang/go-engine/internal/adt/compsem"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/option"
 	"orglang/go-engine/internal/adt/seqnum"
@@ -13,16 +12,12 @@ import (
 
 type ConnRec struct {
 	ConnID          identity.ADT
-	ProviderCompRef compsem.SemRef
-	ClientCompRef   compsem.SemRef
 	OffsetNr        seqnum.ADT
 	ActNr           seqnum.ADT
 }
 
 type ConnMod struct {
 	ConnID          identity.ADT
-	ProviderCompRef compsem.SemRef
-	ClientCompRef   compsem.SemRef
 	OffsetNr        option.ADT[seqnum.ADT]
 	PrevOffsetNr seqnum.ADT
 	Turns        []commturn.TurnRec

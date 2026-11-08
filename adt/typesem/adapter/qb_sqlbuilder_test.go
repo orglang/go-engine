@@ -1,8 +1,9 @@
 package adapter
 
 import (
-	typesem "orglang/go-engine/adt/typesem"
 	"testing"
+
+	typesem "orglang/go-engine/adt/typesem"
 )
 
 func TestUpdateRef(t *testing.T) {

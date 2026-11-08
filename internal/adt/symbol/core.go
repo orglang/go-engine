@@ -1,7 +1,7 @@
 package symbol
 
 import (
-	"orglang/go-engine/adt/valkey"
+	"orglang/go-engine/internal/adt/valkey"
 )
 
 var Zero ADT = ""

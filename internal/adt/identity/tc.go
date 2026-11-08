@@ -2,7 +2,7 @@ package identity
 
 import (
 	"database/sql"
-	"orglang/go-engine/adt/option"
+	"orglang/go-engine/internal/adt/option"
 
 	"github.com/rs/xid"
 )

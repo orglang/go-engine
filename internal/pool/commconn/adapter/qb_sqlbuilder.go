@@ -54,7 +54,7 @@ func (qb *sqlBuilder) SelectSnap(qry commconn.ConnQryDS) (string, []any) {
 	turns := sqlbuilder.PostgreSQL.NewCTEBuilder()
 	return conn.With(turns.With(sqlbuilder.CTEQuery("turns").As(turn))).
 		SelectMore(
-			conn.BuilderAs(sqlbuilder.Build("SELECT array_agg(row(t.*)) FROM turns t WHERE t.conn_rn > conn.offset_nr"), "turns"),
+			conn.BuilderAs(sqlbuilder.Build("SELECT array_agg(row(t.*) ORDER BY t.conn_rn) FROM turns t WHERE t.conn_rn > conn.offset_nr"), "turns"),
 		).
 		Where(conn.Equal("conn.conn_id", qry.ConnID)).
 		Build()

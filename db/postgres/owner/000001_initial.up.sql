@@ -138,10 +138,10 @@ CREATE TABLE proc_linear_vars (
 
 CREATE TABLE proc_comp_conns (
     conn_id varchar UNIQUE,
-    provider_comp_id varchar,
-    provider_comp_rn bigint,
-    client_comp_id varchar,
-    client_comp_rn bigint,
+    provider_comp_id varchar NOT NULL,
+    provider_comp_rn bigint NOT NULL,
+    client_comp_id varchar NOT NULL,
+    client_comp_rn bigint NOT NULL,
     offset_nr bigint,
     act_nr bigint
 );

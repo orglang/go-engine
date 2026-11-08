@@ -21,7 +21,7 @@ func TestExpRecRoundTripPreservesConnectionReferences(t *testing.T) {
 	commChnl := symbol.ADT("comm")
 	contChnl := symbol.ADT("cont")
 	newChnl := symbol.ADT("new")
-	label := uniqsym.ADT("label")
+	label := uniqsym.New(symbol.ADT("label"))
 
 	tests := []termexp.ExpRec{
 		termexp.SendRec{

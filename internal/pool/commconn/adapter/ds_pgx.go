@@ -110,6 +110,11 @@ func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.
 		dao.log.Error("Connection snapshot conversion failed", refAttr)
 		return commconn.ConnSnap{}, err
 	}
+	providerCompID, err := identity.ConvertFromString(snapDTO.ProviderCompID)
+	if err != nil {
+		return commconn.ConnSnap{}, err
+	}
+	snap.ProviderCompID = providerCompID
 	dao.log.Log(ctx, lf.LevelTrace, "Connection snapshot loaded", slog.Any("dto", snapDTO))
 	return snap, nil
 }

@@ -14,7 +14,7 @@ tasks:
   binary:
     aliases: [bin]
     cmds:
-      - cmd: go build -o app/engine ./cmd/engine
+      - cmd: go build -o engine ./cmd/engine
 
   process:
     aliases: [proc]

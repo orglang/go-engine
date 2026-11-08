@@ -11,8 +11,8 @@ import (
 )
 
 type ConnMod struct {
-	ConnID          identity.ADT
-	OffsetNr        option.ADT[seqnum.ADT]
+	ConnID       identity.ADT
+	OffsetNr     option.ADT[seqnum.ADT]
 	PrevOffsetNr seqnum.ADT
 	Turns        []commturn.TurnRec
 }

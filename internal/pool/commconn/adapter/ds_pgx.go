@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 
@@ -115,6 +116,7 @@ func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.
 		return commconn.ConnSnap{}, err
 	}
 	snap.ProviderCompID = providerCompID
+	snap.ProviderCompRN = seqnum.ADT(snapDTO.ProviderCompRN)
 	dao.log.Log(ctx, lf.LevelTrace, "Connection snapshot loaded", slog.Any("dto", snapDTO))
 	return snap, nil
 }

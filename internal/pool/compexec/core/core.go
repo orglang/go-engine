@@ -317,7 +317,7 @@ func (s *service) takeStep(
 			return execMod, execEff, connMod, proctermdef.ErrMissingInCtx(termExp.CommChnlPH)
 		}
 		nextExpVK := typeExp.(typeexp.ProdRec).Next()
-		// получаем снепшот коммуникации
+		// получаем снепшот соединения
 		var connSnap commconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, commconn.ConnQry{

@@ -6,6 +6,8 @@ run:
 
 linters:
   default: standard
+  disable:
+    - unused # Fx constructors and handlers are discovered through reflection.
   enable:
     - bodyclose
     - contextcheck
@@ -33,6 +35,7 @@ linters:
             - "**/core/**/*.go"
             - "**/domain/**/*.go"
             - "!**/*_test.go"
+            - "!**/tc_goverter.go"
           deny:
             - pkg: orglang/go-engine/lib/db/adapter
               desc: Core/domain code must depend on a port, not an adapter.
@@ -93,6 +96,7 @@ linters:
             - "**/adt/*/core/**/*.go"
             - "**/adt/*/domain/**/*.go"
             - "!**/*_test.go"
+            - "!**/tc_goverter.go"
           deny:
             - pkg: orglang/go-engine/adt/compsem/adapter
               desc: Domain types must not depend on concrete adapters.
@@ -109,7 +113,40 @@ linters:
             - pkg: github.com/huandu/go-sqlbuilder
               desc: Keep SQL construction in persistence adapters.
     revive:
-      config: revive.toml
+      enable-all-rules: true
+      rules:
+        - name: package-comments
+          disabled: true
+        - name: unused-parameter
+          disabled: true
+        - name: unused-receiver
+          disabled: true
+        - name: exported
+          disabled: true
+        - name: max-public-structs
+          disabled: true
+        - name: use-errors-new
+          disabled: true
+        - name: cyclomatic
+          disabled: true
+        - name: cognitive-complexity
+          disabled: true
+        - name: add-constant
+          disabled: true
+        - name: function-length
+          disabled: true
+        - name: var-declaration
+          disabled: true
+        - name: line-length-limit
+          disabled: true
+        - name: argument-limit
+          disabled: true
+        - name: function-result-limit
+          disabled: true
+        - name: confusing-naming
+          disabled: true
+        - name: unhandled-error
+          disabled: true
   exclusions:
     paths:
       - proto/

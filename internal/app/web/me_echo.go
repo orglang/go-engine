@@ -7,10 +7,10 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"orglang/go-engine/lib/te"
+	"orglang/go-engine/internal/lib/te"
 
-	"orglang/go-engine/adt/typesem"
-	typedef "orglang/go-engine/proc/typedef/core"
+	"orglang/go-engine/internal/adt/typesem"
+	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
 // Adapter

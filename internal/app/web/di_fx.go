@@ -3,7 +3,7 @@ package web
 import (
 	"go.uber.org/fx"
 
-	"orglang/go-engine/lib/te"
+	"orglang/go-engine/internal/lib/te"
 )
 
 var Module = fx.Module("app/web",

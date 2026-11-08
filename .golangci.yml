@@ -138,14 +138,6 @@ linters:
           disabled: true
         - name: line-length-limit
           disabled: true
-        - name: argument-limit
-          disabled: true
-        - name: function-result-limit
-          disabled: true
-        - name: confusing-naming
-          disabled: true
-        - name: unhandled-error
-          disabled: true
   exclusions:
     paths:
       - internal/proto/

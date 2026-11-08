@@ -105,26 +105,28 @@ func newAPI() API {
 	return new(service)
 }
 
-func NewService(
-	compExecRepo Repo,
-	compExecExch Broker,
-	compVarRepo compvar.Repo,
-	commExchRepo commexch.Repo,
-	commTurnRepo commturn.Repo,
-	typeExpRepo typeexp.Repo,
-	procExecRepo proccompexec.Repo,
-	termDefRepo termdef.Repo,
-	implSemRepo implsem.Repo,
-	compSemRepo compsem.Repo,
-	transactor tx.Transactor,
-	log *slog.Logger,
-) API {
+type ServiceDeps struct {
+	CompExecRepo   Repo
+	CompExecBroker Broker
+	CompVarRepo    compvar.Repo
+	CommExchRepo   commexch.Repo
+	CommTurnRepo   commturn.Repo
+	TypeExpRepo    typeexp.Repo
+	ProcExecRepo   proccompexec.Repo
+	TermDefRepo    termdef.Repo
+	ImplSemRepo    implsem.Repo
+	CompSemRepo    compsem.Repo
+	Transactor     tx.Transactor
+	Logger         *slog.Logger
+}
+
+func NewService(deps ServiceDeps) API {
 	name := slog.String("name", reflect.TypeFor[service]().Name())
 	return &service{
-		compExecRepo, compExecExch, compVarRepo,
-		commExchRepo, commTurnRepo, typeExpRepo, procExecRepo, termDefRepo,
-		implSemRepo, compSemRepo,
-		transactor, log.With(name),
+		deps.CompExecRepo, deps.CompExecBroker, deps.CompVarRepo,
+		deps.CommExchRepo, deps.CommTurnRepo, deps.TypeExpRepo, deps.ProcExecRepo, deps.TermDefRepo,
+		deps.ImplSemRepo, deps.CompSemRepo,
+		deps.Transactor, deps.Logger.With(name),
 	}
 }
 
@@ -240,7 +242,7 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 		s.log.Error("step taking failed", refAttr)
 		return retErr
 	}
-	execMod, execEff, exchMod, takeErr := s.take(execSnap, spec.PoolExp)
+	execMod, execEff, exchMod, takeErr := s.takeStep(execSnap, spec.PoolExp)
 	if takeErr != nil {
 		s.log.Error("step taking failed", refAttr)
 		return takeErr
@@ -274,7 +276,7 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 	return nil
 }
 
-func (s *service) take(
+func (s *service) takeStep(
 	execSnap ExecSnap3,
 	exp termexp.ExpSpec,
 ) (

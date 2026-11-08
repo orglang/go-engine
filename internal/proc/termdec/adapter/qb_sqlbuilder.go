@@ -3,7 +3,7 @@ package adapter
 import (
 	"github.com/huandu/go-sqlbuilder"
 
-	termdec "orglang/go-engine/proc/termdec/core"
+	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
 type sqlBuilder struct {

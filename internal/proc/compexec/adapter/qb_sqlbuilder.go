@@ -3,10 +3,10 @@ package adapter
 import (
 	"github.com/huandu/go-sqlbuilder"
 
-	"orglang/go-engine/adt/compvar"
-	"orglang/go-engine/adt/termsem"
+	"orglang/go-engine/internal/adt/compvar"
+	"orglang/go-engine/internal/adt/termsem"
 
-	compexec "orglang/go-engine/proc/compexec/core"
+	compexec "orglang/go-engine/internal/proc/compexec/core"
 )
 
 type sqlBuilder struct {

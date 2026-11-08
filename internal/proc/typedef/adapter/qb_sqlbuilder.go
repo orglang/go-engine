@@ -3,7 +3,7 @@ package adapter
 import (
 	"github.com/huandu/go-sqlbuilder"
 
-	typedef "orglang/go-engine/proc/typedef/core"
+	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
 type sqlBuilder struct {

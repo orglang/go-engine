@@ -134,6 +134,8 @@ linters:
           disabled: true
         - name: function-length
           disabled: true
+        - name: function-result-limit
+          arguments: [4]
         - name: var-declaration
           disabled: true
         - name: line-length-limit

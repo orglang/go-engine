@@ -20,10 +20,10 @@ type ConnRec struct {
 }
 
 type ConnMod struct {
-	ConnID       identity.ADT
-	OffsetNr     option.ADT[seqnum.ADT]
-	PrevOffsetNr seqnum.ADT
-	Turns        []commturn.TurnRec
+	ConnID         identity.ADT
+	ProviderCompID identity.ADT
+	OffsetNr       option.ADT[seqnum.ADT]
+	Turns          []commturn.TurnRec
 }
 
 type ConnQry struct {
@@ -33,9 +33,10 @@ type ConnQry struct {
 
 // aka Configuration
 type ConnSnap struct {
-	ConnID   identity.ADT
-	OffsetNr seqnum.ADT
-	Turns    []commturn.TurnRec
+	ConnID         identity.ADT
+	ProviderCompID identity.ADT
+	OffsetNr       seqnum.ADT
+	Turns          []commturn.TurnRec
 }
 
 func ErrOffsetConflict(got seqnum.ADT) error {

@@ -29,6 +29,7 @@ func DataFromStepRec(r commturn.TurnRec) commturn.TurnRecDS {
 			CommID: commRef.CommID,
 			CommRN: commRef.CommRN,
 			CompID: compRef.CompID,
+			ChnlID: identity.ConvertToString(rec.ChnlID),
 			K:      commturn.SubKind,
 			Exp:    termexp.DataFromExpRec(rec.ContExp),
 		}

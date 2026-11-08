@@ -298,13 +298,21 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 		}
 	}
 	for _, variable := range execMod.Vars {
+		var ref compsem.SemRef
 		switch rec := variable.(type) {
 		case compvar.StructRec:
-			if err = addCompRef(rec.CompRef); err != nil {
-				return err
-			}
+			ref = rec.CompRef
 		case compvar.LinearRec:
-			if err = addCompRef(rec.CompRef); err != nil {
+			ref = rec.CompRef
+		}
+		// The Act's CompRef records the revision that produced the Act. For
+		// provider-side writes, use the live provider revision captured with
+		// the Connection snapshot instead of that historical Act revision.
+		if !connMod.ProviderCompID.IsEmpty() && ref.CompID == connMod.ProviderCompID {
+			continue
+		}
+		if !ref.CompID.IsEmpty() {
+			if err = addCompRef(ref); err != nil {
 				return err
 			}
 		}

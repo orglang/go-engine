@@ -9,11 +9,11 @@ import (
 
 	sdktypedef "github.com/orglang/go-sdk/pool/typedef"
 
-	"orglang/go-engine/lib/lf"
+	"orglang/go-engine/internal/lib/lf"
 
-	"orglang/go-engine/adt/typesem"
+	"orglang/go-engine/internal/adt/typesem"
 
-	typedef "orglang/go-engine/pool/typedef/core"
+	typedef "orglang/go-engine/internal/pool/typedef/core"
 )
 
 // Server-side primary adapter

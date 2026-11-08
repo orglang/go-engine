@@ -6,7 +6,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	commturn "orglang/go-engine/pool/commturn/core"
+	commturn "orglang/go-engine/internal/pool/commturn/core"
 )
 
 // Server-side primary adapter

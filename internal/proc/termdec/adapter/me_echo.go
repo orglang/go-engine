@@ -10,9 +10,9 @@ import (
 	sdk "github.com/orglang/go-sdk/adt/termsem"
 	sdktermdec "github.com/orglang/go-sdk/proc/termdec"
 
-	"orglang/go-engine/adt/termsem"
+	"orglang/go-engine/internal/adt/termsem"
 
-	termdec "orglang/go-engine/proc/termdec/core"
+	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
 // Server-side primary adapter

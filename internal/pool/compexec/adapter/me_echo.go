@@ -10,9 +10,9 @@ import (
 	sdkcompexec "github.com/orglang/go-sdk/pool/compexec"
 	sdk "github.com/orglang/go-sdk/pool/compstep"
 
-	"orglang/go-engine/adt/compsem"
-	compexec "orglang/go-engine/pool/compexec/core"
-	compstep "orglang/go-engine/pool/compstep/adapter"
+	"orglang/go-engine/internal/adt/compsem"
+	compexec "orglang/go-engine/internal/pool/compexec/core"
+	compstep "orglang/go-engine/internal/pool/compstep/adapter"
 )
 
 // Server-side primary adapter

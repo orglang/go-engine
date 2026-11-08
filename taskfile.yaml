@@ -16,6 +16,7 @@ tasks:
   sources:check:
     desc: Check prepared source artifact
     cmds:
+      - go mod download -modfile=gear.mod
       - go tool -modfile=gear.mod golangci-lint run ./...
       - go tool -modfile=gear.mod go-consistent ./lib/... ./adt/... ./app/...
 
@@ -28,6 +29,7 @@ tasks:
   sources:generate:
     desc: Generate source artifacts with goverter
     cmds:
+      - go mod download -modfile=gear.mod
       - go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...
 
   sources:verify:
@@ -75,5 +77,5 @@ tasks:
       TOOL: '{{index .MATCH 0}}'
     run: once
     cmds:
-      - cmd: go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...
+      - cmd: go mod download -modfile=gear.mod && go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...
         if: '{{eq .TOOL "goverter"}}'

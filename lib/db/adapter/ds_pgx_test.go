@@ -12,8 +12,8 @@ import (
 )
 
 type testPgxPool struct {
-	tx        pgx.Tx
-	beginErr  error
+	tx         pgx.Tx
+	beginErr   error
 	beginCalls int
 }
 
@@ -28,10 +28,10 @@ func (*testPgxPool) Acquire(context.Context) (*pgxpool.Conn, error) {
 
 type testPgxTx struct {
 	pgx.Tx
-	commitErr  error
-	rollbackErr error
-	commitCalls int
-	rollbackCalls int
+	commitErr          error
+	rollbackErr        error
+	commitCalls        int
+	rollbackCalls      int
 	rollbackContextErr error
 }
 

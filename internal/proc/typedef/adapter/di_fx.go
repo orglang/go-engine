@@ -3,12 +3,12 @@ package adapter
 import (
 	"go.uber.org/fx"
 
-	"orglang/go-engine/lib/te"
+	"orglang/go-engine/internal/lib/te"
 
-	"orglang/go-engine/adt/descsem"
-	descsemadapter "orglang/go-engine/adt/descsem/adapter"
+	"orglang/go-engine/internal/adt/descsem"
+	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
 
-	typedef "orglang/go-engine/proc/typedef/core"
+	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
 var Module = fx.Module("adproct/typedef",

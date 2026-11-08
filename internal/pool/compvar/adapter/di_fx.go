@@ -3,7 +3,7 @@ package adapter
 import (
 	"go.uber.org/fx"
 
-	compvar "orglang/go-engine/pool/compvar/core"
+	compvar "orglang/go-engine/internal/pool/compvar/core"
 )
 
 var Module = fx.Module("pool/compvar",

@@ -3,7 +3,7 @@ package adapter
 import (
 	"go.uber.org/fx"
 
-	typeexp "orglang/go-engine/proc/typeexp/core"
+	typeexp "orglang/go-engine/internal/proc/typeexp/core"
 )
 
 var Module = fx.Module("proc/typeexp",

@@ -447,7 +447,6 @@ func (s *service) takeStep(
 		switch expRec := acception.ContExp.(type) {
 		case termexp.AcceptRec:
 			// сдвигаем офсет коммуникации
-			connMod.OffsetNr = option.Some(acception.ConnRef.ConnRN)
 			// вяжем продолжение доступодателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 				CompRef: acception.CompRef,

@@ -1,7 +1,6 @@
 package adapter
 
 import (
-	typesem "orglang/go-engine/adt/typesem"
 	"context"
 	"errors"
 	"fmt"
@@ -10,10 +9,10 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"orglang/go-engine/adt/uniqsym"
+	typesem "orglang/go-engine/adt/typesem"
 	"orglang/go-engine/lib/lf"
 	"orglang/go-engine/lib/tx"
-
-	"orglang/go-engine/adt/uniqsym"
 )
 
 type daoPgx struct {

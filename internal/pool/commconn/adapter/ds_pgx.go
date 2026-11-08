@@ -55,7 +55,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 			return execErr
 		}
 		if tag.RowsAffected() == 0 {
-			return commconn.ErrOffsetConflict(mod.PrevOffsetNr)
+			return commconn.ErrSnapshotConflict(mod.ConnRef.ConnRN, mod.PrevOffsetNr)
 		}
 	}
 

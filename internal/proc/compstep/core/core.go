@@ -1,8 +1,8 @@
 package core
 
 import (
-	"orglang/go-engine/adt/compsem"
-	termexp "orglang/go-engine/proc/termexp/core"
+	"orglang/go-engine/internal/adt/compsem"
+	termexp "orglang/go-engine/internal/proc/termexp/core"
 )
 
 type StepSpec struct {

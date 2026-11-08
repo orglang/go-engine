@@ -3,10 +3,10 @@ package core
 import (
 	"fmt"
 
-	"orglang/go-engine/adt/commsem"
-	"orglang/go-engine/adt/compsem"
-	"orglang/go-engine/adt/identity"
-	termexp "orglang/go-engine/proc/termexp/core"
+	"orglang/go-engine/internal/adt/commsem"
+	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/identity"
+	termexp "orglang/go-engine/internal/proc/termexp/core"
 )
 
 // aka Sem

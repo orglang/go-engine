@@ -3,8 +3,8 @@ package compvar
 import (
 	"database/sql"
 
-	"orglang/go-engine/adt/compsem"
-	"orglang/go-engine/adt/symbol"
+	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/symbol"
 )
 
 func ConvertRecToRef(rec LinearRec) compsem.SemRef {

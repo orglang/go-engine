@@ -38,18 +38,18 @@ type serviceParams struct {
 
 func newService(params serviceParams) compexec.API {
 	return compexec.NewService(compexec.ServiceDeps{
-		CompExecRepo: params.CompExecRepo,
+		CompExecRepo:   params.CompExecRepo,
 		CompExecBroker: params.CompExecBroker,
-		CompVarRepo: params.CompVarRepo,
-		CommExchRepo: params.CommExchRepo,
-		CommTurnRepo: params.CommTurnRepo,
-		TypeExpRepo: params.TypeExpRepo,
-		ProcExecRepo: params.ProcExecRepo,
-		TermDefRepo: params.TermDefRepo,
-		ImplSemRepo: params.ImplSemRepo,
-		CompSemRepo: params.CompSemRepo,
-		Transactor: params.Transactor,
-		Logger: params.Logger,
+		CompVarRepo:    params.CompVarRepo,
+		CommExchRepo:   params.CommExchRepo,
+		CommTurnRepo:   params.CommTurnRepo,
+		TypeExpRepo:    params.TypeExpRepo,
+		ProcExecRepo:   params.ProcExecRepo,
+		TermDefRepo:    params.TermDefRepo,
+		ImplSemRepo:    params.ImplSemRepo,
+		CompSemRepo:    params.CompSemRepo,
+		Transactor:     params.Transactor,
+		Logger:         params.Logger,
 	})
 }
 

@@ -99,7 +99,7 @@ tasks:
         if: '{{eq .TOOL "staticcheck"}}'
       - cmd: go tool errcheck ./lib/... ./adt/... ./app/...
         if: '{{eq .TOOL "errcheck"}}'
-      - cmd: go run ./test/arch/cmd
+      - cmd: go run github.com/OpenPeeDeeP/depguard/v2/cmd/depguard@v2.2.1
         if: '{{eq .TOOL "arch"}}'
 
   generator:*:

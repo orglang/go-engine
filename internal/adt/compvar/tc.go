@@ -96,7 +96,3 @@ func ConvertModeFromNullInt(val sql.NullInt16) Mode {
 func dataToConnID(dto VarRecDS) (identity.ADT, error) {
 	return identity.ConvertFromNullString(dto.ConnID)
 }
-
-func identityToNullString(id identity.ADT) sql.NullString {
-	return identity.ConvertToNullString(id)
-}

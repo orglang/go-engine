@@ -34,11 +34,11 @@ var (
 // goverter:extend Convert.*
 var (
 	// goverter:autoMap CompRef
-	// goverter:map ConnID | identityToNullString
+	// goverter:map ConnID | ConvertToNullString
 	DataFromStructRec  func(StructRec) VarRecDS
 	DataFromStructRecs func([]StructRec) []VarRecDS
 	// goverter:autoMap CompRef
-	// goverter:map ConnID | identityToNullString
+	// goverter:map ConnID | ConvertToNullString
 	DataFromLinearRec  func(LinearRec) VarRecDS
 	DataFromLinearRecs func([]LinearRec) []VarRecDS
 	// goverter:map . CompRef

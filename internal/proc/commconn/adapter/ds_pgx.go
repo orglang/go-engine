@@ -5,12 +5,17 @@ import (
 	"log/slog"
 	"reflect"
 
-	"orglang/go-engine/internal/lib/tx"
+	"github.com/jackc/pgx/v5"
 
 	"orglang/go-engine/internal/adt/commsem"
-	"orglang/go-engine/internal/adt/uniqsym"
+	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/seqnum"
+	"orglang/go-engine/internal/lib/lf"
+	"orglang/go-engine/internal/lib/tx"
 
 	commconn "orglang/go-engine/internal/proc/commconn/core"
+	commturn "orglang/go-engine/internal/proc/commturn/core"
+	commturnadapter "orglang/go-engine/internal/proc/commturn/adapter"
 )
 
 type daoPgx struct {
@@ -19,7 +24,7 @@ type daoPgx struct {
 
 func NewDaoPgx(log *slog.Logger) commconn.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
-	return &daoPgx{log.With(name)}
+	return &daoPgx{log: log.With(name)}
 }
 
 // for compilation purposes
@@ -27,18 +32,103 @@ func newRepo() commconn.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRec(context.Context, tx.Conn, commconn.ConnRec) error {
-	panic("unimplemented")
+func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec commconn.ConnRec) error {
+	ref := commsem.DataFromRef(rec.CommRef)
+	const query = `
+		INSERT INTO proc_comm_conns (comm_id, comm_rn, offset_nr)
+		VALUES ($1, $2, $3)
+	`
+	_, err := conn.Pgx.Exec(ctx, query, ref.CommID, ref.CommRN, int64(rec.OffsetNr))
+	if err != nil {
+		dao.log.Error("Connection insertion failed", slog.Any("ref", rec.CommRef))
+		return err
+	}
+	dao.log.Log(ctx, lf.LevelTrace, "Connection insertion succeeded", slog.Any("ref", rec.CommRef))
+	return nil
 }
 
-func (dao *daoPgx) GetRefsByQNs(context.Context, tx.Conn, []uniqsym.ADT) (map[uniqsym.ADT]commsem.SemRef, error) {
-	panic("unimplemented")
+func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.ConnMod) error {
+	for _, turn := range mod.Turns {
+		dto, err := commturnadapter.DataFromStepRec(turn)
+		if err != nil {
+			return err
+		}
+		const query = `
+			INSERT INTO proc_comm_turns (comm_id, comm_rn, comp_id, chnl_id, kind, exp)
+			VALUES ($1, $2, $3, $4, $5, $6)
+		`
+		_, err = conn.Pgx.Exec(ctx, query, dto.CommID, dto.CommRN, dto.CompID, dto.ChnlID, dto.K, dto.Exp)
+		if err != nil {
+			dao.log.Error("Act insertion failed", slog.Any("act", turn))
+			return err
+		}
+	}
+	if mod.CommON == nil || mod.CommON.IsEmpty() {
+		return nil
+	}
+	ref := commsem.DataFromRef(mod.CommRef)
+	const query = `
+		UPDATE proc_comm_conns
+		SET offset_nr = $1
+		WHERE comm_id = $2
+	`
+	_, err := conn.Pgx.Exec(ctx, query, int64(mod.CommON.Get()), ref.CommID)
+	if err != nil {
+		dao.log.Error("Connection offset update failed", slog.Any("ref", mod.CommRef))
+		return err
+	}
+	return nil
 }
 
-func (dao *daoPgx) GetSnapByQry(context.Context, tx.Conn, commconn.ConnQry) (commconn.ConnSnap, error) {
-	panic("unimplemented")
-}
-
-func (dao *daoPgx) Modifyec(context.Context, tx.Conn, commconn.ConnMod) error {
-	panic("unimplemented")
+func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.ConnQry) (commconn.ConnSnap, error) {
+	ref := commsem.DataFromRef(qry.CommRef)
+	query := `
+		WITH turns AS (
+			SELECT turn.*
+			FROM proc_comm_turns turn
+			WHERE turn.comm_id = $1
+	`
+	args := []any{ref.CommID}
+	if qry.ChnlID != nil && !qry.ChnlID.IsEmpty() {
+		query += " AND turn.chnl_id = $2"
+		args = append(args, identity.ConvertToString(qry.ChnlID.Get()))
+	}
+	query += `
+		)
+		SELECT
+			conn.comm_id,
+			conn.comm_rn,
+			conn.offset_nr,
+			(SELECT array_agg(row(t.*)) FROM turns t WHERE t.comm_rn > conn.offset_nr) AS turns
+		FROM proc_comm_conns conn
+		WHERE conn.comm_id = $1
+	`
+	rows, err := conn.Pgx.Query(ctx, query, args...)
+	if err != nil {
+		dao.log.Error("Connection snapshot query failed", slog.Any("ref", qry.CommRef))
+		return commconn.ConnSnap{}, err
+	}
+	defer rows.Close()
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[commconn.ConnSnapDS])
+	if err != nil {
+		dao.log.Error("Connection snapshot scan failed", slog.Any("ref", qry.CommRef))
+		return commconn.ConnSnap{}, err
+	}
+	connID, err := identity.ConvertFromString(dto.CommID)
+	if err != nil {
+		return commconn.ConnSnap{}, err
+	}
+	snap := commconn.ConnSnap{
+		CommRef: commsem.SemRef{CommID: connID, CommRN: seqnum.ADT(dto.CommRN)},
+		Turns:   make([]commturn.TurnRec, 0, len(dto.Turns)),
+	}
+	for _, turnDTO := range dto.Turns {
+		turn, err := commturnadapter.DataToStepRec(turnDTO)
+		if err != nil {
+			return commconn.ConnSnap{}, err
+		}
+		snap.Turns = append(snap.Turns, turn)
+	}
+	dao.log.Log(ctx, lf.LevelTrace, "Connection snapshot loaded", slog.Any("ref", qry.CommRef))
+	return snap, nil
 }

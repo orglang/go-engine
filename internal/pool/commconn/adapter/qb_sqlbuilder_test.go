@@ -13,11 +13,11 @@ func TestInsertRec(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
 	gotSQL, gotArgs := qb.InsertRec(commconn.ConnRecDS{})
-	wantSQL := "INSERT INTO pool_comp_conns  (conn_id, comp_id, comp_rn, offset_nr, act_nr) VALUES ($1, $2, $3, $4, $5)"
+	wantSQL := "INSERT INTO pool_comp_conns  (conn_id, provider_comp_id, provider_comp_rn, client_comp_id, client_comp_rn, offset_nr, act_nr) VALUES ($1, $2, $3, $4, $5, $6, $7)"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)
 	}
-	wantArgs := []any{"", "", int64(0), int64(0), int64(0)}
+	wantArgs := []any{"", "", int64(0), "", int64(0), int64(0), int64(0)}
 	if !slices.Equal(gotArgs, wantArgs) {
 		t.Errorf("got args %v, want %v", gotArgs, wantArgs)
 	}
@@ -60,7 +60,7 @@ func TestSelectSnap(t *testing.T) {
 	gotSQL, gotArgs := qb.SelectSnap(commconn.ConnQryDS{ChnlID: sql.Null[string]{Valid: true}})
 	wantSQL := "WITH turns AS (SELECT turn.conn_id, turn.act_nr, turn.comp_id, turn.comp_rn, turn.chnl_id, turn.kind, turn.exp " +
 		"FROM pool_conn_acts turn WHERE conn_id = $1 AND chnl_id = $2) " +
-		"SELECT conn.conn_id, conn.comp_id, conn.comp_rn, conn.offset_nr, conn.act_nr, " +
+		"SELECT conn.conn_id, conn.offset_nr, conn.act_nr, " +
 		"(SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM turns t WHERE t.act_nr > conn.offset_nr) AS turns " +
 		"FROM pool_comp_conns conn WHERE conn.conn_id = $3"
 	if gotSQL != wantSQL {

@@ -9,13 +9,13 @@ import (
 
 	sdk "github.com/orglang/go-sdk/adt/termsem"
 
-	"orglang/go-engine/lib/lf"
-	"orglang/go-engine/lib/te"
+	"orglang/go-engine/internal/lib/lf"
+	"orglang/go-engine/internal/lib/te"
 
-	"orglang/go-engine/adt/termsem"
-	"orglang/go-engine/adt/uniqsym"
+	"orglang/go-engine/internal/adt/termsem"
+	"orglang/go-engine/internal/adt/uniqsym"
 
-	termdec "orglang/go-engine/proc/termdec/core"
+	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
 type echoPresenter struct {

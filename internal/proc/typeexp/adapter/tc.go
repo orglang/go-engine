@@ -5,12 +5,12 @@ import (
 
 	"golang.org/x/exp/maps"
 
-	"orglang/go-engine/adt/uniqsym"
-	"orglang/go-engine/adt/valkey"
+	"orglang/go-engine/internal/adt/uniqsym"
+	"orglang/go-engine/internal/adt/valkey"
 
 	sdktypeexp "github.com/orglang/go-sdk/proc/typeexp"
 
-	typeexp "orglang/go-engine/proc/typeexp/core"
+	typeexp "orglang/go-engine/internal/proc/typeexp/core"
 )
 
 func MsgFromExpSpec(s typeexp.ExpSpec) sdktypeexp.ExpSpec {

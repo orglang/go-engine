@@ -3,13 +3,13 @@ package adapter
 import (
 	"fmt"
 
-	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/symbol"
-	"orglang/go-engine/adt/uniqsym"
+	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/symbol"
+	"orglang/go-engine/internal/adt/uniqsym"
 
 	sdktermexp "github.com/orglang/go-sdk/proc/termexp"
 
-	termexp "orglang/go-engine/proc/termexp/core"
+	termexp "orglang/go-engine/internal/proc/termexp/core"
 )
 
 func MsgFromExpSpecNilable(spec termexp.ExpSpec) *sdktermexp.ExpSpec {

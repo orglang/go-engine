@@ -3,12 +3,12 @@ package adapter
 import (
 	"fmt"
 
-	"orglang/go-engine/adt/uniqsym"
-	"orglang/go-engine/adt/valkey"
+	"orglang/go-engine/internal/adt/uniqsym"
+	"orglang/go-engine/internal/adt/valkey"
 
 	sdktypeexp "github.com/orglang/go-sdk/pool/typeexp"
 
-	typeexp "orglang/go-engine/pool/typeexp/core"
+	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 )
 
 func MsgFromExpSpec(s typeexp.ExpSpec) sdktypeexp.ExpSpec {

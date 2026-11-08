@@ -46,7 +46,7 @@ func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec commconn.ConnRe
 
 func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.ConnMod) error {
 	refAttr := slog.Any("ref", mod.ConnRef)
-	if mod.OffsetNr != nil {
+	if mod.OffsetNr != nil && !mod.OffsetNr.IsEmpty() {
 		dto := DataFromMod(mod)
 		sql, args := dao.qb.UpdateRec(dto)
 		tag, execErr := conn.Pgx.Exec(ctx, sql, args...)

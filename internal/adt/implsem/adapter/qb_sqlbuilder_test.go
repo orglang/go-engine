@@ -3,7 +3,7 @@ package adapter
 import (
 	"testing"
 
-	implsem "orglang/go-engine/internal/adt/implsem"
+	"orglang/go-engine/internal/adt/implsem"
 )
 
 func TestInsertRec(t *testing.T) {

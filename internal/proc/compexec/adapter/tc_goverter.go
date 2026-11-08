@@ -2,9 +2,9 @@ package adapter
 
 import (
 	"orglang/go-engine/internal/adt/compsem"
-	core "orglang/go-engine/internal/proc/compexec/core"
+	compexec "orglang/go-engine/internal/proc/compexec/core"
 
-	"github.com/orglang/go-sdk/proc/compexec"
+	sdkcompexec "github.com/orglang/go-sdk/proc/compexec"
 )
 
 // goverter:variables
@@ -12,8 +12,8 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
 var (
 	// goverter:ignore LinearVars
-	MsgToExecSnap   func(compexec.ExecSnap) (core.ExecSnap, error)
-	MsgFromExecSnap func(core.ExecSnap) compexec.ExecSnap
+	MsgToExecSnap   func(sdkcompexec.ExecSnap) (compexec.ExecSnap, error)
+	MsgFromExecSnap func(compexec.ExecSnap) sdkcompexec.ExecSnap
 )
 
 // goverter:variables
@@ -23,10 +23,10 @@ var (
 // goverter:extend orglang/go-engine/internal/adt/compvar:Data.*
 var (
 	// goverter:map . CompRef | dataToSemRef
-	DataToExecRec func(core.ExecRecDS) (core.ExecRec, error)
+	DataToExecRec func(compexec.ExecRecDS) (compexec.ExecRec, error)
 	// goverter:autoMap CompRef
-	DataFromExecRec func(core.ExecRec) core.ExecRecDS
-	DataFromMod     func(core.ExecMod) (core.ExecModDS, error)
+	DataFromExecRec func(compexec.ExecRec) compexec.ExecRecDS
+	DataFromMod     func(compexec.ExecMod) (compexec.ExecModDS, error)
 	// goverter:ignore CompRN
-	dataToSemRef func(core.ExecRecDS) (compsem.SemRef, error)
+	dataToSemRef func(compexec.ExecRecDS) (compsem.SemRef, error)
 )

@@ -6,9 +6,9 @@ import (
 	"log/slog"
 	"reflect"
 
-	compsem "orglang/go-engine/adt/compsem"
-	"orglang/go-engine/lib/lf"
-	"orglang/go-engine/lib/tx"
+	compsem "orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/lib/lf"
+	"orglang/go-engine/internal/lib/tx"
 )
 
 type daoPgx struct {

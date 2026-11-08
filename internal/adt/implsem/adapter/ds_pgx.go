@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"reflect"
 
-	implsem "orglang/go-engine/adt/implsem"
-	"orglang/go-engine/lib/tx"
+	implsem "orglang/go-engine/internal/adt/implsem"
+	"orglang/go-engine/internal/lib/tx"
 )
 
 type daoPgx struct {

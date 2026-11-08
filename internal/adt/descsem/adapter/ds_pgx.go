@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"reflect"
 
-	descsem "orglang/go-engine/adt/descsem"
-	"orglang/go-engine/lib/tx"
+	descsem "orglang/go-engine/internal/adt/descsem"
+	"orglang/go-engine/internal/lib/tx"
 )
 
 type daoPgx struct {

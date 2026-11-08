@@ -1,11 +1,11 @@
 package adapter
 
 import (
-	descsem "orglang/go-engine/adt/descsem"
 	"context"
 	"log/slog"
 	"reflect"
 
+	descsem "orglang/go-engine/adt/descsem"
 	"orglang/go-engine/lib/tx"
 )
 

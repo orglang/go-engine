@@ -6,7 +6,6 @@ import (
 	"errors"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"orglang/go-engine/lib/tx"
@@ -107,11 +106,10 @@ func (t *transactorPgx) ImplicitTxOld(ctx context.Context, fn func(tx.UoW) error
 	})
 }
 
-// Compile-time assertions for the concrete pgx resources and command-tag type.
+// Compile-time assertions for the concrete pgx resources.
 var (
-	_ tx.Pgx           = (pgx.Tx)(nil)
-	_ tx.Pgx           = (*pgxpool.Conn)(nil)
-	_ pgxTransaction   = (pgx.Tx)(nil)
-	_ pgxConnection    = (*pgxpool.Conn)(nil)
-	_ pgconn.CommandTag = pgconn.CommandTag{}
+	_ tx.Pgx         = (pgx.Tx)(nil)
+	_ tx.Pgx         = (*pgxpool.Conn)(nil)
+	_ pgxTransaction = (pgx.Tx)(nil)
+	_ pgxConnection  = (*pgxpool.Conn)(nil)
 )

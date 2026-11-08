@@ -4,8 +4,9 @@ import termexp "orglang/go-engine/internal/proc/termexp/core"
 
 type TurnRecDS struct {
 	ConnID string           `db:"conn_id"`
-	ConnRN int64            `db:"conn_rn"`
+	ActNr  int64            `db:"act_nr"`
 	CompID string           `db:"comp_id"`
+	CompRN int64            `db:"comp_rn"`
 	ChnlID string           `db:"chnl_id"`
 	K      StepKindDS       `db:"kind"`
 	Exp    termexp.ExpRecDS `db:"exp" fieldopt:"noexpand"`

@@ -60,14 +60,17 @@ CREATE TABLE pool_linear_vars (
 
 CREATE TABLE pool_comp_conns (
     conn_id varchar UNIQUE,
-    conn_rn bigint,
-    offset_nr bigint
+    comp_id varchar,
+    comp_rn bigint,
+    offset_nr bigint,
+    act_nr bigint
 );
 
 CREATE TABLE pool_conn_acts (
     conn_id varchar,
-    conn_rn bigint,
+    act_nr bigint,
     comp_id varchar,
+    comp_rn bigint,
     chnl_id varchar,
     kind smallint,
     exp jsonb
@@ -133,14 +136,17 @@ CREATE TABLE proc_linear_vars (
 
 CREATE TABLE proc_comp_conns (
     conn_id varchar UNIQUE,
-    conn_rn bigint,
-    offset_nr bigint
+    comp_id varchar,
+    comp_rn bigint,
+    offset_nr bigint,
+    act_nr bigint
 );
 
 CREATE TABLE proc_conn_acts (
     conn_id varchar,
-    conn_rn bigint,
+    act_nr bigint,
     comp_id varchar,
+    comp_rn bigint,
     chnl_id varchar,
     kind smallint,
     exp jsonb

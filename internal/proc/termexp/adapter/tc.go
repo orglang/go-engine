@@ -3,9 +3,7 @@ package adapter
 import (
 	"fmt"
 
-	"orglang/go-engine/internal/adt/connsem"
 	"orglang/go-engine/internal/adt/identity"
-	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/adt/valkey"
@@ -216,15 +214,14 @@ func DataFromExpRec(r termexp.ExpRec) (termexp.ExpRecDS, error) {
 			},
 		}, nil
 	case termexp.SendRec:
-		connRef := connsem.DataFromRef(rec.ConnRef)
+		connID := identity.ConvertToString(rec.ConnID)
 		return termexp.ExpRecDS{
 			K: termexp.SendExp,
 			Send: &termexp.SendRecDS{
 				X:        symbol.ConvertToString(rec.CommChnlPH),
 				A:        identity.ConvertToString(rec.ContChnlID),
 				B:        identity.ConvertToString(rec.ValChnlID),
-				ConnID:   connRef.ConnID,
-				ConnRN:   connRef.ConnRN,
+				ConnID:   connID,
 				ValExpVK: int64(rec.ValExpVK),
 			},
 		}, nil
@@ -322,7 +319,7 @@ func DataToExpRec(dto termexp.ExpRecDS) (termexp.ExpRec, error) {
 			ContChnlID: a,
 			ValChnlID:  valID,
 			ValExpVK:   valkey.ADT(dto.Send.ValExpVK),
-			ConnRef:    connsem.SemRef{ConnID: commID, ConnRN: seqnum.ADT(dto.Send.ConnRN)},
+			ConnID:     commID,
 		}, nil
 	case termexp.RecvExp:
 		x, err := symbol.ConvertFromString(dto.Recv.X)

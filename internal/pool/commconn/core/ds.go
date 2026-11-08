@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"database/sql"
+
 	"orglang/go-engine/internal/lib/tx"
 
 	commturn "orglang/go-engine/internal/pool/commturn/core"
@@ -16,13 +17,14 @@ type Repo interface {
 
 type ConnRecDS struct {
 	ConnID   string `db:"conn_id"`
-	ConnRN   int64  `db:"conn_rn"`
+	CompID   string `db:"comp_id"`
+	CompRN   int64  `db:"comp_rn"`
 	OffsetNr int64  `db:"offset_nr"`
+	ActNr    int64  `db:"act_nr"`
 }
 
 type ConnModDS struct {
 	ConnID       string          `db:"conn_id"`
-	ConnRN       int64           `db:"-"`
 	OffsetNr     sql.Null[int64] `db:"offset_nr"`
 	PrevOffsetNr int64           `db:"-"`
 }
@@ -34,7 +36,9 @@ type ConnQryDS struct {
 
 type ConnSnapDS struct {
 	ConnID   string               `db:"conn_id"`
-	ConnRN   int64                `db:"conn_rn"`
+	CompID   string               `db:"comp_id"`
+	CompRN   int64                `db:"comp_rn"`
 	OffsetNr int64                `db:"offset_nr"`
+	ActNr    int64                `db:"act_nr"`
 	Turns    []commturn.TurnRecDS `db:"turns"`
 }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"orglang/go-engine/internal/adt/compsem"
-	"orglang/go-engine/internal/adt/connsem"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
@@ -23,7 +22,7 @@ type VarSpec struct {
 // machine-readable record of computation variable
 // машиночитаемая запись переменной вычисления
 type VarRec interface {
-	GetConnRef() connsem.SemRef
+	GetConnID() identity.ADT
 	GetChnlID() identity.ADT
 	GetChnlPH() symbol.ADT
 	GetExpVK() valkey.ADT
@@ -31,7 +30,7 @@ type VarRec interface {
 
 type LinearRec struct {
 	CompRef compsem.SemRef
-	ConnRef connsem.SemRef
+	ConnID identity.ADT
 	ChnlID  identity.ADT
 	ChnlPH  symbol.ADT
 	ChnlBS  side
@@ -44,7 +43,7 @@ type LinearRec struct {
 	ExpVK valkey.ADT
 }
 
-func (r LinearRec) GetConnRef() connsem.SemRef { return r.ConnRef }
+func (r LinearRec) GetConnID() identity.ADT { return r.ConnID }
 
 func (r LinearRec) GetChnlID() identity.ADT { return r.ChnlID }
 
@@ -54,7 +53,7 @@ func (r LinearRec) GetExpVK() valkey.ADT { return r.ExpVK }
 
 type StructRec struct {
 	CompRef compsem.SemRef
-	ConnRef connsem.SemRef
+	ConnID identity.ADT
 	ChnlID  identity.ADT
 	ChnlPH  symbol.ADT
 	ChnlBS  side
@@ -67,7 +66,7 @@ type StructRec struct {
 	ExpVK valkey.ADT
 }
 
-func (r StructRec) GetConnRef() connsem.SemRef { return r.ConnRef }
+func (r StructRec) GetConnID() identity.ADT { return r.ConnID }
 
 func (r StructRec) GetChnlID() identity.ADT { return r.ChnlID }
 

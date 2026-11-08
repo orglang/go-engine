@@ -4,7 +4,6 @@ import (
 	"github.com/orglang/go-sdk/adt/compvar"
 
 	"orglang/go-engine/internal/adt/compsem"
-	"orglang/go-engine/internal/adt/connsem"
 )
 
 // goverter:variables
@@ -35,21 +34,20 @@ var (
 // goverter:extend Convert.*
 var (
 	// goverter:autoMap CompRef
-	// goverter:autoMap ConnRef
+	// goverter:autoMap ConnID
 	DataFromStructRec  func(StructRec) VarRecDS
 	DataFromStructRecs func([]StructRec) []VarRecDS
 	// goverter:autoMap CompRef
-	// goverter:autoMap ConnRef
+	// goverter:autoMap ConnID
 	DataFromLinearRec  func(LinearRec) VarRecDS
 	DataFromLinearRecs func([]LinearRec) []VarRecDS
 	// goverter:map . CompRef
-	// goverter:map . ConnRef | dataToSemRef
+	// goverter:map . ConnID | dataToConnID
 	DataToStructRec  func(VarRecDS) (StructRec, error)
 	DataToStructRecs func([]VarRecDS) ([]StructRec, error)
 	// goverter:map . CompRef
-	// goverter:map . ConnRef | dataToSemRef
+	// goverter:map . ConnID | dataToConnID
 	DataToLinearRec  func(VarRecDS) (LinearRec, error)
 	DataToLinearRecs func([]VarRecDS) ([]LinearRec, error)
-	// goverter:ignore ConnRN
-	dataToSemRef func(VarRecDS) (connsem.SemRef, error)
+	
 )

@@ -4,9 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"orglang/go-engine/internal/adt/connsem"
 	"orglang/go-engine/internal/adt/identity"
-	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/adt/valkey"
@@ -14,8 +12,8 @@ import (
 	termexp "orglang/go-engine/internal/proc/termexp/core"
 )
 
-func TestExpRecRoundTripPreservesConnectionReferences(t *testing.T) {
-	connRef := connsem.SemRef{ConnID: identity.New(), ConnRN: seqnum.ADT(3)}
+func TestExpRecRoundTripPreservesConnectionIDs(t *testing.T) {
+	connID := identity.New()
 	contID := identity.New()
 	valueID := identity.New()
 	commChnl := symbol.ADT("comm")
@@ -29,7 +27,7 @@ func TestExpRecRoundTripPreservesConnectionReferences(t *testing.T) {
 			ContChnlID: contID,
 			ValChnlID:  valueID,
 			ValExpVK:   valkey.ADT(7),
-			ConnRef:    connRef,
+			ConnID:     connID,
 		},
 		termexp.RecvRec{
 			CommChnlPH: commChnl,

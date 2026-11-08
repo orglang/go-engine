@@ -3,33 +3,36 @@ package core
 import (
 	"fmt"
 
-	"orglang/go-engine/internal/adt/connsem"
+	"orglang/go-engine/internal/adt/compsem"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/option"
 	"orglang/go-engine/internal/adt/seqnum"
+
 	commturn "orglang/go-engine/internal/proc/commturn/core"
 )
 
 type ConnRec struct {
-	ConnRef  connsem.SemRef
+	ConnID   identity.ADT
+	CompRef  compsem.SemRef
 	OffsetNr seqnum.ADT
+	ActNr    seqnum.ADT
 }
 
 type ConnMod struct {
-	ConnRef      connsem.SemRef
+	ConnID       identity.ADT
 	OffsetNr     option.ADT[seqnum.ADT]
 	PrevOffsetNr seqnum.ADT
 	Turns        []commturn.TurnRec
 }
 
 type ConnQry struct {
-	ConnRef connsem.SemRef
-	ChnlID  option.ADT[identity.ADT]
+	ConnID identity.ADT
+	ChnlID option.ADT[identity.ADT]
 }
 
 // aka Configuration
 type ConnSnap struct {
-	ConnRef  connsem.SemRef
+	ConnID   identity.ADT
 	OffsetNr seqnum.ADT
 	Turns    []commturn.TurnRec
 }
@@ -38,12 +41,8 @@ func ErrOffsetConflict(got seqnum.ADT) error {
 	return fmt.Errorf("connection offset changed concurrently: got %v", got)
 }
 
-func ErrRevisionConflict(got seqnum.ADT) error {
-	return fmt.Errorf("connection revision changed concurrently: got %v", got)
-}
-
-func ErrSnapshotConflict(revision, offset seqnum.ADT) error {
-	return fmt.Errorf("connection snapshot changed concurrently: revision %v, offset %v", revision, offset)
+func ErrSnapshotConflict(got seqnum.ADT) error {
+	return fmt.Errorf("connection snapshot changed concurrently: offset %v", got)
 }
 
 func (s ConnSnap) NextTurn() commturn.TurnRec {

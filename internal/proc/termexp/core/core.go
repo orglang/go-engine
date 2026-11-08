@@ -3,7 +3,6 @@ package core
 import (
 	"fmt"
 
-	"orglang/go-engine/internal/adt/connsem"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
@@ -145,7 +144,7 @@ type SendRec struct {
 	ContChnlID identity.ADT
 	ValChnlID  identity.ADT
 	ValExpVK   valkey.ADT
-	ConnRef    connsem.SemRef
+	ConnID     identity.ADT
 }
 
 func (r SendRec) Via() symbol.ADT { return r.CommChnlPH }

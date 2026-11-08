@@ -13,11 +13,11 @@ func TestInsertRec(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
 	gotSQL, gotArgs := qb.InsertRec(commconn.ConnRecDS{})
-	wantSQL := "INSERT INTO pool_comp_conns  (conn_id, conn_rn, offset_nr) VALUES ($1, $2, $3)"
+	wantSQL := "INSERT INTO pool_comp_conns  (conn_id, comp_id, comp_rn, offset_nr, act_nr) VALUES ($1, $2, $3, $4, $5)"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)
 	}
-	wantArgs := []any{"", int64(0), int64(0)}
+	wantArgs := []any{"", "", int64(0), int64(0), int64(0)}
 	if !slices.Equal(gotArgs, wantArgs) {
 		t.Errorf("got args %v, want %v", gotArgs, wantArgs)
 	}
@@ -27,12 +27,12 @@ func TestInsertTurnRec(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
 	gotSQL, gotArgs := qb.InsertTurnRec(commturn.TurnRecDS{})
-	wantSQL := "INSERT INTO pool_conn_acts  (conn_id, conn_rn, comp_id, chnl_id, kind, exp) VALUES ($1, $2, $3, $4, $5, $6)"
+	wantSQL := "INSERT INTO pool_conn_acts  (conn_id, act_nr, comp_id, comp_rn, chnl_id, kind, exp) VALUES ($1, $2, $3, $4, $5, $6, $7)"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)
 	}
-	if len(gotArgs) != 6 {
-		t.Errorf("got %d args, want 6: %v", len(gotArgs), gotArgs)
+	if len(gotArgs) != 7 {
+		t.Errorf("got %d args, want 7: %v", len(gotArgs), gotArgs)
 	}
 }
 
@@ -40,15 +40,15 @@ func TestUpdateRec(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
 	gotSQL, gotArgs := qb.UpdateRec(commconn.ConnModDS{
-		ConnRN:       2,
+		ConnID:       "",
 		OffsetNr:     sql.Null[int64]{V: 3, Valid: true},
 		PrevOffsetNr: 1,
 	})
-	wantSQL := "UPDATE pool_comp_conns  SET offset_nr = $1 WHERE conn_id = $2 AND conn_rn = $3 AND offset_nr = $4"
+	wantSQL := "UPDATE pool_comp_conns  SET offset_nr = $1 WHERE conn_id = $2 AND offset_nr = $3"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)
 	}
-	wantArgs := []any{int64(3), "", int64(2), int64(1)}
+	wantArgs := []any{int64(3), "", int64(1)}
 	if !slices.Equal(gotArgs, wantArgs) {
 		t.Errorf("got args %v, want %v", gotArgs, wantArgs)
 	}
@@ -58,10 +58,10 @@ func TestSelectSnap(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
 	gotSQL, gotArgs := qb.SelectSnap(commconn.ConnQryDS{ChnlID: sql.Null[string]{Valid: true}})
-	wantSQL := "WITH turns AS (SELECT turn.conn_id, turn.conn_rn, turn.comp_id, turn.chnl_id, turn.kind, turn.exp " +
+	wantSQL := "WITH turns AS (SELECT turn.conn_id, turn.act_nr, turn.comp_id, turn.comp_rn, turn.chnl_id, turn.kind, turn.exp " +
 		"FROM pool_conn_acts turn WHERE conn_id = $1 AND chnl_id = $2) " +
-		"SELECT conn.conn_id, conn.conn_rn, conn.offset_nr, " +
-		"(SELECT array_agg(row(t.*) ORDER BY t.conn_rn) FROM turns t WHERE t.conn_rn > conn.offset_nr) AS turns " +
+		"SELECT conn.conn_id, conn.comp_id, conn.comp_rn, conn.offset_nr, conn.act_nr, " +
+		"(SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM turns t WHERE t.act_nr > conn.offset_nr) AS turns " +
 		"FROM pool_comp_conns conn WHERE conn.conn_id = $3"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)

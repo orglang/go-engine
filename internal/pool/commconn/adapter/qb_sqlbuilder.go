@@ -38,7 +38,6 @@ func (qb *sqlBuilder) UpdateRec(mod commconn.ConnModDS) (string, []any) {
 	}
 	conn.Where(conn.Equal("conn_id", mod.ConnID))
 	if mod.OffsetNr.Valid {
-		conn.Where(conn.Equal("conn_rn", mod.ConnRN))
 		conn.Where(conn.Equal("offset_nr", mod.PrevOffsetNr))
 	}
 	return conn.Build()
@@ -54,7 +53,7 @@ func (qb *sqlBuilder) SelectSnap(qry commconn.ConnQryDS) (string, []any) {
 	turns := sqlbuilder.PostgreSQL.NewCTEBuilder()
 	return conn.With(turns.With(sqlbuilder.CTEQuery("turns").As(turn))).
 		SelectMore(
-			conn.BuilderAs(sqlbuilder.Build("SELECT array_agg(row(t.*) ORDER BY t.conn_rn) FROM turns t WHERE t.conn_rn > conn.offset_nr"), "turns"),
+			conn.BuilderAs(sqlbuilder.Build("SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM turns t WHERE t.act_nr > conn.offset_nr"), "turns"),
 		).
 		Where(conn.Equal("conn.conn_id", qry.ConnID)).
 		Build()

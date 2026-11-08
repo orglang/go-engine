@@ -255,7 +255,7 @@ func (s *service) takeWith(
 			// лишаем продолжения закрывателя
 			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
 				CompRef: commChnl.CompRef,
-				ConnID: commChnl.ConnID,
+				ConnID:  commChnl.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -329,7 +329,7 @@ func (s *service) takeWith(
 			// лишаем продолжения наблюдателя
 			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
 				CompRef: commChnl.CompRef,
-				ConnID: commChnl.ConnID,
+				ConnID:  commChnl.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -513,7 +513,7 @@ func (s *service) takeWith(
 			// вяжем продолжение принимателя
 			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
 				CompRef: commChnl.CompRef,
-				ConnID: commChnl.ConnID,
+				ConnID:  commChnl.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -543,7 +543,7 @@ func (s *service) takeWith(
 			// вяжем продолжение принимателя
 			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
 				CompRef: commChnl.CompRef,
-				ConnID: commChnl.ConnID,
+				ConnID:  commChnl.ConnID,
 				ChnlID:  valExp.ContChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -601,7 +601,7 @@ func (s *service) takeWith(
 			// вяжем продолжение решателя
 			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
 				CompRef: commChnl.CompRef,
-				ConnID: commChnl.ConnID,
+				ConnID:  commChnl.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -630,7 +630,7 @@ func (s *service) takeWith(
 			// вяжем продолжение решателя
 			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
 				CompRef: commChnl.CompRef,
-				ConnID: commChnl.ConnID,
+				ConnID:  commChnl.ConnID,
 				ChnlID:  contExp.ContChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
@@ -686,7 +686,7 @@ func (s *service) takeWith(
 			newChnlID := identity.New()
 			// регистрируем подписку последователя
 			connMod.Turns = append(connMod.Turns, commturn.SubRec{
-				ConnID: commChnl.ConnID,
+				ConnID:  commChnl.ConnID,
 				CompRef: commChnl.CompRef,
 				ChnlID:  commChnl.ChnlID,
 				ContExp: termexp.CaseRec{
@@ -707,7 +707,7 @@ func (s *service) takeWith(
 			// вяжем продолжение последователя
 			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
 				CompRef: commChnl.CompRef,
-				ConnID: commChnl.ConnID,
+				ConnID:  commChnl.ConnID,
 				ChnlID:  valExp.ContChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				// TODO значение ChnlBS
@@ -800,7 +800,7 @@ func (s *service) takeWith(
 				// лишаем значений схлопывающегося
 				execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
 					CompRef: commChnl.CompRef,
-					ConnID: commChnl.ConnID,
+					ConnID:  commChnl.ConnID,
 					ChnlID:  commChnl.ChnlID,
 					ChnlPH:  termExp.CommChnlPH,
 					ChnlBS:  commChnl.ChnlBS,

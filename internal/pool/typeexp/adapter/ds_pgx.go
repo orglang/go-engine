@@ -8,14 +8,14 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/lib/lf"
-	"orglang/go-engine/lib/tx"
+	"orglang/go-engine/internal/lib/lf"
+	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/adt/symbol"
-	"orglang/go-engine/adt/typesem"
-	"orglang/go-engine/adt/valkey"
+	"orglang/go-engine/internal/adt/symbol"
+	"orglang/go-engine/internal/adt/typesem"
+	"orglang/go-engine/internal/adt/valkey"
 
-	typeexp "orglang/go-engine/pool/typeexp/core"
+	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 )
 
 // Adapter

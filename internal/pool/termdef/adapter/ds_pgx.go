@@ -7,11 +7,11 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/lib/tx"
+	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/adt/uniqsym"
+	"orglang/go-engine/internal/adt/uniqsym"
 
-	termdef "orglang/go-engine/pool/termdef/core"
+	termdef "orglang/go-engine/internal/pool/termdef/core"
 )
 
 type daoPgx struct {

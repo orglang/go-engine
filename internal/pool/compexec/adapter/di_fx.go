@@ -3,12 +3,12 @@ package adapter
 import (
 	"go.uber.org/fx"
 
-	"orglang/go-engine/adt/compsem"
-	compsemadapter "orglang/go-engine/adt/compsem/adapter"
-	"orglang/go-engine/adt/implsem"
-	implsemadapter "orglang/go-engine/adt/implsem/adapter"
+	"orglang/go-engine/internal/adt/compsem"
+	compsemadapter "orglang/go-engine/internal/adt/compsem/adapter"
+	"orglang/go-engine/internal/adt/implsem"
+	implsemadapter "orglang/go-engine/internal/adt/implsem/adapter"
 
-	compexec "orglang/go-engine/pool/compexec/core"
+	compexec "orglang/go-engine/internal/pool/compexec/core"
 )
 
 var Module = fx.Module("pool/compexec",

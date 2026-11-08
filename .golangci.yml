@@ -136,11 +136,6 @@ linters:
           disabled: true
         - name: var-declaration
           disabled: true
-          disabled: true
-          disabled: true
-          disabled: true
-          disabled: true
-          disabled: true
         - name: redundant-import-alias
           disabled: true
   exclusions:

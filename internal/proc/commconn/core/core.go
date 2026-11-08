@@ -11,7 +11,7 @@ import (
 )
 
 type ConnRec struct {
-	ConnRef  connsem.SemRef
+	ConnRef      connsem.SemRef
 	OffsetNr seqnum.ADT
 }
 

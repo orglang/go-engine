@@ -3,7 +3,7 @@ package adapter
 import (
 	"testing"
 
-	commturn "orglang/go-engine/pool/commturn/core"
+	commturn "orglang/go-engine/internal/pool/commturn/core"
 )
 
 func TestInsertRec(t *testing.T) {

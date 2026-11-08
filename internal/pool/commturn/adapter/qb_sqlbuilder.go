@@ -3,9 +3,9 @@ package adapter
 import (
 	"github.com/huandu/go-sqlbuilder"
 
-	"orglang/go-engine/adt/termsem"
+	"orglang/go-engine/internal/adt/termsem"
 
-	commturn "orglang/go-engine/pool/commturn/core"
+	commturn "orglang/go-engine/internal/pool/commturn/core"
 )
 
 type sqlBuilder struct {

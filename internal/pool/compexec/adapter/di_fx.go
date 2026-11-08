@@ -6,7 +6,6 @@ import (
 	"go.uber.org/fx"
 
 	"orglang/go-engine/internal/adt/compsem"
-	"orglang/go-engine/internal/adt/compvar"
 	"orglang/go-engine/internal/adt/implsem"
 	implsemadapter "orglang/go-engine/internal/adt/implsem/adapter"
 	compsemadapter "orglang/go-engine/internal/adt/compsem/adapter"

@@ -9,9 +9,9 @@ import (
 
 	"github.com/orglang/go-sdk/pool/termdec"
 
-	"orglang/go-engine/adt/termsem"
+	"orglang/go-engine/internal/adt/termsem"
 
-	termdef "orglang/go-engine/pool/termdef/core"
+	termdef "orglang/go-engine/internal/pool/termdef/core"
 )
 
 // Server-side primary adapter

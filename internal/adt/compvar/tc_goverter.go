@@ -3,8 +3,8 @@ package compvar
 import (
 	"github.com/orglang/go-sdk/adt/compvar"
 
-	"orglang/go-engine/adt/commsem"
-	"orglang/go-engine/adt/compsem"
+	"orglang/go-engine/internal/adt/commsem"
+	"orglang/go-engine/internal/adt/compsem"
 )
 
 // goverter:variables

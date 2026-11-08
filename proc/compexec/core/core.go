@@ -8,7 +8,7 @@ import (
 	"maps"
 	"reflect"
 
-	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/tx"
 
 	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/adt/compvar"
@@ -68,7 +68,7 @@ type service struct {
 	termDecRepo  termdec.Repo
 	typeDefRepo  typedef.Repo
 	typeExpRepo  typeexp.Repo
-	transactor   db.Transactor
+	transactor   tx.Transactor
 	log          *slog.Logger
 }
 
@@ -83,7 +83,7 @@ func NewService(
 	termDecRepo termdec.Repo,
 	typeDefRepo typedef.Repo,
 	typeExpRepo typeexp.Repo,
-	transactor db.Transactor,
+	transactor tx.Transactor,
 	log *slog.Logger,
 ) *service {
 	name := slog.String("name", reflect.TypeFor[service]().Name())
@@ -111,8 +111,8 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 	expSpec := spec.ProcExp
 	for expSpec != nil {
 		var execSnap ExecSnap
-		getErr1 := s.transactor.ImplicitTx(ctx, func(uow db.UoW) error {
-			execSnap, err = s.compExecRepo.GetSnapByRef(uow, compRef)
+		getErr1 := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
+			execSnap, err = s.compExecRepo.GetSnapByRef(txCtx, conn, compRef)
 			return err
 		})
 		if getErr1 != nil {
@@ -124,8 +124,8 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 		}
 		decIDs := termexp.CollectEnv(expSpec)
 		var procDecs map[identity.ADT]termdec.DecRec
-		getErr2 := s.transactor.ImplicitTx(ctx, func(uow db.UoW) error {
-			procDecs, err = s.termDecRepo.SelectEnv(uow, decIDs)
+		getErr2 := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
+			procDecs, err = s.termDecRepo.SelectEnv(txCtx, conn, decIDs)
 			return err
 		})
 		if getErr2 != nil {
@@ -134,8 +134,8 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 		}
 		typeQNs := termdec.CollectEnv(maps.Values(procDecs))
 		var typeDefs map[uniqsym.ADT]typedef.DefRec
-		getErr3 := s.transactor.ImplicitTx(ctx, func(uow db.UoW) error {
-			typeDefs, err = s.typeDefRepo.SelectEnv(uow, typeQNs)
+		getErr3 := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
+			typeDefs, err = s.typeDefRepo.SelectEnv(txCtx, conn, typeQNs)
 			return err
 		})
 		if getErr3 != nil {
@@ -145,8 +145,8 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 		envIDs := typedef.CollectEnv(maps.Values(typeDefs))
 		ctxIDs := CollectCtx(maps.Values(execSnap.LinearVars))
 		var typeExps map[valkey.ADT]typeexp.ExpRec
-		getErr4 := s.transactor.ImplicitTx(ctx, func(uow db.UoW) error {
-			typeExps, err = s.typeExpRepo.SelectEnv(uow, append(envIDs, ctxIDs...))
+		getErr4 := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
+			typeExps, err = s.typeExpRepo.SelectEnv(txCtx, conn, append(envIDs, ctxIDs...))
 			return err
 		})
 		if getErr4 != nil {
@@ -167,8 +167,8 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 			s.log.Error("step taking failed", compAttr)
 			return err
 		}
-		err = s.transactor.ExplicitTx(ctx, func(uow db.UoW) error {
-			err = s.compExecRepo.ModifyRec(uow, execMod)
+		err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
+			err = s.compExecRepo.ModifyRec(txCtx, conn, execMod)
 			if err != nil {
 				s.log.Error("step taking failed", compAttr)
 				return err
@@ -213,8 +213,8 @@ func (s *service) takeWith(
 		commAttr := slog.Any("commRef", commChnl.CommRef)
 		// получаем снепшот коммуникации
 		var commSnap commexch.ExchSnap
-		getErr := s.transactor.ImplicitTx(ctx, func(uow db.UoW) error {
-			commSnap, err = s.commExchRepo.GetSnapByQry(uow, commexch.ExchQry{
+		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
+			commSnap, err = s.commExchRepo.GetSnapByQry(txCtx, conn, commexch.ExchQry{
 				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
@@ -282,8 +282,8 @@ func (s *service) takeWith(
 		}
 		// получаем снепшот соединения
 		var commSnap commexch.ExchSnap
-		getErr := s.transactor.ImplicitTx(ctx, func(uow db.UoW) error {
-			commSnap, err = s.commExchRepo.GetSnapByQry(uow, commexch.ExchQry{
+		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
+			commSnap, err = s.commExchRepo.GetSnapByQry(txCtx, conn, commexch.ExchQry{
 				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
@@ -378,8 +378,8 @@ func (s *service) takeWith(
 		}
 		// получаем снепшот соединения
 		var commSnap commexch.ExchSnap
-		getErr := s.transactor.ImplicitTx(ctx, func(uow db.UoW) error {
-			commSnap, err = s.commExchRepo.GetSnapByQry(uow, commexch.ExchQry{
+		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
+			commSnap, err = s.commExchRepo.GetSnapByQry(txCtx, conn, commexch.ExchQry{
 				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
@@ -473,8 +473,8 @@ func (s *service) takeWith(
 		nextExpVK := typeExp.(typeexp.ProdRec).Next()
 		// получаем снепшот соединения
 		var connSnap commexch.ExchSnap
-		getErr := s.transactor.ImplicitTx(ctx, func(uow db.UoW) error {
-			connSnap, err = s.commExchRepo.GetSnapByQry(uow, commexch.ExchQry{
+		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
+			connSnap, err = s.commExchRepo.GetSnapByQry(txCtx, conn, commexch.ExchQry{
 				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
@@ -561,8 +561,8 @@ func (s *service) takeWith(
 		nextExpVK := typeExp.(typeexp.SumRec).Next(termExp.ValLabQN)
 		// получаем снепшот соединения
 		var connSnap commexch.ExchSnap
-		getErr := s.transactor.ImplicitTx(ctx, func(uow db.UoW) error {
-			connSnap, err = s.commExchRepo.GetSnapByQry(uow, commexch.ExchQry{
+		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
+			connSnap, err = s.commExchRepo.GetSnapByQry(txCtx, conn, commexch.ExchQry{
 				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
@@ -642,8 +642,8 @@ func (s *service) takeWith(
 		}
 		// получаем снепшот соединения
 		var caseConnSnap commexch.ExchSnap
-		getErr := s.transactor.ImplicitTx(ctx, func(uow db.UoW) error {
-			caseConnSnap, err = s.commExchRepo.GetSnapByQry(uow, commexch.ExchQry{
+		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
+			caseConnSnap, err = s.commExchRepo.GetSnapByQry(txCtx, conn, commexch.ExchQry{
 				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})
@@ -714,8 +714,8 @@ func (s *service) takeWith(
 		}
 		// получаем снепшот соединения
 		var fwdConnSnap commexch.ExchSnap
-		getErr := s.transactor.ImplicitTx(ctx, func(uow db.UoW) error {
-			fwdConnSnap, err = s.commExchRepo.GetSnapByQry(uow, commexch.ExchQry{
+		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
+			fwdConnSnap, err = s.commExchRepo.GetSnapByQry(txCtx, conn, commexch.ExchQry{
 				CommRef: commChnl.CommRef,
 				ChnlID:  option.Some(commChnl.ChnlID),
 			})

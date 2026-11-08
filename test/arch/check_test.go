@@ -120,3 +120,37 @@ func TestCheckMessageNamesBothEdges(t *testing.T) {
 		}
 	}
 }
+
+func TestCheckRejectsCorePgxImport(t *testing.T) {
+	imports := map[string][]string{
+		"orglang/go-engine/proc/typedef/core": {
+			"github.com/jackc/pgx/v5",
+			"github.com/jackc/pgx/v5/pgxpool",
+		},
+	}
+	want := []Violation{
+		{From: "orglang/go-engine/proc/typedef/core", To: "github.com/jackc/pgx/v5"},
+		{From: "orglang/go-engine/proc/typedef/core", To: "github.com/jackc/pgx/v5/pgxpool"},
+	}
+	got := Check(imports)
+	if len(got) != len(want) {
+		t.Fatalf("got %d violations, want %d: %v", len(got), len(want), got)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("violation %d = %v, want %v", i, got[i], want[i])
+		}
+	}
+}
+
+func TestCheckAllowsAdapterPgxImport(t *testing.T) {
+	imports := map[string][]string{
+		"orglang/go-engine/proc/typedef/adapter": {
+			"github.com/jackc/pgx/v5",
+			"github.com/jackc/pgx/v5/pgxpool",
+		},
+	}
+	if got := Check(imports); len(got) != 0 {
+		t.Errorf("got %v, want no violations", got)
+	}
+}

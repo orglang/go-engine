@@ -1,16 +1,17 @@
 package core
 
 import (
-	"orglang/go-engine/lib/db"
+	"context"
+	"orglang/go-engine/lib/tx"
 
 	"orglang/go-engine/adt/compsem"
 	"orglang/go-engine/adt/compvar"
 )
 
 type Repo interface {
-	AddRec(db.UoW, ExecRec) error
-	ModifyRec(db.UoW, ExecMod) error
-	GetSnapByRef(db.UoW, compsem.SemRef) (ExecSnap, error)
+	AddRec(context.Context, tx.Conn, ExecRec) error
+	ModifyRec(context.Context, tx.Conn, ExecMod) error
+	GetSnapByRef(context.Context, tx.Conn, compsem.SemRef) (ExecSnap, error)
 }
 
 type ExecRecDS struct {

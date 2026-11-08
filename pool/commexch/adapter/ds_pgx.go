@@ -1,11 +1,12 @@
 package adapter
 
 import (
+	"context"
 	"log/slog"
 	"reflect"
 
-	"orglang/go-engine/lib/db"
 	"orglang/go-engine/lib/lf"
+	"orglang/go-engine/lib/tx"
 
 	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/uniqsym"
@@ -30,45 +31,45 @@ func newRepo() commexch.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRec(ouw db.UoW, rec commexch.ExchRec) error {
+func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec commexch.ExchRec) error {
 	dto := DataFromRec(rec)
 	refAttr := slog.Any("ref", rec.CommRef)
 	sql, args := dao.qb.InsertRec(dto)
-	_, execErr := ouw.Pgx.Exec(ouw.Ctx, sql, args...)
+	_, execErr := conn.Pgx.Exec(ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
 		return execErr
 	}
-	dao.log.Log(ouw.Ctx, lf.LevelTrace, "addition succeed", slog.Any("dto", dto))
+	dao.log.Log(ctx, lf.LevelTrace, "addition succeed", slog.Any("dto", dto))
 	return nil
 }
 
-func (dao *daoPgx) ModifyRec(uow db.UoW, mod commexch.ExchMod) error {
+func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commexch.ExchMod) error {
 	if mod.OffsetNr == nil {
 		return nil
 	}
 	dto := DataFromMod(mod)
 	refAttr := slog.Any("ref", mod.CommRef)
 	sql, args := dao.qb.UpdateRec(dto)
-	_, execErr := uow.Pgx.Exec(uow.Ctx, sql, args...)
+	_, execErr := conn.Pgx.Exec(ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
 		return execErr
 	}
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "modification succeed", slog.Any("dto", dto))
+	dao.log.Log(ctx, lf.LevelTrace, "modification succeed", slog.Any("dto", dto))
 	return nil
 }
 
-func (dao *daoPgx) GetRefsByQNs(uow db.UoW, qns []uniqsym.ADT) (map[uniqsym.ADT]commsem.SemRef, error) {
+func (dao *daoPgx) GetRefsByQNs(ctx context.Context, conn tx.Conn, qns []uniqsym.ADT) (map[uniqsym.ADT]commsem.SemRef, error) {
 	panic("unimplemented")
 }
 
-func (dao *daoPgx) GetSnapByQry(ds db.UoW, qry commexch.ExchQry) (commexch.ExchSnap, error) {
+func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commexch.ExchQry) (commexch.ExchSnap, error) {
 	refAttr := slog.Any("ref", qry.CommRef)
 	qryDTO := DataFromQry(qry)
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "getting started", slog.Any("qry", qryDTO))
+	dao.log.Log(ctx, lf.LevelTrace, "getting started", slog.Any("qry", qryDTO))
 	sql, args := dao.qb.SelectSnap(qryDTO)
-	rows, execErr := ds.Pgx.Query(ds.Ctx, sql, args...)
+	rows, execErr := conn.Pgx.Query(ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
 		return commexch.ExchSnap{}, execErr
@@ -79,7 +80,7 @@ func (dao *daoPgx) GetSnapByQry(ds db.UoW, qry commexch.ExchQry) (commexch.ExchS
 		dao.log.Error("rows scanning failed", refAttr)
 		return commexch.ExchSnap{}, scanErr
 	}
-	dao.log.Log(ds.Ctx, lf.LevelTrace, "getting succeed", slog.Any("dto", snapDTO))
+	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("dto", snapDTO))
 	snap, convErr := DataToSnap(snapDTO)
 	if convErr != nil {
 		dao.log.Error("model conversion failed", refAttr)

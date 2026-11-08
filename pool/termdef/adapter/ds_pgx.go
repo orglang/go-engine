@@ -1,12 +1,13 @@
 package adapter
 
 import (
+	"context"
 	"log/slog"
 	"reflect"
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/tx"
 
 	"orglang/go-engine/adt/uniqsym"
 
@@ -28,7 +29,7 @@ func newRepo() termdef.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRec(uow db.UoW, rec termdef.DefRec) error {
+func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec termdef.DefRec) error {
 	refAttr := slog.Any("ref", rec.TermRef)
 	dto, convErr := DataFromDecRec(rec)
 	if convErr != nil {
@@ -36,7 +37,7 @@ func (dao *daoPgx) AddRec(uow db.UoW, rec termdef.DefRec) error {
 		return convErr
 	}
 	sql, args := dao.qb.InsertRec(dto)
-	_, execErr := uow.Pgx.Exec(uow.Ctx, sql, args...)
+	_, execErr := conn.Pgx.Exec(ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr)
 		return execErr
@@ -44,10 +45,10 @@ func (dao *daoPgx) AddRec(uow db.UoW, rec termdef.DefRec) error {
 	return nil
 }
 
-func (dao *daoPgx) GetRecByQN(uow db.UoW, qn uniqsym.ADT) (termdef.DefRec, error) {
+func (dao *daoPgx) GetRecByQN(ctx context.Context, conn tx.Conn, qn uniqsym.ADT) (termdef.DefRec, error) {
 	qnAttr := slog.Any("qn", qn)
 	sql, args := dao.qb.SelectRecByQN(uniqsym.ConvertToString(qn))
-	rows, execErr := uow.Pgx.Query(uow.Ctx, sql, args...)
+	rows, execErr := conn.Pgx.Query(ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", qnAttr)
 		return termdef.DefRec{}, execErr

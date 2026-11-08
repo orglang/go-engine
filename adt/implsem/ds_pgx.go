@@ -1,10 +1,11 @@
 package implsem
 
 import (
+	"context"
 	"log/slog"
 	"reflect"
 
-	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/tx"
 )
 
 type daoPgx struct {
@@ -24,7 +25,7 @@ func newRepo() Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRec(uow db.UoW, rec SemRec) error {
+func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec SemRec) error {
 	recAttr := slog.Any("rec", rec)
 	dto, convErr := DataFromRec(rec)
 	if convErr != nil {
@@ -32,7 +33,7 @@ func (dao *daoPgx) AddRec(uow db.UoW, rec SemRec) error {
 		return convErr
 	}
 	sql, args := dao.qb.insertRec(dto)
-	_, execErr := uow.Pgx.Exec(uow.Ctx, sql, args...)
+	_, execErr := conn.Pgx.Exec(ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", recAttr, slog.String("sql", sql))
 		return execErr

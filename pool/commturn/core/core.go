@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"reflect"
 
-	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/tx"
 
 	"orglang/go-engine/adt/commsem"
 	"orglang/go-engine/adt/compsem"
@@ -50,7 +50,7 @@ type service struct {
 	procExecs  proccompexec.Repo
 	poolVars   compvar.Repo
 	procDecs   termdec.Repo
-	transactor db.Transactor
+	transactor tx.Transactor
 	log        *slog.Logger
 }
 
@@ -64,7 +64,7 @@ func NewService(
 	procExecs proccompexec.Repo,
 	poolVars compvar.Repo,
 	procDecs termdec.Repo,
-	transactor db.Transactor,
+	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
 	name := slog.String("name", reflect.TypeFor[service]().Name())

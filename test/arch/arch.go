@@ -36,11 +36,17 @@ func (k Kind) String() string {
 const (
 	modulePrefix = "orglang/go-engine/"
 	sdkPrefix    = "github.com/orglang/go-sdk"
+	pgxPrefix    = "github.com/jackc/pgx"
 )
 
 // isSDK reports whether pkgPath belongs to the wire-format SDK module.
 func isSDK(pkgPath string) bool {
 	return pkgPath == sdkPrefix || strings.HasPrefix(pkgPath, sdkPrefix+"/")
+}
+
+// isPgx reports whether pkgPath belongs to the pgx driver family.
+func isPgx(pkgPath string) bool {
+	return pkgPath == pgxPrefix || strings.HasPrefix(pkgPath, pgxPrefix+"/")
 }
 
 func Classify(pkgPath string) Kind {
@@ -75,7 +81,7 @@ func (v Violation) String() string {
 }
 
 // Check reports agnostic core packages that depend on a toolkit-specific
-// adapter or on the wire-format SDK.
+// adapter, the wire-format SDK, or the pgx driver.
 func Check(imports map[string][]string) []Violation {
 	var violations []Violation
 	for from, tos := range imports {
@@ -83,7 +89,7 @@ func Check(imports map[string][]string) []Violation {
 			continue
 		}
 		for _, to := range tos {
-			if Classify(to) == Specific || isSDK(to) {
+			if Classify(to) == Specific || isSDK(to) || isPgx(to) {
 				violations = append(violations, Violation{From: from, To: to})
 			}
 		}

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"orglang/go-engine/lib/db"
+	"orglang/go-engine/lib/tx"
 
 	"orglang/go-engine/adt/descsem"
 	"orglang/go-engine/adt/seqnum"
@@ -39,7 +39,7 @@ type service struct {
 	typeDefRepo Repo
 	typeExpRepo typeexp.Repo
 	descSemRepo descsem.Repo
-	transactor  db.Transactor
+	transactor  tx.Transactor
 	log         *slog.Logger
 }
 
@@ -52,7 +52,7 @@ func NewService(
 	typeDefRepo Repo,
 	typeExpRepo typeexp.Repo,
 	descSemRepo descsem.Repo,
-	transactor db.Transactor,
+	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
 	return &service{typeDefRepo, typeExpRepo, descSemRepo, transactor, log}
@@ -68,16 +68,16 @@ func (s *service) Create(spec DefSpec) (_ typesem.SemRef, err error) {
 	}
 	newDef := DefRec{TypeRef: typesem.New(), ExpVK: newExp.Key()}
 	newBind := descsem.SemRec{DescQN: spec.TypeQN, DescID: newDef.TypeRef.TypeID, Kind: descsem.TypeKind}
-	transactErr := s.transactor.ExplicitTx(ctx, func(uow db.UoW) error {
-		err = s.descSemRepo.AddRec(uow, newBind)
+	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
+		err = s.descSemRepo.AddRec(txCtx, conn, newBind)
 		if err != nil {
 			return err
 		}
-		err = s.typeExpRepo.AddRec(uow, newExp, newDef.TypeRef)
+		err = s.typeExpRepo.AddRec(txCtx, conn, newExp, newDef.TypeRef)
 		if err != nil {
 			return err
 		}
-		return s.typeDefRepo.AddRec(uow, newDef)
+		return s.typeDefRepo.AddRec(txCtx, conn, newDef)
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", qnAttr)

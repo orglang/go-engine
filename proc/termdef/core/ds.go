@@ -1,11 +1,12 @@
 package core
 
 import (
-	"orglang/go-engine/lib/db"
+	"context"
+	"orglang/go-engine/lib/tx"
 )
 
 type Repo interface {
-	InsertProc(db.UoW, DefRec) error
+	InsertProc(context.Context, tx.Conn, DefRec) error
 }
 
 type ExpRecDS struct {

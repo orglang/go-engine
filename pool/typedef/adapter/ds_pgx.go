@@ -1,14 +1,15 @@
 package adapter
 
 import (
+	"context"
 	"errors"
 	"log/slog"
 	"reflect"
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/lib/db"
 	"orglang/go-engine/lib/lf"
+	"orglang/go-engine/lib/tx"
 
 	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/typesem"
@@ -32,27 +33,27 @@ func newRepo() typedef.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRec(uow db.UoW, rec typedef.DefRec) error {
+func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec) error {
 	refAttr := slog.Any("ref", rec.TypeRef)
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "addition started", refAttr)
+	dao.log.Log(ctx, lf.LevelTrace, "addition started", refAttr)
 	dto, convErr := DataFromDefRec(rec)
 	if convErr != nil {
 		dao.log.Error("model conversion failed", refAttr)
 		return convErr
 	}
 	sql, args := dao.qb.InsertRec(dto)
-	_, execErr := uow.Pgx.Exec(uow.Ctx, sql, args...)
+	_, execErr := conn.Pgx.Exec(ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
 		return execErr
 	}
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "addition succeed", refAttr)
+	dao.log.Log(ctx, lf.LevelTrace, "addition succeed", refAttr)
 	return nil
 }
 
-func (dao *daoPgx) Update(uow db.UoW, rec typedef.DefRec) error {
+func (dao *daoPgx) Update(ctx context.Context, conn tx.Conn, rec typedef.DefRec) error {
 	refAttr := slog.Any("ref", rec.TypeRef)
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "update started", refAttr)
+	dao.log.Log(ctx, lf.LevelTrace, "update started", refAttr)
 	dto, convErr := DataFromDefRec(rec)
 	if convErr != nil {
 		dao.log.Error("model conversion failed", refAttr)
@@ -62,17 +63,17 @@ func (dao *daoPgx) Update(uow db.UoW, rec typedef.DefRec) error {
 		"desc_id": dto.TypeID,
 		"exp_vk":  dto.ExpVK,
 	}
-	_, execErr := uow.Pgx.Exec(uow.Ctx, updateRec, args)
+	_, execErr := conn.Pgx.Exec(ctx, updateRec, args)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr)
 		return execErr
 	}
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "update succeed", refAttr)
+	dao.log.Log(ctx, lf.LevelTrace, "update succeed", refAttr)
 	return nil
 }
 
-func (dao *daoPgx) SelectRefs(uow db.UoW) ([]typesem.SemRef, error) {
-	rows, err := uow.Pgx.Query(uow.Ctx, selectRefs)
+func (dao *daoPgx) SelectRefs(ctx context.Context, conn tx.Conn) ([]typesem.SemRef, error) {
+	rows, err := conn.Pgx.Query(ctx, selectRefs)
 	if err != nil {
 		dao.log.Error("query execution failed", slog.String("q", selectRefs))
 		return nil, err
@@ -83,13 +84,13 @@ func (dao *daoPgx) SelectRefs(uow db.UoW) ([]typesem.SemRef, error) {
 		dao.log.Error("rows scanning failed")
 		return nil, err
 	}
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "getting succeed", slog.Any("dtos", dtos))
+	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("dtos", dtos))
 	return typesem.DataToRefs(dtos)
 }
 
-func (dao *daoPgx) SelectRecByRef(uow db.UoW, ref typesem.SemRef) (typedef.DefRec, error) {
+func (dao *daoPgx) SelectRecByRef(ctx context.Context, conn tx.Conn, ref typesem.SemRef) (typedef.DefRec, error) {
 	refAttr := slog.Any("defRef", ref)
-	rows, err := uow.Pgx.Query(uow.Ctx, selectRecByID, ref.TypeID.String())
+	rows, err := conn.Pgx.Query(ctx, selectRecByID, ref.TypeID.String())
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("q", selectRecByID))
 		return typedef.DefRec{}, err
@@ -100,13 +101,13 @@ func (dao *daoPgx) SelectRecByRef(uow db.UoW, ref typesem.SemRef) (typedef.DefRe
 		dao.log.Error("row scanning failed", refAttr)
 		return typedef.DefRec{}, err
 	}
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "getting succeed", refAttr)
+	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", refAttr)
 	return DataToDefRec(dto)
 }
 
-func (dao *daoPgx) SelectRecByQN(uow db.UoW, xactQN uniqsym.ADT) (typedef.DefRec, error) {
+func (dao *daoPgx) SelectRecByQN(ctx context.Context, conn tx.Conn, xactQN uniqsym.ADT) (typedef.DefRec, error) {
 	qnAttr := slog.Any("xactQN", xactQN)
-	rows, err := uow.Pgx.Query(uow.Ctx, selectRecByQN, uniqsym.ConvertToString(xactQN))
+	rows, err := conn.Pgx.Query(ctx, selectRecByQN, uniqsym.ConvertToString(xactQN))
 	if err != nil {
 		dao.log.Error("query execution failed", qnAttr, slog.String("q", selectRecByQN))
 		return typedef.DefRec{}, err
@@ -117,11 +118,11 @@ func (dao *daoPgx) SelectRecByQN(uow db.UoW, xactQN uniqsym.ADT) (typedef.DefRec
 		dao.log.Error("row scanning failed", qnAttr)
 		return typedef.DefRec{}, err
 	}
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "getting succeed", qnAttr)
+	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", qnAttr)
 	return DataToDefRec(dto)
 }
 
-func (dao *daoPgx) SelectRecsByRefs(uow db.UoW, refs []typesem.SemRef) (_ []typedef.DefRec, err error) {
+func (dao *daoPgx) SelectRecsByRefs(ctx context.Context, conn tx.Conn, refs []typesem.SemRef) (_ []typedef.DefRec, err error) {
 	if len(refs) == 0 {
 		return []typedef.DefRec{}, nil
 	}
@@ -132,7 +133,7 @@ func (dao *daoPgx) SelectRecsByRefs(uow db.UoW, refs []typesem.SemRef) (_ []type
 		}
 		batch.Queue(selectRecByID, ref.TypeID.String())
 	}
-	br := uow.Pgx.SendBatch(uow.Ctx, &batch)
+	br := conn.Pgx.SendBatch(ctx, &batch)
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
@@ -151,11 +152,11 @@ func (dao *daoPgx) SelectRecsByRefs(uow db.UoW, refs []typesem.SemRef) (_ []type
 	if err != nil {
 		return nil, err
 	}
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "getting succeed", slog.Any("dtos", dtos))
+	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("dtos", dtos))
 	return DataToDefRecs(dtos)
 }
 
-func (dao *daoPgx) GetRecsByQNs(uow db.UoW, typeQNs []uniqsym.ADT) (_ map[uniqsym.ADT]typedef.DefRec, err error) {
+func (dao *daoPgx) GetRecsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uniqsym.ADT) (_ map[uniqsym.ADT]typedef.DefRec, err error) {
 	if len(typeQNs) == 0 {
 		return map[uniqsym.ADT]typedef.DefRec{}, nil
 	}
@@ -164,7 +165,7 @@ func (dao *daoPgx) GetRecsByQNs(uow db.UoW, typeQNs []uniqsym.ADT) (_ map[uniqsy
 	for _, typeQN := range typeQNs {
 		batch.Queue(sql, uniqsym.ConvertToString(typeQN))
 	}
-	br := uow.Pgx.SendBatch(uow.Ctx, &batch)
+	br := conn.Pgx.SendBatch(ctx, &batch)
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
@@ -183,7 +184,7 @@ func (dao *daoPgx) GetRecsByQNs(uow db.UoW, typeQNs []uniqsym.ADT) (_ map[uniqsy
 		}
 		dtos[typeQN] = dto
 	}
-	dao.log.Log(uow.Ctx, lf.LevelTrace, "getting succeed", slog.Any("dtos", dtos))
+	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("dtos", dtos))
 	return DataToDefRecMap(dtos)
 }
 

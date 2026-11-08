@@ -1,11 +1,12 @@
 package core
 
 import (
-	"orglang/go-engine/lib/db"
+	"context"
+	"orglang/go-engine/lib/tx"
 
 	"orglang/go-engine/adt/compvar"
 )
 
 type Repo interface {
-	AddRecs(db.UoW, []compvar.VarRec) error
+	AddRecs(context.Context, tx.Conn, []compvar.VarRec) error
 }

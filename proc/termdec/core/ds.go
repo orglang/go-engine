@@ -1,7 +1,8 @@
 package core
 
 import (
-	"orglang/go-engine/lib/db"
+	"context"
+	"orglang/go-engine/lib/tx"
 
 	"orglang/go-engine/adt/identity"
 	"orglang/go-engine/adt/termsem"
@@ -9,11 +10,11 @@ import (
 )
 
 type Repo interface {
-	AddRec(db.UoW, DecRec) error
-	GetRefs(db.UoW) ([]termsem.SemRef, error)
-	GetSnap(db.UoW, termsem.SemRef) (DecSnap, error)
-	GetRecs(db.UoW, []identity.ADT) ([]DecRec, error)
-	SelectEnv(db.UoW, []identity.ADT) (map[identity.ADT]DecRec, error)
+	AddRec(context.Context, tx.Conn, DecRec) error
+	GetRefs(context.Context, tx.Conn) ([]termsem.SemRef, error)
+	GetSnap(context.Context, tx.Conn, termsem.SemRef) (DecSnap, error)
+	GetRecs(context.Context, tx.Conn, []identity.ADT) ([]DecRec, error)
+	SelectEnv(context.Context, tx.Conn, []identity.ADT) (map[identity.ADT]DecRec, error)
 }
 
 type DecRecDS struct {

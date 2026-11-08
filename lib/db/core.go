@@ -1,31 +1,32 @@
 package db
 
 import (
-	"context"
 	"fmt"
 
 	"go.uber.org/fx"
+
+	"orglang/go-engine/lib/db/adapter"
+	"orglang/go-engine/lib/tx"
 )
 
-// Unit of work
-type UoW struct {
-	Ctx context.Context
-	Pgx driverPgx
-}
+// UoW is kept as an alias for source compatibility.
+//
+// Deprecated: use tx.Conn and pass context separately.
+type UoW = tx.UoW
 
-type Transactor interface {
-	ExplicitTx(context.Context, func(UoW) error) error
-	ImplicitTx(context.Context, func(UoW) error) error
-}
+// Transactor is the public transaction contract.
+//
+// Deprecated: use tx.Transactor.
+type Transactor = tx.Transactor
 
-func newTransactor(props storageProps, lc fx.Lifecycle) (Transactor, error) {
+func newTransactor(props storageProps, lc fx.Lifecycle) (tx.Transactor, error) {
 	switch {
 	case props.Protocol.Mode == postgresMode && props.Driver.Mode == pgxMode:
 		pool, err := newPoolPgx(props, lc)
 		if err != nil {
 			return nil, err
 		}
-		return newTransactorPgx(pool), nil
+		return adapter.NewTransactorPgx(pool), nil
 	default:
 		panic(fmt.Sprintf("unsupported combination: %s & %s", props.Protocol.Mode, props.Driver.Mode))
 	}

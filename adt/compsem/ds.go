@@ -1,11 +1,12 @@
 package compsem
 
 import (
-	"orglang/go-engine/lib/db"
+	"context"
+	"orglang/go-engine/lib/tx"
 )
 
 type Repo interface {
-	TouchRef(db.UoW, SemRef) error
+	TouchRef(context.Context, tx.Conn, SemRef) error
 }
 
 type SemRefDS struct {

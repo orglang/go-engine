@@ -56,7 +56,7 @@
 
 Запись Connection хранит обе endpoint-ссылки явно: `ProviderCompRef` и `ClientCompRef`. В `pool_comp_conns` и `proc_comp_conns` соответствующие `provider_comp_id`/`provider_comp_rn` и `client_comp_id`/`client_comp_rn` обязательны. Pool Connection и Process Connection — независимые сущности со своими записями и жизненными циклами. Process Connection не создаётся и не копируется из Pool Connection; её создание при присоединении второй Process Computation рассматривается отдельно в [go-workspace issue #112](https://github.com/orglang/go-workspace/issues/112). И provider, и client могут инициировать как PubRec, так и SubRec; тип события не определяет сторону-инициатора. Каждый Act добавляется в общий поток Connection с увеличением общего номера Act.
 
-Генерировать `ConnID` при создании provider Computation и сохранять его в её liability-переменной. Сам Connection создавать в транзакции создания client Computation, когда известны оба endpoint.
+Для Pool Connection генерировать `ConnID` при создании provider Computation и сохранять его в liability-переменной. Сам Pool Connection создавать в транзакции создания client Computation, когда известны оба endpoint. Это решение о Pool Connection не задаёт момент создания Process Connection: process-side attachment lifecycle вынесен в [go-workspace issue #112](https://github.com/orglang/go-workspace/issues/112).
 
 При создании клиентской Computation система получает зарезервированный `ConnID` из provider liability-переменной и в той же транзакции создаёт запись Connection и asset-переменные клиента. Liability-переменная провайдера и asset-переменная клиента тем самым образуют два endpoint-а одной Connection и ссылаются на один `ConnID`. До этой транзакции строки Connection нет.
 

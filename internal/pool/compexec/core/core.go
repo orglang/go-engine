@@ -394,14 +394,9 @@ func (s *service) takeStep(
 		connMod.ConnID = connSnap.ConnID
 		connMod.ProviderCompID = connSnap.ProviderCompID
 		connMod.ProviderCompRN = connSnap.ProviderCompRN
-		connMod.ProviderCompID = connSnap.ProviderCompID
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
-			connMod.ConnID = connSnap.ConnID
-		connMod.ProviderCompID = connSnap.ProviderCompID
-		connMod.ProviderCompRN = connSnap.ProviderCompRN
-		connMod.ProviderCompID = connSnap.ProviderCompID
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {
@@ -492,14 +487,9 @@ func (s *service) takeStep(
 		connMod.ConnID = connSnap.ConnID
 		connMod.ProviderCompID = connSnap.ProviderCompID
 		connMod.ProviderCompRN = connSnap.ProviderCompRN
-		connMod.ProviderCompID = connSnap.ProviderCompID
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
-			connMod.ConnID = connSnap.ConnID
-		connMod.ProviderCompID = connSnap.ProviderCompID
-		connMod.ProviderCompRN = connSnap.ProviderCompRN
-		connMod.ProviderCompID = connSnap.ProviderCompID
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {
@@ -590,14 +580,9 @@ func (s *service) takeStep(
 		connMod.ConnID = connSnap.ConnID
 		connMod.ProviderCompID = connSnap.ProviderCompID
 		connMod.ProviderCompRN = connSnap.ProviderCompRN
-		connMod.ProviderCompID = connSnap.ProviderCompID
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
-			connMod.ConnID = connSnap.ConnID
-		connMod.ProviderCompID = connSnap.ProviderCompID
-		connMod.ProviderCompRN = connSnap.ProviderCompRN
-		connMod.ProviderCompID = connSnap.ProviderCompID
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {
@@ -688,14 +673,9 @@ func (s *service) takeStep(
 		connMod.ConnID = connSnap.ConnID
 		connMod.ProviderCompID = connSnap.ProviderCompID
 		connMod.ProviderCompRN = connSnap.ProviderCompRN
-		connMod.ProviderCompID = connSnap.ProviderCompID
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
-			connMod.ConnID = connSnap.ConnID
-		connMod.ProviderCompID = connSnap.ProviderCompID
-		connMod.ProviderCompRN = connSnap.ProviderCompRN
-		connMod.ProviderCompID = connSnap.ProviderCompID
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {
@@ -786,14 +766,9 @@ func (s *service) takeStep(
 		connMod.ConnID = connSnap.ConnID
 		connMod.ProviderCompID = connSnap.ProviderCompID
 		connMod.ProviderCompRN = connSnap.ProviderCompRN
-		connMod.ProviderCompID = connSnap.ProviderCompID
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
-			connMod.ConnID = connSnap.ConnID
-		connMod.ProviderCompID = connSnap.ProviderCompID
-		connMod.ProviderCompRN = connSnap.ProviderCompRN
-		connMod.ProviderCompID = connSnap.ProviderCompID
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {
@@ -868,14 +843,9 @@ func (s *service) takeStep(
 		connMod.ConnID = connSnap.ConnID
 		connMod.ProviderCompID = connSnap.ProviderCompID
 		connMod.ProviderCompRN = connSnap.ProviderCompRN
-		connMod.ProviderCompID = connSnap.ProviderCompID
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
-			connMod.ConnID = connSnap.ConnID
-		connMod.ProviderCompID = connSnap.ProviderCompID
-		connMod.ProviderCompRN = connSnap.ProviderCompRN
-		connMod.ProviderCompID = connSnap.ProviderCompID
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {

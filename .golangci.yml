@@ -136,6 +136,8 @@ linters:
           disabled: true
         - name: var-declaration
           disabled: true
+        - name: line-length-limit
+          disabled: true
         - name: redundant-import-alias
           disabled: true
   exclusions:

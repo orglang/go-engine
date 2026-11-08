@@ -85,7 +85,7 @@ func NewService(
 	typeExpRepo typeexp.Repo,
 	transactor tx.Transactor,
 	log *slog.Logger,
-) *service {
+) API {
 	name := slog.String("name", reflect.TypeFor[service]().Name())
 	return &service{
 		compExecRepo, commExchRepo,

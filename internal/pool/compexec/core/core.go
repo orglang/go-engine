@@ -201,7 +201,6 @@ func (s *service) Run(spec ExecSpec) (_ compsem.SemRef, err error) {
 				seenConnIDs[connIDKey] = struct{}{}
 			}
 		}
-	}
 		newAssetVars = append(newAssetVars, compvar.StructRec{
 			CompRef: newExec.CompRef,
 			ConnID:  connID,

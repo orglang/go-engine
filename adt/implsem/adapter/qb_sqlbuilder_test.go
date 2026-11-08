@@ -1,8 +1,9 @@
 package adapter
 
 import (
-	implsem "orglang/go-engine/adt/implsem"
 	"testing"
+
+	implsem "orglang/go-engine/adt/implsem"
 )
 
 func TestInsertRec(t *testing.T) {

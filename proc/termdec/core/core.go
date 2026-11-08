@@ -97,10 +97,8 @@ func (s *service) Create(spec DecSpec) (_ DecSnap, err error) {
 	for _, spec := range spec.AssetVars {
 		assetQNs = append(assetQNs, spec.TypeQN)
 	}
-	var typeRefs map[uniqsym.ADT]typesem.SemRef
-	getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		typeRefs, err = s.typeSemRepo.GetRefsByQNs(txCtx, conn, append(assetQNs, spec.LiabVar.TypeQN))
-		return err
+	typeRefs, getErr := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[uniqsym.ADT]typesem.SemRef, error) {
+		return s.typeSemRepo.GetRefsByQNs(txCtx, conn, append(assetQNs, spec.LiabVar.TypeQN))
 	})
 	if getErr != nil {
 		return DecSnap{}, getErr
@@ -130,9 +128,8 @@ func (s *service) Create(spec DecSpec) (_ DecSnap, err error) {
 
 func (s *service) RetrieveSnap(ref termsem.SemRef) (snap DecSnap, err error) {
 	ctx := context.Background()
-	err = s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		snap, err = s.termDecRepo.GetSnap(txCtx, conn, ref)
-		return err
+	snap, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DecSnap, error) {
+		return s.termDecRepo.GetSnap(txCtx, conn, ref)
 	})
 	if err != nil {
 		s.log.Error("retrieval failed", slog.Any("ref", ref))
@@ -143,9 +140,8 @@ func (s *service) RetrieveSnap(ref termsem.SemRef) (snap DecSnap, err error) {
 
 func (s *service) RetreiveRefs() (refs []termsem.SemRef, err error) {
 	ctx := context.Background()
-	err = s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		refs, err = s.termDecRepo.GetRefs(txCtx, conn)
-		return err
+	refs, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) ([]termsem.SemRef, error) {
+		return s.termDecRepo.GetRefs(txCtx, conn)
 	})
 	if err != nil {
 		s.log.Error("retrieval failed")

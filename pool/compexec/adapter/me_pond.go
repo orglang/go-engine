@@ -36,7 +36,7 @@ func (b *pondBroker) Subscribe(api compexec.API) {
 }
 
 func (b *pondBroker) SendSpec(spec compstep.StepSpec) error {
-	b.pool.Go(func() {
+	return b.pool.Go(func() {
 		apiErr := b.api.Take(spec)
 		if apiErr != nil {
 			b.log.Error("consumption failed", slog.Any("ref", spec.CompRef), slog.Any("reason", apiErr))
@@ -44,5 +44,4 @@ func (b *pondBroker) SendSpec(spec compstep.StepSpec) error {
 		}
 		b.log.Debug("consumption succeed", slog.Any("ref", spec.CompRef))
 	})
-	return nil
 }

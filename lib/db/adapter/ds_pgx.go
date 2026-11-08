@@ -11,41 +11,13 @@ import (
 	"orglang/go-engine/lib/tx"
 )
 
-type pgxTransaction interface {
-	tx.Pgx
-	Commit(context.Context) error
-	Rollback(context.Context) error
-}
-
-type pgxConnection interface {
-	tx.Pgx
-	Release()
-}
-
-type pgxPool interface {
-	Begin(context.Context) (pgxTransaction, error)
-	Acquire(context.Context) (pgxConnection, error)
-}
-
-type pgxPoolAdapter struct {
-	pool *pgxpool.Pool
-}
-
-func (p pgxPoolAdapter) Begin(ctx context.Context) (pgxTransaction, error) {
-	return p.pool.Begin(ctx)
-}
-
-func (p pgxPoolAdapter) Acquire(ctx context.Context) (pgxConnection, error) {
-	return p.pool.Acquire(ctx)
-}
-
 type transactorPgx struct {
-	pool pgxPool
+	pool *pgxpool.Pool
 }
 
 // NewTransactorPgx creates a PostgreSQL-backed transactor.
 func NewTransactorPgx(pool *pgxpool.Pool) tx.Transactor {
-	return &transactorPgx{pool: pgxPoolAdapter{pool: pool}}
+	return &transactorPgx{pool: pool}
 }
 
 func (t *transactorPgx) ExplicitTx(ctx context.Context, fn func(context.Context, tx.Conn) error) (retErr error) {
@@ -105,11 +77,3 @@ func (t *transactorPgx) ImplicitTxOld(ctx context.Context, fn func(tx.UoW) error
 		return fn(tx.UoW{Ctx: callbackCtx, Pgx: conn.Pgx})
 	})
 }
-
-// Compile-time assertions for the concrete pgx resources.
-var (
-	_ tx.Pgx         = (pgx.Tx)(nil)
-	_ tx.Pgx         = (*pgxpool.Conn)(nil)
-	_ pgxTransaction = (pgx.Tx)(nil)
-	_ pgxConnection  = (*pgxpool.Conn)(nil)
-)

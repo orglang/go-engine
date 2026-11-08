@@ -73,6 +73,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 	for _, turn := range mod.Turns {
 		connID := turn.GetConnID()
 		compRef := turnCompRef(turn)
+		// Materialize both endpoints from the authoritative pool Connection.
 		const ensureConnection = `
 			INSERT INTO proc_comp_conns (
 				conn_id, provider_comp_id, provider_comp_rn,
@@ -83,7 +84,15 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 				client_comp_id, client_comp_rn, 0, 0
 			FROM pool_comp_conns
 			WHERE conn_id = $1
-			ON CONFLICT (conn_id) DO NOTHING
+			ON CONFLICT (conn_id) DO UPDATE SET
+				provider_comp_id = EXCLUDED.provider_comp_id,
+				provider_comp_rn = EXCLUDED.provider_comp_rn,
+				client_comp_id = EXCLUDED.client_comp_id,
+				client_comp_rn = EXCLUDED.client_comp_rn
+			WHERE proc_comp_conns.provider_comp_id = EXCLUDED.provider_comp_id
+				AND proc_comp_conns.provider_comp_rn = EXCLUDED.provider_comp_rn
+				AND proc_comp_conns.client_comp_id = EXCLUDED.client_comp_id
+				AND proc_comp_conns.client_comp_rn = EXCLUDED.client_comp_rn
 		`
 		if _, err := conn.Pgx.Exec(ctx, ensureConnection, identity.ConvertToString(connID)); err != nil {
 			return err

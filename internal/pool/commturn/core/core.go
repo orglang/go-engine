@@ -25,6 +25,8 @@ type PubRec struct {
 
 func (r PubRec) turn() {}
 
+func (r PubRec) GetConnRef() connsem.SemRef { return r.ConnRef }
+
 // subscription (aka srv)
 type SubRec struct {
 	// совпадает со значением в PubRec

@@ -35,7 +35,7 @@ func newRepo() commconn.Repo {
 func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec commconn.ConnRec) error {
 	ref := connsem.DataFromRef(rec.ConnRef)
 	const query = `
-		INSERT INTO proc_comm_conns (comm_id, comm_rn, offset_nr)
+		INSERT INTO proc_connections (conn_id, conn_rn, offset_nr)
 		VALUES ($1, $2, $3)
 	`
 	_, err := conn.Pgx.Exec(ctx, query, ref.ConnID, ref.ConnRN, int64(rec.OffsetNr))
@@ -54,7 +54,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 			return err
 		}
 		const query = `
-			INSERT INTO proc_comm_turns (comm_id, comm_rn, comp_id, chnl_id, kind, exp)
+			INSERT INTO proc_connection_acts (conn_id, conn_rn, comp_id, chnl_id, kind, exp)
 			VALUES ($1, $2, $3, $4, $5, $6)
 		`
 		_, err = conn.Pgx.Exec(ctx, query, dto.ConnID, dto.ConnRN, dto.CompID, dto.ChnlID, dto.K, dto.Exp)
@@ -68,9 +68,9 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 	}
 	ref := connsem.DataFromRef(mod.ConnRef)
 	const query = `
-		UPDATE proc_comm_conns
+		UPDATE proc_connections
 		SET offset_nr = $1
-		WHERE comm_id = $2
+		WHERE conn_id = $2
 	`
 	_, err := conn.Pgx.Exec(ctx, query, int64(mod.OffsetNr.Get()), ref.ConnID)
 	if err != nil {
@@ -85,8 +85,8 @@ func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.
 	query := `
 		WITH turns AS (
 			SELECT turn.*
-			FROM proc_comm_turns turn
-			WHERE turn.comm_id = $1
+			FROM proc_connection_acts turn
+			WHERE turn.conn_id = $1
 	`
 	args := []any{ref.ConnID}
 	if qry.ChnlID != nil && !qry.ChnlID.IsEmpty() {
@@ -96,12 +96,12 @@ func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.
 	query += `
 		)
 		SELECT
-			conn.comm_id,
-			conn.comm_rn,
+			conn.conn_id,
+			conn.conn_rn,
 			conn.offset_nr,
-			(SELECT array_agg(row(t.*)) FROM turns t WHERE t.comm_rn > conn.offset_nr) AS turns
-		FROM proc_comm_conns conn
-		WHERE conn.comm_id = $1
+			(SELECT array_agg(row(t.*)) FROM turns t WHERE t.conn_rn > conn.offset_nr) AS turns
+		FROM proc_connections conn
+		WHERE conn.conn_id = $1
 	`
 	rows, err := conn.Pgx.Query(ctx, query, args...)
 	if err != nil {

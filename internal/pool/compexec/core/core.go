@@ -65,11 +65,6 @@ type ExecEff struct {
 	Steps []compstep.StepSpec
 }
 
-type ExecResult struct {
-	Mod ExecMod
-	Eff ExecEff
-}
-
 type ExecSnap1 struct {
 	CompRef compsem.SemRef
 	LiabVar compvar.VarRec
@@ -247,7 +242,7 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 		s.log.Error("step taking failed", refAttr)
 		return retErr
 	}
-	execRes, connMod, takeErr := s.takeStep(execSnap, spec.PoolExp)
+	execMod, execEff, connMod, takeErr := s.takeStep(execSnap, spec.PoolExp)
 	if takeErr != nil {
 		s.log.Error("step taking failed", refAttr)
 		return takeErr
@@ -261,7 +256,7 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 		if err != nil {
 			return err
 		}
-		err = s.compVarRepo.AddRecs(txCtx, conn, execRes.Mod.Vars)
+		err = s.compVarRepo.AddRecs(txCtx, conn, execMod.Vars)
 		if err != nil {
 			return err
 		}
@@ -271,7 +266,7 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 		s.log.Error("step taking failed", refAttr)
 		return transactErr
 	}
-	for _, step := range execRes.Eff.Steps {
+	for _, step := range execEff.Steps {
 		sendErr := s.compExecBroker.SendSpec(step)
 		if sendErr != nil {
 			s.log.Error("step taking failed", refAttr)
@@ -284,7 +279,12 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 func (s *service) takeStep(
 	execSnap ExecSnap3,
 	exp termexp.ExpSpec,
-) (result ExecResult, connMod commconn.ConnMod, err error) {
+) (
+	execMod ExecMod,
+	execEff ExecEff,
+	connMod commconn.ConnMod,
+	err error,
+) {
 	ctx := context.Background()
 	compAttr := slog.Any("compRef", execSnap.CompRef)
 	switch termExp := exp.(type) {
@@ -337,7 +337,7 @@ func (s *service) takeStep(
 		}
 		newChnlID := identity.New()
 		// вяжем продолжение доступодателя
-		result.Mod.Vars = append(result.Mod.Vars, compvar.LinearRec{
+		execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 			CompRef: commChnl.CompRef,
 			CommRef: commChnl.CommRef,
 			ChnlID:  newChnlID,
@@ -347,7 +347,7 @@ func (s *service) takeStep(
 		})
 		if termExp.ContExp != nil {
 			// шедулим продолжение доступодателя
-			result.Eff.Steps = append(result.Eff.Steps, compstep.StepSpec{
+			execEff.Steps = append(execEff.Steps, compstep.StepSpec{
 				CompRef: execSnap.CompRef,
 				PoolExp: termExp.ContExp,
 			})
@@ -357,7 +357,7 @@ func (s *service) takeStep(
 			// сдвигаем офсет коммуникации
 			connMod.OffsetNr = option.Some(acquisition.CommRef.CommRN)
 			// вяжем продолжение доступополучателя
-			result.Mod.Vars = append(result.Mod.Vars, compvar.LinearRec{
+			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 				CompRef: acquisition.CompRef,
 				CommRef: acquisition.CommRef,
 				ChnlID:  newChnlID,
@@ -367,7 +367,7 @@ func (s *service) takeStep(
 			})
 			if expRec.ContExp != nil {
 				// шедулим продолжение доступополучателя
-				result.Eff.Steps = append(result.Eff.Steps, compstep.StepSpec{
+				execEff.Steps = append(execEff.Steps, compstep.StepSpec{
 					CompRef: acquisition.CompRef,
 					PoolExp: expRec.ContExp,
 				})
@@ -426,7 +426,7 @@ func (s *service) takeStep(
 		}
 		newChnlID := identity.New()
 		// вяжем продолжение доступополучателя
-		result.Mod.Vars = append(result.Mod.Vars, compvar.LinearRec{
+		execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 			CompRef: commChnl.CompRef,
 			CommRef: commChnl.CommRef,
 			ChnlID:  newChnlID,
@@ -436,7 +436,7 @@ func (s *service) takeStep(
 		})
 		if termExp.ContExp != nil {
 			// шедулим продолжение доступополучателя
-			result.Eff.Steps = append(result.Eff.Steps, compstep.StepSpec{
+			execEff.Steps = append(execEff.Steps, compstep.StepSpec{
 				CompRef: execSnap.CompRef,
 				PoolExp: termExp.ContExp,
 			})
@@ -446,7 +446,7 @@ func (s *service) takeStep(
 			// сдвигаем офсет коммуникации
 			connMod.OffsetNr = option.Some(acception.CommRef.CommRN)
 			// вяжем продолжение доступодателя
-			result.Mod.Vars = append(result.Mod.Vars, compvar.LinearRec{
+			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 				CompRef: acception.CompRef,
 				CommRef: acception.CommRef,
 				ChnlID:  newChnlID,
@@ -456,7 +456,7 @@ func (s *service) takeStep(
 			})
 			if expRec.ContExp != nil {
 				// шедулим продолжение доступодателя
-				result.Eff.Steps = append(result.Eff.Steps, compstep.StepSpec{
+				execEff.Steps = append(execEff.Steps, compstep.StepSpec{
 					CompRef: acception.CompRef,
 					PoolExp: expRec.ContExp,
 				})
@@ -516,7 +516,7 @@ func (s *service) takeStep(
 		}
 		newChnlID := identity.New()
 		// вяжем продолжение соискателя
-		result.Mod.Vars = append(result.Mod.Vars, compvar.LinearRec{
+		execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 			CompRef: commChnl.CompRef,
 			CommRef: commChnl.CommRef,
 			ChnlID:  newChnlID,
@@ -526,7 +526,7 @@ func (s *service) takeStep(
 		})
 		if termExp.ContExp != nil {
 			// шедулим продолжение соискателя
-			result.Eff.Steps = append(result.Eff.Steps, compstep.StepSpec{
+			execEff.Steps = append(execEff.Steps, compstep.StepSpec{
 				CompRef: execSnap.CompRef,
 				PoolExp: termExp.ContExp,
 			})
@@ -534,7 +534,7 @@ func (s *service) takeStep(
 		switch expRec := hiring.ContExp.(type) {
 		case termexp.HireRec:
 			// вяжем продолжение нанимателя
-			result.Mod.Vars = append(result.Mod.Vars, compvar.LinearRec{
+			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 				CompRef: hiring.CompRef,
 				CommRef: hiring.CommRef,
 				ChnlID:  newChnlID,
@@ -544,7 +544,7 @@ func (s *service) takeStep(
 			})
 			if expRec.ContExp != nil {
 				// шедулим продолжение нанимателя
-				result.Eff.Steps = append(result.Eff.Steps, compstep.StepSpec{
+				execEff.Steps = append(execEff.Steps, compstep.StepSpec{
 					CompRef: hiring.CompRef,
 					PoolExp: expRec.ContExp,
 				})
@@ -604,7 +604,7 @@ func (s *service) takeStep(
 		}
 		newChnlID := identity.New()
 		// вяжем продолжение нанимателя
-		result.Mod.Vars = append(result.Mod.Vars, compvar.LinearRec{
+		execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 			CompRef: commChnl.CompRef,
 			CommRef: commChnl.CommRef,
 			ChnlID:  newChnlID,
@@ -614,7 +614,7 @@ func (s *service) takeStep(
 		})
 		if termExp.ContExp != nil {
 			// шедулим продолжение нанимателя
-			result.Eff.Steps = append(result.Eff.Steps, compstep.StepSpec{
+			execEff.Steps = append(execEff.Steps, compstep.StepSpec{
 				CompRef: execSnap.CompRef,
 				PoolExp: termExp.ContExp,
 			})
@@ -622,7 +622,7 @@ func (s *service) takeStep(
 		switch expRec := application.ContExp.(type) {
 		case termexp.ApplyRec:
 			// вяжем продолжение соискателя
-			result.Mod.Vars = append(result.Mod.Vars, compvar.LinearRec{
+			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 				CompRef: application.CompRef,
 				CommRef: application.CommRef,
 				ChnlID:  newChnlID,
@@ -632,7 +632,7 @@ func (s *service) takeStep(
 			})
 			if expRec.ContExp != nil {
 				// запускаем продолжение соискателя
-				result.Eff.Steps = append(result.Eff.Steps, compstep.StepSpec{
+				execEff.Steps = append(execEff.Steps, compstep.StepSpec{
 					CompRef: application.CompRef,
 					PoolExp: expRec.ContExp,
 				})
@@ -690,7 +690,7 @@ func (s *service) takeStep(
 		}
 		newChnlID := identity.New()
 		// вяжем продолжение доступовозвращателя
-		result.Mod.Vars = append(result.Mod.Vars, compvar.LinearRec{
+		execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 			CompRef: commChnl.CompRef,
 			CommRef: commChnl.CommRef,
 			ChnlID:  newChnlID,
@@ -701,7 +701,7 @@ func (s *service) takeStep(
 		switch expRec := detaching.ContExp.(type) {
 		case termexp.DetachRec:
 			// вяжем продолжение доступопринимателя
-			result.Mod.Vars = append(result.Mod.Vars, compvar.LinearRec{
+			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 				CompRef: detaching.CompRef,
 				CommRef: detaching.CommRef,
 				ChnlID:  newChnlID,
@@ -762,7 +762,7 @@ func (s *service) takeStep(
 		}
 		newChnlID := identity.New()
 		// вяжем продолжение доступопринимателя
-		result.Mod.Vars = append(result.Mod.Vars, compvar.LinearRec{
+		execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 			CompRef: commChnl.CompRef,
 			CommRef: commChnl.CommRef,
 			ChnlID:  newChnlID,
@@ -773,7 +773,7 @@ func (s *service) takeStep(
 		switch expRec := releasing.ContExp.(type) {
 		case termexp.ReleaseRec:
 			// вяжем продолжение доступовозвращателя
-			result.Mod.Vars = append(result.Mod.Vars, compvar.LinearRec{
+			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 				CompRef: releasing.CompRef,
 				CommRef: releasing.CommRef,
 				ChnlID:  newChnlID,

@@ -20,8 +20,10 @@ type ConnRec struct {
 }
 
 type ConnMod struct {
-	ConnID       identity.ADT
-	OffsetNr     option.ADT[seqnum.ADT]
+	ConnID          identity.ADT
+	ProviderCompRef compsem.SemRef
+	ClientCompRef   compsem.SemRef
+	OffsetNr        option.ADT[seqnum.ADT]
 	PrevOffsetNr seqnum.ADT
 	Turns        []commturn.TurnRec
 }

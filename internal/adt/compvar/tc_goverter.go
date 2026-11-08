@@ -3,7 +3,7 @@ package compvar
 import (
 	"github.com/orglang/go-sdk/adt/compvar"
 
-	"orglang/go-engine/internal/adt/commsem"
+	"orglang/go-engine/internal/adt/connsem"
 	"orglang/go-engine/internal/adt/compsem"
 )
 
@@ -35,21 +35,21 @@ var (
 // goverter:extend Convert.*
 var (
 	// goverter:autoMap CompRef
-	// goverter:autoMap CommRef
+	// goverter:autoMap ConnRef
 	DataFromStructRec  func(StructRec) VarRecDS
 	DataFromStructRecs func([]StructRec) []VarRecDS
 	// goverter:autoMap CompRef
-	// goverter:autoMap CommRef
+	// goverter:autoMap ConnRef
 	DataFromLinearRec  func(LinearRec) VarRecDS
 	DataFromLinearRecs func([]LinearRec) []VarRecDS
 	// goverter:map . CompRef
-	// goverter:map . CommRef | dataToSemRef
+	// goverter:map . ConnRef | dataToSemRef
 	DataToStructRec  func(VarRecDS) (StructRec, error)
 	DataToStructRecs func([]VarRecDS) ([]StructRec, error)
 	// goverter:map . CompRef
-	// goverter:map . CommRef | dataToSemRef
+	// goverter:map . ConnRef | dataToSemRef
 	DataToLinearRec  func(VarRecDS) (LinearRec, error)
 	DataToLinearRecs func([]VarRecDS) ([]LinearRec, error)
-	// goverter:ignore CommRN
-	dataToSemRef func(VarRecDS) (commsem.SemRef, error)
+	// goverter:ignore ConnRN
+	dataToSemRef func(VarRecDS) (connsem.SemRef, error)
 )

@@ -59,9 +59,9 @@ func TestSelectSnap(t *testing.T) {
 	gotSQL, gotArgs := qb.SelectSnap(commconn.ConnQryDS{ChnlID: sql.Null[string]{Valid: true}})
 	wantSQL := "WITH turns AS (SELECT turn.conn_id, turn.act_nr, turn.comp_id, turn.comp_rn, turn.chnl_id, turn.kind, turn.exp " +
 		"FROM pool_conn_acts turn WHERE conn_id = $1 AND chnl_id = $2) " +
-		"SELECT conn.conn_id, conn.provider_comp_id, conn.offset_nr, conn.act_nr, " +
+		"SELECT conn.conn_id, conn.provider_comp_id, exec.comp_rn AS provider_comp_rn, conn.offset_nr, conn.act_nr, " +
 		"(SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM turns t WHERE t.act_nr > conn.offset_nr) AS turns " +
-		"FROM pool_comp_conns conn WHERE conn.conn_id = $3"
+		"FROM pool_comp_conns conn JOIN pool_comp_execs exec ON exec.comp_id = conn.provider_comp_id WHERE conn.conn_id = $3"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)
 	}

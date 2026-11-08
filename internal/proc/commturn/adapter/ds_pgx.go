@@ -8,12 +8,12 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/lib/lf"
-	"orglang/go-engine/lib/tx"
+	"orglang/go-engine/internal/lib/lf"
+	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/adt/identity"
+	"orglang/go-engine/internal/adt/identity"
 
-	commturn "orglang/go-engine/proc/commturn/core"
+	commturn "orglang/go-engine/internal/proc/commturn/core"
 )
 
 type daoPgx struct {

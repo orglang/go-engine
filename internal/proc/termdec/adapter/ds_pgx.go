@@ -8,13 +8,13 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/lib/lf"
-	"orglang/go-engine/lib/tx"
+	"orglang/go-engine/internal/lib/lf"
+	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/termsem"
+	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/termsem"
 
-	termdec "orglang/go-engine/proc/termdec/core"
+	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
 type daoPgx struct {

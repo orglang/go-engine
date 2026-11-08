@@ -2,8 +2,8 @@ version: '3'
 
 includes:
   db:
-    taskfile: ./db/taskfile.yaml
-    dir: ./db
+    taskfile: ./internal/db/taskfile.yaml
+    dir: ./internal/db
   engine:
     taskfile: ./cmd/engine/taskfile.yaml
     dir: .

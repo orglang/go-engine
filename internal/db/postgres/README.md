@@ -23,7 +23,7 @@ These parameters have no defaults in the Compose file and must be provided by th
 
 From the `go-engine` repository root:
 
-    docker build -f db/postgres/migrations.Dockerfile -t orglang/pg-operator:latest db/postgres
+    docker build -f internal/db/postgres/migrations.Dockerfile -t orglang/pg-operator:latest db/postgres
 
 ## Run
 

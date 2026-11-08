@@ -82,10 +82,10 @@
 
 - `ConnID` глобально идентифицирует Connection; отдельный составной reference для него не вводится.
 - Connection явно хранит `ProviderCompRef` и `ClientCompRef`; ссылки включают идентификатор и ревизию Computation.
-- Connection принадлежит агрегату provider Computation; provider Computation является единственным aggregate root для изменений Connection, а Connection не является самостоятельным корнем агрегата.
-- Любое изменение Connection проверяет ожидаемый `provider.comp_rn` и атомарно увеличивает `provider.comp_rn`; отдельная версия Connection для optimistic concurrency control не используется.
-- `client.comp_rn` увеличивается только при изменении собственного состояния client Computation, а не только из-за изменения общего Connection.
-- `act_nr` задаёт порядок Act и не используется как версия агрегата или механизм optimistic concurrency control.
+- Pool Connection принадлежит агрегату provider Computation; provider Computation является единственным aggregate root для его изменений, а Pool Connection не является самостоятельным корнем агрегата.
+- Любое изменение Pool Connection проверяет ожидаемый `provider.comp_rn` из прочитанного snapshot и атомарно увеличивает `provider.comp_rn`; отдельная версия Pool Connection для optimistic concurrency control не используется.
+- `client.comp_rn` увеличивается только при изменении собственного состояния client Computation, а не только из-за изменения Pool Connection.
+- Для Pool Connection `act_nr` задаёт порядок Act и не используется как версия агрегата или механизм optimistic concurrency control.
 - При выбранном варианте C запись Connection создаётся только после появления обоих endpoints; принадлежность endpoint-ов определяется переменными Computation, содержащими общий `ConnID`.
 - До создания клиента provider liability-переменная может содержать зарезервированный `ConnID`, для которого запись Connection ещё отсутствует.
 - Для одной пары endpoints используется один Connection и один `ConnID`.

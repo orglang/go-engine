@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"log/slog"
 
-	"orglang/go-engine/lib/tx"
+	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/adt/identity"
-	"orglang/go-engine/adt/symbol"
-	"orglang/go-engine/adt/typesem"
-	"orglang/go-engine/adt/uniqsym"
-	termexp "orglang/go-engine/proc/termexp/core"
+	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/symbol"
+	"orglang/go-engine/internal/adt/typesem"
+	"orglang/go-engine/internal/adt/uniqsym"
+	termexp "orglang/go-engine/internal/proc/termexp/core"
 )
 
 type API interface {

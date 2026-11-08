@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log/slog"
 
-	"orglang/go-engine/adt/compsem"
-	"orglang/go-engine/adt/symbol"
-	"orglang/go-engine/adt/termsem"
-	"orglang/go-engine/adt/uniqsym"
+	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/symbol"
+	"orglang/go-engine/internal/adt/termsem"
+	"orglang/go-engine/internal/adt/uniqsym"
 )
 
 type ExpSpec interface {

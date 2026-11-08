@@ -1,8 +1,8 @@
 package core
 
 import (
-	"orglang/go-engine/adt/compvar"
-	"orglang/go-engine/adt/symbol"
+	"orglang/go-engine/internal/adt/compvar"
+	"orglang/go-engine/internal/adt/symbol"
 )
 
 type VarSpec = compvar.VarSpec

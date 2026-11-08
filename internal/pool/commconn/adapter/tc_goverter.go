@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	commexch "orglang/go-engine/internal/pool/commexch/core"
+	commconn "orglang/go-engine/internal/pool/commconn/core"
 )
 
 // goverter:variables
@@ -11,11 +11,11 @@ import (
 // goverter:extend orglang/go-engine/internal/pool/commturn/adapter:Data.*
 var (
 	// goverter:autoMap CommRef
-	DataFromRec func(commexch.ExchRec) commexch.ExchRecDS
+	DataFromRec func(commconn.ConnRec) commconn.ConnRecDS
 	// goverter:autoMap CommRef
-	DataFromQry func(commexch.ExchQry) commexch.ExchQryDS
+	DataFromQry func(commconn.ConnQry) commconn.ConnQryDS
 	// goverter:autoMap CommRef
-	DataFromMod func(commexch.ExchMod) commexch.ExchModDS
+	DataFromMod func(commconn.ConnMod) commconn.ConnModDS
 	// goverter:map . CommRef
-	DataToSnap func(commexch.ExchSnapDS) (commexch.ExchSnap, error)
+	DataToSnap func(commconn.ConnSnapDS) (commconn.ConnSnap, error)
 )

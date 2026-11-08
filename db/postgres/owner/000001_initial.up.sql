@@ -58,7 +58,7 @@ CREATE TABLE pool_struct_vars (
 CREATE TABLE pool_linear_vars (
 ) INHERITS (pool_comp_vars);
 
-CREATE TABLE pool_comm_exchs (
+CREATE TABLE pool_comm_conns (
     comm_id varchar UNIQUE,
     comm_rn bigint,
     offset_nr bigint
@@ -131,7 +131,7 @@ CREATE TABLE proc_struct_vars (
 CREATE TABLE proc_linear_vars (
 ) INHERITS (proc_comp_vars);
 
-CREATE TABLE proc_comm_exchs (
+CREATE TABLE proc_comm_conns (
     comm_id varchar UNIQUE,
     comm_rn bigint,
     offset_nr bigint

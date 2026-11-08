@@ -79,7 +79,7 @@ func (s *suite) beforeEach(t *testing.T) {
 		"proc_impl_binds", "proc_comp_execs", "proc_comp_vars", "proc_comm_exchs", "proc_comm_turns",
 	}
 	for _, table := range tables {
-		_, err := s.DB.Exec(fmt.Sprintf("truncate table %v", table))
+		_, err := s.DB.ExecContext(t.Context(), fmt.Sprintf("truncate table %v", table))
 		if err != nil {
 			t.Fatal(err)
 		}

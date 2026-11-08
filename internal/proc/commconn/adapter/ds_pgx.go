@@ -124,7 +124,7 @@ func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.
 	snap := commconn.ConnSnap{
 		ConnRef:  connsem.SemRef{ConnID: connID, ConnRN: seqnum.ADT(dto.ConnRN)},
 		OffsetNr: seqnum.ADT(dto.OffsetNr),
-		Turns:   make([]commturn.TurnRec, 0, len(dto.Turns)),
+		Turns:    make([]commturn.TurnRec, 0, len(dto.Turns)),
 	}
 	for _, turnDTO := range dto.Turns {
 		turn, err := commturnadapter.DataToStepRec(turnDTO)

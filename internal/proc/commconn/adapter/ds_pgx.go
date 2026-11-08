@@ -34,25 +34,6 @@ func NewDaoPgx(log *slog.Logger) commconn.Repo {
 // for compilation purposes
 func newRepo() commconn.Repo { return new(daoPgx) }
 
-func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec commconn.ConnRec) error {
-	const query = `
-		INSERT INTO proc_comp_conns (conn_id, provider_comp_id, provider_comp_rn, client_comp_id, client_comp_rn, offset_nr, act_nr)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
-	`
-	_, err := conn.Pgx.Exec(ctx, query,
-		identity.ConvertToString(rec.ConnID),
-		rec.ProviderCompRef.CompID.String(), int64(rec.ProviderCompRef.CompRN),
-		rec.ClientCompRef.CompID.String(), int64(rec.ClientCompRef.CompRN),
-		int64(rec.OffsetNr), int64(rec.ActNr),
-	)
-	if err != nil {
-		dao.log.Error("Connection insertion failed", slog.Any("conn_id", rec.ConnID))
-		return err
-	}
-	dao.log.Log(ctx, lf.LevelTrace, "Connection insertion succeeded", slog.Any("conn_id", rec.ConnID))
-	return nil
-}
-
 func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.ConnMod) error {
 	if mod.OffsetNr != nil && !mod.OffsetNr.IsEmpty() {
 		const updateOffset = `
@@ -71,22 +52,6 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 	}
 	for _, turn := range mod.Turns {
 		connID := turn.GetConnID()
-		// Create the process-side Connection from process-side endpoint references.
-		const ensureConnection = `
-			INSERT INTO proc_comp_conns (
-				conn_id, provider_comp_id, provider_comp_rn,
-				client_comp_id, client_comp_rn, offset_nr, act_nr
-			)
-			VALUES ($1, $2, $3, $4, $5, 0, 0)
-			ON CONFLICT (conn_id) DO NOTHING
-		`
-		if _, err := conn.Pgx.Exec(ctx, ensureConnection,
-			identity.ConvertToString(connID),
-			mod.ProviderCompRef.CompID.String(), int64(mod.ProviderCompRef.CompRN),
-			mod.ClientCompRef.CompID.String(), int64(mod.ClientCompRef.CompRN),
-		); err != nil {
-			return err
-		}
 		switch turn.(type) {
 		case commturn.PubRec, commturn.SubRec:
 		default:

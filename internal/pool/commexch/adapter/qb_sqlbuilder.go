@@ -3,8 +3,8 @@ package adapter
 import (
 	"github.com/huandu/go-sqlbuilder"
 
-	commexch "orglang/go-engine/pool/commexch/core"
-	commturn "orglang/go-engine/pool/commturn/core"
+	commexch "orglang/go-engine/internal/pool/commexch/core"
+	commturn "orglang/go-engine/internal/pool/commturn/core"
 )
 
 type sqlBuilder struct {

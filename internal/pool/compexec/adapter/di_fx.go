@@ -10,7 +10,7 @@ import (
 	"orglang/go-engine/internal/adt/implsem"
 	implsemadapter "orglang/go-engine/internal/adt/implsem/adapter"
 	"orglang/go-engine/internal/lib/tx"
-	commexch "orglang/go-engine/internal/pool/commexch/core"
+	commconn "orglang/go-engine/internal/pool/commconn/core"
 	commturn "orglang/go-engine/internal/pool/commturn/core"
 	compexec "orglang/go-engine/internal/pool/compexec/core"
 	compvarcore "orglang/go-engine/internal/pool/compvar/core"
@@ -25,7 +25,7 @@ type serviceParams struct {
 	CompExecRepo   compexec.Repo
 	CompExecBroker compexec.Broker
 	CompVarRepo    compvarcore.Repo
-	CommExchRepo   commexch.Repo
+	CommConnRepo   commconn.Repo
 	CommTurnRepo   commturn.Repo
 	TypeExpRepo    typeexp.Repo
 	ProcExecRepo   proccompexec.Repo
@@ -41,7 +41,7 @@ func newService(params serviceParams) compexec.API {
 		CompExecRepo:   params.CompExecRepo,
 		CompExecBroker: params.CompExecBroker,
 		CompVarRepo:    params.CompVarRepo,
-		CommExchRepo:   params.CommExchRepo,
+		CommConnRepo:   params.CommConnRepo,
 		CommTurnRepo:   params.CommTurnRepo,
 		TypeExpRepo:    params.TypeExpRepo,
 		ProcExecRepo:   params.ProcExecRepo,

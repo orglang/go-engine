@@ -10,24 +10,24 @@ import (
 	"orglang/go-engine/internal/adt/commsem"
 	"orglang/go-engine/internal/adt/uniqsym"
 
-	commexch "orglang/go-engine/internal/proc/commexch/core"
+	commconn "orglang/go-engine/internal/proc/commconn/core"
 )
 
 type daoPgx struct {
 	log *slog.Logger
 }
 
-func NewDaoPgx(log *slog.Logger) commexch.Repo {
+func NewDaoPgx(log *slog.Logger) commconn.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{log.With(name)}
 }
 
 // for compilation purposes
-func newRepo() commexch.Repo {
+func newRepo() commconn.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRec(context.Context, tx.Conn, commexch.ExchRec) error {
+func (dao *daoPgx) AddRec(context.Context, tx.Conn, commconn.ConnRec) error {
 	panic("unimplemented")
 }
 
@@ -35,10 +35,10 @@ func (dao *daoPgx) GetRefsByQNs(context.Context, tx.Conn, []uniqsym.ADT) (map[un
 	panic("unimplemented")
 }
 
-func (dao *daoPgx) GetSnapByQry(context.Context, tx.Conn, commexch.ExchQry) (commexch.ExchSnap, error) {
+func (dao *daoPgx) GetSnapByQry(context.Context, tx.Conn, commconn.ConnQry) (commconn.ConnSnap, error) {
 	panic("unimplemented")
 }
 
-func (dao *daoPgx) Modifyec(context.Context, tx.Conn, commexch.ExchMod) error {
+func (dao *daoPgx) Modifyec(context.Context, tx.Conn, commconn.ConnMod) error {
 	panic("unimplemented")
 }

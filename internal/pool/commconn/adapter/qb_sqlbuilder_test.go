@@ -42,13 +42,12 @@ func TestUpdateRec(t *testing.T) {
 	gotSQL, gotArgs := qb.UpdateRec(commconn.ConnModDS{
 		ConnID:       "",
 		OffsetNr:     sql.Null[int64]{V: 3, Valid: true},
-		PrevOffsetNr: 1,
 	})
-	wantSQL := "UPDATE pool_comp_conns  SET offset_nr = $1 WHERE conn_id = $2 AND offset_nr = $3"
+	wantSQL := "UPDATE pool_comp_conns  SET offset_nr = $1 WHERE conn_id = $2"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)
 	}
-	wantArgs := []any{int64(3), "", int64(1)}
+	wantArgs := []any{int64(3), ""}
 	if !slices.Equal(gotArgs, wantArgs) {
 		t.Errorf("got args %v, want %v", gotArgs, wantArgs)
 	}
@@ -60,7 +59,7 @@ func TestSelectSnap(t *testing.T) {
 	gotSQL, gotArgs := qb.SelectSnap(commconn.ConnQryDS{ChnlID: sql.Null[string]{Valid: true}})
 	wantSQL := "WITH turns AS (SELECT turn.conn_id, turn.act_nr, turn.comp_id, turn.comp_rn, turn.chnl_id, turn.kind, turn.exp " +
 		"FROM pool_conn_acts turn WHERE conn_id = $1 AND chnl_id = $2) " +
-		"SELECT conn.conn_id, conn.offset_nr, conn.act_nr, " +
+		"SELECT conn.conn_id, conn.provider_comp_id, conn.offset_nr, conn.act_nr, " +
 		"(SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM turns t WHERE t.act_nr > conn.offset_nr) AS turns " +
 		"FROM pool_comp_conns conn WHERE conn.conn_id = $3"
 	if gotSQL != wantSQL {

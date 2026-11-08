@@ -43,6 +43,10 @@ func ErrRevisionConflict(got seqnum.ADT) error {
 	return fmt.Errorf("Connection revision changed concurrently: got %v", got)
 }
 
+func ErrSnapshotConflict(revision, offset seqnum.ADT) error {
+	return fmt.Errorf("Connection snapshot changed concurrently: revision %v, offset %v", revision, offset)
+}
+
 func (s ConnSnap) NextTurn() commturn.TurnRec {
 	if len(s.Turns) > 0 {
 		return s.Turns[0]

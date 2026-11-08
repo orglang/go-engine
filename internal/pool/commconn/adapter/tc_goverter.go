@@ -21,4 +21,4 @@ var (
 	// goverter:ignore CompRN
 	// goverter:ignore ActNr
 	DataToSnap func(commconn.ConnSnapDS) (commconn.ConnSnap, error)
-}
+)

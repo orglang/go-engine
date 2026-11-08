@@ -19,4 +19,4 @@ var (
 	// goverter:map . CompRef
 	// goverter:map Exp ContExp
 	DataToSubRec func(commturn.TurnRecDS) (commturn.SubRec, error)
-}
+)

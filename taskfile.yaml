@@ -16,12 +16,12 @@ tasks:
   tools:install:
     desc: Download tooling dependencies declared in gear.mod
     cmds:
-      - GOWORK=off go mod download -modfile=gear.mod
+      - GOWORK=off go mod download -modfile=gear.mod all
 
   gear:sum:
     desc: Generate checksums for tooling dependencies
     cmds:
-      - GOWORK=off go mod download -modfile=gear.mod
+      - GOWORK=off go mod download -modfile=gear.mod all
 
   sources:check:
     desc: Check prepared source artifact

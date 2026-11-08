@@ -3,6 +3,7 @@ package adapter
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"reflect"
 
@@ -73,13 +74,36 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 	for _, turn := range mod.Turns {
 		connID := turn.GetConnID()
 		compRef := turnCompRef(turn)
-		const ensureConnection = `
-			INSERT INTO proc_comp_conns (conn_id, comp_id, comp_rn, offset_nr, act_nr)
-			VALUES ($1, $2, $3, 0, 0)
-			ON CONFLICT (conn_id) DO NOTHING
-		`
-		if _, err := conn.Pgx.Exec(ctx, ensureConnection, identity.ConvertToString(connID), compRef.CompID.String(), int64(compRef.CompRN)); err != nil {
+		var ensureConnection string
+		switch turn.(type) {
+		case commturn.PubRec:
+			ensureConnection = `
+				INSERT INTO proc_comp_conns (conn_id, provider_comp_id, provider_comp_rn, offset_nr, act_nr)
+				VALUES ($1, $2, $3, 0, 0)
+				ON CONFLICT (conn_id) DO UPDATE SET
+					provider_comp_id = EXCLUDED.provider_comp_id,
+					provider_comp_rn = EXCLUDED.provider_comp_rn
+				WHERE proc_comp_conns.provider_comp_id IS NULL OR
+					(proc_comp_conns.provider_comp_id = EXCLUDED.provider_comp_id AND proc_comp_conns.provider_comp_rn = EXCLUDED.provider_comp_rn)
+			`
+		case commturn.SubRec:
+			ensureConnection = `
+				INSERT INTO proc_comp_conns (conn_id, client_comp_id, client_comp_rn, offset_nr, act_nr)
+				VALUES ($1, $2, $3, 0, 0)
+				ON CONFLICT (conn_id) DO UPDATE SET
+					client_comp_id = EXCLUDED.client_comp_id,
+					client_comp_rn = EXCLUDED.client_comp_rn
+				WHERE proc_comp_conns.client_comp_id IS NULL OR
+					(proc_comp_conns.client_comp_id = EXCLUDED.client_comp_id AND proc_comp_conns.client_comp_rn = EXCLUDED.client_comp_rn)
+		default:
+			panic(commturn.ErrRecTypeUnexpected(turn))
+		}
+		tag, err := conn.Pgx.Exec(ctx, ensureConnection, identity.ConvertToString(connID), compRef.CompID.String(), int64(compRef.CompRN))
+		if err != nil {
 			return err
+		}
+		if tag.RowsAffected() == 0 {
+			return fmt.Errorf("connection %v endpoint reference conflicts with an existing endpoint", connID)
 		}
 		const nextAct = `
 			UPDATE proc_comp_conns

@@ -1,7 +1,6 @@
 package adapter
 
 import (
-	"orglang/go-engine/internal/adt/identity"
 	commconn "orglang/go-engine/internal/pool/commconn/core"
 )
 

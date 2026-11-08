@@ -12,3 +12,15 @@ func identityToString(id identity.ADT) string {
 func dataToConnID(dto commconn.ConnSnapDS) (identity.ADT, error) {
 	return identity.ConvertFromString(dto.ConnID)
 }
+
+func DataFromRec(rec commconn.ConnRec) commconn.ConnRecDS {
+	return commconn.ConnRecDS{
+		ConnID:         identity.ConvertToString(rec.ConnID),
+		ProviderCompID: identity.ConvertToString(rec.ProviderCompRef.CompID),
+		ProviderCompRN: int64(rec.ProviderCompRef.CompRN),
+		ClientCompID:   identity.ConvertToString(rec.ClientCompRef.CompID),
+		ClientCompRN:   int64(rec.ClientCompRef.CompRN),
+		OffsetNr:       int64(rec.OffsetNr),
+		ActNr:          int64(rec.ActNr),
+	}
+}

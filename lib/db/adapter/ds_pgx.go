@@ -20,16 +20,12 @@ func NewTransactorPgx(pool *pgxpool.Pool) tx.Transactor {
 	return &transactorPgx{pool: pool}
 }
 
-func callbackContext(ctx context.Context) (context.Context, context.CancelFunc) {
-	return context.WithCancel(ctx)
-}
-
 func (t *transactorPgx) ExplicitTx(ctx context.Context, fn func(context.Context, tx.Conn) error) error {
 	if fn == nil {
 		return errors.New("transaction callback is nil")
 	}
 
-	txCtx, cancel := callbackContext(ctx)
+	txCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	pgxTx, err := t.pool.Begin(txCtx)
@@ -37,25 +33,19 @@ func (t *transactorPgx) ExplicitTx(ctx context.Context, fn func(context.Context,
 		return err
 	}
 
-	finished := false
+	// Always attempt rollback on exit. pgx returns ErrTxClosed after a
+	// successful commit or an earlier rollback; that cleanup error is ignored.
 	defer func() {
-		if !finished {
-			_ = pgxTx.Rollback(context.WithoutCancel(ctx))
-		}
+		_ = pgxTx.Rollback(context.WithoutCancel(ctx))
 	}()
 
 	callbackErr := fn(txCtx, tx.Conn{Pgx: pgxTx})
 	if callbackErr != nil {
-		rollbackErr := pgxTx.Rollback(context.WithoutCancel(ctx))
-		finished = true
-		return errors.Join(callbackErr, rollbackErr)
+		return errors.Join(callbackErr, pgxTx.Rollback(context.WithoutCancel(ctx)))
 	}
 	if err := pgxTx.Commit(ctx); err != nil {
-		rollbackErr := pgxTx.Rollback(context.WithoutCancel(ctx))
-		finished = true
-		return errors.Join(err, rollbackErr)
+		return errors.Join(err, pgxTx.Rollback(context.WithoutCancel(ctx)))
 	}
-	finished = true
 	return nil
 }
 
@@ -70,7 +60,7 @@ func (t *transactorPgx) ImplicitTx(ctx context.Context, fn func(context.Context,
 	}
 	defer conn.Release()
 
-	txCtx, cancel := callbackContext(ctx)
+	txCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	return fn(txCtx, tx.Conn{Pgx: conn})

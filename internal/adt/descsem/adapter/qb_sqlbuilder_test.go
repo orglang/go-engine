@@ -1,7 +1,6 @@
 package adapter
 
 import (
-	"fmt"
 	"testing"
 
 	"orglang/go-engine/internal/adt/descsem"
@@ -10,5 +9,5 @@ import (
 func TestInsertRec(t *testing.T) {
 	qb := newSQLBuilder("foo")
 	sql, _ := qb.insertRec(descsem.SemRecDS{})
-	fmt.Println(sql)
+	t.Log(sql)
 }

@@ -1,8 +1,9 @@
 package adapter
 
 import (
-	compsem "orglang/go-engine/adt/compsem"
 	"testing"
+
+	compsem "orglang/go-engine/adt/compsem"
 )
 
 func TestUpdateRef(t *testing.T) {

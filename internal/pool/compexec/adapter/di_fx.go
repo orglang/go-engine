@@ -11,7 +11,6 @@ import (
 	implsemadapter "orglang/go-engine/internal/adt/implsem/adapter"
 	"orglang/go-engine/internal/lib/tx"
 	commconn "orglang/go-engine/internal/pool/commconn/core"
-	commturn "orglang/go-engine/internal/pool/commturn/core"
 	compexec "orglang/go-engine/internal/pool/compexec/core"
 	compvarcore "orglang/go-engine/internal/pool/compvar/core"
 	termdef "orglang/go-engine/internal/pool/termdef/core"
@@ -26,7 +25,6 @@ type serviceParams struct {
 	CompExecBroker compexec.Broker
 	CompVarRepo    compvarcore.Repo
 	CommConnRepo   commconn.Repo
-	CommTurnRepo   commturn.Repo
 	TypeExpRepo    typeexp.Repo
 	ProcExecRepo   proccompexec.Repo
 	TermDefRepo    termdef.Repo
@@ -42,7 +40,6 @@ func newService(params serviceParams) compexec.API {
 		CompExecBroker: params.CompExecBroker,
 		CompVarRepo:    params.CompVarRepo,
 		CommConnRepo:   params.CommConnRepo,
-		CommTurnRepo:   params.CommTurnRepo,
 		TypeExpRepo:    params.TypeExpRepo,
 		ProcExecRepo:   params.ProcExecRepo,
 		TermDefRepo:    params.TermDefRepo,

@@ -166,8 +166,14 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 			return err
 		}
 		err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			err = s.compExecRepo.ModifyRec(txCtx, conn, result.Mod)
-			if err != nil {
+			if len(result.Connection.Turns) > 0 ||
+				(result.Connection.CommON != nil && !result.Connection.CommON.IsEmpty()) {
+				if err := s.commConnRepo.ModifyRec(txCtx, conn, result.Connection); err != nil {
+					s.log.Error("Connection modification failed", compAttr)
+					return err
+				}
+			}
+			if err := s.compExecRepo.ModifyRec(txCtx, conn, result.Mod); err != nil {
 				s.log.Error("step taking failed", compAttr)
 				return err
 			}

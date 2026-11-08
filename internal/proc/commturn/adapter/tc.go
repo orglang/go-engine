@@ -3,8 +3,8 @@ package adapter
 import (
 	"fmt"
 
-	commturn "orglang/go-engine/proc/commturn/core"
-	termexp "orglang/go-engine/proc/termexp/adapter"
+	commturn "orglang/go-engine/internal/proc/commturn/core"
+	termexp "orglang/go-engine/internal/proc/termexp/adapter"
 )
 
 func dataFromStepRec(r commturn.TurnRec) (commturn.StepRecDS, error) {

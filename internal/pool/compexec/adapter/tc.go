@@ -1,10 +1,10 @@
 package adapter
 
 import (
-	"orglang/go-engine/adt/compsem"
-	"orglang/go-engine/adt/compvar"
+	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/compvar"
 
-	compexec "orglang/go-engine/pool/compexec/core"
+	compexec "orglang/go-engine/internal/pool/compexec/core"
 )
 
 func DataToExecSnap1(dto compexec.ExecSnap1DS) (compexec.ExecSnap1, error) {

@@ -3,10 +3,10 @@ package adapter
 import (
 	sdktermexp "github.com/orglang/go-sdk/pool/termexp"
 
-	"orglang/go-engine/adt/compsem"
-	"orglang/go-engine/adt/termsem"
+	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/termsem"
 
-	termexp "orglang/go-engine/pool/termexp/core"
+	termexp "orglang/go-engine/internal/pool/termexp/core"
 )
 
 func MsgFromExpSpecNilable(spec termexp.ExpSpec) *sdktermexp.ExpSpec {

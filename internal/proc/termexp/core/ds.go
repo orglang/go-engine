@@ -97,10 +97,10 @@ type LabSpecDS struct {
 }
 
 type LabRecDS struct {
-	X         string `json:"x"`
-	A         string `json:"a"`
-	Label     string `json:"lab"`
-	ValExpVK  int64  `json:"val_exp_vk"`
+	X        string `json:"x"`
+	A        string `json:"a"`
+	Label    string `json:"lab"`
+	ValExpVK int64  `json:"val_exp_vk"`
 }
 
 type CaseSpecDS struct {

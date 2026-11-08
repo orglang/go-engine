@@ -3,7 +3,7 @@ package adapter
 import (
 	"go.uber.org/fx"
 
-	compexec "orglang/go-engine/proc/compexec/core"
+	compexec "orglang/go-engine/internal/proc/compexec/core"
 )
 
 var Module = fx.Module("proc/compexec",

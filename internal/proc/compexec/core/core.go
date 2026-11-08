@@ -753,15 +753,15 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, getErr
 		}
-		communication := fwdConnSnap.NextTurn()
-		if communication != nil {
+		turn := fwdConnSnap.NextTurn()
+		if turn != nil {
 			connMod.ConnID = fwdConnSnap.ConnID
 			connMod.PrevOffsetNr = fwdConnSnap.OffsetNr
-			connMod.OffsetNr = option.Some(communication.GetActNr())
+			connMod.OffsetNr = option.Some(turn.GetActNr())
 		}
 		switch typeExp.Pol() {
 		case polarity.Pos:
-			switch forwardable := communication.(type) {
+			switch forwardable := turn.(type) {
 			case commturn.SubRec:
 				// перенаправляем подписчика
 				execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{

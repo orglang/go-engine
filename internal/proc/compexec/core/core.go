@@ -826,10 +826,10 @@ func (s *service) takeWith(
 				s.log.Debug("taking half done", compAttr)
 				return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 			default:
-				panic(commturn.ErrRecTypeUnexpected(communication))
+				panic(commturn.ErrRecTypeUnexpected(turn))
 			}
 		case polarity.Neg:
-			switch forwardable := communication.(type) {
+			switch forwardable := turn.(type) {
 			case commturn.SubRec:
 				// перенаправляем подписчика
 				execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
@@ -877,7 +877,7 @@ func (s *service) takeWith(
 				s.log.Debug("taking half done", compAttr)
 				return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 			default:
-				panic(commturn.ErrRecTypeUnexpected(communication))
+				panic(commturn.ErrRecTypeUnexpected(turn))
 			}
 		default:
 			panic(typeexp.ErrPolarityUnexpected(typeExp))

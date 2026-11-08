@@ -39,12 +39,16 @@ func TestInsertTurnRec(t *testing.T) {
 func TestUpdateRec(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
-	gotSQL, gotArgs := qb.UpdateRec(commconn.ConnModDS{OffsetNr: sql.Null[int64]{Valid: true}})
+	gotSQL, gotArgs := qb.UpdateRec(commconn.ConnModDS{
+		ConnRN:       2,
+		OffsetNr:     sql.Null[int64]{Int64: 3, Valid: true},
+		PrevOffsetNr: 1,
+	})
 	wantSQL := "UPDATE pool_connections  SET offset_nr = $1 WHERE conn_id = $2 AND conn_rn = $3 AND offset_nr = $4"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)
 	}
-	wantArgs := []any{int64(0), "", int64(0), int64(0)}
+	wantArgs := []any{int64(3), "", int64(2), int64(1)}
 	if !slices.Equal(gotArgs, wantArgs) {
 		t.Errorf("got args %v, want %v", gotArgs, wantArgs)
 	}

@@ -755,9 +755,9 @@ func (s *service) takeWith(
 		}
 		communication := fwdConnSnap.NextTurn()
 		if communication != nil {
-			connMod.ConnRef = communication.ConnRef
-			connMod.PrevOffsetNr = communication.OffsetNr
-			connMod.OffsetNr = option.Some(communication.OffsetNr.Next())
+			connMod.ConnRef = fwdConnSnap.ConnRef
+			connMod.PrevOffsetNr = fwdConnSnap.OffsetNr
+			connMod.OffsetNr = option.Some(fwdConnSnap.OffsetNr.Next())
 		}
 		switch typeExp.Pol() {
 		case polarity.Pos:

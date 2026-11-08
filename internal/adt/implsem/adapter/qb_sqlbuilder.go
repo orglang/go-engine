@@ -3,7 +3,7 @@ package adapter
 import (
 	"github.com/huandu/go-sqlbuilder"
 
-	implsem "orglang/go-engine/adt/implsem"
+	implsem "orglang/go-engine/internal/adt/implsem"
 )
 
 type sqlBuilder struct {

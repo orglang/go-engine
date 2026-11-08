@@ -70,12 +70,12 @@ type SendSpecDS struct {
 }
 
 type SendRecDS struct {
-	X         string `json:"x"`
-	A         string `json:"a"`
-	B         string `json:"b"`
-	CommID    string `json:"comm_id"`
-	CommRN    int64  `json:"comm_rn"`
-	ValExpVK  int64  `json:"val_exp_vk"`
+	X        string `json:"x"`
+	A        string `json:"a"`
+	B        string `json:"b"`
+	CommID   string `json:"comm_id"`
+	CommRN   int64  `json:"comm_rn"`
+	ValExpVK int64  `json:"val_exp_vk"`
 }
 
 type RecvSpecDS struct {

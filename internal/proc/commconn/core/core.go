@@ -1,6 +1,8 @@
 package core
 
 import (
+	"fmt"
+
 	"orglang/go-engine/internal/adt/connsem"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/option"
@@ -15,8 +17,9 @@ type ConnRec struct {
 
 type ConnMod struct {
 	ConnRef  connsem.SemRef
-	OffsetNr option.ADT[seqnum.ADT]
-	Turns    []commturn.TurnRec
+	OffsetNr     option.ADT[seqnum.ADT]
+	PrevOffsetNr seqnum.ADT
+	Turns        []commturn.TurnRec
 }
 
 type ConnQry struct {
@@ -26,8 +29,13 @@ type ConnQry struct {
 
 // aka Configuration
 type ConnSnap struct {
-	ConnRef connsem.SemRef
-	Turns   []commturn.TurnRec
+	ConnRef  connsem.SemRef
+	OffsetNr seqnum.ADT
+	Turns    []commturn.TurnRec
+}
+
+func ErrOffsetConflict(got seqnum.ADT) error {
+	return fmt.Errorf("Connection offset changed concurrently: got %v", got)
 }
 
 func (s ConnSnap) NextTurn() commturn.TurnRec {

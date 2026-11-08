@@ -1,7 +1,7 @@
 package termsem
 
 import (
-	"orglang/go-engine/adt/uniqsym"
+	"orglang/go-engine/internal/adt/uniqsym"
 
 	"github.com/orglang/go-sdk/adt/termsem"
 )

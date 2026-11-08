@@ -590,11 +590,11 @@ func (s *service) takeWith(
 			s.log.Debug("taking half done", compAttr)
 			return execMod, execEff, exchMod, nil
 		}
-		folowing, ok := subscription.(commturn.SubRec)
+		following, ok := subscription.(commturn.SubRec)
 		if !ok {
 			panic(commturn.ErrRecTypeUnexpected(subscription))
 		}
-		switch contExp := folowing.ContExp.(type) {
+		switch contExp := following.ContExp.(type) {
 		case termexp.CaseRec:
 			// вяжем продолжение решателя
 			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
@@ -607,8 +607,8 @@ func (s *service) takeWith(
 			})
 			// вяжем продолжение последователя
 			execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
-				CompRef: folowing.CompRef,
-				CommRef: folowing.CommRef,
+				CompRef: following.CompRef,
+				CommRef: following.CommRef,
 				ChnlID:  contExp.ContChnlID,
 				ChnlPH:  contExp.CommChnlPH,
 				// TODO значение ChnlBS
@@ -616,14 +616,14 @@ func (s *service) takeWith(
 			})
 			if contExp.ContExps[termExp.ValLabQN] != nil {
 				execEff.Steps = append(execEff.Steps, compstep.StepSpec{
-					CompRef: folowing.CompRef,
+					CompRef: following.CompRef,
 					ProcExp: contExp.ContExps[termExp.ValLabQN],
 				})
 			}
 			s.log.Debug("step taking succeed", compAttr)
 			return execMod, execEff, exchMod, nil
 		default:
-			panic(termexp.ErrRecTypeUnexpected(folowing.ContExp))
+			panic(termexp.ErrRecTypeUnexpected(following.ContExp))
 		}
 	case termexp.CaseSpec:
 		commChnl, ok := execSnap.LinearVars[termExp.CommChnlPH]

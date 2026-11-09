@@ -14,7 +14,7 @@ type ConnMod struct {
 	ProviderCompID identity.ADT
 	ProviderCompRN seqnum.ADT
 	OffsetNr       option.ADT[seqnum.ADT]
-	Acts          []commact.ActRec
+	Acts           []commact.ActRec
 }
 
 type ConnQry struct {
@@ -28,7 +28,7 @@ type ConnSnap struct {
 	ProviderCompID identity.ADT
 	ProviderCompRN seqnum.ADT
 	OffsetNr       seqnum.ADT
-	Acts          []commact.ActRec
+	Acts           []commact.ActRec
 }
 
 func ErrOffsetConflict(got seqnum.ADT) error {

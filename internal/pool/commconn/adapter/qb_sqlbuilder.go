@@ -36,6 +36,9 @@ func (qb *sqlBuilder) UpdateRec(mod commconn.ConnModDS) (string, []any) {
 	if mod.OffsetNr.Valid {
 		conn.Set(conn.Assign("offset_nr", mod.OffsetNr.V))
 	}
+	if mod.ActNr.Valid {
+		conn.Set(conn.Assign("act_nr", mod.ActNr.V))
+	}
 	conn.Where(conn.Equal("conn_id", mod.ConnID))
 	return conn.Build()
 }

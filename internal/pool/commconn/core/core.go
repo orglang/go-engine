@@ -24,7 +24,7 @@ type ConnMod struct {
 	ProviderCompID identity.ADT
 	ProviderCompRN seqnum.ADT
 	OffsetNr       option.ADT[seqnum.ADT]
-	Turns          []commturn.TurnRec
+	Acts          []commturn.ActRec
 }
 
 type ConnQry struct {
@@ -38,7 +38,7 @@ type ConnSnap struct {
 	ProviderCompID identity.ADT
 	ProviderCompRN seqnum.ADT
 	OffsetNr       seqnum.ADT
-	Turns          []commturn.TurnRec
+	Acts          []commturn.ActRec
 }
 
 func ErrOffsetConflict(got seqnum.ADT) error {
@@ -49,9 +49,9 @@ func ErrMissingConn(id identity.ADT) error {
 	return fmt.Errorf("connection missing: %v", id)
 }
 
-func (s ConnSnap) NextTurn() commturn.TurnRec {
-	if len(s.Turns) > 0 {
-		return s.Turns[0]
+func (s ConnSnap) NextAct() commturn.ActRec {
+	if len(s.Acts) > 0 {
+		return s.Acts[0]
 	}
 	return nil
 }

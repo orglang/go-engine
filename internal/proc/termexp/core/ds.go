@@ -74,8 +74,7 @@ type SendRecDS struct {
 	A        string `json:"a"`
 	B        string `json:"b"`
 	ConnID   string `json:"conn_id"`
-	// ValExpCK keeps the legacy JSON property for wire compatibility.
-	ValExpCK int64  `json:"val_exp_vk"`
+	ValExpCK int64  `json:"val_exp_ck"`
 }
 
 type RecvSpecDS struct {

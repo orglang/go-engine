@@ -13,24 +13,24 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 
-	conncore "orglang/go-engine/internal/pool/conn/core"
+	compconncore "orglang/go-engine/internal/pool/compconn/core"
 	connactadapter "orglang/go-engine/internal/pool/connact/adapter"
 )
 
 type daoPgx struct {
-	qb  conncore.QueryBuilder
+	qb  compconncore.QueryBuilder
 	log *slog.Logger
 }
 
-func NewDaoPgx(qb conncore.QueryBuilder, log *slog.Logger) conncore.Repo {
+func NewDaoPgx(qb compconncore.QueryBuilder, log *slog.Logger) compconncore.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }
 
 // for compilation purposes
-func newRepo() conncore.Repo { return new(daoPgx) }
+func newRepo() compconncore.Repo { return new(daoPgx) }
 
-func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec conncore.ConnRec) error {
+func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec compconncore.ConnRec) error {
 	dto := DataFromRec(rec)
 	refAttr := slog.Any("conn_id", rec.ConnID)
 	querySQL, args := dao.qb.InsertRec(dto)
@@ -43,7 +43,7 @@ func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec conncore.ConnRe
 	return nil
 }
 
-func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod conncore.ConnMod) error {
+func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod compconncore.ConnMod) error {
 	refAttr := slog.Any("conn_id", mod.ConnID)
 	if (mod.OffsetNr != nil && !mod.OffsetNr.IsEmpty()) || len(mod.Acts) > 0 {
 		dto := DataFromMod(mod)
@@ -60,7 +60,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod conncore.Con
 			return err
 		}
 		if tag.RowsAffected() == 0 {
-			return conncore.ErrMissingConn(mod.ConnID)
+			return compconncore.ErrMissingConn(mod.ConnID)
 		}
 	}
 	for _, act := range mod.Acts {
@@ -76,7 +76,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod conncore.Con
 	return nil
 }
 
-func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry conncore.ConnQry) (conncore.ConnSnap, error) {
+func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry compconncore.ConnQry) (compconncore.ConnSnap, error) {
 	refAttr := slog.Any("conn_id", qry.ConnID)
 	qryDTO := DataFromQry(qry)
 	dao.log.Log(ctx, lf.LevelTrace, "Connection snapshot selection started", slog.Any("qry", qryDTO))
@@ -84,22 +84,22 @@ func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry conncore.
 	rows, err := conn.Pgx.Query(ctx, querySQL, args...)
 	if err != nil {
 		dao.log.Error("Connection snapshot query failed", refAttr, slog.String("sql", querySQL))
-		return conncore.ConnSnap{}, err
+		return compconncore.ConnSnap{}, err
 	}
 	defer rows.Close()
-	snapDTO, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[conncore.ConnSnapDS])
+	snapDTO, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[compconncore.ConnSnapDS])
 	if err != nil {
 		dao.log.Error("Connection snapshot scan failed", refAttr)
-		return conncore.ConnSnap{}, err
+		return compconncore.ConnSnap{}, err
 	}
 	snap, err := DataToSnap(snapDTO)
 	if err != nil {
 		dao.log.Error("Connection snapshot conversion failed", refAttr)
-		return conncore.ConnSnap{}, err
+		return compconncore.ConnSnap{}, err
 	}
 	providerCompID, err := identity.ConvertFromString(snapDTO.ProviderCompID)
 	if err != nil {
-		return conncore.ConnSnap{}, err
+		return compconncore.ConnSnap{}, err
 	}
 	snap.ProviderCompID = providerCompID
 	snap.ProviderCompRN = seqnum.ADT(snapDTO.ProviderCompRN)

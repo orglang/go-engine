@@ -10,7 +10,7 @@ import (
 	"orglang/go-engine/internal/adt/implsem"
 	implsemadapter "orglang/go-engine/internal/adt/implsem/adapter"
 	"orglang/go-engine/internal/lib/tx"
-	conncore "orglang/go-engine/internal/pool/conn/core"
+	compconncore "orglang/go-engine/internal/pool/compconn/core"
 	compexec "orglang/go-engine/internal/pool/compexec/core"
 	compvarcore "orglang/go-engine/internal/pool/compvar/core"
 	termdef "orglang/go-engine/internal/pool/termdef/core"
@@ -24,7 +24,7 @@ type serviceParams struct {
 	CompExecRepo   compexec.Repo
 	CompExecBroker compexec.Broker
 	CompVarRepo    compvarcore.Repo
-	ConnRepo   conncore.Repo
+	ConnRepo   compconncore.Repo
 	TypeExpRepo    typeexp.Repo
 	ProcExecRepo   proccompexec.Repo
 	TermDefRepo    termdef.Repo

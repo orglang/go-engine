@@ -17,7 +17,7 @@ import (
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
 
-	conncore "orglang/go-engine/internal/pool/conn/core"
+	compconncore "orglang/go-engine/internal/pool/compconn/core"
 	connact "orglang/go-engine/internal/pool/connact/core"
 	compstep "orglang/go-engine/internal/pool/compstep/core"
 	compvar "orglang/go-engine/internal/pool/compvar/core"
@@ -89,7 +89,7 @@ type service struct {
 	compExecRepo   Repo
 	compExecBroker Broker
 	compVarRepo    compvar.Repo
-	connRepo       conncore.Repo
+	connRepo       compconncore.Repo
 	typeExpRepo    typeexp.Repo
 	procExecRepo   proccompexec.Repo
 	termDefRepo    termdef.Repo
@@ -108,7 +108,7 @@ type ServiceDeps struct {
 	CompExecRepo   Repo
 	CompExecBroker Broker
 	CompVarRepo    compvar.Repo
-	ConnRepo   conncore.Repo
+	ConnRepo   compconncore.Repo
 	TypeExpRepo    typeexp.Repo
 	ProcExecRepo   proccompexec.Repo
 	TermDefRepo    termdef.Repo
@@ -174,7 +174,7 @@ func (s *service) Run(spec ExecSpec) (_ compsem.SemRef, err error) {
 	// Materialize a Connection row for each attached asset endpoint.
 	// A self-reference uses the new liability endpoint, so both endpoints and
 	// its Connection are created atomically with this Computation.
-	newConns := make([]conncore.ConnRec, 0, len(assetExecs)+1)
+	newConns := make([]compconncore.ConnRec, 0, len(assetExecs)+1)
 	for _, assetVar := range spec.AssetVars {
 		var connID identity.ADT
 		var chnlID identity.ADT
@@ -193,7 +193,7 @@ func (s *service) Run(spec ExecSpec) (_ compsem.SemRef, err error) {
 			expCK = assetExec.LiabVar.GetExpCK()
 		}
 		if ok || assetVar.TermQN == spec.LiabVar.TermQN {
-			newConns = append(newConns, conncore.ConnRec{
+			newConns = append(newConns, compconncore.ConnRec{
 				ConnID:          connID,
 				ProviderCompRef: providerCompRef,
 				ClientCompRef:   newExec.CompRef,
@@ -333,7 +333,7 @@ func (s *service) takeStep(
 ) (
 	execMod ExecMod,
 	execEff ExecEff,
-	connMod conncore.ConnMod,
+	connMod compconncore.ConnMod,
 	err error,
 ) {
 	ctx := context.Background()
@@ -353,9 +353,9 @@ func (s *service) takeStep(
 		}
 		nextExpCK := typeExp.(typeexp.ProdRec).Next()
 		// получаем снепшот соединения
-		var connSnap conncore.ConnSnap
+		var connSnap compconncore.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, conncore.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconncore.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -446,9 +446,9 @@ func (s *service) takeStep(
 		}
 		nextExpCK := typeExp.(typeexp.ProdRec).Next()
 		// получаем снепшот коммуникации
-		var connSnap conncore.ConnSnap
+		var connSnap compconncore.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, conncore.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconncore.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -539,9 +539,9 @@ func (s *service) takeStep(
 		}
 		nextExpCK := typeExp.(typeexp.ProdRec).Next()
 		// получаем снепшот коммуникации
-		var connSnap conncore.ConnSnap
+		var connSnap compconncore.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, conncore.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconncore.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -632,9 +632,9 @@ func (s *service) takeStep(
 		}
 		nextExpCK := typeExp.(typeexp.ProdRec).Next()
 		// получаем снепшот коммуникации
-		var connSnap conncore.ConnSnap
+		var connSnap compconncore.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, conncore.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconncore.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -725,9 +725,9 @@ func (s *service) takeStep(
 		}
 		nextExpCK := typeExp.(typeexp.ProdRec).Next()
 		// получаем снепшот коммуникации
-		var connSnap conncore.ConnSnap
+		var connSnap compconncore.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, conncore.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconncore.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -802,9 +802,9 @@ func (s *service) takeStep(
 		}
 		nextExpCK := typeExp.(typeexp.ProdRec).Next()
 		// получаем снепшот коммуникации
-		var connSnap conncore.ConnSnap
+		var connSnap compconncore.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, conncore.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconncore.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})

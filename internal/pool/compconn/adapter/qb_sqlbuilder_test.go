@@ -5,14 +5,14 @@ import (
 	"slices"
 	"testing"
 
-	conn "orglang/go-engine/internal/pool/conn/core"
+	compconn "orglang/go-engine/internal/pool/compconn/core"
 	connact "orglang/go-engine/internal/pool/connact/core"
 )
 
 func TestInsertRec(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
-	gotSQL, gotArgs := qb.InsertRec(conn.ConnRecDS{})
+	gotSQL, gotArgs := qb.InsertRec(compconn.ConnRecDS{})
 	wantSQL := "INSERT INTO pool_comp_conns  (conn_id, provider_comp_id, provider_comp_rn, client_comp_id, client_comp_rn, offset_nr, act_nr) VALUES ($1, $2, $3, $4, $5, $6, $7)"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)
@@ -39,7 +39,7 @@ func TestInsertActRec(t *testing.T) {
 func TestUpdateRec(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
-	gotSQL, gotArgs := qb.UpdateRec(conn.ConnModDS{
+	gotSQL, gotArgs := qb.UpdateRec(compconn.ConnModDS{
 		ConnID:   "",
 		OffsetNr: sql.Null[int64]{V: 3, Valid: true},
 		ActNr:    sql.Null[int64]{V: 8, Valid: true},
@@ -57,12 +57,12 @@ func TestUpdateRec(t *testing.T) {
 func TestSelectSnap(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
-	gotSQL, gotArgs := qb.SelectSnap(conn.ConnQryDS{ChnlID: sql.Null[string]{Valid: true}})
+	gotSQL, gotArgs := qb.SelectSnap(compconn.ConnQryDS{ChnlID: sql.Null[string]{Valid: true}})
 	wantSQL := "WITH acts AS (SELECT act.conn_id, act.act_nr, act.comp_id, act.comp_rn, act.chnl_id, act.kind, act.exp " +
 		"FROM pool_conn_acts act WHERE conn_id = $1 AND chnl_id = $2) " +
-		"SELECT conn.conn_id, conn.provider_comp_id, exec.comp_rn AS provider_comp_rn, conn.offset_nr, conn.act_nr, " +
-		"(SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM acts t WHERE t.act_nr > conn.offset_nr) AS acts " +
-		"FROM pool_comp_conns conn JOIN pool_comp_execs exec ON exec.comp_id = conn.provider_comp_id WHERE conn.conn_id = $3"
+		"SELECT compconn.conn_id, compconn.provider_comp_id, exec.comp_rn AS provider_comp_rn, compconn.offset_nr, compconn.act_nr, " +
+		"(SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM acts t WHERE t.act_nr > compconn.offset_nr) AS acts " +
+		"FROM pool_comp_conns conn JOIN pool_comp_execs exec ON exec.comp_id = compconn.provider_comp_id WHERE compconn.conn_id = $3"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)
 	}

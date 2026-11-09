@@ -19,7 +19,7 @@ import (
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
-	conncore "orglang/go-engine/internal/proc/conn/core"
+	compconncore "orglang/go-engine/internal/proc/compconn/core"
 	connact "orglang/go-engine/internal/proc/connact/core"
 	compstep "orglang/go-engine/internal/proc/compstep/core"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
@@ -51,7 +51,7 @@ type ExecEff struct {
 type takeResult struct {
 	Mod        ExecMod
 	Effects    ExecEff
-	Connection conncore.ConnMod
+	Connection compconncore.ConnMod
 }
 
 // aka Configuration
@@ -70,7 +70,7 @@ func ChnlPH(rec compvar.LinearRec) symbol.ADT { return rec.ChnlPH }
 
 type service struct {
 	compExecRepo Repo
-	connRepo     conncore.Repo
+	connRepo     compconncore.Repo
 	termDecRepo  termdec.Repo
 	typeDefRepo  typedef.Repo
 	typeExpRepo  typeexp.Repo
@@ -85,7 +85,7 @@ func newAPI() API {
 
 func NewService(
 	compExecRepo Repo,
-	connRepo conncore.Repo,
+	connRepo compconncore.Repo,
 	termDecRepo termdec.Repo,
 	typeDefRepo typedef.Repo,
 	typeExpRepo typeexp.Repo,
@@ -211,7 +211,7 @@ func (s *service) takeWith(
 ) (takeResult, error) {
 	var execMod ExecMod
 	var execEff ExecEff
-	var connMod conncore.ConnMod
+	var connMod compconncore.ConnMod
 	ctx := context.Background()
 	var err error
 	compAttr := slog.Any("compRef", execSnap.CompRef)
@@ -225,9 +225,9 @@ func (s *service) takeWith(
 		}
 		connAttr := slog.Any("connRef", connChnl.ConnID)
 		// получаем снепшот коммуникации
-		var connSnap conncore.ConnSnap
+		var connSnap compconncore.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, conncore.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconncore.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -300,9 +300,9 @@ func (s *service) takeWith(
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, termdef.ErrMissingInCfg(termExp.ContChnlPH)
 		}
 		// получаем снепшот соединения
-		var connSnap conncore.ConnSnap
+		var connSnap compconncore.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, conncore.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconncore.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -402,9 +402,9 @@ func (s *service) takeWith(
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, termdef.ErrMissingInCfg(termExp.ValChnlPH)
 		}
 		// получаем снепшот соединения
-		var connSnap conncore.ConnSnap
+		var connSnap compconncore.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, conncore.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconncore.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -503,9 +503,9 @@ func (s *service) takeWith(
 		}
 		nextExpCK := typeExp.(typeexp.ProdRec).Next()
 		// получаем снепшот соединения
-		var connSnap conncore.ConnSnap
+		var connSnap compconncore.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, conncore.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconncore.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -597,9 +597,9 @@ func (s *service) takeWith(
 		}
 		nextExpCK := typeExp.(typeexp.SumRec).Next(termExp.ValLabQN)
 		// получаем снепшот соединения
-		var connSnap conncore.ConnSnap
+		var connSnap compconncore.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, conncore.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconncore.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -680,9 +680,9 @@ func (s *service) takeWith(
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, err
 		}
 		// получаем снепшот соединения
-		var caseConnSnap conncore.ConnSnap
+		var caseConnSnap compconncore.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			caseConnSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, conncore.ConnQry{
+			caseConnSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconncore.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -758,9 +758,9 @@ func (s *service) takeWith(
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, typedef.ErrMissingInEnv(connChnl.ExpCK)
 		}
 		// получаем снепшот соединения
-		var fwdConnSnap conncore.ConnSnap
+		var fwdConnSnap compconncore.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			fwdConnSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, conncore.ConnQry{
+			fwdConnSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconncore.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})

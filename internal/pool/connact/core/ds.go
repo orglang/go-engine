@@ -8,7 +8,7 @@ type ActRecDS struct {
 	CompID string           `db:"comp_id"`
 	CompRN int64            `db:"comp_rn"`
 	ChnlID string           `db:"chnl_id"`
-	K      actKind          `db:"kind"`
+	K      actKind         `db:"kind"`
 	Exp    termexp.ExpRecDS `db:"exp" fieldopt:"noexpand"`
 }
 

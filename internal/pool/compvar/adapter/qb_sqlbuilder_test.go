@@ -14,7 +14,7 @@ func TestInsert(t *testing.T) {
 	rec := compvar.VarRecDS{
 		CompID: sql.NullString{String: "comp-id-1", Valid: true},
 		CompRN: sql.NullInt64{Int64: 7, Valid: true},
-		ConnID: sql.NullString{String: "comm-id-1", Valid: true},
+		ConnID: sql.NullString{String: "conn-id-1", Valid: true},
 		ChnlID: sql.NullString{String: "chnl-id-1", Valid: true},
 		ChnlPH: sql.NullString{String: "chnl-1", Valid: true},
 		ExpCK:  sql.NullInt64{Int64: 1, Valid: true},

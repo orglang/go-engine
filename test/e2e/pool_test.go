@@ -160,16 +160,16 @@ func (s *suite) waitClose(t *testing.T) {
 		PoolExp: pooltermexp.ExpSpec{
 			K: pooltermexp.Acquire, // пул запрашивает доступ к самому себе
 			Acquire: &pooltermexp.AcquireSpec{
-				CommChnlPH: poolAssetPH,
+				ConnChnlPH: poolAssetPH,
 				ContExp: pooltermexp.ExpSpec{
 					K: pooltermexp.Hire, // пул запрашивает компетенцию closerProcQN
 					Hire: &pooltermexp.HireSpec{
-						CommChnlPH: poolAssetPH, // пул выступает нанимателем самого себя
+						ConnChnlPH: poolAssetPH, // пул выступает нанимателем самого себя
 						ProcTermQN: closerProcQN,
 						ContExp: pooltermexp.ExpSpec{
 							K: pooltermexp.Release,
 							Release: &pooltermexp.ReleaseSpec{
-								CommChnlPH: poolAssetPH,
+								ConnChnlPH: poolAssetPH,
 							},
 						},
 					},
@@ -186,16 +186,16 @@ func (s *suite) waitClose(t *testing.T) {
 		PoolExp: pooltermexp.ExpSpec{
 			K: pooltermexp.Accept, // пул одобряет доступ к самому себе
 			Accept: &pooltermexp.AcceptSpec{
-				CommChnlPH: poolLiabPH,
+				ConnChnlPH: poolLiabPH,
 				ContExp: pooltermexp.ExpSpec{
 					K: pooltermexp.Apply, // пул предлагает компетенцию closerProcQN
 					Apply: &pooltermexp.ApplySpec{
-						CommChnlPH: poolLiabPH, // пул выступает соискателем
+						ConnChnlPH: poolLiabPH, // пул выступает соискателем
 						ProcTermQN: closerProcQN,
 						ContExp: pooltermexp.ExpSpec{
 							K: pooltermexp.Detach,
 							Detach: &pooltermexp.DetachSpec{
-								CommChnlPH: poolLiabPH,
+								ConnChnlPH: poolLiabPH,
 							},
 						},
 					},
@@ -224,16 +224,16 @@ func (s *suite) waitClose(t *testing.T) {
 		PoolExp: pooltermexp.ExpSpec{
 			K: pooltermexp.Acquire,
 			Acquire: &pooltermexp.AcquireSpec{
-				CommChnlPH: poolAssetPH,
+				ConnChnlPH: poolAssetPH,
 				ContExp: pooltermexp.ExpSpec{
 					K: pooltermexp.Hire,
 					Hire: &pooltermexp.HireSpec{
-						CommChnlPH: poolAssetPH,
+						ConnChnlPH: poolAssetPH,
 						ProcTermQN: waiterProcQN,
 						ContExp: pooltermexp.ExpSpec{
 							K: pooltermexp.Release,
 							Release: &pooltermexp.ReleaseSpec{
-								CommChnlPH: poolAssetPH,
+								ConnChnlPH: poolAssetPH,
 							},
 						},
 					},
@@ -250,16 +250,16 @@ func (s *suite) waitClose(t *testing.T) {
 		PoolExp: pooltermexp.ExpSpec{
 			K: pooltermexp.Accept,
 			Accept: &pooltermexp.AcceptSpec{
-				CommChnlPH: poolAssetPH,
+				ConnChnlPH: poolAssetPH,
 				ContExp: pooltermexp.ExpSpec{
 					K: pooltermexp.Apply,
 					Apply: &pooltermexp.ApplySpec{
-						CommChnlPH: poolLiabPH,
+						ConnChnlPH: poolLiabPH,
 						ProcTermQN: waiterProcQN,
 						ContExp: pooltermexp.ExpSpec{
 							K: pooltermexp.Detach,
 							Detach: &pooltermexp.DetachSpec{
-								CommChnlPH: poolAssetPH,
+								ConnChnlPH: poolAssetPH,
 							},
 						},
 					},
@@ -291,7 +291,7 @@ func (s *suite) waitClose(t *testing.T) {
 	// 		ProcExp: proctermexp.ExpSpec{
 	// 			K: proctermexp.Close,
 	// 			Close: &proctermexp.CloseSpec{
-	// 				CommChnlPH: closerProcDec.LiabVar.ChnlPH,
+	// 				ConnChnlPH: closerProcDec.LiabVar.ChnlPH,
 	// 			},
 	// 		},
 	// 	})
@@ -304,11 +304,11 @@ func (s *suite) waitClose(t *testing.T) {
 	// 		ProcExp: proctermexp.ExpSpec{
 	// 			K: proctermexp.Wait,
 	// 			Wait: &proctermexp.WaitSpec{
-	// 				CommChnlPH: waiterProcDec.AssetVars[0].ChnlPH,
+	// 				ConnChnlPH: waiterProcDec.AssetVars[0].ChnlPH,
 	// 				ContES: proctermexp.ExpSpec{
 	// 					K: proctermexp.Close,
 	// 					Close: &proctermexp.CloseSpec{
-	// 						CommChnlPH: waiterProcDec.LiabVar.ChnlPH,
+	// 						ConnChnlPH: waiterProcDec.LiabVar.ChnlPH,
 	// 					},
 	// 				},
 	// 			},
@@ -447,7 +447,7 @@ func (s *suite) recvSend(t *testing.T) {
 		PoolExp: pooltermexp.ExpSpec{
 			K: pooltermexp.Hire,
 			Hire: &pooltermexp.HireSpec{
-				CommChnlPH: poolClientPH,
+				ConnChnlPH: poolClientPH,
 				ProcTermQN: receiverProcQN,
 			},
 		},
@@ -473,7 +473,7 @@ func (s *suite) recvSend(t *testing.T) {
 		PoolExp: pooltermexp.ExpSpec{
 			K: pooltermexp.Hire,
 			Hire: &pooltermexp.HireSpec{
-				CommChnlPH: poolClientPH,
+				ConnChnlPH: poolClientPH,
 				ProcTermQN: messageProcQN,
 			},
 		},
@@ -499,7 +499,7 @@ func (s *suite) recvSend(t *testing.T) {
 		PoolExp: pooltermexp.ExpSpec{
 			K: pooltermexp.Hire,
 			Hire: &pooltermexp.HireSpec{
-				CommChnlPH: poolClientPH,
+				ConnChnlPH: poolClientPH,
 				ProcTermQN: senderProcQN,
 			},
 		},
@@ -526,7 +526,7 @@ func (s *suite) recvSend(t *testing.T) {
 		ProcExp: proctermexp.ExpSpec{
 			K: proctermexp.Recv,
 			Recv: &proctermexp.RecvSpec{
-				CommChnlPH: receiverProcDec.LiabVar.ChnlPH,
+				ConnChnlPH: receiverProcDec.LiabVar.ChnlPH,
 				BindChnlPH: "receiver-message-ph",
 			},
 		},
@@ -540,7 +540,7 @@ func (s *suite) recvSend(t *testing.T) {
 		ProcExp: proctermexp.ExpSpec{
 			K: proctermexp.Send,
 			Send: &proctermexp.SendSpec{
-				CommChnlPH: senderProcDec.AssetVars[0].ChnlPH,
+				ConnChnlPH: senderProcDec.AssetVars[0].ChnlPH,
 				ValChnlPH:  senderProcDec.AssetVars[1].ChnlPH,
 			},
 		},
@@ -670,12 +670,12 @@ func (s *suite) caseLab(t *testing.T) {
 		ProcExp: proctermexp.ExpSpec{
 			K: proctermexp.Case,
 			Case: &proctermexp.CaseSpec{
-				CommChnlPH: poolFollowerPH,
+				ConnChnlPH: poolFollowerPH,
 				ContBSes: []proctermexp.BranchSpec{
 					{PatternQN: patternQN, ContES: proctermexp.ExpSpec{
 						K: proctermexp.Close,
 						Close: &proctermexp.CloseSpec{
-							CommChnlPH: poolFollowerPH,
+							ConnChnlPH: poolFollowerPH,
 						},
 					},
 					},
@@ -692,7 +692,7 @@ func (s *suite) caseLab(t *testing.T) {
 		ProcExp: proctermexp.ExpSpec{
 			K: proctermexp.Lab,
 			Lab: &proctermexp.LabSpec{
-				CommChnlPH: poolFollowerPH,
+				ConnChnlPH: poolFollowerPH,
 				PatternQN:  patternQN,
 			},
 		},
@@ -833,11 +833,11 @@ func (s *suite) call(t *testing.T) {
 				ContES: proctermexp.ExpSpec{
 					K: proctermexp.Wait,
 					Wait: &proctermexp.WaitSpec{
-						CommChnlPH: callerCalleePH,
+						ConnChnlPH: callerCalleePH,
 						ContES: proctermexp.ExpSpec{
 							K: proctermexp.Close,
 							Close: &proctermexp.CloseSpec{
-								CommChnlPH: callerProcDec.LiabVar.ChnlPH,
+								ConnChnlPH: callerProcDec.LiabVar.ChnlPH,
 							},
 						},
 					},
@@ -997,7 +997,7 @@ func (s *suite) fwd(t *testing.T) {
 		ProcExp: proctermexp.ExpSpec{
 			K: proctermexp.Close,
 			Close: &proctermexp.CloseSpec{
-				CommChnlPH: closerProcDec.LiabVar.ChnlPH,
+				ConnChnlPH: closerProcDec.LiabVar.ChnlPH,
 			},
 		},
 	})
@@ -1010,7 +1010,7 @@ func (s *suite) fwd(t *testing.T) {
 		ProcExp: proctermexp.ExpSpec{
 			K: proctermexp.Fwd,
 			Fwd: &proctermexp.FwdSpec{
-				CommChnlPH: forwarderProcDec.LiabVar.ChnlPH,
+				ConnChnlPH: forwarderProcDec.LiabVar.ChnlPH,
 				ContChnlPH: forwarderProcDec.AssetVars[0].ChnlPH,
 			},
 		},
@@ -1024,11 +1024,11 @@ func (s *suite) fwd(t *testing.T) {
 		ProcExp: proctermexp.ExpSpec{
 			K: proctermexp.Wait,
 			Wait: &proctermexp.WaitSpec{
-				CommChnlPH: waiterProcDec.AssetVars[0].ChnlPH,
+				ConnChnlPH: waiterProcDec.AssetVars[0].ChnlPH,
 				ContES: proctermexp.ExpSpec{
 					K: proctermexp.Close,
 					Close: &proctermexp.CloseSpec{
-						CommChnlPH: waiterProcDec.LiabVar.ChnlPH,
+						ConnChnlPH: waiterProcDec.LiabVar.ChnlPH,
 					},
 				},
 			},

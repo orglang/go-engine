@@ -3,7 +3,7 @@ package adapter
 import (
 	"orglang/go-engine/internal/adt/compsem"
 
-	commact "orglang/go-engine/internal/pool/commact/core"
+	connact "orglang/go-engine/internal/pool/connact/core"
 )
 
 // goverter:variables
@@ -12,11 +12,11 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/internal/pool/termexp/adapter:Data.*
 var (
-	DataToCompRef func(commact.ActRecDS) (compsem.SemRef, error)
+	DataToCompRef func(connact.ActRecDS) (compsem.SemRef, error)
 	// goverter:map . CompRef
 	// goverter:map Exp ValExp
-	DataToPubRec func(commact.ActRecDS) (commact.PubRec, error)
+	DataToPubRec func(connact.ActRecDS) (connact.PubRec, error)
 	// goverter:map . CompRef
 	// goverter:map Exp ContExp
-	DataToSubRec func(commact.ActRecDS) (commact.SubRec, error)
+	DataToSubRec func(connact.ActRecDS) (connact.SubRec, error)
 )

@@ -9,13 +9,13 @@ import (
 	"orglang/go-engine/internal/lib/wp"
 	"orglang/go-engine/internal/lib/ws"
 
-	poolcommconn "orglang/go-engine/internal/pool/commconn/adapter"
+	poolconn "orglang/go-engine/internal/pool/conn/adapter"
 	poolconfexec "orglang/go-engine/internal/pool/compexec/adapter"
 	compvar "orglang/go-engine/internal/pool/compvar/adapter"
 	pooltermdef "orglang/go-engine/internal/pool/termdef/adapter"
 	pooltypedef "orglang/go-engine/internal/pool/typedef/adapter"
 	pooltypeexp "orglang/go-engine/internal/pool/typeexp/adapter"
-	proccommconnadapter "orglang/go-engine/internal/proc/commconn/adapter"
+	procconnadapter "orglang/go-engine/internal/proc/conn/adapter"
 
 	proccompexecadapter "orglang/go-engine/internal/proc/compexec/adapter"
 	termdec "orglang/go-engine/internal/proc/termdec/adapter"
@@ -37,14 +37,14 @@ func main() {
 		// adt
 		pooltypedef.Module,
 		pooltypeexp.Module,
-		poolcommconn.Module,
+		poolconn.Module,
 		pooltermdef.Module,
 		poolconfexec.Module,
 		compvar.Module,
 		typedef.Module,
 		typeexp.Module,
 
-		proccommconnadapter.Module,
+		procconnadapter.Module,
 		termdef.Module,
 		termdec.Module,
 		proccompexecadapter.Module,

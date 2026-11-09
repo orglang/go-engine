@@ -96,11 +96,11 @@ type LabSpecDS struct {
 }
 
 type LabRecDS struct {
-	X     string `json:"x"`
-	A     string `json:"a"`
-	Label string `json:"lab"`
+	X        string `json:"x"`
+	A        string `json:"a"`
+	Label    string `json:"lab"`
 	// ValExpCK keeps the legacy JSON property for wire compatibility.
-	ValExpCK int64 `json:"val_exp_vk"`
+	ValExpCK int64  `json:"val_exp_vk"`
 }
 
 type CaseSpecDS struct {

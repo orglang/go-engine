@@ -6,7 +6,7 @@ import (
 
 	"orglang/go-engine/internal/lib/tx"
 
-	commact "orglang/go-engine/internal/proc/commact/core"
+	connact "orglang/go-engine/internal/proc/connact/core"
 )
 
 type Repo interface {
@@ -25,10 +25,10 @@ type ConnQryDS struct {
 }
 
 type ConnSnapDS struct {
-	ConnID         string             `db:"conn_id"`
-	ProviderCompID string             `db:"provider_comp_id"`
-	ProviderCompRN int64              `db:"provider_comp_rn"`
-	OffsetNr       int64              `db:"offset_nr"`
-	ActNr          int64              `db:"act_nr"`
-	Acts           []commact.ActRecDS `db:"acts"`
+	ConnID         string               `db:"conn_id"`
+	ProviderCompID string               `db:"provider_comp_id"`
+	ProviderCompRN int64                `db:"provider_comp_rn"`
+	OffsetNr       int64                `db:"offset_nr"`
+	ActNr          int64                `db:"act_nr"`
+	Acts           []connact.ActRecDS `db:"acts"`
 }

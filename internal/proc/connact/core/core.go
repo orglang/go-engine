@@ -6,17 +6,18 @@ import (
 	"orglang/go-engine/internal/adt/compsem"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
-	termexp "orglang/go-engine/internal/pool/termexp/core"
+	termexp "orglang/go-engine/internal/proc/termexp/core"
 )
 
-// step (aka Act)
+// aka Sem
 type ActRec interface {
-	act()
+	act() identity.ADT
 	GetConnID() identity.ADT
 	GetActNr() seqnum.ADT
 }
 
-// publication (aka msg)
+func ChnlID(rec ActRec) identity.ADT { return rec.act() }
+
 type PubRec struct {
 	ConnID  identity.ADT
 	ActNr   seqnum.ADT
@@ -25,11 +26,10 @@ type PubRec struct {
 	ValExp  termexp.ExpRec
 }
 
-func (r PubRec) act()                    {}
+func (r PubRec) act() identity.ADT      { return r.ChnlID }
 func (r PubRec) GetConnID() identity.ADT { return r.ConnID }
 func (r PubRec) GetActNr() seqnum.ADT    { return r.ActNr }
 
-// subscription (aka srv)
 type SubRec struct {
 	ConnID  identity.ADT
 	ActNr   seqnum.ADT
@@ -38,18 +38,14 @@ type SubRec struct {
 	ContExp termexp.ExpRec
 }
 
-func (r SubRec) act()                    {}
+func (r SubRec) act() identity.ADT      { return r.ChnlID }
 func (r SubRec) GetConnID() identity.ADT { return r.ConnID }
 func (r SubRec) GetActNr() seqnum.ADT    { return r.ActNr }
 
 func ErrActRecTypeUnexpected(got ActRec) error {
-	return fmt.Errorf("act rec unexpected: %T%+v", got, got)
+	return fmt.Errorf("act rec unexpected: %T", got)
 }
 
 func ErrActRecTypeMismatch(got, want ActRec) error {
 	return fmt.Errorf("act rec mismatch: want %T, got %T", want, got)
-}
-
-func ErrActKindUnexpected(got actKind) error {
-	return fmt.Errorf("act kind unexpected: %v", got)
 }

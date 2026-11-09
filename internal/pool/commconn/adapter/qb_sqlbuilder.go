@@ -32,12 +32,16 @@ func (qb *sqlBuilder) InsertTurnRec(rec commturn.TurnRecDS) (string, []any) {
 }
 
 func (qb *sqlBuilder) UpdateRec(mod commconn.ConnModDS) (string, []any) {
-	conn := qb.connBuilder.Update(compConns, mod)
+	conn := qb.connBuilder.Update(compConns)
+	assignments := make([]string, 0, 2)
 	if mod.OffsetNr.Valid {
-		conn.Set(conn.Assign("offset_nr", mod.OffsetNr.V))
+		assignments = append(assignments, conn.Assign("offset_nr", mod.OffsetNr.V))
 	}
 	if mod.ActNr.Valid {
-		conn.Set(conn.Assign("act_nr", mod.ActNr.V))
+		assignments = append(assignments, conn.Assign("act_nr", mod.ActNr.V))
+	}
+	if len(assignments) > 0 {
+		conn.Set(assignments...)
 	}
 	conn.Where(conn.Equal("conn_id", mod.ConnID))
 	return conn.Build()

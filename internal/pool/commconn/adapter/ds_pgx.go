@@ -2,6 +2,7 @@ package adapter
 
 import (
 	"context"
+	"database/sql"
 	"log/slog"
 	"reflect"
 

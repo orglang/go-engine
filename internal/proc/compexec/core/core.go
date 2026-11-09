@@ -772,14 +772,14 @@ func (s *service) takeWith(
 		}
 		connMod.ProviderCompID = fwdConnSnap.ProviderCompID
 		connMod.ProviderCompRN = fwdConnSnap.ProviderCompRN
-		turn := fwdConnSnap.NextAct()
-		if turn != nil {
+		act := fwdConnSnap.NextAct()
+		if act != nil {
 			connMod.ConnID = fwdConnSnap.ConnID
-			connMod.OffsetNr = option.Some(turn.GetActNr())
+			connMod.OffsetNr = option.Some(act.GetActNr())
 		}
 		switch typeExp.Pol() {
 		case polarity.Pos:
-			switch forwardable := turn.(type) {
+			switch forwardable := act.(type) {
 			case commact.SubRec:
 				// перенаправляем подписчика
 				execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
@@ -844,10 +844,10 @@ func (s *service) takeWith(
 				s.log.Debug("taking half done", compAttr)
 				return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 			default:
-				panic(commact.ErrActRecTypeUnexpected(turn))
+				panic(commact.ErrActRecTypeUnexpected(act))
 			}
 		case polarity.Neg:
-			switch forwardable := turn.(type) {
+			switch forwardable := act.(type) {
 			case commact.SubRec:
 				// перенаправляем подписчика
 				execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
@@ -895,7 +895,7 @@ func (s *service) takeWith(
 				s.log.Debug("taking half done", compAttr)
 				return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 			default:
-				panic(commact.ErrActRecTypeUnexpected(turn))
+				panic(commact.ErrActRecTypeUnexpected(act))
 			}
 		default:
 			panic(typeexp.ErrPolarityUnexpected(typeExp))

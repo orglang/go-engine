@@ -24,7 +24,7 @@ var (
 	MsgFromVarSpec  func(VarSpec) compvar.VarSpec
 	MsgFromVarSpecs func([]VarSpec) []compvar.VarSpec
 	MsgToVarSpec    func(compvar.VarSpec) (VarSpec, error)
-	MsgToVarSpecs   func([]compvar.VarSpec) ([]VarSpec, error)
+	MsgToVarSpecs   func(compvar.VarSpec) ([]VarSpec, error)
 )
 
 // goverter:variables
@@ -45,7 +45,7 @@ var (
 	DataFromLinearRec  func(LinearRec) VarRecDS
 	DataFromLinearRecs func([]LinearRec) []VarRecDS
 	// goverter:map . CompRef
-	// goverter:map ConnID | ConvertFromNullString
+	// goverter:map ConnID | dataToConnID
 	DataToStructRec  func(VarRecDS) (StructRec, error)
 	DataToStructRecs func([]VarRecDS) ([]StructRec, error)
 	// goverter:map . CompRef
@@ -56,4 +56,8 @@ var (
 
 func identityToNullString(id identity.ADT) sql.NullString {
 	return identity.ConvertToNullString(id)
+}
+
+func dataToConnID(dto sql.NullString) (identity.ADT, error) {
+	return identity.ConvertFromNullString(dto)
 }

@@ -4,10 +4,10 @@ import (
 	"reflect"
 	"testing"
 
+	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
-	"orglang/go-engine/internal/adt/contkey"
 
 	termexp "orglang/go-engine/internal/proc/termexp/core"
 )

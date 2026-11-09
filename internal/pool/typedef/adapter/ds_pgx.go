@@ -61,7 +61,7 @@ func (dao *daoPgx) Update(ctx context.Context, conn tx.Conn, rec typedef.DefRec)
 	}
 	args := pgx.NamedArgs{
 		"desc_id": dto.TypeID,
-		"exp_vk":  dto.ExpCK,
+		"exp_ck":  dto.ExpCK,
 	}
 	_, execErr := conn.Pgx.Exec(ctx, updateRec, args)
 	if execErr != nil {
@@ -192,7 +192,7 @@ const (
 	updateRec = `
 		update pool_type_defs
 		set def_rn = @def_rn,
-			exp_vk = @exp_vk
+			exp_ck = @exp_ck
 		where desc_id = @desc_id
 			and def_rn = @def_rn - 1`
 
@@ -206,7 +206,7 @@ const (
 		select
 			xd.desc_id,
 			xd.def_rn,
-			xd.exp_vk
+			xd.exp_ck
 		from pool_type_defs xd
 		left join desc_binds db
 			on db.desc_id = xd.desc_id
@@ -216,7 +216,7 @@ const (
 		select
 			desc_id,
 			def_rn,
-			exp_vk
+			exp_ck
 		from pool_type_defs
 		where desc_id = $1`
 )

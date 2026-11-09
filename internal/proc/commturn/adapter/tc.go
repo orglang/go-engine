@@ -11,15 +11,15 @@ import (
 	termexp "orglang/go-engine/internal/proc/termexp/adapter"
 )
 
-func DataFromStepRec(r commturn.TurnRec) (commturn.TurnRecDS, error) {
+func DataFromStepRec(r commturn.ActRec) (commturn.ActRecDS, error) {
 	switch rec := r.(type) {
 	case commturn.PubRec:
 		exp, err := termexp.DataFromExpRec(rec.ValExp)
 		if err != nil {
-			return commturn.TurnRecDS{}, err
+			return commturn.ActRecDS{}, err
 		}
 		compRef := compsem.DataFromRef(rec.CompRef)
-		return commturn.TurnRecDS{
+		return commturn.ActRecDS{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
 			CompID: compRef.CompID,
@@ -31,10 +31,10 @@ func DataFromStepRec(r commturn.TurnRec) (commturn.TurnRecDS, error) {
 	case commturn.SubRec:
 		exp, err := termexp.DataFromExpRec(rec.ContExp)
 		if err != nil {
-			return commturn.TurnRecDS{}, err
+			return commturn.ActRecDS{}, err
 		}
 		compRef := compsem.DataFromRef(rec.CompRef)
-		return commturn.TurnRecDS{
+		return commturn.ActRecDS{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
 			CompID: compRef.CompID,
@@ -44,11 +44,11 @@ func DataFromStepRec(r commturn.TurnRec) (commturn.TurnRecDS, error) {
 			Exp:    exp,
 		}, nil
 	default:
-		panic(commturn.ErrRecTypeUnexpected(r))
+		panic(commturn.ErrActRecTypeUnexpected(r))
 	}
 }
 
-func DataToStepRec(dto commturn.TurnRecDS) (commturn.TurnRec, error) {
+func DataToStepRec(dto commturn.ActRecDS) (commturn.ActRec, error) {
 	connID, err := identity.ConvertFromString(dto.ConnID)
 	if err != nil {
 		return nil, err

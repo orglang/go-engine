@@ -10,8 +10,8 @@ import (
 )
 
 // step (aka Act)
-type TurnRec interface {
-	turn()
+type ActRec interface {
+	act()
 	GetConnID() identity.ADT
 	GetActNr() seqnum.ADT
 }
@@ -25,7 +25,7 @@ type PubRec struct {
 	ValExp  termexp.ExpRec
 }
 
-func (r PubRec) turn()                   {}
+func (r PubRec) act()                   {}
 func (r PubRec) GetConnID() identity.ADT { return r.ConnID }
 func (r PubRec) GetActNr() seqnum.ADT    { return r.ActNr }
 
@@ -38,18 +38,18 @@ type SubRec struct {
 	ContExp termexp.ExpRec
 }
 
-func (r SubRec) turn()                   {}
+func (r SubRec) act()                   {}
 func (r SubRec) GetConnID() identity.ADT { return r.ConnID }
 func (r SubRec) GetActNr() seqnum.ADT    { return r.ActNr }
 
-func ErrRecTypeUnexpected(got TurnRec) error {
-	return fmt.Errorf("step rec unexpected: %T%+v", got, got)
+func ErrActRecTypeUnexpected(got ActRec) error {
+	return fmt.Errorf("act rec unexpected: %T%+v", got, got)
 }
 
-func ErrRecTypeMismatch(got, want TurnRec) error {
-	return fmt.Errorf("step rec mismatch: want %T, got %T", want, got)
+func ErrActRecTypeMismatch(got, want ActRec) error {
+	return fmt.Errorf("act rec mismatch: want %T, got %T", want, got)
 }
 
-func ErrStepKindUnexpected(got turnKind) error {
-	return fmt.Errorf("step kind unexpected: %v", got)
+func ErrActKindUnexpected(got actKind) error {
+	return fmt.Errorf("act kind unexpected: %v", got)
 }

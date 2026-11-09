@@ -14,7 +14,7 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 
 	commconn "orglang/go-engine/internal/pool/commconn/core"
-	commturnadapter "orglang/go-engine/internal/pool/commturn/adapter"
+	commactadapter "orglang/go-engine/internal/pool/commact/adapter"
 )
 
 type daoPgx struct {
@@ -45,9 +45,9 @@ func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec commconn.ConnRe
 
 func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.ConnMod) error {
 	refAttr := slog.Any("conn_id", mod.ConnID)
-	if (mod.OffsetNr != nil && !mod.OffsetNr.IsEmpty()) || len(mod.Turns) > 0 {
+	if (mod.OffsetNr != nil && !mod.OffsetNr.IsEmpty()) || len(mod.Acts) > 0 {
 		dto := DataFromMod(mod)
-		if len(mod.Turns) > 0 {
+		if len(mod.Acts) > 0 {
 			// The provider CAS advances comp_rn exactly once for this operation.
 			// Mirror that revision as the Act number; no independent sequence
 			// update is needed (Take appends at most one Act per operation).
@@ -63,10 +63,10 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 			return commconn.ErrMissingConn(mod.ConnID)
 		}
 	}
-	for _, turn := range mod.Turns {
-		dto := commturnadapter.DataFromStepRec(turn)
+	for _, act := range mod.Acts {
+		dto := commactadapter.DataFromStepRec(act)
 		dto.ActNr = int64(mod.ProviderCompRN) + 1
-		querySQL, args := dao.qb.InsertTurnRec(dto)
+		querySQL, args := dao.qb.InsertActRec(dto)
 		if _, err := conn.Pgx.Exec(ctx, querySQL, args...); err != nil {
 			dao.log.Error("Act insertion failed", refAttr, slog.String("sql", querySQL))
 			return err

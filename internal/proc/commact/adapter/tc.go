@@ -7,48 +7,48 @@ import (
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 
-	commturn "orglang/go-engine/internal/proc/commturn/core"
+	commact "orglang/go-engine/internal/proc/commact/core"
 	termexp "orglang/go-engine/internal/proc/termexp/adapter"
 )
 
-func DataFromStepRec(r commturn.TurnRec) (commturn.TurnRecDS, error) {
+func DataFromStepRec(r commact.ActRec) (commact.ActRecDS, error) {
 	switch rec := r.(type) {
-	case commturn.PubRec:
+	case commact.PubRec:
 		exp, err := termexp.DataFromExpRec(rec.ValExp)
 		if err != nil {
-			return commturn.TurnRecDS{}, err
+			return commact.ActRecDS{}, err
 		}
 		compRef := compsem.DataFromRef(rec.CompRef)
-		return commturn.TurnRecDS{
+		return commact.ActRecDS{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
 			CompID: compRef.CompID,
 			CompRN: compRef.CompRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
-			K:      commturn.MsgStep,
+			K:      commact.MsgStep,
 			Exp:    exp,
 		}, nil
-	case commturn.SubRec:
+	case commact.SubRec:
 		exp, err := termexp.DataFromExpRec(rec.ContExp)
 		if err != nil {
-			return commturn.TurnRecDS{}, err
+			return commact.ActRecDS{}, err
 		}
 		compRef := compsem.DataFromRef(rec.CompRef)
-		return commturn.TurnRecDS{
+		return commact.ActRecDS{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
 			CompID: compRef.CompID,
 			CompRN: compRef.CompRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
-			K:      commturn.SvcStep,
+			K:      commact.SvcStep,
 			Exp:    exp,
 		}, nil
 	default:
-		panic(commturn.ErrRecTypeUnexpected(r))
+		panic(commact.ErrActRecTypeUnexpected(r))
 	}
 }
 
-func DataToStepRec(dto commturn.TurnRecDS) (commturn.TurnRec, error) {
+func DataToStepRec(dto commact.ActRecDS) (commact.ActRec, error) {
 	connID, err := identity.ConvertFromString(dto.ConnID)
 	if err != nil {
 		return nil, err
@@ -67,10 +67,10 @@ func DataToStepRec(dto commturn.TurnRecDS) (commturn.TurnRec, error) {
 	}
 	compRef := compsem.SemRef{CompID: compID, CompRN: seqnum.ADT(dto.CompRN)}
 	switch dto.K {
-	case commturn.MsgStep:
-		return commturn.PubRec{ConnID: connID, ActNr: seqnum.ADT(dto.ActNr), CompRef: compRef, ChnlID: chnlID, ValExp: exp}, nil
-	case commturn.SvcStep:
-		return commturn.SubRec{ConnID: connID, ActNr: seqnum.ADT(dto.ActNr), CompRef: compRef, ChnlID: chnlID, ContExp: exp}, nil
+	case commact.MsgStep:
+		return commact.PubRec{ConnID: connID, ActNr: seqnum.ADT(dto.ActNr), CompRef: compRef, ChnlID: chnlID, ValExp: exp}, nil
+	case commact.SvcStep:
+		return commact.SubRec{ConnID: connID, ActNr: seqnum.ADT(dto.ActNr), CompRef: compRef, ChnlID: chnlID, ContExp: exp}, nil
 	default:
 		return nil, fmt.Errorf("unexpected Act kind: %v", dto.K)
 	}

@@ -15,8 +15,8 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 
 	commconn "orglang/go-engine/internal/proc/commconn/core"
-	commturnadapter "orglang/go-engine/internal/proc/commturn/adapter"
-	commturn "orglang/go-engine/internal/proc/commturn/core"
+	commactadapter "orglang/go-engine/internal/proc/commact/adapter"
+	commact "orglang/go-engine/internal/proc/commact/core"
 )
 
 type daoPgx struct {
@@ -38,7 +38,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 	}
 
 	var actNr any
-	if len(mod.Turns) > 0 {
+	if len(mod.Acts) > 0 {
 		// The provider CAS advances comp_rn exactly once for this operation.
 		// Mirror that revision as the Act number, as on the Pool side.
 		actNr = int64(mod.ProviderCompRN) + 1
@@ -61,8 +61,8 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 		}
 	}
 
-	for _, turn := range mod.Turns {
-		dto, err := commturnadapter.DataFromStepRec(turn)
+	for _, act := range mod.Acts {
+		dto, err := commactadapter.DataFromStepRec(act)
 		if err != nil {
 			return err
 		}
@@ -73,7 +73,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 		`
 		_, err = conn.Pgx.Exec(ctx, insertAct, dto.ConnID, dto.ActNr, dto.CompID, dto.CompRN, dto.ChnlID, dto.K, dto.Exp)
 		if err != nil {
-			dao.log.Error("Act insertion failed", slog.Any("act", turn))
+			dao.log.Error("Act insertion failed", slog.Any("act", act))
 			return err
 		}
 	}
@@ -83,14 +83,14 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.ConnQry) (commconn.ConnSnap, error) {
 	connID := identity.ConvertToString(qry.ConnID)
 	query := `
-		WITH turns AS (
-			SELECT turn.*
-			FROM proc_conn_acts turn
-			WHERE turn.conn_id = $1
+		WITH acts AS (
+			SELECT act.*
+			FROM proc_conn_acts act
+			WHERE act.conn_id = $1
 	`
 	args := []any{connID}
 	if qry.ChnlID != nil && !qry.ChnlID.IsEmpty() {
-		query += " AND turn.chnl_id = $2"
+		query += " AND act.chnl_id = $2"
 		args = append(args, identity.ConvertToString(qry.ChnlID.Get()))
 	}
 	query += `
@@ -101,7 +101,7 @@ func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.
 			exec.comp_rn AS provider_comp_rn,
 			conn.offset_nr,
 			conn.act_nr,
-			(SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM turns t WHERE t.act_nr > conn.offset_nr) AS turns
+			(SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM acts t WHERE t.act_nr > conn.offset_nr) AS acts
 		FROM proc_comp_conns conn
 		JOIN proc_comp_execs exec ON exec.comp_id = conn.provider_comp_id
 		WHERE conn.conn_id = $1
@@ -128,13 +128,13 @@ func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.
 	if err != nil {
 		return commconn.ConnSnap{}, err
 	}
-	snap := commconn.ConnSnap{ConnID: parsedConnID, ProviderCompID: providerCompID, ProviderCompRN: seqnum.ADT(dto.ProviderCompRN), OffsetNr: seqnum.ADT(dto.OffsetNr), Turns: make([]commturn.TurnRec, 0, len(dto.Turns))}
-	for _, turnDTO := range dto.Turns {
-		turn, err := commturnadapter.DataToStepRec(turnDTO)
+	snap := commconn.ConnSnap{ConnID: parsedConnID, ProviderCompID: providerCompID, ProviderCompRN: seqnum.ADT(dto.ProviderCompRN), OffsetNr: seqnum.ADT(dto.OffsetNr), Acts: make([]commact.ActRec, 0, len(dto.Acts))}
+	for _, actDTO := range dto.Acts {
+		act, err := commactadapter.DataToStepRec(actDTO)
 		if err != nil {
 			return commconn.ConnSnap{}, err
 		}
-		snap.Turns = append(snap.Turns, turn)
+		snap.Acts = append(snap.Acts, act)
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "Connection snapshot loaded", slog.Any("conn_id", qry.ConnID))
 	return snap, nil

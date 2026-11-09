@@ -62,11 +62,6 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 	}
 
 	for _, turn := range mod.Turns {
-		switch turn.(type) {
-		case commturn.PubRec, commturn.SubRec:
-		default:
-			panic(commturn.ErrRecTypeUnexpected(turn))
-		}
 		dto, err := commturnadapter.DataFromStepRec(turn)
 		if err != nil {
 			return err

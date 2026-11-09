@@ -129,21 +129,21 @@ func (dao *daoPgx) SelectRecsByCKs(ctx context.Context, conn tx.Conn, expCKs []c
 const (
 	insertRec = `
 		insert into proc_type_exps (
-			exp_vk, sup_exp_vk, desc_id, desc_rn, kind, spec
+			exp_ck, sup_exp_ck, desc_id, desc_rn, kind, spec
 		) values (
-			@exp_vk, @sup_exp_vk, @desc_id, @desc_rn, @kind, @spec
+			@exp_ck, @sup_exp_ck, @desc_id, @desc_rn, @kind, @spec
 		)
-		on conflict (exp_vk) do nothing`
+		on conflict (exp_ck) do nothing`
 
 	selectByID = `
 		with recursive exp_tree AS (
 			select top.*
 			from proc_type_exps top
-			where exp_vk = $1
+			where exp_ck = $1
 			union all
 			select sub.*
 			from proc_type_exps sub, exp_tree sup
-			where sub.sup_exp_vk = sup.exp_vk
+			where sub.sup_exp_ck = sup.exp_ck
 		)
 		select * from exp_tree`
 )

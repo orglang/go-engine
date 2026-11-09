@@ -64,9 +64,6 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 		if err != nil {
 			return err
 		}
-		if err != nil {
-			return err
-		}
 		dto, err := commturnadapter.DataFromStepRec(turn)
 		if err != nil {
 			return err

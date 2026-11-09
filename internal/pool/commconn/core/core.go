@@ -8,7 +8,7 @@ import (
 	"orglang/go-engine/internal/adt/option"
 	"orglang/go-engine/internal/adt/seqnum"
 
-	commturn "orglang/go-engine/internal/pool/commturn/core"
+	commact "orglang/go-engine/internal/pool/commact/core"
 )
 
 type ConnRec struct {
@@ -24,7 +24,7 @@ type ConnMod struct {
 	ProviderCompID identity.ADT
 	ProviderCompRN seqnum.ADT
 	OffsetNr       option.ADT[seqnum.ADT]
-	Acts          []commturn.ActRec
+	Acts          []commact.ActRec
 }
 
 type ConnQry struct {
@@ -38,7 +38,7 @@ type ConnSnap struct {
 	ProviderCompID identity.ADT
 	ProviderCompRN seqnum.ADT
 	OffsetNr       seqnum.ADT
-	Acts          []commturn.ActRec
+	Acts          []commact.ActRec
 }
 
 func ErrOffsetConflict(got seqnum.ADT) error {
@@ -49,7 +49,7 @@ func ErrMissingConn(id identity.ADT) error {
 	return fmt.Errorf("connection missing: %v", id)
 }
 
-func (s ConnSnap) NextAct() commturn.ActRec {
+func (s ConnSnap) NextAct() commact.ActRec {
 	if len(s.Acts) > 0 {
 		return s.Acts[0]
 	}

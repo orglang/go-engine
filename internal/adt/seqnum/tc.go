@@ -18,7 +18,7 @@ func ConvertToNullInt(a ADT) sql.NullInt64 {
 }
 
 func ConvertOptionToNullInt(a option.ADT[ADT]) sql.Null[int64] {
-	if a.IsEmpty() {
+	if a == nil || a.IsEmpty() {
 		return sql.Null[int64]{}
 	}
 	return sql.Null[int64]{V: ConvertToInt(a.Get()), Valid: true}

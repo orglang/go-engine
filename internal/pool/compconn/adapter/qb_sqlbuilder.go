@@ -35,30 +35,30 @@ func (qb *sqlBuilder) UpdateRec(mod compconn.ConnModDS) (string, []any) {
 	conn := qb.connBuilder.Update(compConns, mod)
 	assignments := make([]string, 0, 2)
 	if mod.OffsetNr.Valid {
-		assignments = append(assignments, compconn.Assign("offset_nr", mod.OffsetNr.V))
+		assignments = append(assignments, sqlbuilder.Assign("offset_nr", mod.OffsetNr.V))
 	}
 	if mod.ActNr.Valid {
-		assignments = append(assignments, compconn.Assign("act_nr", mod.ActNr.V))
+		assignments = append(assignments, sqlbuilder.Assign("act_nr", mod.ActNr.V))
 	}
 	if len(assignments) > 0 {
-		compconn.Set(assignments...)
+		conn.Set(assignments...)
 	}
-	compconn.Where(compconn.Equal("conn_id", mod.ConnID))
-	return compconn.Build()
+	conn.Where(conn.Equal("conn_id", mod.ConnID))
+	return conn.Build()
 }
 
 func (qb *sqlBuilder) SelectSnap(qry compconn.ConnQryDS) (string, []any) {
-	conn := sqlbuilder.PostgreSQL.NewSelectBuilder().Select("compconn.conn_id", "compconn.provider_comp_id", "exec.comp_rn AS provider_comp_rn", "compconn.offset_nr", "compconn.act_nr").From(compConns+"conn").Join("pool_comp_execs exec", "exec.comp_id = compconn.provider_comp_id")
+	conn := sqlbuilder.PostgreSQL.NewSelectBuilder().Select("conn.conn_id", "conn.provider_comp_id", "exec.comp_rn AS provider_comp_rn", "conn.offset_nr", "conn.act_nr").From(compConns+"conn").Join("pool_comp_execs exec", "exec.comp_id = conn.provider_comp_id")
 	act := qb.actBuilder.SelectFrom(connActs + "act")
 	act.Where(act.Equal("conn_id", qry.ConnID))
 	if qry.ChnlID.Valid {
 		act.Where(act.Equal("chnl_id", qry.ChnlID.V))
 	}
 	acts := sqlbuilder.PostgreSQL.NewCTEBuilder()
-	return compconn.With(acts.With(sqlbuilder.CTEQuery("acts").As(act))).
+	return conn.With(acts.With(sqlbuilder.CTEQuery("acts").As(act))).
 		SelectMore(
-			compconn.BuilderAs(sqlbuilder.Build("SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM acts t WHERE t.act_nr > compconn.offset_nr"), "acts"),
+			conn.BuilderAs(sqlbuilder.Build("SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM acts t WHERE t.act_nr > conn.offset_nr"), "acts"),
 		).
-		Where(compconn.Equal("compconn.conn_id", qry.ConnID)).
+		Where(conn.Equal("conn.conn_id", qry.ConnID)).
 		Build()
 }

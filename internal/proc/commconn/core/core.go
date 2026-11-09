@@ -1,8 +1,6 @@
 package core
 
 import (
-	"fmt"
-
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/option"
 	"orglang/go-engine/internal/adt/seqnum"
@@ -11,10 +9,11 @@ import (
 )
 
 type ConnMod struct {
-	ConnID       identity.ADT
-	OffsetNr     option.ADT[seqnum.ADT]
-	PrevOffsetNr seqnum.ADT
-	Turns        []commturn.TurnRec
+	ConnID         identity.ADT
+	ProviderCompID identity.ADT
+	ProviderCompRN seqnum.ADT
+	OffsetNr       option.ADT[seqnum.ADT]
+	Turns          []commturn.TurnRec
 }
 
 type ConnQry struct {
@@ -24,17 +23,11 @@ type ConnQry struct {
 
 // aka Configuration
 type ConnSnap struct {
-	ConnID   identity.ADT
-	OffsetNr seqnum.ADT
-	Turns    []commturn.TurnRec
-}
-
-func ErrOffsetConflict(got seqnum.ADT) error {
-	return fmt.Errorf("connection offset changed concurrently: got %v", got)
-}
-
-func ErrSnapshotConflict(got seqnum.ADT) error {
-	return fmt.Errorf("connection snapshot changed concurrently: offset %v", got)
+	ConnID         identity.ADT
+	ProviderCompID identity.ADT
+	ProviderCompRN seqnum.ADT
+	OffsetNr       seqnum.ADT
+	Turns          []commturn.TurnRec
 }
 
 func (s ConnSnap) NextTurn() commturn.TurnRec {

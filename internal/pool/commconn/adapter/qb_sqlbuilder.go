@@ -4,7 +4,7 @@ import (
 	"github.com/huandu/go-sqlbuilder"
 
 	commconn "orglang/go-engine/internal/pool/commconn/core"
-	commturn "orglang/go-engine/internal/pool/commturn/core"
+	commact "orglang/go-engine/internal/pool/commact/core"
 )
 
 type sqlBuilder struct {
@@ -19,7 +19,7 @@ func newQueryBuilder() commconn.QueryBuilder {
 
 func newSQLBuilder() *sqlBuilder {
 	connBuilder := sqlbuilder.NewStruct(new(commconn.ConnRecDS)).For(sqlbuilder.PostgreSQL)
-	turnBuilder := sqlbuilder.NewStruct(new(commturn.ActRecDS)).For(sqlbuilder.PostgreSQL)
+	turnBuilder := sqlbuilder.NewStruct(new(commact.ActRecDS)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{connBuilder, turnBuilder}
 }
 
@@ -27,7 +27,7 @@ func (qb *sqlBuilder) InsertRec(rec commconn.ConnRecDS) (string, []any) {
 	return qb.connBuilder.InsertInto(compConns, rec).Build()
 }
 
-func (qb *sqlBuilder) InsertTurnRec(rec commturn.ActRecDS) (string, []any) {
+func (qb *sqlBuilder) InsertTurnRec(rec commact.ActRecDS) (string, []any) {
 	return qb.turnBuilder.InsertInto(connActs, rec).Build()
 }
 

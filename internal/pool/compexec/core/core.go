@@ -285,15 +285,7 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 		compRefs[providerRef.CompID.String()] = providerRef
 	}
 	for _, variable := range execMod.Vars {
-		var ref compsem.SemRef
-		switch rec := variable.(type) {
-		case compvar.StructRec:
-			ref = rec.CompRef
-		case compvar.LinearRec:
-			ref = rec.CompRef
-		default:
-			return fmt.Errorf("unexpected variable record type %T", variable)
-		}
+		ref := variable.GetCompRef()
 		// The Act's CompRef records the revision that produced the Act. For
 		// provider-side writes, use the live provider revision captured with
 		// the Connection snapshot instead of that historical Act revision.

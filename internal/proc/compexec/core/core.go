@@ -20,7 +20,7 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/adt/valkey"
 	commconn "orglang/go-engine/internal/proc/commconn/core"
-	commturn "orglang/go-engine/internal/proc/commturn/core"
+	commact "orglang/go-engine/internal/proc/commact/core"
 	compstep "orglang/go-engine/internal/proc/compstep/core"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 	termdef "orglang/go-engine/internal/proc/termdef/core"
@@ -246,7 +246,7 @@ func (s *service) takeWith(
 		}
 		if subscription == nil {
 			// регистрируем подписку закрывателя
-			connMod.Acts = append(connMod.Acts, commturn.SubRec{
+			connMod.Acts = append(connMod.Acts, commact.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -255,9 +255,9 @@ func (s *service) takeWith(
 			s.log.Debug("taking half done", compAttr, connAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 		}
-		observation, ok := subscription.(commturn.SubRec)
+		observation, ok := subscription.(commact.SubRec)
 		if !ok {
-			panic(commturn.ErrActRecTypeUnexpected(subscription))
+			panic(commact.ErrActRecTypeUnexpected(subscription))
 		}
 		newChnlID := identity.New()
 		nextExpVK := valkey.One.Invert()
@@ -321,7 +321,7 @@ func (s *service) takeWith(
 		}
 		if subscription == nil {
 			// регистрируем подписку наблюдателя
-			connMod.Acts = append(connMod.Acts, commturn.SubRec{
+			connMod.Acts = append(connMod.Acts, commact.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -330,9 +330,9 @@ func (s *service) takeWith(
 			s.log.Debug("taking half done", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 		}
-		closage, ok := subscription.(commturn.SubRec)
+		closage, ok := subscription.(commact.SubRec)
 		if !ok {
-			panic(commturn.ErrActRecTypeUnexpected(subscription))
+			panic(commact.ErrActRecTypeUnexpected(subscription))
 		}
 		newChnlID := identity.New()
 		nextExpVK := valkey.One.Invert()
@@ -423,7 +423,7 @@ func (s *service) takeWith(
 		}
 		if subscription == nil {
 			// регистрируем подписку отправителя
-			connMod.Acts = append(connMod.Acts, commturn.SubRec{
+			connMod.Acts = append(connMod.Acts, commact.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -436,9 +436,9 @@ func (s *service) takeWith(
 			s.log.Debug("taking half done", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 		}
-		receival, ok := subscription.(commturn.SubRec)
+		receival, ok := subscription.(commact.SubRec)
 		if !ok {
-			panic(commturn.ErrActRecTypeUnexpected(subscription))
+			panic(commact.ErrActRecTypeUnexpected(subscription))
 		}
 		newChnlID := identity.New()
 		// вяжем продолжение отправителя
@@ -534,7 +534,7 @@ func (s *service) takeWith(
 				ExpVK:   nextExpVK,
 			})
 			// регистрируем подписку принимателя
-			connMod.Acts = append(connMod.Acts, commturn.SubRec{
+			connMod.Acts = append(connMod.Acts, commact.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -548,9 +548,9 @@ func (s *service) takeWith(
 			s.log.Debug("taking half done", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 		}
-		sending, ok := publication.(commturn.PubRec)
+		sending, ok := publication.(commact.PubRec)
 		if !ok {
-			panic(commturn.ErrActRecTypeUnexpected(publication))
+			panic(commact.ErrActRecTypeUnexpected(publication))
 		}
 		switch valExp := sending.ValExp.(type) {
 		case termexp.SendRec:
@@ -624,7 +624,7 @@ func (s *service) takeWith(
 				ExpVK:   nextExpVK,
 			})
 			// регистрируем сообщение решателя
-			connMod.Acts = append(connMod.Acts, commturn.PubRec{
+			connMod.Acts = append(connMod.Acts, commact.PubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -637,9 +637,9 @@ func (s *service) takeWith(
 			s.log.Debug("taking half done", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 		}
-		following, ok := subscription.(commturn.SubRec)
+		following, ok := subscription.(commact.SubRec)
 		if !ok {
-			panic(commturn.ErrActRecTypeUnexpected(subscription))
+			panic(commact.ErrActRecTypeUnexpected(subscription))
 		}
 		switch contExp := following.ContExp.(type) {
 		case termexp.CaseRec:
@@ -702,7 +702,7 @@ func (s *service) takeWith(
 		if publication == nil {
 			newChnlID := identity.New()
 			// регистрируем подписку последователя
-			connMod.Acts = append(connMod.Acts, commturn.SubRec{
+			connMod.Acts = append(connMod.Acts, commact.SubRec{
 				ConnID:  connChnl.ConnID,
 				CompRef: connChnl.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -715,9 +715,9 @@ func (s *service) takeWith(
 			s.log.Debug("taking half done", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 		}
-		decision, ok := publication.(commturn.PubRec)
+		decision, ok := publication.(commact.PubRec)
 		if !ok {
-			panic(commturn.ErrActRecTypeUnexpected(publication))
+			panic(commact.ErrActRecTypeUnexpected(publication))
 		}
 		switch valExp := decision.ValExp.(type) {
 		case termexp.LabRec:
@@ -780,7 +780,7 @@ func (s *service) takeWith(
 		switch typeExp.Pol() {
 		case polarity.Pos:
 			switch forwardable := turn.(type) {
-			case commturn.SubRec:
+			case commact.SubRec:
 				// перенаправляем подписчика
 				execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
 					CompRef: forwardable.CompRef,
@@ -798,7 +798,7 @@ func (s *service) takeWith(
 				}
 				s.log.Debug("step taking succeed", compAttr)
 				return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
-			case commturn.PubRec:
+			case commact.PubRec:
 				// перенаправляем публикатора
 				execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
 					CompRef: forwardable.CompRef,
@@ -833,7 +833,7 @@ func (s *service) takeWith(
 					ExpVK:  contChnl.ExpVK.Invert(),
 				})
 				// регистрируем сообщение схлопывающегося
-				connMod.Acts = append(connMod.Acts, commturn.PubRec{
+				connMod.Acts = append(connMod.Acts, commact.PubRec{
 					ConnID:  fwdConnSnap.ConnID,
 					CompRef: execSnap.CompRef,
 					ChnlID:  connChnl.ChnlID,
@@ -844,11 +844,11 @@ func (s *service) takeWith(
 				s.log.Debug("taking half done", compAttr)
 				return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 			default:
-				panic(commturn.ErrActRecTypeUnexpected(turn))
+				panic(commact.ErrActRecTypeUnexpected(turn))
 			}
 		case polarity.Neg:
 			switch forwardable := turn.(type) {
-			case commturn.SubRec:
+			case commact.SubRec:
 				// перенаправляем подписчика
 				execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
 					CompRef: forwardable.CompRef,
@@ -866,7 +866,7 @@ func (s *service) takeWith(
 				}
 				s.log.Debug("step taking succeed", compAttr)
 				return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
-			case commturn.PubRec:
+			case commact.PubRec:
 				// перенаправляем публикатора
 				execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
 					CompRef: forwardable.CompRef,
@@ -884,7 +884,7 @@ func (s *service) takeWith(
 				return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 			case nil:
 				// регистрируем подписку схлопывающегося
-				connMod.Acts = append(connMod.Acts, commturn.SubRec{
+				connMod.Acts = append(connMod.Acts, commact.SubRec{
 					ConnID:  fwdConnSnap.ConnID,
 					CompRef: connChnl.CompRef,
 					ChnlID:  connChnl.ChnlID,
@@ -895,7 +895,7 @@ func (s *service) takeWith(
 				s.log.Debug("taking half done", compAttr)
 				return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 			default:
-				panic(commturn.ErrActRecTypeUnexpected(turn))
+				panic(commact.ErrActRecTypeUnexpected(turn))
 			}
 		default:
 			panic(typeexp.ErrPolarityUnexpected(typeExp))

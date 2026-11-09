@@ -167,7 +167,11 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 		}
 		if len(result.Connection.Turns) > 0 || (result.Connection.OffsetNr != nil && !result.Connection.OffsetNr.IsEmpty()) {
 			providerRef := compsem.SemRef{CompID: result.Connection.ProviderCompID, CompRN: result.Connection.ProviderCompRN}
-			if providerRef.CompID != execSnap.CompRef.CompID {
+			if providerRef.CompID == execSnap.CompRef.CompID {
+				if providerRef.CompRN != execSnap.CompRef.CompRN {
+					return fmt.Errorf("provider computation snapshot changed: expected revision %v, got %v", providerRef.CompRN, execSnap.CompRef.CompRN)
+				}
+			} else {
 				result.Mod.CompRefs = append(result.Mod.CompRefs, providerRef)
 			}
 		}
@@ -238,7 +242,6 @@ func (s *service) takeWith(
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
-			connMod.PrevOffsetNr = connSnap.OffsetNr
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {
@@ -314,7 +317,6 @@ func (s *service) takeWith(
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
-			connMod.PrevOffsetNr = connSnap.OffsetNr
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {
@@ -417,7 +419,6 @@ func (s *service) takeWith(
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
-			connMod.PrevOffsetNr = connSnap.OffsetNr
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {
@@ -519,7 +520,6 @@ func (s *service) takeWith(
 		publication := connSnap.NextTurn()
 		if publication != nil {
 			connMod.ConnID = connSnap.ConnID
-			connMod.PrevOffsetNr = connSnap.OffsetNr
 			connMod.OffsetNr = option.Some(publication.GetActNr())
 		}
 		if publication == nil {
@@ -692,10 +692,11 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, getErr
 		}
-		publication := caseConnSnap.NextTurn()
+				connMod.ProviderCompID = caseConnSnap.ProviderCompID
+		connMod.ProviderCompRN = caseConnSnap.ProviderCompRN
+publication := caseConnSnap.NextTurn()
 		if publication != nil {
 			connMod.ConnID = caseConnSnap.ConnID
-			connMod.PrevOffsetNr = caseConnSnap.OffsetNr
 			connMod.OffsetNr = option.Some(publication.GetActNr())
 		}
 		if publication == nil {
@@ -769,10 +770,11 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, getErr
 		}
-		turn := fwdConnSnap.NextTurn()
+				connMod.ProviderCompID = fwdConnSnap.ProviderCompID
+		connMod.ProviderCompRN = fwdConnSnap.ProviderCompRN
+turn := fwdConnSnap.NextTurn()
 		if turn != nil {
 			connMod.ConnID = fwdConnSnap.ConnID
-			connMod.PrevOffsetNr = fwdConnSnap.OffsetNr
 			connMod.OffsetNr = option.Some(turn.GetActNr())
 		}
 		switch typeExp.Pol() {

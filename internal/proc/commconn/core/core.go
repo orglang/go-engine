@@ -6,7 +6,7 @@ import (
 	"orglang/go-engine/internal/adt/option"
 	"orglang/go-engine/internal/adt/seqnum"
 
-	commturn "orglang/go-engine/internal/proc/commturn/core"
+	commact "orglang/go-engine/internal/proc/commact/core"
 )
 
 type ConnMod struct {
@@ -14,7 +14,7 @@ type ConnMod struct {
 	ProviderCompID identity.ADT
 	ProviderCompRN seqnum.ADT
 	OffsetNr       option.ADT[seqnum.ADT]
-	Acts          []commturn.ActRec
+	Acts          []commact.ActRec
 }
 
 type ConnQry struct {
@@ -28,7 +28,7 @@ type ConnSnap struct {
 	ProviderCompID identity.ADT
 	ProviderCompRN seqnum.ADT
 	OffsetNr       seqnum.ADT
-	Acts          []commturn.ActRec
+	Acts          []commact.ActRec
 }
 
 func ErrOffsetConflict(got seqnum.ADT) error {
@@ -39,7 +39,7 @@ func ErrSnapshotConflict(got seqnum.ADT) error {
 	return fmt.Errorf("connection snapshot changed concurrently: offset %v", got)
 }
 
-func (s ConnSnap) NextAct() commturn.ActRec {
+func (s ConnSnap) NextAct() commact.ActRec {
 	if len(s.Acts) > 0 {
 		return s.Acts[0]
 	}

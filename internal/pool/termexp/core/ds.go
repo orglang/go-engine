@@ -13,18 +13,18 @@ type ExpSpecDS struct {
 }
 
 type GrantSpecDS struct {
-	CommChnlPH string    `json:"ph"`
+	ConnChnlPH string    `json:"ph"`
 	ContExp    ExpSpecDS `json:"exp"`
 }
 
 type CoopSpecDS struct {
-	CommChnlPH string    `json:"ph"`
+	ConnChnlPH string    `json:"ph"`
 	ProcTermQN string    `json:"qn"`
 	ContExp    ExpSpecDS `json:"exp"`
 }
 
 type RevokeSpecDS struct {
-	CommChnlPH string `json:"ph"`
+	ConnChnlPH string `json:"ph"`
 }
 
 type ExpRecDS struct {

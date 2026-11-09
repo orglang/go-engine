@@ -16,33 +16,33 @@ func TestExpRecRoundTripPreservesConnectionIDs(t *testing.T) {
 	connID := identity.New()
 	contID := identity.New()
 	valueID := identity.New()
-	commChnl := symbol.ADT("comm")
+	connChnl := symbol.ADT("conn")
 	contChnl := symbol.ADT("cont")
 	newChnl := symbol.ADT("new")
 	label := uniqsym.New(symbol.ADT("label"))
 
 	tests := []termexp.ExpRec{
 		termexp.SendRec{
-			CommChnlPH: commChnl,
+			ConnChnlPH: connChnl,
 			ContChnlID: contID,
 			ValChnlID:  valueID,
 			ValExpCK:   contkey.ADT(7),
 			ConnID:     connID,
 		},
 		termexp.RecvRec{
-			CommChnlPH: commChnl,
+			ConnChnlPH: connChnl,
 			ContChnlID: contID,
 			NewChnlPH:  newChnl,
 			ContExp:    termexp.CloseSpec{ContChnlPH: contChnl},
 		},
 		termexp.LabRec{
-			CommChnlPH: commChnl,
+			ConnChnlPH: connChnl,
 			ContChnlID: contID,
 			ValExpCK:   contkey.ADT(9),
 			ValLabQN:   label,
 		},
 		termexp.CaseRec{
-			CommChnlPH: commChnl,
+			ConnChnlPH: connChnl,
 			ContChnlID: contID,
 			ContExps: map[uniqsym.ADT]termexp.ExpSpec{
 				label: termexp.CloseSpec{ContChnlPH: contChnl},

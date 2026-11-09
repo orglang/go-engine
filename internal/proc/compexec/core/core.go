@@ -19,8 +19,8 @@ import (
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
-	commconn "orglang/go-engine/internal/proc/commconn/core"
-	commact "orglang/go-engine/internal/proc/commact/core"
+	conncore "orglang/go-engine/internal/proc/conn/core"
+	connact "orglang/go-engine/internal/proc/connact/core"
 	compstep "orglang/go-engine/internal/proc/compstep/core"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 	termdef "orglang/go-engine/internal/proc/termdef/core"
@@ -51,7 +51,7 @@ type ExecEff struct {
 type takeResult struct {
 	Mod        ExecMod
 	Effects    ExecEff
-	Connection commconn.ConnMod
+	Connection conncore.ConnMod
 }
 
 // aka Configuration
@@ -70,7 +70,7 @@ func ChnlPH(rec compvar.LinearRec) symbol.ADT { return rec.ChnlPH }
 
 type service struct {
 	compExecRepo Repo
-	connRepo     commconn.Repo
+	connRepo     conncore.Repo
 	termDecRepo  termdec.Repo
 	typeDefRepo  typedef.Repo
 	typeExpRepo  typeexp.Repo
@@ -85,7 +85,7 @@ func newAPI() API {
 
 func NewService(
 	compExecRepo Repo,
-	connRepo commconn.Repo,
+	connRepo conncore.Repo,
 	termDecRepo termdec.Repo,
 	typeDefRepo typedef.Repo,
 	typeExpRepo typeexp.Repo,
@@ -211,7 +211,7 @@ func (s *service) takeWith(
 ) (takeResult, error) {
 	var execMod ExecMod
 	var execEff ExecEff
-	var connMod commconn.ConnMod
+	var connMod conncore.ConnMod
 	ctx := context.Background()
 	var err error
 	compAttr := slog.Any("compRef", execSnap.CompRef)
@@ -225,9 +225,9 @@ func (s *service) takeWith(
 		}
 		connAttr := slog.Any("connRef", connChnl.ConnID)
 		// получаем снепшот коммуникации
-		var connSnap commconn.ConnSnap
+		var connSnap conncore.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, commconn.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, conncore.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -246,7 +246,7 @@ func (s *service) takeWith(
 		}
 		if subscription == nil {
 			// регистрируем подписку закрывателя
-			connMod.Acts = append(connMod.Acts, commact.SubRec{
+			connMod.Acts = append(connMod.Acts, connact.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -255,9 +255,9 @@ func (s *service) takeWith(
 			s.log.Debug("taking half done", compAttr, connAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 		}
-		observation, ok := subscription.(commact.SubRec)
+		observation, ok := subscription.(connact.SubRec)
 		if !ok {
-			panic(commact.ErrActRecTypeUnexpected(subscription))
+			panic(connact.ErrActRecTypeUnexpected(subscription))
 		}
 		newChnlID := identity.New()
 		nextExpCK := contkey.One.Invert()
@@ -300,9 +300,9 @@ func (s *service) takeWith(
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, termdef.ErrMissingInCfg(termExp.ContChnlPH)
 		}
 		// получаем снепшот соединения
-		var connSnap commconn.ConnSnap
+		var connSnap conncore.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, commconn.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, conncore.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -321,7 +321,7 @@ func (s *service) takeWith(
 		}
 		if subscription == nil {
 			// регистрируем подписку наблюдателя
-			connMod.Acts = append(connMod.Acts, commact.SubRec{
+			connMod.Acts = append(connMod.Acts, connact.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -330,9 +330,9 @@ func (s *service) takeWith(
 			s.log.Debug("taking half done", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 		}
-		closage, ok := subscription.(commact.SubRec)
+		closage, ok := subscription.(connact.SubRec)
 		if !ok {
-			panic(commact.ErrActRecTypeUnexpected(subscription))
+			panic(connact.ErrActRecTypeUnexpected(subscription))
 		}
 		newChnlID := identity.New()
 		nextExpCK := contkey.One.Invert()
@@ -384,9 +384,9 @@ func (s *service) takeWith(
 			panic(termexp.ErrRecTypeUnexpected(closage.ContExp))
 		}
 	case termexp.SendSpec:
-		connChnl, ok := execSnap.LinearVars[termExp.CommChnlPH]
+		connChnl, ok := execSnap.LinearVars[termExp.ConnChnlPH]
 		if !ok {
-			err := termdef.ErrMissingInCfg(termExp.CommChnlPH)
+			err := termdef.ErrMissingInCfg(termExp.ConnChnlPH)
 			s.log.Error("step taking failed", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, err
 		}
@@ -402,9 +402,9 @@ func (s *service) takeWith(
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, termdef.ErrMissingInCfg(termExp.ValChnlPH)
 		}
 		// получаем снепшот соединения
-		var connSnap commconn.ConnSnap
+		var connSnap conncore.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, commconn.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, conncore.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -423,12 +423,12 @@ func (s *service) takeWith(
 		}
 		if subscription == nil {
 			// регистрируем подписку отправителя
-			connMod.Acts = append(connMod.Acts, commact.SubRec{
+			connMod.Acts = append(connMod.Acts, connact.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
 				ContExp: termexp.SendRec{
-					CommChnlPH: connChnl.ChnlPH,
+					ConnChnlPH: connChnl.ChnlPH,
 					ValChnlID:  valChnl.ChnlID,
 					ValExpCK:   valChnl.ExpCK,
 				},
@@ -436,9 +436,9 @@ func (s *service) takeWith(
 			s.log.Debug("taking half done", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 		}
-		receival, ok := subscription.(commact.SubRec)
+		receival, ok := subscription.(connact.SubRec)
 		if !ok {
-			panic(commact.ErrActRecTypeUnexpected(subscription))
+			panic(connact.ErrActRecTypeUnexpected(subscription))
 		}
 		newChnlID := identity.New()
 		// вяжем продолжение отправителя
@@ -466,7 +466,7 @@ func (s *service) takeWith(
 				CompRef: receival.CompRef,
 				ConnID:  receival.ConnID,
 				ChnlID:  newChnlID,
-				ChnlPH:  expRec.CommChnlPH,
+				ChnlPH:  expRec.ConnChnlPH,
 				ChnlBS:  connChnl.ChnlBS,
 				ExpCK:   nextExpCK,
 			})
@@ -491,10 +491,10 @@ func (s *service) takeWith(
 			panic(termexp.ErrRecTypeUnexpected(receival.ContExp))
 		}
 	case termexp.RecvSpec:
-		connChnl, ok := execSnap.LinearVars[termExp.CommChnlPH]
+		connChnl, ok := execSnap.LinearVars[termExp.ConnChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", compAttr)
-			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, termdef.ErrMissingInCfg(termExp.CommChnlPH)
+			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, termdef.ErrMissingInCfg(termExp.ConnChnlPH)
 		}
 		typeExp, ok := procEnv.TypeExps[connChnl.ExpCK]
 		if !ok {
@@ -503,9 +503,9 @@ func (s *service) takeWith(
 		}
 		nextExpCK := typeExp.(typeexp.ProdRec).Next()
 		// получаем снепшот соединения
-		var connSnap commconn.ConnSnap
+		var connSnap conncore.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, commconn.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, conncore.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -534,12 +534,12 @@ func (s *service) takeWith(
 				ExpCK:   nextExpCK,
 			})
 			// регистрируем подписку принимателя
-			connMod.Acts = append(connMod.Acts, commact.SubRec{
+			connMod.Acts = append(connMod.Acts, connact.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
 				ContExp: termexp.RecvRec{
-					CommChnlPH: connChnl.ChnlPH,
+					ConnChnlPH: connChnl.ChnlPH,
 					ContChnlID: newChnlID,
 					NewChnlPH:  termExp.NewChnlPH,
 					ContExp:    termExp.ContExp,
@@ -548,9 +548,9 @@ func (s *service) takeWith(
 			s.log.Debug("taking half done", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 		}
-		sending, ok := publication.(commact.PubRec)
+		sending, ok := publication.(connact.PubRec)
 		if !ok {
-			panic(commact.ErrActRecTypeUnexpected(publication))
+			panic(connact.ErrActRecTypeUnexpected(publication))
 		}
 		switch valExp := sending.ValExp.(type) {
 		case termexp.SendRec:
@@ -584,9 +584,9 @@ func (s *service) takeWith(
 			panic(termexp.ErrRecTypeUnexpected(sending.ValExp))
 		}
 	case termexp.LabSpec:
-		connChnl, ok := execSnap.LinearVars[termExp.CommChnlPH]
+		connChnl, ok := execSnap.LinearVars[termExp.ConnChnlPH]
 		if !ok {
-			err := termdef.ErrMissingInCfg(termExp.CommChnlPH)
+			err := termdef.ErrMissingInCfg(termExp.ConnChnlPH)
 			s.log.Error("step taking failed")
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, err
 		}
@@ -597,9 +597,9 @@ func (s *service) takeWith(
 		}
 		nextExpCK := typeExp.(typeexp.SumRec).Next(termExp.ValLabQN)
 		// получаем снепшот соединения
-		var connSnap commconn.ConnSnap
+		var connSnap conncore.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, commconn.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, conncore.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -624,12 +624,12 @@ func (s *service) takeWith(
 				ExpCK:   nextExpCK,
 			})
 			// регистрируем сообщение решателя
-			connMod.Acts = append(connMod.Acts, commact.PubRec{
+			connMod.Acts = append(connMod.Acts, connact.PubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
 				ValExp: termexp.LabRec{
-					CommChnlPH: connChnl.ChnlPH,
+					ConnChnlPH: connChnl.ChnlPH,
 					ContChnlID: newChnlID,
 					ValLabQN:   termExp.ValLabQN,
 				},
@@ -637,9 +637,9 @@ func (s *service) takeWith(
 			s.log.Debug("taking half done", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 		}
-		following, ok := subscription.(commact.SubRec)
+		following, ok := subscription.(connact.SubRec)
 		if !ok {
-			panic(commact.ErrActRecTypeUnexpected(subscription))
+			panic(connact.ErrActRecTypeUnexpected(subscription))
 		}
 		switch contExp := following.ContExp.(type) {
 		case termexp.CaseRec:
@@ -657,7 +657,7 @@ func (s *service) takeWith(
 				CompRef: following.CompRef,
 				ConnID:  following.ConnID,
 				ChnlID:  contExp.ContChnlID,
-				ChnlPH:  contExp.CommChnlPH,
+				ChnlPH:  contExp.ConnChnlPH,
 				// TODO значение ChnlBS
 				ExpCK: nextExpCK,
 			})
@@ -673,16 +673,16 @@ func (s *service) takeWith(
 			panic(termexp.ErrRecTypeUnexpected(following.ContExp))
 		}
 	case termexp.CaseSpec:
-		connChnl, ok := execSnap.LinearVars[termExp.CommChnlPH]
+		connChnl, ok := execSnap.LinearVars[termExp.ConnChnlPH]
 		if !ok {
-			err := termdef.ErrMissingInCfg(termExp.CommChnlPH)
+			err := termdef.ErrMissingInCfg(termExp.ConnChnlPH)
 			s.log.Error("step taking failed")
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, err
 		}
 		// получаем снепшот соединения
-		var caseConnSnap commconn.ConnSnap
+		var caseConnSnap conncore.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			caseConnSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, commconn.ConnQry{
+			caseConnSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, conncore.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -702,12 +702,12 @@ func (s *service) takeWith(
 		if publication == nil {
 			newChnlID := identity.New()
 			// регистрируем подписку последователя
-			connMod.Acts = append(connMod.Acts, commact.SubRec{
+			connMod.Acts = append(connMod.Acts, connact.SubRec{
 				ConnID:  connChnl.ConnID,
 				CompRef: connChnl.CompRef,
 				ChnlID:  connChnl.ChnlID,
 				ContExp: termexp.CaseRec{
-					CommChnlPH: connChnl.ChnlPH,
+					ConnChnlPH: connChnl.ChnlPH,
 					ContChnlID: newChnlID,
 					ContExps:   termExp.ContExps,
 				},
@@ -715,9 +715,9 @@ func (s *service) takeWith(
 			s.log.Debug("taking half done", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 		}
-		decision, ok := publication.(commact.PubRec)
+		decision, ok := publication.(connact.PubRec)
 		if !ok {
-			panic(commact.ErrActRecTypeUnexpected(publication))
+			panic(connact.ErrActRecTypeUnexpected(publication))
 		}
 		switch valExp := decision.ValExp.(type) {
 		case termexp.LabRec:
@@ -742,10 +742,10 @@ func (s *service) takeWith(
 			panic(termexp.ErrRecTypeUnexpected(decision.ValExp))
 		}
 	case termexp.FwdSpec:
-		connChnl, ok := execSnap.LinearVars[termExp.CommChnlPH]
+		connChnl, ok := execSnap.LinearVars[termExp.ConnChnlPH]
 		if !ok {
 			s.log.Error("step taking failed")
-			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, termdef.ErrMissingInCfg(termExp.CommChnlPH)
+			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, termdef.ErrMissingInCfg(termExp.ConnChnlPH)
 		}
 		contChnl, ok := execSnap.LinearVars[termExp.ContChnlPH]
 		if !ok {
@@ -758,9 +758,9 @@ func (s *service) takeWith(
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, typedef.ErrMissingInEnv(connChnl.ExpCK)
 		}
 		// получаем снепшот соединения
-		var fwdConnSnap commconn.ConnSnap
+		var fwdConnSnap conncore.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			fwdConnSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, commconn.ConnQry{
+			fwdConnSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, conncore.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -780,7 +780,7 @@ func (s *service) takeWith(
 		switch typeExp.Pol() {
 		case polarity.Pos:
 			switch forwardable := act.(type) {
-			case commact.SubRec:
+			case connact.SubRec:
 				// перенаправляем подписчика
 				execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
 					CompRef: forwardable.CompRef,
@@ -798,7 +798,7 @@ func (s *service) takeWith(
 				}
 				s.log.Debug("step taking succeed", compAttr)
 				return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
-			case commact.PubRec:
+			case connact.PubRec:
 				// перенаправляем публикатора
 				execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
 					CompRef: forwardable.CompRef,
@@ -820,7 +820,7 @@ func (s *service) takeWith(
 					CompRef: connChnl.CompRef,
 					ConnID:  connChnl.ConnID,
 					ChnlID:  connChnl.ChnlID,
-					ChnlPH:  termExp.CommChnlPH,
+					ChnlPH:  termExp.ConnChnlPH,
 					ChnlBS:  connChnl.ChnlBS,
 					ExpCK:   connChnl.ExpCK.Invert(),
 				})
@@ -833,7 +833,7 @@ func (s *service) takeWith(
 					ExpCK:  contChnl.ExpCK.Invert(),
 				})
 				// регистрируем сообщение схлопывающегося
-				connMod.Acts = append(connMod.Acts, commact.PubRec{
+				connMod.Acts = append(connMod.Acts, connact.PubRec{
 					ConnID:  fwdConnSnap.ConnID,
 					CompRef: execSnap.CompRef,
 					ChnlID:  connChnl.ChnlID,
@@ -844,11 +844,11 @@ func (s *service) takeWith(
 				s.log.Debug("taking half done", compAttr)
 				return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 			default:
-				panic(commact.ErrActRecTypeUnexpected(act))
+				panic(connact.ErrActRecTypeUnexpected(act))
 			}
 		case polarity.Neg:
 			switch forwardable := act.(type) {
-			case commact.SubRec:
+			case connact.SubRec:
 				// перенаправляем подписчика
 				execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
 					CompRef: forwardable.CompRef,
@@ -866,7 +866,7 @@ func (s *service) takeWith(
 				}
 				s.log.Debug("step taking succeed", compAttr)
 				return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
-			case commact.PubRec:
+			case connact.PubRec:
 				// перенаправляем публикатора
 				execMod.LinearVars = append(execMod.LinearVars, compvar.LinearRec{
 					CompRef: forwardable.CompRef,
@@ -884,7 +884,7 @@ func (s *service) takeWith(
 				return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 			case nil:
 				// регистрируем подписку схлопывающегося
-				connMod.Acts = append(connMod.Acts, commact.SubRec{
+				connMod.Acts = append(connMod.Acts, connact.SubRec{
 					ConnID:  fwdConnSnap.ConnID,
 					CompRef: connChnl.CompRef,
 					ChnlID:  connChnl.ChnlID,
@@ -895,7 +895,7 @@ func (s *service) takeWith(
 				s.log.Debug("taking half done", compAttr)
 				return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 			default:
-				panic(commact.ErrActRecTypeUnexpected(act))
+				panic(connact.ErrActRecTypeUnexpected(act))
 			}
 		default:
 			panic(typeexp.ErrPolarityUnexpected(typeExp))
@@ -973,9 +973,9 @@ func (s *service) checkProvider(
 		return err
 	case termexp.SendSpec:
 		// check via
-		gotVia, ok := procCtx.Liabs[expSpec.CommChnlPH]
+		gotVia, ok := procCtx.Liabs[expSpec.ConnChnlPH]
 		if !ok {
-			err := typedef.ErrMissingInCtx(expSpec.CommChnlPH)
+			err := typedef.ErrMissingInCtx(expSpec.ConnChnlPH)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -998,14 +998,14 @@ func (s *service) checkProvider(
 			return err
 		}
 		// no cont to check
-		procCtx.Liabs[expSpec.CommChnlPH] = wantVia.Cont
+		procCtx.Liabs[expSpec.ConnChnlPH] = wantVia.Cont
 		delete(procCtx.Assets, expSpec.ValChnlPH)
 		return nil
 	case termexp.RecvSpec:
 		// check via
-		gotVia, ok := procCtx.Liabs[expSpec.CommChnlPH]
+		gotVia, ok := procCtx.Liabs[expSpec.ConnChnlPH]
 		if !ok {
-			err := typedef.ErrMissingInCtx(expSpec.CommChnlPH)
+			err := typedef.ErrMissingInCtx(expSpec.ConnChnlPH)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -1028,14 +1028,14 @@ func (s *service) checkProvider(
 			return err
 		}
 		// check cont
-		procCtx.Liabs[expSpec.CommChnlPH] = wantVia.Cont
+		procCtx.Liabs[expSpec.ConnChnlPH] = wantVia.Cont
 		procCtx.Assets[expSpec.NewChnlPH] = wantVia.Val
 		return s.checkType(procEnv, procCtx, procCfg, expSpec.ContExp)
 	case termexp.LabSpec:
 		// check via
-		gotVia, ok := procCtx.Liabs[expSpec.CommChnlPH]
+		gotVia, ok := procCtx.Liabs[expSpec.ConnChnlPH]
 		if !ok {
-			err := typedef.ErrMissingInCtx(expSpec.CommChnlPH)
+			err := typedef.ErrMissingInCtx(expSpec.ConnChnlPH)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -1053,13 +1053,13 @@ func (s *service) checkProvider(
 			return err
 		}
 		// no cont to check
-		procCtx.Liabs[expSpec.CommChnlPH] = choice
+		procCtx.Liabs[expSpec.ConnChnlPH] = choice
 		return nil
 	case termexp.CaseSpec:
 		// check via
-		gotVia, ok := procCtx.Liabs[expSpec.CommChnlPH]
+		gotVia, ok := procCtx.Liabs[expSpec.ConnChnlPH]
 		if !ok {
-			err := typedef.ErrMissingInCtx(expSpec.CommChnlPH)
+			err := typedef.ErrMissingInCtx(expSpec.ConnChnlPH)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -1082,7 +1082,7 @@ func (s *service) checkProvider(
 				s.log.Error("checking failed")
 				return err
 			}
-			procCtx.Liabs[expSpec.CommChnlPH] = choice
+			procCtx.Liabs[expSpec.ConnChnlPH] = choice
 			err := s.checkType(procEnv, procCtx, procCfg, cont)
 			if err != nil {
 				s.log.Error("checking failed")
@@ -1096,9 +1096,9 @@ func (s *service) checkProvider(
 			s.log.Error("checking failed")
 			return err
 		}
-		viaSt, ok := procCtx.Liabs[expSpec.CommChnlPH]
+		viaSt, ok := procCtx.Liabs[expSpec.ConnChnlPH]
 		if !ok {
-			err := typedef.ErrMissingInCtx(expSpec.CommChnlPH)
+			err := typedef.ErrMissingInCtx(expSpec.ConnChnlPH)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -1118,7 +1118,7 @@ func (s *service) checkProvider(
 			s.log.Error("checking failed")
 			return err
 		}
-		delete(procCtx.Liabs, expSpec.CommChnlPH)
+		delete(procCtx.Liabs, expSpec.ConnChnlPH)
 		delete(procCtx.Assets, expSpec.ContChnlPH)
 		return nil
 	default:
@@ -1156,9 +1156,9 @@ func (s *service) checkClient(
 		return s.checkType(procEnv, procCtx, procCfg, expSpec.ContExp)
 	case termexp.SendSpec:
 		// check via
-		gotVia, ok := procCtx.Assets[expSpec.CommChnlPH]
+		gotVia, ok := procCtx.Assets[expSpec.ConnChnlPH]
 		if !ok {
-			err := termdef.ErrMissingInCtx(expSpec.CommChnlPH)
+			err := termdef.ErrMissingInCtx(expSpec.ConnChnlPH)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -1180,14 +1180,14 @@ func (s *service) checkClient(
 			s.log.Error("checking failed")
 			return err
 		}
-		procCtx.Assets[expSpec.CommChnlPH] = wantVia.Cont
+		procCtx.Assets[expSpec.ConnChnlPH] = wantVia.Cont
 		delete(procCtx.Assets, expSpec.ValChnlPH)
 		return nil
 	case termexp.RecvSpec:
 		// check via
-		gotVia, ok := procCtx.Assets[expSpec.CommChnlPH]
+		gotVia, ok := procCtx.Assets[expSpec.ConnChnlPH]
 		if !ok {
-			err := termdef.ErrMissingInCtx(expSpec.CommChnlPH)
+			err := termdef.ErrMissingInCtx(expSpec.ConnChnlPH)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -1210,14 +1210,14 @@ func (s *service) checkClient(
 			return err
 		}
 		// check cont
-		procCtx.Assets[expSpec.CommChnlPH] = wantVia.Cont
+		procCtx.Assets[expSpec.ConnChnlPH] = wantVia.Cont
 		procCtx.Assets[expSpec.NewChnlPH] = wantVia.Val
 		return s.checkType(procEnv, procCtx, procCfg, expSpec.ContExp)
 	case termexp.LabSpec:
 		// check via
-		gotVia, ok := procCtx.Assets[expSpec.CommChnlPH]
+		gotVia, ok := procCtx.Assets[expSpec.ConnChnlPH]
 		if !ok {
-			err := termdef.ErrMissingInCtx(expSpec.CommChnlPH)
+			err := termdef.ErrMissingInCtx(expSpec.ConnChnlPH)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -1234,13 +1234,13 @@ func (s *service) checkClient(
 			s.log.Error("checking failed")
 			return err
 		}
-		procCtx.Assets[expSpec.CommChnlPH] = choice
+		procCtx.Assets[expSpec.ConnChnlPH] = choice
 		return nil
 	case termexp.CaseSpec:
 		// check via
-		gotVia, ok := procCtx.Assets[expSpec.CommChnlPH]
+		gotVia, ok := procCtx.Assets[expSpec.ConnChnlPH]
 		if !ok {
-			err := termdef.ErrMissingInCtx(expSpec.CommChnlPH)
+			err := termdef.ErrMissingInCtx(expSpec.ConnChnlPH)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -1263,7 +1263,7 @@ func (s *service) checkClient(
 				s.log.Error("checking failed")
 				return err
 			}
-			procCtx.Assets[expSpec.CommChnlPH] = choice
+			procCtx.Assets[expSpec.ConnChnlPH] = choice
 			err := s.checkType(procEnv, procCtx, procCfg, cont)
 			if err != nil {
 				s.log.Error("checking failed")

@@ -42,7 +42,7 @@ func MsgFromExpSpec(s termexp.ExpSpec) sdktermexp.ExpSpec {
 		return sdktermexp.ExpSpec{
 			K: sdktermexp.Send,
 			Send: &sdktermexp.SendSpec{
-				CommChnlPH: symbol.ConvertToString(spec.CommChnlPH),
+				CommChnlPH: symbol.ConvertToString(spec.ConnChnlPH),
 				ValChnlPH:  symbol.ConvertToString(spec.ValChnlPH),
 			},
 		}
@@ -50,8 +50,8 @@ func MsgFromExpSpec(s termexp.ExpSpec) sdktermexp.ExpSpec {
 		return sdktermexp.ExpSpec{
 			K: sdktermexp.Recv,
 			Recv: &sdktermexp.RecvSpec{
-				CommChnlPH: symbol.ConvertToString(spec.CommChnlPH),
-				BindChnlPH: symbol.ConvertToString(spec.CommChnlPH),
+				CommChnlPH: symbol.ConvertToString(spec.ConnChnlPH),
+				BindChnlPH: symbol.ConvertToString(spec.ConnChnlPH),
 				ContES:     MsgFromExpSpec(spec.ContExp),
 			},
 		}
@@ -59,7 +59,7 @@ func MsgFromExpSpec(s termexp.ExpSpec) sdktermexp.ExpSpec {
 		return sdktermexp.ExpSpec{
 			K: sdktermexp.Lab,
 			Lab: &sdktermexp.LabSpec{
-				CommChnlPH: symbol.ConvertToString(spec.CommChnlPH),
+				CommChnlPH: symbol.ConvertToString(spec.ConnChnlPH),
 				PatternQN:  uniqsym.ConvertToString(spec.ValLabQN),
 			},
 		}
@@ -71,7 +71,7 @@ func MsgFromExpSpec(s termexp.ExpSpec) sdktermexp.ExpSpec {
 		return sdktermexp.ExpSpec{
 			K: sdktermexp.Case,
 			Case: &sdktermexp.CaseSpec{
-				CommChnlPH: symbol.ConvertToString(spec.CommChnlPH),
+				CommChnlPH: symbol.ConvertToString(spec.ConnChnlPH),
 				ContBSes:   brs,
 			},
 		}
@@ -79,7 +79,7 @@ func MsgFromExpSpec(s termexp.ExpSpec) sdktermexp.ExpSpec {
 		return sdktermexp.ExpSpec{
 			K: sdktermexp.Fwd,
 			Fwd: &sdktermexp.FwdSpec{
-				CommChnlPH: symbol.ConvertToString(spec.CommChnlPH),
+				CommChnlPH: symbol.ConvertToString(spec.ConnChnlPH),
 				ContChnlPH: symbol.ConvertToString(spec.ContChnlPH),
 			},
 		}
@@ -218,7 +218,7 @@ func DataFromExpRec(r termexp.ExpRec) (termexp.ExpRecDS, error) {
 		return termexp.ExpRecDS{
 			K: termexp.SendExp,
 			Send: &termexp.SendRecDS{
-				X:        symbol.ConvertToString(rec.CommChnlPH),
+				X:        symbol.ConvertToString(rec.ConnChnlPH),
 				A:        identity.ConvertToString(rec.ContChnlID),
 				B:        identity.ConvertToString(rec.ValChnlID),
 				ConnID:   connID,
@@ -233,7 +233,7 @@ func DataFromExpRec(r termexp.ExpRec) (termexp.ExpRecDS, error) {
 		return termexp.ExpRecDS{
 			K: termexp.RecvExp,
 			Recv: &termexp.RecvRecDS{
-				X:      symbol.ConvertToString(rec.CommChnlPH),
+				X:      symbol.ConvertToString(rec.ConnChnlPH),
 				A:      identity.ConvertToString(rec.ContChnlID),
 				Y:      symbol.ConvertToString(rec.NewChnlPH),
 				ContES: dto,
@@ -243,7 +243,7 @@ func DataFromExpRec(r termexp.ExpRec) (termexp.ExpRecDS, error) {
 		return termexp.ExpRecDS{
 			K: termexp.LabExp,
 			Lab: &termexp.LabRecDS{
-				X:        symbol.ConvertToString(rec.CommChnlPH),
+				X:        symbol.ConvertToString(rec.ConnChnlPH),
 				A:        identity.ConvertToString(rec.ContChnlID),
 				Label:    uniqsym.ConvertToString(rec.ValLabQN),
 				ValExpCK: int64(rec.ValExpCK),
@@ -261,7 +261,7 @@ func DataFromExpRec(r termexp.ExpRec) (termexp.ExpRecDS, error) {
 		return termexp.ExpRecDS{
 			K: termexp.CaseExp,
 			Case: &termexp.CaseRecDS{
-				X:        symbol.ConvertToString(rec.CommChnlPH),
+				X:        symbol.ConvertToString(rec.ConnChnlPH),
 				A:        identity.ConvertToString(rec.ContChnlID),
 				Branches: brs,
 			},
@@ -270,7 +270,7 @@ func DataFromExpRec(r termexp.ExpRec) (termexp.ExpRecDS, error) {
 		return termexp.ExpRecDS{
 			K: termexp.FwdExp,
 			Fwd: &termexp.FwdRecDS{
-				X: symbol.ConvertToString(rec.CommChnlPH),
+				X: symbol.ConvertToString(rec.ConnChnlPH),
 				B: identity.ConvertToString(rec.ContChnlID),
 			},
 		}, nil
@@ -310,7 +310,7 @@ func DataToExpRec(dto termexp.ExpRecDS) (termexp.ExpRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		commID, err := identity.ConvertFromString(dto.Send.ConnID)
+		connID, err := identity.ConvertFromString(dto.Send.ConnID)
 		if err != nil {
 			return nil, err
 		}
@@ -319,7 +319,7 @@ func DataToExpRec(dto termexp.ExpRecDS) (termexp.ExpRec, error) {
 			ContChnlID: a,
 			ValChnlID:  valID,
 			ValExpCK:   contkey.ADT(dto.Send.ValExpCK),
-			ConnID:     commID,
+			ConnID:     connID,
 		}, nil
 	case termexp.RecvExp:
 		x, err := symbol.ConvertFromString(dto.Recv.X)
@@ -413,7 +413,7 @@ func dataFromExpSpec(s termexp.ExpSpec) (termexp.ExpSpecDS, error) {
 		return termexp.ExpSpecDS{
 			K: termexp.SendExp,
 			Send: &termexp.SendSpecDS{
-				X: symbol.ConvertToString(spec.CommChnlPH),
+				X: symbol.ConvertToString(spec.ConnChnlPH),
 				Y: symbol.ConvertToString(spec.ValChnlPH),
 			},
 		}, nil
@@ -425,15 +425,15 @@ func dataFromExpSpec(s termexp.ExpSpec) (termexp.ExpSpecDS, error) {
 		return termexp.ExpSpecDS{
 			K: termexp.RecvExp,
 			Recv: &termexp.RecvSpecDS{
-				X:      symbol.ConvertToString(spec.CommChnlPH),
-				Y:      symbol.ConvertToString(spec.CommChnlPH),
+				X:      symbol.ConvertToString(spec.ConnChnlPH),
+				Y:      symbol.ConvertToString(spec.ConnChnlPH),
 				ContES: dto,
 			},
 		}, nil
 	case termexp.LabSpec:
 		return termexp.ExpSpecDS{
 			K:   termexp.LabExp,
-			Lab: &termexp.LabSpecDS{X: symbol.ConvertToString(spec.CommChnlPH), Label: uniqsym.ConvertToString(spec.ValLabQN)},
+			Lab: &termexp.LabSpecDS{X: symbol.ConvertToString(spec.ConnChnlPH), Label: uniqsym.ConvertToString(spec.ValLabQN)},
 		}, nil
 	case termexp.CaseSpec:
 		brs := []termexp.BranchSpecDS{}
@@ -447,7 +447,7 @@ func dataFromExpSpec(s termexp.ExpSpec) (termexp.ExpSpecDS, error) {
 		return termexp.ExpSpecDS{
 			K: termexp.CaseExp,
 			Case: &termexp.CaseSpecDS{
-				X:        symbol.ConvertToString(spec.CommChnlPH),
+				X:        symbol.ConvertToString(spec.ConnChnlPH),
 				Branches: brs,
 			},
 		}, nil
@@ -455,7 +455,7 @@ func dataFromExpSpec(s termexp.ExpSpec) (termexp.ExpSpecDS, error) {
 		return termexp.ExpSpecDS{
 			K: termexp.FwdExp,
 			Fwd: &termexp.FwdSpecDS{
-				X: symbol.ConvertToString(spec.CommChnlPH),
+				X: symbol.ConvertToString(spec.ConnChnlPH),
 				Y: symbol.ConvertToString(spec.ContChnlPH),
 			},
 		}, nil

@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	commconn "orglang/go-engine/internal/pool/commconn/core"
+	conncore "orglang/go-engine/internal/pool/conn/core"
 )
 
 // goverter:variables
@@ -9,13 +9,13 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/compsem:Data.*
-// goverter:extend orglang/go-engine/internal/pool/commact/adapter:Data.*
+// goverter:extend orglang/go-engine/internal/pool/connact/adapter:Data.*
 var (
 	// goverter:map ConnID | identityToString
-	DataFromQry func(commconn.ConnQry) commconn.ConnQryDS
+	DataFromQry func(conncore.ConnQry) conncore.ConnQryDS
 	// goverter:map ConnID | identityToString
 	// goverter:ignore ActNr
-	DataFromMod func(commconn.ConnMod) commconn.ConnModDS
+	DataFromMod func(conncore.ConnMod) conncore.ConnModDS
 	// goverter:map . ConnID | dataToConnID
-	DataToSnap func(commconn.ConnSnapDS) (commconn.ConnSnap, error)
+	DataToSnap func(conncore.ConnSnapDS) (conncore.ConnSnap, error)
 )

@@ -1,11 +1,11 @@
 package adapter
 
 import (
-	sdktermdec "github.com/orglang/go-sdk/proc/termdec"
 	sdktermvar "github.com/orglang/go-sdk/adt/termvar"
+	sdktermdec "github.com/orglang/go-sdk/proc/termdec"
 
-	termdec "orglang/go-engine/internal/proc/termdec/core"
 	termvar "orglang/go-engine/internal/adt/termvar"
+	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
 // goverter:variables
@@ -22,7 +22,6 @@ var (
 	MsgFromDecSnap  func(termdec.DecSnap) sdktermdec.DecSnap
 	MsgFromDecSnaps func([]termdec.DecSnap) []sdktermdec.DecSnap
 )
-
 
 // goverter:variables
 // goverter:output:format assign-variable

@@ -3,6 +3,7 @@ package adapter
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"reflect"
 
@@ -35,15 +36,15 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 		const updateOffset = `
 			UPDATE proc_comp_conns
 			SET offset_nr = $1
-			WHERE conn_id = $2 AND offset_nr = $3
+			WHERE conn_id = $2
 		`
-		tag, err := conn.Pgx.Exec(ctx, updateOffset, int64(mod.OffsetNr.Get()), identity.ConvertToString(mod.ConnID), int64(mod.PrevOffsetNr))
+		tag, err := conn.Pgx.Exec(ctx, updateOffset, int64(mod.OffsetNr.Get()), identity.ConvertToString(mod.ConnID))
 		if err != nil {
 			dao.log.Error("Connection offset update failed", slog.Any("conn_id", mod.ConnID))
 			return err
 		}
 		if tag.RowsAffected() == 0 {
-			return commconn.ErrSnapshotConflict(mod.PrevOffsetNr)
+			return fmt.Errorf("process connection missing: %v", mod.ConnID)
 		}
 	}
 	for _, turn := range mod.Turns {
@@ -99,10 +100,13 @@ func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.
 		)
 		SELECT
 			conn.conn_id,
+			exec.comp_id AS provider_comp_id,
+			exec.comp_rn AS provider_comp_rn,
 			conn.offset_nr,
 			conn.act_nr,
 			(SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM turns t WHERE t.act_nr > conn.offset_nr) AS turns
 		FROM proc_comp_conns conn
+		JOIN proc_comp_execs exec ON exec.comp_id = conn.provider_comp_id
 		WHERE conn.conn_id = $1
 	`
 	rows, err := conn.Pgx.Query(ctx, query, args...)
@@ -123,7 +127,11 @@ func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.
 	if err != nil {
 		return commconn.ConnSnap{}, err
 	}
-	snap := commconn.ConnSnap{ConnID: parsedConnID, OffsetNr: seqnum.ADT(dto.OffsetNr), Turns: make([]commturn.TurnRec, 0, len(dto.Turns))}
+	providerCompID, err := identity.ConvertFromString(dto.ProviderCompID)
+	if err != nil {
+		return commconn.ConnSnap{}, err
+	}
+	snap := commconn.ConnSnap{ConnID: parsedConnID, ProviderCompID: providerCompID, ProviderCompRN: seqnum.ADT(dto.ProviderCompRN), OffsetNr: seqnum.ADT(dto.OffsetNr), Turns: make([]commturn.TurnRec, 0, len(dto.Turns))}
 	for _, turnDTO := range dto.Turns {
 		turn, err := commturnadapter.DataToStepRec(turnDTO)
 		if err != nil {

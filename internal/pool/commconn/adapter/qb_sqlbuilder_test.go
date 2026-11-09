@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	commconn "orglang/go-engine/internal/pool/commconn/core"
-	commturn "orglang/go-engine/internal/pool/commturn/core"
+	commact "orglang/go-engine/internal/pool/commact/core"
 )
 
 func TestInsertRec(t *testing.T) {
@@ -23,10 +23,10 @@ func TestInsertRec(t *testing.T) {
 	}
 }
 
-func TestInsertTurnRec(t *testing.T) {
+func TestInsertActRec(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
-	gotSQL, gotArgs := qb.InsertTurnRec(commturn.TurnRecDS{})
+	gotSQL, gotArgs := qb.InsertActRec(commact.ActRecDS{})
 	wantSQL := "INSERT INTO pool_conn_acts  (conn_id, act_nr, comp_id, comp_rn, chnl_id, kind, exp) VALUES ($1, $2, $3, $4, $5, $6, $7)"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)
@@ -58,10 +58,10 @@ func TestSelectSnap(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
 	gotSQL, gotArgs := qb.SelectSnap(commconn.ConnQryDS{ChnlID: sql.Null[string]{Valid: true}})
-	wantSQL := "WITH turns AS (SELECT turn.conn_id, turn.act_nr, turn.comp_id, turn.comp_rn, turn.chnl_id, turn.kind, turn.exp " +
-		"FROM pool_conn_acts turn WHERE conn_id = $1 AND chnl_id = $2) " +
+	wantSQL := "WITH acts AS (SELECT act.conn_id, act.act_nr, act.comp_id, act.comp_rn, act.chnl_id, act.kind, act.exp " +
+		"FROM pool_conn_acts act WHERE conn_id = $1 AND chnl_id = $2) " +
 		"SELECT conn.conn_id, conn.provider_comp_id, exec.comp_rn AS provider_comp_rn, conn.offset_nr, conn.act_nr, " +
-		"(SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM turns t WHERE t.act_nr > conn.offset_nr) AS turns " +
+		"(SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM acts t WHERE t.act_nr > conn.offset_nr) AS acts " +
 		"FROM pool_comp_conns conn JOIN pool_comp_execs exec ON exec.comp_id = conn.provider_comp_id WHERE conn.conn_id = $3"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)

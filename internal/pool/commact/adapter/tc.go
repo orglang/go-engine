@@ -5,45 +5,45 @@ import (
 	"orglang/go-engine/internal/adt/identity"
 	termexp "orglang/go-engine/internal/pool/termexp/adapter"
 
-	commturn "orglang/go-engine/internal/pool/commturn/core"
+	commact "orglang/go-engine/internal/pool/commact/core"
 )
 
-func DataFromStepRec(r commturn.ActRec) commturn.ActRecDS {
+func DataFromStepRec(r commact.ActRec) commact.ActRecDS {
 	switch rec := r.(type) {
-	case commturn.PubRec:
+	case commact.PubRec:
 		compRef := compsem.DataFromRef(rec.CompRef)
-		return commturn.ActRecDS{
+		return commact.ActRecDS{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
 			CompID: compRef.CompID,
 			CompRN: compRef.CompRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
-			K:      commturn.PubKind,
+			K:      commact.PubKind,
 			Exp:    termexp.DataFromExpRec(rec.ValExp),
 		}
-	case commturn.SubRec:
+	case commact.SubRec:
 		compRef := compsem.DataFromRef(rec.CompRef)
-		return commturn.ActRecDS{
+		return commact.ActRecDS{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
 			CompID: compRef.CompID,
 			CompRN: compRef.CompRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
-			K:      commturn.SubKind,
+			K:      commact.SubKind,
 			Exp:    termexp.DataFromExpRec(rec.ContExp),
 		}
 	default:
-		panic(commturn.ErrActRecTypeUnexpected(r))
+		panic(commact.ErrActRecTypeUnexpected(r))
 	}
 }
 
-func DataToStepRec(dto commturn.ActRecDS) (commturn.ActRec, error) {
+func DataToStepRec(dto commact.ActRecDS) (commact.ActRec, error) {
 	switch dto.K {
-	case commturn.PubKind:
+	case commact.PubKind:
 		return DataToPubRec(dto)
-	case commturn.SubKind:
+	case commact.SubKind:
 		return DataToSubRec(dto)
 	default:
-		panic(commturn.ErrActKindUnexpected(dto.K))
+		panic(commact.ErrActKindUnexpected(dto.K))
 	}
 }

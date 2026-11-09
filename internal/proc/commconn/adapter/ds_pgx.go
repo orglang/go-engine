@@ -32,54 +32,46 @@ func NewDaoPgx(log *slog.Logger) commconn.Repo {
 func newRepo() commconn.Repo { return new(daoPgx) }
 
 func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.ConnMod) error {
+	var offsetNr any
 	if mod.OffsetNr != nil && !mod.OffsetNr.IsEmpty() {
-		const updateOffset = `
+		offsetNr = int64(mod.OffsetNr.Get())
+	}
+
+	var actNr any
+	if len(mod.Turns) > 0 {
+		// The provider CAS advances comp_rn exactly once for this operation.
+		// Mirror that revision as the Act number, as on the Pool side.
+		actNr = int64(mod.ProviderCompRN) + 1
+	}
+
+	if offsetNr != nil || actNr != nil {
+		const updateConn = `
 			UPDATE proc_comp_conns
-			SET offset_nr = $1
-			WHERE conn_id = $2
+			SET offset_nr = COALESCE($1, offset_nr),
+			    act_nr = COALESCE($2, act_nr)
+			WHERE conn_id = $3
 		`
-		tag, err := conn.Pgx.Exec(ctx, updateOffset, int64(mod.OffsetNr.Get()), identity.ConvertToString(mod.ConnID))
+		tag, err := conn.Pgx.Exec(ctx, updateConn, offsetNr, actNr, identity.ConvertToString(mod.ConnID))
 		if err != nil {
-			dao.log.Error("Connection offset update failed", slog.Any("conn_id", mod.ConnID))
+			dao.log.Error("Connection update failed", slog.Any("conn_id", mod.ConnID))
 			return err
 		}
 		if tag.RowsAffected() == 0 {
 			return fmt.Errorf("process connection missing: %v", mod.ConnID)
 		}
 	}
+
 	for _, turn := range mod.Turns {
-		connID := turn.GetConnID()
 		switch turn.(type) {
 		case commturn.PubRec, commturn.SubRec:
 		default:
 			panic(commturn.ErrRecTypeUnexpected(turn))
 		}
-		const nextAct = `
-			UPDATE proc_comp_conns
-			SET act_nr = act_nr + 1
-			WHERE conn_id = $1
-			RETURNING act_nr
-		`
-		rows, err := conn.Pgx.Query(ctx, nextAct, identity.ConvertToString(connID))
-		if err != nil {
-			return err
-		}
-		defer rows.Close()
-		actNr, err := pgx.CollectExactlyOneRow(rows, func(row pgx.CollectableRow) (int64, error) {
-			var nr int64
-			if scanErr := row.Scan(&nr); scanErr != nil {
-				return 0, scanErr
-			}
-			return nr, nil
-		})
-		if err != nil {
-			return err
-		}
 		dto, err := commturnadapter.DataFromStepRec(turn)
 		if err != nil {
 			return err
 		}
-		dto.ActNr = actNr
+		dto.ActNr = int64(mod.ProviderCompRN) + 1
 		const insertAct = `
 			INSERT INTO proc_conn_acts (conn_id, act_nr, comp_id, comp_rn, chnl_id, kind, exp)
 			VALUES ($1, $2, $3, $4, $5, $6, $7)

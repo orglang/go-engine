@@ -8,11 +8,11 @@ import (
 	commturn "orglang/go-engine/internal/pool/commturn/core"
 )
 
-func DataFromStepRec(r commturn.TurnRec) commturn.TurnRecDS {
+func DataFromStepRec(r commturn.ActRec) commturn.ActRecDS {
 	switch rec := r.(type) {
 	case commturn.PubRec:
 		compRef := compsem.DataFromRef(rec.CompRef)
-		return commturn.TurnRecDS{
+		return commturn.ActRecDS{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
 			CompID: compRef.CompID,
@@ -23,7 +23,7 @@ func DataFromStepRec(r commturn.TurnRec) commturn.TurnRecDS {
 		}
 	case commturn.SubRec:
 		compRef := compsem.DataFromRef(rec.CompRef)
-		return commturn.TurnRecDS{
+		return commturn.ActRecDS{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
 			CompID: compRef.CompID,
@@ -33,17 +33,17 @@ func DataFromStepRec(r commturn.TurnRec) commturn.TurnRecDS {
 			Exp:    termexp.DataFromExpRec(rec.ContExp),
 		}
 	default:
-		panic(commturn.ErrRecTypeUnexpected(r))
+		panic(commturn.ErrActRecTypeUnexpected(r))
 	}
 }
 
-func DataToStepRec(dto commturn.TurnRecDS) (commturn.TurnRec, error) {
+func DataToStepRec(dto commturn.ActRecDS) (commturn.ActRec, error) {
 	switch dto.K {
 	case commturn.PubKind:
 		return DataToPubRec(dto)
 	case commturn.SubKind:
 		return DataToSubRec(dto)
 	default:
-		panic(commturn.ErrStepKindUnexpected(dto.K))
+		panic(commturn.ErrActKindUnexpected(dto.K))
 	}
 }

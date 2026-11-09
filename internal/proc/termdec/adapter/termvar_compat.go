@@ -28,10 +28,7 @@ func MsgToTermVarRec(dto sdktermvar.VarRec) (termvar.VarRec, error) {
 	if err != nil {
 		return termvar.VarRec{}, err
 	}
-	typeRN, err := seqnum.ConvertFromInt(dto.TypeRef.TypeRN)
-	if err != nil {
-		return termvar.VarRec{}, err
-	}
+	typeRN := seqnum.ConvertFromInt(dto.TypeRef.TypeRN)
 	chnlPH, err := symbol.ConvertFromString(dto.ChnlPH)
 	if err != nil {
 		return termvar.VarRec{}, err

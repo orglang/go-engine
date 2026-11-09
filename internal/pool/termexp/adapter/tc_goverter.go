@@ -14,30 +14,30 @@ import (
 // goverter:extend MsgFromExpSpec
 // goverter:extend MsgToExpSpec
 var (
-	// goverter:map ConnChnlPH | CommChnlPH
+	// goverter:map ConnChnlPH CommChnlPH
 	MsgFromAcquireSpec func(termexp.AcquireSpec) *sdktermexp.AcquireSpec
-	// goverter:map ConnChnlPH | CommChnlPH
+	// goverter:map ConnChnlPH CommChnlPH
 	MsgFromAcceptSpec  func(termexp.AcceptSpec) *sdktermexp.AcceptSpec
-	// goverter:map ConnChnlPH | CommChnlPH
+	// goverter:map ConnChnlPH CommChnlPH
 	MsgFromHireSpec    func(termexp.HireSpec) *sdktermexp.HireSpec
-	// goverter:map ConnChnlPH | CommChnlPH
+	// goverter:map ConnChnlPH CommChnlPH
 	MsgFromApplySpec   func(termexp.ApplySpec) *sdktermexp.ApplySpec
-	// goverter:map ConnChnlPH | CommChnlPH
+	// goverter:map ConnChnlPH CommChnlPH
 	MsgFromReleaseSpec func(termexp.ReleaseSpec) *sdktermexp.ReleaseSpec
-	// goverter:map ConnChnlPH | CommChnlPH
+	// goverter:map ConnChnlPH CommChnlPH
 	MsgFromDetachSpec  func(termexp.DetachSpec) *sdktermexp.DetachSpec
 
-	// goverter:map CommChnlPH | ConnChnlPH
+	// goverter:map CommChnlPH ConnChnlPH
 	MsgToAcquireSpec func(*sdktermexp.AcquireSpec) (termexp.AcquireSpec, error)
-	// goverter:map CommChnlPH | ConnChnlPH
+	// goverter:map CommChnlPH ConnChnlPH
 	MsgToAcceptSpec  func(*sdktermexp.AcceptSpec) (termexp.AcceptSpec, error)
-	// goverter:map CommChnlPH | ConnChnlPH
+	// goverter:map CommChnlPH ConnChnlPH
 	MsgToHireSpec    func(*sdktermexp.HireSpec) (termexp.HireSpec, error)
-	// goverter:map CommChnlPH | ConnChnlPH
+	// goverter:map CommChnlPH ConnChnlPH
 	MsgToApplySpec   func(*sdktermexp.ApplySpec) (termexp.ApplySpec, error)
-	// goverter:map CommChnlPH | ConnChnlPH
+	// goverter:map CommChnlPH ConnChnlPH
 	MsgToReleaseSpec func(*sdktermexp.ReleaseSpec) (termexp.ReleaseSpec, error)
-	// goverter:map CommChnlPH | ConnChnlPH
+	// goverter:map CommChnlPH ConnChnlPH
 	MsgToDetachSpec  func(*sdktermexp.DetachSpec) (termexp.DetachSpec, error)
 )
 

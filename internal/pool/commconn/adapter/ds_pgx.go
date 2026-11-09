@@ -64,8 +64,18 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 			WHERE conn_id = $1
 			RETURNING act_nr
 		`
-		var actNr int64
-		err := conn.Pgx.QueryRow(ctx, nextAct, identity.ConvertToString(turn.GetConnID())).Scan(&actNr)
+		rows, err := conn.Pgx.Query(ctx, nextAct, identity.ConvertToString(turn.GetConnID()))
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		actNr, err := pgx.CollectExactlyOneRow(rows, func(row pgx.CollectableRow) (int64, error) {
+			var nr int64
+			if scanErr := row.Scan(&nr); scanErr != nil {
+				return 0, scanErr
+			}
+			return nr, nil
+		})
 		if err != nil {
 			dao.log.Error("Connection Act sequence update failed", refAttr)
 			return err

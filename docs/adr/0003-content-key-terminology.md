@@ -20,7 +20,7 @@ Use **Content Key** as the canonical domain terminology in Go:
 
 Do not rename persisted identifiers as part of this terminology refactor:
 
-- PostgreSQL columns and query identifiers such as `exp_vk` and `sup_exp_vk` remain unchanged;
+- PostgreSQL columns and query identifiers such as `exp_vk`, `sup_exp_vk`, and `val_exp_vk` remain unchanged;
 - the JSON property `vk` remains unchanged, even though its Go field is now named `ExpCK`;
 - database and JSON struct tags continue to map the new Go names to the existing storage/wire names.
 - The pinned `orglang/go-sdk` contract still exposes `ExpVK` on `proc/typeexp.ExpRef` and `pool/typeexp.ExpRef`; adapters deliberately map internal `ExpCK` to and from that legacy SDK field. The adjacent SDK repository is not changed by this internal engine refactor.

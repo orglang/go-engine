@@ -315,7 +315,7 @@ func DataToExpRec(dto termexp.ExpRecDS) (termexp.ExpRec, error) {
 			return nil, err
 		}
 		return termexp.SendRec{
-			CommChnlPH: x,
+			ConnChnlPH: x,
 			ContChnlID: a,
 			ValChnlID:  valID,
 			ValExpCK:   contkey.ADT(dto.Send.ValExpCK),

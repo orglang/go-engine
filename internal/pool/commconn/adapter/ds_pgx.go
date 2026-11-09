@@ -33,10 +33,10 @@ func newRepo() commconn.Repo { return new(daoPgx) }
 func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec commconn.ConnRec) error {
 	dto := DataFromRec(rec)
 	refAttr := slog.Any("conn_id", rec.ConnID)
-	sql, args := dao.qb.InsertRec(dto)
-	_, err := conn.Pgx.Exec(ctx, sql, args...)
+	querySQL, args := dao.qb.InsertRec(dto)
+	_, err := conn.Pgx.Exec(ctx, querySQL, args...)
 	if err != nil {
-		dao.log.Error("Connection insertion failed", refAttr, slog.String("sql", sql))
+		dao.log.Error("Connection insertion failed", refAttr, slog.String("sql", querySQL))
 		return err
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "Connection insertion succeeded", slog.Any("dto", dto))
@@ -53,10 +53,10 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 			// update is needed (Take appends at most one Act per operation).
 			dto.ActNr = sql.Null[int64]{V: int64(mod.ProviderCompRN) + 1, Valid: true}
 		}
-		sql, args := dao.qb.UpdateRec(dto)
-		tag, err := conn.Pgx.Exec(ctx, sql, args...)
+		querySQL, args := dao.qb.UpdateRec(dto)
+		tag, err := conn.Pgx.Exec(ctx, querySQL, args...)
 		if err != nil {
-			dao.log.Error("Connection offset update failed", refAttr, slog.String("sql", sql))
+			dao.log.Error("Connection offset update failed", refAttr, slog.String("sql", querySQL))
 			return err
 		}
 		if tag.RowsAffected() == 0 {
@@ -66,9 +66,9 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 	for _, turn := range mod.Turns {
 		dto := commturnadapter.DataFromStepRec(turn)
 		dto.ActNr = int64(mod.ProviderCompRN) + 1
-		sql, args := dao.qb.InsertTurnRec(dto)
-		if _, err := conn.Pgx.Exec(ctx, sql, args...); err != nil {
-			dao.log.Error("Act insertion failed", refAttr, slog.String("sql", sql))
+		querySQL, args := dao.qb.InsertTurnRec(dto)
+		if _, err := conn.Pgx.Exec(ctx, querySQL, args...); err != nil {
+			dao.log.Error("Act insertion failed", refAttr, slog.String("sql", querySQL))
 			return err
 		}
 	}
@@ -80,10 +80,10 @@ func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.
 	refAttr := slog.Any("conn_id", qry.ConnID)
 	qryDTO := DataFromQry(qry)
 	dao.log.Log(ctx, lf.LevelTrace, "Connection snapshot selection started", slog.Any("qry", qryDTO))
-	sql, args := dao.qb.SelectSnap(qryDTO)
-	rows, err := conn.Pgx.Query(ctx, sql, args...)
+	querySQL, args := dao.qb.SelectSnap(qryDTO)
+	rows, err := conn.Pgx.Query(ctx, querySQL, args...)
 	if err != nil {
-		dao.log.Error("Connection snapshot query failed", refAttr, slog.String("sql", sql))
+		dao.log.Error("Connection snapshot query failed", refAttr, slog.String("sql", querySQL))
 		return commconn.ConnSnap{}, err
 	}
 	defer rows.Close()

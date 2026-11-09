@@ -7,7 +7,7 @@ import (
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
-	"orglang/go-engine/internal/adt/valkey"
+	"orglang/go-engine/internal/adt/contkey"
 
 	termexp "orglang/go-engine/internal/proc/termexp/core"
 )
@@ -26,7 +26,7 @@ func TestExpRecRoundTripPreservesConnectionIDs(t *testing.T) {
 			CommChnlPH: commChnl,
 			ContChnlID: contID,
 			ValChnlID:  valueID,
-			ValExpVK:   valkey.ADT(7),
+			ValExpCK:   contkey.ADT(7),
 			ConnID:     connID,
 		},
 		termexp.RecvRec{
@@ -38,7 +38,7 @@ func TestExpRecRoundTripPreservesConnectionIDs(t *testing.T) {
 		termexp.LabRec{
 			CommChnlPH: commChnl,
 			ContChnlID: contID,
-			ValExpVK:   valkey.ADT(9),
+			ValExpCK:   contkey.ADT(9),
 			ValLabQN:   label,
 		},
 		termexp.CaseRec{

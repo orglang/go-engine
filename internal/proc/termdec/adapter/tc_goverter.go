@@ -2,8 +2,10 @@ package adapter
 
 import (
 	sdktermdec "github.com/orglang/go-sdk/proc/termdec"
+	sdktermvar "github.com/orglang/go-sdk/adt/termvar"
 
 	termdec "orglang/go-engine/internal/proc/termdec/core"
+	termvar "orglang/go-engine/internal/adt/termvar"
 )
 
 // goverter:variables
@@ -11,12 +13,27 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
 // goverter:extend orglang/go-engine/internal/proc/typedef/adapter:Msg.*
+// goverter:extend MsgFromTermVarRec
+// goverter:extend MsgToTermVarRec
 var (
 	MsgToDecSpec    func(sdktermdec.DecSpec) (termdec.DecSpec, error)
 	MsgFromDecSpec  func(termdec.DecSpec) sdktermdec.DecSpec
 	MsgToDecSnap    func(sdktermdec.DecSnap) (termdec.DecSnap, error)
 	MsgFromDecSnap  func(termdec.DecSnap) sdktermdec.DecSnap
 	MsgFromDecSnaps func([]termdec.DecSnap) []sdktermdec.DecSnap
+)
+
+
+// goverter:variables
+// goverter:output:format assign-variable
+// goverter:extend orglang/go-engine/internal/adt/symbol:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/contkey:Convert.*
+// goverter:extend orglang/go-engine/internal/proc/typedef/adapter:Msg.*
+var (
+	// goverter:map ExpCK ExpVK
+	MsgFromTermVarRec func(termvar.VarRec) sdktermvar.VarRec
+	// goverter:map ExpVK ExpCK
+	MsgToTermVarRec func(sdktermvar.VarRec) (termvar.VarRec, error)
 )
 
 // goverter:variables

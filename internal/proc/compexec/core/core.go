@@ -692,9 +692,9 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, getErr
 		}
-				connMod.ProviderCompID = caseConnSnap.ProviderCompID
+		connMod.ProviderCompID = caseConnSnap.ProviderCompID
 		connMod.ProviderCompRN = caseConnSnap.ProviderCompRN
-publication := caseConnSnap.NextTurn()
+		publication := caseConnSnap.NextTurn()
 		if publication != nil {
 			connMod.ConnID = caseConnSnap.ConnID
 			connMod.OffsetNr = option.Some(publication.GetActNr())
@@ -770,9 +770,9 @@ publication := caseConnSnap.NextTurn()
 			s.log.Error("step taking failed", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, getErr
 		}
-				connMod.ProviderCompID = fwdConnSnap.ProviderCompID
+		connMod.ProviderCompID = fwdConnSnap.ProviderCompID
 		connMod.ProviderCompRN = fwdConnSnap.ProviderCompRN
-turn := fwdConnSnap.NextTurn()
+		turn := fwdConnSnap.NextTurn()
 		if turn != nil {
 			connMod.ConnID = fwdConnSnap.ConnID
 			connMod.OffsetNr = option.Some(turn.GetActNr())

@@ -10,13 +10,13 @@ import (
 )
 
 // aka Sem
-type TurnRec interface {
-	turn() identity.ADT
+type ActRec interface {
+	act() identity.ADT
 	GetConnID() identity.ADT
 	GetActNr() seqnum.ADT
 }
 
-func ChnlID(rec TurnRec) identity.ADT { return rec.turn() }
+func ChnlID(rec ActRec) identity.ADT { return rec.act() }
 
 type PubRec struct {
 	ConnID  identity.ADT
@@ -26,7 +26,7 @@ type PubRec struct {
 	ValExp  termexp.ExpRec
 }
 
-func (r PubRec) turn() identity.ADT      { return r.ChnlID }
+func (r PubRec) act() identity.ADT      { return r.ChnlID }
 func (r PubRec) GetConnID() identity.ADT { return r.ConnID }
 func (r PubRec) GetActNr() seqnum.ADT    { return r.ActNr }
 
@@ -38,14 +38,14 @@ type SubRec struct {
 	ContExp termexp.ExpRec
 }
 
-func (r SubRec) turn() identity.ADT      { return r.ChnlID }
+func (r SubRec) act() identity.ADT      { return r.ChnlID }
 func (r SubRec) GetConnID() identity.ADT { return r.ConnID }
 func (r SubRec) GetActNr() seqnum.ADT    { return r.ActNr }
 
-func ErrRecTypeUnexpected(got TurnRec) error {
-	return fmt.Errorf("step rec unexpected: %T", got)
+func ErrActRecTypeUnexpected(got ActRec) error {
+	return fmt.Errorf("act rec unexpected: %T", got)
 }
 
-func ErrRecTypeMismatch(got, want TurnRec) error {
-	return fmt.Errorf("step rec mismatch: want %T, got %T", want, got)
+func ErrActRecTypeMismatch(got, want ActRec) error {
+	return fmt.Errorf("act rec mismatch: want %T, got %T", want, got)
 }

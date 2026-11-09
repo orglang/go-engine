@@ -24,30 +24,41 @@ func newSQLBuilder() *sqlBuilder {
 }
 
 func (qb *sqlBuilder) InsertRec(rec commconn.ConnRecDS) (string, []any) {
-	return qb.connBuilder.InsertInto(commConns, rec).Build()
+	return qb.connBuilder.InsertInto(compConns, rec).Build()
+}
+
+func (qb *sqlBuilder) InsertTurnRec(rec commturn.TurnRecDS) (string, []any) {
+	return qb.turnBuilder.InsertInto(connActs, rec).Build()
 }
 
 func (qb *sqlBuilder) UpdateRec(mod commconn.ConnModDS) (string, []any) {
-	conn := qb.connBuilder.Update(commConns, mod)
+	conn := qb.connBuilder.Update(compConns, mod)
+	assignments := make([]string, 0, 2)
 	if mod.OffsetNr.Valid {
-		conn.Set(conn.Assign("offset_nr", mod.OffsetNr.V))
+		assignments = append(assignments, conn.Assign("offset_nr", mod.OffsetNr.V))
 	}
-	conn.Where(conn.Equal("comm_id", mod.CommID))
+	if mod.ActNr.Valid {
+		assignments = append(assignments, conn.Assign("act_nr", mod.ActNr.V))
+	}
+	if len(assignments) > 0 {
+		conn.Set(assignments...)
+	}
+	conn.Where(conn.Equal("conn_id", mod.ConnID))
 	return conn.Build()
 }
 
 func (qb *sqlBuilder) SelectSnap(qry commconn.ConnQryDS) (string, []any) {
-	conn := qb.connBuilder.SelectFrom(commConns + "conn")
-	turn := qb.turnBuilder.SelectFrom(commTurns + "turn")
-	turn.Where(turn.Equal("comm_id", qry.CommID))
+	conn := sqlbuilder.PostgreSQL.NewSelectBuilder().Select("conn.conn_id", "conn.provider_comp_id", "exec.comp_rn AS provider_comp_rn", "conn.offset_nr", "conn.act_nr").From(compConns+"conn").Join("pool_comp_execs exec", "exec.comp_id = conn.provider_comp_id")
+	turn := qb.turnBuilder.SelectFrom(connActs + "turn")
+	turn.Where(turn.Equal("conn_id", qry.ConnID))
 	if qry.ChnlID.Valid {
 		turn.Where(turn.Equal("chnl_id", qry.ChnlID.V))
 	}
 	turns := sqlbuilder.PostgreSQL.NewCTEBuilder()
 	return conn.With(turns.With(sqlbuilder.CTEQuery("turns").As(turn))).
 		SelectMore(
-			conn.BuilderAs(sqlbuilder.Build("SELECT array_agg(row(t.*)) FROM turns t WHERE t.comm_rn > conn.offset_nr"), "turns"),
+			conn.BuilderAs(sqlbuilder.Build("SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM turns t WHERE t.act_nr > conn.offset_nr"), "turns"),
 		).
-		Where(conn.Equal("conn.comm_id", qry.CommID)).
+		Where(conn.Equal("conn.conn_id", qry.ConnID)).
 		Build()
 }

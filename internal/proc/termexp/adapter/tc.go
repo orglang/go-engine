@@ -6,6 +6,7 @@ import (
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
+	"orglang/go-engine/internal/adt/valkey"
 
 	sdktermexp "github.com/orglang/go-sdk/proc/termexp"
 
@@ -213,12 +214,15 @@ func DataFromExpRec(r termexp.ExpRec) (termexp.ExpRecDS, error) {
 			},
 		}, nil
 	case termexp.SendRec:
+		connID := identity.ConvertToString(rec.ConnID)
 		return termexp.ExpRecDS{
 			K: termexp.SendExp,
 			Send: &termexp.SendRecDS{
-				X: symbol.ConvertToString(rec.CommChnlPH),
-				A: identity.ConvertToString(rec.ContChnlID),
-				B: identity.ConvertToString(rec.ValChnlID),
+				X:        symbol.ConvertToString(rec.CommChnlPH),
+				A:        identity.ConvertToString(rec.ContChnlID),
+				B:        identity.ConvertToString(rec.ValChnlID),
+				ConnID:   connID,
+				ValExpVK: int64(rec.ValExpVK),
 			},
 		}, nil
 	case termexp.RecvRec:
@@ -230,14 +234,20 @@ func DataFromExpRec(r termexp.ExpRec) (termexp.ExpRecDS, error) {
 			K: termexp.RecvExp,
 			Recv: &termexp.RecvRecDS{
 				X:      symbol.ConvertToString(rec.CommChnlPH),
+				A:      identity.ConvertToString(rec.ContChnlID),
 				Y:      symbol.ConvertToString(rec.NewChnlPH),
 				ContES: dto,
 			},
 		}, nil
 	case termexp.LabRec:
 		return termexp.ExpRecDS{
-			K:   termexp.LabExp,
-			Lab: &termexp.LabRecDS{X: symbol.ConvertToString(rec.CommChnlPH), Label: uniqsym.ConvertToString(rec.ValLabQN)},
+			K: termexp.LabExp,
+			Lab: &termexp.LabRecDS{
+				X:        symbol.ConvertToString(rec.CommChnlPH),
+				A:        identity.ConvertToString(rec.ContChnlID),
+				Label:    uniqsym.ConvertToString(rec.ValLabQN),
+				ValExpVK: int64(rec.ValExpVK),
+			},
 		}, nil
 	case termexp.CaseRec:
 		brs := []termexp.BranchRecDS{}
@@ -252,6 +262,7 @@ func DataFromExpRec(r termexp.ExpRec) (termexp.ExpRecDS, error) {
 			K: termexp.CaseExp,
 			Case: &termexp.CaseRecDS{
 				X:        symbol.ConvertToString(rec.CommChnlPH),
+				A:        identity.ConvertToString(rec.ContChnlID),
 				Branches: brs,
 			},
 		}, nil
@@ -295,9 +306,27 @@ func DataToExpRec(dto termexp.ExpRecDS) (termexp.ExpRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return termexp.SendRec{CommChnlPH: x, ContChnlID: a}, nil
+		valID, err := identity.ConvertFromString(dto.Send.B)
+		if err != nil {
+			return nil, err
+		}
+		commID, err := identity.ConvertFromString(dto.Send.ConnID)
+		if err != nil {
+			return nil, err
+		}
+		return termexp.SendRec{
+			CommChnlPH: x,
+			ContChnlID: a,
+			ValChnlID:  valID,
+			ValExpVK:   valkey.ADT(dto.Send.ValExpVK),
+			ConnID:     commID,
+		}, nil
 	case termexp.RecvExp:
 		x, err := symbol.ConvertFromString(dto.Recv.X)
+		if err != nil {
+			return nil, err
+		}
+		a, err := identity.ConvertFromString(dto.Recv.A)
 		if err != nil {
 			return nil, err
 		}
@@ -309,9 +338,13 @@ func DataToExpRec(dto termexp.ExpRecDS) (termexp.ExpRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return termexp.RecvRec{CommChnlPH: x, NewChnlPH: y, ContExp: cont}, nil
+		return termexp.RecvRec{CommChnlPH: x, ContChnlID: a, NewChnlPH: y, ContExp: cont}, nil
 	case termexp.LabExp:
 		a, err := symbol.ConvertFromString(dto.Lab.X)
+		if err != nil {
+			return nil, err
+		}
+		contID, err := identity.ConvertFromString(dto.Lab.A)
 		if err != nil {
 			return nil, err
 		}
@@ -319,9 +352,13 @@ func DataToExpRec(dto termexp.ExpRecDS) (termexp.ExpRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return termexp.LabRec{CommChnlPH: a, ValLabQN: label}, nil
+		return termexp.LabRec{CommChnlPH: a, ContChnlID: contID, ValExpVK: valkey.ADT(dto.Lab.ValExpVK), ValLabQN: label}, nil
 	case termexp.CaseExp:
 		x, err := symbol.ConvertFromString(dto.Case.X)
+		if err != nil {
+			return nil, err
+		}
+		contID, err := identity.ConvertFromString(dto.Case.A)
 		if err != nil {
 			return nil, err
 		}
@@ -331,13 +368,13 @@ func DataToExpRec(dto termexp.ExpRecDS) (termexp.ExpRec, error) {
 			if err != nil {
 				return nil, err
 			}
-			label, err := uniqsym.ConvertFromString(dto.Lab.Label)
+			label, err := uniqsym.ConvertFromString(branch.Label)
 			if err != nil {
 				return nil, err
 			}
 			conts[label] = cont
 		}
-		return termexp.CaseRec{CommChnlPH: x, ContExps: conts}, nil
+		return termexp.CaseRec{CommChnlPH: x, ContChnlID: contID, ContExps: conts}, nil
 	case termexp.FwdExp:
 		x, err := symbol.ConvertFromString(dto.Fwd.X)
 		if err != nil {

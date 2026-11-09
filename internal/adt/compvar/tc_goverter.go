@@ -1,10 +1,12 @@
 package compvar
 
 import (
+	"database/sql"
+
 	"github.com/orglang/go-sdk/adt/compvar"
 
-	"orglang/go-engine/internal/adt/commsem"
 	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/identity"
 )
 
 // goverter:variables
@@ -35,21 +37,27 @@ var (
 // goverter:extend Convert.*
 var (
 	// goverter:autoMap CompRef
-	// goverter:autoMap CommRef
+	// goverter:map ConnID | identityToNullString
 	DataFromStructRec  func(StructRec) VarRecDS
 	DataFromStructRecs func([]StructRec) []VarRecDS
 	// goverter:autoMap CompRef
-	// goverter:autoMap CommRef
+	// goverter:map ConnID | identityToNullString
 	DataFromLinearRec  func(LinearRec) VarRecDS
 	DataFromLinearRecs func([]LinearRec) []VarRecDS
 	// goverter:map . CompRef
-	// goverter:map . CommRef | dataToSemRef
+	// goverter:map ConnID | dataToConnID
 	DataToStructRec  func(VarRecDS) (StructRec, error)
 	DataToStructRecs func([]VarRecDS) ([]StructRec, error)
 	// goverter:map . CompRef
-	// goverter:map . CommRef | dataToSemRef
+	// goverter:map ConnID | dataToConnID
 	DataToLinearRec  func(VarRecDS) (LinearRec, error)
 	DataToLinearRecs func([]VarRecDS) ([]LinearRec, error)
-	// goverter:ignore CommRN
-	dataToSemRef func(VarRecDS) (commsem.SemRef, error)
 )
+
+func identityToNullString(id identity.ADT) sql.NullString {
+	return identity.ConvertToNullString(id)
+}
+
+func dataToConnID(dto sql.NullString) (identity.ADT, error) {
+	return identity.ConvertFromNullString(dto)
+}

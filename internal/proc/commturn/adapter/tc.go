@@ -3,61 +3,75 @@ package adapter
 import (
 	"fmt"
 
+	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/seqnum"
+
 	commturn "orglang/go-engine/internal/proc/commturn/core"
 	termexp "orglang/go-engine/internal/proc/termexp/adapter"
 )
 
-func dataFromStepRec(r commturn.TurnRec) (commturn.StepRecDS, error) {
-	if r == nil {
-		return commturn.StepRecDS{}, nil
-	}
+func DataFromStepRec(r commturn.TurnRec) (commturn.TurnRecDS, error) {
 	switch rec := r.(type) {
 	case commturn.PubRec:
-		msgVal, err := termexp.DataFromExpRec(rec.ValExp)
+		exp, err := termexp.DataFromExpRec(rec.ValExp)
 		if err != nil {
-			return commturn.StepRecDS{}, err
+			return commturn.TurnRecDS{}, err
 		}
-		return commturn.StepRecDS{
+		compRef := compsem.DataFromRef(rec.CompRef)
+		return commturn.TurnRecDS{
+			ConnID: identity.ConvertToString(rec.ConnID),
+			ActNr:  int64(rec.ActNr),
+			CompID: compRef.CompID,
+			CompRN: compRef.CompRN,
+			ChnlID: identity.ConvertToString(rec.ChnlID),
 			K:      commturn.MsgStep,
-			ProcER: msgVal,
+			Exp:    exp,
 		}, nil
 	case commturn.SubRec:
-		svcCont, err := termexp.DataFromExpRec(rec.ContExp)
+		exp, err := termexp.DataFromExpRec(rec.ContExp)
 		if err != nil {
-			return commturn.StepRecDS{}, err
+			return commturn.TurnRecDS{}, err
 		}
-		return commturn.StepRecDS{
+		compRef := compsem.DataFromRef(rec.CompRef)
+		return commturn.TurnRecDS{
+			ConnID: identity.ConvertToString(rec.ConnID),
+			ActNr:  int64(rec.ActNr),
+			CompID: compRef.CompID,
+			CompRN: compRef.CompRN,
+			ChnlID: identity.ConvertToString(rec.ChnlID),
 			K:      commturn.SvcStep,
-			ProcER: svcCont,
+			Exp:    exp,
 		}, nil
 	default:
-		panic(commturn.ErrRecTypeUnexpected(rec))
+		panic(commturn.ErrRecTypeUnexpected(r))
 	}
 }
 
-func dataToStepRec(dto commturn.StepRecDS) (commturn.TurnRec, error) {
-	var nilData commturn.StepRecDS
-	if dto == nilData {
-		return nil, nil
+func DataToStepRec(dto commturn.TurnRecDS) (commturn.TurnRec, error) {
+	connID, err := identity.ConvertFromString(dto.ConnID)
+	if err != nil {
+		return nil, err
 	}
+	compID, err := identity.ConvertFromString(dto.CompID)
+	if err != nil {
+		return nil, err
+	}
+	chnlID, err := identity.ConvertFromString(dto.ChnlID)
+	if err != nil {
+		return nil, err
+	}
+	exp, err := termexp.DataToExpRec(dto.Exp)
+	if err != nil {
+		return nil, err
+	}
+	compRef := compsem.SemRef{CompID: compID, CompRN: seqnum.ADT(dto.CompRN)}
 	switch dto.K {
 	case commturn.MsgStep:
-		val, err := termexp.DataToExpRec(dto.ProcER)
-		if err != nil {
-			return nil, err
-		}
-		return commturn.PubRec{ValExp: val}, nil
+		return commturn.PubRec{ConnID: connID, ActNr: seqnum.ADT(dto.ActNr), CompRef: compRef, ChnlID: chnlID, ValExp: exp}, nil
 	case commturn.SvcStep:
-		cont, err := termexp.DataToExpRec(dto.ProcER)
-		if err != nil {
-			return nil, err
-		}
-		return commturn.SubRec{ContExp: cont}, nil
+		return commturn.SubRec{ConnID: connID, ActNr: seqnum.ADT(dto.ActNr), CompRef: compRef, ChnlID: chnlID, ContExp: exp}, nil
 	default:
-		panic(errUnexpectedStepKind(dto.K))
+		return nil, fmt.Errorf("unexpected Act kind: %v", dto.K)
 	}
-}
-
-func errUnexpectedStepKind(k commturn.StepKindDS) error {
-	return fmt.Errorf("unexpected step kind: %v", k)
 }

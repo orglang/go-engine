@@ -33,7 +33,7 @@ func DataFromVarRec(rec VarRec) VarRecDS {
 func DataFromStructMap(recMap map[symbol.ADT]StructRec) []VarRecDS {
 	dtos := make([]VarRecDS, 0, len(recMap))
 	for _, rec := range recMap {
-		dtos = append(dtos, DataFromVarRec(rec))
+		dtos = append(dtos, DataFromStructRec(rec))
 	}
 	return dtos
 }
@@ -53,7 +53,7 @@ func DataToStructMap(dtos []VarRecDS) (map[symbol.ADT]StructRec, error) {
 func DataFromLinearMap(recMap map[symbol.ADT]LinearRec) []VarRecDS {
 	dtos := make([]VarRecDS, 0, len(recMap))
 	for _, rec := range recMap {
-		dtos = append(dtos, DataFromVarRec(rec))
+		dtos = append(dtos, DataFromLinearRec(rec))
 	}
 	return dtos
 }

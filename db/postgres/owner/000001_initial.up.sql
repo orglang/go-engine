@@ -45,7 +45,7 @@ CREATE TABLE pool_comp_execs (
 CREATE TABLE pool_comp_vars (
     comp_id varchar,
     comp_rn bigint,
-    comm_id varchar,
+    conn_id varchar,
     chnl_id varchar,
     chnl_ph varchar,
     exp_vk bigint,
@@ -58,16 +58,21 @@ CREATE TABLE pool_struct_vars (
 CREATE TABLE pool_linear_vars (
 ) INHERITS (pool_comp_vars);
 
-CREATE TABLE pool_comm_conns (
-    comm_id varchar UNIQUE,
-    comm_rn bigint,
-    offset_nr bigint
+CREATE TABLE pool_comp_conns (
+    conn_id varchar UNIQUE,
+    provider_comp_id varchar NOT NULL,
+    provider_comp_rn bigint NOT NULL,
+    client_comp_id varchar NOT NULL,
+    client_comp_rn bigint NOT NULL,
+    offset_nr bigint,
+    act_nr bigint
 );
 
-CREATE TABLE pool_comm_turns (
-    comm_id varchar,
-    comm_rn bigint,
+CREATE TABLE pool_conn_acts (
+    conn_id varchar,
+    act_nr bigint,
     comp_id varchar,
+    comp_rn bigint,
     chnl_id varchar,
     kind smallint,
     exp jsonb
@@ -118,7 +123,7 @@ CREATE TABLE proc_comp_execs (
 CREATE TABLE proc_comp_vars (
     comp_id varchar,
     comp_rn bigint,
-    comm_id varchar,
+    conn_id varchar,
     chnl_id varchar,
     chnl_ph varchar,
     exp_vk bigint,
@@ -131,16 +136,21 @@ CREATE TABLE proc_struct_vars (
 CREATE TABLE proc_linear_vars (
 ) INHERITS (proc_comp_vars);
 
-CREATE TABLE proc_comm_conns (
-    comm_id varchar UNIQUE,
-    comm_rn bigint,
-    offset_nr bigint
+CREATE TABLE proc_comp_conns (
+    conn_id varchar UNIQUE,
+    provider_comp_id varchar NOT NULL,
+    provider_comp_rn bigint NOT NULL,
+    client_comp_id varchar NOT NULL,
+    client_comp_rn bigint NOT NULL,
+    offset_nr bigint,
+    act_nr bigint
 );
 
-CREATE TABLE proc_comm_turns (
-    comm_id varchar,
-    comm_rn bigint,
+CREATE TABLE proc_conn_acts (
+    conn_id varchar,
+    act_nr bigint,
     comp_id varchar,
+    comp_rn bigint,
     chnl_id varchar,
     kind smallint,
     exp jsonb

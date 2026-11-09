@@ -2,18 +2,19 @@ package adapter
 
 import (
 	"context"
+	"database/sql"
 	"log/slog"
 	"reflect"
 
+	"github.com/jackc/pgx/v5"
+
+	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/internal/adt/commsem"
-	"orglang/go-engine/internal/adt/uniqsym"
-
 	commconn "orglang/go-engine/internal/pool/commconn/core"
-
-	"github.com/jackc/pgx/v5"
+	commturnadapter "orglang/go-engine/internal/pool/commturn/adapter"
 )
 
 type daoPgx struct {
@@ -27,64 +28,81 @@ func NewDaoPgx(qb commconn.QueryBuilder, log *slog.Logger) commconn.Repo {
 }
 
 // for compilation purposes
-func newRepo() commconn.Repo {
-	return new(daoPgx)
-}
+func newRepo() commconn.Repo { return new(daoPgx) }
 
 func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec commconn.ConnRec) error {
 	dto := DataFromRec(rec)
-	refAttr := slog.Any("ref", rec.CommRef)
-	sql, args := dao.qb.InsertRec(dto)
-	_, execErr := conn.Pgx.Exec(ctx, sql, args...)
-	if execErr != nil {
-		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
-		return execErr
+	refAttr := slog.Any("conn_id", rec.ConnID)
+	querySQL, args := dao.qb.InsertRec(dto)
+	_, err := conn.Pgx.Exec(ctx, querySQL, args...)
+	if err != nil {
+		dao.log.Error("Connection insertion failed", refAttr, slog.String("sql", querySQL))
+		return err
 	}
-	dao.log.Log(ctx, lf.LevelTrace, "addition succeed", slog.Any("dto", dto))
+	dao.log.Log(ctx, lf.LevelTrace, "Connection insertion succeeded", slog.Any("dto", dto))
 	return nil
 }
 
 func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.ConnMod) error {
-	if mod.OffsetNr == nil {
-		return nil
+	refAttr := slog.Any("conn_id", mod.ConnID)
+	if (mod.OffsetNr != nil && !mod.OffsetNr.IsEmpty()) || len(mod.Turns) > 0 {
+		dto := DataFromMod(mod)
+		if len(mod.Turns) > 0 {
+			// The provider CAS advances comp_rn exactly once for this operation.
+			// Mirror that revision as the Act number; no independent sequence
+			// update is needed (Take appends at most one Act per operation).
+			dto.ActNr = sql.Null[int64]{V: int64(mod.ProviderCompRN) + 1, Valid: true}
+		}
+		querySQL, args := dao.qb.UpdateRec(dto)
+		tag, err := conn.Pgx.Exec(ctx, querySQL, args...)
+		if err != nil {
+			dao.log.Error("Connection offset update failed", refAttr, slog.String("sql", querySQL))
+			return err
+		}
+		if tag.RowsAffected() == 0 {
+			return commconn.ErrMissingConn(mod.ConnID)
+		}
 	}
-	dto := DataFromMod(mod)
-	refAttr := slog.Any("ref", mod.CommRef)
-	sql, args := dao.qb.UpdateRec(dto)
-	_, execErr := conn.Pgx.Exec(ctx, sql, args...)
-	if execErr != nil {
-		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
-		return execErr
+	for _, turn := range mod.Turns {
+		dto := commturnadapter.DataFromStepRec(turn)
+		dto.ActNr = int64(mod.ProviderCompRN) + 1
+		querySQL, args := dao.qb.InsertTurnRec(dto)
+		if _, err := conn.Pgx.Exec(ctx, querySQL, args...); err != nil {
+			dao.log.Error("Act insertion failed", refAttr, slog.String("sql", querySQL))
+			return err
+		}
 	}
-	dao.log.Log(ctx, lf.LevelTrace, "modification succeed", slog.Any("dto", dto))
+	dao.log.Log(ctx, lf.LevelTrace, "Connection modification succeeded", refAttr)
 	return nil
 }
 
-func (dao *daoPgx) GetRefsByQNs(ctx context.Context, conn tx.Conn, qns []uniqsym.ADT) (map[uniqsym.ADT]commsem.SemRef, error) {
-	panic("unimplemented")
-}
-
 func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.ConnQry) (commconn.ConnSnap, error) {
-	refAttr := slog.Any("ref", qry.CommRef)
+	refAttr := slog.Any("conn_id", qry.ConnID)
 	qryDTO := DataFromQry(qry)
-	dao.log.Log(ctx, lf.LevelTrace, "getting started", slog.Any("qry", qryDTO))
-	sql, args := dao.qb.SelectSnap(qryDTO)
-	rows, execErr := conn.Pgx.Query(ctx, sql, args...)
-	if execErr != nil {
-		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
-		return commconn.ConnSnap{}, execErr
+	dao.log.Log(ctx, lf.LevelTrace, "Connection snapshot selection started", slog.Any("qry", qryDTO))
+	querySQL, args := dao.qb.SelectSnap(qryDTO)
+	rows, err := conn.Pgx.Query(ctx, querySQL, args...)
+	if err != nil {
+		dao.log.Error("Connection snapshot query failed", refAttr, slog.String("sql", querySQL))
+		return commconn.ConnSnap{}, err
 	}
 	defer rows.Close()
-	snapDTO, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[commconn.ConnSnapDS])
-	if scanErr != nil {
-		dao.log.Error("rows scanning failed", refAttr)
-		return commconn.ConnSnap{}, scanErr
+	snapDTO, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[commconn.ConnSnapDS])
+	if err != nil {
+		dao.log.Error("Connection snapshot scan failed", refAttr)
+		return commconn.ConnSnap{}, err
 	}
-	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("dto", snapDTO))
-	snap, convErr := DataToSnap(snapDTO)
-	if convErr != nil {
-		dao.log.Error("model conversion failed", refAttr)
-		return commconn.ConnSnap{}, convErr
+	snap, err := DataToSnap(snapDTO)
+	if err != nil {
+		dao.log.Error("Connection snapshot conversion failed", refAttr)
+		return commconn.ConnSnap{}, err
 	}
+	providerCompID, err := identity.ConvertFromString(snapDTO.ProviderCompID)
+	if err != nil {
+		return commconn.ConnSnap{}, err
+	}
+	snap.ProviderCompID = providerCompID
+	snap.ProviderCompRN = seqnum.ADT(snapDTO.ProviderCompRN)
+	dao.log.Log(ctx, lf.LevelTrace, "Connection snapshot loaded", slog.Any("dto", snapDTO))
 	return snap, nil
 }

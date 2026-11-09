@@ -1,33 +1,42 @@
 package core
 
 import (
-	"orglang/go-engine/internal/adt/commsem"
+	"fmt"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/option"
 	"orglang/go-engine/internal/adt/seqnum"
+
 	commturn "orglang/go-engine/internal/proc/commturn/core"
 )
 
-type ConnRec struct {
-	CommRef  commsem.SemRef
-	OffsetNr seqnum.ADT
-}
-
 type ConnMod struct {
-	CommRef commsem.SemRef
-	CommON  option.ADT[seqnum.ADT]
-	Turns   []commturn.TurnRec
+	ConnID         identity.ADT
+	ProviderCompID identity.ADT
+	ProviderCompRN seqnum.ADT
+	OffsetNr       option.ADT[seqnum.ADT]
+	Turns          []commturn.TurnRec
 }
 
 type ConnQry struct {
-	CommRef commsem.SemRef
-	ChnlID  option.ADT[identity.ADT]
+	ConnID identity.ADT
+	ChnlID option.ADT[identity.ADT]
 }
 
 // aka Configuration
 type ConnSnap struct {
-	CommRef commsem.SemRef
-	Turns   []commturn.TurnRec
+	ConnID         identity.ADT
+	ProviderCompID identity.ADT
+	ProviderCompRN seqnum.ADT
+	OffsetNr       seqnum.ADT
+	Turns          []commturn.TurnRec
+}
+
+func ErrOffsetConflict(got seqnum.ADT) error {
+	return fmt.Errorf("connection offset changed concurrently: got %v", got)
+}
+
+func ErrSnapshotConflict(got seqnum.ADT) error {
+	return fmt.Errorf("connection snapshot changed concurrently: offset %v", got)
 }
 
 func (s ConnSnap) NextTurn() commturn.TurnRec {

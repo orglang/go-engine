@@ -1,7 +1,6 @@
 package adapter
 
 import (
-	"orglang/go-engine/internal/adt/commsem"
 	"orglang/go-engine/internal/adt/compsem"
 	"orglang/go-engine/internal/adt/identity"
 	termexp "orglang/go-engine/internal/pool/termexp/adapter"
@@ -12,23 +11,24 @@ import (
 func DataFromStepRec(r commturn.TurnRec) commturn.TurnRecDS {
 	switch rec := r.(type) {
 	case commturn.PubRec:
-		commRef := commsem.DataFromRef(rec.CommRef)
 		compRef := compsem.DataFromRef(rec.CompRef)
 		return commturn.TurnRecDS{
-			CommID: commRef.CommID,
-			CommRN: commRef.CommRN,
+			ConnID: identity.ConvertToString(rec.ConnID),
+			ActNr:  int64(rec.ActNr),
 			CompID: compRef.CompID,
+			CompRN: compRef.CompRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
 			K:      commturn.PubKind,
 			Exp:    termexp.DataFromExpRec(rec.ValExp),
 		}
 	case commturn.SubRec:
-		commRef := commsem.DataFromRef(rec.CommRef)
 		compRef := compsem.DataFromRef(rec.CompRef)
 		return commturn.TurnRecDS{
-			CommID: commRef.CommID,
-			CommRN: commRef.CommRN,
+			ConnID: identity.ConvertToString(rec.ConnID),
+			ActNr:  int64(rec.ActNr),
 			CompID: compRef.CompID,
+			CompRN: compRef.CompRN,
+			ChnlID: identity.ConvertToString(rec.ChnlID),
 			K:      commturn.SubKind,
 			Exp:    termexp.DataFromExpRec(rec.ContExp),
 		}

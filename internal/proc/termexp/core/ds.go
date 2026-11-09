@@ -70,9 +70,11 @@ type SendSpecDS struct {
 }
 
 type SendRecDS struct {
-	X string `json:"x"`
-	A string `json:"a"`
-	B string `json:"b"`
+	X        string `json:"x"`
+	A        string `json:"a"`
+	B        string `json:"b"`
+	ConnID   string `json:"conn_id"`
+	ValExpVK int64  `json:"val_exp_vk"`
 }
 
 type RecvSpecDS struct {
@@ -94,8 +96,10 @@ type LabSpecDS struct {
 }
 
 type LabRecDS struct {
-	X     string `json:"x"`
-	Label string `json:"lab"`
+	X        string `json:"x"`
+	A        string `json:"a"`
+	Label    string `json:"lab"`
+	ValExpVK int64  `json:"val_exp_vk"`
 }
 
 type CaseSpecDS struct {
@@ -105,6 +109,7 @@ type CaseSpecDS struct {
 
 type CaseRecDS struct {
 	X        string        `json:"x"`
+	A        string        `json:"a"`
 	Branches []BranchRecDS `json:"brs"`
 }
 

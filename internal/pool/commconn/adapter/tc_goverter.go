@@ -8,14 +8,14 @@ import (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/compsem:Data.*
 // goverter:extend orglang/go-engine/internal/pool/commturn/adapter:Data.*
 var (
-	// goverter:autoMap CommRef
-	DataFromRec func(commconn.ConnRec) commconn.ConnRecDS
-	// goverter:autoMap CommRef
+	// goverter:map ConnID | identityToString
 	DataFromQry func(commconn.ConnQry) commconn.ConnQryDS
-	// goverter:autoMap CommRef
+	// goverter:map ConnID | identityToString
+	// goverter:ignore ActNr
 	DataFromMod func(commconn.ConnMod) commconn.ConnModDS
-	// goverter:map . CommRef
+	// goverter:map . ConnID | dataToConnID
 	DataToSnap func(commconn.ConnSnapDS) (commconn.ConnSnap, error)
 )

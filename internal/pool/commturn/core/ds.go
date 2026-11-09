@@ -1,21 +1,12 @@
 package core
 
-import (
-	"context"
-	"orglang/go-engine/internal/lib/tx"
-
-	termexp "orglang/go-engine/internal/pool/termexp/core"
-)
-
-type Repo interface {
-	AddRec(context.Context, tx.Conn, TurnRec) error
-	AddRecs(context.Context, tx.Conn, []TurnRec) error
-}
+import termexp "orglang/go-engine/internal/pool/termexp/core"
 
 type TurnRecDS struct {
-	CommID string           `db:"comm_id"`
-	CommRN int64            `db:"comm_rn"`
+	ConnID string           `db:"conn_id"`
+	ActNr  int64            `db:"act_nr"`
 	CompID string           `db:"comp_id"`
+	CompRN int64            `db:"comp_rn"`
 	ChnlID string           `db:"chnl_id"`
 	K      turnKind         `db:"kind"`
 	Exp    termexp.ExpRecDS `db:"exp" fieldopt:"noexpand"`

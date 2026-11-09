@@ -2,15 +2,33 @@ package core
 
 import (
 	"context"
+	"database/sql"
+
 	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/internal/adt/commsem"
-	"orglang/go-engine/internal/adt/uniqsym"
+	commturn "orglang/go-engine/internal/proc/commturn/core"
 )
 
 type Repo interface {
-	AddRec(context.Context, tx.Conn, ConnRec) error
-	Modifyec(context.Context, tx.Conn, ConnMod) error
-	GetRefsByQNs(context.Context, tx.Conn, []uniqsym.ADT) (map[uniqsym.ADT]commsem.SemRef, error)
+	ModifyRec(context.Context, tx.Conn, ConnMod) error
 	GetSnapByQry(context.Context, tx.Conn, ConnQry) (ConnSnap, error)
+}
+
+type ConnModDS struct {
+	ConnID   string          `db:"conn_id"`
+	OffsetNr sql.Null[int64] `db:"offset_nr"`
+}
+
+type ConnQryDS struct {
+	ConnID string           `db:"conn_id"`
+	ChnlID sql.Null[string] `db:"chnl_id"`
+}
+
+type ConnSnapDS struct {
+	ConnID         string               `db:"conn_id"`
+	ProviderCompID string               `db:"provider_comp_id"`
+	ProviderCompRN int64                `db:"provider_comp_rn"`
+	OffsetNr       int64                `db:"offset_nr"`
+	ActNr          int64                `db:"act_nr"`
+	Turns          []commturn.TurnRecDS `db:"turns"`
 }

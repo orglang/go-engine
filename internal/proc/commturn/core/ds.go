@@ -1,26 +1,18 @@
 package core
 
-import (
-	"context"
-	"database/sql"
+import termexp "orglang/go-engine/internal/proc/termexp/core"
 
-	"orglang/go-engine/internal/lib/tx"
-
-	termexp "orglang/go-engine/internal/proc/termexp/core"
-)
-
-type Repo interface {
-	InsertRecs(context.Context, tx.Conn, ...TurnRec) error
-}
-
-type StepRecDS struct {
+type TurnRecDS struct {
+	ConnID string           `db:"conn_id"`
+	ActNr  int64            `db:"act_nr"`
+	CompID string           `db:"comp_id"`
+	CompRN int64            `db:"comp_rn"`
+	ChnlID string           `db:"chnl_id"`
 	K      StepKindDS       `db:"kind"`
-	ExecID sql.NullString   `db:"impl_id"`
-	ChnlID sql.NullString   `db:"chnl_id"`
-	ProcER termexp.ExpRecDS `db:"proc_er"`
+	Exp    termexp.ExpRecDS `db:"exp" fieldopt:"noexpand"`
 }
 
-type StepKindDS int
+type StepKindDS int16
 
 const (
 	NonStep StepKindDS = iota

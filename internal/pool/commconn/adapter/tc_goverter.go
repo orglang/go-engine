@@ -9,7 +9,7 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/compsem:Data.*
-// goverter:extend orglang/go-engine/internal/pool/commturn/adapter:Data.*
+// goverter:extend orglang/go-engine/internal/pool/commact/adapter:Data.*
 var (
 	// goverter:map ConnID | identityToString
 	DataFromQry func(commconn.ConnQry) commconn.ConnQryDS

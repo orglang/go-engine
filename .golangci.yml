@@ -44,7 +44,7 @@ linters:
               desc: Core/domain code must depend on a port, not an adapter.
             - pkg: orglang/go-engine/internal/proc/commconn/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/proc/commturn/adapter
+            - pkg: orglang/go-engine/internal/proc/commact/adapter
               desc: Core/domain code must depend on a port, not an adapter.
             - pkg: orglang/go-engine/internal/proc/compexec/adapter
               desc: Core/domain code must depend on a port, not an adapter.
@@ -62,7 +62,7 @@ linters:
               desc: Core/domain code must depend on a port, not an adapter.
             - pkg: orglang/go-engine/internal/pool/commconn/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/pool/commturn/adapter
+            - pkg: orglang/go-engine/internal/pool/commact/adapter
               desc: Core/domain code must depend on a port, not an adapter.
             - pkg: orglang/go-engine/internal/pool/compexec/adapter
               desc: Core/domain code must depend on a port, not an adapter.

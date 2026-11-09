@@ -18,7 +18,7 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 
 	commconn "orglang/go-engine/internal/pool/commconn/core"
-	commturn "orglang/go-engine/internal/pool/commturn/core"
+	commact "orglang/go-engine/internal/pool/commact/core"
 	compstep "orglang/go-engine/internal/pool/compstep/core"
 	compvar "orglang/go-engine/internal/pool/compvar/core"
 	termdef "orglang/go-engine/internal/pool/termdef/core"
@@ -369,13 +369,13 @@ func (s *service) takeStep(
 		connMod.ProviderCompID = connSnap.ProviderCompID
 		connMod.ProviderCompRN = connSnap.ProviderCompRN
 		connAttr := slog.Any("connID", connSnap.ConnID)
-		subscription := connSnap.NextTurn()
+		subscription := connSnap.NextAct()
 		if subscription != nil {
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {
 			// регистрируем подписку доступодателя
-			connMod.Turns = append(connMod.Turns, commturn.SubRec{
+			connMod.Acts = append(connMod.Acts, commact.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -387,9 +387,9 @@ func (s *service) takeStep(
 			s.log.Debug("taking half done", compAttr, connAttr)
 			return execMod, execEff, connMod, nil
 		}
-		acquisition, ok := subscription.(commturn.SubRec)
+		acquisition, ok := subscription.(commact.SubRec)
 		if !ok {
-			panic(commturn.ErrRecTypeUnexpected(subscription))
+			panic(commact.ErrActRecTypeUnexpected(subscription))
 		}
 		newChnlID := identity.New()
 		// вяжем продолжение доступодателя
@@ -462,13 +462,13 @@ func (s *service) takeStep(
 		connMod.ProviderCompID = connSnap.ProviderCompID
 		connMod.ProviderCompRN = connSnap.ProviderCompRN
 		connAttr := slog.Any("connID", connSnap.ConnID)
-		subscription := connSnap.NextTurn()
+		subscription := connSnap.NextAct()
 		if subscription != nil {
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {
 			// регистрируем подписку доступополучателя
-			connMod.Turns = append(connMod.Turns, commturn.SubRec{
+			connMod.Acts = append(connMod.Acts, commact.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -480,9 +480,9 @@ func (s *service) takeStep(
 			s.log.Debug("taking half done", compAttr, connAttr)
 			return execMod, execEff, connMod, nil
 		}
-		acception, ok := subscription.(commturn.SubRec)
+		acception, ok := subscription.(commact.SubRec)
 		if !ok {
-			panic(commturn.ErrRecTypeUnexpected(subscription))
+			panic(commact.ErrActRecTypeUnexpected(subscription))
 		}
 		newChnlID := identity.New()
 		// вяжем продолжение доступополучателя
@@ -555,13 +555,13 @@ func (s *service) takeStep(
 		connMod.ProviderCompID = connSnap.ProviderCompID
 		connMod.ProviderCompRN = connSnap.ProviderCompRN
 		connAttr := slog.Any("connID", connSnap.ConnID)
-		subscription := connSnap.NextTurn()
+		subscription := connSnap.NextAct()
 		if subscription != nil {
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {
 			// регистрируем подписку соискателя
-			connMod.Turns = append(connMod.Turns, commturn.SubRec{
+			connMod.Acts = append(connMod.Acts, commact.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -574,9 +574,9 @@ func (s *service) takeStep(
 			s.log.Debug("taking half done", compAttr, connAttr)
 			return execMod, execEff, connMod, nil
 		}
-		hiring, ok := subscription.(commturn.SubRec)
+		hiring, ok := subscription.(commact.SubRec)
 		if !ok {
-			panic(commturn.ErrRecTypeUnexpected(subscription))
+			panic(commact.ErrActRecTypeUnexpected(subscription))
 		}
 		newChnlID := identity.New()
 		// вяжем продолжение соискателя
@@ -648,13 +648,13 @@ func (s *service) takeStep(
 		connMod.ProviderCompID = connSnap.ProviderCompID
 		connMod.ProviderCompRN = connSnap.ProviderCompRN
 		connAttr := slog.Any("connID", connSnap.ConnID)
-		subscription := connSnap.NextTurn()
+		subscription := connSnap.NextAct()
 		if subscription != nil {
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {
 			// регистрируем подписку нанимателя
-			connMod.Turns = append(connMod.Turns, commturn.SubRec{
+			connMod.Acts = append(connMod.Acts, commact.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -667,9 +667,9 @@ func (s *service) takeStep(
 			s.log.Debug("taking half done", compAttr, connAttr)
 			return execMod, execEff, connMod, nil
 		}
-		application, ok := subscription.(commturn.SubRec)
+		application, ok := subscription.(commact.SubRec)
 		if !ok {
-			panic(commturn.ErrRecTypeUnexpected(subscription))
+			panic(commact.ErrActRecTypeUnexpected(subscription))
 		}
 		newChnlID := identity.New()
 		// вяжем продолжение нанимателя
@@ -741,13 +741,13 @@ func (s *service) takeStep(
 		connMod.ProviderCompID = connSnap.ProviderCompID
 		connMod.ProviderCompRN = connSnap.ProviderCompRN
 		connAttr := slog.Any("connID", connSnap.ConnID)
-		subscription := connSnap.NextTurn()
+		subscription := connSnap.NextAct()
 		if subscription != nil {
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {
 			// регистрируем подписку доступовозвращателя
-			connMod.Turns = append(connMod.Turns, commturn.SubRec{
+			connMod.Acts = append(connMod.Acts, commact.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -758,9 +758,9 @@ func (s *service) takeStep(
 			s.log.Debug("taking half done", compAttr, connAttr)
 			return execMod, execEff, connMod, nil
 		}
-		detaching, ok := subscription.(commturn.SubRec)
+		detaching, ok := subscription.(commact.SubRec)
 		if !ok {
-			panic(commturn.ErrRecTypeUnexpected(subscription))
+			panic(commact.ErrActRecTypeUnexpected(subscription))
 		}
 		newChnlID := identity.New()
 		// вяжем продолжение доступовозвращателя
@@ -818,13 +818,13 @@ func (s *service) takeStep(
 		connMod.ProviderCompID = connSnap.ProviderCompID
 		connMod.ProviderCompRN = connSnap.ProviderCompRN
 		connAttr := slog.Any("connID", connSnap.ConnID)
-		subscription := connSnap.NextTurn()
+		subscription := connSnap.NextAct()
 		if subscription != nil {
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {
 			// регистрируем подписку доступопринимателя
-			connMod.Turns = append(connMod.Turns, commturn.SubRec{
+			connMod.Acts = append(connMod.Acts, commact.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -835,9 +835,9 @@ func (s *service) takeStep(
 			s.log.Debug("taking half done", compAttr, connAttr)
 			return execMod, execEff, connMod, nil
 		}
-		releasing, ok := subscription.(commturn.SubRec)
+		releasing, ok := subscription.(commact.SubRec)
 		if !ok {
-			panic(commturn.ErrRecTypeUnexpected(subscription))
+			panic(commact.ErrActRecTypeUnexpected(subscription))
 		}
 		newChnlID := identity.New()
 		execMod.Vars = append(execMod.Vars, compvar.LinearRec{

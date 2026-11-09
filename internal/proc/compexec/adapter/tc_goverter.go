@@ -19,7 +19,7 @@ var (
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/internal/proc/commturn/adapter:Data.*
+// goverter:extend orglang/go-engine/internal/proc/commact/adapter:Data.*
 // goverter:extend orglang/go-engine/internal/adt/compvar:Data.*
 var (
 	// goverter:map . CompRef | dataToSemRef

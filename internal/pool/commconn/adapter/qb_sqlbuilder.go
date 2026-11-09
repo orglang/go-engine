@@ -4,12 +4,12 @@ import (
 	"github.com/huandu/go-sqlbuilder"
 
 	commconn "orglang/go-engine/internal/pool/commconn/core"
-	commturn "orglang/go-engine/internal/pool/commturn/core"
+	commact "orglang/go-engine/internal/pool/commact/core"
 )
 
 type sqlBuilder struct {
 	connBuilder *sqlbuilder.Struct
-	turnBuilder *sqlbuilder.Struct
+	actBuilder  *sqlbuilder.Struct
 }
 
 // for compilation purposes
@@ -19,16 +19,16 @@ func newQueryBuilder() commconn.QueryBuilder {
 
 func newSQLBuilder() *sqlBuilder {
 	connBuilder := sqlbuilder.NewStruct(new(commconn.ConnRecDS)).For(sqlbuilder.PostgreSQL)
-	turnBuilder := sqlbuilder.NewStruct(new(commturn.TurnRecDS)).For(sqlbuilder.PostgreSQL)
-	return &sqlBuilder{connBuilder, turnBuilder}
+	actBuilder := sqlbuilder.NewStruct(new(commact.ActRecDS)).For(sqlbuilder.PostgreSQL)
+	return &sqlBuilder{connBuilder, actBuilder}
 }
 
 func (qb *sqlBuilder) InsertRec(rec commconn.ConnRecDS) (string, []any) {
 	return qb.connBuilder.InsertInto(compConns, rec).Build()
 }
 
-func (qb *sqlBuilder) InsertTurnRec(rec commturn.TurnRecDS) (string, []any) {
-	return qb.turnBuilder.InsertInto(connActs, rec).Build()
+func (qb *sqlBuilder) InsertActRec(rec commact.ActRecDS) (string, []any) {
+	return qb.actBuilder.InsertInto(connActs, rec).Build()
 }
 
 func (qb *sqlBuilder) UpdateRec(mod commconn.ConnModDS) (string, []any) {
@@ -49,15 +49,15 @@ func (qb *sqlBuilder) UpdateRec(mod commconn.ConnModDS) (string, []any) {
 
 func (qb *sqlBuilder) SelectSnap(qry commconn.ConnQryDS) (string, []any) {
 	conn := sqlbuilder.PostgreSQL.NewSelectBuilder().Select("conn.conn_id", "conn.provider_comp_id", "exec.comp_rn AS provider_comp_rn", "conn.offset_nr", "conn.act_nr").From(compConns+"conn").Join("pool_comp_execs exec", "exec.comp_id = conn.provider_comp_id")
-	turn := qb.turnBuilder.SelectFrom(connActs + "turn")
-	turn.Where(turn.Equal("conn_id", qry.ConnID))
+	act := qb.actBuilder.SelectFrom(connActs + "act")
+	act.Where(act.Equal("conn_id", qry.ConnID))
 	if qry.ChnlID.Valid {
-		turn.Where(turn.Equal("chnl_id", qry.ChnlID.V))
+		act.Where(act.Equal("chnl_id", qry.ChnlID.V))
 	}
-	turns := sqlbuilder.PostgreSQL.NewCTEBuilder()
-	return conn.With(turns.With(sqlbuilder.CTEQuery("turns").As(turn))).
+	acts := sqlbuilder.PostgreSQL.NewCTEBuilder()
+	return conn.With(acts.With(sqlbuilder.CTEQuery("acts").As(act))).
 		SelectMore(
-			conn.BuilderAs(sqlbuilder.Build("SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM turns t WHERE t.act_nr > conn.offset_nr"), "turns"),
+			conn.BuilderAs(sqlbuilder.Build("SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM acts t WHERE t.act_nr > conn.offset_nr"), "acts"),
 		).
 		Where(conn.Equal("conn.conn_id", qry.ConnID)).
 		Build()

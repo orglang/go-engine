@@ -1,6 +1,9 @@
 name: Sources Check
 
 on:
+  # Keep the default-branch Go cache warm for reuse by pull request workflows.
+  push:
+    branches: [main]
   workflow_dispatch:
   workflow_call:
   pull_request:

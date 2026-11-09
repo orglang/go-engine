@@ -8,7 +8,7 @@ import (
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/symbol"
-	termvar "orglang/go-engine/internal/adt/termvar"
+	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/typesem"
 )
 

@@ -3,8 +3,8 @@ package adapter
 import (
 	"github.com/huandu/go-sqlbuilder"
 
-	commconn "orglang/go-engine/internal/pool/commconn/core"
 	commact "orglang/go-engine/internal/pool/commact/core"
+	commconn "orglang/go-engine/internal/pool/commconn/core"
 )
 
 type sqlBuilder struct {

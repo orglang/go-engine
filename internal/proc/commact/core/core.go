@@ -26,7 +26,7 @@ type PubRec struct {
 	ValExp  termexp.ExpRec
 }
 
-func (r PubRec) act() identity.ADT      { return r.ChnlID }
+func (r PubRec) act() identity.ADT       { return r.ChnlID }
 func (r PubRec) GetConnID() identity.ADT { return r.ConnID }
 func (r PubRec) GetActNr() seqnum.ADT    { return r.ActNr }
 
@@ -38,7 +38,7 @@ type SubRec struct {
 	ContExp termexp.ExpRec
 }
 
-func (r SubRec) act() identity.ADT      { return r.ChnlID }
+func (r SubRec) act() identity.ADT       { return r.ChnlID }
 func (r SubRec) GetConnID() identity.ADT { return r.ConnID }
 func (r SubRec) GetActNr() seqnum.ADT    { return r.ActNr }
 

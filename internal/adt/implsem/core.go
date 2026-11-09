@@ -16,5 +16,5 @@ type implKind int16
 const (
 	unkKind implKind = iota
 	CompKind
-	CommKind
+	ConnKind
 )

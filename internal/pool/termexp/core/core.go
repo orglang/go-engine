@@ -16,7 +16,7 @@ type ExpSpec interface {
 
 // запрос доступа (подписка) со стороны клиента (спрос на доступ)
 type AcquireSpec struct {
-	CommChnlPH symbol.ADT
+	ConnChnlPH symbol.ADT
 	ContExp    ExpSpec
 }
 
@@ -28,7 +28,7 @@ func (s AcquireSpec) LogValue() slog.Value {
 
 // предложение доступа (публикация) со стороны провайдера (предложение доступа)
 type AcceptSpec struct {
-	CommChnlPH symbol.ADT
+	ConnChnlPH symbol.ADT
 	ContExp    ExpSpec
 }
 
@@ -40,7 +40,7 @@ func (s AcceptSpec) LogValue() slog.Value {
 
 // запрос компетенции (подписка) со стороны нанимателя (спрос на рабочую силу)
 type HireSpec struct {
-	CommChnlPH symbol.ADT
+	ConnChnlPH symbol.ADT
 	// запрашиваемая компетенция
 	ProcTermQN uniqsym.ADT
 	ContExp    ExpSpec
@@ -54,7 +54,7 @@ func (s HireSpec) LogValue() slog.Value {
 
 // предложение компетенции (публикация) со стороны соискателя (предложение рабочей силы)
 type ApplySpec struct {
-	CommChnlPH symbol.ADT
+	ConnChnlPH symbol.ADT
 	// предлагаемая компетенция
 	ProcTermQN uniqsym.ADT
 	ContExp    ExpSpec
@@ -68,7 +68,7 @@ func (s ApplySpec) LogValue() slog.Value {
 
 // освобождение доступа (публикация) по инициативе клиента
 type ReleaseSpec struct {
-	CommChnlPH symbol.ADT
+	ConnChnlPH symbol.ADT
 }
 
 func (s ReleaseSpec) spec() {}
@@ -79,7 +79,7 @@ func (s ReleaseSpec) LogValue() slog.Value {
 
 // лишение доступа (подписка) по инициативе провайдера
 type DetachSpec struct {
-	CommChnlPH symbol.ADT
+	ConnChnlPH symbol.ADT
 }
 
 func (s DetachSpec) spec() {}
@@ -90,7 +90,7 @@ func (s DetachSpec) LogValue() slog.Value {
 
 // лишение должности по инициативе работодателя
 type FireSpec struct {
-	CommChnlPH symbol.ADT
+	ConnChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
 }
 
@@ -102,7 +102,7 @@ func (s FireSpec) LogValue() slog.Value {
 
 // освобождение должности по инициативе сотрудника
 type QuitSpec struct {
-	CommChnlPH symbol.ADT
+	ConnChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
 }
 
@@ -185,19 +185,19 @@ type DetachRec struct {
 func (r DetachRec) rec() {}
 
 type FireRec struct {
-	CommChnlPH symbol.ADT
+	ConnChnlPH symbol.ADT
 }
 
 func (r FireRec) rec() {}
 
 type QuitRec struct {
-	CommChnlPH symbol.ADT
+	ConnChnlPH symbol.ADT
 }
 
 func (r QuitRec) rec() {}
 
 type SpawnRec struct {
-	CommChnlPH symbol.ADT
+	ConnChnlPH symbol.ADT
 }
 
 func (r SpawnRec) rec() {}

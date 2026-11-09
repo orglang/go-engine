@@ -7,48 +7,48 @@ import (
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 
-	commact "orglang/go-engine/internal/proc/commact/core"
+	connact "orglang/go-engine/internal/proc/connact/core"
 	termexp "orglang/go-engine/internal/proc/termexp/adapter"
 )
 
-func DataFromStepRec(r commact.ActRec) (commact.ActRecDS, error) {
+func DataFromStepRec(r connact.ActRec) (connact.ActRecDS, error) {
 	switch rec := r.(type) {
-	case commact.PubRec:
+	case connact.PubRec:
 		exp, err := termexp.DataFromExpRec(rec.ValExp)
 		if err != nil {
-			return commact.ActRecDS{}, err
+			return connact.ActRecDS{}, err
 		}
 		compRef := compsem.DataFromRef(rec.CompRef)
-		return commact.ActRecDS{
+		return connact.ActRecDS{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
 			CompID: compRef.CompID,
 			CompRN: compRef.CompRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
-			K:      commact.MsgStep,
+			K:      connact.MsgStep,
 			Exp:    exp,
 		}, nil
-	case commact.SubRec:
+	case connact.SubRec:
 		exp, err := termexp.DataFromExpRec(rec.ContExp)
 		if err != nil {
-			return commact.ActRecDS{}, err
+			return connact.ActRecDS{}, err
 		}
 		compRef := compsem.DataFromRef(rec.CompRef)
-		return commact.ActRecDS{
+		return connact.ActRecDS{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
 			CompID: compRef.CompID,
 			CompRN: compRef.CompRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
-			K:      commact.SvcStep,
+			K:      connact.SvcStep,
 			Exp:    exp,
 		}, nil
 	default:
-		panic(commact.ErrActRecTypeUnexpected(r))
+		panic(connact.ErrActRecTypeUnexpected(r))
 	}
 }
 
-func DataToStepRec(dto commact.ActRecDS) (commact.ActRec, error) {
+func DataToStepRec(dto connact.ActRecDS) (connact.ActRec, error) {
 	connID, err := identity.ConvertFromString(dto.ConnID)
 	if err != nil {
 		return nil, err
@@ -67,10 +67,10 @@ func DataToStepRec(dto commact.ActRecDS) (commact.ActRec, error) {
 	}
 	compRef := compsem.SemRef{CompID: compID, CompRN: seqnum.ADT(dto.CompRN)}
 	switch dto.K {
-	case commact.MsgStep:
-		return commact.PubRec{ConnID: connID, ActNr: seqnum.ADT(dto.ActNr), CompRef: compRef, ChnlID: chnlID, ValExp: exp}, nil
-	case commact.SvcStep:
-		return commact.SubRec{ConnID: connID, ActNr: seqnum.ADT(dto.ActNr), CompRef: compRef, ChnlID: chnlID, ContExp: exp}, nil
+	case connact.MsgStep:
+		return connact.PubRec{ConnID: connID, ActNr: seqnum.ADT(dto.ActNr), CompRef: compRef, ChnlID: chnlID, ValExp: exp}, nil
+	case connact.SvcStep:
+		return connact.SubRec{ConnID: connID, ActNr: seqnum.ADT(dto.ActNr), CompRef: compRef, ChnlID: chnlID, ContExp: exp}, nil
 	default:
 		return nil, fmt.Errorf("unexpected Act kind: %v", dto.K)
 	}

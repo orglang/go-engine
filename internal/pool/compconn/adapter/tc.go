@@ -2,19 +2,19 @@ package adapter
 
 import (
 	"orglang/go-engine/internal/adt/identity"
-	commconn "orglang/go-engine/internal/pool/commconn/core"
+	compconn "orglang/go-engine/internal/pool/compconn/core"
 )
 
 func identityToString(id identity.ADT) string {
 	return identity.ConvertToString(id)
 }
 
-func dataToConnID(dto commconn.ConnSnapDS) (identity.ADT, error) {
+func dataToConnID(dto compconn.ConnSnapDS) (identity.ADT, error) {
 	return identity.ConvertFromString(dto.ConnID)
 }
 
-func DataFromRec(rec commconn.ConnRec) commconn.ConnRecDS {
-	return commconn.ConnRecDS{
+func DataFromRec(rec compconn.ConnRec) compconn.ConnRecDS {
+	return compconn.ConnRecDS{
 		ConnID:         identity.ConvertToString(rec.ConnID),
 		ProviderCompID: identity.ConvertToString(rec.ProviderCompRef.CompID),
 		ProviderCompRN: int64(rec.ProviderCompRef.CompRN),

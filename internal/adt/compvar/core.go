@@ -22,6 +22,7 @@ type VarSpec struct {
 // machine-readable record of computation variable
 // машиночитаемая запись переменной вычисления
 type VarRec interface {
+	GetCompRef() compsem.SemRef
 	GetConnID() identity.ADT
 	GetChnlID() identity.ADT
 	GetChnlPH() symbol.ADT
@@ -42,6 +43,8 @@ type LinearRec struct {
 	// Нулевое значение означает исчерпание.
 	ExpVK valkey.ADT
 }
+
+func (r LinearRec) GetCompRef() compsem.SemRef { return r.CompRef }
 
 func (r LinearRec) GetConnID() identity.ADT { return r.ConnID }
 
@@ -65,6 +68,8 @@ type StructRec struct {
 	// Нулевое значение означает исчерпание.
 	ExpVK valkey.ADT
 }
+
+func (r StructRec) GetCompRef() compsem.SemRef { return r.CompRef }
 
 func (r StructRec) GetConnID() identity.ADT { return r.ConnID }
 

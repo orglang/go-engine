@@ -35,10 +35,10 @@ func (qb *sqlBuilder) UpdateRec(mod compconn.ConnModDS) (string, []any) {
 	conn := qb.connBuilder.Update(compConns, mod)
 	assignments := make([]string, 0, 2)
 	if mod.OffsetNr.Valid {
-		assignments = append(assignments, sqlbuilder.Assign("offset_nr", mod.OffsetNr.V))
+		assignments = append(assignments, conn.Assign("offset_nr", mod.OffsetNr.V))
 	}
 	if mod.ActNr.Valid {
-		assignments = append(assignments, sqlbuilder.Assign("act_nr", mod.ActNr.V))
+		assignments = append(assignments, conn.Assign("act_nr", mod.ActNr.V))
 	}
 	if len(assignments) > 0 {
 		conn.Set(assignments...)

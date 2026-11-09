@@ -2,7 +2,7 @@ package core
 
 import termexp "orglang/go-engine/internal/proc/termexp/core"
 
-type TurnRecDS struct {
+type ActRecDS struct {
 	ConnID string           `db:"conn_id"`
 	ActNr  int64            `db:"act_nr"`
 	CompID string           `db:"comp_id"`

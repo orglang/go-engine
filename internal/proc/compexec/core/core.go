@@ -165,7 +165,7 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 			s.log.Error("step taking failed", compAttr)
 			return err
 		}
-		if len(result.Connection.Turns) > 0 || (result.Connection.OffsetNr != nil && !result.Connection.OffsetNr.IsEmpty()) {
+		if len(result.Connection.Acts) > 0 || (result.Connection.OffsetNr != nil && !result.Connection.OffsetNr.IsEmpty()) {
 			providerRef := compsem.SemRef{CompID: result.Connection.ProviderCompID, CompRN: result.Connection.ProviderCompRN}
 			if providerRef.CompID == execSnap.CompRef.CompID {
 				if providerRef.CompRN != execSnap.CompRef.CompRN {
@@ -176,7 +176,7 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 			}
 		}
 		err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			if len(result.Connection.Turns) > 0 ||
+			if len(result.Connection.Acts) > 0 ||
 				(result.Connection.OffsetNr != nil && !result.Connection.OffsetNr.IsEmpty()) {
 				if err := s.connRepo.ModifyRec(txCtx, conn, result.Connection); err != nil {
 					s.log.Error("Connection modification failed", compAttr)
@@ -239,14 +239,14 @@ func (s *service) takeWith(
 		}
 		connMod.ProviderCompID = connSnap.ProviderCompID
 		connMod.ProviderCompRN = connSnap.ProviderCompRN
-		subscription := connSnap.NextTurn()
+		subscription := connSnap.NextAct()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {
 			// регистрируем подписку закрывателя
-			connMod.Turns = append(connMod.Turns, commturn.SubRec{
+			connMod.Acts = append(connMod.Acts, commturn.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -257,7 +257,7 @@ func (s *service) takeWith(
 		}
 		observation, ok := subscription.(commturn.SubRec)
 		if !ok {
-			panic(commturn.ErrRecTypeUnexpected(subscription))
+			panic(commturn.ErrActRecTypeUnexpected(subscription))
 		}
 		newChnlID := identity.New()
 		nextExpVK := valkey.One.Invert()
@@ -314,14 +314,14 @@ func (s *service) takeWith(
 		}
 		connMod.ProviderCompID = connSnap.ProviderCompID
 		connMod.ProviderCompRN = connSnap.ProviderCompRN
-		subscription := connSnap.NextTurn()
+		subscription := connSnap.NextAct()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {
 			// регистрируем подписку наблюдателя
-			connMod.Turns = append(connMod.Turns, commturn.SubRec{
+			connMod.Acts = append(connMod.Acts, commturn.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -332,7 +332,7 @@ func (s *service) takeWith(
 		}
 		closage, ok := subscription.(commturn.SubRec)
 		if !ok {
-			panic(commturn.ErrRecTypeUnexpected(subscription))
+			panic(commturn.ErrActRecTypeUnexpected(subscription))
 		}
 		newChnlID := identity.New()
 		nextExpVK := valkey.One.Invert()
@@ -416,14 +416,14 @@ func (s *service) takeWith(
 		}
 		connMod.ProviderCompID = connSnap.ProviderCompID
 		connMod.ProviderCompRN = connSnap.ProviderCompRN
-		subscription := connSnap.NextTurn()
+		subscription := connSnap.NextAct()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
 			connMod.OffsetNr = option.Some(subscription.GetActNr())
 		}
 		if subscription == nil {
 			// регистрируем подписку отправителя
-			connMod.Turns = append(connMod.Turns, commturn.SubRec{
+			connMod.Acts = append(connMod.Acts, commturn.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -438,7 +438,7 @@ func (s *service) takeWith(
 		}
 		receival, ok := subscription.(commturn.SubRec)
 		if !ok {
-			panic(commturn.ErrRecTypeUnexpected(subscription))
+			panic(commturn.ErrActRecTypeUnexpected(subscription))
 		}
 		newChnlID := identity.New()
 		// вяжем продолжение отправителя
@@ -517,7 +517,7 @@ func (s *service) takeWith(
 		}
 		connMod.ProviderCompID = connSnap.ProviderCompID
 		connMod.ProviderCompRN = connSnap.ProviderCompRN
-		publication := connSnap.NextTurn()
+		publication := connSnap.NextAct()
 		if publication != nil {
 			connMod.ConnID = connSnap.ConnID
 			connMod.OffsetNr = option.Some(publication.GetActNr())
@@ -534,7 +534,7 @@ func (s *service) takeWith(
 				ExpVK:   nextExpVK,
 			})
 			// регистрируем подписку принимателя
-			connMod.Turns = append(connMod.Turns, commturn.SubRec{
+			connMod.Acts = append(connMod.Acts, commturn.SubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -550,7 +550,7 @@ func (s *service) takeWith(
 		}
 		sending, ok := publication.(commturn.PubRec)
 		if !ok {
-			panic(commturn.ErrRecTypeUnexpected(publication))
+			panic(commturn.ErrActRecTypeUnexpected(publication))
 		}
 		switch valExp := sending.ValExp.(type) {
 		case termexp.SendRec:
@@ -611,7 +611,7 @@ func (s *service) takeWith(
 		}
 		connMod.ProviderCompID = connSnap.ProviderCompID
 		connMod.ProviderCompRN = connSnap.ProviderCompRN
-		subscription := connSnap.NextTurn()
+		subscription := connSnap.NextAct()
 		if subscription == nil {
 			newChnlID := identity.New()
 			// вяжем продолжение решателя
@@ -624,7 +624,7 @@ func (s *service) takeWith(
 				ExpVK:   nextExpVK,
 			})
 			// регистрируем сообщение решателя
-			connMod.Turns = append(connMod.Turns, commturn.PubRec{
+			connMod.Acts = append(connMod.Acts, commturn.PubRec{
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -639,7 +639,7 @@ func (s *service) takeWith(
 		}
 		following, ok := subscription.(commturn.SubRec)
 		if !ok {
-			panic(commturn.ErrRecTypeUnexpected(subscription))
+			panic(commturn.ErrActRecTypeUnexpected(subscription))
 		}
 		switch contExp := following.ContExp.(type) {
 		case termexp.CaseRec:
@@ -694,7 +694,7 @@ func (s *service) takeWith(
 		}
 		connMod.ProviderCompID = caseConnSnap.ProviderCompID
 		connMod.ProviderCompRN = caseConnSnap.ProviderCompRN
-		publication := caseConnSnap.NextTurn()
+		publication := caseConnSnap.NextAct()
 		if publication != nil {
 			connMod.ConnID = caseConnSnap.ConnID
 			connMod.OffsetNr = option.Some(publication.GetActNr())
@@ -702,7 +702,7 @@ func (s *service) takeWith(
 		if publication == nil {
 			newChnlID := identity.New()
 			// регистрируем подписку последователя
-			connMod.Turns = append(connMod.Turns, commturn.SubRec{
+			connMod.Acts = append(connMod.Acts, commturn.SubRec{
 				ConnID:  connChnl.ConnID,
 				CompRef: connChnl.CompRef,
 				ChnlID:  connChnl.ChnlID,
@@ -717,7 +717,7 @@ func (s *service) takeWith(
 		}
 		decision, ok := publication.(commturn.PubRec)
 		if !ok {
-			panic(commturn.ErrRecTypeUnexpected(publication))
+			panic(commturn.ErrActRecTypeUnexpected(publication))
 		}
 		switch valExp := decision.ValExp.(type) {
 		case termexp.LabRec:
@@ -772,7 +772,7 @@ func (s *service) takeWith(
 		}
 		connMod.ProviderCompID = fwdConnSnap.ProviderCompID
 		connMod.ProviderCompRN = fwdConnSnap.ProviderCompRN
-		turn := fwdConnSnap.NextTurn()
+		turn := fwdConnSnap.NextAct()
 		if turn != nil {
 			connMod.ConnID = fwdConnSnap.ConnID
 			connMod.OffsetNr = option.Some(turn.GetActNr())
@@ -833,7 +833,7 @@ func (s *service) takeWith(
 					ExpVK:  contChnl.ExpVK.Invert(),
 				})
 				// регистрируем сообщение схлопывающегося
-				connMod.Turns = append(connMod.Turns, commturn.PubRec{
+				connMod.Acts = append(connMod.Acts, commturn.PubRec{
 					ConnID:  fwdConnSnap.ConnID,
 					CompRef: execSnap.CompRef,
 					ChnlID:  connChnl.ChnlID,
@@ -844,7 +844,7 @@ func (s *service) takeWith(
 				s.log.Debug("taking half done", compAttr)
 				return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 			default:
-				panic(commturn.ErrRecTypeUnexpected(turn))
+				panic(commturn.ErrActRecTypeUnexpected(turn))
 			}
 		case polarity.Neg:
 			switch forwardable := turn.(type) {
@@ -884,7 +884,7 @@ func (s *service) takeWith(
 				return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 			case nil:
 				// регистрируем подписку схлопывающегося
-				connMod.Turns = append(connMod.Turns, commturn.SubRec{
+				connMod.Acts = append(connMod.Acts, commturn.SubRec{
 					ConnID:  fwdConnSnap.ConnID,
 					CompRef: connChnl.CompRef,
 					ChnlID:  connChnl.ChnlID,
@@ -895,7 +895,7 @@ func (s *service) takeWith(
 				s.log.Debug("taking half done", compAttr)
 				return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 			default:
-				panic(commturn.ErrRecTypeUnexpected(turn))
+				panic(commturn.ErrActRecTypeUnexpected(turn))
 			}
 		default:
 			panic(typeexp.ErrPolarityUnexpected(typeExp))

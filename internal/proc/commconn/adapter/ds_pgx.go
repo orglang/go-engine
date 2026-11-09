@@ -129,8 +129,8 @@ func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry commconn.
 		return commconn.ConnSnap{}, err
 	}
 	snap := commconn.ConnSnap{ConnID: parsedConnID, ProviderCompID: providerCompID, ProviderCompRN: seqnum.ADT(dto.ProviderCompRN), OffsetNr: seqnum.ADT(dto.OffsetNr), Acts: make([]commact.ActRec, 0, len(dto.Acts))}
-	for _, turnDTO := range dto.Acts {
-		act, err := commactadapter.DataToStepRec(turnDTO)
+	for _, actDTO := range dto.Acts {
+		act, err := commactadapter.DataToStepRec(actDTO)
 		if err != nil {
 			return commconn.ConnSnap{}, err
 		}

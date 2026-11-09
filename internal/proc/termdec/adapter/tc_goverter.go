@@ -27,6 +27,7 @@ var (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/internal/adt/symbol:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/contkey:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/typesem:Msg.*
 // goverter:extend orglang/go-engine/internal/proc/typedef/adapter:Msg.*
 var (
 	// goverter:map ExpCK ExpVK

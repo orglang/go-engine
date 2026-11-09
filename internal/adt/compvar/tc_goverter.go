@@ -24,7 +24,7 @@ var (
 	MsgFromVarSpec  func(VarSpec) compvar.VarSpec
 	MsgFromVarSpecs func([]VarSpec) []compvar.VarSpec
 	MsgToVarSpec    func(compvar.VarSpec) (VarSpec, error)
-	MsgToVarSpecs   func(compvar.VarSpec) ([]VarSpec, error)
+	MsgToVarSpecs   func([]compvar.VarSpec) ([]VarSpec, error)
 )
 
 // goverter:variables

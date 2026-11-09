@@ -19,7 +19,7 @@ func newQueryBuilder() commconn.QueryBuilder {
 
 func newSQLBuilder() *sqlBuilder {
 	connBuilder := sqlbuilder.NewStruct(new(commconn.ConnRecDS)).For(sqlbuilder.PostgreSQL)
-	turnBuilder := sqlbuilder.NewStruct(new(commturn.TurnRecDS)).For(sqlbuilder.PostgreSQL)
+	turnBuilder := sqlbuilder.NewStruct(new(commturn.ActRecDS)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{connBuilder, turnBuilder}
 }
 
@@ -27,7 +27,7 @@ func (qb *sqlBuilder) InsertRec(rec commconn.ConnRecDS) (string, []any) {
 	return qb.connBuilder.InsertInto(compConns, rec).Build()
 }
 
-func (qb *sqlBuilder) InsertTurnRec(rec commturn.TurnRecDS) (string, []any) {
+func (qb *sqlBuilder) InsertTurnRec(rec commturn.ActRecDS) (string, []any) {
 	return qb.turnBuilder.InsertInto(connActs, rec).Build()
 }
 

@@ -9,7 +9,7 @@ import (
 
 type sqlBuilder struct {
 	connBuilder *sqlbuilder.Struct
-	actBuilder *sqlbuilder.Struct
+	actBuilder  *sqlbuilder.Struct
 }
 
 // for compilation purposes

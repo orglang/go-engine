@@ -19,9 +19,9 @@ var (
 	// goverter:map ConnChnlPH CommChnlPH
 	MsgFromAcceptSpec func(termexp.AcceptSpec) *sdktermexp.AcceptSpec
 	// goverter:map ConnChnlPH CommChnlPH
-	MsgFromHireSpec    func(termexp.HireSpec) *sdktermexp.HireSpec
+	MsgFromHireSpec func(termexp.HireSpec) *sdktermexp.HireSpec
 	// goverter:map ConnChnlPH CommChnlPH
-	MsgFromApplySpec   func(termexp.ApplySpec) *sdktermexp.ApplySpec
+	MsgFromApplySpec func(termexp.ApplySpec) *sdktermexp.ApplySpec
 	// goverter:map ConnChnlPH CommChnlPH
 	MsgFromReleaseSpec func(termexp.ReleaseSpec) *sdktermexp.ReleaseSpec
 	// goverter:map ConnChnlPH CommChnlPH
@@ -32,9 +32,9 @@ var (
 	// goverter:map CommChnlPH ConnChnlPH
 	MsgToAcceptSpec func(*sdktermexp.AcceptSpec) (termexp.AcceptSpec, error)
 	// goverter:map CommChnlPH ConnChnlPH
-	MsgToHireSpec    func(*sdktermexp.HireSpec) (termexp.HireSpec, error)
+	MsgToHireSpec func(*sdktermexp.HireSpec) (termexp.HireSpec, error)
 	// goverter:map CommChnlPH ConnChnlPH
-	MsgToApplySpec   func(*sdktermexp.ApplySpec) (termexp.ApplySpec, error)
+	MsgToApplySpec func(*sdktermexp.ApplySpec) (termexp.ApplySpec, error)
 	// goverter:map CommChnlPH ConnChnlPH
 	MsgToReleaseSpec func(*sdktermexp.ReleaseSpec) (termexp.ReleaseSpec, error)
 	// goverter:map CommChnlPH ConnChnlPH

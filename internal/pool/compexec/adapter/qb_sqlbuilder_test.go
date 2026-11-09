@@ -28,9 +28,9 @@ func TestSelectRecByRef(t *testing.T) {
 	qb := newSQLBuilder()
 	gotSQL, gotArgs := qb.SelectRecByRef(compsem.SemRefDS{})
 	wantSQL := "WITH struct_vars AS (SELECT var.comp_id, var.comp_rn, var.conn_id, var.chnl_id, " +
-		"var.chnl_ph, var.exp_vk, var.side FROM pool_struct_vars var WHERE comp_id = $1), " +
+		"var.chnl_ph, var.exp_ck, var.side FROM pool_struct_vars var WHERE comp_id = $1), " +
 		"linear_vars AS (SELECT var.comp_id, var.comp_rn, var.conn_id, var.chnl_id, " +
-		"var.chnl_ph, var.exp_vk, var.side FROM pool_linear_vars var WHERE comp_id = $2) " +
+		"var.chnl_ph, var.exp_ck, var.side FROM pool_linear_vars var WHERE comp_id = $2) " +
 		"SELECT exec.comp_id, exec.comp_rn, exec.liab_mode, " +
 		"(SELECT array_agg(row(r.*)) FROM struct_vars r) AS struct_vars, " +
 		"(SELECT array_agg(row(r.*)) FROM linear_vars r) AS linear_vars " +
@@ -50,9 +50,9 @@ func TestSelectSnapByQN(t *testing.T) {
 	gotSQL, gotArgs := qb.SelectSnapByQN("someQN")
 	wantSQL := "SELECT sem.comp_id, sem.comp_rn, exec.liab_mode, " +
 		"struct_var.comp_id, struct_var.comp_rn, struct_var.conn_id, struct_var.chnl_id, " +
-		"struct_var.chnl_ph, struct_var.exp_vk, struct_var.side, " +
+		"struct_var.chnl_ph, struct_var.exp_ck, struct_var.side, " +
 		"linear_var.comp_id, linear_var.comp_rn, linear_var.conn_id, linear_var.chnl_id, " +
-		"linear_var.chnl_ph, linear_var.exp_vk, linear_var.side " +
+		"linear_var.chnl_ph, linear_var.exp_ck, linear_var.side " +
 		"FROM pool_comp_execs  JOIN pool_comp_execs  ON exec.comp_id = sem.comp_id " +
 		"JOIN pool_struct_vars  ON struct_var.comp_id = sem.comp_id AND struct_var.side = 1 AND exec.mode = 1 " +
 		"JOIN pool_linear_vars  ON linear_var.comp_id = sem.comp_id AND linear_var.side = 1 AND exec.mode = 2 " +

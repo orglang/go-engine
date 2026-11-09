@@ -30,5 +30,5 @@ type ConnSnapDS struct {
 	ProviderCompRN int64                `db:"provider_comp_rn"`
 	OffsetNr       int64                `db:"offset_nr"`
 	ActNr          int64                `db:"act_nr"`
-	Acts          []commact.ActRecDS `db:"acts"`
+	Acts           []commact.ActRecDS `db:"acts"`
 }

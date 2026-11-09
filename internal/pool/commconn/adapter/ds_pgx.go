@@ -70,10 +70,6 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 			dao.log.Error("Connection Act sequence update failed", refAttr)
 			return err
 		}
-		if err != nil {
-			dao.log.Error("Connection Act sequence scan failed", refAttr)
-			return err
-		}
 		dto.ActNr = actNr
 		sql, args := dao.qb.InsertTurnRec(dto)
 		if _, err := conn.Pgx.Exec(ctx, sql, args...); err != nil {

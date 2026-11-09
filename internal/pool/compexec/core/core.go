@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"reflect"
-	"sort"
+	"slices"
 
 	"orglang/go-engine/internal/lib/tx"
 
@@ -294,10 +294,11 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 	} else {
 		// A connection step always mutates the provider aggregate. The
 		// initiating client root is added only if its own variables change.
-		if err = addCompRef(compsem.SemRef{
+		providerRef := compsem.SemRef{
 			CompID: connMod.ProviderCompID,
 			CompRN: connMod.ProviderCompRN,
-		}); err != nil {
+		}
+		if err = addCompRef(providerRef); err != nil {
 			return err
 		}
 	}
@@ -308,6 +309,8 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 			ref = rec.CompRef
 		case compvar.LinearRec:
 			ref = rec.CompRef
+		default:
+			return fmt.Errorf("unexpected variable record type %T", variable)
 		}
 		// The Act's CompRef records the revision that produced the Act. For
 		// provider-side writes, use the live provider revision captured with
@@ -325,7 +328,7 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 	for key := range compRefs {
 		compKeys = append(compKeys, key)
 	}
-	sort.Strings(compKeys)
+	slices.Sort(compKeys)
 
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		// CAS all affected aggregate roots before writing any child state.

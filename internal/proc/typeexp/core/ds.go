@@ -27,7 +27,7 @@ const (
 )
 
 type ExpRefDS struct {
-	ExpCK int64     `db:"exp_vk" json:"exp_vk"`
+	ExpCK int64     `db:"exp_ck" json:"exp_ck"`
 	K     ExpKindDS `db:"kind" json:"kind"`
 }
 
@@ -37,8 +37,8 @@ type ExpRecDS struct {
 }
 
 type StateDS struct {
-	ExpCK    int64     `db:"exp_vk"`
-	SupExpCK int64     `db:"sup_exp_vk"`
+	ExpCK    int64     `db:"exp_ck"`
+	SupExpCK int64     `db:"sup_exp_ck"`
 	K        ExpKindDS `db:"kind"`
 	Spec     ExpSpecDS `db:"spec"`
 }

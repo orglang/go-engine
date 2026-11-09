@@ -32,7 +32,7 @@ func (qb *sqlBuilder) InsertTurnRec(rec commturn.TurnRecDS) (string, []any) {
 }
 
 func (qb *sqlBuilder) UpdateRec(mod commconn.ConnModDS) (string, []any) {
-	conn := qb.connBuilder.Update(compConns)
+	conn := qb.connBuilder.Update(compConns, mod)
 	assignments := make([]string, 0, 2)
 	if mod.OffsetNr.Valid {
 		assignments = append(assignments, conn.Assign("offset_nr", mod.OffsetNr.V))

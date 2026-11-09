@@ -165,6 +165,12 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 			s.log.Error("step taking failed", compAttr)
 			return err
 		}
+		if len(result.Connection.Turns) > 0 || (result.Connection.OffsetNr != nil && !result.Connection.OffsetNr.IsEmpty()) {
+			providerRef := compsem.SemRef{CompID: result.Connection.ProviderCompID, CompRN: result.Connection.ProviderCompRN}
+			if providerRef.CompID != execSnap.CompRef.CompID {
+				result.Mod.CompRefs = append(result.Mod.CompRefs, providerRef)
+			}
+		}
 		err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 			if len(result.Connection.Turns) > 0 ||
 				(result.Connection.OffsetNr != nil && !result.Connection.OffsetNr.IsEmpty()) {
@@ -227,6 +233,8 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed", compAttr, connAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, getErr
 		}
+		connMod.ProviderCompID = connSnap.ProviderCompID
+		connMod.ProviderCompRN = connSnap.ProviderCompRN
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
@@ -301,6 +309,8 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, getErr
 		}
+		connMod.ProviderCompID = connSnap.ProviderCompID
+		connMod.ProviderCompRN = connSnap.ProviderCompRN
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
@@ -402,6 +412,8 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, getErr
 		}
+		connMod.ProviderCompID = connSnap.ProviderCompID
+		connMod.ProviderCompRN = connSnap.ProviderCompRN
 		subscription := connSnap.NextTurn()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
@@ -502,6 +514,8 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, getErr
 		}
+		connMod.ProviderCompID = connSnap.ProviderCompID
+		connMod.ProviderCompRN = connSnap.ProviderCompRN
 		publication := connSnap.NextTurn()
 		if publication != nil {
 			connMod.ConnID = connSnap.ConnID
@@ -595,6 +609,8 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, getErr
 		}
+		connMod.ProviderCompID = connSnap.ProviderCompID
+		connMod.ProviderCompRN = connSnap.ProviderCompRN
 		subscription := connSnap.NextTurn()
 		if subscription == nil {
 			newChnlID := identity.New()

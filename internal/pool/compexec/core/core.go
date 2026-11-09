@@ -272,19 +272,9 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 	// Connection changes always include the provider aggregate, regardless of
 	// which endpoint initiated the step.
 	compRefs := map[string]compsem.SemRef{}
-	addCompRef := func(ref compsem.SemRef) error {
-		key := ref.CompID.String()
-		if previous, ok := compRefs[key]; ok && previous.CompRN != ref.CompRN {
-			return fmt.Errorf("inconsistent revisions for Computation %v: %v and %v", ref.CompID, previous.CompRN, ref.CompRN)
-		}
-		compRefs[key] = ref
-		return nil
-	}
 	if connMod.ProviderCompID.IsEmpty() {
 		// Non-connection steps still mutate the executing Computation root.
-		if err = addCompRef(execSnap.CompRef); err != nil {
-			return err
-		}
+		compRefs[execSnap.CompRef.CompID.String()] = execSnap.CompRef
 	} else {
 		// A connection step always mutates the provider aggregate. The
 		// initiating client root is added only if its own variables change.
@@ -292,9 +282,7 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 			CompID: connMod.ProviderCompID,
 			CompRN: connMod.ProviderCompRN,
 		}
-		if err = addCompRef(providerRef); err != nil {
-			return err
-		}
+		compRefs[providerRef.CompID.String()] = providerRef
 	}
 	for _, variable := range execMod.Vars {
 		var ref compsem.SemRef
@@ -313,9 +301,7 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 			continue
 		}
 		if !ref.CompID.IsEmpty() {
-			if err = addCompRef(ref); err != nil {
-				return err
-			}
+			compRefs[ref.CompID.String()] = ref
 		}
 	}
 	compKeys := make([]string, 0, len(compRefs))

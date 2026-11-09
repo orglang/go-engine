@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"reflect"
 	"slices"
@@ -841,7 +840,6 @@ func (s *service) takeStep(
 			panic(commturn.ErrRecTypeUnexpected(subscription))
 		}
 		newChnlID := identity.New()
-		// вяжем продолжение доступопринимателя
 		execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 			CompRef: connChnl.CompRef,
 			ConnID:  connChnl.ConnID,

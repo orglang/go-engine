@@ -10,6 +10,6 @@ type VarRecDS struct {
 	ConnID sql.NullString `db:"conn_id"`
 	ChnlID sql.NullString `db:"chnl_id"`
 	ChnlPH sql.NullString `db:"chnl_ph"`
-	ExpVK  sql.NullInt64  `db:"exp_vk"`
+	ExpCK  sql.NullInt64  `db:"exp_vk"`
 	ChnlBS sql.NullInt16  `db:"side"`
 }

@@ -17,7 +17,7 @@ func TestInsert(t *testing.T) {
 		ConnID: sql.NullString{String: "comm-id-1", Valid: true},
 		ChnlID: sql.NullString{String: "chnl-id-1", Valid: true},
 		ChnlPH: sql.NullString{String: "chnl-1", Valid: true},
-		ExpVK:  sql.NullInt64{Int64: 1, Valid: true},
+		ExpCK:  sql.NullInt64{Int64: 1, Valid: true},
 		ChnlBS: sql.NullInt16{Int16: 1, Valid: true},
 	}
 	gotSQL, gotArgs := qb.InsertRec(poolStructVars, rec)
@@ -26,7 +26,7 @@ func TestInsert(t *testing.T) {
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)
 	}
-	wantArgs := []any{rec.CompID, rec.CompRN, rec.ConnID, rec.ChnlID, rec.ChnlPH, rec.ExpVK, rec.ChnlBS}
+	wantArgs := []any{rec.CompID, rec.CompRN, rec.ConnID, rec.ChnlID, rec.ChnlPH, rec.ExpCK, rec.ChnlBS}
 	if !slices.Equal(gotArgs, wantArgs) {
 		t.Errorf("got args %v, want %v", gotArgs, wantArgs)
 	}

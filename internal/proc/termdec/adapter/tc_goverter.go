@@ -31,7 +31,7 @@ var (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
-// goverter:extend orglang/go-engine/internal/adt/valkey:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/contkey:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/termvar:Data.*
 var (
 	// goverter:map . TermRef

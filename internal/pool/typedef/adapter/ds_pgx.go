@@ -61,7 +61,7 @@ func (dao *daoPgx) Update(ctx context.Context, conn tx.Conn, rec typedef.DefRec)
 	}
 	args := pgx.NamedArgs{
 		"desc_id": dto.TypeID,
-		"exp_vk":  dto.ExpVK,
+		"exp_vk":  dto.ExpCK,
 	}
 	_, execErr := conn.Pgx.Exec(ctx, updateRec, args)
 	if execErr != nil {

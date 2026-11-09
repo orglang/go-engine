@@ -13,7 +13,7 @@ func TestInsertRec(t *testing.T) {
 	gotSQL, gotArgs := qb.InsertRec(typedef.DefRecDS{
 		TypeID: "type-id-1",
 		TypeRN: 7,
-		ExpVK:  42,
+		ExpCK:  42,
 	})
 	wantSQL := "INSERT INTO pool_type_defs  (type_id, type_rn, exp_vk) VALUES ($1, $2, $3)"
 	if gotSQL != wantSQL {

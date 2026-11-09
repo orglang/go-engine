@@ -61,7 +61,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, rec typedef.DefR
 	}
 	args := pgx.NamedArgs{
 		"desc_id": dto.TypeID,
-		"exp_vk":  dto.ExpVK,
+		"exp_vk":  dto.ExpCK,
 	}
 	ct, err := conn.Pgx.Exec(ctx, updateRec, args)
 	if err != nil {

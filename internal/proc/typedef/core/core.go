@@ -8,13 +8,13 @@ import (
 
 	"orglang/go-engine/internal/lib/tx"
 
+	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/typesem"
 	"orglang/go-engine/internal/adt/uniqsym"
-	"orglang/go-engine/internal/adt/valkey"
 	typeexp "orglang/go-engine/internal/proc/typeexp/core"
 )
 
@@ -34,7 +34,7 @@ type DefSpec struct {
 // aka TpDef
 type DefRec struct {
 	TypeRef typesem.SemRef
-	ExpVK   valkey.ADT
+	ExpCK   contkey.ADT
 }
 
 type DefSnap struct {
@@ -78,7 +78,7 @@ func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 	if err != nil {
 		return DefSnap{}, err
 	}
-	newDef := DefRec{TypeRef: typesem.New(), ExpVK: newExp.Key()}
+	newDef := DefRec{TypeRef: typesem.New(), ExpCK: newExp.Key()}
 	newDesc := descsem.SemRec{DescQN: spec.TypeQN, DescID: newDef.TypeRef.TypeID, Kind: descsem.TypeKind}
 	err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		err = s.descSemRepo.AddRec(txCtx, conn, newDesc)
@@ -133,7 +133,7 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 			if err != nil {
 				return err
 			}
-			rec.ExpVK = newExp.Key()
+			rec.ExpCK = newExp.Key()
 			rec.TypeRef.TypeRN = snap.TypeRef.TypeRN
 		}
 		if rec.TypeRef.TypeRN == snap.TypeRef.TypeRN {
@@ -167,7 +167,7 @@ func (s *service) RetrieveSnap(ref typesem.SemRef) (_ DefSnap, err error) {
 func (s *service) retrieveSnap(rec DefRec) (_ DefSnap, err error) { // revive:disable-line:confusing-naming
 	ctx := context.Background()
 	expRec, err := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (typeexp.ExpRec, error) {
-		return s.typeExpRepo.SelectRecByVK(txCtx, conn, rec.ExpVK)
+		return s.typeExpRepo.SelectRecByCK(txCtx, conn, rec.ExpCK)
 	})
 	if err != nil {
 		s.log.Error("retrieval failed", slog.Any("ref", rec.TypeRef))
@@ -191,10 +191,10 @@ func (s *service) RetreiveRefs() (refs []typesem.SemRef, err error) {
 	return refs, nil
 }
 
-func CollectEnv(recs iter.Seq[DefRec]) []valkey.ADT {
-	expIDs := []valkey.ADT{}
+func CollectEnv(recs iter.Seq[DefRec]) []contkey.ADT {
+	expIDs := []contkey.ADT{}
 	for r := range recs {
-		expIDs = append(expIDs, r.ExpVK)
+		expIDs = append(expIDs, r.ExpCK)
 	}
 	return expIDs
 }
@@ -215,7 +215,7 @@ func ErrDoesNotExist(want identity.ADT) error {
 	return fmt.Errorf("root doesn't exist: %v", want)
 }
 
-func ErrMissingInEnv(want valkey.ADT) error {
+func ErrMissingInEnv(want contkey.ADT) error {
 	return fmt.Errorf("exp missing in env: %v", want)
 }
 

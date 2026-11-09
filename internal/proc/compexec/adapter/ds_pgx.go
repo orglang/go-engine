@@ -88,7 +88,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod compexec.Exe
 			"impl_id":  dto.CompID,
 			"chnl_ph":  dto.ChnlPH,
 			"chnl_id":  dto.ChnlID,
-			"state_id": dto.ExpVK,
+			"state_id": dto.ExpCK,
 		}
 		bindReq.Queue(insertBind, args)
 	}

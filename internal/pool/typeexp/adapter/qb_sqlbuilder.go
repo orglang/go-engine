@@ -26,7 +26,7 @@ func (qb *sqlBuilder) InsertRec(rec typeexp.StateDS) (string, []any) {
 		Build()
 }
 
-func (qb *sqlBuilder) SelectRecByVK() string {
+func (qb *sqlBuilder) SelectRecByCK() string {
 	top := qb.stateBuilder.SelectFrom(xactExps + " top")
 	top.Where(top.Equal("top.exp_vk", top.Var(1)))
 	sub := qb.stateBuilder.SelectFrom("exp_tree sup, pool_type_exps sub")

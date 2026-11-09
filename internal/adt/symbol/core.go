@@ -1,7 +1,7 @@
 package symbol
 
 import (
-	"orglang/go-engine/internal/adt/valkey"
+	"orglang/go-engine/internal/adt/contkey"
 )
 
 var Zero ADT = ""
@@ -15,10 +15,10 @@ func New(str string) ADT {
 	return ADT(str)
 }
 
-func (a ADT) Key() valkey.ADT {
+func (a ADT) Key() contkey.ADT {
 	key := 0
 	for _, runeValue := range string(a) {
 		key += int(runeValue)
 	}
-	return valkey.ADT(key)
+	return contkey.ADT(key)
 }

@@ -17,8 +17,8 @@ import (
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
 
-	commconn "orglang/go-engine/internal/pool/commconn/core"
 	commact "orglang/go-engine/internal/pool/commact/core"
+	commconn "orglang/go-engine/internal/pool/commconn/core"
 	compstep "orglang/go-engine/internal/pool/compstep/core"
 	compvar "orglang/go-engine/internal/pool/compvar/core"
 	termdef "orglang/go-engine/internal/pool/termdef/core"

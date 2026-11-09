@@ -14,9 +14,9 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 
-	commconn "orglang/go-engine/internal/proc/commconn/core"
 	commactadapter "orglang/go-engine/internal/proc/commact/adapter"
 	commact "orglang/go-engine/internal/proc/commact/core"
+	commconn "orglang/go-engine/internal/proc/commconn/core"
 )
 
 type daoPgx struct {

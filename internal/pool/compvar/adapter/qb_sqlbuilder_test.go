@@ -21,7 +21,7 @@ func TestInsert(t *testing.T) {
 		ChnlBS: sql.NullInt16{Int16: 1, Valid: true},
 	}
 	gotSQL, gotArgs := qb.InsertRec(poolStructVars, rec)
-	wantSQL := "INSERT INTO pool_struct_vars (comp_id, comp_rn, conn_id, chnl_id, chnl_ph, exp_vk, side) " +
+	wantSQL := "INSERT INTO pool_struct_vars (comp_id, comp_rn, conn_id, chnl_id, chnl_ph, exp_ck, side) " +
 		"VALUES ($1, $2, $3, $4, $5, $6, $7)"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)

@@ -75,7 +75,7 @@
 
 Таким образом, партицирование по `provider_comp_id` не меняет aggregate ownership или правило OCC, но влияет на контракт адресации Connection с клиентской стороны. До выбора физической схемы необходимо явно решить, будет ли клиентская сторона передавать `provider_comp_id` вместе с `ConnID` или система обязана поддерживать lookup только по `ConnID`. Это архитектурное решение о способе поиска; оно не должно приводить к переносу Connection в клиентскую партицию или к изменению его владельца.
 
-В рамках PR #61 этот механизм реализуется для Pool Connection. Process Connection остаётся независимой записью с отдельным lifecycle; её attachment и применение provider-root concurrency control должны быть реализованы на process side отдельно, без заимствования Pool Connection state (см. [go-workspace issue #112](https://github.com/orglang/go-workspace/issues/112)).
+В рамках PR #61 тот же принцип aggregate ownership применяется к Process Connection независимо от её отдельного lifecycle: provider Computation является единственным aggregate root, и любое изменение Process Connection сериализуется CAS по ожидаемой `provider.comp_rn`. Это не связывает жизненные циклы Pool и Process Connection и не предполагает копирования их состояния. Attachment Process Connection остаётся отдельной задачей (см. [go-workspace issue #112](https://github.com/orglang/go-workspace/issues/112)).
 
 `client.comp_rn` увеличивается только тогда, когда операция одновременно изменяет собственное состояние client Computation (например, её переменные). Сам факт изменения общего Connection не является основанием увеличивать ревизию client Computation.
 
@@ -94,13 +94,13 @@
 - `ConnID` глобально идентифицирует Connection; отдельный составной reference для него не вводится.
 - Connection явно хранит `ProviderCompRef` и `ClientCompRef`; ссылки включают идентификатор и ревизию Computation.
 - Pool Connection принадлежит агрегату provider Computation; provider Computation является единственным aggregate root для его изменений, а Pool Connection не является самостоятельным корнем агрегата.
-- Любое изменение Pool Connection проверяет ожидаемый `provider.comp_rn` из прочитанного snapshot и атомарно увеличивает `provider.comp_rn`; отдельная версия Pool Connection для optimistic concurrency control не используется.
+- Любое изменение Pool или Process Connection проверяет ожидаемый `provider.comp_rn` из прочитанного snapshot и атомарно увеличивает `provider.comp_rn`; отдельная версия Connection и CAS по `offset_nr` для optimistic concurrency control не используются.
 - `client.comp_rn` увеличивается только при изменении собственного состояния client Computation, а не только из-за изменения Pool Connection.
 - Для Pool Connection `act_nr` задаёт порядок Act и не используется как версия агрегата или механизм optimistic concurrency control.
 - При выбранном варианте C запись Connection создаётся только после появления обоих endpoints; принадлежность endpoint-ов определяется переменными Computation, содержащими общий `ConnID`.
 - До создания клиента provider liability-переменная может содержать зарезервированный `ConnID`, для которого запись Connection ещё отсутствует.
 - Для одной пары endpoints используется один Connection и один `ConnID`.
-- Pool Connection и Process Connection не создаются друг из друга и не зависят друг от друга. Момент создания Process Connection не входит в объём этого PR; он должен быть определён отдельной process-side attachment операцией (см. [go-workspace issue #112](https://github.com/orglang/go-workspace/issues/112)). PubRec и SubRec от любой из сторон используют одну process-side запись Connection и общий счётчик Acts; тип события не ограничивает сторону-инициатора.
+- Pool Connection и Process Connection не создаются друг из друга и не зависят друг от друга. Момент создания Process Connection не входит в объём этого PR; он должен быть определён отдельной process-side attachment операцией (см. [go-workspace issue #112](https://github.com/orglang/go-workspace/issues/112)). После создания любое изменение Process Connection, включая offset и Acts, защищается CAS по `provider.comp_rn`. `offset_nr` — только позиция в потоке, не concurrency token. PubRec и SubRec от любой из сторон используют одну process-side запись Connection и общий счётчик Acts; тип события не ограничивает сторону-инициатора.
 - Создание Connection с обоими endpoints и клиентской стороны выполняется атомарно с созданием клиентской Computation и её переменных.
 - Первый Act допустим только после заполнения обоих endpoints.
 - `ChnlID` остаётся отдельной идентичностью interaction channel и не заменяет `ConnID`.

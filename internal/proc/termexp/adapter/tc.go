@@ -3,10 +3,10 @@ package adapter
 import (
 	"fmt"
 
+	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
-	"orglang/go-engine/internal/adt/contkey"
 
 	sdktermexp "github.com/orglang/go-sdk/proc/termexp"
 

@@ -44,8 +44,14 @@ func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec commconn.ConnRe
 
 func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.ConnMod) error {
 	refAttr := slog.Any("conn_id", mod.ConnID)
-	if mod.OffsetNr != nil && !mod.OffsetNr.IsEmpty() {
+	if (mod.OffsetNr != nil && !mod.OffsetNr.IsEmpty()) || len(mod.Turns) > 0 {
 		dto := DataFromMod(mod)
+		if len(mod.Turns) > 0 {
+			// The provider CAS advances comp_rn exactly once for this operation.
+			// Mirror that revision as the Act number; no independent sequence
+			// update is needed (Take appends at most one Act per operation).
+			dto.ActNr = sql.Null[int64]{V: int64(mod.ProviderCompRN) + 1, Valid: true}
+		}
 		sql, args := dao.qb.UpdateRec(dto)
 		tag, err := conn.Pgx.Exec(ctx, sql, args...)
 		if err != nil {
@@ -58,29 +64,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod commconn.Con
 	}
 	for _, turn := range mod.Turns {
 		dto := commturnadapter.DataFromStepRec(turn)
-		const nextAct = `
-			UPDATE pool_comp_conns
-			SET act_nr = act_nr + 1
-			WHERE conn_id = $1
-			RETURNING act_nr
-		`
-		rows, err := conn.Pgx.Query(ctx, nextAct, identity.ConvertToString(turn.GetConnID()))
-		if err != nil {
-			return err
-		}
-		defer rows.Close()
-		actNr, err := pgx.CollectExactlyOneRow(rows, func(row pgx.CollectableRow) (int64, error) {
-			var nr int64
-			if scanErr := row.Scan(&nr); scanErr != nil {
-				return 0, scanErr
-			}
-			return nr, nil
-		})
-		if err != nil {
-			dao.log.Error("Connection Act sequence update failed", refAttr)
-			return err
-		}
-		dto.ActNr = actNr
+		dto.ActNr = int64(mod.ProviderCompRN) + 1
 		sql, args := dao.qb.InsertTurnRec(dto)
 		if _, err := conn.Pgx.Exec(ctx, sql, args...); err != nil {
 			dao.log.Error("Act insertion failed", refAttr, slog.String("sql", sql))

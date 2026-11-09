@@ -11,12 +11,12 @@ CREATE INDEX pool_desc_qn_gist_idx ON pool_desc_binds USING GIST (desc_qn);
 CREATE TABLE pool_type_defs (
     type_id varchar UNIQUE,
     type_rn bigint,
-    exp_vk bigint
+    exp_ck bigint
 );
 
 CREATE TABLE pool_type_exps (
-    exp_vk bigint UNIQUE,
-    sup_exp_vk bigint,
+    exp_ck bigint UNIQUE,
+    sup_exp_ck bigint,
     kind smallint,
     spec jsonb
 );
@@ -48,7 +48,7 @@ CREATE TABLE pool_comp_vars (
     conn_id varchar,
     chnl_id varchar,
     chnl_ph varchar,
-    exp_vk bigint,
+    exp_ck bigint,
     side smallint
 );
 
@@ -89,12 +89,12 @@ CREATE INDEX proc_desc_qn_gist_idx ON proc_desc_binds USING GIST (desc_qn);
 CREATE TABLE proc_type_defs (
     type_id varchar UNIQUE,
     type_rn bigint,
-    exp_vk bigint
+    exp_ck bigint
 );
 
 CREATE TABLE proc_type_exps (
-    exp_vk bigint UNIQUE,
-    sup_exp_vk bigint,
+    exp_ck bigint UNIQUE,
+    sup_exp_ck bigint,
     kind smallint,
     spec jsonb
 );
@@ -126,7 +126,7 @@ CREATE TABLE proc_comp_vars (
     conn_id varchar,
     chnl_id varchar,
     chnl_ph varchar,
-    exp_vk bigint,
+    exp_ck bigint,
     side smallint
 );
 

@@ -22,15 +22,15 @@ func newSQLBuilder() *sqlBuilder {
 
 func (qb *sqlBuilder) InsertRec(rec typeexp.StateDS) (string, []any) {
 	return qb.stateBuilder.InsertInto(xactExps, rec).
-		SQL("ON CONFLICT (exp_vk) DO NOTHING").
+		SQL("ON CONFLICT (exp_ck) DO NOTHING").
 		Build()
 }
 
-func (qb *sqlBuilder) SelectRecByVK() string {
+func (qb *sqlBuilder) SelectRecByCK() string {
 	top := qb.stateBuilder.SelectFrom(xactExps + " top")
-	top.Where(top.Equal("top.exp_vk", top.Var(1)))
+	top.Where(top.Equal("top.exp_ck", top.Var(1)))
 	sub := qb.stateBuilder.SelectFrom("exp_tree sup, pool_type_exps sub")
-	sub.Where("sub.sup_exp_vk = sup.exp_vk")
+	sub.Where("sub.sup_exp_ck = sup.exp_ck")
 	tree := sqlbuilder.PostgreSQL.NewCTEBuilder()
 	ub := sqlbuilder.PostgreSQL.NewUnionBuilder()
 	tree.WithRecursive(

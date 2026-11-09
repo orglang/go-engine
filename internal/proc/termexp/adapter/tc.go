@@ -3,10 +3,10 @@ package adapter
 import (
 	"fmt"
 
+	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
-	"orglang/go-engine/internal/adt/valkey"
 
 	sdktermexp "github.com/orglang/go-sdk/proc/termexp"
 
@@ -222,7 +222,7 @@ func DataFromExpRec(r termexp.ExpRec) (termexp.ExpRecDS, error) {
 				A:        identity.ConvertToString(rec.ContChnlID),
 				B:        identity.ConvertToString(rec.ValChnlID),
 				ConnID:   connID,
-				ValExpVK: int64(rec.ValExpVK),
+				ValExpCK: int64(rec.ValExpCK),
 			},
 		}, nil
 	case termexp.RecvRec:
@@ -246,7 +246,7 @@ func DataFromExpRec(r termexp.ExpRec) (termexp.ExpRecDS, error) {
 				X:        symbol.ConvertToString(rec.CommChnlPH),
 				A:        identity.ConvertToString(rec.ContChnlID),
 				Label:    uniqsym.ConvertToString(rec.ValLabQN),
-				ValExpVK: int64(rec.ValExpVK),
+				ValExpCK: int64(rec.ValExpCK),
 			},
 		}, nil
 	case termexp.CaseRec:
@@ -318,7 +318,7 @@ func DataToExpRec(dto termexp.ExpRecDS) (termexp.ExpRec, error) {
 			CommChnlPH: x,
 			ContChnlID: a,
 			ValChnlID:  valID,
-			ValExpVK:   valkey.ADT(dto.Send.ValExpVK),
+			ValExpCK:   contkey.ADT(dto.Send.ValExpCK),
 			ConnID:     commID,
 		}, nil
 	case termexp.RecvExp:
@@ -352,7 +352,7 @@ func DataToExpRec(dto termexp.ExpRecDS) (termexp.ExpRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return termexp.LabRec{CommChnlPH: a, ContChnlID: contID, ValExpVK: valkey.ADT(dto.Lab.ValExpVK), ValLabQN: label}, nil
+		return termexp.LabRec{CommChnlPH: a, ContChnlID: contID, ValExpCK: contkey.ADT(dto.Lab.ValExpCK), ValLabQN: label}, nil
 	case termexp.CaseExp:
 		x, err := symbol.ConvertFromString(dto.Case.X)
 		if err != nil {

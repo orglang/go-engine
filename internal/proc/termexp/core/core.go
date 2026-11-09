@@ -3,10 +3,10 @@ package core
 import (
 	"fmt"
 
+	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
-	"orglang/go-engine/internal/adt/valkey"
 )
 
 type ExpSpec interface {
@@ -143,7 +143,7 @@ type SendRec struct {
 	CommChnlPH symbol.ADT
 	ContChnlID identity.ADT
 	ValChnlID  identity.ADT
-	ValExpVK   valkey.ADT
+	ValExpCK   contkey.ADT
 	ConnID     identity.ADT
 }
 
@@ -165,7 +165,7 @@ func (RecvRec) impl() {}
 type LabRec struct {
 	CommChnlPH symbol.ADT
 	ContChnlID identity.ADT
-	ValExpVK   valkey.ADT
+	ValExpCK   contkey.ADT
 	ValLabQN   uniqsym.ADT // TODO выпилить
 }
 

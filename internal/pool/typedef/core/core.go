@@ -7,11 +7,11 @@ import (
 
 	"orglang/go-engine/internal/lib/tx"
 
+	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/typesem"
 	"orglang/go-engine/internal/adt/uniqsym"
-	"orglang/go-engine/internal/adt/valkey"
 
 	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 )
@@ -27,7 +27,7 @@ type DefSpec struct {
 
 type DefRec struct {
 	TypeRef typesem.SemRef
-	ExpVK   valkey.ADT
+	ExpCK   contkey.ADT
 }
 
 type DefSnap struct {
@@ -66,7 +66,7 @@ func (s *service) Create(spec DefSpec) (_ typesem.SemRef, err error) {
 	if convErr != nil {
 		return typesem.SemRef{}, convErr
 	}
-	newDef := DefRec{TypeRef: typesem.New(), ExpVK: newExp.Key()}
+	newDef := DefRec{TypeRef: typesem.New(), ExpCK: newExp.Key()}
 	newBind := descsem.SemRec{DescQN: spec.TypeQN, DescID: newDef.TypeRef.TypeID, Kind: descsem.TypeKind}
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		err = s.descSemRepo.AddRec(txCtx, conn, newBind)
@@ -91,6 +91,6 @@ func errOptimisticUpdate(got seqnum.ADT) error {
 	return fmt.Errorf("entity concurrent modification: got revision %v", got)
 }
 
-func ErrMissingInEnv(want valkey.ADT) error {
+func ErrMissingInEnv(want contkey.ADT) error {
 	return fmt.Errorf("exp missing in env: %v", want)
 }

@@ -1,4 +1,4 @@
-package valkey
+package contkey
 
 import (
 	"encoding/binary"
@@ -15,7 +15,7 @@ const (
 
 type ADT int64
 
-type Keyable interface {
+type ContentKeyable interface {
 	Key() ADT
 }
 

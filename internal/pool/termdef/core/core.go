@@ -73,14 +73,14 @@ func (s *service) Create(spec DefSpec) (_ termsem.SemRef, err error) {
 	newLiabVar := termvar.VarRec{
 		TypeRef: typeDefs[spec.LiabVar.TypeQN].TypeRef,
 		ChnlPH:  spec.LiabVar.ChnlPH,
-		ExpVK:   typeDefs[spec.LiabVar.TypeQN].ExpVK,
+		ExpCK:   typeDefs[spec.LiabVar.TypeQN].ExpCK,
 	}
 	newAssetVars := make([]termvar.VarRec, 0, len(spec.AssetVars))
 	for _, varSpec := range spec.AssetVars {
 		newAssetVars = append(newAssetVars, termvar.VarRec{
 			TypeRef: typeDefs[varSpec.TypeQN].TypeRef,
 			ChnlPH:  varSpec.ChnlPH,
-			ExpVK:   typeDefs[varSpec.TypeQN].ExpVK,
+			ExpCK:   typeDefs[varSpec.TypeQN].ExpCK,
 		})
 	}
 	newDef := DefRec{TermRef: termsem.New(), LiabVar: newLiabVar, AssetVars: newAssetVars}

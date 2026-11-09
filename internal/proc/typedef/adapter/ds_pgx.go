@@ -61,7 +61,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, rec typedef.DefR
 	}
 	args := pgx.NamedArgs{
 		"desc_id": dto.TypeID,
-		"exp_vk":  dto.ExpVK,
+		"exp_ck":  dto.ExpCK,
 	}
 	ct, err := conn.Pgx.Exec(ctx, updateRec, args)
 	if err != nil {
@@ -207,14 +207,14 @@ const (
 	updateRec = `
 		update proc_type_defs
 		set def_rn = @def_rn,
-			exp_vk = @exp_vk
+			exp_ck = @exp_ck
 		where desc_id = @desc_id
 			and def_rn = @def_rn - 1`
 
 	selectRecByQN = `
 		select
 			td.desc_id,
-			td.exp_vk,
+			td.exp_ck,
 			de.desc_rn
 		from proc_type_defs td
 		left join desc_sems de
@@ -226,7 +226,7 @@ const (
 	selectRecByID = `
 		select
 			td.desc_id,
-			td.exp_vk,
+			td.exp_ck,
 			de.desc_rn
 		from proc_type_defs td
 		left join desc_sems de

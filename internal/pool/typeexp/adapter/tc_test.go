@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"orglang/go-engine/internal/adt/valkey"
+	"orglang/go-engine/internal/adt/contkey"
 	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 )
 
@@ -12,8 +12,8 @@ func TestDownRecRoundTrip(t *testing.T) {
 	t.Parallel()
 
 	want := typeexp.DownRec{
-		ExpVK:   valkey.Three,
-		ContExp: typeexp.OneRec{ExpVK: valkey.One},
+		ExpCK:   contkey.Three,
+		ContExp: typeexp.OneRec{ExpCK: contkey.One},
 	}
 
 	dto := dataFromExpRec(want)

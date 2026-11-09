@@ -11,8 +11,8 @@ func TestInsertRec(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
 	gotSQL, gotArgs := qb.InsertRec(typeexp.StateDS{})
-	wantSQL := "INSERT INTO pool_type_exps (exp_vk, sup_exp_vk, kind, spec) " +
-		"VALUES ($1, $2, $3, $4) ON CONFLICT (exp_vk) DO NOTHING"
+	wantSQL := "INSERT INTO pool_type_exps (exp_ck, sup_exp_ck, kind, spec) " +
+		"VALUES ($1, $2, $3, $4) ON CONFLICT (exp_ck) DO NOTHING"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)
 	}

@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
-	"orglang/go-engine/internal/adt/valkey"
 )
 
 // human-readable specification of computation variable
@@ -26,7 +26,7 @@ type VarRec interface {
 	GetConnID() identity.ADT
 	GetChnlID() identity.ADT
 	GetChnlPH() symbol.ADT
-	GetExpVK() valkey.ADT
+	GetExpCK() contkey.ADT
 }
 
 type LinearRec struct {
@@ -41,7 +41,7 @@ type LinearRec struct {
 	// Позитивное значение означает получение.
 	// Негативное значение означает лишение.
 	// Нулевое значение означает исчерпание.
-	ExpVK valkey.ADT
+	ExpCK contkey.ADT
 }
 
 func (r LinearRec) GetCompRef() compsem.SemRef { return r.CompRef }
@@ -52,7 +52,7 @@ func (r LinearRec) GetChnlID() identity.ADT { return r.ChnlID }
 
 func (r LinearRec) GetChnlPH() symbol.ADT { return r.ChnlPH }
 
-func (r LinearRec) GetExpVK() valkey.ADT { return r.ExpVK }
+func (r LinearRec) GetExpCK() contkey.ADT { return r.ExpCK }
 
 type StructRec struct {
 	CompRef compsem.SemRef
@@ -66,7 +66,7 @@ type StructRec struct {
 	// Позитивное значение означает получение.
 	// Негативное значение означает лишение.
 	// Нулевое значение означает исчерпание.
-	ExpVK valkey.ADT
+	ExpCK contkey.ADT
 }
 
 func (r StructRec) GetCompRef() compsem.SemRef { return r.CompRef }
@@ -77,7 +77,7 @@ func (r StructRec) GetChnlID() identity.ADT { return r.ChnlID }
 
 func (r StructRec) GetChnlPH() symbol.ADT { return r.ChnlPH }
 
-func (r StructRec) GetExpVK() valkey.ADT { return r.ExpVK }
+func (r StructRec) GetExpCK() contkey.ADT { return r.ExpCK }
 
 type Side int16
 

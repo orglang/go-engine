@@ -3,8 +3,8 @@ package uniqsym
 import (
 	"hash/fnv"
 
+	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/symbol"
-	"orglang/go-engine/internal/adt/valkey"
 )
 
 type ADT struct {
@@ -33,16 +33,16 @@ func (a ADT) NS() ADT {
 	return *a.ns
 }
 
-func (a ADT) Key() (valkey.ADT, error) {
+func (a ADT) Key() (contkey.ADT, error) {
 	if a == empty {
 		panic("invalid value")
 	}
 	h := fnv.New32a()
 	_, err := h.Write([]byte(ConvertToString(a)))
 	if err != nil {
-		return valkey.Zero, err
+		return contkey.Zero, err
 	}
-	return valkey.ADT(h.Sum32()), nil
+	return contkey.ADT(h.Sum32()), nil
 }
 
 func (a ADT) Equal(b ADT) bool {

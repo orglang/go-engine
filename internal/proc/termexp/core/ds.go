@@ -74,7 +74,7 @@ type SendRecDS struct {
 	A        string `json:"a"`
 	B        string `json:"b"`
 	ConnID   string `json:"conn_id"`
-	ValExpVK int64  `json:"val_exp_vk"`
+	ValExpCK int64  `json:"val_exp_ck"`
 }
 
 type RecvSpecDS struct {
@@ -99,7 +99,8 @@ type LabRecDS struct {
 	X        string `json:"x"`
 	A        string `json:"a"`
 	Label    string `json:"lab"`
-	ValExpVK int64  `json:"val_exp_vk"`
+	// ValExpCK keeps the legacy JSON property for wire compatibility.
+	ValExpCK int64  `json:"val_exp_vk"`
 }
 
 type CaseSpecDS struct {

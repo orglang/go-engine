@@ -4,14 +4,14 @@ import (
 	"context"
 	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/internal/adt/valkey"
+	"orglang/go-engine/internal/adt/contkey"
 )
 
 type Repo interface {
 	AddRec(context.Context, tx.Conn, ExpRec) error
-	SelectRecByVK(context.Context, tx.Conn, valkey.ADT) (ExpRec, error)
-	SelectRecsByVKs(context.Context, tx.Conn, []valkey.ADT) ([]ExpRec, error)
-	SelectEnv(context.Context, tx.Conn, []valkey.ADT) (map[valkey.ADT]ExpRec, error)
+	SelectRecByCK(context.Context, tx.Conn, contkey.ADT) (ExpRec, error)
+	SelectRecsByCKs(context.Context, tx.Conn, []contkey.ADT) ([]ExpRec, error)
+	SelectEnv(context.Context, tx.Conn, []contkey.ADT) (map[contkey.ADT]ExpRec, error)
 }
 
 type ExpKindDS int
@@ -27,18 +27,18 @@ const (
 )
 
 type ExpRefDS struct {
-	ExpVK int64     `db:"exp_vk" json:"exp_vk"`
+	ExpCK int64     `db:"exp_ck" json:"exp_ck"`
 	K     ExpKindDS `db:"kind" json:"kind"`
 }
 
 type ExpRecDS struct {
-	ExpVK  int64
+	ExpCK  int64
 	States []StateDS
 }
 
 type StateDS struct {
-	ExpVK    int64     `db:"exp_vk"`
-	SupExpVK int64     `db:"sup_exp_vk"`
+	ExpCK    int64     `db:"exp_ck"`
+	SupExpCK int64     `db:"sup_exp_ck"`
 	K        ExpKindDS `db:"kind"`
 	Spec     ExpSpecDS `db:"spec"`
 }
@@ -52,11 +52,11 @@ type ExpSpecDS struct {
 }
 
 type ProdDS struct {
-	ValExpVK  int64 `json:"on"`
-	ContExpVK int64 `json:"to"`
+	ValExpCK  int64 `json:"on"`
+	ContExpCK int64 `json:"to"`
 }
 
 type SumDS struct {
 	LabQN     string `json:"on"`
-	ContExpVK int64  `json:"to"`
+	ContExpCK int64  `json:"to"`
 }

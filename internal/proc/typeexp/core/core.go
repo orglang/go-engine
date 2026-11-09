@@ -3,10 +3,10 @@ package core
 import (
 	"fmt"
 
+	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/polarity"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/uniqsym"
-	"orglang/go-engine/internal/adt/valkey"
 )
 
 type ExpSpec interface {
@@ -65,168 +65,168 @@ type DownSpec struct {
 func (DownSpec) spec() {}
 
 type ExpRef interface {
-	valkey.Keyable
+	contkey.ContentKeyable
 }
 
 type OneRef struct {
-	ExpVK valkey.ADT
+	ExpCK contkey.ADT
 }
 
-func (r OneRef) Key() valkey.ADT { return r.ExpVK }
+func (r OneRef) Key() contkey.ADT { return r.ExpCK }
 
 type LinkRef struct {
-	ExpVK valkey.ADT
+	ExpCK contkey.ADT
 }
 
-func (r LinkRef) Key() valkey.ADT { return r.ExpVK }
+func (r LinkRef) Key() contkey.ADT { return r.ExpCK }
 
 type PlusRef struct {
-	ExpVK valkey.ADT
+	ExpCK contkey.ADT
 }
 
-func (r PlusRef) Key() valkey.ADT { return r.ExpVK }
+func (r PlusRef) Key() contkey.ADT { return r.ExpCK }
 
 type WithRef struct {
-	ExpVK valkey.ADT
+	ExpCK contkey.ADT
 }
 
-func (r WithRef) Key() valkey.ADT { return r.ExpVK }
+func (r WithRef) Key() contkey.ADT { return r.ExpCK }
 
 type TensorRef struct {
-	ExpVK valkey.ADT
+	ExpCK contkey.ADT
 }
 
-func (r TensorRef) Key() valkey.ADT { return r.ExpVK }
+func (r TensorRef) Key() contkey.ADT { return r.ExpCK }
 
 type LolliRef struct {
-	ExpVK valkey.ADT
+	ExpCK contkey.ADT
 }
 
-func (r LolliRef) Key() valkey.ADT { return r.ExpVK }
+func (r LolliRef) Key() contkey.ADT { return r.ExpCK }
 
 type UpRef struct {
-	ExpVK valkey.ADT
+	ExpCK contkey.ADT
 }
 
-func (r UpRef) Ident() valkey.ADT { return r.ExpVK }
+func (r UpRef) Ident() contkey.ADT { return r.ExpCK }
 
 type DownRef struct {
-	ExpVK valkey.ADT
+	ExpCK contkey.ADT
 }
 
-func (r DownRef) Ident() valkey.ADT { return r.ExpVK }
+func (r DownRef) Ident() contkey.ADT { return r.ExpCK }
 
 // aka Stype
 type ExpRec interface {
 	polarity.Polarizable
-	valkey.Keyable
+	contkey.ContentKeyable
 }
 
 type ProdRec interface {
-	Next() valkey.ADT
+	Next() contkey.ADT
 }
 
 type SumRec interface {
-	Next(uniqsym.ADT) valkey.ADT
+	Next(uniqsym.ADT) contkey.ADT
 }
 
 type OneRec struct {
-	ExpVK valkey.ADT
+	ExpCK contkey.ADT
 }
 
 func (OneRec) spec() {}
 
-func (r OneRec) Key() valkey.ADT { return r.ExpVK }
+func (r OneRec) Key() contkey.ADT { return r.ExpCK }
 
 func (OneRec) Pol() polarity.ADT { return polarity.Pos }
 
 // aka TpName
 type LinkRec struct {
-	ExpVK  valkey.ADT
+	ExpCK  contkey.ADT
 	TypeQN uniqsym.ADT
 }
 
 func (LinkRec) spec() {}
 
-func (r LinkRec) Key() valkey.ADT { return r.ExpVK }
+func (r LinkRec) Key() contkey.ADT { return r.ExpCK }
 
 func (LinkRec) Pol() polarity.ADT { return polarity.Zero }
 
 // aka Internal Choice
 type PlusRec struct {
-	ExpVK   valkey.ADT
+	ExpCK   contkey.ADT
 	Choices map[uniqsym.ADT]ExpRec
 }
 
 func (PlusRec) spec() {}
 
-func (r PlusRec) Key() valkey.ADT { return r.ExpVK }
+func (r PlusRec) Key() contkey.ADT { return r.ExpCK }
 
-func (r PlusRec) Next(l uniqsym.ADT) valkey.ADT { return r.Choices[l].Key() }
+func (r PlusRec) Next(l uniqsym.ADT) contkey.ADT { return r.Choices[l].Key() }
 
 func (PlusRec) Pol() polarity.ADT { return polarity.Pos }
 
 // aka External Choice
 type WithRec struct {
-	ExpVK   valkey.ADT
+	ExpCK   contkey.ADT
 	Choices map[uniqsym.ADT]ExpRec
 }
 
 func (WithRec) spec() {}
 
-func (r WithRec) Key() valkey.ADT { return r.ExpVK }
+func (r WithRec) Key() contkey.ADT { return r.ExpCK }
 
-func (r WithRec) Next(l uniqsym.ADT) valkey.ADT { return r.Choices[l].Key() }
+func (r WithRec) Next(l uniqsym.ADT) contkey.ADT { return r.Choices[l].Key() }
 
 func (WithRec) Pol() polarity.ADT { return polarity.Neg }
 
 type TensorRec struct {
-	ExpVK valkey.ADT
+	ExpCK contkey.ADT
 	Val   ExpRec
 	Cont  ExpRec
 }
 
 func (TensorRec) spec() {}
 
-func (r TensorRec) Key() valkey.ADT { return r.ExpVK }
+func (r TensorRec) Key() contkey.ADT { return r.ExpCK }
 
-func (r TensorRec) Next() valkey.ADT { return r.Cont.Key() }
+func (r TensorRec) Next() contkey.ADT { return r.Cont.Key() }
 
 func (TensorRec) Pol() polarity.ADT { return polarity.Pos }
 
 type LolliRec struct {
-	ExpVK valkey.ADT
+	ExpCK contkey.ADT
 	Val   ExpRec
 	Cont  ExpRec
 }
 
 func (LolliRec) spec() {}
 
-func (r LolliRec) Key() valkey.ADT { return r.ExpVK }
+func (r LolliRec) Key() contkey.ADT { return r.ExpCK }
 
-func (r LolliRec) Next() valkey.ADT { return r.Cont.Key() }
+func (r LolliRec) Next() contkey.ADT { return r.Cont.Key() }
 
 func (LolliRec) Pol() polarity.ADT { return polarity.Neg }
 
 type UpRec struct {
-	ExpVK valkey.ADT
+	ExpCK contkey.ADT
 	Cont  ExpRec
 }
 
 func (UpRec) spec() {}
 
-func (r UpRec) Key() valkey.ADT { return r.ExpVK }
+func (r UpRec) Key() contkey.ADT { return r.ExpCK }
 
 func (UpRec) Pol() polarity.ADT { return polarity.Zero }
 
 type DownRec struct {
-	ExpVK valkey.ADT
+	ExpCK contkey.ADT
 	Cont  ExpRec
 }
 
 func (DownRec) spec() {}
 
-func (r DownRec) Key() valkey.ADT { return r.ExpVK }
+func (r DownRec) Key() contkey.ADT { return r.ExpCK }
 
 func (DownRec) Pol() polarity.ADT { return polarity.Zero }
 
@@ -247,7 +247,7 @@ func errOptimisticUpdate(got seqnum.ADT) error {
 	return fmt.Errorf("entity concurrent modification: got revision %v", got)
 }
 
-func CheckRef(got, want valkey.ADT) error {
+func CheckRef(got, want contkey.ADT) error {
 	if got != want {
 		return fmt.Errorf("type mismatch: want %+v, got %+v", want, got)
 	}
@@ -410,15 +410,15 @@ func ErrRecTypeUnexpected(got ExpRec) error {
 	return fmt.Errorf("rec type unexpected: %T", got)
 }
 
-func ErrDoesNotExist(want valkey.ADT) error {
+func ErrDoesNotExist(want contkey.ADT) error {
 	return fmt.Errorf("root doesn't exist: %v", want)
 }
 
-func ErrMissingInEnv(want valkey.ADT) error {
+func ErrMissingInEnv(want contkey.ADT) error {
 	return fmt.Errorf("root missing in env: %v", want)
 }
 
-func ErrMissingInCfg(want valkey.ADT) error {
+func ErrMissingInCfg(want contkey.ADT) error {
 	return fmt.Errorf("root missing in cfg: %v", want)
 }
 

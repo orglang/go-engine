@@ -1,6 +1,3 @@
 namespace OrgLang.Any.Comp;
 
-model VarSpec {
-  conn_ph: string;
-  term_qn: string;
-}
+// Shared computation identity is declared in comp.tsp.

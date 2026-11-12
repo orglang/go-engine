@@ -97,7 +97,7 @@ interface EngineApi {
   getProcessTypeDefinition(@path id: string, @query revision?: int64): Ok<Proc.Type.DefSnap>;
 
   /** Update a process type definition. */
-  @patch
+  @put
   @route("/processes/types/{id}")
   updateProcessTypeDefinition(@path id: string, @body body: Proc.Type.DefSnap): Ok<Proc.Type.DefSnap>;
 

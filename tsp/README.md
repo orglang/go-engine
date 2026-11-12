@@ -21,13 +21,13 @@ The `/ssr` web presenter routes are intentionally out of scope.
 
 TypeSpec namespaces use `OrgLang` as the root and follow domain concepts:
 
-- `OrgLang.Any` — shared semantic identities (`TypeRef`, `TermRef`, `CompRef`)
+- `OrgLang.Any` — shared semantic identities (`TypeRef`, `TermRef`, `CompRef`) and the shared `ExecSpec`
+- `OrgLang.Any.Type` — shared type-link specification
 - `OrgLang.Any.Conn` — shared connection variable specs and records
-- `OrgLang.Any.Comp.VarSpec` — pool computation variable specs
-- `OrgLang.Type` — type-link specifications
-- `OrgLang.Proc` — process declarations, computation snapshots and steps
+- `OrgLang.Any.Exec.VarSpec` — execution variable specification shared by execution requests
+- `OrgLang.Proc` — process declarations
 - `OrgLang.Proc.Type` / `OrgLang.Proc.Term` — process type and term expressions; type definitions live in `Proc.Type.DefSpec` / `DefSnap`
-- `OrgLang.Pool` — pool declarations, computation snapshots, execution specs and steps
+- `OrgLang.Pool` — pool declarations, computation snapshots and execution steps
 - `OrgLang.Pool.Type` / `OrgLang.Pool.Term` — pool type and term expressions; type definitions live in `Pool.Type.DefSpec` / `DefSnap`
 
 The service is named `OrgLang Go Engine API`; `Engine` is not repeated as a namespace segment.

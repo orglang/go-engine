@@ -21,11 +21,11 @@ The `/ssr` web presenter routes are intentionally out of scope.
 
 TypeSpec namespaces follow the Go SDK package boundaries and shared concepts:
 
-- `OrgLang.Engine.Any` (`TypeRef`, `TermRef`, and `CompRef`) — shared type, term, and computation identities
-- `OrgLang.Engine.Type` — type-link specifications
-- `OrgLang.Engine.Term` — variable specifications and records
-- `OrgLang.Engine.Proc` — process declarations, types, computation snapshots, step specs, and expression specifications
-- `OrgLang.Engine.Pool` — pool declarations, computation snapshots/specs/steps, and expression specifications
+- `OrgLang.Any` (`TypeRef`, `TermRef`, and `CompRef`) — shared type, term, and computation identities
+- `OrgLang.Type` — type-link specifications
+- `OrgLang.Term` — variable specifications and records
+- `OrgLang.Proc` — process declarations, definitions, computation snapshots, step specs, and expression specifications
+- `OrgLang.Pool` — pool declarations, definitions, computation snapshots/specs/steps, and expression specifications
 
 Only semantic identities shared by process and pool contexts live under `Any`.
 Context-specific computation models are direct members of their owning namespaces:

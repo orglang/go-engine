@@ -5,7 +5,7 @@ namespace OrgLang.Pool;
 
 model DefSpec {
   qn: string;
-  exp: TypeExprSpec;
+  expr: TypeExprSpec;
 }
 
 model DefSnap {

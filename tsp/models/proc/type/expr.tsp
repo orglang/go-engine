@@ -5,7 +5,7 @@ namespace OrgLang.Proc.Type;
 /** Process type expression specification. */
 model ExprSpec {
   kind: "one" | "link" | "tensor" | "lolli" | "plus" | "with" | "up" | "down";
-  link?: Any.Type.LinkSpec;
+  link?: OrgLang.Any.Type.LinkSpec;
   tensor?: ProductSpec;
   lolli?: ProductSpec;
   plus?: SumSpec;

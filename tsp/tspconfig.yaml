@@ -1,0 +1,6 @@
+emit:
+  - "@typespec/openapi3"
+options:
+  "@typespec/openapi3":
+    output-file: "../openapi/openapi.yaml"
+    openapi-version: "3.1.0"

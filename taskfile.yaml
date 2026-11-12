@@ -54,6 +54,25 @@ tasks:
     cmds:
       - task: tests:unit
 
+  specs:generate:
+    desc: Generate OpenAPI from TypeSpec
+    dir: tsp
+    cmds:
+      - npm install --no-audit --no-fund
+      - npm run build
+
+  specs:check:
+    desc: Check TypeSpec compilation and generated OpenAPI
+    cmds:
+      - task: specs:generate
+      - test -f openapi/openapi.yaml
+      - test -z "$(git status --porcelain -- openapi/openapi.yaml)"
+
+  specs:verify:
+    desc: Verify specs before publishing
+    cmds:
+      - task: specs:check
+
   hooks:install:
     desc: Configure this repository to use versioned Git hooks
     cmds:

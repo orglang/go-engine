@@ -1,8 +1,8 @@
 import "../common.tsp";
 import "./termexp.tsp";
-namespace OrgLang.Engine;
+namespace OrgLang.Engine.Pool;
 
-model PoolStepSpec {
-  comp_ref: ComputationRef;
-  pool_exp: PoolTermExprSpec;
+model StepSpec {
+  comp_ref: Common.ComputationRef;
+  pool_exp: TermExprSpec;
 }

@@ -1,3 +1,5 @@
+import "./any/type.tsp";
+
 namespace OrgLang.Conn;
 
 model VarSpec {

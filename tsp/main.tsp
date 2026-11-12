@@ -52,48 +52,48 @@ interface EngineApi {
 
   /** Submit program source text for parsing and registration. */
   @post
-  @route("/progs")
+  @route("/programs")
   createProgram(@body body: string): CreatedNoBody;
 
   // Pool type definitions
 
   /** Create a pool-level type definition. */
   @post
-  @route("/xacts/defs")
+  @route("/pools/types")
   createPoolTypeDefinition(@body body: Pool.Type.DefSpec): Created<Any.TypeRef>;
 
   // Process declarations and computations
 
   /** Create a process declaration. */
   @post
-  @route("/procs/decs")
+  @route("/processes/declarations")
   createProcessDeclaration(@body body: Proc.DecSpec): Created<Proc.DecSnap>;
 
   /** Get a process declaration; omit revision to select the latest available revision. */
   @get
-  @route("/procs/decs/{id}")
+  @route("/processes/declarations/{id}")
   getProcessDeclaration(@path id: string, @query revision?: int64): Ok<Proc.DecSnap>;
 
   /** Get a process computation; omit revision to select the latest available revision. */
   @get
-  @route("/procs/{id}")
+  @route("/processes/computations/{id}")
   getProcessComputation(@path id: string, @query revision?: int64): Ok<Proc.CompSnap>;
 
   /** Apply one step to a process computation. */
   @post
-  @route("/procs/{id}/steps")
+  @route("/processes/computations/{id}/steps")
   stepProcessComputation(@path id: string, @body body: Proc.StepSpec): OkNoBody;
 
   // Process type definitions
 
   /** Create a process type definition. */
   @post
-  @route("/types")
+  @route("/processes/types")
   createProcessTypeDefinition(@body body: Proc.Type.DefSpec): Created<Proc.Type.DefSnap>;
 
   /** Get a process type definition; omit revision to select the latest available revision. */
   @get
-  @route("/types/{id}")
+  @route("/processes/types/{id}")
   getProcessTypeDefinition(@path id: string, @query revision?: int64): Ok<Proc.Type.DefSnap>;
 
   /** Update a process type definition. */
@@ -105,21 +105,21 @@ interface EngineApi {
 
   /** Create a pool declaration. */
   @post
-  @route("/pools/decs")
+  @route("/pools/declarations")
   createPoolDeclaration(@body body: Pool.DecSpec): Created<Any.TermRef>;
 
   /** Create a pool execution. */
   @post
-  @route("/pools/execs")
+  @route("/pools/executions")
   createPoolExecution(@body body: Any.ExecSpec): Created<Any.CompRef>;
 
   /** Apply one step to a pool execution. */
   @post
-  @route("/pools/execs/steps")
+  @route("/pools/executions/steps")
   stepPoolExecution(@body body: Pool.StepSpec): NoContent;
 
   /** Spawn a child execution from a pool execution. */
   @post
-  @route("/pools/execs/spawns")
+  @route("/pools/executions/spawns")
   spawnPoolExecution(@body body: Pool.StepSpec): Created<Any.CompRef>;
 }

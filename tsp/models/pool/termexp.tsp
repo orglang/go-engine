@@ -1,7 +1,7 @@
 import "../term.tsp";
 import "../any/term.tsp";
 import "../any/comp.tsp";
-namespace OrgLang.Engine.Pool;
+namespace OrgLang.Pool;
 
 /** Pool term expression specification (go-sdk/pool/termexp). */
 model TermExprSpec {
@@ -17,12 +17,12 @@ model TermExprSpec {
   spawn?: SpawnSpec;
 }
 
-model HireSpec { comm_ph: string; proc_qn: string; cont_exp: TermExprSpec; }
-model FireSpec { CommChnlPH: string; }
-model ApplySpec { comm_ph: string; proc_qn: string; cont_exp: TermExprSpec; }
-model QuitSpec { comm_ph: string; proc_qn: string; }
-model AcquireSpec { comm_ph: string; cont_exp: TermExprSpec; }
-model ReleaseSpec { comm_ph: string; }
-model AcceptSpec { comm_ph: string; cont_exp: TermExprSpec; }
-model DetachSpec { comm_ph: string; }
+model HireSpec { conn_ph: string; proc_qn: string; cont_exp: TermExprSpec; }
+model FireSpec { conn_ph: string; }
+model ApplySpec { conn_ph: string; proc_qn: string; cont_exp: TermExprSpec; }
+model QuitSpec { conn_ph: string; proc_qn: string; }
+model AcquireSpec { conn_ph: string; cont_exp: TermExprSpec; }
+model ReleaseSpec { conn_ph: string; }
+model AcceptSpec { conn_ph: string; cont_exp: TermExprSpec; }
+model DetachSpec { conn_ph: string; }
 model SpawnSpec { proc_dr: Any.TermRef; proc_irs: Any.CompRef[]; }

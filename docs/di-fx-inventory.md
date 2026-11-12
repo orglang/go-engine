@@ -151,3 +151,14 @@ Baseline evidence available from GitHub at inventory time:
 ## 7. Scope limitations
 
 This document does not claim that all possible dynamic or indirect Fx usage has been proven absent. The inventory covers the checked-in Go source and the current production/test composition entrypoints at the snapshot commit above. The SDK repository could not be inspected from the workspace's referenced repository name during this pass; no SDK source changes are part of this stage.
+
+
+### CI invocation
+
+The current `Sources Check` pull-request workflow executes the unit baseline with:
+
+```sh
+GOWORK=off go tool -modfile=gear.mod task tests:unit
+```
+
+The workflow skips draft pull requests. A successful run on the updated PR head is still required to establish the fresh baseline.

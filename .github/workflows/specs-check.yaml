@@ -41,4 +41,4 @@ jobs:
           node-version: 22
 
       - name: Check specs
-        run: go tool -modfile=gear.mod task specs:check
+        run: GOWORK=off go tool -modfile=gear.mod task specs:check

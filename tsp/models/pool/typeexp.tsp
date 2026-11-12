@@ -14,6 +14,6 @@ model TypeExprSpec {
   down?: TypeShiftSpec;
 }
 
-model TypeLaborSpec { proc_qns: string[]; cont_exp: TypeExprSpec; }
-model TypeResourceSpec { val_exp: TypeExprSpec; cont_exp: TypeExprSpec; }
-model TypeShiftSpec { cont_exp: TypeExprSpec; }
+model TypeLaborSpec { proc_qns: string[]; cont_expr: TypeExprSpec; }
+model TypeResourceSpec { val_expr: TypeExprSpec; cont_expr: TypeExprSpec; }
+model TypeShiftSpec { cont_expr: TypeExprSpec; }

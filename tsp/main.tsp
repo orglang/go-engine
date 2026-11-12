@@ -25,83 +25,83 @@ model ComponentRef {
   comp_rn: int64;
 }
 
-model TermVariableSpec {
+model TermVarSpec {
   chnl_ph: string;
   type_qn: string;
 }
 
-model ComponentVariableSpec {
+model CompVarSpec {
   chnl_ph: string;
   term_qn: string;
 }
 
-model TermVariableRecord {
+model TermVarRec {
   type_ref: TypeRef;
   chnl_ph: string;
   exp_vk: int64;
 }
 
 /** Recursive expression payload; its discriminated variants follow the SDK wire model. */
-model Expression {
+model Expr {
   kind: string;
   ...Record<unknown>;
 }
 
-model ProcessTypeSpec {
+model ProcTypeSpec {
   type_qn: string;
-  type_exp: Expression;
+  type_exp: Expr;
 }
 
-model ProcessTypeSnapshot {
+model ProcTypeSnap {
   ref: TypeRef;
-  spec: ProcessTypeSpec;
+  spec: ProcTypeSpec;
 }
 
 model PoolTypeSpec {
   qn: string;
-  exp: Expression;
+  exp: Expr;
 }
 
 model PoolTypeSnapshot {
   ref: TypeRef;
-  exp: Expression;
+  exp: Expr;
 }
 
-model ProcessDeclarationSpec {
+model ProcDeclSpec {
   term_qn: string;
-  liab_var: TermVariableSpec;
-  asset_vars: TermVariableSpec[];
+  liab_var: TermVarSpec;
+  asset_vars: TermVarSpec[];
 }
 
-model ProcessDeclarationSnapshot {
+model ProcDeclSnap {
   term_ref: TermRef;
-  liab_var: TermVariableRecord;
-  asset_vars: TermVariableRecord[];
+  liab_var: TermVarRec;
+  asset_vars: TermVarRec[];
 }
 
 model PoolDeclarationSpec {
   desc_qn: string;
-  liab_var: TermVariableSpec;
-  asset_vars: TermVariableSpec[];
+  liab_var: TermVarSpec;
+  asset_vars: TermVarSpec[];
 }
 
-model ProcessStepSpec {
+model ProcStepSpec {
   comp_ref: ComponentRef;
-  proc_exp: Expression;
+  proc_exp: Expr;
 }
 
-model PoolExecutionSpec {
+model PoolExecSpec {
   term_qn: string;
-  liab_var: ComponentVariableSpec;
-  asset_vars: ComponentVariableSpec[];
+  liab_var: CompVarSpec;
+  asset_vars: CompVarSpec[];
 }
 
 model PoolStepSpec {
   comp_ref: ComponentRef;
-  pool_exp: Expression;
+  pool_exp: Expr;
 }
 
-model ComponentSnapshot {
+model CompSnap {
   comp_ref: ComponentRef;
 }
 
@@ -119,6 +119,10 @@ model NoContent {
   @statusCode statusCode: 204;
 }
 
+model OkNoBody {
+  @statusCode statusCode: 200;
+}
+
 @route("/api/v1")
 interface EngineApi {
   /** Submit program source text. */
@@ -132,7 +136,7 @@ interface EngineApi {
 
   @post
   @route("/procs/decs")
-  createProcessDeclaration(@body body: ProcessDeclarationSpec): Created<ProcessDeclarationSnapshot>;
+  createProcessDeclaration(@body body: ProcDeclSpec): Created<ProcDeclSnap>;
 
   /** Omit revision to request the latest available declaration revision. */
   @get
@@ -140,7 +144,7 @@ interface EngineApi {
   getProcessDeclaration(
     @path id: string,
     @query revision?: int64
-  ): Ok<ProcessDeclarationSnapshot>;
+  ): Ok<ProcDeclSnap>;
 
   /** Omit revision to request the latest available process revision. */
   @get
@@ -148,15 +152,15 @@ interface EngineApi {
   getProcess(
     @path id: string,
     @query revision?: int64
-  ): Ok<ComponentSnapshot>;
+  ): Ok<CompSnap>;
 
   @post
   @route("/procs/{id}/steps")
-  takeProcessStep(@path id: string, @body body: ProcessStepSpec): NoContent;
+  takeProcessStep(@path id: string, @body body: ProcStepSpec): OkNoBody;
 
   @post
   @route("/types")
-  createProcessType(@body body: ProcessTypeSpec): Created<ProcessTypeSnapshot>;
+  createProcessType(@body body: ProcTypeSpec): Created<ProcTypeSnap>;
 
   /** Omit revision to request the latest available type revision. */
   @get
@@ -164,11 +168,11 @@ interface EngineApi {
   getProcessType(
     @path id: string,
     @query revision?: int64
-  ): Ok<ProcessTypeSnapshot>;
+  ): Ok<ProcTypeSnap>;
 
   @patch
   @route("/types/{id}")
-  modifyProcessType(@path id: string, @body body: ProcessTypeSnapshot): Ok<ProcessTypeSnapshot>;
+  modifyProcessType(@path id: string, @body body: ProcTypeSnap): Ok<ProcTypeSnap>;
 
   @post
   @route("/pools/decs")
@@ -176,7 +180,7 @@ interface EngineApi {
 
   @post
   @route("/pools/execs")
-  createPoolExecution(@body body: PoolExecutionSpec): Created<ComponentRef>;
+  createPoolExecution(@body body: PoolExecSpec): Created<ComponentRef>;
 
   @post
   @route("/pools/execs/steps")

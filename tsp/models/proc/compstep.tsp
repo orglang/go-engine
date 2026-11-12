@@ -1,8 +1,8 @@
 import "../common.tsp";
 import "./termexp.tsp";
-namespace OrgLang.Engine;
+namespace OrgLang.Engine.Proc;
 
-model ProcStepSpec {
-  comp_ref: ComputationRef;
-  proc_exp: ProcTermExprSpec;
+model StepSpec {
+  comp_ref: Common.ComputationRef;
+  proc_exp: TermExprSpec;
 }

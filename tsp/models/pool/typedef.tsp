@@ -9,6 +9,6 @@ model TypeSpec {
 }
 
 model TypeSnap {
-  ref: Any.Type.Ref;
+  ref: Any.TypeRef;
   exp: TypeExprSpec;
 }

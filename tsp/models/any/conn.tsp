@@ -10,5 +10,5 @@ model VarSpec {
 model VarRec {
   type_ref: TypeRef;
   conn_ph: string;
-  exp_ck: int64;
+  expr_ck: int64;
 }

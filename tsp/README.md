@@ -14,7 +14,7 @@ npm install
 npm run build
 ```
 
-The contract describes 13 target `/api/v1` operations. Its resource paths are
+The contract describes 15 target `/api/v1` operations. Its resource paths are
 intentionally normalized and are not yet the paths registered by the Echo server.
 The server routes and existing clients remain unchanged until a separate migration.
 The `/ssr` web presenter routes are intentionally out of scope.
@@ -58,14 +58,16 @@ names such as `comp_id` and `comp_ref` remain unchanged.
 
 ## Type definition updates
 
-Process type definitions are replaced with a complete snapshot using
-`PUT /api/v1/processes/types/{id}`. This is the target contract semantics;
-the current Echo implementation still exposes PATCH and is not changed by
-this contract-only PR.
+Process and pool type definitions are replaced with complete snapshots using
+`PUT /api/v1/processes/types/{id}` and `PUT /api/v1/pools/types/{id}`, respectively.
+This is the target contract semantics; the current Echo implementation still
+exposes PATCH for process types and is not changed by this contract-only PR.
 
-Pool type definitions currently have a create operation only. Retrieval and
-update operations are intentionally not inferred from the process API; their
-need and semantics remain to be decided.
+Pool type definitions support retrieval with an optional `revision` query
+parameter and full replacement using `PUT /api/v1/pools/types/{id}`. Creation,
+retrieval and replacement return a complete `Pool.Type.DefSnap`. As with process
+type definitions, PUT replaces the complete snapshot rather than applying a
+partial update.
 
 ## Revision query
 

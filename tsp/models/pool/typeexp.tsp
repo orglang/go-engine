@@ -1,6 +1,4 @@
 import "../type.tsp";
-import "../term.tsp";
-import "../comp.tsp";
 namespace OrgLang.Engine.Pool;
 
 /** Pool type expression specification (go-sdk/pool/typeexp). */

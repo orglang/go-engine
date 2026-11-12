@@ -124,7 +124,6 @@ interface EngineApi {
   /** Submit program source text. */
   @post
   @route("/progs")
-  @statusCode statusCode: 201;
   createProgram(@body body: string): NoContent;
 
   @post

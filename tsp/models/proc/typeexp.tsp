@@ -1,6 +1,6 @@
 import "../type.tsp";
 import "../any/type.tsp";
-namespace OrgLang.Engine.Proc;
+namespace OrgLang.Proc;
 
 /** Process type expression specification (go-sdk/proc/typeexp). */
 model TypeExprSpec {

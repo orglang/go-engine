@@ -1,10 +1,12 @@
-import "../common.tsp";
+import "../type.tsp";
+import "../term.tsp";
+import "../comp.tsp";
 namespace OrgLang.Engine.Proc;
 
 /** Process type expression specification (go-sdk/proc/typeexp). */
 model TypeExprSpec {
   kind: "one" | "link" | "tensor" | "lolli" | "plus" | "with" | "up" | "down";
-  link?: Common.TypeLinkSpec;
+  link?: Type.LinkSpec;
   tensor?: TypeProductSpec;
   lolli?: TypeProductSpec;
   plus?: TypeSumSpec;

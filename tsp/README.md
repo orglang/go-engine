@@ -64,14 +64,14 @@ This is the target contract semantics; the current Echo implementation still
 exposes PATCH for process types and is not changed by this contract-only PR.
 
 Pool type definitions support retrieval with an optional `revision` query
-parameter and full replacement using `PUT /api/v1/pools/types/{id}`. Creation,
-retrieval and replacement return a complete `Pool.Type.DefSnap`. As with process
-type definitions, PUT replaces the complete snapshot rather than applying a
-partial update.
+parameter and full replacement using `PUT /api/v1/pools/types/{id}`. Creation
+returns the shared `Any.TypeRef`; retrieval and replacement return a complete
+`Pool.Type.DefSnap`. As with process type definitions, PUT replaces the complete
+snapshot rather than applying a partial update.
 
 ## Revision query
 
-The three retrieval operations accept an optional `revision` query parameter.
+The four retrieval operations accept an optional `revision` query parameter.
 When omitted, the contract describes retrieval of the latest available revision.
 When supplied, it identifies the requested revision. This is an API contract
 statement; persistence support for historical revisions is not asserted by

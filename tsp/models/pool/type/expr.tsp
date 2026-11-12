@@ -6,7 +6,7 @@ namespace OrgLang.Pool.Type;
 /** Pool type expression specification. */
 model ExprSpec {
   kind: "one" | "link" | "plus" | "with" | "tensor" | "lolli" | "up" | "down";
-  link?: Type.LinkSpec;
+  link?: OrgLang.Type.LinkSpec;
   plus?: LaborSpec;
   with?: LaborSpec;
   tensor?: ResourceSpec;

@@ -1,13 +1,13 @@
 import "../common.tsp";
 import "./typeexp.tsp";
-namespace OrgLang.Engine;
+namespace OrgLang.Engine.Proc;
 
-model ProcTypeSpec {
+model TypeSpec {
   type_qn: string;
-  type_exp: ProcTypeExprSpec;
+  type_exp: TypeExprSpec;
 }
 
-model ProcTypeSnap {
-  ref: TypeRef;
-  spec: ProcTypeSpec;
+model TypeSnap {
+  ref: Common.TypeRef;
+  spec: TypeSpec;
 }

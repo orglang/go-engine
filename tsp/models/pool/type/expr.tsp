@@ -1,4 +1,3 @@
-import "../../type.tsp";
 import "../../any/type.tsp";
 
 namespace OrgLang.Pool.Type;
@@ -6,7 +5,7 @@ namespace OrgLang.Pool.Type;
 /** Pool type expression specification. */
 model ExprSpec {
   kind: "one" | "link" | "plus" | "with" | "tensor" | "lolli" | "up" | "down";
-  link?: OrgLang.Type.LinkSpec;
+  link?: Any.Type.LinkSpec;
   plus?: LaborSpec;
   with?: LaborSpec;
   tensor?: ResourceSpec;

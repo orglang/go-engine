@@ -1,12 +1,18 @@
 import "../comp.tsp";
-namespace OrgLang.Engine.Pool;
+
+namespace OrgLang.Engine.Pool.Comp;
+
+model VarSpec {
+  chnl_ph: string;
+  term_qn: string;
+}
 
 model ExecSpec {
   term_qn: string;
-  liab_var: Comp.VarSpec;
-  asset_vars: Comp.VarSpec[];
+  liab_var: VarSpec;
+  asset_vars: VarSpec[];
 }
 
 model Snap {
-  comp_ref: Comp.Ref;
+  comp_ref: OrgLang.Engine.Comp.Ref;
 }

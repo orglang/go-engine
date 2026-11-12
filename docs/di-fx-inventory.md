@@ -111,6 +111,19 @@ fx.New(rc.Module, e2e.Module, fx.Populate(s))
 
 It obtains six E2E APIs from `internal/lib/e2e`, opens a PostgreSQL connection directly for test assertions, and stops the Fx app from test cleanup. This is a separate composition root and must be included in the DI migration; it is not a missing production registration.
 
+### Existing coverage relevant to characterization
+
+A repository-wide inventory of checked-in `*_test.go` files found the following relevant coverage:
+
+- `internal/lib/db/adapter/ds_pgx_test.go` tests the transactor contract: nil callbacks, begin failures, callback/rollback errors, commit behavior, rollback context, and preservation of the `tx.Conn` transaction handle. These tests should remain as-is; they cover transaction behavior, not Fx lifecycle.
+- `internal/lib/tx/core_test.go` covers shared transaction contract behavior.
+- `test/e2e/pool_test.go` builds the separate E2E Fx composition and exercises a pool scenario against PostgreSQL. It is infrastructure-dependent and does not assert production root composition.
+- No checked-in test file was found under `internal/lib/ws`; no dedicated test for the Echo lifecycle hooks was found.
+- The checked-in tests do not include a dedicated test that builds the production composition from `cmd/engine/main.go`.
+- The existing DB adapter tests do not exercise `newPoolPgx`'s Fx `OnStart`/`OnStop` hooks.
+
+This identifies candidate gaps, not a requirement to add a test for every hook. Before adding characterization tests, run the existing unit baseline and choose only stable observable contracts that can be tested without relying on timing or external infrastructure. In particular, avoid freezing accidental behavior such as asynchronous, non-awaited pool closure as a desired contract; record it as current behavior to review in the lifecycle migration.
+
 The engine Taskfile defines these checks:
 
 | Task | Command | Notes |

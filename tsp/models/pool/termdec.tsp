@@ -1,8 +1,8 @@
 import "../term.tsp";
 import "../any/term.tsp";
-namespace OrgLang.Engine.Pool;
+namespace OrgLang.Pool;
 
-model DeclSpec {
+model DecSpec {
   desc_qn: string;
   liab_var: Term.VarSpec;
   asset_vars: Term.VarSpec[];

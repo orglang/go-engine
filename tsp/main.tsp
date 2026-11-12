@@ -98,7 +98,7 @@ interface EngineApi {
 
   /** Update a process type definition. */
   @patch
-  @route("/types/{id}")
+  @route("/processes/types/{id}")
   updateProcessTypeDefinition(@path id: string, @body body: Proc.Type.DefSnap): Ok<Proc.Type.DefSnap>;
 
   // Pool declarations and executions

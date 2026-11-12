@@ -21,7 +21,7 @@ The `/ssr` web presenter routes are intentionally out of scope.
 
 TypeSpec namespaces follow the Go SDK package boundaries and shared concepts:
 
-- `OrgLang.Engine.Any.Type`, `OrgLang.Engine.Any.Term`, and `OrgLang.Engine.Any.Comp` — shared type, term, and computation identities
+- `OrgLang.Engine.Any` (`TypeRef`, `TermRef`, and `CompRef`) — shared type, term, and computation identities
 - `OrgLang.Engine.Type` — type-link specifications
 - `OrgLang.Engine.Term` — variable specifications and records
 - `OrgLang.Engine.Proc` — process declarations, types, computation snapshots, step specs, and expression specifications
@@ -41,7 +41,7 @@ The four expression specifications remain distinct and recursive:
 ## Naming
 
 The Go wire prefix `comp` denotes computation, not component. Shared
-computation identity is `Any.Comp.Ref`; context-specific snapshots and step
+computation identity is `Any.CompRef`; context-specific snapshots and step
 specifications are named directly in `Proc` and `Pool`. Wire property names
 such as `comp_id` and `comp_ref` remain unchanged.
 

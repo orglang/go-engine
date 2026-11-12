@@ -14,7 +14,7 @@ model ExprSpec {
   down?: ShiftSpec;
 }
 
-model ProductSpec { val_exprr: ExprSpec; cont_exprr: ExprSpec; }
+model ProductSpec { val_expr: ExprSpec; cont_expr: ExprSpec; }
 model SumSpec { choices: ChoiceSpec[]; }
-model ChoiceSpec { lab_qn: string; cont_exprr: ExprSpec; }
-model ShiftSpec { cont_exprr: ExprSpec; }
+model ChoiceSpec { lab_qn: string; cont_expr: ExprSpec; }
+model ShiftSpec { cont_expr: ExprSpec; }

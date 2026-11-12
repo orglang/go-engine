@@ -40,9 +40,14 @@ grouped in `Proc.Comp` and `Pool.Comp`.
 
 The four expression specifications are distinct and recursive:
 `Proc.Type.ExprSpec`, `Proc.Term.ExprSpec`, `Pool.Type.ExprSpec`, and
-`Pool.Term.ExprSpec`. Their schemas correspond to the respective
+`Pool.Term.ExprSpec`. They model the concepts handled by the respective
 `go-sdk/proc/typeexp`, `go-sdk/proc/termexp`,
-`go-sdk/pool/typeexp`, and `go-sdk/pool/termexp` packages.
+`go-sdk/pool/typeexp`, and `go-sdk/pool/termexp` packages, but are not
+claimed to be wire-compatible with the current SDK DTOs. Several JSON names
+are intentionally normalized in this target contract (for example
+`chnl_ph` → `conn_ph`, `exp_vk` → `expr_ck`, `cont_es` → `cont_expr`,
+and `val_es` → `val_expr`). The server and SDK migration must account for
+these wire-level changes.
 
 ## Naming
 

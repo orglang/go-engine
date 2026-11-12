@@ -90,18 +90,28 @@ func (s *lifecycleShutdownService) Shutdown(context.Context) error {
 	return nil
 }
 
-func TestAppRegistersLifecycleAndShutsDownContainer(t *testing.T) {
+func TestAppRegistersLifecycleBeforeApplicationPackages(t *testing.T) {
+	var packageLifecycle Lifecycle
+	var resolveErr error
 	service := &lifecycleShutdownService{}
 	app := NewApp(do.Package(func(i do.Injector) {
+		packageLifecycle, resolveErr = do.Invoke[Lifecycle](i)
 		do.ProvideValue[*lifecycleShutdownService](i, service)
 	}))
+
+	if resolveErr != nil {
+		t.Fatalf("resolve lifecycle during package registration: %v", resolveErr)
+	}
+	if packageLifecycle == nil {
+		t.Fatal("package resolved a nil lifecycle")
+	}
 
 	gotLifecycle, err := do.Invoke[Lifecycle](app.Container())
 	if err != nil {
 		t.Fatalf("resolve lifecycle: %v", err)
 	}
-	if gotLifecycle == nil {
-		t.Fatal("resolved lifecycle is nil")
+	if gotLifecycle != packageLifecycle {
+		t.Fatal("package and application resolved different lifecycle instances")
 	}
 
 	if _, err := do.Invoke[*lifecycleShutdownService](app.Container()); err != nil {

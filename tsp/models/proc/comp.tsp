@@ -8,6 +8,5 @@ model CompSnap {
 }
 
 model StepSpec {
-  comp_ref: Any.CompRef;
   proc_expr: Term.ExprSpec;
 }

@@ -1,21 +1,20 @@
 import "@typespec/http";
 import "@typespec/openapi3";
 
-import "./models/type.tsp";
 import "./models/any/type.tsp";
 import "./models/any/term.tsp";
 import "./models/any/comp.tsp";
 import "./models/any/conn.tsp";
-import "./models/any/comp/var.tsp";
+import "./models/any/exec.tsp";
 import "./models/proc/type/expr.tsp";
 import "./models/proc/type/def.tsp";
 import "./models/proc/term/expr.tsp";
-import "./models/proc/termdec.tsp";
+import "./models/proc/term/dec.tsp";
 import "./models/proc/comp.tsp";
 import "./models/pool/type/expr.tsp";
 import "./models/pool/type/def.tsp";
 import "./models/pool/term/expr.tsp";
-import "./models/pool/termdec.tsp";
+import "./models/pool/term/dec.tsp";
 import "./models/pool/comp.tsp";
 
 using TypeSpec.Http;
@@ -94,7 +93,7 @@ interface EngineApi {
 
   @post
   @route("/pools/execs")
-  createPoolExec(@body body: Pool.ExecSpec): Created<Any.CompRef>;
+  createPoolExec(@body body: Any.ExecSpec): Created<Any.CompRef>;
 
   @post
   @route("/pools/execs/steps")

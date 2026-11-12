@@ -1,3 +1,4 @@
+import "../common.tsp";
 import "./typeexp.tsp";
 namespace OrgLang.Engine;
 

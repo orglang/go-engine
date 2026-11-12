@@ -1,10 +1,12 @@
-import "../common.tsp";
+import "../type.tsp";
+import "../term.tsp";
+import "../comp.tsp";
 namespace OrgLang.Engine.Pool;
 
 /** Pool type expression specification (go-sdk/pool/typeexp). */
 model TypeExprSpec {
   kind: "one" | "link" | "plus" | "with" | "tensor" | "lolli" | "up" | "down";
-  link?: Common.TypeLinkSpec;
+  link?: Type.LinkSpec;
   plus?: TypeLaborSpec;
   with?: TypeLaborSpec;
   tensor?: TypeResourceSpec;

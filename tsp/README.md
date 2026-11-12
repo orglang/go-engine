@@ -21,20 +21,16 @@ The `/ssr` web presenter routes are intentionally out of scope.
 
 TypeSpec namespaces follow the Go SDK package boundaries and shared concepts:
 
-- `OrgLang.Engine.Type` — shared type references and type-link specifications
-- `OrgLang.Engine.Term` — shared term references, variable specifications, and records
-- `OrgLang.Engine.Comp` — shared computation identity (`Comp.Ref`)
-- `OrgLang.Engine.Proc` — process declarations, types, and expression specifications
-- `OrgLang.Engine.Proc.Comp` — process computation snapshots and step specifications
-- `OrgLang.Engine.Pool` — pool declarations and expression specifications
-- `OrgLang.Engine.Pool.Comp` — pool computation specs, snapshots, and step specifications
+- `OrgLang.Engine.Any.Type`, `OrgLang.Engine.Any.Term`, and `OrgLang.Engine.Any.Comp` — shared type, term, and computation identities
+- `OrgLang.Engine.Type` — type-link specifications
+- `OrgLang.Engine.Term` — variable specifications and records
+- `OrgLang.Engine.Proc` — process declarations, types, computation snapshots, step specs, and expression specifications
+- `OrgLang.Engine.Pool` — pool declarations, computation snapshots/specs/steps, and expression specifications
 
-The `Comp.Ref` model is shared because both process and pool computations use
-the same computation identity. Models describing computation behavior or
-payloads are scoped to their owning context: `Proc.Comp.*` and `Pool.Comp.*`.
-Service operations use qualified names such as `Proc.Comp.Snap`,
-`Proc.Comp.StepSpec`, `Pool.Comp.ExecSpec`, `Pool.Comp.Snap`,
-`Pool.Comp.StepSpec`, `Type.Ref`, and `Term.Ref`.
+Only semantic identities shared by process and pool contexts live under `Any`.
+Context-specific computation models are direct members of their owning namespaces:
+`Proc.CompSnap`, `Proc.StepSpec`, `Pool.CompSnap`, `Pool.VarSpec`,
+`Pool.ExecSpec`, and `Pool.StepSpec`.
 
 The four expression specifications remain distinct and recursive:
 `Proc.TypeExprSpec`, `Proc.TermExprSpec`, `Pool.TypeExprSpec`, and
@@ -44,10 +40,10 @@ The four expression specifications remain distinct and recursive:
 
 ## Naming
 
-The Go wire prefix `comp` denotes computation, not component. The TypeSpec
-namespace is therefore `Comp`, with the shared identity model `Comp.Ref`.
-Context-specific models live under `Proc.Comp` and `Pool.Comp`. Wire
-property names such as `comp_id` and `comp_ref` remain unchanged.
+The Go wire prefix `comp` denotes computation, not component. Shared
+computation identity is `Any.Comp.Ref`; context-specific snapshots and step
+specifications are named directly in `Proc` and `Pool`. Wire property names
+such as `comp_id` and `comp_ref` remain unchanged.
 
 ## Revision query
 

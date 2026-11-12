@@ -9,7 +9,7 @@ model VarSpec {
 }
 
 model VarRec {
-  type_ref: Any.Type.Ref;
+  type_ref: Any.TypeRef;
   chnl_ph: string;
   exp_vk: int64;
 }

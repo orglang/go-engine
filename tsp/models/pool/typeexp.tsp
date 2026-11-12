@@ -1,5 +1,5 @@
-import "../type.tsp"
-import "../any/type.tsp";;
+import "../type.tsp";
+import "../any/type.tsp";
 namespace OrgLang.Engine.Pool;
 
 /** Pool type expression specification (go-sdk/pool/typeexp). */

@@ -1,14 +1,14 @@
 import "../term.tsp";
 import "../any/term.tsp";
-namespace OrgLang.Engine.Proc;
+namespace OrgLang.Proc;
 
-model DeclSpec {
+model DecSpec {
   term_qn: string;
   liab_var: Term.VarSpec;
   asset_vars: Term.VarSpec[];
 }
 
-model DeclSnap {
+model DecSnap {
   term_ref: Any.TermRef;
   liab_var: Term.VarRec;
   asset_vars: Term.VarRec[];

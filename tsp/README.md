@@ -19,7 +19,7 @@ The `/ssr` web presenter routes are intentionally out of scope.
 
 ## Model organization
 
-TypeSpec namespaces follow the Go SDK package boundaries and shared concepts:
+TypeSpec namespaces use `OrgLang` as the root and follow the Go SDK package boundaries and shared concepts:
 
 - `OrgLang.Any` (`TypeRef`, `TermRef`, and `CompRef`) — shared type, term, and computation identities
 - `OrgLang.Type` — type-link specifications
@@ -27,10 +27,12 @@ TypeSpec namespaces follow the Go SDK package boundaries and shared concepts:
 - `OrgLang.Proc` — process declarations, definitions, computation snapshots, step specs, and expression specifications
 - `OrgLang.Pool` — pool declarations, definitions, computation snapshots/specs/steps, and expression specifications
 
-Only semantic identities shared by process and pool contexts live under `Any`.
+Only semantic identities shared by process and pool contexts live under `Any`. The service is named `OrgLang Go Engine API`; `Engine` is not repeated as a namespace segment.
 Context-specific computation models are direct members of their owning namespaces:
 `Proc.CompSnap`, `Proc.StepSpec`, `Pool.CompSnap`, `Pool.VarSpec`,
 `Pool.ExecSpec`, and `Pool.StepSpec`.
+
+Declaration models use `DecSpec`/`DecSnap`, and type-definition models use `DefSpec`/`DefSnap`. Process and pool variable specs remain context-specific where their shapes differ.
 
 The four expression specifications remain distinct and recursive:
 `Proc.TypeExprSpec`, `Proc.TermExprSpec`, `Pool.TypeExprSpec`, and

@@ -1,9 +1,9 @@
 import "../any/comp.tsp";
 import "./termexp.tsp";
 
-namespace OrgLang.Engine.Proc;
+namespace OrgLang.Proc;
 
 model StepSpec {
-  comp_ref: OrgLang.Engine.Any.CompRef;
-  proc_exp: OrgLang.Engine.Proc.TermExprSpec;
+  comp_ref: Any.CompRef;
+  proc_exp: Proc.TermExprSpec;
 }

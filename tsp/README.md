@@ -19,15 +19,18 @@ The `/ssr` web presenter routes are intentionally out of scope.
 
 ## Model organization
 
-TypeSpec namespaces and files follow the Go SDK package boundaries:
+TypeSpec namespaces follow the Go SDK package boundaries and shared concepts:
 
-- `OrgLang.Engine.Common` — shared references and variable records
-- `OrgLang.Engine.Proc` — process declarations, types, steps, and expression specs
-- `OrgLang.Engine.Pool` — pool declarations, executions, steps, and expression specs
+- `OrgLang.Engine.Type` — type references and type-link specifications
+- `OrgLang.Engine.Term` — term references, variable specifications, and records
+- `OrgLang.Engine.Comp` — computation references, variable specifications, and snapshots
+- `OrgLang.Engine.Proc` — process declarations, types, steps, and expression specifications
+- `OrgLang.Engine.Pool` — pool declarations, executions, steps, and expression specifications
 
-For example, service operations refer to `Proc.DeclSnap`,
-`Proc.TypeSpec`, `Pool.ExecSpec`, and `Common.TermRef`. Within each
-namespace, model names do not repeat the package prefix.
+Service operations use concise qualified names such as `Proc.DeclSnap`,
+`Pool.ExecSpec`, `Type.Ref`, `Term.Ref`, and `Comp.Ref`. Models are
+placed in the namespace for the concept they describe, rather than a generic
+`Common` namespace.
 
 The four expression specifications remain distinct and recursive:
 `Proc.TypeExprSpec`, `Proc.TermExprSpec`, `Pool.TypeExprSpec`, and
@@ -37,12 +40,10 @@ The four expression specifications remain distinct and recursive:
 
 ## Naming
 
-The Go wire prefix `comp` denotes computation, not component. In TypeSpec,
-`Common.ComputationRef`, `Common.CompVarSpec`, and
-`Pool.ComputationSnap` make that distinction explicit without repeating
-the long word in every model name. The `CompVarSpec` name is deliberately
-short; its `comp` prefix means computation. Wire property names such as
-`comp_id` and `comp_ref` remain unchanged.
+The Go wire prefix `comp` denotes computation, not component. The TypeSpec
+namespace is therefore `Comp`, with concise model names such as `Comp.Ref`,
+`Comp.VarSpec`, and `Comp.Snap`. Wire property names such as `comp_id`
+and `comp_ref` remain unchanged.
 
 ## Revision query
 

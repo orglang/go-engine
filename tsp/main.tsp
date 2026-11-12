@@ -1,7 +1,9 @@
 import "@typespec/http";
 import "@typespec/openapi3";
 
-import "./models/common.tsp";
+import "./models/type.tsp";
+import "./models/term.tsp";
+import "./models/comp.tsp";
 import "./models/proc/typeexp.tsp";
 import "./models/proc/termexp.tsp";
 import "./models/proc/typedef.tsp";
@@ -51,7 +53,7 @@ interface EngineApi {
 
   @post
   @route("/xacts/defs")
-  createPoolTypeDef(@body body: Pool.TypeSpec): Created<Common.TypeRef>;
+  createPoolTypeDef(@body body: Pool.TypeSpec): Created<Type.Ref>;
 
   @post
   @route("/procs/decs")
@@ -65,7 +67,7 @@ interface EngineApi {
   /** Omit revision to request the latest available process revision. */
   @get
   @route("/procs/{id}")
-  getProc(@path id: string, @query revision?: int64): Ok<Pool.ComputationSnap>;
+  getProc(@path id: string, @query revision?: int64): Ok<Comp.Snap>;
 
   @post
   @route("/procs/{id}/steps")
@@ -86,11 +88,11 @@ interface EngineApi {
 
   @post
   @route("/pools/decs")
-  createPoolDecl(@body body: Pool.DeclSpec): Created<Common.TermRef>;
+  createPoolDecl(@body body: Pool.DeclSpec): Created<Term.Ref>;
 
   @post
   @route("/pools/execs")
-  createPoolExec(@body body: Pool.ExecSpec): Created<Common.ComputationRef>;
+  createPoolExec(@body body: Pool.ExecSpec): Created<Comp.Ref>;
 
   @post
   @route("/pools/execs/steps")
@@ -98,5 +100,5 @@ interface EngineApi {
 
   @post
   @route("/pools/execs/spawns")
-  spawnPoolExec(@body body: Pool.StepSpec): Created<Common.ComputationRef>;
+  spawnPoolExec(@body body: Pool.StepSpec): Created<Comp.Ref>;
 }

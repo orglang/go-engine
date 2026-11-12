@@ -1,4 +1,6 @@
-import "../common.tsp";
+import "../type.tsp";
+import "../term.tsp";
+import "../comp.tsp";
 import "./typeexp.tsp";
 namespace OrgLang.Engine.Proc;
 
@@ -8,6 +10,6 @@ model TypeSpec {
 }
 
 model TypeSnap {
-  ref: Common.TypeRef;
+  ref: Type.Ref;
   spec: TypeSpec;
 }

@@ -5,7 +5,7 @@ namespace OrgLang.Proc;
 
 model DefSpec {
   type_qn: string;
-  type_exp: TypeExprSpec;
+  type_expr: TypeExprSpec;
 }
 
 model DefSnap {

@@ -5,19 +5,18 @@ import "./models/type.tsp";
 import "./models/any/type.tsp";
 import "./models/any/term.tsp";
 import "./models/any/comp.tsp";
-import "./models/conn.tsp";
+import "./models/any/conn.tsp";
+import "./models/any/comp/var.tsp";
 import "./models/proc/type/expr.tsp";
+import "./models/proc/type/def.tsp";
 import "./models/proc/term/expr.tsp";
-import "./models/proc/typedef.tsp";
 import "./models/proc/termdec.tsp";
-import "./models/proc/compexec.tsp";
-import "./models/proc/compstep.tsp";
+import "./models/proc/comp.tsp";
 import "./models/pool/type/expr.tsp";
+import "./models/pool/type/def.tsp";
 import "./models/pool/term/expr.tsp";
-import "./models/pool/typedef.tsp";
 import "./models/pool/termdec.tsp";
-import "./models/pool/compexec.tsp";
-import "./models/pool/compstep.tsp";
+import "./models/pool/comp.tsp";
 
 using TypeSpec.Http;
 
@@ -56,7 +55,7 @@ interface EngineApi {
 
   @post
   @route("/xacts/defs")
-  createPoolTypeDef(@body body: Pool.DefSpec): Created<Any.TypeRef>;
+  createPoolTypeDef(@body body: Pool.Type.DefSpec): Created<Any.TypeRef>;
 
   @post
   @route("/procs/decs")
@@ -78,16 +77,16 @@ interface EngineApi {
 
   @post
   @route("/types")
-  createProcType(@body body: Proc.DefSpec): Created<Proc.DefSnap>;
+  createProcType(@body body: Proc.Type.DefSpec): Created<Proc.Type.DefSnap>;
 
   /** Omit revision to request the latest available type revision. */
   @get
   @route("/types/{id}")
-  getProcType(@path id: string, @query revision?: int64): Ok<Proc.DefSnap>;
+  getProcType(@path id: string, @query revision?: int64): Ok<Proc.Type.DefSnap>;
 
   @patch
   @route("/types/{id}")
-  modifyProcType(@path id: string, @body body: Proc.DefSnap): Ok<Proc.DefSnap>;
+  modifyProcType(@path id: string, @body body: Proc.Type.DefSnap): Ok<Proc.Type.DefSnap>;
 
   @post
   @route("/pools/decs")

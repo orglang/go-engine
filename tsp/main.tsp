@@ -62,6 +62,16 @@ interface EngineApi {
   @route("/pools/types")
   createPoolTypeDefinition(@body body: Pool.Type.DefSpec): Created<Any.TypeRef>;
 
+  /** Get a pool type definition; omit revision to select the latest available revision. */
+  @get
+  @route("/pools/types/{id}")
+  getPoolTypeDefinition(@path id: string, @query revision?: int64): Ok<Pool.Type.DefSnap>;
+
+  /** Replace a pool type definition with a complete snapshot. */
+  @put
+  @route("/pools/types/{id}")
+  updatePoolTypeDefinition(@path id: string, @body body: Pool.Type.DefSnap): Ok<Pool.Type.DefSnap>;
+
   // Process declarations and computations
 
   /** Create a process declaration. */
@@ -113,7 +123,7 @@ interface EngineApi {
   @route("/pools/executions")
   createPoolExecution(@body body: Any.ExecSpec): Created<Any.CompRef>;
 
-  /** Apply one step to a pool execution. */
+  /** Apply a batch of steps to pool executions. */
   @post
   @route("/pools/executions/steps")
   stepPoolExecution(@body body: Pool.StepSpec): NoContent;

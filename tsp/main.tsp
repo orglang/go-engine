@@ -51,52 +51,52 @@ interface EngineApi {
 
   @post
   @route("/xacts/defs")
-  createPoolTypeDef(@body body: PoolTypeSpec): Created<TypeRef>;
+  createPoolTypeDef(@body body: Pool.TypeSpec): Created<Common.TypeRef>;
 
   @post
   @route("/procs/decs")
-  createProcDecl(@body body: ProcDeclSpec): Created<ProcDeclSnap>;
+  createProcDecl(@body body: Proc.DeclSpec): Created<Proc.DeclSnap>;
 
   /** Omit revision to request the latest available declaration revision. */
   @get
   @route("/procs/decs/{id}")
-  getProcDecl(@path id: string, @query revision?: int64): Ok<ProcDeclSnap>;
+  getProcDecl(@path id: string, @query revision?: int64): Ok<Proc.DeclSnap>;
 
   /** Omit revision to request the latest available process revision. */
   @get
   @route("/procs/{id}")
-  getProc(@path id: string, @query revision?: int64): Ok<ComputationSnap>;
+  getProc(@path id: string, @query revision?: int64): Ok<Pool.ComputationSnap>;
 
   @post
   @route("/procs/{id}/steps")
-  takeProcStep(@path id: string, @body body: ProcStepSpec): OkNoBody;
+  takeProcStep(@path id: string, @body body: Proc.StepSpec): OkNoBody;
 
   @post
   @route("/types")
-  createProcType(@body body: ProcTypeSpec): Created<ProcTypeSnap>;
+  createProcType(@body body: Proc.TypeSpec): Created<Proc.TypeSnap>;
 
   /** Omit revision to request the latest available type revision. */
   @get
   @route("/types/{id}")
-  getProcType(@path id: string, @query revision?: int64): Ok<ProcTypeSnap>;
+  getProcType(@path id: string, @query revision?: int64): Ok<Proc.TypeSnap>;
 
   @patch
   @route("/types/{id}")
-  modifyProcType(@path id: string, @body body: ProcTypeSnap): Ok<ProcTypeSnap>;
+  modifyProcType(@path id: string, @body body: Proc.TypeSnap): Ok<Proc.TypeSnap>;
 
   @post
   @route("/pools/decs")
-  createPoolDecl(@body body: PoolDeclSpec): Created<TermRef>;
+  createPoolDecl(@body body: Pool.DeclSpec): Created<Common.TermRef>;
 
   @post
   @route("/pools/execs")
-  createPoolExec(@body body: PoolExecSpec): Created<ComputationRef>;
+  createPoolExec(@body body: Pool.ExecSpec): Created<Common.ComputationRef>;
 
   @post
   @route("/pools/execs/steps")
-  takePoolStep(@body body: PoolStepSpec): NoContent;
+  takePoolStep(@body body: Pool.StepSpec): NoContent;
 
   @post
   @route("/pools/execs/spawns")
-  spawnPoolExec(@body body: PoolStepSpec): Created<ComputationRef>;
+  spawnPoolExec(@body body: Pool.StepSpec): Created<Common.ComputationRef>;
 }

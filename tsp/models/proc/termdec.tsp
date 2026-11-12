@@ -9,7 +9,7 @@ model DeclSpec {
 }
 
 model DeclSnap {
-  term_ref: Any.Term.Ref;
+  term_ref: Any.TermRef;
   liab_var: Term.VarRec;
   asset_vars: Term.VarRec[];
 }

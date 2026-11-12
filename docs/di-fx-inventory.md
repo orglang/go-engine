@@ -122,7 +122,7 @@ A repository-wide inventory of checked-in `*_test.go` files found the following 
 - The checked-in tests do not include a dedicated test that builds the production composition from `cmd/engine/main.go`.
 - The existing DB adapter tests do not exercise `newPoolPgx`'s Fx `OnStart`/`OnStop` hooks.
 
-This identifies candidate gaps, not a requirement to add a test for every hook. Before adding characterization tests, run the existing unit baseline and choose only stable observable contracts that can be tested without relying on timing or external infrastructure. In particular, avoid freezing accidental behavior such as asynchronous, non-awaited pool closure as a desired contract; record it as current behavior to review in the lifecycle migration.
+This identifies candidate gaps, not a requirement to add a test for every hook. Before adding characterization tests, use the latest successful `main` CI run as the historical baseline and choose only stable observable contracts that can be tested without relying on timing or external infrastructure. A fresh unit run on this documentation-only PR is not a prerequisite. In particular, avoid freezing accidental behavior such as asynchronous, non-awaited pool closure as a desired contract; record it as current behavior to review in the lifecycle migration.
 
 The engine Taskfile defines these checks:
 
@@ -155,10 +155,10 @@ This document does not claim that all possible dynamic or indirect Fx usage has 
 
 ### CI invocation
 
-The current `Sources Check` pull-request workflow executes the unit baseline with:
+The current `Sources Check` pull-request workflow's unit-test command is:
 
 ```sh
 GOWORK=off go tool -modfile=gear.mod task tests:unit
 ```
 
-The workflow skips draft pull requests. A successful run on the updated PR head is still required to establish the fresh baseline.
+The workflow skips draft pull requests, and this documentation-only PR does not trigger the code-change test path. No fresh unit run is required for this inventory stage; implementation PRs must run the relevant checks against their own code changes.

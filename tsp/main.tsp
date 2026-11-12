@@ -2,6 +2,7 @@ import "@typespec/http";
 import "@typespec/openapi3";
 
 import "./models/any/type.tsp";
+import "./models/any/type/link.tsp";
 import "./models/any/term.tsp";
 import "./models/any/comp.tsp";
 import "./models/any/conn.tsp";

@@ -1,18 +1,18 @@
 import "../common.tsp";
-namespace OrgLang.Engine;
+namespace OrgLang.Engine.Pool;
 
 /** Pool type expression specification (go-sdk/pool/typeexp). */
-model PoolTypeExprSpec {
+model TypeExprSpec {
   kind: "one" | "link" | "plus" | "with" | "tensor" | "lolli" | "up" | "down";
-  link?: TypeLinkSpec;
-  plus?: PoolTypeLaborSpec;
-  with?: PoolTypeLaborSpec;
-  tensor?: PoolTypeResourceSpec;
-  lolli?: PoolTypeResourceSpec;
-  up?: PoolTypeShiftSpec;
-  down?: PoolTypeShiftSpec;
+  link?: Common.TypeLinkSpec;
+  plus?: TypeLaborSpec;
+  with?: TypeLaborSpec;
+  tensor?: TypeResourceSpec;
+  lolli?: TypeResourceSpec;
+  up?: TypeShiftSpec;
+  down?: TypeShiftSpec;
 }
 
-model PoolTypeLaborSpec { proc_qns: string[]; cont_exp: PoolTypeExprSpec; }
-model PoolTypeResourceSpec { val_exp: PoolTypeExprSpec; cont_exp: PoolTypeExprSpec; }
-model PoolTypeShiftSpec { cont_exp: PoolTypeExprSpec; }
+model TypeLaborSpec { proc_qns: string[]; cont_exp: TypeExprSpec; }
+model TypeResourceSpec { val_exp: TypeExprSpec; cont_exp: TypeExprSpec; }
+model TypeShiftSpec { cont_exp: TypeExprSpec; }

@@ -3,5 +3,5 @@ import "../any/comp.tsp";
 namespace OrgLang.Engine.Proc;
 
 model CompSnap {
-  comp_ref: OrgLang.Engine.Any.Comp.Ref;
+  comp_ref: OrgLang.Engine.Any.CompRef;
 }

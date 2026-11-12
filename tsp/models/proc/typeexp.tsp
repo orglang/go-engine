@@ -14,7 +14,7 @@ model TypeExprSpec {
   down?: TypeShiftSpec;
 }
 
-model TypeProductSpec { val_es: TypeExprSpec; cont_es: TypeExprSpec; }
+model TypeProductSpec { val_exprr: TypeExprSpec; cont_exprr: TypeExprSpec; }
 model TypeSumSpec { choices: TypeChoiceSpec[]; }
-model TypeChoiceSpec { lab_qn: string; cont_es: TypeExprSpec; }
-model TypeShiftSpec { cont_es: TypeExprSpec; }
+model TypeChoiceSpec { lab_qn: string; cont_exprr: TypeExprSpec; }
+model TypeShiftSpec { cont_exprr: TypeExprSpec; }

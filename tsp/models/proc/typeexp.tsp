@@ -12,7 +12,6 @@ model ProcTypeExprSpec {
   down?: ProcTypeShiftSpec;
 }
 
-model TypeLinkSpec { type_qn: string; }
 model ProcTypeProductSpec { val_es: ProcTypeExprSpec; cont_es: ProcTypeExprSpec; }
 model ProcTypeSumSpec { choices: ProcTypeChoiceSpec[]; }
 model ProcTypeChoiceSpec { lab_qn: string; cont_es: ProcTypeExprSpec; }

@@ -5,5 +5,5 @@ namespace OrgLang.Proc;
 
 model StepSpec {
   comp_ref: Any.CompRef;
-  proc_exp: Proc.TermExprSpec;
+  proc_expr: Proc.TermExprSpec;
 }

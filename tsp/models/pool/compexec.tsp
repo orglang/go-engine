@@ -3,7 +3,7 @@ import "../any/comp.tsp";
 namespace OrgLang.Pool;
 
 model VarSpec {
-  chnl_ph: string;
+  conn_ph: string;
   term_qn: string;
 }
 

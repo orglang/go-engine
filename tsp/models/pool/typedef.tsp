@@ -1,13 +1,13 @@
 import "../common.tsp";
 import "./typeexp.tsp";
-namespace OrgLang.Engine;
+namespace OrgLang.Engine.Pool;
 
-model PoolTypeSpec {
+model TypeSpec {
   qn: string;
-  exp: PoolTypeExprSpec;
+  exp: TypeExprSpec;
 }
 
-model PoolTypeSnap {
-  ref: TypeRef;
-  exp: PoolTypeExprSpec;
+model TypeSnap {
+  ref: Common.TypeRef;
+  exp: TypeExprSpec;
 }

@@ -1,14 +1,15 @@
 import "../type.tsp";
 import "../any/type.tsp";
-import "./typeexp.tsp";
+import "./type/expr.tsp";
+
 namespace OrgLang.Pool;
 
 model DefSpec {
   qn: string;
-  expr: TypeExprSpec;
+  expr: Type.ExprSpec;
 }
 
 model DefSnap {
   ref: Any.TypeRef;
-  exp: TypeExprSpec;
+  exp: Type.ExprSpec;
 }

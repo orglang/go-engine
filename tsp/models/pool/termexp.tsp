@@ -25,4 +25,4 @@ model AcquireSpec { comm_ph: string; cont_exp: TermExprSpec; }
 model ReleaseSpec { comm_ph: string; }
 model AcceptSpec { comm_ph: string; cont_exp: TermExprSpec; }
 model DetachSpec { comm_ph: string; }
-model SpawnSpec { proc_dr: Any.Term.Ref; proc_irs: Any.Comp.Ref[]; }
+model SpawnSpec { proc_dr: Any.TermRef; proc_irs: Any.CompRef[]; }

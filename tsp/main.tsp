@@ -56,7 +56,7 @@ interface EngineApi {
 
   @post
   @route("/xacts/defs")
-  createPoolTypeDef(@body body: Pool.TypeSpec): Created<Any.Type.Ref>;
+  createPoolTypeDef(@body body: Pool.TypeSpec): Created<Any.TypeRef>;
 
   @post
   @route("/procs/decs")
@@ -91,11 +91,11 @@ interface EngineApi {
 
   @post
   @route("/pools/decs")
-  createPoolDecl(@body body: Pool.DeclSpec): Created<Any.Term.Ref>;
+  createPoolDecl(@body body: Pool.DeclSpec): Created<Any.TermRef>;
 
   @post
   @route("/pools/execs")
-  createPoolExec(@body body: Pool.ExecSpec): Created<Any.Comp.Ref>;
+  createPoolExec(@body body: Pool.ExecSpec): Created<Any.CompRef>;
 
   @post
   @route("/pools/execs/steps")
@@ -103,5 +103,5 @@ interface EngineApi {
 
   @post
   @route("/pools/execs/spawns")
-  spawnPoolExec(@body body: Pool.StepSpec): Created<Any.Comp.Ref>;
+  spawnPoolExec(@body body: Pool.StepSpec): Created<Any.CompRef>;
 }

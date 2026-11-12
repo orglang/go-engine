@@ -1,20 +1,19 @@
 import "../common.tsp";
-
-namespace OrgLang.Engine;
+namespace OrgLang.Engine.Proc;
 
 /** Process type expression specification (go-sdk/proc/typeexp). */
-model ProcTypeExprSpec {
+model TypeExprSpec {
   kind: "one" | "link" | "tensor" | "lolli" | "plus" | "with" | "up" | "down";
-  link?: TypeLinkSpec;
-  tensor?: ProcTypeProductSpec;
-  lolli?: ProcTypeProductSpec;
-  plus?: ProcTypeSumSpec;
-  with?: ProcTypeSumSpec;
-  up?: ProcTypeShiftSpec;
-  down?: ProcTypeShiftSpec;
+  link?: Common.TypeLinkSpec;
+  tensor?: TypeProductSpec;
+  lolli?: TypeProductSpec;
+  plus?: TypeSumSpec;
+  with?: TypeSumSpec;
+  up?: TypeShiftSpec;
+  down?: TypeShiftSpec;
 }
 
-model ProcTypeProductSpec { val_es: ProcTypeExprSpec; cont_es: ProcTypeExprSpec; }
-model ProcTypeSumSpec { choices: ProcTypeChoiceSpec[]; }
-model ProcTypeChoiceSpec { lab_qn: string; cont_es: ProcTypeExprSpec; }
-model ProcTypeShiftSpec { cont_es: ProcTypeExprSpec; }
+model TypeProductSpec { val_es: TypeExprSpec; cont_es: TypeExprSpec; }
+model TypeSumSpec { choices: TypeChoiceSpec[]; }
+model TypeChoiceSpec { lab_qn: string; cont_es: TypeExprSpec; }
+model TypeShiftSpec { cont_es: TypeExprSpec; }

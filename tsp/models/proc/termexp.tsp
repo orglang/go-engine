@@ -1,4 +1,4 @@
-namespace OrgLang.Engine.Proc;
+namespace OrgLang.Proc;
 
 /** Process term expression specification (go-sdk/proc/termexp). */
 model TermExprSpec {
@@ -13,12 +13,12 @@ model TermExprSpec {
   fwd?: FwdSpec;
 }
 
-model CloseSpec { comm_ph: string; }
-model WaitSpec { comm_ph: string; cont_es: TermExprSpec; }
-model SendSpec { comm_ph: string; val_ph: string; }
-model RecvSpec { comm_ph: string; bind_ph: string; cont_es: TermExprSpec; }
-model LabSpec { comm_ph: string; pattern_qn: string; }
-model CaseSpec { comm_ph: string; cont_bses: BranchSpec[]; }
+model CloseSpec { conn_ph: string; }
+model WaitSpec { conn_ph: string; cont_es: TermExprSpec; }
+model SendSpec { conn_ph: string; val_ph: string; }
+model RecvSpec { conn_ph: string; bind_ph: string; cont_es: TermExprSpec; }
+model LabSpec { conn_ph: string; pattern_qn: string; }
+model CaseSpec { conn_ph: string; cont_bses: BranchSpec[]; }
 model BranchSpec { pattern_qn: string; cont_es: TermExprSpec; }
 model CallSpec {
   bind_ph: string;
@@ -26,4 +26,4 @@ model CallSpec {
   val_phs: string[];
   cont_es: TermExprSpec;
 }
-model FwdSpec { comm_ph: string; cont_ph: string; }
+model FwdSpec { conn_ph: string; cont_ph: string; }

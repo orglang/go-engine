@@ -41,15 +41,121 @@ model TermVarRec {
   exp_vk: int64;
 }
 
-/** Recursive expression payload; its discriminated variants follow the SDK wire model. */
-model Expr {
-  kind: string;
-  ...Record<unknown>;
+/** Process type expressions (proc/typeexp). */
+model ProcTypeExpr {
+  kind: "one" | "link" | "tensor" | "lolli" | "plus" | "with" | "up" | "down";
+  link?: TypeLinkSpec;
+  tensor?: ProcTypeProductSpec;
+  lolli?: ProcTypeProductSpec;
+  plus?: ProcTypeSumSpec;
+  with?: ProcTypeSumSpec;
+  up?: ProcTypeShiftSpec;
+  down?: ProcTypeShiftSpec;
 }
+
+model TypeLinkSpec {
+  type_qn: string;
+}
+
+model ProcTypeProductSpec {
+  val_es: ProcTypeExpr;
+  cont_es: ProcTypeExpr;
+}
+
+model ProcTypeSumSpec {
+  choices: ProcTypeChoiceSpec[];
+}
+
+model ProcTypeChoiceSpec {
+  lab_qn: string;
+  cont_es: ProcTypeExpr;
+}
+
+model ProcTypeShiftSpec {
+  cont_es: ProcTypeExpr;
+}
+
+/** Process term expressions (proc/termexp). */
+model ProcTermExpr {
+  kind: "close" | "wait" | "send" | "recv" | "lab" | "case" | "link" | "fwd" | "call";
+  close?: ProcCloseSpec;
+  wait?: ProcWaitSpec;
+  send?: ProcSendSpec;
+  recv?: ProcRecvSpec;
+  lab?: ProcLabSpec;
+  case?: ProcCaseSpec;
+  call?: ProcCallSpec;
+  fwd?: ProcFwdSpec;
+}
+
+model ProcCloseSpec { comm_ph: string; }
+model ProcWaitSpec { comm_ph: string; cont_es: ProcTermExpr; }
+model ProcSendSpec { comm_ph: string; val_ph: string; }
+model ProcRecvSpec { comm_ph: string; bind_ph: string; cont_es: ProcTermExpr; }
+model ProcLabSpec { comm_ph: string; pattern_qn: string; }
+model ProcCaseSpec { comm_ph: string; cont_bses: ProcBranchSpec[]; }
+model ProcBranchSpec { pattern_qn: string; cont_es: ProcTermExpr; }
+model ProcCallSpec {
+  bind_ph: string;
+  proc_qn: string;
+  val_phs: string[];
+  cont_es: ProcTermExpr;
+}
+model ProcFwdSpec { comm_ph: string; cont_ph: string; }
+
+/** Pool type expressions (pool/typeexp). */
+model PoolTypeExpr {
+  kind: "one" | "link" | "plus" | "with" | "tensor" | "lolli" | "up" | "down";
+  link?: TypeLinkSpec;
+  plus?: PoolTypeLaborSpec;
+  with?: PoolTypeLaborSpec;
+  tensor?: PoolTypeResourceSpec;
+  lolli?: PoolTypeResourceSpec;
+  up?: PoolTypeShiftSpec;
+  down?: PoolTypeShiftSpec;
+}
+
+model PoolTypeLaborSpec {
+  proc_qns: string[];
+  cont_exp: PoolTypeExpr;
+}
+
+model PoolTypeResourceSpec {
+  val_exp: PoolTypeExpr;
+  cont_exp: PoolTypeExpr;
+}
+
+model PoolTypeShiftSpec {
+  cont_exp: PoolTypeExpr;
+}
+
+/** Pool term expressions (pool/termexp). */
+model PoolTermExpr {
+  kind: "hire" | "fire" | "apply" | "quit" | "acquire" | "release" | "accept" | "detach" | "spawn";
+  hire?: PoolHireSpec;
+  fire?: PoolFireSpec;
+  apply?: PoolApplySpec;
+  quit?: PoolQuitSpec;
+  acquire?: PoolAcquireSpec;
+  release?: PoolReleaseSpec;
+  accept?: PoolAcceptSpec;
+  detach?: PoolDetachSpec;
+  spawn?: PoolSpawnSpec;
+}
+
+model PoolHireSpec { comm_ph: string; proc_qn: string; cont_exp: PoolTermExpr; }
+model PoolFireSpec { comm_ph: string; }
+model PoolApplySpec { comm_ph: string; proc_qn: string; cont_exp: PoolTermExpr; }
+model PoolQuitSpec { comm_ph: string; proc_qn: string; }
+model PoolAcquireSpec { comm_ph: string; cont_exp: PoolTermExpr; }
+model PoolReleaseSpec { comm_ph: string; }
+model PoolAcceptSpec { comm_ph: string; cont_exp: PoolTermExpr; }
+model PoolDetachSpec { comm_ph: string; }
+model PoolSpawnSpec { proc_dr: TermRef; proc_irs: ComponentRef[]; }
 
 model ProcTypeSpec {
   type_qn: string;
-  type_exp: Expr;
+  type_exp: ProcTypeExpr;
 }
 
 model ProcTypeSnap {
@@ -59,7 +165,7 @@ model ProcTypeSnap {
 
 model PoolTypeSpec {
   qn: string;
-  exp: Expr;
+  exp: PoolTypeExpr;
 }
 
 model PoolTypeSnap {
@@ -87,7 +193,7 @@ model PoolDeclSpec {
 
 model ProcStepSpec {
   comp_ref: ComponentRef;
-  proc_exp: Expr;
+  proc_exp: ProcTermExpr;
 }
 
 model PoolExecSpec {
@@ -98,7 +204,7 @@ model PoolExecSpec {
 
 model PoolStepSpec {
   comp_ref: ComponentRef;
-  pool_exp: Expr;
+  pool_exp: PoolTermExpr;
 }
 
 model CompSnap {

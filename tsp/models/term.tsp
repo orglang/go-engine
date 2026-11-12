@@ -1,3 +1,5 @@
+import "./type.tsp";
+
 namespace OrgLang.Engine.Term;
 
 model Ref {

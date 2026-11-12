@@ -5,5 +5,5 @@ namespace OrgLang.Pool;
 
 model StepSpec {
   comp_ref: Any.CompRef;
-  pool_exp: Pool.TermExprSpec;
+  pool_expr: Pool.TermExprSpec;
 }

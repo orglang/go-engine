@@ -1,3 +1,4 @@
+import "../common.tsp";
 namespace OrgLang.Engine;
 
 /** Pool type expression specification (go-sdk/pool/typeexp). */

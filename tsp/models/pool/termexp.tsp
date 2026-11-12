@@ -1,4 +1,6 @@
-import "../common.tsp";
+import "../type.tsp";
+import "../term.tsp";
+import "../comp.tsp";
 namespace OrgLang.Engine.Pool;
 
 /** Pool term expression specification (go-sdk/pool/termexp). */
@@ -23,4 +25,4 @@ model AcquireSpec { comm_ph: string; cont_exp: TermExprSpec; }
 model ReleaseSpec { comm_ph: string; }
 model AcceptSpec { comm_ph: string; cont_exp: TermExprSpec; }
 model DetachSpec { comm_ph: string; }
-model SpawnSpec { proc_dr: Common.TermRef; proc_irs: Common.ComputationRef[]; }
+model SpawnSpec { proc_dr: Term.Ref; proc_irs: Comp.Ref[]; }

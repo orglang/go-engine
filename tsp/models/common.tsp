@@ -16,6 +16,8 @@ model ComputationRef {
   comp_rn: int64;
 }
 
+model TypeLinkSpec { type_qn: string; }
+
 model TermVarSpec {
   chnl_ph: string;
   type_qn: string;

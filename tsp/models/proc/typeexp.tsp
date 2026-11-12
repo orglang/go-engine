@@ -1,3 +1,5 @@
+import "../common.tsp";
+
 namespace OrgLang.Engine;
 
 /** Process type expression specification (go-sdk/proc/typeexp). */

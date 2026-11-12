@@ -35,7 +35,22 @@ tasks:
       - task: tools:install
       - GOWORK=off go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...
       - GOWORK=off go tool -modfile=gear.mod golangci-lint fmt --diff
-      - GOWORK=off go tool -modfile=gear.mod golangci-lint run ./...
+      - cmd: |
+          echo '=== go list ./... ==='
+          if GOWORK=off go list ./...; then
+            echo 'GO_LIST_EXIT=0'
+          else
+            echo "GO_LIST_EXIT=$?"
+          fi
+      - cmd: |
+          echo '=== go list -e ./... ==='
+          if GOWORK=off go list -e ./...; then
+            echo 'GO_LIST_E_EXIT=0'
+          else
+            echo "GO_LIST_E_EXIT=$?"
+          fi
+      - GOWORK=off go tool -modfile=gear.mod golangci-lint --version
+      - GOWORK=off go tool -modfile=gear.mod golangci-lint run -v ./...
 
   sources:prepare:
     desc: Prepare source artifact

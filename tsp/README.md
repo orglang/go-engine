@@ -21,16 +21,20 @@ The `/ssr` web presenter routes are intentionally out of scope.
 
 TypeSpec namespaces follow the Go SDK package boundaries and shared concepts:
 
-- `OrgLang.Engine.Type` — type references and type-link specifications
-- `OrgLang.Engine.Term` — term references, variable specifications, and records
-- `OrgLang.Engine.Comp` — computation references, variable specifications, and snapshots
-- `OrgLang.Engine.Proc` — process declarations, types, steps, and expression specifications
-- `OrgLang.Engine.Pool` — pool declarations, executions, steps, and expression specifications
+- `OrgLang.Engine.Type` — shared type references and type-link specifications
+- `OrgLang.Engine.Term` — shared term references, variable specifications, and records
+- `OrgLang.Engine.Comp` — shared computation identity (`Comp.Ref`)
+- `OrgLang.Engine.Proc` — process declarations, types, and expression specifications
+- `OrgLang.Engine.Proc.Comp` — process computation snapshots and step specifications
+- `OrgLang.Engine.Pool` — pool declarations and expression specifications
+- `OrgLang.Engine.Pool.Comp` — pool computation specs, snapshots, and step specifications
 
-Service operations use concise qualified names such as `Proc.DeclSnap`,
-`Pool.ExecSpec`, `Type.Ref`, `Term.Ref`, and `Comp.Ref`. Models are
-placed in the namespace for the concept they describe, rather than a generic
-`Common` namespace.
+The `Comp.Ref` model is shared because both process and pool computations use
+the same computation identity. Models describing computation behavior or
+payloads are scoped to their owning context: `Proc.Comp.*` and `Pool.Comp.*`.
+Service operations use qualified names such as `Proc.Comp.Snap`,
+`Proc.Comp.StepSpec`, `Pool.Comp.ExecSpec`, `Pool.Comp.Snap`,
+`Pool.Comp.StepSpec`, `Type.Ref`, and `Term.Ref`.
 
 The four expression specifications remain distinct and recursive:
 `Proc.TypeExprSpec`, `Proc.TermExprSpec`, `Pool.TypeExprSpec`, and
@@ -41,9 +45,9 @@ The four expression specifications remain distinct and recursive:
 ## Naming
 
 The Go wire prefix `comp` denotes computation, not component. The TypeSpec
-namespace is therefore `Comp`, with concise model names such as `Comp.Ref`,
-`Comp.VarSpec`, and `Comp.Snap`. Wire property names such as `comp_id`
-and `comp_ref` remain unchanged.
+namespace is therefore `Comp`, with the shared identity model `Comp.Ref`.
+Context-specific models live under `Proc.Comp` and `Pool.Comp`. Wire
+property names such as `comp_id` and `comp_ref` remain unchanged.
 
 ## Revision query
 

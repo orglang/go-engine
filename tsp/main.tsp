@@ -74,7 +74,7 @@ interface EngineApi {
 
   @post
   @route("/procs/{id}/steps")
-  takeProcStep(@path id: string, @body body: Proc.Comp.StepSpec): OkNoBody;
+  takeProcStep(@path id: string, @body body: Proc.StepSpec): OkNoBody;
 
   @post
   @route("/types")
@@ -103,5 +103,5 @@ interface EngineApi {
 
   @post
   @route("/pools/execs/spawns")
-  spawnPoolExec(@body body: Pool.Comp.StepSpec): Created<Any.Comp.Ref>;
+  spawnPoolExec(@body body: Pool.StepSpec): Created<Any.Comp.Ref>;
 }

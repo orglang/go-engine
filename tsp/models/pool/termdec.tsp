@@ -1,4 +1,5 @@
-import "../term.tsp";
+import "../term.tsp"
+import "../any/term.tsp";;
 namespace OrgLang.Engine.Pool;
 
 model DeclSpec {

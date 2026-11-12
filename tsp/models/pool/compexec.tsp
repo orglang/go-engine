@@ -1,12 +1,14 @@
-import "../common.tsp";
+import "../type.tsp";
+import "../term.tsp";
+import "../comp.tsp";
 namespace OrgLang.Engine.Pool;
 
 model ExecSpec {
   term_qn: string;
-  liab_var: Common.CompVarSpec;
-  asset_vars: Common.CompVarSpec[];
+  liab_var: Comp.VarSpec;
+  asset_vars: Comp.VarSpec[];
 }
 
-model ComputationSnap {
-  comp_ref: Common.ComputationRef;
+model Snap {
+  comp_ref: Comp.Ref;
 }

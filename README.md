@@ -21,8 +21,6 @@
 - `task specs:generate` — генерация OpenAPI из TypeSpec.
 - `task specs:check` — компиляция TypeSpec и проверка актуальности сгенерированного OpenAPI.
 - `task specs:verify` — проверка спецификаций перед публикацией.
-
-
 - `task sources:check` — генерация/проверка исходников и линтеры.
 - `task tests:unit` — unit-тесты.
 - `task tests:it` — интеграционные тесты.

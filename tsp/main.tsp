@@ -23,7 +23,7 @@ using TypeSpec.Http;
 
 @service(#{ title: "OrgLang Go Engine API" })
 @server("http://localhost:8080", "Local development server")
-namespace OrgLang.Engine;
+namespace OrgLang;
 
 model Created<T> {
   @statusCode statusCode: 201;
@@ -56,16 +56,16 @@ interface EngineApi {
 
   @post
   @route("/xacts/defs")
-  createPoolTypeDef(@body body: Pool.TypeSpec): Created<Any.TypeRef>;
+  createPoolTypeDef(@body body: Pool.DefSpec): Created<Any.TypeRef>;
 
   @post
   @route("/procs/decs")
-  createProcDecl(@body body: Proc.DeclSpec): Created<Proc.DeclSnap>;
+  createProcDecl(@body body: Proc.DecSpec): Created<Proc.DecSnap>;
 
   /** Omit revision to request the latest available declaration revision. */
   @get
   @route("/procs/decs/{id}")
-  getProcDecl(@path id: string, @query revision?: int64): Ok<Proc.DeclSnap>;
+  getProcDecl(@path id: string, @query revision?: int64): Ok<Proc.DecSnap>;
 
   /** Omit revision to request the latest available process computation revision. */
   @get
@@ -78,20 +78,20 @@ interface EngineApi {
 
   @post
   @route("/types")
-  createProcType(@body body: Proc.TypeSpec): Created<Proc.TypeSnap>;
+  createProcType(@body body: Proc.DefSpec): Created<Proc.DefSnap>;
 
   /** Omit revision to request the latest available type revision. */
   @get
   @route("/types/{id}")
-  getProcType(@path id: string, @query revision?: int64): Ok<Proc.TypeSnap>;
+  getProcType(@path id: string, @query revision?: int64): Ok<Proc.DefSnap>;
 
   @patch
   @route("/types/{id}")
-  modifyProcType(@path id: string, @body body: Proc.TypeSnap): Ok<Proc.TypeSnap>;
+  modifyProcType(@path id: string, @body body: Proc.DefSnap): Ok<Proc.DefSnap>;
 
   @post
   @route("/pools/decs")
-  createPoolDecl(@body body: Pool.DeclSpec): Created<Any.TermRef>;
+  createPoolDecl(@body body: Pool.DecSpec): Created<Any.TermRef>;
 
   @post
   @route("/pools/execs")

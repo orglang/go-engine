@@ -14,7 +14,9 @@ npm install
 npm run build
 ```
 
-The contract currently describes the 13 registered `/api/v1` operations.
+The contract describes 13 target `/api/v1` operations. Its resource paths are
+intentionally normalized and are not yet the paths registered by the Echo server.
+The server routes and existing clients remain unchanged until a separate migration.
 The `/ssr` web presenter routes are intentionally out of scope.
 
 ## Model organization

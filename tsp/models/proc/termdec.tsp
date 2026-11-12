@@ -1,4 +1,5 @@
-import "../term.tsp";
+import "../term.tsp"
+import "../any/term.tsp";;
 namespace OrgLang.Engine.Proc;
 
 model DeclSpec {
@@ -8,7 +9,7 @@ model DeclSpec {
 }
 
 model DeclSnap {
-  term_ref: Term.Ref;
+  term_ref: Any.Term.Ref;
   liab_var: Term.VarRec;
   asset_vars: Term.VarRec[];
 }

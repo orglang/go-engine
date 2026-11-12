@@ -14,16 +14,16 @@ model TermExprSpec {
 }
 
 model CloseSpec { conn_ph: string; }
-model WaitSpec { conn_ph: string; cont_es: TermExprSpec; }
+model WaitSpec { conn_ph: string; cont_exprr: TermExprSpec; }
 model SendSpec { conn_ph: string; val_ph: string; }
-model RecvSpec { conn_ph: string; bind_ph: string; cont_es: TermExprSpec; }
+model RecvSpec { conn_ph: string; bind_ph: string; cont_exprr: TermExprSpec; }
 model LabSpec { conn_ph: string; pattern_qn: string; }
 model CaseSpec { conn_ph: string; cont_bses: BranchSpec[]; }
-model BranchSpec { pattern_qn: string; cont_es: TermExprSpec; }
+model BranchSpec { pattern_qn: string; cont_exprr: TermExprSpec; }
 model CallSpec {
   bind_ph: string;
   proc_qn: string;
   val_phs: string[];
-  cont_es: TermExprSpec;
+  cont_exprr: TermExprSpec;
 }
 model FwdSpec { conn_ph: string; cont_ph: string; }

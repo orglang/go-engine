@@ -1,5 +1,5 @@
-import "../type.tsp"
-import "../any/type.tsp";;
+import "../type.tsp";
+import "../any/type.tsp";
 namespace OrgLang.Engine.Proc;
 
 /** Process type expression specification (go-sdk/proc/typeexp). */

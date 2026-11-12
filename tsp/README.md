@@ -22,21 +22,27 @@ The `/ssr` web presenter routes are intentionally out of scope.
 TypeSpec namespaces use `OrgLang` as the root and follow the Go SDK package boundaries and shared concepts:
 
 - `OrgLang.Any` (`TypeRef`, `TermRef`, and `CompRef`) — shared type, term, and computation identities
+- `OrgLang.Conn` — connection variable specifications and records
 - `OrgLang.Type` — type-link specifications
-- `OrgLang.Term` — variable specifications and records
-- `OrgLang.Proc` — process declarations, definitions, computation snapshots, step specs, and expression specifications
-- `OrgLang.Pool` — pool declarations, definitions, computation snapshots/specs/steps, and expression specifications
+- `OrgLang.Proc` — process declarations, definitions, computation snapshots, and step specs
+- `OrgLang.Proc.Type` / `OrgLang.Proc.Term` — process type and term expression specifications
+- `OrgLang.Pool` — pool declarations, definitions, computation snapshots/specs, and steps
+- `OrgLang.Pool.Type` / `OrgLang.Pool.Term` — pool type and term expression specifications
 
-Only semantic identities shared by process and pool contexts live under `Any`. The service is named `OrgLang Go Engine API`; `Engine` is not repeated as a namespace segment.
+Only semantic identities shared by process and pool contexts live under `Any`.
+The service is named `OrgLang Go Engine API`; `Engine` is not repeated as a namespace segment.
 Context-specific computation models are direct members of their owning namespaces:
 `Proc.CompSnap`, `Proc.StepSpec`, `Pool.CompSnap`, `Pool.VarSpec`,
 `Pool.ExecSpec`, and `Pool.StepSpec`.
 
-Declaration models use `DecSpec`/`DecSnap`, and type-definition models use `DefSpec`/`DefSnap`. Process and pool variable specs remain context-specific where their shapes differ.
+Declaration models use `DecSpec`/`DecSnap`, following the existing Go
+implementation's `termdec` packages and `DecSpec`/ `DecSnap` types.
+Type-definition models use `DefSpec`/`DefSnap`. Connection variable
+specifications and records are shared under `Conn`.
 
-The four expression specifications remain distinct and recursive:
-`Proc.TypeExprSpec`, `Proc.TermExprSpec`, `Pool.TypeExprSpec`, and
-`Pool.TermExprSpec`. Their schemas correspond to the respective
+The four expression specifications are distinct and recursive:
+`Proc.Type.ExprSpec`, `Proc.Term.ExprSpec`, `Pool.Type.ExprSpec`, and
+`Pool.Term.ExprSpec`. Their schemas correspond to the respective
 `go-sdk/proc/typeexp`, `go-sdk/proc/termexp`,
 `go-sdk/pool/typeexp`, and `go-sdk/pool/termexp` packages.
 

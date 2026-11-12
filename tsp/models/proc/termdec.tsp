@@ -1,14 +1,14 @@
 import "../common.tsp";
-namespace OrgLang.Engine;
+namespace OrgLang.Engine.Proc;
 
-model ProcDeclSpec {
+model DeclSpec {
   term_qn: string;
-  liab_var: TermVarSpec;
-  asset_vars: TermVarSpec[];
+  liab_var: Common.TermVarSpec;
+  asset_vars: Common.TermVarSpec[];
 }
 
-model ProcDeclSnap {
-  term_ref: TermRef;
-  liab_var: TermVarRec;
-  asset_vars: TermVarRec[];
+model DeclSnap {
+  term_ref: Common.TermRef;
+  liab_var: Common.TermVarRec;
+  asset_vars: Common.TermVarRec[];
 }

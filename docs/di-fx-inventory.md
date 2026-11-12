@@ -52,22 +52,17 @@ Thus, 18 of the 20 production-oriented Fx modules are passed to the production r
 
 The following seven areas match the previously identified inventory gap. “Not wired” is a factual description of the inspected entrypoint, not a recommendation to register every item.
 
-| Area | Existing code | Fx module | Initial observation / decision needed |
-|---|---|---|---|
-| `pool/termexp` | Core and adapter; adapter has `di_fx.go` | Declared, not passed to `fx.New` | Determine whether it is needed by a production use case or intentionally unused |
-| `proc/termexp` | Core and adapter; adapter has `di_fx.go` | Declared, not passed to `fx.New` | Determine whether it is needed by a production use case or intentionally unused |
-| `pool/compstep` | Core and adapter directories | No `di_fx.go` | Determine whether it needs providers or is a data/contract-only package |
-| `proc/compstep` | Core and adapter directories | No `di_fx.go` | Determine whether it needs providers or is a data/contract-only package |
-| `pool/connact` | Core and adapter directories | No `di_fx.go` | Determine whether it needs providers or is a data/contract-only package |
-| `proc/connact` | Core and adapter directories | No `di_fx.go` | Determine whether it needs providers or is a data/contract-only package |
-| `prog` | Core and adapter directories | No `di_fx.go` | Top-level program composition/API is not wired by the current production root |
+| Area | Evidence in current source | Decision for DI migration |
+|---|---|---|
+| `pool/termexp` | `core.Repo` is an alias for `any`; adapter only constructs a logger-bearing DAO. Search found no consumers of `termexp.Repo`. | **Intentionally unwired for now.** Do not register an unused provider. Revisit only when a real production use case consumes this repository. |
+| `proc/termexp` | `core.Repo` exposes `Insert`, but the only adapter implementation returns `nil` without persistence. Search found no consumers of `termexp.Repo`; the `newRepo` helper is marked “for compilation purposes”. | **Intentionally unwired for now.** This is an incomplete persistence port/adapter, not a usable production dependency. Implement persistence and identify a consumer before registering it. |
+| `pool/compstep` | Core contains only `StepSpec`; adapter contains SDK message conversion. It is consumed by pool execution/broker adapters. | **No DI module needed.** It is a data/translation package, not a provider-owning service. |
+| `proc/compstep` | Core contains only `StepSpec`; adapter contains SDK message conversion. It is consumed by process execution adapters. | **No DI module needed.** It is a data/translation package, not a provider-owning service. |
+| `pool/connact` | Defines action record types and DTO conversion. Pool connection persistence composes these records through `pool/compconn` repositories/adapters. | **No DI module needed.** Keep it as a model/serialization concern owned by connection persistence. |
+| `proc/connact` | Defines action record types and DTO conversion. Process connection persistence composes these records through `proc/compconn` repositories/adapters. | **No DI module needed.** Keep it as a model/serialization concern owned by connection persistence. |
+| `prog` | Core `API`/service exists, but `Create` currently returns nil without work. Echo controller and SDK conversion exist, but there is no `di_fx.go` and no production route registration. | **Reserve as the future top-level composition boundary, not as a provider to wire in this inventory.** Implement actual program orchestration and its dependencies first; then expose it through `prog` composition and an explicit application/HTTP registration.
 
-For each area, the migration must record one explicit outcome:
-
-1. wire it at the appropriate composition boundary, with a test proving the intended registration/resolution; or
-2. document why it is intentionally not wired and what code path (if any) owns its use.
-
-Do not create empty DI modules solely to make the inventory look complete. In particular, a package that only defines request/step data types may not need container registration.
+These decisions are based on the inspected source at the snapshot commit, not on package names alone. Re-evaluate them if implementation changes introduce real consumers or providers. Do not create empty DI modules solely to make the inventory look complete.
 
 ## 4. Fx API usage found
 

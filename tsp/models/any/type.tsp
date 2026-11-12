@@ -1,4 +1,4 @@
-namespace OrgLang.Engine.Any;
+namespace OrgLang.Any;
 
 /** Shared type identity. */
 model TypeRef {

@@ -1,4 +1,5 @@
-import "../type.tsp";
+import "../type.tsp"
+import "../any/type.tsp";;
 import "./typeexp.tsp";
 namespace OrgLang.Engine.Proc;
 
@@ -8,6 +9,6 @@ model TypeSpec {
 }
 
 model TypeSnap {
-  ref: Type.Ref;
+  ref: Any.Type.Ref;
   spec: TypeSpec;
 }

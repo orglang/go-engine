@@ -38,69 +38,88 @@ model Ok<T> {
   @body body: T;
 }
 
-model NoContent {
-  @statusCode statusCode: 204;
-}
-
 model OkNoBody {
   @statusCode statusCode: 200;
 }
 
+model NoContent {
+  @statusCode statusCode: 204;
+}
+
 @route("/api/v1")
 interface EngineApi {
-  /** Submit program source text. */
+  // Programs
+
+  /** Submit program source text for parsing and registration. */
   @post
   @route("/progs")
   createProgram(@body body: string): CreatedNoBody;
 
+  // Pool type definitions
+
+  /** Create a pool-level type definition. */
   @post
   @route("/xacts/defs")
-  createPoolTypeDef(@body body: Pool.Type.DefSpec): Created<Any.TypeRef>;
+  createPoolTypeDefinition(@body body: Pool.Type.DefSpec): Created<Any.TypeRef>;
 
+  // Process declarations and computations
+
+  /** Create a process declaration. */
   @post
   @route("/procs/decs")
-  createProcDecl(@body body: Proc.DecSpec): Created<Proc.DecSnap>;
+  createProcessDeclaration(@body body: Proc.DecSpec): Created<Proc.DecSnap>;
 
-  /** Omit revision to request the latest available declaration revision. */
+  /** Get a process declaration; omit revision to select the latest available revision. */
   @get
   @route("/procs/decs/{id}")
-  getProcDecl(@path id: string, @query revision?: int64): Ok<Proc.DecSnap>;
+  getProcessDeclaration(@path id: string, @query revision?: int64): Ok<Proc.DecSnap>;
 
-  /** Omit revision to request the latest available process computation revision. */
+  /** Get a process computation; omit revision to select the latest available revision. */
   @get
   @route("/procs/{id}")
-  getProc(@path id: string, @query revision?: int64): Ok<Proc.CompSnap>;
+  getProcessComputation(@path id: string, @query revision?: int64): Ok<Proc.CompSnap>;
 
+  /** Apply one step to a process computation. */
   @post
   @route("/procs/{id}/steps")
-  takeProcStep(@path id: string, @body body: Proc.StepSpec): OkNoBody;
+  stepProcessComputation(@path id: string, @body body: Proc.StepSpec): OkNoBody;
 
+  // Process type definitions
+
+  /** Create a process type definition. */
   @post
   @route("/types")
-  createProcType(@body body: Proc.Type.DefSpec): Created<Proc.Type.DefSnap>;
+  createProcessTypeDefinition(@body body: Proc.Type.DefSpec): Created<Proc.Type.DefSnap>;
 
-  /** Omit revision to request the latest available type revision. */
+  /** Get a process type definition; omit revision to select the latest available revision. */
   @get
   @route("/types/{id}")
-  getProcType(@path id: string, @query revision?: int64): Ok<Proc.Type.DefSnap>;
+  getProcessTypeDefinition(@path id: string, @query revision?: int64): Ok<Proc.Type.DefSnap>;
 
+  /** Update a process type definition. */
   @patch
   @route("/types/{id}")
-  modifyProcType(@path id: string, @body body: Proc.Type.DefSnap): Ok<Proc.Type.DefSnap>;
+  updateProcessTypeDefinition(@path id: string, @body body: Proc.Type.DefSnap): Ok<Proc.Type.DefSnap>;
 
+  // Pool declarations and executions
+
+  /** Create a pool declaration. */
   @post
   @route("/pools/decs")
-  createPoolDecl(@body body: Pool.DecSpec): Created<Any.TermRef>;
+  createPoolDeclaration(@body body: Pool.DecSpec): Created<Any.TermRef>;
 
+  /** Create a pool execution. */
   @post
   @route("/pools/execs")
-  createPoolExec(@body body: Any.ExecSpec): Created<Any.CompRef>;
+  createPoolExecution(@body body: Any.ExecSpec): Created<Any.CompRef>;
 
+  /** Apply one step to a pool execution. */
   @post
   @route("/pools/execs/steps")
-  takePoolStep(@body body: Pool.StepSpec): NoContent;
+  stepPoolExecution(@body body: Pool.StepSpec): NoContent;
 
+  /** Spawn a child execution from a pool execution. */
   @post
   @route("/pools/execs/spawns")
-  spawnPoolExec(@body body: Pool.StepSpec): Created<Any.CompRef>;
+  spawnPoolExecution(@body body: Pool.StepSpec): Created<Any.CompRef>;
 }

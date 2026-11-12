@@ -51,6 +51,17 @@ computation identity is `Any.CompRef`; context-specific computation models
 are grouped in their owning `Proc.Comp` and `Pool.Comp` files. Wire property
 names such as `comp_id` and `comp_ref` remain unchanged.
 
+## Type definition updates
+
+Process type definitions are replaced with a complete snapshot using
+`PUT /api/v1/processes/types/{id}`. This is the target contract semantics;
+the current Echo implementation still exposes PATCH and is not changed by
+this contract-only PR.
+
+Pool type definitions currently have a create operation only. Retrieval and
+update operations are intentionally not inferred from the process API; their
+need and semantics remain to be decided.
+
 ## Revision query
 
 The three retrieval operations accept an optional `revision` query parameter.

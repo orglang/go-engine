@@ -1,7 +1,7 @@
 import "../any/comp.tsp";
 
-namespace OrgLang.Engine.Proc;
+namespace OrgLang.Proc;
 
 model CompSnap {
-  comp_ref: OrgLang.Engine.Any.CompRef;
+  comp_ref: Any.CompRef;
 }

@@ -1,7 +1,7 @@
 import "./type.tsp";
 import "./any/type.tsp";
 
-namespace OrgLang.Engine.Term;
+namespace OrgLang.Term;
 
 model VarSpec {
   chnl_ph: string;
@@ -11,5 +11,5 @@ model VarSpec {
 model VarRec {
   type_ref: Any.TypeRef;
   chnl_ph: string;
-  exp_vk: int64;
+  exp_ck: int64;
 }

@@ -1,4 +1,4 @@
-namespace OrgLang.Engine;
+namespace OrgLang.Engine.Common;
 
 model TermRef {
   term_id: string;
@@ -10,7 +10,7 @@ model TypeRef {
   type_rn: int64;
 }
 
-/** Reference to a computation, not a generic component. */
+/** Reference to a computation (the Go wire prefix is comp_). */
 model ComputationRef {
   comp_id: string;
   comp_rn: int64;
@@ -23,7 +23,7 @@ model TermVarSpec {
   type_qn: string;
 }
 
-model ComputationVarSpec {
+model CompVarSpec {
   chnl_ph: string;
   term_qn: string;
 }

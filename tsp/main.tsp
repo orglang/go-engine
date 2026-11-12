@@ -110,6 +110,10 @@ model Created<T> {
   @body body: T;
 }
 
+model CreatedNoBody {
+  @statusCode statusCode: 201;
+}
+
 model Ok<T> {
   @statusCode statusCode: 200;
   @body body: T;
@@ -128,7 +132,7 @@ interface EngineApi {
   /** Submit program source text. */
   @post
   @route("/progs")
-  createProgram(@body body: string): NoContent;
+  createProgram(@body body: string): CreatedNoBody;
 
   @post
   @route("/xacts/defs")

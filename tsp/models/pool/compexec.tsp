@@ -1,6 +1,6 @@
 import "../any/comp.tsp";
 
-namespace OrgLang.Engine.Pool;
+namespace OrgLang.Pool;
 
 model VarSpec {
   chnl_ph: string;
@@ -14,5 +14,5 @@ model ExecSpec {
 }
 
 model CompSnap {
-  comp_ref: OrgLang.Engine.Any.CompRef;
+  comp_ref: Any.CompRef;
 }

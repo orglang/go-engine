@@ -27,8 +27,9 @@ this specification.
 
 ## Model fidelity
 
-The expression payload is currently represented as an open object with a
-required `kind` discriminator. The SDK contains separate recursive expression
-variants for process types, pool types, process steps, and pool steps. Those
-variant schemas should be expanded in a follow-up contract refinement rather
-than silently treating the current open shape as exhaustive.
+Expression payloads are modeled separately for the four SDK expression
+families: `ProcTypeExpr`, `ProcTermExpr`, `PoolTypeExpr`, and
+`PoolTermExpr`. Each is recursive and has its own `kind` variants and
+payload shapes, matching the corresponding `go-sdk/proc/*exp` and
+`go-sdk/pool/*exp` packages. Keep these schemas separate when evolving the
+contract; similar names do not imply interchangeable wire formats.

@@ -1,4 +1,4 @@
-namespace OrgLang.Engine.Any;
+namespace OrgLang.Any;
 
 /** Shared computation identity used by process and pool computations. */
 model CompRef {

@@ -1,7 +1,7 @@
-namespace OrgLang.Engine.Any.Term;
+namespace OrgLang.Engine.Any;
 
 /** Shared term identity. */
-model Ref {
+model TermRef {
   term_id: string;
   term_rn: int64;
 }

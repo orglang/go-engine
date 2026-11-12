@@ -7,22 +7,20 @@ import (
 	"github.com/spf13/viper"
 )
 
-func newViperDriver(logger *slog.Logger) *viperDriver {
+func newViperDriver(logger *slog.Logger) (*viperDriver, error) {
 	driver := viper.New()
 	driver.AddConfigPath(".")
 	driver.SetConfigType("yaml")
 	driver.SetConfigName("reference")
-	readErr := driver.ReadInConfig()
-	if readErr != nil {
-		panic(readErr)
+	if err := driver.ReadInConfig(); err != nil {
+		return nil, err
 	}
 	driver.SetConfigName("application")
-	mergeErr := driver.MergeInConfig()
-	if mergeErr != nil {
+	if err := driver.MergeInConfig(); err != nil {
 		logger.Warn("falling back to default config")
 	}
 	name := slog.String("name", reflect.TypeFor[viperDriver]().Name())
-	return &viperDriver{driver, logger.With(name)}
+	return &viperDriver{driver, logger.With(name)}, nil
 }
 
 type viperDriver struct {

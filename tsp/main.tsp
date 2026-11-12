@@ -62,7 +62,7 @@ model PoolTypeSpec {
   exp: Expr;
 }
 
-model PoolTypeSnapshot {
+model PoolTypeSnap {
   ref: TypeRef;
   exp: Expr;
 }
@@ -79,7 +79,7 @@ model ProcDeclSnap {
   asset_vars: TermVarRec[];
 }
 
-model PoolDeclarationSpec {
+model PoolDeclSpec {
   desc_qn: string;
   liab_var: TermVarSpec;
   asset_vars: TermVarSpec[];
@@ -132,16 +132,16 @@ interface EngineApi {
 
   @post
   @route("/xacts/defs")
-  createPoolTypeDefinition(@body body: PoolTypeSpec): Created<TypeRef>;
+  createPoolTypeDef(@body body: PoolTypeSpec): Created<TypeRef>;
 
   @post
   @route("/procs/decs")
-  createProcessDeclaration(@body body: ProcDeclSpec): Created<ProcDeclSnap>;
+  createProcDecl(@body body: ProcDeclSpec): Created<ProcDeclSnap>;
 
   /** Omit revision to request the latest available declaration revision. */
   @get
   @route("/procs/decs/{id}")
-  getProcessDeclaration(
+  getProcDecl(
     @path id: string,
     @query revision?: int64
   ): Ok<ProcDeclSnap>;
@@ -149,38 +149,38 @@ interface EngineApi {
   /** Omit revision to request the latest available process revision. */
   @get
   @route("/procs/{id}")
-  getProcess(
+  getProc(
     @path id: string,
     @query revision?: int64
   ): Ok<CompSnap>;
 
   @post
   @route("/procs/{id}/steps")
-  takeProcessStep(@path id: string, @body body: ProcStepSpec): OkNoBody;
+  takeProcStep(@path id: string, @body body: ProcStepSpec): OkNoBody;
 
   @post
   @route("/types")
-  createProcessType(@body body: ProcTypeSpec): Created<ProcTypeSnap>;
+  createProcType(@body body: ProcTypeSpec): Created<ProcTypeSnap>;
 
   /** Omit revision to request the latest available type revision. */
   @get
   @route("/types/{id}")
-  getProcessType(
+  getProcType(
     @path id: string,
     @query revision?: int64
   ): Ok<ProcTypeSnap>;
 
   @patch
   @route("/types/{id}")
-  modifyProcessType(@path id: string, @body body: ProcTypeSnap): Ok<ProcTypeSnap>;
+  modifyProcType(@path id: string, @body body: ProcTypeSnap): Ok<ProcTypeSnap>;
 
   @post
   @route("/pools/decs")
-  createPoolDeclaration(@body body: PoolDeclarationSpec): Created<TermRef>;
+  createPoolDecl(@body body: PoolDeclSpec): Created<TermRef>;
 
   @post
   @route("/pools/execs")
-  createPoolExecution(@body body: PoolExecSpec): Created<ComponentRef>;
+  createPoolExec(@body body: PoolExecSpec): Created<ComponentRef>;
 
   @post
   @route("/pools/execs/steps")
@@ -188,5 +188,5 @@ interface EngineApi {
 
   @post
   @route("/pools/execs/spawns")
-  spawnPoolExecution(@body body: PoolStepSpec): Created<ComponentRef>;
+  spawnPoolExec(@body body: PoolStepSpec): Created<ComponentRef>;
 }

@@ -19,26 +19,22 @@ The `/ssr` web presenter routes are intentionally out of scope.
 
 ## Model organization
 
-TypeSpec namespaces use `OrgLang` as the root and follow the Go SDK package boundaries and shared concepts:
+TypeSpec namespaces use `OrgLang` as the root and follow domain concepts:
 
-- `OrgLang.Any` (`TypeRef`, `TermRef`, and `CompRef`) — shared type, term, and computation identities
-- `OrgLang.Conn` — connection variable specifications and records
+- `OrgLang.Any` — shared semantic identities (`TypeRef`, `TermRef`, `CompRef`)
+- `OrgLang.Any.Conn` — shared connection variable specs and records
+- `OrgLang.Any.Comp.VarSpec` — pool computation variable specs
 - `OrgLang.Type` — type-link specifications
-- `OrgLang.Proc` — process declarations, definitions, computation snapshots, and step specs
-- `OrgLang.Proc.Type` / `OrgLang.Proc.Term` — process type and term expression specifications
-- `OrgLang.Pool` — pool declarations, definitions, computation snapshots/specs, and steps
-- `OrgLang.Pool.Type` / `OrgLang.Pool.Term` — pool type and term expression specifications
+- `OrgLang.Proc` — process declarations, computation snapshots and steps
+- `OrgLang.Proc.Type` / `OrgLang.Proc.Term` — process type and term expressions; type definitions live in `Proc.Type.DefSpec` / `DefSnap`
+- `OrgLang.Pool` — pool declarations, computation snapshots, execution specs and steps
+- `OrgLang.Pool.Type` / `OrgLang.Pool.Term` — pool type and term expressions; type definitions live in `Pool.Type.DefSpec` / `DefSnap`
 
-Only semantic identities shared by process and pool contexts live under `Any`.
 The service is named `OrgLang Go Engine API`; `Engine` is not repeated as a namespace segment.
-Context-specific computation models are direct members of their owning namespaces:
-`Proc.CompSnap`, `Proc.StepSpec`, `Pool.CompSnap`, `Pool.VarSpec`,
-`Pool.ExecSpec`, and `Pool.StepSpec`.
-
 Declaration models use `DecSpec`/`DecSnap`, following the existing Go
-implementation's `termdec` packages and `DecSpec`/ `DecSnap` types.
-Type-definition models use `DefSpec`/`DefSnap`. Connection variable
-specifications and records are shared under `Conn`.
+implementation's `termdec` packages and types. Type definitions use
+`Type.DefSpec`/`Type.DefSnap`. Process and pool computation models are
+grouped in `Proc.Comp` and `Pool.Comp`.
 
 The four expression specifications are distinct and recursive:
 `Proc.Type.ExprSpec`, `Proc.Term.ExprSpec`, `Pool.Type.ExprSpec`, and
@@ -49,9 +45,9 @@ The four expression specifications are distinct and recursive:
 ## Naming
 
 The Go wire prefix `comp` denotes computation, not component. Shared
-computation identity is `Any.CompRef`; context-specific snapshots and step
-specifications are named directly in `Proc` and `Pool`. Wire property names
-such as `comp_id` and `comp_ref` remain unchanged.
+computation identity is `Any.CompRef`; context-specific computation models
+are grouped in their owning `Proc.Comp` and `Pool.Comp` files. Wire property
+names such as `comp_id` and `comp_ref` remain unchanged.
 
 ## Revision query
 

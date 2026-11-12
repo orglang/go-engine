@@ -10,5 +10,5 @@ model DefSpec {
 
 model DefSnap {
   ref: Any.TypeRef;
-  exp: ExprSpec;
+  expr: ExprSpec;
 }

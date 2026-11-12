@@ -19,24 +19,30 @@ The `/ssr` web presenter routes are intentionally out of scope.
 
 ## Model organization
 
-Models are split under `models/` to follow the corresponding Go SDK package
-boundaries. Process models live under `models/proc/`; pool models live under
-`models/pool/`; shared references and variable records live in
-`models/common.tsp`. `main.tsp` contains service metadata and HTTP routes.
+TypeSpec namespaces and files follow the Go SDK package boundaries:
 
-The four expression specifications are distinct and recursive:
-`ProcTypeExprSpec`, `ProcTermExprSpec`, `PoolTypeExprSpec`, and
-`PoolTermExprSpec`. Their schemas mirror the respective
+- `OrgLang.Engine.Common` — shared references and variable records
+- `OrgLang.Engine.Proc` — process declarations, types, steps, and expression specs
+- `OrgLang.Engine.Pool` — pool declarations, executions, steps, and expression specs
+
+For example, service operations refer to `Proc.DeclSnap`,
+`Proc.TypeSpec`, `Pool.ExecSpec`, and `Common.TermRef`. Within each
+namespace, model names do not repeat the package prefix.
+
+The four expression specifications remain distinct and recursive:
+`Proc.TypeExprSpec`, `Proc.TermExprSpec`, `Pool.TypeExprSpec`, and
+`Pool.TermExprSpec`. Their schemas correspond to the respective
 `go-sdk/proc/typeexp`, `go-sdk/proc/termexp`,
-`go-sdk/pool/typeexp`, and `go-sdk/pool/termexp` packages. Do not merge
-these into a generic expression model.
+`go-sdk/pool/typeexp`, and `go-sdk/pool/termexp` packages.
 
 ## Naming
 
-The `comp` prefix in the Go wire fields denotes computation, not component.
-The TypeSpec model names therefore use `Computation` (for example,
-`ComputationRef`, `ComputationVarSpec`, and `ComputationSnap`).
-Wire property names such as `comp_id` and `comp_ref` remain unchanged.
+The Go wire prefix `comp` denotes computation, not component. In TypeSpec,
+`Common.ComputationRef`, `Common.CompVarSpec`, and
+`Pool.ComputationSnap` make that distinction explicit without repeating
+the long word in every model name. The `CompVarSpec` name is deliberately
+short; its `comp` prefix means computation. Wire property names such as
+`comp_id` and `comp_ref` remain unchanged.
 
 ## Revision query
 

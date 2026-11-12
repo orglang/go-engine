@@ -151,9 +151,14 @@ type App struct {
 // are not instantiated automatically; composition code must resolve required
 // services before calling Start.
 func NewApp(packages ...func(do.Injector)) *App {
-	injector := NewContainer(packages...)
 	lifecycle := NewLifecycle()
-	do.ProvideValue[Lifecycle](injector, lifecycle)
+	allPackages := make([]func(do.Injector), 0, len(packages)+1)
+	allPackages = append(allPackages, func(i do.Injector) {
+		do.ProvideValue[Lifecycle](i, lifecycle)
+	})
+	allPackages = append(allPackages, packages...)
+
+	injector := NewContainer(allPackages...)
 	return &App{injector: injector, lifecycle: lifecycle}
 }
 

@@ -17,6 +17,27 @@ npm run build
 The contract currently describes the 13 registered `/api/v1` operations.
 The `/ssr` web presenter routes are intentionally out of scope.
 
+## Model organization
+
+Models are split under `models/` to follow the corresponding Go SDK package
+boundaries. Process models live under `models/proc/`; pool models live under
+`models/pool/`; shared references and variable records live in
+`models/common.tsp`. `main.tsp` contains service metadata and HTTP routes.
+
+The four expression specifications are distinct and recursive:
+`ProcTypeExprSpec`, `ProcTermExprSpec`, `PoolTypeExprSpec`, and
+`PoolTermExprSpec`. Their schemas mirror the respective
+`go-sdk/proc/typeexp`, `go-sdk/proc/termexp`,
+`go-sdk/pool/typeexp`, and `go-sdk/pool/termexp` packages. Do not merge
+these into a generic expression model.
+
+## Naming
+
+The `comp` prefix in the Go wire fields denotes computation, not component.
+The TypeSpec model names therefore use `Computation` (for example,
+`ComputationRef`, `ComputationVarSpec`, and `ComputationSnap`).
+Wire property names such as `comp_id` and `comp_ref` remain unchanged.
+
 ## Revision query
 
 The three retrieval operations accept an optional `revision` query parameter.
@@ -24,12 +45,3 @@ When omitted, the contract describes retrieval of the latest available revision.
 When supplied, it identifies the requested revision. This is an API contract
 statement; persistence support for historical revisions is not asserted by
 this specification.
-
-## Model fidelity
-
-Expression payloads are modeled separately for the four SDK expression
-families: `ProcTypeExpr`, `ProcTermExpr`, `PoolTypeExpr`, and
-`PoolTermExpr`. Each is recursive and has its own `kind` variants and
-payload shapes, matching the corresponding `go-sdk/proc/*exp` and
-`go-sdk/pool/*exp` packages. Keep these schemas separate when evolving the
-contract; similar names do not imply interchangeable wire formats.

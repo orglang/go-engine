@@ -17,12 +17,12 @@ model TermExprSpec {
   spawn?: SpawnSpec;
 }
 
-model HireSpec { conn_ph: string; proc_qn: string; cont_exp: TermExprSpec; }
+model HireSpec { conn_ph: string; proc_qn: string; cont_expr: TermExprSpec; }
 model FireSpec { conn_ph: string; }
-model ApplySpec { conn_ph: string; proc_qn: string; cont_exp: TermExprSpec; }
+model ApplySpec { conn_ph: string; proc_qn: string; cont_expr: TermExprSpec; }
 model QuitSpec { conn_ph: string; proc_qn: string; }
-model AcquireSpec { conn_ph: string; cont_exp: TermExprSpec; }
+model AcquireSpec { conn_ph: string; cont_expr: TermExprSpec; }
 model ReleaseSpec { conn_ph: string; }
-model AcceptSpec { conn_ph: string; cont_exp: TermExprSpec; }
+model AcceptSpec { conn_ph: string; cont_expr: TermExprSpec; }
 model DetachSpec { conn_ph: string; }
 model SpawnSpec { proc_dr: Any.TermRef; proc_irs: Any.CompRef[]; }

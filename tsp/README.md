@@ -73,23 +73,26 @@ Type definition snapshots remain available at
 `GET /api/v1/processes/types/{id}` and
 `GET /api/v1/pools/types/{id}`.
 
-The term definition of a specific process is exposed at
-`GET /api/v1/processes/{id}/definition`; the optional `rn` query selects
-a revision. `PATCH /api/v1/processes/{id}/definition` accepts
-`Proc.Term.DefPatch`, an additive term-expression fragment. It extends the
-existing process definition rather than replacing it. Existing expression
-parts cannot be removed or changed. The extension must be applied atomically:
-if any part conflicts or violates expression constraints, the whole operation
-is rejected. A successful extension creates a new term revision and returns
-the corresponding `Any.TermRef`.
+The term definition subresource is consistent for processes and pools:
 
-Pool type expressions have a separate definition subresource:
-`GET /api/v1/pools/types/{id}/definition` and
-`PATCH /api/v1/pools/types/{id}/definition`. The PATCH accepts
-`Pool.Type.DefPatch`, extends the existing expression, and returns the
-updated `Any.TypeRef`.
+- `GET /api/v1/processes/{id}/definition` returns `Proc.Term.ExprSpec`.
+- `PATCH /api/v1/processes/{id}/definition` accepts a `Proc.Term.ExprSpec`
+  fragment and returns the updated `Any.TermRef`.
+- `GET /api/v1/pools/{id}/definition` returns `Pool.Term.ExprSpec`.
+- `PATCH /api/v1/pools/{id}/definition` accepts a `Pool.Term.ExprSpec`
+  fragment and returns the updated `Any.TermRef`.
 
-There are no PUT operations in this contract.
+Both GET operations accept the optional `rn` revision query. Both PATCH
+operations apply the supplied expression as an additive extension to the
+existing term definition; they do not replace it. Existing expression parts
+cannot be removed or changed. The extension must be applied atomically: if
+any part conflicts or violates expression constraints, the whole operation
+is rejected. A successful extension creates a new term revision.
+
+Type definitions remain separate resources, retrieved through
+`GET /api/v1/processes/types/{id}` and `GET /api/v1/pools/types/{id}`.
+There are no type-definition `/definition` subresources or PUT operations
+in this contract.
 
 ## Response conventions
 

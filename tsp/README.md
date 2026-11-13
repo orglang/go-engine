@@ -85,10 +85,10 @@ There are no PUT operations in this contract.
 
 ## Response conventions
 
-Resource-creating POST operations return `201 Created` with the created
+POST operations that create a resource return `201 Created` with the created
 resource's reference (`TypeRef`, `TermRef`, or `CompRef`) rather than its
-full snapshot. PATCH extension operations return `200 OK` with the new
-reference. Read operations return the requested snapshot, expression, or
+full snapshot. Program submission is command-style and returns `201` without
+a body. PATCH extension operations return `200 OK` with the new reference. Read operations return the requested snapshot, expression, or
 reference collection. Command-style operations that do not create a distinct
 resource return an empty `200 OK` or `204 No Content` response as specified
 by the operation.

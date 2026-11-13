@@ -87,7 +87,7 @@ type PoolTermAcceptSpec struct {
 	ConnPh string `json:"conn_ph"`
 
 	// ContExpr Pool term expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ContExpr PoolTermExprSpec `json:"cont_expr"`
+	ContExpr *PoolTermExprSpec `json:"cont_expr,omitempty"`
 }
 
 // PoolTermAcquireSpec defines model for Pool.Term.AcquireSpec.
@@ -95,7 +95,7 @@ type PoolTermAcquireSpec struct {
 	ConnPh string `json:"conn_ph"`
 
 	// ContExpr Pool term expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ContExpr PoolTermExprSpec `json:"cont_expr"`
+	ContExpr *PoolTermExprSpec `json:"cont_expr,omitempty"`
 }
 
 // PoolTermApplySpec defines model for Pool.Term.ApplySpec.
@@ -103,8 +103,8 @@ type PoolTermApplySpec struct {
 	ConnPh string `json:"conn_ph"`
 
 	// ContExpr Pool term expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ContExpr PoolTermExprSpec `json:"cont_expr"`
-	ProcQn   string           `json:"proc_qn"`
+	ContExpr *PoolTermExprSpec `json:"cont_expr,omitempty"`
+	ProcQn   string            `json:"proc_qn"`
 }
 
 // PoolTermDetachSpec defines model for Pool.Term.DetachSpec.
@@ -127,8 +127,8 @@ type PoolTermHireSpec struct {
 	ConnPh string `json:"conn_ph"`
 
 	// ContExpr Pool term expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ContExpr PoolTermExprSpec `json:"cont_expr"`
-	ProcQn   string           `json:"proc_qn"`
+	ContExpr *PoolTermExprSpec `json:"cont_expr,omitempty"`
+	ProcQn   string            `json:"proc_qn"`
 }
 
 // PoolTermQuitSpec defines model for Pool.Term.QuitSpec.

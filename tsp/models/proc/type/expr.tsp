@@ -25,5 +25,3 @@ model ChoiceSpec { lab_qn: string; cont_expr: ExprSpec; }
 model UpSpec { cont_expr: ExprSpec; }
 model DownSpec { cont_expr: ExprSpec; }
 
-/** Additive fragment applied to an existing process type expression. */
-model DefPatch { extension: ExprSpec; }

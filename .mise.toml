@@ -1,2 +1,22 @@
 [tools]
 node = "22"
+
+[tasks.generate]
+description = "Generate all derived repository artifacts"
+run = [
+  { task = "generate:go-sum" },
+  { task = "generate:sources" },
+  { task = "generate:mise-lock" },
+]
+
+[tasks."generate:go-sum"]
+description = "Update Go module dependencies and checksums"
+run = "go mod tidy"
+
+[tasks."generate:sources"]
+description = "Generate Go source artifacts"
+run = "task sources:generate"
+
+[tasks."generate:mise-lock"]
+description = "Generate the mise tool lockfile"
+run = "mise lock"

@@ -2,35 +2,13 @@
 node = "22"
 
 [tasks.generate]
-description = "Generate all derived repository artifacts"
+description = "Generate temporary API client generator prototypes"
+run = "mise run generate:api-client-prototypes"
+
+[tasks."generate:api-client-prototypes"]
+description = "Compare ogen and oapi-codegen against the committed OpenAPI contract"
 run = [
-  { task = "generate:go-sum" },
-  { task = "generate:sources" },
-  { task = "generate:mise-lock" },
-  { task = "generate:npm-lock" },
-  { task = "generate:openapi" },
-]
-
-[tasks."generate:go-sum"]
-description = "Update Go module dependencies and checksums"
-run = "go mod tidy"
-
-[tasks."generate:sources"]
-description = "Generate Go source artifacts"
-run = "task sources:generate"
-
-[tasks."generate:mise-lock"]
-description = "Generate the mise tool lockfile"
-run = "mise lock"
-
-[tasks."generate:npm-lock"]
-description = "Generate the TypeSpec npm dependency lockfile"
-dir = "tsp"
-run = "npm install --package-lock-only --ignore-scripts --no-audit --no-fund"
-
-[tasks."generate:openapi"]
-description = "Install locked TypeSpec dependencies and generate OpenAPI"
-run = [
-  "npm ci --prefix tsp --no-audit --no-fund",
-  "task specs:generate",
+  "mkdir -p prototypes/api-client/ogen prototypes/api-client/oapi-codegen",
+  "GOWORK=off go run github.com/ogen-go/ogen/cmd/ogen@v1.24.0 --config prototypes/api-client/ogen.yml --target prototypes/api-client/ogen --package ogenclient --clean openapi/openapi.yaml",
+  "GOWORK=off go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.8.2 -generate types,client -package oapiclient openapi/openapi.yaml > prototypes/api-client/oapi-codegen/client.gen.go",
 ]

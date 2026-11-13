@@ -37,5 +37,9 @@ jobs:
       - name: Setup tools
         uses: jdx/mise-action@v2
 
+      - name: Install TypeSpec dependencies
+        working-directory: tsp
+        run: npm install --no-audit --no-fund
+
       - name: Check specs
         run: GOWORK=off go tool -modfile=gear.mod task specs:check

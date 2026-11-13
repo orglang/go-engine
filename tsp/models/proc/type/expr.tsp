@@ -7,20 +7,23 @@ namespace OrgLang.Proc.Type;
 union ExprSpec {
   one: OneSpec,
   link: LinkSpec,
-  tensor: ProductSpec,
-  lolli: ProductSpec,
-  plus: SumSpec,
-  with: SumSpec,
-  up: ShiftSpec,
-  down: ShiftSpec,
+  tensor: TensorSpec,
+  lolli: LolliSpec,
+  plus: PlusSpec,
+  with: WithSpec,
+  up: UpSpec,
+  down: DownSpec,
 }
 
 model OneSpec {}
 model LinkSpec { link: OrgLang.Any.Type.LinkSpec; }
-model ProductSpec { val_expr: ExprSpec; cont_expr: ExprSpec; }
-model SumSpec { choices: ChoiceSpec[]; }
+model TensorSpec { val_expr: ExprSpec; cont_expr: ExprSpec; }
+model LolliSpec { val_expr: ExprSpec; cont_expr: ExprSpec; }
+model PlusSpec { choices: ChoiceSpec[]; }
+model WithSpec { choices: ChoiceSpec[]; }
 model ChoiceSpec { lab_qn: string; cont_expr: ExprSpec; }
-model ShiftSpec { cont_expr: ExprSpec; }
+model UpSpec { cont_expr: ExprSpec; }
+model DownSpec { cont_expr: ExprSpec; }
 
 /** Additive fragment applied to an existing process type expression. */
 model DefPatch { extension: ExprSpec; }

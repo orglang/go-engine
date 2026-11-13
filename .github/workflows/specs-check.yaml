@@ -34,8 +34,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Setup tools
-        uses: jdx/mise-action@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
       - name: Cache npm dependencies
         uses: actions/cache@v4

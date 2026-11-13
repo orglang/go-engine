@@ -58,7 +58,6 @@ tasks:
     desc: Generate OpenAPI from TypeSpec
     dir: tsp
     cmds:
-      - npm install --no-audit --no-fund
       - npm run build
 
   specs:check:

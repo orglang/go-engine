@@ -10,6 +10,7 @@ on:
       - ".mise.toml"
       - ".github/workflows/generate.yaml"
       - "openapi/openapi.yaml"
+      - "tsp/**"
 
 permissions: {}
 
@@ -52,6 +53,9 @@ jobs:
           cache-dependency-path: |
             go.sum
             gear.sum
+
+      - name: Generate OpenAPI from TypeSpec
+        run: cd tsp && npm ci && npm run build
 
       - name: Generate artifacts
         run: mise run generate

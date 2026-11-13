@@ -2,15 +2,16 @@
 
 This directory is the source of truth for the HTTP API served by `go-engine`.
 The OpenAPI document is generated into `openapi/openapi.yaml`; do not edit
-that generated file by hand.
+that generated file by hand. The generation workflow also refreshes
+`package-lock.json` from `package.json`.
 
 ## Generate
 
-Requires Node.js 22 and npm. Install dependencies once after checkout, then run the generation task as often as needed:
+Requires Node.js 22 and npm. After the generation workflow has created or refreshed `package-lock.json`, install the exact dependency versions and generate OpenAPI:
 
 ```sh
 cd tsp
-npm install
+npm ci
 cd ..
 task specs:generate
 ```

@@ -2,13 +2,6 @@ name: Generate artifacts
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - prototype/api-client-generators
-    paths:
-      - ".mise.toml"
-      - ".github/workflows/generate.yaml"
-      - "openapi/openapi.yaml"
 
 permissions: {}
 

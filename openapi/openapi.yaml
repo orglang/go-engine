@@ -607,7 +607,6 @@ components:
         conn_ph:
           type: string
     Pool.Term.ExprSpec:
-      type: object
       oneOf:
         - $ref: '#/components/schemas/Pool.Term.HireSpec'
         - $ref: '#/components/schemas/Pool.Term.FireSpec'
@@ -707,7 +706,6 @@ components:
         cont_expr:
           $ref: '#/components/schemas/Pool.Type.ExprSpec'
     Pool.Type.ExprSpec:
-      type: object
       oneOf:
         - $ref: '#/components/schemas/Pool.Type.OneSpec'
         - $ref: '#/components/schemas/Pool.Type.LinkSpec'
@@ -876,7 +874,6 @@ components:
         conn_ph:
           type: string
     Proc.Term.ExprSpec:
-      type: object
       oneOf:
         - $ref: '#/components/schemas/Proc.Term.CloseSpec'
         - $ref: '#/components/schemas/Proc.Term.WaitSpec'
@@ -1006,7 +1003,6 @@ components:
         cont_expr:
           $ref: '#/components/schemas/Proc.Type.ExprSpec'
     Proc.Type.ExprSpec:
-      type: object
       oneOf:
         - $ref: '#/components/schemas/Proc.Type.OneSpec'
         - $ref: '#/components/schemas/Proc.Type.LinkSpec'

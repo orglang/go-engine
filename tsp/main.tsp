@@ -5,7 +5,7 @@ import "./models/any/type.tsp";
 import "./models/any/type/link.tsp";
 import "./models/any/term.tsp";
 import "./models/any/comp.tsp";
-import "./models/any/conn.tsp";
+import "./models/any/conn/var.tsp";
 import "./models/any/exec.tsp";
 import "./models/proc/type/expr.tsp";
 import "./models/proc/type/def.tsp";
@@ -53,83 +53,88 @@ interface EngineApi {
   /** Submit program source text for parsing and registration. */
   @post
   @route("/programs")
-  createProgram(@body body: string): CreatedNoBody;
+  createProgram(@body source: string): CreatedNoBody;
 
   // Pool type definitions
 
   /** Create a pool-level type definition. */
   @post
   @route("/pools/types")
-  createPoolTypeDefinition(@body body: Pool.Type.DefSpec): Created<Any.TypeRef>;
+  createPoolTypeDefinition(@body spec: Pool.Type.DefSpec): Created<Any.TypeRef>;
 
-  /** Get a pool type definition; omit revision to select the latest available revision. */
+  /** Get a pool type definition; omit rn to select the latest available revision. */
   @get
   @route("/pools/types/{id}")
-  getPoolTypeDefinition(@path id: string, @query revision?: int64): Ok<Pool.Type.DefSnap>;
+  getPoolTypeDefinition(@path id: string, @query rn?: int64): Ok<Pool.Type.DefSnap>;
 
   /** Replace a pool type definition with a complete snapshot. */
   @put
   @route("/pools/types/{id}")
-  updatePoolTypeDefinition(@path id: string, @body body: Pool.Type.DefSnap): Ok<Pool.Type.DefSnap>;
+  updatePoolTypeDefinition(@path id: string, @body snap: Pool.Type.DefSnap): Ok<Pool.Type.DefSnap>;
 
-  // Process declarations and computations
+  // Process declarations and executions
 
   /** Create a process declaration. */
   @post
   @route("/processes/declarations")
-  createProcessDeclaration(@body body: Proc.DecSpec): Created<Proc.DecSnap>;
+  createProcessDeclaration(@body spec: Proc.DecSpec): Created<Proc.DecSnap>;
 
-  /** Get a process declaration; omit revision to select the latest available revision. */
+  /** Get a process declaration; omit rn to select the latest available revision. */
   @get
   @route("/processes/declarations/{id}")
-  getProcessDeclaration(@path id: string, @query revision?: int64): Ok<Proc.DecSnap>;
+  getProcessDeclaration(@path id: string, @query rn?: int64): Ok<Proc.DecSnap>;
 
-  /** Get a process computation; omit revision to select the latest available revision. */
+  /** List declarations associated with a process. */
   @get
-  @route("/processes/computations/{id}")
-  getProcessComputation(@path id: string, @query revision?: int64): Ok<Proc.CompSnap>;
+  @route("/processes/{id}/declarations")
+  listProcessDeclarations(@path id: string): Ok<Proc.DecSnap[]>;
 
-  /** Apply one step to a process computation. */
+  /** Get a process execution; omit rn to select the latest available revision. */
+  @get
+  @route("/processes/executions/{id}")
+  getProcessExecution(@path id: string, @query rn?: int64): Ok<Proc.CompSnap>;
+
+  /** Apply one step to a process execution. */
   @post
-  @route("/processes/computations/{id}/steps")
-  stepProcessComputation(@path id: string, @body body: Proc.StepSpec): OkNoBody;
+  @route("/processes/executions/{id}/steps")
+  stepProcessExecution(@path id: string, @body spec: Proc.StepSpec): OkNoBody;
 
   // Process type definitions
 
   /** Create a process type definition. */
   @post
   @route("/processes/types")
-  createProcessTypeDefinition(@body body: Proc.Type.DefSpec): Created<Proc.Type.DefSnap>;
+  createProcessTypeDefinition(@body spec: Proc.Type.DefSpec): Created<Proc.Type.DefSnap>;
 
-  /** Get a process type definition; omit revision to select the latest available revision. */
+  /** Get a process type definition; omit rn to select the latest available revision. */
   @get
   @route("/processes/types/{id}")
-  getProcessTypeDefinition(@path id: string, @query revision?: int64): Ok<Proc.Type.DefSnap>;
+  getProcessTypeDefinition(@path id: string, @query rn?: int64): Ok<Proc.Type.DefSnap>;
 
-  /** Update a process type definition. */
+  /** Replace a process type definition with a complete snapshot. */
   @put
   @route("/processes/types/{id}")
-  updateProcessTypeDefinition(@path id: string, @body body: Proc.Type.DefSnap): Ok<Proc.Type.DefSnap>;
+  updateProcessTypeDefinition(@path id: string, @body snap: Proc.Type.DefSnap): Ok<Proc.Type.DefSnap>;
 
   // Pool declarations and executions
 
   /** Create a pool declaration. */
   @post
   @route("/pools/declarations")
-  createPoolDeclaration(@body body: Pool.DecSpec): Created<Any.TermRef>;
+  createPoolDeclaration(@body spec: Pool.DecSpec): Created<Any.TermRef>;
 
   /** Create a pool execution. */
   @post
   @route("/pools/executions")
-  createPoolExecution(@body body: Any.ExecSpec): Created<Any.CompRef>;
+  createPoolExecution(@body spec: Any.ExecSpec): Created<Any.CompRef>;
 
   /** Apply a batch of steps to pool executions. */
   @post
   @route("/pools/executions/steps")
-  stepPoolExecution(@body body: Pool.StepSpec): NoContent;
+  stepPoolExecution(@body spec: Pool.StepSpec): NoContent;
 
   /** Spawn a child execution from a pool execution. */
   @post
   @route("/pools/executions/spawns")
-  spawnPoolExecution(@body body: Pool.StepSpec): Created<Any.CompRef>;
+  spawnPoolExecution(@body spec: Pool.StepSpec): Created<Any.CompRef>;
 }

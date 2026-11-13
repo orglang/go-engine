@@ -1,26 +1,3 @@
-go: downloading github.com/ogen-go/ogen v1.24.0
-go: downloading github.com/go-faster/errors v0.8.0
-go: downloading github.com/go-faster/yaml v0.4.6
-go: downloading go.uber.org/zap v1.28.0
-go: downloading golang.org/x/exp v0.0.0-20230725093048-515e97ebf090
-go: downloading github.com/go-faster/jx v1.2.0
-go: downloading golang.org/x/sync v0.22.0
-go: downloading golang.org/x/tools v0.48.0
-go: downloading github.com/shopspring/decimal v1.4.0
-go: downloading github.com/yuin/goldmark v1.8.2
-go: downloading github.com/fatih/color v1.19.0
-go: downloading go.uber.org/multierr v1.11.0
-go: downloading github.com/mattn/go-isatty v0.0.24
-go: downloading github.com/ghodss/yaml v1.0.0
-go: downloading github.com/google/uuid v1.6.0
-go: downloading github.com/dlclark/regexp2 v1.12.0
-go: downloading golang.org/x/text v0.40.0
-go: downloading golang.org/x/net v0.57.0
-go: downloading github.com/mattn/go-colorable v0.1.14
-go: downloading github.com/segmentio/asm v1.2.1
-go: downloading golang.org/x/sys v0.47.0
-go: downloading gopkg.in/yaml.v2 v2.4.0
-go: downloading golang.org/x/mod v0.38.0
 INFO	convenient	Convenient errors are not available	{"reason": "operation has no \"default\" response", "at": "openapi.yaml:13:9"}
 generate:
     main.run
@@ -34,7 +11,7 @@ generate:
   - operations:
     github.com/ogen-go/ogen/gen.(*Generator).makeIR
         /home/runner/go/pkg/mod/github.com/ogen-go/ogen@v1.24.0/gen/generator.go:164
-  - path "/api/v1/pools/executions/spawns": post:
+  - path "/api/v1/pools/types": post:
     github.com/ogen-go/ogen/gen.(*Generator).makeOps
         /home/runner/go/pkg/mod/github.com/ogen-go/ogen@v1.24.0/gen/generator.go:209
   - requestBody:
@@ -55,7 +32,7 @@ generate:
   - save inlined type:
     github.com/ogen-go/ogen/gen.saveSchemaTypes
         /home/runner/go/pkg/mod/github.com/ogen-go/ogen@v1.24.0/gen/gen_schema.go:18
-  - schema name conflict: "PoolTermExprSpecSum":
+  - schema name conflict: "PoolTypeExprSpecSum":
     github.com/ogen-go/ogen/gen.(*tstorage).saveType
         /home/runner/go/pkg/mod/github.com/ogen-go/ogen@v1.24.0/gen/tstorage.go:85
 exit status 1

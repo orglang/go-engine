@@ -6,13 +6,16 @@ that generated file by hand.
 
 ## Generate
 
-Requires Node.js and npm:
+Requires Node.js 22 and npm (the Node.js version is pinned in the root `.mise.toml`). Install dependencies once after checkout, then run the generation task as often as needed:
 
 ```sh
 cd tsp
 npm install
-npm run build
+cd ..
+task specs:generate
 ```
+
+The CI workflow installs dependencies once per job before running `task specs:check`.
 
 The contract describes 21 target `/api/v1` operations. Its resource paths are
 intentionally normalized and are not yet the paths registered by the Echo server.

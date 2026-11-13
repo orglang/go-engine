@@ -49,10 +49,23 @@ tasks:
       - task: tools:install
       - GOWORK=off go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...
 
-  sources:verify:
-    desc: Verify the current HEAD before publishing
+  specs:generate:
+    desc: Generate OpenAPI from TypeSpec
+    dir: tsp
     cmds:
-      - task: tests:unit
+      - npm run build
+
+  specs:check:
+    desc: Check TypeSpec compilation and generated OpenAPI
+    cmds:
+      - task: specs:generate
+      - test -f openapi/openapi.yaml
+      - test -z "$(git status --porcelain -- openapi/openapi.yaml)"
+
+  specs:verify:
+    desc: Verify specs before publishing
+    cmds:
+      - task: specs:check
 
   hooks:install:
     desc: Configure this repository to use versioned Git hooks

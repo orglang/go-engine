@@ -1,0 +1,55 @@
+name: Specs Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "tsp/**"
+      - "openapi/**"
+      - "taskfile.yaml"
+      - ".github/workflows/specs-check.yaml"
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - "tsp/**"
+      - "openapi/**"
+      - "taskfile.yaml"
+      - ".github/workflows/specs-check.yaml"
+    types:
+      - opened
+      - ready_for_review
+      - synchronize
+
+permissions:
+  contents: read
+
+jobs:
+  specs-check:
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout engine
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('tsp/package-lock.json') }}
+          restore-keys: |
+            npm-${{ runner.os }}-
+
+      - name: Install TypeSpec dependencies
+        working-directory: tsp
+        run: npm ci --no-audit --no-fund
+
+      - name: Check specs
+        run: GOWORK=off go tool -modfile=gear.mod task specs:check

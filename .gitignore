@@ -2,3 +2,6 @@
 
 *.gen.go
 /engine
+
+/tsp/node_modules/
+/tsp/tsp-output/

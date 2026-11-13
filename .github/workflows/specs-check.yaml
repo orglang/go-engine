@@ -43,13 +43,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('tsp/package.json') }}
+          key: npm-${{ runner.os }}-${{ hashFiles('tsp/package-lock.json') }}
           restore-keys: |
             npm-${{ runner.os }}-
 
       - name: Install TypeSpec dependencies
         working-directory: tsp
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Check specs
         run: GOWORK=off go tool -modfile=gear.mod task specs:check

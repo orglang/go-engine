@@ -11,28 +11,13 @@ generate:
   - operations:
     github.com/ogen-go/ogen/gen.(*Generator).makeIR
         /home/runner/go/pkg/mod/github.com/ogen-go/ogen@v1.24.0/gen/generator.go:164
-  - path "/api/v1/pools/executions/spawns": post:
+  - PoolStepSpec:
     github.com/ogen-go/ogen/gen.(*Generator).makeOps
-        /home/runner/go/pkg/mod/github.com/ogen-go/ogen@v1.24.0/gen/generator.go:209
-  - requestBody:
-    github.com/ogen-go/ogen/gen.(*Generator).generateOperation
-        /home/runner/go/pkg/mod/github.com/ogen-go/ogen@v1.24.0/gen/gen_operation.go:56
-  - contents:
-    github.com/ogen-go/ogen/gen.(*Generator).generateRequest
-        /home/runner/go/pkg/mod/github.com/ogen-go/ogen@v1.24.0/gen/gen_request_body.go:27
-  - media: "application/json":
-    github.com/ogen-go/ogen/gen.(*Generator).generateContents
-        /home/runner/go/pkg/mod/github.com/ogen-go/ogen@v1.24.0/gen/gen_contents.go:675
-  - generate schema:
-    github.com/ogen-go/ogen/gen.(*Generator).generateContents.func1
-        /home/runner/go/pkg/mod/github.com/ogen-go/ogen@v1.24.0/gen/gen_contents.go:566
-  - save schema types:
-    github.com/ogen-go/ogen/gen.(*Generator).generateSchema
-        /home/runner/go/pkg/mod/github.com/ogen-go/ogen@v1.24.0/gen/gen_schema.go:92
-  - save inlined type:
-    github.com/ogen-go/ogen/gen.saveSchemaTypes
-        /home/runner/go/pkg/mod/github.com/ogen-go/ogen@v1.24.0/gen/gen_schema.go:18
-  - schema name conflict: "PoolTermExprSpecSum":
-    github.com/ogen-go/ogen/gen.(*tstorage).saveType
-        /home/runner/go/pkg/mod/github.com/ogen-go/ogen@v1.24.0/gen/tstorage.go:85
+        /home/runner/go/pkg/mod/github.com/ogen-go/ogen@v1.24.0/gen/generator.go:237
+  - wrap field "PoolExpr" with generic type:
+    github.com/ogen-go/ogen/gen.checkStructRecursions
+        /home/runner/go/pkg/mod/github.com/ogen-go/ogen@v1.24.0/gen/generics.go:48
+  - infinite recursion: PoolStepSpec.PoolExpr is required:
+    github.com/ogen-go/ogen/gen.checkStructRecursions.func1
+        /home/runner/go/pkg/mod/github.com/ogen-go/ogen@v1.24.0/gen/generics.go:42
 exit status 1

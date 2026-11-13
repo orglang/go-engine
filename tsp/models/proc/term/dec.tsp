@@ -8,3 +8,8 @@ model DecSpec {
   liab_var: Any.Conn.VarSpec;
   asset_vars: Any.Conn.VarSpec[];
 }
+
+model DecSnap {
+  ref: Any.TermRef;
+  spec: DecSpec;
+}

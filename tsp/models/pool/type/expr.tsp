@@ -7,19 +7,22 @@ namespace OrgLang.Pool.Type;
 union ExprSpec {
   one: OneSpec,
   link: LinkSpec,
-  plus: LaborSpec,
-  with: LaborSpec,
-  tensor: ResourceSpec,
-  lolli: ResourceSpec,
-  up: ShiftSpec,
-  down: ShiftSpec,
+  plus: PlusSpec,
+  with: WithSpec,
+  tensor: TensorSpec,
+  lolli: LolliSpec,
+  up: UpSpec,
+  down: DownSpec,
 }
 
 model OneSpec {}
 model LinkSpec { link: OrgLang.Any.Type.LinkSpec; }
-model LaborSpec { proc_qns: string[]; cont_expr: ExprSpec; }
-model ResourceSpec { val_expr: ExprSpec; cont_expr: ExprSpec; }
-model ShiftSpec { cont_expr: ExprSpec; }
+model PlusSpec { proc_qns: string[]; cont_expr: ExprSpec; }
+model WithSpec { proc_qns: string[]; cont_expr: ExprSpec; }
+model TensorSpec { val_expr: ExprSpec; cont_expr: ExprSpec; }
+model LolliSpec { val_expr: ExprSpec; cont_expr: ExprSpec; }
+model UpSpec { cont_expr: ExprSpec; }
+model DownSpec { cont_expr: ExprSpec; }
 
 /** Additive fragment applied to an existing pool type expression. */
 model DefPatch { extension: ExprSpec; }

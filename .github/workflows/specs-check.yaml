@@ -9,7 +9,6 @@ on:
       - "taskfile.yaml"
       - ".github/workflows/specs-check.yaml"
   workflow_dispatch:
-  workflow_call:
   pull_request:
     branches: [main]
     paths:
@@ -35,10 +34,8 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 22
+      - name: Setup tools
+        uses: jdx/mise-action@v2
 
       - name: Check specs
         run: GOWORK=off go tool -modfile=gear.mod task specs:check

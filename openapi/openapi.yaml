@@ -1,0 +1,1092 @@
+openapi: 3.1.0
+info:
+  title: OrgLang Go Engine API
+  version: 0.0.0
+tags: []
+paths:
+  /api/v1/pools/declarations:
+    post:
+      operationId: EngineApi_createPoolDeclaration
+      description: Create a pool declaration and return its identity.
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Any.TermRef'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pool.DecSpec'
+  /api/v1/pools/executions:
+    post:
+      operationId: EngineApi_createPoolExecution
+      description: Create a pool execution and return its identity.
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Any.CompRef'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Any.ExecSpec'
+  /api/v1/pools/executions/spawns:
+    post:
+      operationId: EngineApi_spawnPoolExecution
+      description: Spawn a child execution from a pool execution and return its identity.
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Any.CompRef'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pool.StepSpec'
+  /api/v1/pools/executions/steps:
+    post:
+      operationId: EngineApi_stepPoolExecution
+      description: Apply a batch of steps to pool executions.
+      parameters: []
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pool.StepSpec'
+  /api/v1/pools/types:
+    post:
+      operationId: EngineApi_createPoolTypeDefinition
+      description: Create a pool-level type definition and return its identity.
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Any.TypeRef'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pool.Type.DefSpec'
+  /api/v1/pools/types/{id}:
+    get:
+      operationId: EngineApi_getPoolTypeDefinition
+      description: Get a pool type definition snapshot; omit rn to select the latest revision.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: rn
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pool.Type.DefSnap'
+  /api/v1/pools/{id}/declaration:
+    get:
+      operationId: EngineApi_getPoolAssociatedDeclaration
+      description: Get the declaration associated with a pool.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: rn
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pool.DecSnap'
+  /api/v1/pools/{id}/definition:
+    get:
+      operationId: EngineApi_getPoolDefinition
+      description: Get the term definition of a specific pool; omit rn to select its latest revision.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: rn
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pool.Term.ExprSpec'
+    patch:
+      operationId: EngineApi_extendPoolDefinition
+      description: Extend a pool term definition without replacing or removing existing expression parts.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Any.TermRef'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pool.Term.ExprSpec'
+  /api/v1/pools/{id}/executions:
+    get:
+      operationId: EngineApi_listPoolExecutions
+      description: List execution identities associated with a pool.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Any.CompRef'
+  /api/v1/processes/declarations:
+    post:
+      operationId: EngineApi_createProcessDeclaration
+      description: Create a process declaration and return its identity.
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Any.TermRef'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Proc.DecSpec'
+  /api/v1/processes/declarations/{id}:
+    get:
+      operationId: EngineApi_getProcessDeclaration
+      description: Get a process declaration by identity and revision.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: rn
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Proc.DecSnap'
+  /api/v1/processes/executions/{id}:
+    get:
+      operationId: EngineApi_getProcessExecution
+      description: Get a process execution; omit rn to select the latest available revision.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: rn
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Proc.CompSnap'
+  /api/v1/processes/executions/{id}/steps:
+    post:
+      operationId: EngineApi_stepProcessExecution
+      description: Apply one step to a process execution.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Proc.StepSpec'
+  /api/v1/processes/types:
+    post:
+      operationId: EngineApi_createProcessTypeDefinition
+      description: Create a process type definition and return its identity.
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Any.TypeRef'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Proc.Type.DefSpec'
+  /api/v1/processes/types/{id}:
+    get:
+      operationId: EngineApi_getProcessTypeDefinition
+      description: Get a process type definition snapshot; omit rn to select the latest revision.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: rn
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Proc.Type.DefSnap'
+  /api/v1/processes/{id}/declaration:
+    get:
+      operationId: EngineApi_getProcessAssociatedDeclaration
+      description: Get the declaration associated with a process.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: rn
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Proc.DecSnap'
+  /api/v1/processes/{id}/definition:
+    get:
+      operationId: EngineApi_getProcessDefinition
+      description: Get the term definition of a specific process; omit rn to select its latest revision.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: rn
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Proc.Term.ExprSpec'
+    patch:
+      operationId: EngineApi_extendProcessDefinition
+      description: Extend a process term definition without replacing or removing existing expression parts.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Any.TermRef'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Proc.Term.ExprSpec'
+  /api/v1/processes/{id}/executions:
+    get:
+      operationId: EngineApi_listProcessExecutions
+      description: List execution identities associated with a process.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Any.CompRef'
+  /api/v1/programs:
+    post:
+      operationId: EngineApi_createProgram
+      description: Submit program source text for parsing and registration.
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+components:
+  schemas:
+    Any.CompRef:
+      type: object
+      required:
+        - comp_id
+        - comp_rn
+      properties:
+        comp_id:
+          type: string
+        comp_rn:
+          type: integer
+          format: int64
+      description: Shared computation identity used by process and pool computations.
+    Any.Conn.VarRec:
+      type: object
+      required:
+        - type_ref
+        - conn_ph
+        - expr_ck
+      properties:
+        type_ref:
+          $ref: '#/components/schemas/Any.TypeRef'
+        conn_ph:
+          type: string
+        expr_ck:
+          type: integer
+          format: int64
+    Any.Conn.VarSpec:
+      type: object
+      required:
+        - conn_ph
+        - type_qn
+      properties:
+        conn_ph:
+          type: string
+        type_qn:
+          type: string
+    Any.Exec.VarSpec:
+      type: object
+      required:
+        - conn_ph
+        - term_qn
+      properties:
+        conn_ph:
+          type: string
+        term_qn:
+          type: string
+    Any.ExecSpec:
+      type: object
+      required:
+        - term_qn
+        - liab_var
+        - asset_vars
+      properties:
+        term_qn:
+          type: string
+        liab_var:
+          $ref: '#/components/schemas/Any.Exec.VarSpec'
+        asset_vars:
+          type: array
+          items:
+            $ref: '#/components/schemas/Any.Exec.VarSpec'
+    Any.TermRef:
+      type: object
+      required:
+        - term_id
+        - term_rn
+      properties:
+        term_id:
+          type: string
+        term_rn:
+          type: integer
+          format: int64
+      description: Shared term identity.
+    Any.Type.LinkSpec:
+      type: object
+      required:
+        - type_qn
+      properties:
+        type_qn:
+          type: string
+    Any.TypeRef:
+      type: object
+      required:
+        - type_id
+        - type_rn
+      properties:
+        type_id:
+          type: string
+        type_rn:
+          type: integer
+          format: int64
+      description: Shared type identity.
+    Pool.CompSnap:
+      type: object
+      required:
+        - comp_ref
+      properties:
+        comp_ref:
+          $ref: '#/components/schemas/Any.CompRef'
+    Pool.DecSnap:
+      type: object
+      required:
+        - ref
+        - spec
+      properties:
+        ref:
+          $ref: '#/components/schemas/Any.TermRef'
+        spec:
+          $ref: '#/components/schemas/Pool.DecSpec'
+    Pool.DecSpec:
+      type: object
+      required:
+        - desc_qn
+        - liab_var
+        - asset_vars
+      properties:
+        desc_qn:
+          type: string
+        liab_var:
+          $ref: '#/components/schemas/Any.Conn.VarSpec'
+        asset_vars:
+          type: array
+          items:
+            $ref: '#/components/schemas/Any.Conn.VarSpec'
+    Pool.StepSpec:
+      type: object
+      required:
+        - comp_ref
+        - pool_expr
+      properties:
+        comp_ref:
+          $ref: '#/components/schemas/Any.CompRef'
+        pool_expr:
+          $ref: '#/components/schemas/Pool.Term.ExprSpec'
+    Pool.Term.AcceptSpec:
+      type: object
+      required:
+        - conn_ph
+        - cont_expr
+      properties:
+        conn_ph:
+          type: string
+        cont_expr:
+          $ref: '#/components/schemas/Pool.Term.ExprSpec'
+    Pool.Term.AcquireSpec:
+      type: object
+      required:
+        - conn_ph
+        - cont_expr
+      properties:
+        conn_ph:
+          type: string
+        cont_expr:
+          $ref: '#/components/schemas/Pool.Term.ExprSpec'
+    Pool.Term.ApplySpec:
+      type: object
+      required:
+        - conn_ph
+        - proc_qn
+        - cont_expr
+      properties:
+        conn_ph:
+          type: string
+        proc_qn:
+          type: string
+        cont_expr:
+          $ref: '#/components/schemas/Pool.Term.ExprSpec'
+    Pool.Term.DetachSpec:
+      type: object
+      required:
+        - conn_ph
+      properties:
+        conn_ph:
+          type: string
+    Pool.Term.ExprSpec:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/Pool.Term.HireSpec'
+        - $ref: '#/components/schemas/Pool.Term.FireSpec'
+        - $ref: '#/components/schemas/Pool.Term.ApplySpec'
+        - $ref: '#/components/schemas/Pool.Term.QuitSpec'
+        - $ref: '#/components/schemas/Pool.Term.AcquireSpec'
+        - $ref: '#/components/schemas/Pool.Term.ReleaseSpec'
+        - $ref: '#/components/schemas/Pool.Term.AcceptSpec'
+        - $ref: '#/components/schemas/Pool.Term.DetachSpec'
+        - $ref: '#/components/schemas/Pool.Term.SpawnSpec'
+      discriminator:
+        propertyName: kind
+        mapping:
+          hire: '#/components/schemas/Pool.Term.HireSpec'
+          fire: '#/components/schemas/Pool.Term.FireSpec'
+          apply: '#/components/schemas/Pool.Term.ApplySpec'
+          quit: '#/components/schemas/Pool.Term.QuitSpec'
+          acquire: '#/components/schemas/Pool.Term.AcquireSpec'
+          release: '#/components/schemas/Pool.Term.ReleaseSpec'
+          accept: '#/components/schemas/Pool.Term.AcceptSpec'
+          detach: '#/components/schemas/Pool.Term.DetachSpec'
+          spawn: '#/components/schemas/Pool.Term.SpawnSpec'
+      description: Pool term expression specification. Exactly one variant is serialized inline with its kind discriminator.
+    Pool.Term.FireSpec:
+      type: object
+      required:
+        - conn_ph
+      properties:
+        conn_ph:
+          type: string
+    Pool.Term.HireSpec:
+      type: object
+      required:
+        - conn_ph
+        - proc_qn
+        - cont_expr
+      properties:
+        conn_ph:
+          type: string
+        proc_qn:
+          type: string
+        cont_expr:
+          $ref: '#/components/schemas/Pool.Term.ExprSpec'
+    Pool.Term.QuitSpec:
+      type: object
+      required:
+        - conn_ph
+        - proc_qn
+      properties:
+        conn_ph:
+          type: string
+        proc_qn:
+          type: string
+    Pool.Term.ReleaseSpec:
+      type: object
+      required:
+        - conn_ph
+      properties:
+        conn_ph:
+          type: string
+    Pool.Term.SpawnSpec:
+      type: object
+      required:
+        - proc_dr
+        - proc_irs
+      properties:
+        proc_dr:
+          $ref: '#/components/schemas/Any.TermRef'
+        proc_irs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Any.CompRef'
+    Pool.Type.DefSnap:
+      type: object
+      required:
+        - ref
+        - expr
+      properties:
+        ref:
+          $ref: '#/components/schemas/Any.TypeRef'
+        expr:
+          $ref: '#/components/schemas/Pool.Type.ExprSpec'
+    Pool.Type.DefSpec:
+      type: object
+      required:
+        - qn
+        - expr
+      properties:
+        qn:
+          type: string
+        expr:
+          $ref: '#/components/schemas/Pool.Type.ExprSpec'
+    Pool.Type.DownSpec:
+      type: object
+      required:
+        - cont_expr
+      properties:
+        cont_expr:
+          $ref: '#/components/schemas/Pool.Type.ExprSpec'
+    Pool.Type.ExprSpec:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/Pool.Type.OneSpec'
+        - $ref: '#/components/schemas/Pool.Type.LinkSpec'
+        - $ref: '#/components/schemas/Pool.Type.PlusSpec'
+        - $ref: '#/components/schemas/Pool.Type.WithSpec'
+        - $ref: '#/components/schemas/Pool.Type.TensorSpec'
+        - $ref: '#/components/schemas/Pool.Type.LolliSpec'
+        - $ref: '#/components/schemas/Pool.Type.UpSpec'
+        - $ref: '#/components/schemas/Pool.Type.DownSpec'
+      discriminator:
+        propertyName: kind
+        mapping:
+          one: '#/components/schemas/Pool.Type.OneSpec'
+          link: '#/components/schemas/Pool.Type.LinkSpec'
+          plus: '#/components/schemas/Pool.Type.PlusSpec'
+          with: '#/components/schemas/Pool.Type.WithSpec'
+          tensor: '#/components/schemas/Pool.Type.TensorSpec'
+          lolli: '#/components/schemas/Pool.Type.LolliSpec'
+          up: '#/components/schemas/Pool.Type.UpSpec'
+          down: '#/components/schemas/Pool.Type.DownSpec'
+      description: Pool type expression specification. Exactly one variant is serialized inline with its kind discriminator.
+    Pool.Type.LinkSpec:
+      type: object
+      required:
+        - link
+      properties:
+        link:
+          $ref: '#/components/schemas/Any.Type.LinkSpec'
+    Pool.Type.LolliSpec:
+      type: object
+      required:
+        - val_expr
+        - cont_expr
+      properties:
+        val_expr:
+          $ref: '#/components/schemas/Pool.Type.ExprSpec'
+        cont_expr:
+          $ref: '#/components/schemas/Pool.Type.ExprSpec'
+    Pool.Type.OneSpec:
+      type: object
+    Pool.Type.PlusSpec:
+      type: object
+      required:
+        - proc_qns
+        - cont_expr
+      properties:
+        proc_qns:
+          type: array
+          items:
+            type: string
+        cont_expr:
+          $ref: '#/components/schemas/Pool.Type.ExprSpec'
+    Pool.Type.TensorSpec:
+      type: object
+      required:
+        - val_expr
+        - cont_expr
+      properties:
+        val_expr:
+          $ref: '#/components/schemas/Pool.Type.ExprSpec'
+        cont_expr:
+          $ref: '#/components/schemas/Pool.Type.ExprSpec'
+    Pool.Type.UpSpec:
+      type: object
+      required:
+        - cont_expr
+      properties:
+        cont_expr:
+          $ref: '#/components/schemas/Pool.Type.ExprSpec'
+    Pool.Type.WithSpec:
+      type: object
+      required:
+        - proc_qns
+        - cont_expr
+      properties:
+        proc_qns:
+          type: array
+          items:
+            type: string
+        cont_expr:
+          $ref: '#/components/schemas/Pool.Type.ExprSpec'
+    Proc.CompSnap:
+      type: object
+      required:
+        - comp_ref
+      properties:
+        comp_ref:
+          $ref: '#/components/schemas/Any.CompRef'
+    Proc.DecSnap:
+      type: object
+      required:
+        - ref
+        - spec
+      properties:
+        ref:
+          $ref: '#/components/schemas/Any.TermRef'
+        spec:
+          $ref: '#/components/schemas/Proc.DecSpec'
+    Proc.DecSpec:
+      type: object
+      required:
+        - term_qn
+        - liab_var
+        - asset_vars
+      properties:
+        term_qn:
+          type: string
+        liab_var:
+          $ref: '#/components/schemas/Any.Conn.VarSpec'
+        asset_vars:
+          type: array
+          items:
+            $ref: '#/components/schemas/Any.Conn.VarSpec'
+    Proc.StepSpec:
+      type: object
+      required:
+        - proc_expr
+      properties:
+        proc_expr:
+          $ref: '#/components/schemas/Proc.Term.ExprSpec'
+    Proc.Term.BranchSpec:
+      type: object
+      required:
+        - pattern_qn
+        - cont_expr
+      properties:
+        pattern_qn:
+          type: string
+        cont_expr:
+          $ref: '#/components/schemas/Proc.Term.ExprSpec'
+    Proc.Term.CallSpec:
+      type: object
+      required:
+        - bind_ph
+        - proc_qn
+        - val_phs
+        - cont_expr
+      properties:
+        bind_ph:
+          type: string
+        proc_qn:
+          type: string
+        val_phs:
+          type: array
+          items:
+            type: string
+        cont_expr:
+          $ref: '#/components/schemas/Proc.Term.ExprSpec'
+    Proc.Term.CaseSpec:
+      type: object
+      required:
+        - conn_ph
+        - cont_bses
+      properties:
+        conn_ph:
+          type: string
+        cont_bses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Proc.Term.BranchSpec'
+    Proc.Term.CloseSpec:
+      type: object
+      required:
+        - conn_ph
+      properties:
+        conn_ph:
+          type: string
+    Proc.Term.ExprSpec:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/Proc.Term.CloseSpec'
+        - $ref: '#/components/schemas/Proc.Term.WaitSpec'
+        - $ref: '#/components/schemas/Proc.Term.SendSpec'
+        - $ref: '#/components/schemas/Proc.Term.RecvSpec'
+        - $ref: '#/components/schemas/Proc.Term.LabSpec'
+        - $ref: '#/components/schemas/Proc.Term.CaseSpec'
+        - $ref: '#/components/schemas/Proc.Term.LinkSpec'
+        - $ref: '#/components/schemas/Proc.Term.FwdSpec'
+        - $ref: '#/components/schemas/Proc.Term.CallSpec'
+      discriminator:
+        propertyName: kind
+        mapping:
+          close: '#/components/schemas/Proc.Term.CloseSpec'
+          wait: '#/components/schemas/Proc.Term.WaitSpec'
+          send: '#/components/schemas/Proc.Term.SendSpec'
+          recv: '#/components/schemas/Proc.Term.RecvSpec'
+          lab: '#/components/schemas/Proc.Term.LabSpec'
+          case: '#/components/schemas/Proc.Term.CaseSpec'
+          link: '#/components/schemas/Proc.Term.LinkSpec'
+          fwd: '#/components/schemas/Proc.Term.FwdSpec'
+          call: '#/components/schemas/Proc.Term.CallSpec'
+      description: Process term expression specification. Exactly one variant is serialized inline with its kind discriminator.
+    Proc.Term.FwdSpec:
+      type: object
+      required:
+        - conn_ph
+        - cont_ph
+      properties:
+        conn_ph:
+          type: string
+        cont_ph:
+          type: string
+    Proc.Term.LabSpec:
+      type: object
+      required:
+        - conn_ph
+        - pattern_qn
+      properties:
+        conn_ph:
+          type: string
+        pattern_qn:
+          type: string
+    Proc.Term.LinkSpec:
+      type: object
+      required:
+        - proc_qn
+        - x
+        - ys
+      properties:
+        proc_qn:
+          type: string
+        x:
+          type: string
+        ys:
+          type: array
+          items:
+            type: string
+    Proc.Term.RecvSpec:
+      type: object
+      required:
+        - conn_ph
+        - bind_ph
+        - cont_expr
+      properties:
+        conn_ph:
+          type: string
+        bind_ph:
+          type: string
+        cont_expr:
+          $ref: '#/components/schemas/Proc.Term.ExprSpec'
+    Proc.Term.SendSpec:
+      type: object
+      required:
+        - conn_ph
+        - val_ph
+      properties:
+        conn_ph:
+          type: string
+        val_ph:
+          type: string
+    Proc.Term.WaitSpec:
+      type: object
+      required:
+        - conn_ph
+        - cont_expr
+      properties:
+        conn_ph:
+          type: string
+        cont_expr:
+          $ref: '#/components/schemas/Proc.Term.ExprSpec'
+    Proc.Type.ChoiceSpec:
+      type: object
+      required:
+        - lab_qn
+        - cont_expr
+      properties:
+        lab_qn:
+          type: string
+        cont_expr:
+          $ref: '#/components/schemas/Proc.Type.ExprSpec'
+    Proc.Type.DefSnap:
+      type: object
+      required:
+        - ref
+        - spec
+      properties:
+        ref:
+          $ref: '#/components/schemas/Any.TypeRef'
+        spec:
+          $ref: '#/components/schemas/Proc.Type.DefSpec'
+    Proc.Type.DefSpec:
+      type: object
+      required:
+        - type_qn
+        - type_expr
+      properties:
+        type_qn:
+          type: string
+        type_expr:
+          $ref: '#/components/schemas/Proc.Type.ExprSpec'
+    Proc.Type.DownSpec:
+      type: object
+      required:
+        - cont_expr
+      properties:
+        cont_expr:
+          $ref: '#/components/schemas/Proc.Type.ExprSpec'
+    Proc.Type.ExprSpec:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/Proc.Type.OneSpec'
+        - $ref: '#/components/schemas/Proc.Type.LinkSpec'
+        - $ref: '#/components/schemas/Proc.Type.TensorSpec'
+        - $ref: '#/components/schemas/Proc.Type.LolliSpec'
+        - $ref: '#/components/schemas/Proc.Type.PlusSpec'
+        - $ref: '#/components/schemas/Proc.Type.WithSpec'
+        - $ref: '#/components/schemas/Proc.Type.UpSpec'
+        - $ref: '#/components/schemas/Proc.Type.DownSpec'
+      discriminator:
+        propertyName: kind
+        mapping:
+          one: '#/components/schemas/Proc.Type.OneSpec'
+          link: '#/components/schemas/Proc.Type.LinkSpec'
+          tensor: '#/components/schemas/Proc.Type.TensorSpec'
+          lolli: '#/components/schemas/Proc.Type.LolliSpec'
+          plus: '#/components/schemas/Proc.Type.PlusSpec'
+          with: '#/components/schemas/Proc.Type.WithSpec'
+          up: '#/components/schemas/Proc.Type.UpSpec'
+          down: '#/components/schemas/Proc.Type.DownSpec'
+      description: Process type expression specification. Exactly one variant is serialized inline with its kind discriminator.
+    Proc.Type.LinkSpec:
+      type: object
+      required:
+        - link
+      properties:
+        link:
+          $ref: '#/components/schemas/Any.Type.LinkSpec'
+    Proc.Type.LolliSpec:
+      type: object
+      required:
+        - val_expr
+        - cont_expr
+      properties:
+        val_expr:
+          $ref: '#/components/schemas/Proc.Type.ExprSpec'
+        cont_expr:
+          $ref: '#/components/schemas/Proc.Type.ExprSpec'
+    Proc.Type.OneSpec:
+      type: object
+    Proc.Type.PlusSpec:
+      type: object
+      required:
+        - choices
+      properties:
+        choices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Proc.Type.ChoiceSpec'
+    Proc.Type.TensorSpec:
+      type: object
+      required:
+        - val_expr
+        - cont_expr
+      properties:
+        val_expr:
+          $ref: '#/components/schemas/Proc.Type.ExprSpec'
+        cont_expr:
+          $ref: '#/components/schemas/Proc.Type.ExprSpec'
+    Proc.Type.UpSpec:
+      type: object
+      required:
+        - cont_expr
+      properties:
+        cont_expr:
+          $ref: '#/components/schemas/Proc.Type.ExprSpec'
+    Proc.Type.WithSpec:
+      type: object
+      required:
+        - choices
+      properties:
+        choices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Proc.Type.ChoiceSpec'
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+    variables: {}

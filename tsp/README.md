@@ -71,16 +71,24 @@ declaration snapshot.
 
 Type definition snapshots remain available at
 `GET /api/v1/processes/types/{id}` and
-`GET /api/v1/pools/types/{id}`. The `/definition` subresource exposes just
-the expression and supports retrieval with the optional `rn` revision query.
+`GET /api/v1/pools/types/{id}`.
 
-`PATCH /api/v1/processes/types/{id}/definition` and
-`PATCH /api/v1/pools/types/{id}/definition` accept a `DefPatch` containing
-an additive expression fragment. PATCH extends the current expression; it
-does not replace it. Existing expression parts cannot be removed or changed.
-The extension must be applied atomically: if any part conflicts or violates
-the expression constraints, the whole operation is rejected. A successful
-extension creates a new revision and returns the corresponding `Any.TypeRef`.
+The term definition of a specific process is exposed at
+`GET /api/v1/processes/{id}/definition`; the optional `rn` query selects
+a revision. `PATCH /api/v1/processes/{id}/definition` accepts
+`Proc.Term.DefPatch`, an additive term-expression fragment. It extends the
+existing process definition rather than replacing it. Existing expression
+parts cannot be removed or changed. The extension must be applied atomically:
+if any part conflicts or violates expression constraints, the whole operation
+is rejected. A successful extension creates a new term revision and returns
+the corresponding `Any.TermRef`.
+
+Pool type expressions have a separate definition subresource:
+`GET /api/v1/pools/types/{id}/definition` and
+`PATCH /api/v1/pools/types/{id}/definition`. The PATCH accepts
+`Pool.Type.DefPatch`, extends the existing expression, and returns the
+updated `Any.TypeRef`.
+
 There are no PUT operations in this contract.
 
 ## Response conventions

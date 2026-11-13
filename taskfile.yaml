@@ -49,11 +49,6 @@ tasks:
       - task: tools:install
       - GOWORK=off go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...
 
-  sources:verify:
-    desc: Verify the current HEAD before publishing
-    cmds:
-      - task: tests:unit
-
   specs:generate:
     desc: Generate OpenAPI from TypeSpec
     dir: tsp

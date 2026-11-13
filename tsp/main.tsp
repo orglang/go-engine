@@ -67,16 +67,6 @@ interface EngineApi {
   @route("/pools/types/{id}")
   getPoolTypeDefinition(@path id: string, @query rn?: int64): Ok<Pool.Type.DefSnap>;
 
-  /** Get the expression of a pool type definition. */
-  @get
-  @route("/pools/types/{id}/definition")
-  getPoolTypeDefinitionExpression(@path id: string, @query rn?: int64): Ok<Pool.Type.ExprSpec>;
-
-  /** Extend a pool type definition without replacing or removing existing expression parts. */
-  @patch
-  @route("/pools/types/{id}/definition")
-  extendPoolTypeDefinition(@path id: string, @body patch: Pool.Type.DefPatch): Ok<Any.TypeRef>;
-
   // Process declarations and executions
 
   /** Create a process declaration and return its identity. */
@@ -129,7 +119,7 @@ interface EngineApi {
   /** Extend a process term definition without replacing or removing existing expression parts. */
   @patch
   @route("/processes/{id}/definition")
-  extendProcessDefinition(@path id: string, @body patch: Proc.Term.DefPatch): Ok<Any.TermRef>;
+  extendProcessDefinition(@path id: string, @body extension: Proc.Term.ExprSpec): Ok<Any.TermRef>;
 
   // Pool declarations and executions
 
@@ -142,6 +132,16 @@ interface EngineApi {
   @get
   @route("/pools/{id}/declaration")
   getPoolAssociatedDeclaration(@path id: string, @query rn?: int64): Ok<Pool.DecSnap>;
+
+  /** Get the term definition of a specific pool; omit rn to select its latest revision. */
+  @get
+  @route("/pools/{id}/definition")
+  getPoolDefinition(@path id: string, @query rn?: int64): Ok<Pool.Term.ExprSpec>;
+
+  /** Extend a pool term definition without replacing or removing existing expression parts. */
+  @patch
+  @route("/pools/{id}/definition")
+  extendPoolDefinition(@path id: string, @body extension: Pool.Term.ExprSpec): Ok<Any.TermRef>;
 
   /** List execution identities associated with a pool. */
   @get

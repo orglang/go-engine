@@ -54,7 +54,7 @@ jobs:
             go.sum
             gear.sum
 
-      - name: Generate OpenAPI from TypeSpec
+      - name: Generate OpenAPI from TypeSpec (skipped for ogen prototype)
         if: github.ref != 'refs/heads/prototype/ogen-pool-term-expr-name'
         run: cd tsp && npm ci && npm run build
 

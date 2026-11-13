@@ -7,6 +7,8 @@ run = [
   { task = "generate:go-sum" },
   { task = "generate:sources" },
   { task = "generate:mise-lock" },
+  { task = "generate:npm-lock" },
+  { task = "generate:openapi" },
 ]
 
 [tasks."generate:go-sum"]
@@ -20,3 +22,15 @@ run = "task sources:generate"
 [tasks."generate:mise-lock"]
 description = "Generate the mise tool lockfile"
 run = "mise lock"
+
+[tasks."generate:npm-lock"]
+description = "Generate the TypeSpec npm dependency lockfile"
+dir = "tsp"
+run = "npm install --package-lock-only --ignore-scripts --no-audit --no-fund"
+
+[tasks."generate:openapi"]
+description = "Install locked TypeSpec dependencies and generate OpenAPI"
+run = [
+  "npm ci --prefix tsp --no-audit --no-fund",
+  "task specs:generate",
+]

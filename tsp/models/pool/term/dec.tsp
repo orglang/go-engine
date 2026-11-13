@@ -1,4 +1,4 @@
-import "../../any/conn.tsp";
+import "../../any/conn/var.tsp";
 import "../../any/term.tsp";
 
 namespace OrgLang.Pool;

@@ -1,10 +1,11 @@
-*** Begin Patch
-*** Update File: gen/generics.go
-@@
+--- a/gen/generics.go
++++ b/gen/generics.go
+@@ -39,7 +39,9 @@
  				default:
  					// Required.
 -					return nil, errors.Errorf("infinite recursion: %s.%s is required", s.Name, field.Name)
 +					// Keep the field required in the schema, but use a pointer in Go
 +					// so recursive values have a finite in-memory representation.
 +					return ir.Pointer(t, ir.NilNull), nil
-*** End Patch
+ 				}
+ 			}

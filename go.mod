@@ -15,6 +15,7 @@ require (
 	github.com/labstack/echo/v4 v4.16.3
 	github.com/orglang/go-sdk v0.0.0-20260912152343-a8600e41f90d
 	github.com/rs/xid v1.6.0
+	github.com/samber/do/v2 v2.1.0
 	github.com/spf13/viper v1.21.0
 	go.uber.org/fx v1.24.0
 	golang.org/x/exp v0.0.0-20260112195511-716be5621a96
@@ -41,6 +42,7 @@ require (
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/sagikazarmark/locafero v0.12.0 // indirect
+	github.com/samber/go-type-to-string v1.8.0 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect

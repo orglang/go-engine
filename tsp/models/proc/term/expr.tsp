@@ -29,3 +29,8 @@ model CallSpec {
   val_phs: string[];
   cont_expr: ExprSpec;
 }
+
+/** Additive fragment applied to the term definition of an existing process. */
+model DefPatch {
+  extension: ExprSpec;
+}

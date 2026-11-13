@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - prototype/api-client-generators
+      - prototype/ogen-pool-term-expr-name
     paths:
       - ".mise.toml"
       - ".github/workflows/generate.yaml"

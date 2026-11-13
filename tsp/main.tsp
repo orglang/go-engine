@@ -121,15 +121,15 @@ interface EngineApi {
   @route("/processes/types/{id}")
   getProcessTypeDefinition(@path id: string, @query rn?: int64): Ok<Proc.Type.DefSnap>;
 
-  /** Get the expression of a process type definition. */
+  /** Get the term definition of a specific process; omit rn to select its latest revision. */
   @get
-  @route("/processes/types/{id}/definition")
-  getProcessTypeDefinitionExpression(@path id: string, @query rn?: int64): Ok<Proc.Type.ExprSpec>;
+  @route("/processes/{id}/definition")
+  getProcessDefinition(@path id: string, @query rn?: int64): Ok<Proc.Term.ExprSpec>;
 
-  /** Extend a process type definition without replacing or removing existing expression parts. */
+  /** Extend a process term definition without replacing or removing existing expression parts. */
   @patch
-  @route("/processes/types/{id}/definition")
-  extendProcessTypeDefinition(@path id: string, @body patch: Proc.Type.DefPatch): Ok<Any.TypeRef>;
+  @route("/processes/{id}/definition")
+  extendProcessDefinition(@path id: string, @body patch: Proc.Term.DefPatch): Ok<Any.TermRef>;
 
   // Pool declarations and executions
 

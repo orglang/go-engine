@@ -24,5 +24,3 @@ model LolliSpec { val_expr: ExprSpec; cont_expr: ExprSpec; }
 model UpSpec { cont_expr: ExprSpec; }
 model DownSpec { cont_expr: ExprSpec; }
 
-/** Additive fragment applied to an existing pool type expression. */
-model DefPatch { extension: ExprSpec; }

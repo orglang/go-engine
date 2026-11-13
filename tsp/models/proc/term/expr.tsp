@@ -21,7 +21,7 @@ model RecvSpec { conn_ph: string; bind_ph: string; cont_expr: ExprSpec; }
 model LabSpec { conn_ph: string; pattern_qn: string; }
 model CaseSpec { conn_ph: string; cont_bses: BranchSpec[]; }
 model BranchSpec { pattern_qn: string; cont_expr: ExprSpec; }
-model LinkSpec { conn_ph: string; cont_ph: string; }
+model LinkSpec { proc_qn: string; x: string; ys: string[]; }
 model FwdSpec { conn_ph: string; cont_ph: string; }
 model CallSpec {
   bind_ph: string;

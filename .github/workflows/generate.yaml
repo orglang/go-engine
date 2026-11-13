@@ -55,6 +55,7 @@ jobs:
             gear.sum
 
       - name: Generate OpenAPI from TypeSpec
+        if: github.ref != 'refs/heads/prototype/ogen-pool-term-expr-name'
         run: cd tsp && npm ci && npm run build
 
       - name: Generate artifacts

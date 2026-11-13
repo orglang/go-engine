@@ -1,0 +1,54 @@
+name: Generate artifacts
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: generate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  generate:
+    if: github.ref_type == 'branch' && github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Set up mise
+        uses: jdx/mise-action@v5
+
+      - name: Set up Task
+        uses: go-task/setup-task@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: |
+            go.sum
+            gear.sum
+
+      - name: Generate artifacts
+        run: mise run generate
+
+      - name: Commit generated artifacts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --all
+          if git diff --cached --quiet; then
+            echo "No generated changes"
+            exit 0
+          fi
+          git diff --cached --check
+          git commit -m "chore(generated): refresh artifacts [generated]"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

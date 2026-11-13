@@ -23,8 +23,16 @@ jobs:
           ref: ${{ github.ref }}
           fetch-depth: 0
 
+      - name: Cache mise downloads
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/mise/downloads-cas
+          key: mise-downloads-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('mise.lock') }}
+
       - name: Set up mise
         uses: jdx/mise-action@v5
+        with:
+          cache: false
 
       - name: Set up Task
         uses: go-task/setup-task@v2

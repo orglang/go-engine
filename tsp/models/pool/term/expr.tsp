@@ -3,18 +3,18 @@ import "../../any/comp.tsp";
 
 namespace OrgLang.Pool.Term;
 
-/** Pool term expression specification. */
-model ExprSpec {
-  kind: "hire" | "fire" | "apply" | "quit" | "acquire" | "release" | "accept" | "detach" | "spawn";
-  hire?: HireSpec;
-  fire?: FireSpec;
-  apply?: ApplySpec;
-  quit?: QuitSpec;
-  acquire?: AcquireSpec;
-  release?: ReleaseSpec;
-  accept?: AcceptSpec;
-  detach?: DetachSpec;
-  spawn?: SpawnSpec;
+/** Pool term expression specification. Exactly one variant is serialized inline with its kind discriminator. */
+@discriminated(#{ envelope: "none" })
+union ExprSpec {
+  hire: HireSpec,
+  fire: FireSpec,
+  apply: ApplySpec,
+  quit: QuitSpec,
+  acquire: AcquireSpec,
+  release: ReleaseSpec,
+  accept: AcceptSpec,
+  detach: DetachSpec,
+  spawn: SpawnSpec,
 }
 
 model HireSpec { conn_ph: string; proc_qn: string; cont_expr: ExprSpec; }

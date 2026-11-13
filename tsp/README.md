@@ -14,7 +14,7 @@ npm install
 npm run build
 ```
 
-The contract describes 15 target `/api/v1` operations. Its resource paths are
+The contract describes 16 target `/api/v1` operations. Its resource paths are
 intentionally normalized and are not yet the paths registered by the Echo server.
 The server routes and existing clients remain unchanged until a separate migration.
 The `/ssr` web presenter routes are intentionally out of scope.
@@ -25,7 +25,7 @@ TypeSpec namespaces use `OrgLang` as the root and follow domain concepts:
 
 - `OrgLang.Any` — shared semantic identities (`TypeRef`, `TermRef`, `CompRef`) and the shared `ExecSpec`
 - `OrgLang.Any.Type` — shared type-link specification
-- `OrgLang.Any.Conn` — shared connection variable specs and records
+- `OrgLang.Any.Conn` — shared connection variable specs and records, defined in `any/conn/var.tsp`
 - `OrgLang.Any.Exec.VarSpec` — execution variable specification shared by execution requests
 - `OrgLang.Proc` — process declarations
 - `OrgLang.Proc.Type` / `OrgLang.Proc.Term` — process type and term expressions; type definitions live in `Proc.Type.DefSpec` / `DefSnap`
@@ -35,7 +35,7 @@ TypeSpec namespaces use `OrgLang` as the root and follow domain concepts:
 The service is named `OrgLang Go Engine API`; `Engine` is not repeated as a namespace segment.
 Declaration models use `DecSpec`/`DecSnap`, following the existing Go
 implementation's `termdec` packages and types. Type definitions use
-`Type.DefSpec`/`Type.DefSnap`. Process and pool computation models are
+`Type.DefSpec`/`Type.DefSnap`. Process and pool computation models remain
 grouped in `Proc.Comp` and `Pool.Comp`.
 
 The four expression specifications are distinct and recursive:
@@ -53,8 +53,9 @@ these wire-level changes.
 
 The Go wire prefix `comp` denotes computation, not component. Shared
 computation identity is `Any.CompRef`; context-specific computation models
-are grouped in their owning `Proc.Comp` and `Pool.Comp` files. Wire property
-names such as `comp_id` and `comp_ref` remain unchanged.
+remain grouped in their owning `Proc.Comp` and `Pool.Comp` namespaces.
+The HTTP resource paths use the common term `executions` for both processes
+and pools, while retaining the domain model name `Comp`.
 
 ## Type definition updates
 
@@ -62,8 +63,7 @@ Process and pool type definitions are replaced with complete snapshots using
 `PUT /api/v1/processes/types/{id}` and `PUT /api/v1/pools/types/{id}`, respectively.
 This is the target contract semantics; the current Echo implementation still
 exposes PATCH for process types and is not changed by this contract-only PR.
-
-Pool type definitions support retrieval with an optional `revision` query
+Pool type definitions support retrieval with an optional `rn` query
 parameter and full replacement using `PUT /api/v1/pools/types/{id}`. Creation
 returns the shared `Any.TypeRef`; retrieval and replacement return a complete
 `Pool.Type.DefSnap`. As with process type definitions, PUT replaces the complete
@@ -71,8 +71,10 @@ snapshot rather than applying a partial update.
 
 ## Revision query
 
-The four retrieval operations accept an optional `revision` query parameter.
-When omitted, the contract describes retrieval of the latest available revision.
-When supplied, it identifies the requested revision. This is an API contract
-statement; persistence support for historical revisions is not asserted by
-this specification.
+The four single-resource retrieval operations accept an optional `rn` query
+parameter. When omitted, the contract describes retrieval of the latest
+available revision. When supplied, it identifies the requested revision.
+The process declaration collection endpoint
+`GET /api/v1/processes/{id}/declarations` returns all declarations associated
+with the process and does not take `rn`. Historical revision persistence is
+not asserted by this specification.

@@ -6,7 +6,7 @@ that generated file by hand.
 
 ## Generate
 
-Requires Node.js 22 and npm (the Node.js version is pinned in the root `.mise.toml`). Install dependencies once after checkout, then run the generation task as often as needed:
+Requires Node.js 22 and npm. Install dependencies once after checkout, then run the generation task as often as needed:
 
 ```sh
 cd tsp

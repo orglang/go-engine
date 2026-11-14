@@ -38,11 +38,13 @@ This first automation stage is intentionally a **generation baseline**, not a co
 
 ## ogen schema-name override experiment
 
-The first ogen baseline failed while generating `/api/v1/pools/executions/spawns` because the generated sum type name `PoolTermExprSpecSum` collided. The current experiment adds the schema-level OpenAPI extension `x-ogen-name: PoolTermExpression` to `components.schemas.Pool.Term.ExprSpec`. This is generator metadata only; it does not change the JSON schema or wire contract, and oapi-codegen is expected to ignore the unknown extension.
+The first ogen baseline failed while generating `/api/v1/pools/executions/spawns` because the generated sum type name `PoolTermExprSpecSum` collided. The first override changed the collision to `PoolTermExpressionSum`, proving that ogen v1.25.0 recognizes `x-ogen-name`, but not resolving it.
 
-This is deliberately applied to the committed OpenAPI document only for the isolated generator experiment. The TypeSpec source has not yet been taught to emit the extension, so a normal TypeSpec regeneration may remove it. Do not treat this as a durable source-of-truth fix until the generated Go type name is verified and the extension is represented in the TypeSpec pipeline.
+The follow-up experiment gives the component schema the name `PoolTermExpressionDefinition` and adds a distinct `x-ogen-name: PoolStepTermExpression` sibling to the `$ref` on `Pool.StepSpec.pool_expr`. This tests whether the conflicting generated sum types originate from the component schema and its use through the step property.
 
-The next workflow run determines whether ogen v1.25.0 applies the override to the conflicting oneOf sum type or whether the collision persists/moves. No result is claimed before that run completes.
+These extensions are generator metadata only; they do not change the JSON schema or wire contract, and oapi-codegen is expected to ignore them. They are applied to the committed OpenAPI document only for this experiment. The TypeSpec source has not yet been taught to emit them, so normal TypeSpec regeneration may remove them. Do not treat this as a durable source-of-truth fix until the generated Go names are verified and the extension is represented in the TypeSpec pipeline.
+
+The follow-up workflow run will show whether ogen honors the property-level override on a `$ref` sibling and whether the collision moves or disappears.
 
 ## Comparison matrix
 

@@ -87,7 +87,7 @@ jobs:
         working-directory: ${{ runner.temp }}
         run: |
           go mod init example.com/ogen-recursion-diagnostic
-          go get github.com/ogen-go/ogen@v1.25.0
+          go mod tidy
           go test ./ogen-no-recursion/...
       - name: Generate with oapi-codegen v2.8.2
         run: |

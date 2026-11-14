@@ -7,17 +7,17 @@ that generated file by hand. The generation workflow also refreshes
 
 ## Generate
 
-Requires Node.js 22 and npm. After the generation workflow has created or refreshed
-`package-lock.json`, install the exact dependency versions and generate OpenAPI:
+Requires Node.js 22. The repository's mise configuration installs Node.js,
+Go, Task, and the Go code-generation tools:
 
 ```sh
-cd tsp
-npm ci
-cd ..
+mise install
+mise run deps:install
 task specs:generate
 ```
 
-The CI workflow installs dependencies once per job before running `task specs:check`.
+The CI workflow installs dependencies once per job before running
+`task specs:check`.
 
 The contract describes 21 target `/api/v1` operations. Its resource paths are
 intentionally normalized and are not yet the paths registered by the Echo server.
@@ -28,23 +28,20 @@ The `/ssr` web presenter routes are intentionally out of scope.
 
 The Go HTTP server boundary is generated from the emitted OpenAPI document with
 `oapi-codegen` and its Echo v4 integration. The generator version is pinned in
-`gear.mod`; its configuration lives in `internal/app/web/api/cfg.yaml`.
+`.mise.toml`; its configuration lives in `internal/app/web/api/cfg.yaml`.
 
 The repository currently uses Echo v4 in its application and existing adapters.
 Although `oapi-codegen` also supports Echo v5, switching only the generated
 boundary would make it incompatible with the current Echo runtime. Migrating the
 application and all existing Echo adapters to v5 is a separate, broader change.
 
-After generating OpenAPI, run:
+The `task sources:generate` task generates both Goverter adapters and the
+Echo server boundary from `openapi/openapi.yaml`.
 
-```sh
-task api:generate
-```
-
-The generated `ServerInterface` and route registration are transport-layer artifacts.
-Implementations belong in Echo adapters; generated files must not contain handwritten
-business logic. This step does not migrate the currently registered routes or claim
-that the normalized contract paths are already served.
+The generated `ServerInterface` and route registration are transport-layer
+artifacts. Implementations belong in Echo adapters; generated files must not
+contain handwritten business logic. This step does not migrate the currently
+registered routes or claim that the normalized contract paths are already served.
 
 ## Model organization
 
@@ -63,7 +60,7 @@ The service is named `OrgLang Go Engine API`; `Engine` is not repeated as a name
 Declaration models use `DecSpec`/`DecSnap`, following the existing Go
 implementation's `termdec` packages and types. Type definitions use
 `Type.DefSpec`/`DefSnap`. Process and pool computation models remain
-grouped in `Proc.Comp` and `Pool.Comp`.
+grouped in `Proc.Comp` and `Pool.Comp` namespaces.
 
 ## Expression polymorphism
 
@@ -86,9 +83,9 @@ these wire-level changes.
 
 ## Naming
 
-The Go wire prefix `comp` denotes computation, not component. Shared
-computation identity is `Any.CompRef`; context-specific computation models
-remain grouped in their owning `Proc.Comp` and `Pool.Comp` namespaces.
+The Go wire prefix `comp` denotes computation, not component.
+Shared computation identity is `Any.CompRef`; context-specific computation
+models remain grouped in their owning `Proc.Comp` and `Pool.Comp` namespaces.
 The HTTP resource paths use the common term `executions` for both processes
 and pools, while retaining the domain model name `Comp`. Nested collection
 routes return arrays of references; nested `declaration` routes return one

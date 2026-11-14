@@ -22,6 +22,26 @@ jobs:
           cache: false
       - name: Record input checksum
         run: sha256sum openapi/openapi.yaml | tee "$RUNNER_TEMP/openapi.sha256"
+      - name: Reproduce recursive object oneOf schema-name collision
+        id: ogen_recursive_oneof_repro
+        shell: bash
+        run: |
+          set +e
+          go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
+            --target "$RUNNER_TEMP/ogen-recursive-oneof-repro" -package api --clean \
+            prototypes/api-client/generator-comparison/ogen-recursive-oneof-repro.yaml \
+            > "$RUNNER_TEMP/ogen-recursive-oneof-repro.log" 2>&1
+          status=$?
+          set -e
+          cat "$RUNNER_TEMP/ogen-recursive-oneof-repro.log"
+          if [ "$status" -eq 0 ]; then
+            echo "Expected ogen v1.25.0 to reject the recursive oneOf reproduction, but generation succeeded."
+            exit 1
+          fi
+          if ! grep -F 'schema name conflict: "ExprSum"' "$RUNNER_TEMP/ogen-recursive-oneof-repro.log"; then
+            echo "ogen failed, but not with the expected ExprSum collision."
+            exit 1
+          fi
       - name: Generate with ogen v1.25.0 (baseline)
         id: ogen
         shell: bash

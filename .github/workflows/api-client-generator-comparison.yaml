@@ -104,7 +104,12 @@ jobs:
           package api
 
           import (
+              "context"
               "encoding/json"
+              "io"
+              "net/http"
+              "net/http/httptest"
+              "strings"
               "testing"
           )
 
@@ -336,6 +341,135 @@ jobs:
                   t.Fatalf("execution list round-trip = %+v, want %+v", roundTrip, got)
               }
           }
+
+          
+          func TestJSONRequestBodyEncodingAndContentType(t *testing.T) {
+              body := AnyExecSpec{
+                  TermQn: "example.term",
+                  LiabVar: AnyExecVarSpec{ConnPh: "liability", TermQn: "example.Liab"},
+                  AssetVars: []AnyExecVarSpec{{ConnPh: "asset", TermQn: "example.Asset"}},
+              }
+              req, err := NewEngineApiCreatePoolExecutionRequest("https://example.com", body)
+              if err != nil {
+                  t.Fatalf("build JSON request: %v", err)
+              }
+              if req.Method != http.MethodPost {
+                  t.Fatalf("method = %q, want POST", req.Method)
+              }
+              if got := req.Header.Get("Content-Type"); got != "application/json" {
+                  t.Fatalf("Content-Type = %q, want application/json", got)
+              }
+              encoded, err := io.ReadAll(req.Body)
+              if err != nil {
+                  t.Fatalf("read request body: %v", err)
+              }
+              var got AnyExecSpec
+              if err := json.Unmarshal(encoded, &got); err != nil {
+                  t.Fatalf("decode request body: %v", err)
+              }
+              if got.TermQn != body.TermQn || got.LiabVar.ConnPh != body.LiabVar.ConnPh ||
+                  len(got.AssetVars) != 1 || got.AssetVars[0].TermQn != "example.Asset" {
+                  t.Fatalf("decoded request body = %+v, want %+v", got, body)
+              }
+          }
+
+          func TestProgramTextPlainRequestBody(t *testing.T) {
+              const source = "program Example {}\n"
+              req, err := NewEngineApiCreateProgramRequestWithTextBody("https://example.com", source)
+              if err != nil {
+                  t.Fatalf("build program request: %v", err)
+              }
+              if req.Header.Get("Content-Type") != "text/plain" {
+                  t.Fatalf("Content-Type = %q, want text/plain", req.Header.Get("Content-Type"))
+              }
+              got, err := io.ReadAll(req.Body)
+              if err != nil {
+                  t.Fatalf("read program request body: %v", err)
+              }
+              if string(got) != source {
+                  t.Fatalf("program body = %q, want %q", got, source)
+              }
+          }
+
+          func TestPathParameterEscaping(t *testing.T) {
+              req, err := NewEngineApiGetPoolTypeDefinitionRequest(
+                  "https://example.com", "pool/with space", nil,
+              )
+              if err != nil {
+                  t.Fatalf("build request: %v", err)
+              }
+              if got, want := req.URL.EscapedPath(), "/api/v1/pools/types/pool%2Fwith%20space"; got != want {
+                  t.Fatalf("escaped path = %q, want %q", got, want)
+              }
+          }
+
+          func TestTypedSuccessNoContentAndUnmodeledErrorResponses(t *testing.T) {
+              server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+                  switch r.URL.Path {
+                  case "/api/v1/pools/executions":
+                      if r.Method != http.MethodPost {
+                          t.Errorf("execution method = %q, want POST", r.Method)
+                      }
+                      if got := r.Header.Get("Content-Type"); got != "application/json" {
+                          t.Errorf("execution Content-Type = %q, want application/json", got)
+                      }
+                      w.Header().Set("Content-Type", "application/json")
+                      w.WriteHeader(http.StatusCreated)
+                      _, _ = io.WriteString(w, `{"comp_id":"comp-created","comp_rn":12}`)
+                  case "/api/v1/pools/executions/steps":
+                      w.WriteHeader(http.StatusNoContent)
+                  case "/api/v1/programs":
+                      w.Header().Set("Content-Type", "text/plain")
+                      w.WriteHeader(http.StatusUnprocessableEntity)
+                      _, _ = io.WriteString(w, "invalid program")
+                  default:
+                      http.NotFound(w, r)
+                  }
+              }))
+              defer server.Close()
+
+              client, err := NewClientWithResponses(server.URL)
+              if err != nil {
+                  t.Fatalf("create generated client: %v", err)
+              }
+
+              created, err := client.EngineApiCreatePoolExecutionWithResponse(context.Background(), AnyExecSpec{
+                  TermQn: "example.term",
+                  LiabVar: AnyExecVarSpec{ConnPh: "liability", TermQn: "example.Liab"},
+                  AssetVars: []AnyExecVarSpec{},
+              })
+              if err != nil {
+                  t.Fatalf("create pool execution: %v", err)
+              }
+              if created.StatusCode() != http.StatusCreated {
+                  t.Fatalf("creation status = %d, want 201", created.StatusCode())
+              }
+              if created.JSON201 == nil || created.JSON201.CompId != "comp-created" || created.JSON201.CompRn != 12 {
+                  t.Fatalf("typed creation response = %+v, want comp-created revision 12", created.JSON201)
+              }
+
+              stepped, err := client.EngineApiStepPoolExecutionWithBodyWithResponse(
+                  context.Background(), "application/json", strings.NewReader(`{}`),
+              )
+              if err != nil {
+                  t.Fatalf("step pool execution: %v", err)
+              }
+              if stepped.StatusCode() != http.StatusNoContent || len(stepped.Body) != 0 {
+                  t.Fatalf("204 response = status %d body %q, want empty 204", stepped.StatusCode(), stepped.Body)
+              }
+
+              rejected, err := client.EngineApiCreateProgramWithTextBodyWithResponse(
+                  context.Background(), "invalid source",
+              )
+              if err != nil {
+                  t.Fatalf("create invalid program: %v", err)
+              }
+              if rejected.StatusCode() != http.StatusUnprocessableEntity || string(rejected.Body) != "invalid program" {
+                  t.Fatalf("unmodeled error response = status %d body %q, want 422 and raw body",
+                      rejected.StatusCode(), rejected.Body)
+              }
+          }
+
           GO
       - name: Test generated oapi-codegen package
         working-directory: ${{ runner.temp }}

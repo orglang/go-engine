@@ -129,3 +129,18 @@ This is generator evaluation only. It does not add the maintained generated clie
 - The companion two-operation Pool execution diagnostic with the same four edges removed also generates successfully and compiles. The separate Pool.Type diagnostic still succeeds with its recursive edges removed. Their corresponding controls with recursive edges intact still fail: the full baseline reports `PoolTermExpressionDefinitionSum`, while isolated `POST /api/v1/pools/types` and the contract without Pool Step operations report `PoolTypeExprSpecSum`.
 - This adds evidence that the Pool.Term collision is associated with recursive Pool.Term schema edges, just as the isolated Pool.Type collision is associated with recursive Pool.Type edges. It does not establish that every recursive schema is unsupported, identify a production-safe schema transformation, or make either filtered package equivalent to the original contract. The successful packages are diagnostic artifacts only; no recursive fields were present in the altered schemas.
 - The workflow fix in this commit also separates the three `go test` commands into actual YAML lines. The previous CI failure was a malformed shell command caused by a literal `\\n`, not a generator or Go compilation failure.
+
+## Candidate ogen recursive oneOf fix
+
+The experiment now carries a candidate patch for ogen v1.25.0 at
+`ogen-recursive-oneof-fix.patch`. It pre-registers the outer object type
+before generating its `oneOf`/`anyOf` variants, so a recursive variant
+reference can resolve to the outer object instead of re-entering composition
+generation and registering the same Sum type again.
+
+The workflow applies this patch to a writable copy of the pinned ogen module,
+runs the minimal reproduction with the patched generator, and compiles the
+generated package. This is a candidate fix, not an upstream change. It must
+pass CI and preserve the expected recursive Go type shape before the approach
+is considered validated. The unmodified ogen v1.25.0 reproduction remains as
+a separate control and must continue to fail with `ExprSum`.

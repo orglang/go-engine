@@ -19,5 +19,9 @@ run = [
   "if GOWORK=off go run github.com/ogen-go/ogen/cmd/ogen@v1.24.0 --target prototypes/api-client/ogen/probe-optional --package probe --clean prototypes/api-client/ogen/fixtures/optional-cycle.yaml > prototypes/api-client/ogen/probe-optional.log 2>&1; then echo 0 > prototypes/api-client/ogen/probe-optional.exit-code; else echo $? > prototypes/api-client/ogen/probe-optional.exit-code; fi",
   "if GOWORK=off go run github.com/ogen-go/ogen/cmd/ogen@v1.24.0 --target prototypes/api-client/ogen/probe-required --package probe --clean prototypes/api-client/ogen/fixtures/required-cycle.yaml > prototypes/api-client/ogen/probe-required.log 2>&1; then echo 0 > prototypes/api-client/ogen/probe-required.exit-code; else echo $? > prototypes/api-client/ogen/probe-required.exit-code; fi",
   "printf 'optional-edge exit=%s\\nrequired-edge exit=%s\\n' \"$(cat prototypes/api-client/ogen/probe-optional.exit-code)\" \"$(cat prototypes/api-client/ogen/probe-required.exit-code)\" > prototypes/api-client/ogen/probe-summary.txt",
-  "test \"$(cat prototypes/api-client/ogen/oapi-codegen/exit-code 2>/dev/null || cat prototypes/api-client/oapi-codegen/exit-code)\" -eq 0",
+  "test \"$(cat prototypes/api-client/ogen/exit-code)\" -eq 0",
+  "test \"$(cat prototypes/api-client/ogen/probe-optional.exit-code)\" -eq 0",
+  "test \"$(cat prototypes/api-client/ogen/probe-required.exit-code)\" -eq 0",
+  "GOWORK=off go test ./prototypes/api-client/ogen",
+  "test \"$(cat prototypes/api-client/oapi-codegen/exit-code)\" -eq 0",
 ]

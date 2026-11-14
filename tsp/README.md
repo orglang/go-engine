@@ -23,6 +23,18 @@ intentionally normalized and are not yet the paths registered by the Echo server
 The server routes and existing clients remain unchanged until a separate migration.
 The `/ssr` web presenter routes are intentionally out of scope.
 
+## Generate the Echo HTTP server
+
+The Go HTTP server boundary is generated from the emitted OpenAPI document with `oapi-codegen` and its Echo v4 integration. The generator version is pinned in `gear.mod`; the configuration and `go:generate` directive live in `internal/app/web/api`.
+
+After generating OpenAPI, run:
+
+```sh
+task api:generate
+```
+
+The generated `ServerInterface` and route registration are transport-layer artifacts. Implementations belong in Echo adapters; generated files must not contain handwritten business logic. This step does not migrate the currently registered routes or claim that the normalized contract paths are already served.
+
 ## Model organization
 
 TypeSpec namespaces use `OrgLang` as the root and follow domain concepts:

@@ -10,12 +10,13 @@ The comparison input is the committed OpenAPI contract at `openapi/openapi.yaml`
 
 ## Evidence collected so far
 
-### Latest runtime integration evidence — comparison run #37
+### Latest runtime integration and error-path evidence — comparison run #39
 
-- Commit: [0c07b5d](https://github.com/orglang/go-engine/commit/0c07b5d6331fe84fb4d531e0606416071944d61f); [CI run #43596829412](https://github.com/orglang/go-engine/actions/runs/43596829412) completed successfully. All 12 main workflow steps passed, including the ogen diagnostic generation and package test, full-contract oapi-codegen generation, generated-package tests, and artifact upload.
+- Commit: [b0c7dc0](https://github.com/orglang/go-engine/commit/b0c7dc029a57d46e780a4151e5b4bc22df1a20b9); [CI run #43597073203](https://github.com/orglang/go-engine/actions/runs/43597073203) (#39) completed successfully. All 12 main workflow steps passed, including the ogen diagnostic generation and package test, full-contract oapi-codegen generation, generated-package tests, and artifact upload. The preceding run [#43597036070](https://github.com/orglang/go-engine/actions/runs/43597036070) (#38) also completed successfully.
 - The oapi-codegen test suite now verifies a custom `http.Client` transport via `WithHTTPClient`, request editing via `WithRequestEditorFn` (including an injected header), and parsing a typed `201` response through `NewClientWithResponses`.
 - A separate test confirms that cancellation of the request context propagates through the custom transport as `context.Canceled`.
-- Together with run #36, the tested client behaviors now include JSON and text/plain request bodies, path parameter escaping, typed `201` success, empty `204`, raw body/status for an unmodeled `422`, custom transport, request editor, and context cancellation. This remains focused test coverage, not a complete consumer integration or a comprehensive error contract.
+- Run #39 adds error-path coverage: an error returned by `WithRequestEditorFn` propagates and prevents the transport from running; a custom transport error propagates (verified with `errors.Is`); and malformed JSON in a modeled successful `201` response returns a decoding error. These tests exercise client behavior, not a typed API error schema.
+- Together with runs #36–39, the tested client behaviors now include JSON and text/plain request bodies, path parameter escaping, typed `201` success, empty `204`, raw body/status for an unmodeled `422`, custom transport, request editor success and failure, transport failure, malformed success JSON, and context cancellation. This remains focused test coverage, not a complete consumer integration or a comprehensive error contract.
 - The full-contract ogen baseline still fails with `schema name conflict: "PoolTermExpressionDefinitionSum"`; the green workflow records this expected failure and does not imply successful full-contract ogen generation. The filtered two-operation ogen diagnostic still generates and compiles.
 - Run #37 artifact sizes: full oapi-codegen output directory 224,588 bytes (generated `client.gen.go`: 206,559 bytes); filtered ogen diagnostic output directory 98,573 bytes. These remain incomparable because the generated scopes differ.
 

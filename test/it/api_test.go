@@ -1,6 +1,7 @@
 package it
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -17,7 +18,7 @@ func TestIntegrationGeneratedEchoServer(t *testing.T) {
 		e := echo.New()
 		api.RegisterHandlers(e, handler)
 
-		req := httptest.NewRequest(http.MethodGet, "/api/v1/processes/executions/exec-123?rn=42", nil)
+		req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/v1/processes/executions/exec-123?rn=42", nil)
 		rec := httptest.NewRecorder()
 		e.ServeHTTP(rec, req)
 
@@ -51,7 +52,7 @@ func TestIntegrationGeneratedEchoServer(t *testing.T) {
 		e := echo.New()
 		api.RegisterHandlers(e, handler)
 
-		req := httptest.NewRequest(http.MethodGet, "/api/v1/processes/executions/exec-123?rn=not-an-integer", nil)
+		req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/v1/processes/executions/exec-123?rn=not-an-integer", nil)
 		rec := httptest.NewRecorder()
 		e.ServeHTTP(rec, req)
 

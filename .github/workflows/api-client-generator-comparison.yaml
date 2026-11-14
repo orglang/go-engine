@@ -241,6 +241,32 @@ jobs:
           }
 
           
+          func TestEngineApiGetPoolTypeDefinitionOptionalRnQueryParameter(t *testing.T) {
+              tests := []struct {
+                  name  string
+                  rn    *int64
+                  want  string
+              }{
+                  {name: "provided", rn: func() *int64 { value := int64(42); return &value }(), want: "rn=42"},
+                  {name: "omitted", rn: nil, want: ""},
+              }
+
+              for _, tt := range tests {
+                  t.Run(tt.name, func(t *testing.T) {
+                      req, err := NewEngineApiGetPoolTypeDefinitionRequest(
+                          "https://example.com", "pool-1",
+                          &EngineApiGetPoolTypeDefinitionParams{Rn: tt.rn},
+                      )
+                      if err != nil {
+                          t.Fatalf("build request: %v", err)
+                      }
+                      if got := req.URL.RawQuery; got != tt.want {
+                          t.Fatalf("query = %q, want %q", got, tt.want)
+                      }
+                  })
+              }
+          }
+
           func TestPoolExecutionListResponseJSONRoundTrip(t *testing.T) {
               input := []byte(`[{"comp_id":"comp-1","comp_rn":7},{"comp_id":"comp-2","comp_rn":9}]`)
               var got []AnyCompRef

@@ -48,8 +48,8 @@ jobs:
       - name: Lock dependencies
         run: mise run deps:lock
 
-      - name: Install TypeSpec dependencies
-        run: npm ci --prefix tsp --no-audit --no-fund
+      - name: Install dependencies
+        run: mise run deps:install
 
       - name: Generate OpenAPI
         run: task specs:generate

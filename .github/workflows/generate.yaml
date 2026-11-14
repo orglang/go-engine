@@ -13,7 +13,7 @@ jobs:
   generate:
     if: github.ref_type == 'branch' && github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     permissions:
       contents: write
     steps:
@@ -23,27 +23,16 @@ jobs:
           ref: ${{ github.ref }}
           fetch-depth: 0
 
-      - name: Cache mise downloads
+      - name: Cache mise
         uses: actions/cache@v6
         with:
-          path: ~/.cache/mise/downloads-cas
-          key: mise-downloads-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('mise.lock') }}
+          path: ~/.cache/mise
+          key: mise-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('mise.lock') }}
 
       - name: Set up mise
         uses: jdx/mise-action@v5
         with:
           cache: false
-
-      - name: Set up Task
-        uses: go-task/setup-task@v2
-
-      - name: Set up Go
-        uses: actions/setup-go@v6
-        with:
-          go-version-file: go.mod
-          cache-dependency-path: |
-            go.sum
-            gear.sum
 
       - name: Lock dependencies
         run: mise run deps:lock

@@ -7,7 +7,7 @@ that generated file by hand. The generation workflow also refreshes
 
 ## Generate
 
-Requires Node.js 22. The repository's mise configuration installs Node.js,
+Requires Node.js 26.10.0. The repository's mise configuration installs Node.js,
 Go, Task, and the Go code-generation tools:
 
 ```sh
@@ -16,19 +16,18 @@ mise run deps:install
 task specs:generate
 ```
 
+The `deps:install` task runs `npm ci` in this directory alongside downloading
+Go modules. It installs the exact TypeSpec dependency versions from
+`package-lock.json`.
+
 The CI workflow installs dependencies once per job before running
 `task specs:check`.
-
-The contract describes 21 target `/api/v1` operations. Its resource paths are
-intentionally normalized and are not yet the paths registered by the Echo server.
-The server routes and existing clients remain unchanged until a separate migration.
-The `/ssr` web presenter routes are intentionally out of scope.
 
 ## Generate the Echo HTTP server
 
 The Go HTTP server boundary is generated from the emitted OpenAPI document with
 `oapi-codegen` and its Echo v4 integration. The generator version is pinned in
-`.mise.toml`; its configuration lives in `internal/app/web/api/cfg.yaml`.
+`mise.toml`; its configuration lives in `internal/app/web/api/cfg.yaml`.
 
 The repository currently uses Echo v4 in its application and existing adapters.
 Although `oapi-codegen` also supports Echo v5, switching only the generated

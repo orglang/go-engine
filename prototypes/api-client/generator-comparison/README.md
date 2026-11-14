@@ -27,10 +27,10 @@ The comparison input is the committed OpenAPI contract at `openapi/openapi.yaml`
 ### oapi-codegen
 
 - Candidate: `oapi-codegen v2.8.2` (pinned in the reproducible workflow).
-- The v2.8.2 full-contract generation completed successfully against the same committed OpenAPI input. In comparison run [#43594719836](https://github.com/orglang/go-engine/actions/runs/43594719836), the full generated package passed `go test ./oapi-codegen/...` with deterministic JSON contract tests: a recursive Hire-to-Fire continuation successfully unmarshals and marshals with its `kind` discriminator preserved, and decoding a Hire object with the OpenAPI-required `cont_expr` omitted succeeds without required-property validation. This is evidence for these specific model behaviors, not comprehensive runtime parity or validation of all contract constraints.
+- The v2.8.2 full-contract generation completed successfully against the same committed OpenAPI input. In comparison run [#43595313547](https://github.com/orglang/go-engine/actions/runs/43595313547), the full generated package passed `go test ./oapi-codegen/...` with deterministic JSON contract tests: a recursive Hire-to-Fire continuation successfully unmarshals and marshals with its `kind` discriminator preserved; decoding a Hire object with the OpenAPI-required `cont_expr` omitted succeeds; and decoding the same property explicitly set to `null` also succeeds. The latter two behaviors show that ordinary generated model decoding does not enforce OpenAPI required-property presence or non-nullability. This is evidence for these specific model behaviors, not comprehensive runtime parity or validation of all contract constraints.
 - The same run recorded generated directory sizes: 206,559 bytes for the full oapi-codegen output and 98,573 bytes for the scoped ogen diagnostic output. These figures are **not a valid size comparison** because the generated scopes differ (full contract vs. two operations with four recursion edges removed).
 
-**Current assessment:** full-contract generation and package compilation succeed, and two focused JSON behaviors are now covered. The generated model decoder does not enforce OpenAPI required-property presence for the tested missing field; callers needing validation must provide a separate validation layer. Recursive union round-trip is demonstrated only for the tested Hire-to-Fire example.
+**Current assessment:** full-contract generation and package compilation succeed, and focused JSON tests cover recursive union round-trip plus the decoder's behavior for both missing and explicit-null `cont_expr`. The generated model decoder does not enforce OpenAPI required-property presence or non-nullability for these cases; callers needing contract validation must provide a separate validation layer. Recursive union round-trip is demonstrated only for the tested Hire-to-Fire example.
 
 ## Reproducible generation baseline
 
@@ -70,7 +70,7 @@ The follow-up workflow run [#43592376123](https://github.com/orglang/go-engine/a
 - [x] Keep generated outputs and configuration isolated; do not migrate consumers.
 - [x] Record generation success/failure and the scoped ogen diagnostic workaround; full-contract ogen generation remains blocked by the name collision.
 - [x] Compile the generated oapi-codegen full-contract package and the scoped ogen diagnostic package.
-- [x] Add initial deterministic JSON contract tests: recursive Hire-to-Fire continuation round-trip and missing required `cont_expr` behavior for oapi-codegen (CI run [#43594719836](https://github.com/orglang/go-engine/actions/runs/43594719836)).
+- [x] Add deterministic JSON contract tests: recursive Hire-to-Fire continuation round-trip, missing required `cont_expr`, and explicit `null` for the non-nullable `cont_expr` property (CI run [#43595313547](https://github.com/orglang/go-engine/actions/runs/43595313547)).
 - [ ] Exercise the contract constructs that are actually present: recursive schemas, optional/nullable properties, enums, unions/discriminators, parameters, security (if declared), and response/error shapes.
 - [ ] Build a small usage example against a representative existing consumer to compare transport injection, context cancellation, typed results/errors, and extension points.
 - [ ] Record generated-code size and dependency footprint.

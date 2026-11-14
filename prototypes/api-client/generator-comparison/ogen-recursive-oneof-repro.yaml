@@ -1,0 +1,48 @@
+openapi: 3.1.0
+info:
+  title: ogen recursive oneOf minimal reproduction
+  version: 1.0.0
+paths:
+  /expressions:
+    post:
+      operationId: createExpression
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Expr'
+      responses:
+        '204':
+          description: No content
+components:
+  schemas:
+    Expr:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/LeafExpr'
+        - $ref: '#/components/schemas/BranchExpr'
+      discriminator:
+        propertyName: kind
+        mapping:
+          leaf: '#/components/schemas/LeafExpr'
+          branch: '#/components/schemas/BranchExpr'
+    LeafExpr:
+      type: object
+      required:
+        - kind
+      properties:
+        kind:
+          type: string
+          const: leaf
+    BranchExpr:
+      type: object
+      required:
+        - kind
+        - next
+      properties:
+        kind:
+          type: string
+          const: branch
+        next:
+          $ref: '#/components/schemas/Expr'

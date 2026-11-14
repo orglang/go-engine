@@ -3,7 +3,7 @@
 ogen rejects recursive object schemas when the recursive edge is a required property:
 
 ```text
-infinite recursion: A.b is required
+infinite recursion: ARecursive.b is required
 ```
 
 A required property does not have to be represented as an embedded Go value. The generator can represent a recursive field through a pointer (or another indirection) while preserving the property's required status in the JSON contract.
@@ -12,7 +12,7 @@ This distinction matters because Go value types must have a finite size, whereas
 
 ## OpenAPI specification
 
-The following OpenAPI 3.1 document is a minimal reproduction:
+The following OpenAPI 3.1 document is a minimal reproduction with a terminating alternative, so it admits valid finite JSON values:
 
 ```yaml
 openapi: 3.1.0
@@ -35,6 +35,10 @@ paths:
 components:
   schemas:
     A:
+      oneOf:
+        - $ref: '#/components/schemas/ARecursive'
+        - $ref: '#/components/schemas/ALeaf'
+    ARecursive:
       type: object
       required: [b]
       properties:
@@ -46,13 +50,22 @@ components:
       properties:
         a:
           $ref: '#/components/schemas/A'
+    ALeaf:
+      type: object
+      required: [kind]
+      properties:
+        kind:
+          type: string
+          enum: [leaf]
 ```
 
-Both properties are required and non-nullable. The recursive cycle is:
+The recursive path is:
 
 ```text
-A --required--> B --required--> A
+ARecursive --required--> B --required--> A --oneOf--> ARecursive
 ```
+
+The `ALeaf` alternative provides a finite termination case.
 
 ## Steps to reproduce
 
@@ -67,37 +80,29 @@ go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
 
 ## Expected behavior
 
-Code generation succeeds by introducing indirection for at least one edge in the recursive Go type representation. For example, the generated types may be equivalent to:
+Code generation succeeds by introducing indirection for a recursive edge in the generated Go type representation. The exact placement and shape of the pointer are implementation details.
 
-```go
-type A struct {
-    B *B
-}
-
-type B struct {
-    A *A
-}
-```
-
-The exact placement and shape of the pointer are an implementation detail. The JSON contract must remain unchanged:
+The JSON contract remains unchanged:
 
 - An object missing a required property is rejected.
-- A present object value is accepted, including recursively nested values.
-- Explicit `null` is rejected because these properties are non-nullable.
+- A present non-null recursive value is accepted.
+- Explicit `null` is rejected for non-nullable properties.
 
-For example, the decoder should reject:
+For example, the decoder should accept both of these values:
+
+```json
+{"b":{"a":{"kind":"leaf"}}}
+```
+
+```json
+{"b":{"a":{"b":{"a":{"kind":"leaf"}}}}}
+```
+
+It should reject an `ARecursive` value with its required `b` property omitted, for example:
 
 ```json
 {}
 ```
-
-and accept a finite nested value such as:
-
-```json
-{"b":{"a":{"b":{"a":{}}}}}
-```
-
-The innermost object in this example is intentionally incomplete only if it is decoded as `A`; a fully valid finite value can instead terminate at a different schema branch. For this two-type reproduction, both properties are required, so every finite JSON value must eventually be rejected unless the schema provides a terminating alternative. The code-generation expectation is independent of whether this particular schema admits a finite valid instance.
 
 ## Actual behavior
 
@@ -107,7 +112,7 @@ ogen v1.25.0 fails during code generation with an infinite-recursion error for t
 
 The recursion check treats a required recursive property as an inlined Go value and aborts when it finds a cycle. Requiredness in OpenAPI describes whether a JSON object must contain a property; it does not require the generated Go field to be stored inline.
 
-The generator appears to conflate these two concerns:
+The generator appears to conflate two separate concerns:
 
 - **Wire-level requiredness:** whether the JSON object contains the property.
 - **Go representation:** whether the generated field is a value or an indirection such as a pointer.
@@ -126,8 +131,6 @@ A regression test should verify both generated type finiteness and JSON behavior
 2. Present non-null recursive property is decoded.
 3. Explicit `null` is rejected for a non-nullable property.
 4. Marshaling and decoding a valid finite instance preserves the recursive structure.
-
-A schema with a terminating alternative (for example, a recursive `oneOf` with a non-recursive leaf variant) is suitable for the runtime round-trip test, while the two-object schema above isolates the code-generation failure.
 
 ## Compatibility considerations
 

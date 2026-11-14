@@ -1,0 +1,55 @@
+diff --git a/gen/schema_gen.go b/gen/schema_gen.go
+index 0000000..0000000 100644
+--- a/gen/schema_gen.go
++++ b/gen/schema_gen.go
+@@
+ 	if schema.XOgenType != "" {
+ 		t, err := ir.External(schema)
+@@
+ 		return g.regtype(name, t), nil
+ 	}
++
++	// Register recursive object compositions before generating their variants.
++	// A variant may refer back to this schema; without the placeholder, that
++	// reference re-enters oneOf/anyOf generation and registers the same Sum
++	// type more than once.
++	var preRegisteredObject *ir.Type
++	if schema.Type == jsonschema.Object &&
++		!schema.Ref.IsZero() &&
++		(len(schema.OneOf) > 0 || len(schema.AnyOf) > 0) {
++		kind := ir.KindStruct
++		hasProps := len(schema.Properties) > 0
++		hasAdditionalProps := schema.AdditionalProperties != nil && *schema.AdditionalProperties
++		hasPatternProps := len(schema.PatternProperties) > 0
++		isPatternSingle := len(schema.PatternProperties) == 1
++		if !hasProps {
++			if (!hasAdditionalProps && isPatternSingle) || (hasAdditionalProps && !hasPatternProps) {
++				kind = ir.KindMap
++			}
++		}
++		denyAdditionalProps := schema.AdditionalProperties != nil && !*schema.AdditionalProperties
++		preRegisteredObject = g.regtype(name, &ir.Type{
++			Kind:                kind,
++			Name:                name,
++			Schema:              schema,
++			DenyAdditionalProps: denyAdditionalProps,
++		})
++	}
+ 
+ 	if schema.DefaultSet {
+@@
+-		s := g.regtype(name, &ir.Type{
+-			Kind:                kind,
+-			Name:                name,
+-			Schema:              schema,
+-			DenyAdditionalProps: denyAdditionalProps,
+-		})
++		s := preRegisteredObject
++		if s == nil {
++			s = g.regtype(name, &ir.Type{
++				Kind:                kind,
++				Name:                name,
++				Schema:              schema,
++				DenyAdditionalProps: denyAdditionalProps,
++			})
++		}

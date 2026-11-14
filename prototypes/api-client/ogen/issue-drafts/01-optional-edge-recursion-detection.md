@@ -83,3 +83,7 @@ The recursion detection for struct types traverses all fields without excluding 
 ## Proposed change
 
 Exclude optional struct fields from the value-recursion graph. Their generated representation already provides indirection, so they cannot create infinite recursion through Go struct values. Continue traversing required fields so that cycles consisting entirely of value fields are still detected.
+
+## Related issue
+
+[ogen-go/ogen#1488](https://github.com/ogen-go/ogen/issues/1488) also concerns recursive schema generation involving `allOf`, but reports a different failure: the generated `OptError` type is missing. This report is specifically about the recursion detector treating an optional edge as a value edge and incorrectly rejecting a cycle that is already broken by indirection.

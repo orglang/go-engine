@@ -52,7 +52,7 @@ jobs:
           path = Path("/tmp/ogen-required-gomodcache/github.com/ogen-go/ogen@v1.25.0/gen/generics.go")
           source = path.read_text()
           old = 'return nil, errors.Errorf("infinite recursion: %s.%s is required", s.Name, field.Name)'
-          new = '// Required recursive fields need indirection to keep the Go value representation finite.\\n\\t\\t\\t\\treturn ir.Pointer(t, ir.NilInvalid), nil'
+          new = '// Required recursive fields need indirection to keep the Go value representation finite.\n\t\t\t\treturn ir.Pointer(t, ir.NilInvalid), nil'
           count = source.count(old)
           if count != 1:
               raise SystemExit(f"expected exactly one required-recursion error site, found {count}")

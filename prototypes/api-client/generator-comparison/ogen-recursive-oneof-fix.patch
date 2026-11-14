@@ -31,7 +31,7 @@
 +		})
 +	}
 +
-@@ -367,8 +394,11 @@
+@@ -367,7 +394,10 @@
 -		s := g.regtype(name, &ir.Type{
 -			Kind:                kind,
 -			Name:                name,

@@ -610,6 +610,7 @@ components:
         conn_ph:
           type: string
     Pool.Term.ExprSpec:
+      x-ogen-name: PoolTermExpressionDefinition
       type: object
       oneOf:
         - $ref: '#/components/schemas/Pool.Term.HireSpec'

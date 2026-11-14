@@ -1,0 +1,6 @@
+# Pinned comparison candidate: oapi-codegen v2.8.2.
+package: api
+output: client.gen.go
+generate:
+  client: true
+  models: true

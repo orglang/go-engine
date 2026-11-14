@@ -1,0 +1,866 @@
+name: API client generator comparison
+
+on:
+  pull_request:
+    paths:
+      - "openapi/**"
+      - "prototypes/api-client/generator-comparison/**"
+      - ".github/workflows/api-client-generator-comparison.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.27.0"
+          cache: false
+      - name: Record input checksum
+        run: sha256sum openapi/openapi.yaml | tee "$RUNNER_TEMP/openapi.sha256"
+      - name: Generate with ogen v1.25.0 (baseline)
+        id: ogen
+        shell: bash
+        run: |
+          set +e
+          go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
+            --target "$RUNNER_TEMP/ogen" -package api --clean openapi/openapi.yaml \
+            > "$RUNNER_TEMP/ogen.log" 2>&1
+          status=$?
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          cat "$RUNNER_TEMP/ogen.log"
+          # A failure is currently expected: required recursive schemas are a known
+          # blocker in the unmodified pinned ogen release. Preserve the log as evidence.
+      - name: Isolate POST /api/v1/pools/types
+        id: ogen_pool_types_post
+        shell: bash
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          import yaml
+
+          spec = yaml.safe_load(Path("openapi/openapi.yaml").read_text())
+          path = "/api/v1/pools/types"
+          operation = spec.get("paths", {}).get(path, {}).get("post")
+          if operation is None:
+              raise SystemExit(f"missing expected operation: POST {path}")
+          spec["paths"] = {path: {"post": operation}}
+          Path(os.environ["RUNNER_TEMP"], "openapi-pool-types-post-only.yaml").write_text(
+              yaml.safe_dump(spec, sort_keys=False)
+          )
+          PY
+          set +e
+          go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
+            --target "$RUNNER_TEMP/ogen-pool-types-post-only" -package api --clean "$RUNNER_TEMP/openapi-pool-types-post-only.yaml" \
+            > "$RUNNER_TEMP/ogen-pool-types-post-only.log" 2>&1
+          status=$?
+          printf "exit_code=%s\\n" "$status" | tee "$RUNNER_TEMP/ogen-pool-types-post-only.exit"
+          cat "$RUNNER_TEMP/ogen-pool-types-post-only.log"
+      - name: Diagnose recursive Pool.Type.ExprSpec edges
+        id: ogen_pool_types_no_recursion
+        shell: bash
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          import yaml
+
+          spec = yaml.safe_load(Path("openapi/openapi.yaml").read_text())
+          path = "/api/v1/pools/types"
+          operation = spec.get("paths", {}).get(path, {}).get("post")
+          if operation is None:
+              raise SystemExit(f"missing expected operation: POST {path}")
+          spec["paths"] = {path: {"post": operation}}
+
+          # Keep the isolated POST operation, but cut only the recursive edges
+          # from Pool.Type variants back to Pool.Type.ExprSpec.
+          targets = {
+              "Pool.Type.DownSpec": ["cont_expr"],
+              "Pool.Type.LolliSpec": ["val_expr", "cont_expr"],
+              "Pool.Type.PlusSpec": ["cont_expr"],
+              "Pool.Type.TensorSpec": ["val_expr", "cont_expr"],
+              "Pool.Type.UpSpec": ["cont_expr"],
+              "Pool.Type.WithSpec": ["cont_expr"],
+          }
+          schemas = spec.get("components", {}).get("schemas", {})
+          for name, fields in targets.items():
+              schema = schemas.get(name)
+              if schema is None:
+                  raise SystemExit(f"missing expected schema: {name}")
+              properties = schema.get("properties", {})
+              required = schema.get("required", [])
+              for field in fields:
+                  properties.pop(field, None)
+              schema["required"] = [field for field in required if field not in fields]
+
+          Path(os.environ["RUNNER_TEMP"], "openapi-pool-types-no-recursion.yaml").write_text(
+              yaml.safe_dump(spec, sort_keys=False)
+          )
+          PY
+          set +e
+          go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
+            --target "$RUNNER_TEMP/ogen-pool-types-no-recursion" -package api --clean "$RUNNER_TEMP/openapi-pool-types-no-recursion.yaml" \
+            > "$RUNNER_TEMP/ogen-pool-types-no-recursion.log" 2>&1
+          status=$?
+          printf "exit_code=%s\\n" "$status" | tee "$RUNNER_TEMP/ogen-pool-types-no-recursion.exit"
+          cat "$RUNNER_TEMP/ogen-pool-types-no-recursion.log"
+      - name: Diagnose Pool.StepSpec operation references
+        id: ogen_without_pool_steps
+        shell: bash
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          import yaml
+
+          spec = yaml.safe_load(Path("openapi/openapi.yaml").read_text())
+          excluded_paths = {
+              "/api/v1/pools/executions/spawns",
+              "/api/v1/pools/executions/steps",
+          }
+          spec["paths"] = {
+              path: operations
+              for path, operations in spec["paths"].items()
+              if path not in excluded_paths
+          }
+          Path(os.environ["RUNNER_TEMP"], "openapi-without-pool-steps.yaml").write_text(
+              yaml.safe_dump(spec, sort_keys=False)
+          )
+          PY
+          set +e
+          go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
+            --target "$RUNNER_TEMP/ogen-without-pool-steps" -package api --clean "$RUNNER_TEMP/openapi-without-pool-steps.yaml" \
+            > "$RUNNER_TEMP/ogen-without-pool-steps.log" 2>&1
+          status=$?
+          printf "exit_code=%s\\n" "$status" | tee "$RUNNER_TEMP/ogen-without-pool-steps.exit"
+          cat "$RUNNER_TEMP/ogen-without-pool-steps.log"
+      - name: Diagnose recursive Pool.Term.ExprSpec edges
+        id: ogen_recursion_diagnostic
+        shell: bash
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          import yaml
+
+          spec = yaml.safe_load(Path("openapi/openapi.yaml").read_text())
+          included_paths = {
+              "/api/v1/pools/executions/spawns",
+              "/api/v1/pools/executions/steps",
+          }
+          spec["paths"] = {
+              path: operations
+              for path, operations in spec["paths"].items()
+              if path in included_paths
+          }
+
+          targets = {
+              "Pool.Term.HireSpec",
+              "Pool.Term.ApplySpec",
+              "Pool.Term.AcquireSpec",
+              "Pool.Term.AcceptSpec",
+          }
+          schemas = spec.get("components", {}).get("schemas", {})
+          for name in targets:
+              schema = schemas.get(name)
+              if schema is None:
+                  raise SystemExit(f"missing expected schema: {name}")
+              schema.get("properties", {}).pop("cont_expr", None)
+              required = schema.get("required", [])
+              schema["required"] = [field for field in required if field != "cont_expr"]
+
+          Path(os.environ["RUNNER_TEMP"], "openapi-no-recursion.yaml").write_text(
+              yaml.safe_dump(spec, sort_keys=False)
+          )
+          PY
+          set +e
+          go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
+            --target "$RUNNER_TEMP/ogen-no-recursion" -package api --clean "$RUNNER_TEMP/openapi-no-recursion.yaml" \
+            > "$RUNNER_TEMP/ogen-no-recursion.log" 2>&1
+          status=$?
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          printf "exit_code=%s\\n" "$status" | tee "$RUNNER_TEMP/ogen-no-recursion.exit"
+          cat "$RUNNER_TEMP/ogen-no-recursion.log"
+      - name: Diagnose POST pool execution spawn without recursive Pool.Term edges
+        id: ogen_spawn_no_recursion
+        shell: bash
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          import yaml
+
+          spec = yaml.safe_load(Path("openapi/openapi.yaml").read_text())
+          path = "/api/v1/pools/executions/spawns"
+          operation = spec.get("paths", {}).get(path, {}).get("post")
+          if operation is None:
+              raise SystemExit(f"missing expected operation: POST {path}")
+          spec["paths"] = {path: {"post": operation}}
+
+          targets = {
+              "Pool.Term.HireSpec",
+              "Pool.Term.ApplySpec",
+              "Pool.Term.AcquireSpec",
+              "Pool.Term.AcceptSpec",
+          }
+          schemas = spec.get("components", {}).get("schemas", {})
+          for name in targets:
+              schema = schemas.get(name)
+              if schema is None:
+                  raise SystemExit(f"missing expected schema: {name}")
+              schema.get("properties", {}).pop("cont_expr", None)
+              required = schema.get("required", [])
+              schema["required"] = [field for field in required if field != "cont_expr"]
+
+          Path(os.environ["RUNNER_TEMP"], "openapi-spawn-no-recursion.yaml").write_text(
+              yaml.safe_dump(spec, sort_keys=False)
+          )
+          PY
+          set +e
+          go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
+            --target "$RUNNER_TEMP/ogen-spawn-no-recursion" -package api --clean "$RUNNER_TEMP/openapi-spawn-no-recursion.yaml" \
+            > "$RUNNER_TEMP/ogen-spawn-no-recursion.log" 2>&1
+          status=$?
+          printf "exit_code=%s\\n" "$status" | tee "$RUNNER_TEMP/ogen-spawn-no-recursion.exit"
+          cat "$RUNNER_TEMP/ogen-spawn-no-recursion.log"
+      - name: Test generated ogen package
+        working-directory: ${{ runner.temp }}
+        run: |
+          go mod init example.com/ogen-recursion-diagnostic
+          go get ./ogen-no-recursion ./ogen-pool-types-no-recursion ./ogen-spawn-no-recursion
+          go test ./ogen-no-recursion/...
+          go test ./ogen-pool-types-no-recursion/...
+          go test ./ogen-spawn-no-recursion/...
+      - name: Generate with oapi-codegen v2.8.2
+        run: |
+          mkdir -p "$RUNNER_TEMP/oapi-codegen"
+          sed "s|output: client.gen.go|output: $RUNNER_TEMP/oapi-codegen/client.gen.go|" \
+            prototypes/api-client/generator-comparison/oapi-codegen.yaml \
+            > "$RUNNER_TEMP/oapi-codegen.yaml"
+          go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.8.2 \
+            -config "$RUNNER_TEMP/oapi-codegen.yaml" openapi/openapi.yaml
+      - name: Add deterministic oapi-codegen JSON contract tests
+        shell: bash
+        run: |
+          cat > "$RUNNER_TEMP/oapi-codegen/client_contract_test.go" <<'GO'
+          package api
+
+          import (
+              "context"
+              "encoding/json"
+              "errors"
+              "io"
+              "net/http"
+              "net/http/httptest"
+              "strings"
+              "testing"
+          )
+
+          func TestPoolTermHireRecursiveJSONRoundTrip(t *testing.T) {
+              input := []byte(`{"conn_ph":"hire-channel","proc_qn":"example.proc","cont_expr":{"kind":"fire","conn_ph":"fire-channel"}}`)
+              var got PoolTermHireSpec
+              if err := json.Unmarshal(input, &got); err != nil {
+                  t.Fatalf("unmarshal hire term: %v", err)
+              }
+
+              kind, err := got.ContExpr.Discriminator()
+              if err != nil {
+                  t.Fatalf("read continuation discriminator: %v", err)
+              }
+              if kind != "fire" {
+                  t.Fatalf("continuation kind = %q, want fire", kind)
+              }
+
+              encoded, err := json.Marshal(got)
+              if err != nil {
+                  t.Fatalf("marshal hire term: %v", err)
+              }
+              var wire struct {
+                  ContExpr json.RawMessage `json:"cont_expr"`
+              }
+              if err := json.Unmarshal(encoded, &wire); err != nil {
+                  t.Fatalf("decode marshaled hire term: %v", err)
+              }
+              var continuation map[string]json.RawMessage
+              if err := json.Unmarshal(wire.ContExpr, &continuation); err != nil {
+                  t.Fatalf("decode marshaled continuation: %v", err)
+              }
+              var roundTripKind string
+              if err := json.Unmarshal(continuation["kind"], &roundTripKind); err != nil {
+                  t.Fatalf("decode continuation kind: %v", err)
+              }
+              if roundTripKind != "fire" {
+                  t.Fatalf("round-trip continuation kind = %q, want fire", roundTripKind)
+              }
+          }
+
+          func TestPoolTermHireMissingRequiredContinuationIsNotValidated(t *testing.T) {
+              // oapi-codegen generates ordinary encoding/json model structs; decoding
+              // alone does not enforce OpenAPI required-property presence.
+              var got PoolTermHireSpec
+              if err := json.Unmarshal([]byte(`{"conn_ph":"hire-channel","proc_qn":"example.proc"}`), &got); err != nil {
+                  t.Fatalf("unmarshal model without cont_expr: %v", err)
+              }
+              // Successful decoding demonstrates that encoding/json does not
+              // enforce the OpenAPI required-property constraint for this model.
+          }
+
+          func TestPoolTermHireNullContinuationIsNotValidated(t *testing.T) {
+              // encoding/json accepts explicit null for this non-nullable OpenAPI
+              // oneOf property, just as it accepts an omitted required property.
+              var got PoolTermHireSpec
+              if err := json.Unmarshal([]byte(`{"conn_ph":"hire-channel","proc_qn":"example.proc","cont_expr":null}`), &got); err != nil {
+                  t.Fatalf("unmarshal model with null cont_expr: %v", err)
+              }
+          }
+
+          func TestPoolTypeExprDiscriminatorRoundTrip(t *testing.T) {
+              input := []byte(`{"kind":"link","link":{"type_qn":"example.Type"}}`)
+              var got PoolTypeExprSpec
+              if err := json.Unmarshal(input, &got); err != nil {
+                  t.Fatalf("unmarshal pool type expression: %v", err)
+              }
+              kind, err := got.Discriminator()
+              if err != nil {
+                  t.Fatalf("read pool type discriminator: %v", err)
+              }
+              if kind != "link" {
+                  t.Fatalf("pool type discriminator = %q, want link", kind)
+              }
+              variant, err := got.AsPoolTypeLinkSpec()
+              if err != nil {
+                  t.Fatalf("decode Pool.Type.LinkSpec: %v", err)
+              }
+              if variant.Link.TypeQn != "example.Type" {
+                  t.Fatalf("link type_qn = %q, want example.Type", variant.Link.TypeQn)
+              }
+              encoded, err := json.Marshal(got)
+              if err != nil {
+                  t.Fatalf("marshal pool type expression: %v", err)
+              }
+              var wire map[string]json.RawMessage
+              if err := json.Unmarshal(encoded, &wire); err != nil {
+                  t.Fatalf("decode marshaled pool type expression: %v", err)
+              }
+              var roundTripKind string
+              if err := json.Unmarshal(wire["kind"], &roundTripKind); err != nil {
+                  t.Fatalf("decode marshaled discriminator: %v", err)
+              }
+              if roundTripKind != "link" {
+                  t.Fatalf("round-trip pool type discriminator = %q, want link", roundTripKind)
+              }
+          }
+
+          func TestProcTermExprDiscriminatorRoundTrip(t *testing.T) {
+              input := []byte(`{"kind":"close","conn_ph":"channel-1"}`)
+              var got ProcTermExprSpec
+              if err := json.Unmarshal(input, &got); err != nil {
+                  t.Fatalf("unmarshal process term expression: %v", err)
+              }
+              kind, err := got.Discriminator()
+              if err != nil {
+                  t.Fatalf("read process term discriminator: %v", err)
+              }
+              if kind != "close" {
+                  t.Fatalf("process term discriminator = %q, want close", kind)
+              }
+              variant, err := got.AsProcTermCloseSpec()
+              if err != nil {
+                  t.Fatalf("decode Proc.Term.CloseSpec: %v", err)
+              }
+              if variant.ConnPh != "channel-1" {
+                  t.Fatalf("close conn_ph = %q, want channel-1", variant.ConnPh)
+              }
+              encoded, err := json.Marshal(got)
+              if err != nil {
+                  t.Fatalf("marshal process term expression: %v", err)
+              }
+              var wire map[string]json.RawMessage
+              if err := json.Unmarshal(encoded, &wire); err != nil {
+                  t.Fatalf("decode marshaled process term expression: %v", err)
+              }
+              var roundTripKind string
+              if err := json.Unmarshal(wire["kind"], &roundTripKind); err != nil {
+                  t.Fatalf("decode marshaled discriminator: %v", err)
+              }
+              if roundTripKind != "close" {
+                  t.Fatalf("round-trip process term discriminator = %q, want close", roundTripKind)
+              }
+          }
+
+          
+          func TestOptionalRnQueryParameters(t *testing.T) {
+              tests := []struct {
+                  name  string
+                  build func(*int64) (string, error)
+              }{
+                  {name: "pool type definition", build: func(rn *int64) (string, error) {
+                      req, err := NewEngineApiGetPoolTypeDefinitionRequest("https://example.com", "pool-1", &EngineApiGetPoolTypeDefinitionParams{Rn: rn})
+                      if err != nil { return "", err }
+                      return req.URL.RawQuery, nil
+                  }},
+                  {name: "pool associated declaration", build: func(rn *int64) (string, error) {
+                      req, err := NewEngineApiGetPoolAssociatedDeclarationRequest("https://example.com", "pool-1", &EngineApiGetPoolAssociatedDeclarationParams{Rn: rn})
+                      if err != nil { return "", err }
+                      return req.URL.RawQuery, nil
+                  }},
+                  {name: "pool definition", build: func(rn *int64) (string, error) {
+                      req, err := NewEngineApiGetPoolDefinitionRequest("https://example.com", "pool-1", &EngineApiGetPoolDefinitionParams{Rn: rn})
+                      if err != nil { return "", err }
+                      return req.URL.RawQuery, nil
+                  }},
+                  {name: "process declaration", build: func(rn *int64) (string, error) {
+                      req, err := NewEngineApiGetProcessDeclarationRequest("https://example.com", "process-1", &EngineApiGetProcessDeclarationParams{Rn: rn})
+                      if err != nil { return "", err }
+                      return req.URL.RawQuery, nil
+                  }},
+                  {name: "process execution", build: func(rn *int64) (string, error) {
+                      req, err := NewEngineApiGetProcessExecutionRequest("https://example.com", "process-1", &EngineApiGetProcessExecutionParams{Rn: rn})
+                      if err != nil { return "", err }
+                      return req.URL.RawQuery, nil
+                  }},
+                  {name: "process type definition", build: func(rn *int64) (string, error) {
+                      req, err := NewEngineApiGetProcessTypeDefinitionRequest("https://example.com", "process-1", &EngineApiGetProcessTypeDefinitionParams{Rn: rn})
+                      if err != nil { return "", err }
+                      return req.URL.RawQuery, nil
+                  }},
+                  {name: "process associated declaration", build: func(rn *int64) (string, error) {
+                      req, err := NewEngineApiGetProcessAssociatedDeclarationRequest("https://example.com", "process-1", &EngineApiGetProcessAssociatedDeclarationParams{Rn: rn})
+                      if err != nil { return "", err }
+                      return req.URL.RawQuery, nil
+                  }},
+                  {name: "process definition", build: func(rn *int64) (string, error) {
+                      req, err := NewEngineApiGetProcessDefinitionRequest("https://example.com", "process-1", &EngineApiGetProcessDefinitionParams{Rn: rn})
+                      if err != nil { return "", err }
+                      return req.URL.RawQuery, nil
+                  }},
+              }
+
+              value := int64(42)
+              for _, tt := range tests {
+                  t.Run(tt.name, func(t *testing.T) {
+                      for _, tc := range []struct {
+                          name string
+                          rn   *int64
+                          want string
+                      }{
+                          {name: "provided", rn: &value, want: "rn=42"},
+                          {name: "omitted", rn: nil, want: ""},
+                      } {
+                          t.Run(tc.name, func(t *testing.T) {
+                              got, err := tt.build(tc.rn)
+                              if err != nil { t.Fatalf("build request: %v", err) }
+                              if got != tc.want { t.Fatalf("query = %q, want %q", got, tc.want) }
+                          })
+                      }
+                  })
+              }
+          }
+
+          func TestPoolExecutionListResponseJSONRoundTrip(t *testing.T) {
+              input := []byte(`[{"comp_id":"comp-1","comp_rn":7},{"comp_id":"comp-2","comp_rn":9}]`)
+              var got []AnyCompRef
+              if err := json.Unmarshal(input, &got); err != nil {
+                  t.Fatalf("unmarshal execution list response: %v", err)
+              }
+              if len(got) != 2 {
+                  t.Fatalf("execution list length = %d, want 2", len(got))
+              }
+              if got[0].CompId != "comp-1" || got[0].CompRn != 7 {
+                  t.Fatalf("first execution ref = %+v, want comp-1 revision 7", got[0])
+              }
+              if got[1].CompId != "comp-2" || got[1].CompRn != 9 {
+                  t.Fatalf("second execution ref = %+v, want comp-2 revision 9", got[1])
+              }
+              encoded, err := json.Marshal(got)
+              if err != nil {
+                  t.Fatalf("marshal execution list response: %v", err)
+              }
+              var roundTrip []AnyCompRef
+              if err := json.Unmarshal(encoded, &roundTrip); err != nil {
+                  t.Fatalf("round-trip execution list response: %v", err)
+              }
+              if len(roundTrip) != len(got) || roundTrip[1].CompId != got[1].CompId || roundTrip[1].CompRn != got[1].CompRn {
+                  t.Fatalf("execution list round-trip = %+v, want %+v", roundTrip, got)
+              }
+          }
+
+          
+          func TestJSONRequestBodyEncodingAndContentType(t *testing.T) {
+              body := AnyExecSpec{
+                  TermQn: "example.term",
+                  LiabVar: AnyExecVarSpec{ConnPh: "liability", TermQn: "example.Liab"},
+                  AssetVars: []AnyExecVarSpec{{ConnPh: "asset", TermQn: "example.Asset"}},
+              }
+              req, err := NewEngineApiCreatePoolExecutionRequest("https://example.com", body)
+              if err != nil {
+                  t.Fatalf("build JSON request: %v", err)
+              }
+              if req.Method != http.MethodPost {
+                  t.Fatalf("method = %q, want POST", req.Method)
+              }
+              if got := req.Header.Get("Content-Type"); got != "application/json" {
+                  t.Fatalf("Content-Type = %q, want application/json", got)
+              }
+              encoded, err := io.ReadAll(req.Body)
+              if err != nil {
+                  t.Fatalf("read request body: %v", err)
+              }
+              var got AnyExecSpec
+              if err := json.Unmarshal(encoded, &got); err != nil {
+                  t.Fatalf("decode request body: %v", err)
+              }
+              if got.TermQn != body.TermQn || got.LiabVar.ConnPh != body.LiabVar.ConnPh ||
+                  len(got.AssetVars) != 1 || got.AssetVars[0].TermQn != "example.Asset" {
+                  t.Fatalf("decoded request body = %+v, want %+v", got, body)
+              }
+          }
+
+          func TestProgramTextPlainRequestBody(t *testing.T) {
+              const source = "program Example {}\n"
+              req, err := NewEngineApiCreateProgramRequestWithTextBody("https://example.com", source)
+              if err != nil {
+                  t.Fatalf("build program request: %v", err)
+              }
+              if req.Header.Get("Content-Type") != "text/plain" {
+                  t.Fatalf("Content-Type = %q, want text/plain", req.Header.Get("Content-Type"))
+              }
+              got, err := io.ReadAll(req.Body)
+              if err != nil {
+                  t.Fatalf("read program request body: %v", err)
+              }
+              if string(got) != source {
+                  t.Fatalf("program body = %q, want %q", got, source)
+              }
+          }
+
+          func TestPathParameterEscaping(t *testing.T) {
+              req, err := NewEngineApiGetPoolTypeDefinitionRequest(
+                  "https://example.com", "pool/with space", nil,
+              )
+              if err != nil {
+                  t.Fatalf("build request: %v", err)
+              }
+              if got, want := req.URL.EscapedPath(), "/api/v1/pools/types/pool%2Fwith%20space"; got != want {
+                  t.Fatalf("escaped path = %q, want %q", got, want)
+              }
+          }
+
+          func TestTypedSuccessNoContentAndUnmodeledErrorResponses(t *testing.T) {
+              server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+                  switch r.URL.Path {
+                  case "/api/v1/pools/executions":
+                      if r.Method != http.MethodPost {
+                          t.Errorf("execution method = %q, want POST", r.Method)
+                      }
+                      if got := r.Header.Get("Content-Type"); got != "application/json" {
+                          t.Errorf("execution Content-Type = %q, want application/json", got)
+                      }
+                      w.Header().Set("Content-Type", "application/json")
+                      w.WriteHeader(http.StatusCreated)
+                      _, _ = io.WriteString(w, `{"comp_id":"comp-created","comp_rn":12}`)
+                  case "/api/v1/pools/executions/steps":
+                      w.WriteHeader(http.StatusNoContent)
+                  case "/api/v1/programs":
+                      w.Header().Set("Content-Type", "text/plain")
+                      w.WriteHeader(http.StatusUnprocessableEntity)
+                      _, _ = io.WriteString(w, "invalid program")
+                  default:
+                      http.NotFound(w, r)
+                  }
+              }))
+              defer server.Close()
+
+              client, err := NewClientWithResponses(server.URL)
+              if err != nil {
+                  t.Fatalf("create generated client: %v", err)
+              }
+
+              created, err := client.EngineApiCreatePoolExecutionWithResponse(context.Background(), AnyExecSpec{
+                  TermQn: "example.term",
+                  LiabVar: AnyExecVarSpec{ConnPh: "liability", TermQn: "example.Liab"},
+                  AssetVars: []AnyExecVarSpec{},
+              })
+              if err != nil {
+                  t.Fatalf("create pool execution: %v", err)
+              }
+              if created.StatusCode() != http.StatusCreated {
+                  t.Fatalf("creation status = %d, want 201", created.StatusCode())
+              }
+              if created.JSON201 == nil || created.JSON201.CompId != "comp-created" || created.JSON201.CompRn != 12 {
+                  t.Fatalf("typed creation response = %+v, want comp-created revision 12", created.JSON201)
+              }
+
+              stepped, err := client.EngineApiStepPoolExecutionWithBodyWithResponse(
+                  context.Background(), "application/json", strings.NewReader(`{}`),
+              )
+              if err != nil {
+                  t.Fatalf("step pool execution: %v", err)
+              }
+              if stepped.StatusCode() != http.StatusNoContent || len(stepped.Body) != 0 {
+                  t.Fatalf("204 response = status %d body %q, want empty 204", stepped.StatusCode(), stepped.Body)
+              }
+
+              rejected, err := client.EngineApiCreateProgramWithTextBodyWithResponse(
+                  context.Background(), "invalid source",
+              )
+              if err != nil {
+                  t.Fatalf("create invalid program: %v", err)
+              }
+              if rejected.StatusCode() != http.StatusUnprocessableEntity || string(rejected.Body) != "invalid program" {
+                  t.Fatalf("unmodeled error response = status %d body %q, want 422 and raw body",
+                      rejected.StatusCode(), rejected.Body)
+              }
+          }
+
+
+          
+          type roundTripperFunc func(*http.Request) (*http.Response, error)
+
+          func (fn roundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+              return fn(req)
+          }
+
+          func TestCustomHTTPTransportAndRequestEditor(t *testing.T) {
+              var transportCalled bool
+              httpClient := &http.Client{
+                  Transport: roundTripperFunc(func(req *http.Request) (*http.Response, error) {
+                      transportCalled = true
+                      if got := req.Header.Get("X-Client-Test"); got != "editor-value" {
+                          t.Fatalf("request editor header = %q, want editor-value", got)
+                      }
+                      if req.URL.Host != "api.example.test" {
+                          t.Fatalf("request host = %q, want api.example.test", req.URL.Host)
+                      }
+                      return &http.Response{
+                          StatusCode: http.StatusCreated,
+                          Status: "201 Created",
+                          Header: http.Header{"Content-Type": []string{"application/json"}},
+                          Body: io.NopCloser(strings.NewReader(`{"comp_id":"custom-transport","comp_rn":5}`)),
+                          Request: req,
+                      }, nil
+                  }),
+              }
+              client, err := NewClientWithResponses(
+                  "https://api.example.test",
+                  WithHTTPClient(httpClient),
+                  WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
+                      req.Header.Set("X-Client-Test", "editor-value")
+                      return nil
+                  }),
+              )
+              if err != nil {
+                  t.Fatalf("create client with custom transport: %v", err)
+              }
+              response, err := client.EngineApiCreatePoolExecutionWithResponse(
+                  context.Background(),
+                  AnyExecSpec{
+                      TermQn: "example.term",
+                      LiabVar: AnyExecVarSpec{ConnPh: "liability", TermQn: "example.Liab"},
+                      AssetVars: []AnyExecVarSpec{},
+                  },
+              )
+              if err != nil {
+                  t.Fatalf("request through custom transport: %v", err)
+              }
+              if !transportCalled {
+                  t.Fatal("custom HTTP transport was not called")
+              }
+              if response.StatusCode() != http.StatusCreated ||
+                  response.JSON201 == nil || response.JSON201.CompId != "custom-transport" {
+                  t.Fatalf("custom transport response = status %d, body %+v", response.StatusCode(), response.JSON201)
+              }
+          }
+
+          func TestRequestContextCancellationPropagates(t *testing.T) {
+              transport := roundTripperFunc(func(req *http.Request) (*http.Response, error) {
+                  <-req.Context().Done()
+                  return nil, req.Context().Err()
+              })
+              client, err := NewClientWithResponses(
+                  "https://api.example.test",
+                  WithHTTPClient(&http.Client{Transport: transport}),
+              )
+              if err != nil {
+                  t.Fatalf("create client: %v", err)
+              }
+              ctx, cancel := context.WithCancel(context.Background())
+              cancel()
+              _, err = client.EngineApiCreatePoolExecutionWithResponse(
+                  ctx,
+                  AnyExecSpec{
+                      TermQn: "example.term",
+                      LiabVar: AnyExecVarSpec{ConnPh: "liability", TermQn: "example.Liab"},
+                      AssetVars: []AnyExecVarSpec{},
+                  },
+              )
+              if !errors.Is(err, context.Canceled) {
+                  t.Fatalf("request error = %v, want context.Canceled", err)
+              }
+          }
+
+
+
+          func TestRequestEditorErrorPreventsTransportAndPropagates(t *testing.T) {
+              editorErr := errors.New("request editor failed")
+              transportCalled := false
+              client, err := NewClientWithResponses(
+                  "https://api.example.test",
+                  WithHTTPClient(&http.Client{Transport: roundTripperFunc(func(req *http.Request) (*http.Response, error) {
+                      transportCalled = true
+                      return nil, errors.New("transport should not be called")
+                  })}),
+                  WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
+                      return editorErr
+                  }),
+              )
+              if err != nil {
+                  t.Fatalf("create client: %v", err)
+              }
+              _, err = client.EngineApiCreatePoolExecutionWithResponse(
+                  context.Background(),
+                  AnyExecSpec{
+                      TermQn: "example.term",
+                      LiabVar: AnyExecVarSpec{ConnPh: "liability", TermQn: "example.Liab"},
+                      AssetVars: []AnyExecVarSpec{},
+                  },
+              )
+              if !errors.Is(err, editorErr) {
+                  t.Fatalf("request error = %v, want wrapped editor error", err)
+              }
+              if transportCalled {
+                  t.Fatal("transport was called after request editor failed")
+              }
+          }
+
+          func TestTransportErrorPropagates(t *testing.T) {
+              transportErr := errors.New("synthetic transport failure")
+              client, err := NewClientWithResponses(
+                  "https://api.example.test",
+                  WithHTTPClient(&http.Client{Transport: roundTripperFunc(func(req *http.Request) (*http.Response, error) {
+                      return nil, transportErr
+                  })}),
+              )
+              if err != nil {
+                  t.Fatalf("create client: %v", err)
+              }
+              _, err = client.EngineApiCreatePoolExecutionWithResponse(
+                  context.Background(),
+                  AnyExecSpec{
+                      TermQn: "example.term",
+                      LiabVar: AnyExecVarSpec{ConnPh: "liability", TermQn: "example.Liab"},
+                      AssetVars: []AnyExecVarSpec{},
+                  },
+              )
+              if !errors.Is(err, transportErr) {
+                  t.Fatalf("request error = %v, want wrapped transport error", err)
+              }
+          }
+
+          func TestMalformedJSONSuccessResponseReturnsDecodeError(t *testing.T) {
+              client, err := NewClientWithResponses(
+                  "https://api.example.test",
+                  WithHTTPClient(&http.Client{Transport: roundTripperFunc(func(req *http.Request) (*http.Response, error) {
+                      return &http.Response{
+                          StatusCode: http.StatusCreated,
+                          Status: "201 Created",
+                          Header: http.Header{"Content-Type": []string{"application/json"}},
+                          Body: io.NopCloser(strings.NewReader("{")),
+                          Request: req,
+                      }, nil
+                  })}),
+              )
+              if err != nil {
+                  t.Fatalf("create client: %v", err)
+              }
+              _, err = client.EngineApiCreatePoolExecutionWithResponse(
+                  context.Background(),
+                  AnyExecSpec{
+                      TermQn: "example.term",
+                      LiabVar: AnyExecVarSpec{ConnPh: "liability", TermQn: "example.Liab"},
+                      AssetVars: []AnyExecVarSpec{},
+                  },
+              )
+              if err == nil {
+                  t.Fatal("malformed JSON success response unexpectedly decoded")
+              }
+          }
+
+          GO
+      - name: Test generated oapi-codegen package
+        working-directory: ${{ runner.temp }}
+        run: |
+          go get ./oapi-codegen
+          go test ./oapi-codegen/...
+      - name: Record generated dependency footprints
+        shell: bash
+        working-directory: ${{ runner.temp }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/comparison"
+          for package in ogen-no-recursion oapi-codegen; do
+            go list -deps -f '{{if not .Standard}}{{.ImportPath}}{{end}}' "./$package/..." \
+              | sed '/^$/d' | sort -u > "$RUNNER_TEMP/comparison/$package-dependency-packages.txt"
+            go list -deps -f '{{if not .Standard}}{{if .Module}}{{.Module.Path}}{{end}}{{end}}' "./$package/..." \
+              | sed '/^$/d' | sort -u > "$RUNNER_TEMP/comparison/$package-dependency-modules.txt"
+            wc -l "$RUNNER_TEMP/comparison/$package-dependency-packages.txt" \
+              | tee "$RUNNER_TEMP/comparison/$package-dependency-package-count.txt"
+            wc -l "$RUNNER_TEMP/comparison/$package-dependency-modules.txt" \
+              | tee "$RUNNER_TEMP/comparison/$package-dependency-module-count.txt"
+          done
+      - name: Record generated output sizes
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/comparison"
+          cp "$RUNNER_TEMP/openapi.sha256" "$RUNNER_TEMP/comparison/"
+          cp "$RUNNER_TEMP/ogen.log" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/ogen-no-recursion.log" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/ogen-no-recursion.exit" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/ogen-without-pool-steps.log" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/ogen-without-pool-steps.exit" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/ogen-pool-types-post-only.log" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/ogen-pool-types-post-only.exit" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/ogen-pool-types-no-recursion.log" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/ogen-pool-types-no-recursion.exit" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/ogen-spawn-no-recursion.log" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/ogen-spawn-no-recursion.exit" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/openapi-spawn-no-recursion.yaml" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/openapi-pool-types-post-only.yaml" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/openapi-pool-types-no-recursion.yaml" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/openapi-without-pool-steps.yaml" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/openapi-no-recursion.yaml" "$RUNNER_TEMP/comparison/" || true
+          if [ -d "$RUNNER_TEMP/ogen-spawn-no-recursion" ]; then
+            du -sb "$RUNNER_TEMP/ogen-spawn-no-recursion" | tee "$RUNNER_TEMP/comparison/ogen-spawn-no-recursion-size.txt"
+            cp -R "$RUNNER_TEMP/ogen-spawn-no-recursion" "$RUNNER_TEMP/comparison/ogen-spawn-no-recursion"
+          fi
+          if [ -d "$RUNNER_TEMP/ogen-pool-types-no-recursion" ]; then
+            du -sb "$RUNNER_TEMP/ogen-pool-types-no-recursion" | tee "$RUNNER_TEMP/comparison/ogen-pool-types-no-recursion-size.txt"
+            cp -R "$RUNNER_TEMP/ogen-pool-types-no-recursion" "$RUNNER_TEMP/comparison/ogen-pool-types-no-recursion"
+          fi
+          if [ -d "$RUNNER_TEMP/ogen-no-recursion" ]; then
+            du -sb "$RUNNER_TEMP/ogen-no-recursion" | tee "$RUNNER_TEMP/comparison/ogen-no-recursion-size.txt"
+            cp -R "$RUNNER_TEMP/ogen-no-recursion" "$RUNNER_TEMP/comparison/ogen-no-recursion"
+          fi
+          if [ -d "$RUNNER_TEMP/ogen" ]; then
+            du -sb "$RUNNER_TEMP/ogen" | tee "$RUNNER_TEMP/comparison/ogen-size.txt"
+            cp -R "$RUNNER_TEMP/ogen" "$RUNNER_TEMP/comparison/ogen"
+          fi
+          if [ -d "$RUNNER_TEMP/oapi-codegen" ]; then
+            du -sb "$RUNNER_TEMP/oapi-codegen" | tee "$RUNNER_TEMP/comparison/oapi-codegen-size.txt"
+            cp -R "$RUNNER_TEMP/oapi-codegen" "$RUNNER_TEMP/comparison/oapi-codegen"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: api-client-generator-comparison
+          path: ${{ runner.temp }}/comparison/
+          if-no-files-found: error

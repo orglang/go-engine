@@ -26,7 +26,6 @@ tasks:
   binaries:
     desc: Build application binaries
     cmds:
-      - task: sources:generate
       - task: tests:it
       - task: engine:binary
 
@@ -60,8 +59,9 @@ tasks:
 
   specs:check:
     desc: Check TypeSpec compilation and generated OpenAPI
-    cmds:
+    deps:
       - task: specs:generate
+    cmds:
       - test -f openapi/openapi.yaml
       - test -z "$(git status --porcelain -- openapi/openapi.yaml)"
 
@@ -79,7 +79,6 @@ tasks:
     aliases: [proc]
     desc: Run specified process in foreground
     cmds:
-      - task: sources:generate
       - task: engine:process
 
   container:
@@ -92,7 +91,6 @@ tasks:
     aliases: [procs]
     desc: Run and interrupt all processes
     cmds:
-      - task: sources:generate
       - task: engine:process
 
   tests:*:

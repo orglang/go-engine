@@ -28,7 +28,7 @@ func TestRequiredNullableField(t *testing.T) {
 		if err := json.Unmarshal([]byte(`{"a":{"b":{"a":null}}}`), &got); err != nil {
 			t.Fatalf("expected non-null recursive value to decode: %v", err)
 		}
-		if got.A == nil || got.A.B.B.A != nil {
+		if got.A == nil || got.A.B.A != nil {
 			t.Fatalf("unexpected decoded recursive value: %#v", got)
 		}
 	})

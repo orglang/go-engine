@@ -569,7 +569,6 @@ components:
           $ref: '#/components/schemas/Any.CompRef'
         pool_expr:
           $ref: '#/components/schemas/Pool.Term.ExprSpec'
-          x-ogen-name: PoolStepTermExpression
     Pool.Term.AcceptSpec:
       type: object
       required:

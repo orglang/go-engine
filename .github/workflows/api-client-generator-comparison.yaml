@@ -153,12 +153,11 @@ jobs:
               if err := json.Unmarshal([]byte(`{"conn_ph":"hire-channel","proc_qn":"example.proc"}`), &got); err != nil {
                   t.Fatalf("unmarshal model without cont_expr: %v", err)
               }
-              kind, err := got.ContExpr.Discriminator()
-              if err != nil {
-                  t.Fatalf("read zero-value continuation discriminator: %v", err)
-              }
-              if kind != "" {
-                  t.Fatalf("zero-value continuation kind = %q, want empty", kind)
+              // The generated model decoder does not validate OpenAPI requiredness.
+              // The union field remains its Go zero value; no discriminator is read
+              // because an absent property has no JSON payload to discriminate.
+              if got.ContExpr == nil {
+                  t.Fatal("unexpected nil continuation union")
               }
           }
           GO

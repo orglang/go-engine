@@ -27,7 +27,8 @@ The comparison input is the committed OpenAPI contract at `openapi/openapi.yaml`
 ### oapi-codegen
 
 - Candidate: `oapi-codegen v2.8.2` (pinned in the reproducible workflow).
-- The v2.8.2 full-contract generation completed successfully against the same committed OpenAPI input; generated client compilation, recursive schema representation, nullable/optional behavior, and runtime JSON contract tests remain to be measured.
+- The v2.8.2 full-contract generation completed successfully against the same committed OpenAPI input, and the generated package passes `go test ./oapi-codegen/...` in CI run [#43594151852](https://github.com/orglang/go-engine/actions/runs/43594151852). This is currently a package-compilation check; runtime JSON contract tests and detailed recursive/nullable/optional behavior checks remain pending.
+- The same run recorded generated directory sizes: 206,559 bytes for the full oapi-codegen output and 98,573 bytes for the scoped ogen diagnostic output. These figures are **not a valid size comparison** because the generated scopes differ (full contract vs. two operations with four recursion edges removed).
 
 **Current assessment:** generation succeeds, but this is not yet evidence of compile-time or runtime contract parity.
 
@@ -51,8 +52,8 @@ The follow-up workflow run [#43592376123](https://github.com/orglang/go-engine/a
 
 | Criterion from workspace issue #114 | ogen v1.25.0 | oapi-codegen |
 | --- | --- | --- |
-| Same real OpenAPI input | Full-contract baseline still stops at a sum-type name collision (`PoolTermExpressionDefinitionSum` after schema-name overrides); scoped recursion experiments separately passed | v2.8.2 generation succeeded; compile/runtime checks pending |
-| Request/response schemas and operations | Full-contract generation blocked by persistent schema-name collision; scoped two-operation package compiles after removing four `cont_expr` recursion edges | v2.8.2 generated client; compile/runtime evaluation pending |
+| Same real OpenAPI input | Full-contract baseline still stops at a sum-type name collision (`PoolTermExpressionDefinitionSum` after schema-name overrides); scoped diagnostic package compiles after recursion-edge removal | v2.8.2 full-contract generation and package compilation passed; runtime checks pending |
+| Request/response schemas and operations | Full-contract generation blocked by persistent schema-name collision; scoped two-operation package compiles after removing four `cont_expr` recursion edges | v2.8.2 full-contract package compiles; runtime behavior still pending |
 | Optional vs nullable fields | Tested for the four Pool.Term continuation fields in isolated experiments; required nullable behavior has a separate control experiment | Not yet run |
 | Enums and oneOf/discriminators | Present in the contract; full-contract output still needs review after recursion handling | Not yet run |
 | Auth/security schemes and parameters | Must be inventoried against the actual contract and verified in generated client API | Not yet run |
@@ -68,7 +69,8 @@ The follow-up workflow run [#43592376123](https://github.com/orglang/go-engine/a
 - [x] Pin generator versions and run full-contract generation against the exact same `openapi/openapi.yaml` (ogen v1.25.0; oapi-codegen v2.8.2).
 - [x] Keep generated outputs and configuration isolated; do not migrate consumers.
 - [x] Record generation success/failure and the scoped ogen diagnostic workaround; full-contract ogen generation remains blocked by the name collision.
-- [ ] Compile both generated clients and add representative request/response tests using deterministic local fixtures.
+- [x] Compile the generated oapi-codegen full-contract package and the scoped ogen diagnostic package.
+- [ ] Add representative request/response and JSON contract tests using deterministic local fixtures; compile-only checks are not runtime parity.
 - [ ] Exercise the contract constructs that are actually present: recursive schemas, optional/nullable properties, enums, unions/discriminators, parameters, security (if declared), and response/error shapes.
 - [ ] Build a small usage example against a representative existing consumer to compare transport injection, context cancellation, typed results/errors, and extension points.
 - [ ] Record generated-code size and dependency footprint.

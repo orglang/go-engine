@@ -28,12 +28,14 @@ jobs:
         run: task specs:generate
       - name: Normalize OpenAPI for ogen
         run: node tsp/scripts/normalize-openapi-for-ogen.mjs openapi/openapi.yaml /tmp/openapi-ogen-optional.yaml
+      - name: Scope OpenAPI to Pool.Term recursion operations
+        run: node tsp/scripts/filter-openapi-for-optional-cont-expr.mjs /tmp/openapi-ogen-optional.yaml /tmp/openapi-ogen-optional-scoped.yaml
       - name: Confirm unmodified ogen rejects the remaining recursive edge
         run: |
           if GOMODCACHE=/tmp/ogen-optional-unpatched GOWORK=off go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
             --config prototypes/api-client/ogen.yml \
             --target /tmp/ogen-optional-unpatched-client \
-            --package ogenclient --clean /tmp/openapi-ogen-optional.yaml > /tmp/ogen-optional-unpatched.log 2>&1; then
+            --package ogenclient --clean /tmp/openapi-ogen-optional-scoped.yaml > /tmp/ogen-optional-unpatched.log 2>&1; then
             echo "Expected unmodified ogen to reject the recursive schema"
             exit 1
           fi
@@ -50,7 +52,7 @@ jobs:
           GOMODCACHE=/tmp/ogen-optional-gomodcache GOWORK=off go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
             --config prototypes/api-client/ogen.yml \
             --target prototypes/api-client/ogen-optional-experiment/generated \
-            --package ogenclient --clean /tmp/openapi-ogen-optional.yaml
+            --package ogenclient --clean /tmp/openapi-ogen-optional-scoped.yaml
       - name: Compile and test optional contract
         run: |
           cp prototypes/api-client/ogen-optional-experiment/optional_cont_expr_test.go prototypes/api-client/ogen-optional-experiment/generated/

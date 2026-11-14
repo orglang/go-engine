@@ -1,6 +1,13 @@
 name: API client generator comparison
 
 on:
+  push:
+    branches:
+      - "experiment/ogen-recursive-oneof"
+    paths:
+      - "openapi/**"
+      - "prototypes/api-client/generator-comparison/**"
+      - ".github/workflows/api-client-generator-comparison.yaml"
   pull_request:
     paths:
       - "openapi/**"

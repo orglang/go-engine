@@ -105,12 +105,14 @@ ogen v1.25.0 fails during schema generation with:
 schema name conflict: "ExprSum"
 ```
 
-The minimal reproduction is checked into this prototype as
-`ogen-recursive-oneof-repro.yaml`.
+This was the optional-edge form of the prototype reproduction used in the
+successful candidate-patch run below. The committed fixture was later changed
+to make `BranchExpr.next` required for a separate experiment concerning
+[ogen-go/ogen#1792](https://github.com/ogen-go/ogen/issues/1792).
 
 ## Suspected cause
 
-The schema generator processes `oneOf`/ `anyOf` before registering the
+The schema generator processes `oneOf`/`anyOf` before registering the
 outer object schema. While generating the sum variants, it follows the
 recursive reference back to the outer schema and enters the same
 `oneOf` generation path again.

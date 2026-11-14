@@ -5,15 +5,21 @@ node = "22"
 description = "Generate all derived repository artifacts"
 run = [
   { task = "generate:go-sum" },
+  { task = "generate:gear-sum" },
   { task = "generate:sources" },
   { task = "generate:mise-lock" },
   { task = "generate:npm-lock" },
   { task = "generate:openapi" },
+  { task = "generate:echo-server" },
 ]
 
 [tasks."generate:go-sum"]
 description = "Update Go module dependencies and checksums"
 run = "go mod tidy"
+
+[tasks."generate:gear-sum"]
+description = "Update checksums for repository tooling dependencies"
+run = "task gear:sum"
 
 [tasks."generate:sources"]
 description = "Generate Go source artifacts"
@@ -34,3 +40,7 @@ run = [
   "npm ci --prefix tsp --no-audit --no-fund",
   "task specs:generate",
 ]
+
+[tasks."generate:echo-server"]
+description = "Generate the Echo HTTP server from OpenAPI"
+run = "task api:generate"

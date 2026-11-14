@@ -650,6 +650,21 @@ jobs:
         run: |
           go get ./oapi-codegen
           go test ./oapi-codegen/...
+      - name: Record generated dependency footprints
+        shell: bash
+        working-directory: ${{ runner.temp }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/comparison"
+          for package in ogen-no-recursion oapi-codegen; do
+            go list -deps -f '{{if not .Standard}}{{.ImportPath}}{{end}}' "./$package/..." \
+              | sed '/^$/d' | sort -u > "$RUNNER_TEMP/comparison/$package-dependency-packages.txt"
+            go list -deps -f '{{if not .Standard}}{{if .Module}}{{.Module.Path}}{{end}}{{end}}' "./$package/..." \
+              | sed '/^$/d' | sort -u > "$RUNNER_TEMP/comparison/$package-dependency-modules.txt"
+            wc -l "$RUNNER_TEMP/comparison/$package-dependency-packages.txt" \
+              | tee "$RUNNER_TEMP/comparison/$package-dependency-package-count.txt"
+            wc -l "$RUNNER_TEMP/comparison/$package-dependency-modules.txt" \
+              | tee "$RUNNER_TEMP/comparison/$package-dependency-module-count.txt"
+          done
       - name: Record generated output sizes
         if: always()
         run: |

@@ -260,52 +260,6 @@ func (o OptInt64) Or(d int64) int64 {
 	return d
 }
 
-// NewOptPoolTermExprSpec returns new OptPoolTermExprSpec with value set to v.
-func NewOptPoolTermExprSpec(v PoolTermExprSpec) OptPoolTermExprSpec {
-	return OptPoolTermExprSpec{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptPoolTermExprSpec is optional PoolTermExprSpec.
-type OptPoolTermExprSpec struct {
-	Value PoolTermExprSpec
-	Set   bool
-}
-
-// IsSet returns true if OptPoolTermExprSpec was set.
-func (o OptPoolTermExprSpec) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptPoolTermExprSpec) Reset() {
-	var v PoolTermExprSpec
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptPoolTermExprSpec) SetTo(v PoolTermExprSpec) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptPoolTermExprSpec) Get() (v PoolTermExprSpec, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptPoolTermExprSpec) Or(d PoolTermExprSpec) PoolTermExprSpec {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // Ref: #/components/schemas/Pool.DecSnap
 type PoolDecSnap struct {
 	Ref  AnyTermRef  `json:"ref"`
@@ -371,8 +325,8 @@ func (s *PoolDecSpec) SetAssetVars(val []AnyConnVarSpec) {
 
 // Ref: #/components/schemas/Pool.StepSpec
 type PoolStepSpec struct {
-	CompRef  AnyCompRef       `json:"comp_ref"`
-	PoolExpr PoolTermExprSpec `json:"pool_expr"`
+	CompRef  AnyCompRef        `json:"comp_ref"`
+	PoolExpr *PoolTermExprSpec `json:"pool_expr"`
 }
 
 // GetCompRef returns the value of CompRef.
@@ -381,7 +335,7 @@ func (s *PoolStepSpec) GetCompRef() AnyCompRef {
 }
 
 // GetPoolExpr returns the value of PoolExpr.
-func (s *PoolStepSpec) GetPoolExpr() PoolTermExprSpec {
+func (s *PoolStepSpec) GetPoolExpr() *PoolTermExprSpec {
 	return s.PoolExpr
 }
 
@@ -391,7 +345,7 @@ func (s *PoolStepSpec) SetCompRef(val AnyCompRef) {
 }
 
 // SetPoolExpr sets the value of PoolExpr.
-func (s *PoolStepSpec) SetPoolExpr(val PoolTermExprSpec) {
+func (s *PoolStepSpec) SetPoolExpr(val *PoolTermExprSpec) {
 	s.PoolExpr = val
 }
 

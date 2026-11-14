@@ -85,8 +85,19 @@ func (s *PoolStepSpec) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
-		if err := s.PoolExpr.Validate(); err != nil {
-			return err
+		if s.PoolExpr == nil {
+			return errors.New("nil is invalid value")
+		}
+		if s.PoolExpr == nil {
+			return nil // invalid
+		}
+		if err := func() error {
+			if err := s.PoolExpr.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "pointer")
 		}
 		return nil
 	}(); err != nil {
@@ -109,7 +120,10 @@ func (s *PoolTermAcceptSpec) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if s.ContExpr == nil {
-			return nil // optional
+			return errors.New("nil is invalid value")
+		}
+		if s.ContExpr == nil {
+			return nil // invalid
 		}
 		if err := func() error {
 			if err := s.ContExpr.Validate(); err != nil {
@@ -140,7 +154,10 @@ func (s *PoolTermAcquireSpec) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if s.ContExpr == nil {
-			return nil // optional
+			return errors.New("nil is invalid value")
+		}
+		if s.ContExpr == nil {
+			return nil // invalid
 		}
 		if err := func() error {
 			if err := s.ContExpr.Validate(); err != nil {
@@ -171,7 +188,10 @@ func (s *PoolTermApplySpec) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if s.ContExpr == nil {
-			return nil // optional
+			return errors.New("nil is invalid value")
+		}
+		if s.ContExpr == nil {
+			return nil // invalid
 		}
 		if err := func() error {
 			if err := s.ContExpr.Validate(); err != nil {
@@ -242,7 +262,10 @@ func (s *PoolTermHireSpec) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if s.ContExpr == nil {
-			return nil // optional
+			return errors.New("nil is invalid value")
+		}
+		if s.ContExpr == nil {
+			return nil // invalid
 		}
 		if err := func() error {
 			if err := s.ContExpr.Validate(); err != nil {

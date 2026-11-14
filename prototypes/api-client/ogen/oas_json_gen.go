@@ -810,39 +810,6 @@ func (s *AnyTypeRef) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode encodes PoolTermExprSpec as json.
-func (o OptPoolTermExprSpec) Encode(e *jx.Encoder) {
-	if !o.Set {
-		return
-	}
-	o.Value.Encode(e)
-}
-
-// Decode decodes PoolTermExprSpec from json.
-func (o *OptPoolTermExprSpec) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode OptPoolTermExprSpec to nil")
-	}
-	o.Set = true
-	if err := o.Value.Decode(d); err != nil {
-		return err
-	}
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s OptPoolTermExprSpec) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *OptPoolTermExprSpec) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
 // Encode implements json.Marshaler.
 func (s *PoolDecSnap) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -1104,8 +1071,10 @@ func (s *PoolStepSpec) encodeFields(e *jx.Encoder) {
 		s.CompRef.Encode(e)
 	}
 	{
-		e.FieldStart("pool_expr")
-		s.PoolExpr.Encode(e)
+		if s.PoolExpr != nil {
+			e.FieldStart("pool_expr")
+			s.PoolExpr.Encode(e)
+		}
 	}
 }
 
@@ -1136,9 +1105,12 @@ func (s *PoolStepSpec) Decode(d *jx.Decoder) error {
 		case "pool_expr":
 			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				if err := s.PoolExpr.Decode(d); err != nil {
+				s.PoolExpr = nil
+				var elem PoolTermExprSpec
+				if err := elem.Decode(d); err != nil {
 					return err
 				}
+				s.PoolExpr = &elem
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"pool_expr\"")
@@ -1247,6 +1219,7 @@ func (s *PoolTermAcceptSpec) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"conn_ph\"")
 			}
 		case "cont_expr":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				s.ContExpr = nil
 				var elem PoolTermExprSpec
@@ -1268,7 +1241,7 @@ func (s *PoolTermAcceptSpec) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000001,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -1362,6 +1335,7 @@ func (s *PoolTermAcquireSpec) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"conn_ph\"")
 			}
 		case "cont_expr":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				s.ContExpr = nil
 				var elem PoolTermExprSpec
@@ -1383,7 +1357,7 @@ func (s *PoolTermAcquireSpec) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000001,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -1494,6 +1468,7 @@ func (s *PoolTermApplySpec) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"proc_qn\"")
 			}
 		case "cont_expr":
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
 				s.ContExpr = nil
 				var elem PoolTermExprSpec
@@ -1515,7 +1490,7 @@ func (s *PoolTermApplySpec) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000011,
+		0b00000111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -2083,6 +2058,7 @@ func (s *PoolTermHireSpec) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"proc_qn\"")
 			}
 		case "cont_expr":
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
 				s.ContExpr = nil
 				var elem PoolTermExprSpec
@@ -2104,7 +2080,7 @@ func (s *PoolTermHireSpec) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000011,
+		0b00000111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

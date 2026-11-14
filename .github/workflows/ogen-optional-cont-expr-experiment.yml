@@ -28,7 +28,24 @@ jobs:
         run: task specs:generate
       - name: Normalize OpenAPI for ogen
         run: node tsp/scripts/normalize-openapi-for-ogen.mjs openapi/openapi.yaml /tmp/openapi-ogen-optional.yaml
-      - name: Generate client with unmodified ogen v1.25.0
+      - name: Confirm unmodified ogen rejects the remaining recursive edge
+        run: |
+          if GOMODCACHE=/tmp/ogen-optional-unpatched GOWORK=off go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
+            --config prototypes/api-client/ogen.yml \
+            --target /tmp/ogen-optional-unpatched-client \
+            --package ogenclient --clean /tmp/openapi-ogen-optional.yaml > /tmp/ogen-optional-unpatched.log 2>&1; then
+            echo "Expected unmodified ogen to reject the recursive schema"
+            exit 1
+          fi
+          grep -q "infinite recursion" /tmp/ogen-optional-unpatched.log
+          cat /tmp/ogen-optional-unpatched.log
+      - name: Apply the ogen optional-recursion patch
+        run: |
+          GOMODCACHE=/tmp/ogen-optional-gomodcache GOWORK=off go mod download github.com/ogen-go/ogen@v1.25.0
+          ogen_dir="/tmp/ogen-optional-gomodcache/github.com/ogen-go/ogen@v1.25.0"
+          chmod -R u+w "$ogen_dir/gen/ir" "$ogen_dir/gen"
+          patch -d "$ogen_dir" -p1 < prototypes/api-client/ogen/patches/0001-ignore-optional-recursion-edges.patch
+      - name: Generate client with patched ogen v1.25.0
         run: |
           GOMODCACHE=/tmp/ogen-optional-gomodcache GOWORK=off go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
             --config prototypes/api-client/ogen.yml \

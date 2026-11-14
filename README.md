@@ -23,13 +23,10 @@
 - `task specs:verify` — проверка спецификаций перед публикацией.
 - `task sources:generate` — генерация исходников, включая Echo HTTP server из `openapi/openapi.yaml`.
 - `task sources:check` — повторная генерация исходников, проверка актуальности `api.gen.go` и запуск линтеров.
-- `task api:generate` — отдельный запуск генератора Echo HTTP server (обычно достаточно `task sources:generate`).
 - `task tests:unit` — unit-тесты.
 - `task tests:it` — интеграционные тесты.
 - `task tests:e2e` — сквозные тесты.
 - `task engine:binary` — сборка бинарника в `app/engine`.
 - `task engine:process` — запуск приложения.
-
-Подробности о генерации и подключении HTTP server: [docs/api-server.md](docs/api-server.md).
 
 Инструменты разработки фиксируются отдельно в `gear.mod` / `gear.sum`; зависимости приложения — в `go.mod` / `go.sum`.

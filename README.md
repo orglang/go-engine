@@ -1,6 +1,6 @@
 # OrgLang Engine
 
-Рантайм исполнения OrgLang на Go.
+Рантime исполнения OrgLang на Go.
 
 ## Структура
 
@@ -22,7 +22,7 @@
 - `task specs:check` — компиляция TypeSpec и проверка актуальности сгенерированного OpenAPI.
 - `task specs:verify` — проверка спецификаций перед публикацией.
 - `task sources:generate` — генерация исходников, включая Echo HTTP server из `openapi/openapi.yaml`.
-- `task sources:check` — повторная генерация исходников, проверка актуальности `api.gen.go` и запуск линтеров.
+- `task sources:check` — проверка воспроизводимости генерации и запуск линтеров; форматтеры пропускают файлы с заголовком generated code.
 - `task tests:unit` — unit-тесты.
 - `task tests:it` — интеграционные тесты.
 - `task tests:e2e` — сквозные тесты.

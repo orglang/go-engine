@@ -2,7 +2,7 @@ diff --git a/gen/ir/recursion.go b/gen/ir/recursion.go
 index 128e8aac6dd05e71b8aeef30dce7e16dc8ae0e2a..0000000000000000000000000000000000000000 100644
 --- a/gen/ir/recursion.go
 +++ b/gen/ir/recursion.go
-@@ -43,6 +43,13 @@ func (t *Type) recursive(target *Type, path *walkpath) bool {
+@@ -43,6 +43,17 @@ func (t *Type) recursive(target *Type, path *walkpath) bool {
  	case KindGeneric:
  		return t.recursive(target.GenericOf, path)
  	case KindStruct:
@@ -16,3 +16,24 @@ index 128e8aac6dd05e71b8aeef30dce7e16dc8ae0e2a..00000000000000000000000000000000
 +			}
  			return t.recursive(f.Type, path)
  		})
+
+diff --git a/gen/generics.go b/gen/generics.go
+index 0000000000000000000000000000000000000000..0000000000000000000000000000000000000000 100644
+--- a/gen/generics.go
++++ b/gen/generics.go
+@@ -43,8 +43,10 @@ func checkStructRecursions(s *ir.Type) error {
+ 				case v.NullableOptional():
+ 					t, err := boxType(t, ir.GenericVariant{
+ 						Optional: true,
+ 					})
+ 					if err != nil {
+ 						return nil, err
+ 					}
+ 					return ir.Pointer(t, ir.NilNull), nil
+ 				default:
+-					// Required.
+-					return nil, errors.Errorf("infinite recursion: %s.%s is required", s.Name, field.Name)
++					// Required recursive fields need a pointer to break Go value
++					// recursion, but nil remains invalid so JSON requiredness is kept.
++					return ir.Pointer(t, ir.NilInvalid), nil
+ 				}

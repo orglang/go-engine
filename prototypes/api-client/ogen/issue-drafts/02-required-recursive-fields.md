@@ -1,14 +1,12 @@
-# Bug: ogen rejects required recursive object fields during generation
+## Description
 
-## Summary
+ogen fails to generate code for a valid schema when a required object property participates in a recursive cycle.
 
-ogen v1.25.0 rejects a schema when a required object property participates in a recursive cycle. The schema is valid, but the generator reports infinite recursion before it can emit Go code.
+Go structs cannot contain themselves, directly or indirectly, by value. A recursive required property therefore needs indirection in the generated Go representation. That implementation detail must not change the JSON contract: the property remains required and must be rejected when absent.
 
-The generated Go representation must be finite. At least one edge in a required-to-required cycle therefore needs pointer indirection, while the JSON property must remain required: omitting it must still be rejected by decoding/validation.
+## OpenAPI specification
 
-## Minimal OpenAPI 3.1 reproduction
-
-Save as required-cycle.yaml:
+The following OpenAPI 3.1 document reproduces the problem:
 
 ```yaml
 openapi: 3.1.0
@@ -26,8 +24,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/A'
-        default:
-          description: Error
 components:
   schemas:
     A:
@@ -50,11 +46,17 @@ components:
           $ref: '#/components/schemas/B'
 ```
 
-The recursive cycle is B --required--> C --required--> B. Both properties are required; there is no optional pointer edge to break the Go value cycle.
+The recursive cycle is:
 
-## Reproduction
+```text
+B --required--> C --required--> B
+```
 
-With ogen v1.25.0, run:
+Both edges are required; there is no optional property to break the value-recursion cycle.
+
+## Steps to reproduce
+
+Save the document as `required-cycle.yaml` and run:
 
 ```sh
 go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
@@ -63,47 +65,22 @@ go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
   --clean required-cycle.yaml
 ```
 
+## Expected behavior
 
-**Expected:** generation succeeds and emits finite Go types. The generated representation uses pointer indirection for a recursive edge, without treating the JSON property as optional.
+Code generation succeeds and emits finite Go types. The generated representation uses pointer indirection (or an equivalent mechanism) for at least one edge in the recursive cycle.
 
-**Actual:** generation fails with an error similar to:
+The JSON semantics remain unchanged: decoding an object that omits a required recursive property must fail.
+
+## Actual behavior
+
+Code generation fails with an infinite-recursion error similar to:
 
 ```text
 infinite recursion: B.c is required
 ```
 
+## Suspected cause
 
-This failure is reproducible with the unmodified v1.25.0 generator.
+When the generator detects a required recursive field, it reports an error instead of selecting an indirect Go representation for that field.
 
-## Prototype fix
-
-The prototype changes the required-recursive-field fallback in gen/generics.go from returning an error to returning a pointer type with ir.NilInvalid:
-
-```go
-default:
-    // Required recursive fields need a pointer to break Go value
-    // recursion, but nil remains invalid so JSON requiredness is kept.
-    return ir.Pointer(t, ir.NilInvalid), nil
-```
-
-
-The intent is to make the Go type finite while retaining required-field validation. In the repository prototype, both the required-cycle fixture and the TypeSpec-generated required-recursion probe complete generation with the patch; unpatched ogen fails on the required recursive cycle.
-
-This is a generator/type-representation fix proposal. Runtime behavior must still be tested separately: successful code generation alone does not prove that missing, null, and non-null JSON values are handled correctly.
-
-## Nullable control experiment and separate finding
-
-The repository also contains fixtures/required-nullable-cycle.yaml, plus a TypeSpec 1.18.0 probe that emits an OpenAPI 3.1 schema with a required nullable recursive property.
-
-The patched and unpatched ogen v1.25.0 generators both successfully generate this nullable probe. However, the runtime test shows that **both generated clients reject an explicit null** for the required nullable property. Both also reject the nested object containing that null. The test separately confirms that a missing property is rejected.
-
-Because the unpatched generator has the same runtime behavior, this nullable decoding problem is not evidence of a regression introduced by the required-recursion prototype. It is a separate upstream behavior/bug concerning the distinction between requiredness and nullability. It should be tracked independently rather than used to broaden this issue.
-
-The nullable control is useful because it demonstrates that NilInvalid by itself does not establish correct nullable semantics. Do not claim that the proposed pointer fallback has fully preserved all JSON semantics until nullable decoding is addressed.
-
-## Scope
-
-This issue is specifically about generation failing on a required-to-required recursive object cycle and the need for finite Go type representation. It is distinct from:
-
-- false-positive recursion detection through optional fields, documented in 01-optional-edge-recursion-detection.md;
-- incorrect handling of explicit null for required nullable properties, observed in the nullable control experiment above and requiring a separate report.
+The generator should break the Go value-recursion cycle using indirection while preserving the field's required semantics during decoding and validation.

@@ -13,7 +13,8 @@ The comparison input is the committed OpenAPI contract at `openapi/openapi.yaml`
 ### ogen
 
 - Prototype version: `ogen v1.25.0`.
-- The full contract contains recursive expression schemas. In the first full-contract baseline run, unmodified ogen v1.25.0 stopped earlier with a generated schema-name collision (`PoolTermExprSpecSum`) while processing `/api/v1/pools/executions/spawns`; it did **not** reach a conclusive full-contract recursion result. The separate scoped recursion experiments remain valid evidence for their tested Pool.Term shapes, but must not be conflated with the full-contract run.
+- The full contract contains recursive expression schemas. In the full-contract baseline, unmodified ogen v1.25.0 stops with a generated schema-name collision (initially `PoolTermExprSpecSum`) while processing `/api/v1/pools/executions/spawns`; it does **not** reach a conclusive full-contract recursion result.
+- A separate diagnostic now filters the OpenAPI document to `/api/v1/pools/executions/spawns` and `/api/v1/pools/executions/steps`, removes the four `cont_expr` edges from the Pool.Term variants, and runs ogen v1.25.0. Generation succeeds and `go test ./ogen-no-recursion/...` passes, confirming that this generated package compiles. CI evidence: [comparison run #43593945399](https://github.com/orglang/go-engine/actions/runs/43593945399), including the successful “Diagnose recursive Pool.Term.ExprSpec edges” and “Test generated ogen package” steps. This is a deliberately narrowed diagnostic: it does not establish full-contract generation, and it does not test runtime behavior of the generated package.
 - Isolated experiments against the actual `Pool.Term` request schemas demonstrated two possible recursion-handling changes:
   - skip optional fields when detecting value-recursion, because their generated Go representation is indirect;
   - add pointer indirection for required recursive fields, preserving the OpenAPI `required` contract.
@@ -32,7 +33,7 @@ The comparison input is the committed OpenAPI contract at `openapi/openapi.yaml`
 
 ## Reproducible generation baseline
 
-The workflow `.github/workflows/api-client-generator-comparison.yaml` runs both pinned generators against the same committed `openapi/openapi.yaml` and records that input's SHA-256 checksum. The first full-contract run (artifact from run [#43591782147](https://github.com/orglang/go-engine/actions/runs/43591782147)) recorded ogen v1.25.0 failing with a schema-name collision (`PoolTermExprSpecSum`) and oapi-codegen v2.4.1 generating output with an OpenAPI 3.1 support warning. The follow-up run [#43591852634](https://github.com/orglang/go-engine/actions/runs/43591852634) completed with oapi-codegen v2.8.2 generation successful; ogen still reported the original name collision. The workflow preserves logs and generated outputs as an artifact.
+The workflow `.github/workflows/api-client-generator-comparison.yaml` runs both pinned generators against the same committed `openapi/openapi.yaml` and records that input's SHA-256 checksum. It also runs a separate scoped ogen diagnostic: after filtering to the two Pool execution operations and removing the four `cont_expr` recursion edges, it requires both generation and Go package compilation to pass. The first full-contract run (artifact from run [#43591782147](https://github.com/orglang/go-engine/actions/runs/43591782147)) recorded ogen v1.25.0 failing with a schema-name collision (`PoolTermExprSpecSum`) and oapi-codegen v2.4.1 generating output with an OpenAPI 3.1 support warning. The follow-up run [#43591852634](https://github.com/orglang/go-engine/actions/runs/43591852634) completed with oapi-codegen v2.8.2 generation successful; ogen still reported the original name collision. The workflow preserves logs and generated outputs as an artifact.
 
 This first automation stage is intentionally a **generation baseline**, not a completed client comparison: it does not yet establish compile/runtime parity, integration ergonomics, or a final choice. Those checks remain required below. A successful generation job only means both generator processes ran and artifacts were collected; it does not imply the generated clients compile or behave correctly.
 
@@ -51,7 +52,7 @@ The follow-up workflow run [#43592376123](https://github.com/orglang/go-engine/a
 | Criterion from workspace issue #114 | ogen v1.25.0 | oapi-codegen |
 | --- | --- | --- |
 | Same real OpenAPI input | Full-contract baseline still stops at a sum-type name collision (`PoolTermExpressionDefinitionSum` after schema-name overrides); scoped recursion experiments separately passed | v2.8.2 generation succeeded; compile/runtime checks pending |
-| Request/response schemas and operations | Full-contract generation blocked by persistent schema-name collision; recursive behavior still requires isolated evaluation | v2.8.2 generated client; compile/runtime evaluation pending |
+| Request/response schemas and operations | Full-contract generation blocked by persistent schema-name collision; scoped two-operation package compiles after removing four `cont_expr` recursion edges | v2.8.2 generated client; compile/runtime evaluation pending |
 | Optional vs nullable fields | Tested for the four Pool.Term continuation fields in isolated experiments; required nullable behavior has a separate control experiment | Not yet run |
 | Enums and oneOf/discriminators | Present in the contract; full-contract output still needs review after recursion handling | Not yet run |
 | Auth/security schemes and parameters | Must be inventoried against the actual contract and verified in generated client API | Not yet run |
@@ -65,8 +66,8 @@ The follow-up workflow run [#43592376123](https://github.com/orglang/go-engine/a
 ## Required work to finish PR 3
 
 - [x] Pin generator versions and run full-contract generation against the exact same `openapi/openapi.yaml` (ogen v1.25.0; oapi-codegen v2.8.2).
-- [ ] Keep generated outputs and configuration isolated; do not migrate consumers.
-- [ ] Record generation success/failure and any required workarounds for each generator.
+- [x] Keep generated outputs and configuration isolated; do not migrate consumers.
+- [x] Record generation success/failure and the scoped ogen diagnostic workaround; full-contract ogen generation remains blocked by the name collision.
 - [ ] Compile both generated clients and add representative request/response tests using deterministic local fixtures.
 - [ ] Exercise the contract constructs that are actually present: recursive schemas, optional/nullable properties, enums, unions/discriminators, parameters, security (if declared), and response/error shapes.
 - [ ] Build a small usage example against a representative existing consumer to compare transport injection, context cancellation, typed results/errors, and extension points.

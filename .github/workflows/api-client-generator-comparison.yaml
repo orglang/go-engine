@@ -64,6 +64,7 @@ jobs:
             "$GITHUB_WORKSPACE/prototypes/api-client/generator-comparison/ogen-recursive-oneof-fix.patch"
           git -C "$RUNNER_TEMP/ogen-src" apply \
             "$GITHUB_WORKSPACE/prototypes/api-client/generator-comparison/ogen-recursive-oneof-fix.patch"
+          mkdir -p "$RUNNER_TEMP/ogen-recursive-oneof-fixed-test"
           (
             cd "$RUNNER_TEMP/ogen-src"
             go run ./cmd/ogen \

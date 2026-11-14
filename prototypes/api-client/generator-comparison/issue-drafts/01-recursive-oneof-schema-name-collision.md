@@ -8,8 +8,6 @@ The failure is a generated type-name collision:
 schema name conflict: "ExprSum"
 ```
 
-This is distinct from the infinite-recursion failure for required recursive fields. The reproduction below makes the recursive property optional, so the generated Go type graph can be finite through pointer indirection. This isolates the `ExprSum` collision from required-field recursion.
-
 ## OpenAPI specification
 
 The following OpenAPI 3.1 document reproduces the problem:
@@ -70,7 +68,7 @@ The recursive schema graph is:
 Expr --oneOf--> BranchExpr --optional--> Expr
 ```
 
-The `next` property is intentionally optional. Making it required exercises a separate limitation covered by [ogen-go/ogen#1792](https://github.com/ogen-go/ogen/issues/1792).
+The `next` property is intentionally optional.
 
 ## Steps to reproduce
 
@@ -95,7 +93,6 @@ ogen v1.25.0 fails during generation with:
 schema name conflict: "ExprSum"
 ```
 
-The failure is reproducible with the optional recursive property, without relying on required-recursion handling.
 
 ## Suspected cause
 
@@ -131,5 +128,4 @@ This validates the collision workaround for the optional-recursion fixture. It i
 
 ## Related issues
 
-- [ogen-go/ogen#1792](https://github.com/ogen-go/ogen/issues/1792) concerns required recursive fields and the need for pointer indirection while preserving JSON requiredness. That is a separate failure mode; the reproduction here uses an optional recursive edge specifically to avoid it.
 - [orglang/go-engine#79](https://github.com/orglang/go-engine/pull/79) contains a related prototype and issue-draft format for recursion behavior.

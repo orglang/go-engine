@@ -7,7 +7,7 @@ import (
 
 // These cases exercise the real Pool.Term variant models generated from
 // openapi/openapi.yaml, rather than the isolated recursion-control fixtures.
-func TestPoolTermContExprIsRequired(t *testing.T) {
+func TestPoolTermContExprIsOptional(t *testing.T) {
 	tests := []struct {
 		name       string
 		newValue   func() any
@@ -41,16 +41,16 @@ func TestPoolTermContExprIsRequired(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name+"/missing cont_expr is rejected", func(t *testing.T) {
-			if err := json.Unmarshal([]byte(tt.missing), tt.newValue()); err == nil {
-				t.Fatal("expected missing required cont_expr to be rejected")
+		t.Run(tt.name+"/missing cont_expr is accepted", func(t *testing.T) {
+			if err := json.Unmarshal([]byte(tt.missing), tt.newValue()); err != nil {
+				t.Fatalf("expected omitted optional cont_expr to decode: %v", err)
 			}
 		})
 
 		t.Run(tt.name+"/present cont_expr is decoded", func(t *testing.T) {
 			got := tt.newValue()
 			if err := json.Unmarshal([]byte(tt.withCont), got); err != nil {
-				t.Fatalf("expected required cont_expr to decode: %v", err)
+				t.Fatalf("expected present optional cont_expr to decode: %v", err)
 			}
 		})
 	}

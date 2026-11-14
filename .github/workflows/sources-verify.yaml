@@ -29,10 +29,10 @@ jobs:
         with:
           cache: true
 
-      - name: Verify dependencies
+      - name: Check dependencies
         run: mise run deps:check
 
-      - name: Verify sources
+      - name: Check sources
         run: task sources:check
 
       - name: Run unit tests

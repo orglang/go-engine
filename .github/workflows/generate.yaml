@@ -34,13 +34,13 @@ jobs:
       - name: Install dependencies
         run: mise run deps:install
 
-      - name: Generate OpenAPI
+      - name: Generate specs
         run: task specs:generate
 
-      - name: Generate Go sources
+      - name: Generate sources
         run: task sources:generate
 
-      - name: Commit generated artifacts
+      - name: Commit sources
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

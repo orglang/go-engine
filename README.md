@@ -24,7 +24,7 @@
 - `task sources:generate` — генерация исходников, включая Echo HTTP server из `openapi/openapi.yaml`.
 - `task sources:check` — проверка воспроизводимости генерации и запуск линтеров; форматтеры пропускают файлы с заголовком generated code.
 - `task deps:lock` — приведение Go-зависимостей приложения и инструментов разработки к актуальному состоянию, а также обновление lock-файла инструментов mise (`mise.lock`) и npm lock-файла TypeSpec (`tsp/package-lock.json`).
-- `task deps:check` — проверка актуальности Go module manifests, checksum-файлов и npm и mise lock-файлов.
+- `task deps:check` — проверка актуальности Go module manifests, checksum-файлов, npm- и mise-lock-файлов.
 - `task tests:unit` — unit-тесты.
 - `task tests:it` — интеграционные тесты.
 - `task tests:e2e` — сквозные тесты.

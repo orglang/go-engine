@@ -10,6 +10,15 @@ The comparison input is the committed OpenAPI contract at `openapi/openapi.yaml`
 
 ## Evidence collected so far
 
+### Latest runtime integration evidence — comparison run #37
+
+- Commit: [0c07b5d](https://github.com/orglang/go-engine/commit/0c07b5d6331fe84fb4d531e0606416071944d61f); [CI run #43596829412](https://github.com/orglang/go-engine/actions/runs/43596829412) completed successfully. All 12 main workflow steps passed, including the ogen diagnostic generation and package test, full-contract oapi-codegen generation, generated-package tests, and artifact upload.
+- The oapi-codegen test suite now verifies a custom `http.Client` transport via `WithHTTPClient`, request editing via `WithRequestEditorFn` (including an injected header), and parsing a typed `201` response through `NewClientWithResponses`.
+- A separate test confirms that cancellation of the request context propagates through the custom transport as `context.Canceled`.
+- Together with run #36, the tested client behaviors now include JSON and text/plain request bodies, path parameter escaping, typed `201` success, empty `204`, raw body/status for an unmodeled `422`, custom transport, request editor, and context cancellation. This remains focused test coverage, not a complete consumer integration or a comprehensive error contract.
+- The full-contract ogen baseline still fails with `schema name conflict: "PoolTermExpressionDefinitionSum"`; the green workflow records this expected failure and does not imply successful full-contract ogen generation. The filtered two-operation ogen diagnostic still generates and compiles.
+- Run #37 artifact sizes: full oapi-codegen output directory 224,588 bytes (generated `client.gen.go`: 206,559 bytes); filtered ogen diagnostic output directory 98,573 bytes. These remain incomparable because the generated scopes differ.
+
 ### ogen
 
 - Prototype version: `ogen v1.25.0`.
@@ -58,10 +67,10 @@ The follow-up workflow run [#43592376123](https://github.com/orglang/go-engine/a
 | Enums and oneOf/discriminators | Present; full-contract output still blocked by the name collision | No enum schemas are declared in the current contract; three discriminator variants now have passing JSON round-trip coverage (`Hire.cont_expr`, `Pool.Type.ExprSpec`, `Proc.Term.ExprSpec`; runs #43595313547 and #43595575239) |
 | Auth/security schemes and parameters | Must be inventoried against the actual contract and verified in generated client API | Optional `rn` query parameter serialization is tested (present and omitted); security and broader parameter coverage pending |
 | Default/error responses | Must be inventoried and verified in generated client API | Not yet run |
-| Custom net/http transport, context/cancellation | Not yet evaluated in a representative consumer | Not yet run |
+| Custom net/http transport, context/cancellation | Full-contract output blocked; diagnostic scope only | oapi-codegen tests pass for custom `http.Client` transport, `WithRequestEditorFn`, and `context.Canceled` propagation (run #43596829412) |
 | Typed responses/errors and extension points | Not yet evaluated | Not yet run |
 | Package/import shape and consumer ergonomics | Not yet evaluated | Not yet run |
-| Generated code size/readability and dependencies | Not yet measured | Not yet measured |
+| Generated code size/readability and dependencies | 98,573 bytes for filtered diagnostic output only; not comparable | 224,588 bytes full output directory; generated file 206,559 bytes. Scope mismatch prevents a valid size comparison; dependency footprint still to measure |
 | Clean regeneration and drift stability | Isolated generation workflows are reproducible; maintained pipeline not yet established | Not yet run |
 
 ## Required work to finish PR 3
@@ -73,8 +82,10 @@ The follow-up workflow run [#43592376123](https://github.com/orglang/go-engine/a
 - [x] Add deterministic JSON contract tests for recursive Hire-to-Fire continuation round-trip, missing/explicit-null `cont_expr`, and two additional `oneOf` discriminator round-trips (`Pool.Type.ExprSpec` and `Proc.Term.ExprSpec`; CI runs [#43595313547](https://github.com/orglang/go-engine/actions/runs/43595313547) and [#43595575239](https://github.com/orglang/go-engine/actions/runs/43595575239)).
 - [x] Verify optional `rn` query serialization for a provided value and nil omission (CI run [#43596153549](https://github.com/orglang/go-engine/actions/runs/43596153549)).
 - [ ] Exercise the contract constructs that are actually present: recursive schemas, optional/nullable properties, enums, unions/discriminators, parameters, security (if declared), and response/error shapes.
-- [ ] Build a small usage example against a representative existing consumer to compare transport injection, context cancellation, typed results/errors, and extension points.
-- [ ] Record generated-code size and dependency footprint.
+- [x] Exercise oapi-codegen transport injection, request editor, context cancellation, typed success, no-content success, and unmodeled error response behavior (runs [#43596671894](https://github.com/orglang/go-engine/actions/runs/43596671894) and [#43596829412](https://github.com/orglang/go-engine/actions/runs/43596829412)).
+- [ ] Build a small usage example against a representative existing consumer; current tests use a focused generated-client harness, not a production consumer.
+- [x] Record generated output sizes, with an explicit warning that the full oapi-codegen output and filtered ogen diagnostic are not comparable (run [#43596829412](https://github.com/orglang/go-engine/actions/runs/43596829412)).
+- [ ] Compare dependency footprint and generated-code readability on equivalent scopes.
 - [ ] Make a final selection with explicit trade-offs. If ogen is selected, document the upstream issue dependencies and the temporary policy for pinned patches.
 
 ## Provisional direction

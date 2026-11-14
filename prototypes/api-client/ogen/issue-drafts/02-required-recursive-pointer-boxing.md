@@ -131,22 +131,7 @@ type ARecursive struct {
 }
 ```
 
-The decoder must preserve required-property validation independently of that representation. For example, its logic should be equivalent to:
-
-```go
-var seenB bool
-
-// When the "b" JSON property is encountered:
-seenB = true
-// Decode its non-null value into the pointer field.
-
-// After the object has been decoded:
-if !seenB {
-    return errMissingRequiredField
-}
-```
-
-This is an illustrative sketch, not a request to adopt these exact generated names or implementation details. In particular, a nil Go pointer must not by itself be used to infer that the property was absent: required-field validation should be based on JSON field presence. The OpenAPI schema and its `required` arrays remain unchanged.
+The generated decoder must preserve the existing JSON contract: missing required properties and explicit `null` values for non-nullable properties must be rejected. This proposal does not prescribe a particular decoder implementation.
 
 A regression test should verify both generated type finiteness and JSON behavior. It should cover:
 
@@ -166,6 +151,4 @@ The two changes address different cases in recursion analysis and can be impleme
 
 ## Compatibility considerations
 
-This change should not alter the OpenAPI schema, its `required` arrays, or the accepted JSON values. It changes only the generated Go representation needed to make recursive types finite.
-
-In Go, changing a field from a value to a pointer changes the in-memory representation and may affect source compatibility for consumers of generated types. That trade-off is separate from the wire contract: the pointer is an implementation detail of the generated model, while requiredness remains part of the API schema and decoder validation.
+The OpenAPI schema, its `required` arrays, and accepted JSON values should remain unchanged. The generated Go representation changes, however: a recursive field may become a pointer, which can be source-incompatible for consumers constructing or accessing generated types.

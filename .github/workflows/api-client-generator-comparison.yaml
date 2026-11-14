@@ -105,8 +105,8 @@ jobs:
           )
           PY
           set +e
-          go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \\
-            --target "$RUNNER_TEMP/ogen-pool-types-no-recursion" -package api --clean "$RUNNER_TEMP/openapi-pool-types-no-recursion.yaml" \\
+          go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
+            --target "$RUNNER_TEMP/ogen-pool-types-no-recursion" -package api --clean "$RUNNER_TEMP/openapi-pool-types-no-recursion.yaml" \
             > "$RUNNER_TEMP/ogen-pool-types-no-recursion.log" 2>&1
           status=$?
           printf "exit_code=%s\\n" "$status" | tee "$RUNNER_TEMP/ogen-pool-types-no-recursion.exit"

@@ -27,6 +27,7 @@ tasks:
     desc: Build application binaries
     cmds:
       - task: sources:generate
+      - task: tests:it
       - task: engine:binary
 
   sources:check:

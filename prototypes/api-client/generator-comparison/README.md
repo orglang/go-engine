@@ -8,6 +8,21 @@ Tracks PR 3 from [orglang/go-workspace#114](https://github.com/orglang/go-worksp
 
 The comparison input is the committed OpenAPI contract at `openapi/openapi.yaml`, generated from the TypeSpec source in `tsp/`. The contract currently describes 21 target `/api/v1` operations. Both generators must consume the same committed document and use pinned versions.
 
+## Isolated ogen recursive oneOf reproduction
+
+Branch `experiment/ogen-recursive-oneof` adds
+`ogen-recursive-oneof-repro.yaml`, a minimal OpenAPI 3.1 document with an
+object schema composed with `oneOf`; one variant has a required property
+that references the composed schema again.
+
+The comparison workflow runs this input against ogen v1.25.0 before the
+full-contract diagnostics. The step currently treats the exact
+`schema name conflict: "ExprSum"` failure as the expected reproduction and
+fails if generation succeeds or fails for a different reason. This is an
+isolated regression probe, not a production workaround or a confirmed
+root-cause fix. The CI result must be checked before concluding that the
+minimal schema reproduces the collision.
+
 ## Evidence collected so far
 
 ### Pool.Type recursion isolation — comparison run #50

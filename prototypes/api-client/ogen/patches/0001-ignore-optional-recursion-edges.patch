@@ -18,6 +18,26 @@ diff --git a/gen/ir/recursion.go b/gen/ir/recursion.go
 
 diff --git a/gen/generics.go b/gen/generics.go
 --- a/gen/generics.go
+@@ -16,4 +16,14 @@
+-		v := ir.GenericVariant{
+-			Nullable: field.Spec.Schema.Nullable,
+-			Optional: !field.Spec.Required,
+-		}
++		nullable := field.Spec.Schema.Nullable
++		for _, variant := range field.Spec.Schema.AnyOf {
++			nullable = nullable || variant.Nullable
++		}
++		for _, variant := range field.Spec.Schema.OneOf {
++			nullable = nullable || variant.Nullable
++		}
++		for _, variant := range field.Spec.Schema.AllOf {
++			nullable = nullable || variant.Nullable
++		}
++		v := ir.GenericVariant{
++			Nullable: nullable,
++			Optional: !field.Spec.Required,
++		}
++
 +++ b/gen/generics.go
 @@ -40,3 +40,14 @@
 -				default:

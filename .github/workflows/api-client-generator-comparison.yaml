@@ -106,6 +106,7 @@ jobs:
           import (
               "context"
               "encoding/json"
+              "errors"
               "io"
               "net/http"
               "net/http/httptest"
@@ -467,6 +468,92 @@ jobs:
               if rejected.StatusCode() != http.StatusUnprocessableEntity || string(rejected.Body) != "invalid program" {
                   t.Fatalf("unmodeled error response = status %d body %q, want 422 and raw body",
                       rejected.StatusCode(), rejected.Body)
+              }
+          }
+
+
+          
+          type roundTripperFunc func(*http.Request) (*http.Response, error)
+
+          func (fn roundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+              return fn(req)
+          }
+
+          func TestCustomHTTPTransportAndRequestEditor(t *testing.T) {
+              var transportCalled bool
+              httpClient := &http.Client{
+                  Transport: roundTripperFunc(func(req *http.Request) (*http.Response, error) {
+                      transportCalled = true
+                      if got := req.Header.Get("X-Client-Test"); got != "editor-value" {
+                          t.Fatalf("request editor header = %q, want editor-value", got)
+                      }
+                      if req.URL.Host != "api.example.test" {
+                          t.Fatalf("request host = %q, want api.example.test", req.URL.Host)
+                      }
+                      return &http.Response{
+                          StatusCode: http.StatusCreated,
+                          Status: "201 Created",
+                          Header: http.Header{"Content-Type": []string{"application/json"}},
+                          Body: io.NopCloser(strings.NewReader(`{"comp_id":"custom-transport","comp_rn":5}`)),
+                          Request: req,
+                      }, nil
+                  }),
+              }
+              client, err := NewClientWithResponses(
+                  "https://api.example.test",
+                  WithHTTPClient(httpClient),
+                  WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
+                      req.Header.Set("X-Client-Test", "editor-value")
+                      return nil
+                  }),
+              )
+              if err != nil {
+                  t.Fatalf("create client with custom transport: %v", err)
+              }
+              response, err := client.EngineApiCreatePoolExecutionWithResponse(
+                  context.Background(),
+                  AnyExecSpec{
+                      TermQn: "example.term",
+                      LiabVar: AnyExecVarSpec{ConnPh: "liability", TermQn: "example.Liab"},
+                      AssetVars: []AnyExecVarSpec{},
+                  },
+              )
+              if err != nil {
+                  t.Fatalf("request through custom transport: %v", err)
+              }
+              if !transportCalled {
+                  t.Fatal("custom HTTP transport was not called")
+              }
+              if response.StatusCode() != http.StatusCreated ||
+                  response.JSON201 == nil || response.JSON201.CompId != "custom-transport" {
+                  t.Fatalf("custom transport response = status %d, body %+v", response.StatusCode(), response.JSON201)
+              }
+          }
+
+          func TestRequestContextCancellationPropagates(t *testing.T) {
+              transport := roundTripperFunc(func(req *http.Request) (*http.Response, error) {
+                  <-req.Context().Done()
+                  return nil, req.Context().Err()
+              })
+              client, err := NewClientWithResponses(
+                  "https://api.example.test",
+                  WithHTTPClient(&http.Client{Transport: transport}),
+              )
+              if err != nil {
+                  t.Fatalf("create client: %v", err)
+              }
+              ctx, cancel := context.WithCancel(context.Background())
+              cancel()
+              _, err = client.EngineApiCreatePoolExecutionWithResponse(
+                  ctx,
+                  AnyExecSpec{
+                      TermQn: "example.term",
+                      LiabVar: AnyExecVarSpec{ConnPh: "liability", TermQn: "example.Liab"},
+                      AssetVars: []AnyExecVarSpec{},
+                  },
+              )
+              if !errors.Is(err, context.Canceled) {
+                  t.Fatalf("request error = %v, want context.Canceled", err)
               }
           }
 

@@ -19,12 +19,23 @@ diff --git a/gen/ir/recursion.go b/gen/ir/recursion.go
 diff --git a/gen/generics.go b/gen/generics.go
 --- a/gen/generics.go
 +++ b/gen/generics.go
-@@ -40,3 +40,4 @@
- 				default:
+@@ -40,3 +40,14 @@
+-				default:
 -					// Required.
 -					return nil, errors.Errorf("infinite recursion: %s.%s is required", s.Name, field.Name)
-+					// Required recursive fields need a pointer to break Go value
-+					// recursion, but nil remains invalid so JSON requiredness is kept.
++				case v.OnlyOptional():
++					return ir.Pointer(t, ir.NilOptional), nil
++				case v.OnlyNullable():
++					return ir.Pointer(t, ir.NilNull), nil
++				case v.NullableOptional():
++					t, err := boxType(t, ir.GenericVariant{
++						Optional: true,
++					})
++					if err != nil {
++						return nil, err
++					}
++					return ir.Pointer(t, ir.NilNull), nil
++				default:
 +					return ir.Pointer(t, ir.NilInvalid), nil
 
 diff --git a/gen/_template/json/decode.tmpl b/gen/_template/json/decode.tmpl

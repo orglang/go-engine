@@ -27,10 +27,10 @@ The comparison input is the committed OpenAPI contract at `openapi/openapi.yaml`
 ### oapi-codegen
 
 - Candidate: `oapi-codegen v2.8.2` (pinned in the reproducible workflow).
-- The v2.8.2 full-contract generation completed successfully against the same committed OpenAPI input, and the generated package passes `go test ./oapi-codegen/...` in CI run [#43594151852](https://github.com/orglang/go-engine/actions/runs/43594151852). This is currently a package-compilation check; runtime JSON contract tests and detailed recursive/nullable/optional behavior checks remain pending.
+- The v2.8.2 full-contract generation completed successfully against the same committed OpenAPI input. In comparison run [#43594719836](https://github.com/orglang/go-engine/actions/runs/43594719836), the full generated package passed `go test ./oapi-codegen/...` with deterministic JSON contract tests: a recursive Hire-to-Fire continuation successfully unmarshals and marshals with its `kind` discriminator preserved, and decoding a Hire object with the OpenAPI-required `cont_expr` omitted succeeds without required-property validation. This is evidence for these specific model behaviors, not comprehensive runtime parity or validation of all contract constraints.
 - The same run recorded generated directory sizes: 206,559 bytes for the full oapi-codegen output and 98,573 bytes for the scoped ogen diagnostic output. These figures are **not a valid size comparison** because the generated scopes differ (full contract vs. two operations with four recursion edges removed).
 
-**Current assessment:** generation succeeds, but this is not yet evidence of compile-time or runtime contract parity.
+**Current assessment:** full-contract generation and package compilation succeed, and two focused JSON behaviors are now covered. The generated model decoder does not enforce OpenAPI required-property presence for the tested missing field; callers needing validation must provide a separate validation layer. Recursive union round-trip is demonstrated only for the tested Hire-to-Fire example.
 
 ## Reproducible generation baseline
 
@@ -53,8 +53,8 @@ The follow-up workflow run [#43592376123](https://github.com/orglang/go-engine/a
 | Criterion from workspace issue #114 | ogen v1.25.0 | oapi-codegen |
 | --- | --- | --- |
 | Same real OpenAPI input | Full-contract baseline still stops at a sum-type name collision (`PoolTermExpressionDefinitionSum` after schema-name overrides); scoped diagnostic package compiles after recursion-edge removal | v2.8.2 full-contract generation and package compilation passed; runtime checks pending |
-| Request/response schemas and operations | Full-contract generation blocked by persistent schema-name collision; scoped two-operation package compiles after removing four `cont_expr` recursion edges | v2.8.2 full-contract package compiles; runtime behavior still pending |
-| Optional vs nullable fields | Tested for the four Pool.Term continuation fields in isolated experiments; required nullable behavior has a separate control experiment | Not yet run |
+| Request/response schemas and operations | Full-contract generation blocked by persistent schema-name collision; scoped two-operation package compiles after removing four `cont_expr` recursion edges | v2.8.2 full-contract package compiles; focused recursive JSON round-trip passes |
+| Optional vs nullable fields | Tested for the four Pool.Term continuation fields in isolated experiments; required nullable behavior has a separate control experiment | Missing required `cont_expr` is accepted by model decoding in the focused test; broader optional/nullable matrix pending |
 | Enums and oneOf/discriminators | Present in the contract; full-contract output still needs review after recursion handling | Not yet run |
 | Auth/security schemes and parameters | Must be inventoried against the actual contract and verified in generated client API | Not yet run |
 | Default/error responses | Must be inventoried and verified in generated client API | Not yet run |
@@ -70,7 +70,7 @@ The follow-up workflow run [#43592376123](https://github.com/orglang/go-engine/a
 - [x] Keep generated outputs and configuration isolated; do not migrate consumers.
 - [x] Record generation success/failure and the scoped ogen diagnostic workaround; full-contract ogen generation remains blocked by the name collision.
 - [x] Compile the generated oapi-codegen full-contract package and the scoped ogen diagnostic package.
-- [ ] Add representative request/response and JSON contract tests using deterministic local fixtures; compile-only checks are not runtime parity.
+- [x] Add initial deterministic JSON contract tests: recursive Hire-to-Fire continuation round-trip and missing required `cont_expr` behavior for oapi-codegen (CI run [#43594719836](https://github.com/orglang/go-engine/actions/runs/43594719836)).
 - [ ] Exercise the contract constructs that are actually present: recursive schemas, optional/nullable properties, enums, unions/discriminators, parameters, security (if declared), and response/error shapes.
 - [ ] Build a small usage example against a representative existing consumer to compare transport injection, context cancellation, typed results/errors, and extension points.
 - [ ] Record generated-code size and dependency footprint.

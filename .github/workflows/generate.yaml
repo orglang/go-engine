@@ -58,7 +58,7 @@ jobs:
         if: github.ref != 'refs/heads/prototype/ogen-pool-term-expr-name'
         run: cd tsp && npm ci && npm run build
 
-      - name: Generate artifacts with recursive directory permission fix
+      - name: Generate artifacts with corrected TOML quoting for recursion patch
         run: mise run generate
 
       - name: Commit generated artifacts

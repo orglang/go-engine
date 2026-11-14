@@ -40,10 +40,10 @@ tasks:
       - GOWORK=off go tool -modfile=gear.mod golangci-lint run ./...
 
   sources:prepare:
-    desc: Prepare source artifact
+    desc: Prepare source artifacts and format handwritten Go code
     cmds:
-      - gofmt -s -w .
       - task: sources:generate
+      - GOWORK=off go tool -modfile=gear.mod golangci-lint fmt
 
   sources:generate:
     desc: Generate source artifacts
@@ -79,6 +79,7 @@ tasks:
     aliases: [proc]
     desc: Run specified process in foreground
     cmds:
+      - task: sources:generate
       - task: engine:process
 
   container:
@@ -91,6 +92,7 @@ tasks:
     aliases: [procs]
     desc: Run and interrupt all processes
     cmds:
+      - task: sources:generate
       - task: engine:process
 
   tests:*:

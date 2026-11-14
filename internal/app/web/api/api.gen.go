@@ -393,81 +393,81 @@ type ProcTypeWithSpec struct {
 	Choices []ProcTypeChoiceSpec `json:"choices"`
 }
 
-// EngineApiGetPoolTypeDefinitionParams defines parameters for EngineApiGetPoolTypeDefinition.
-type EngineApiGetPoolTypeDefinitionParams struct {
+// GetPoolTypeDefinitionParams defines parameters for GetPoolTypeDefinition.
+type GetPoolTypeDefinitionParams struct {
 	Rn *int64 `form:"rn,omitempty" json:"rn,omitempty"`
 }
 
-// EngineApiGetPoolAssociatedDeclarationParams defines parameters for EngineApiGetPoolAssociatedDeclaration.
-type EngineApiGetPoolAssociatedDeclarationParams struct {
+// GetPoolAssociatedDeclarationParams defines parameters for GetPoolAssociatedDeclaration.
+type GetPoolAssociatedDeclarationParams struct {
 	Rn *int64 `form:"rn,omitempty" json:"rn,omitempty"`
 }
 
-// EngineApiGetPoolDefinitionParams defines parameters for EngineApiGetPoolDefinition.
-type EngineApiGetPoolDefinitionParams struct {
+// GetPoolDefinitionParams defines parameters for GetPoolDefinition.
+type GetPoolDefinitionParams struct {
 	Rn *int64 `form:"rn,omitempty" json:"rn,omitempty"`
 }
 
-// EngineApiGetProcessDeclarationParams defines parameters for EngineApiGetProcessDeclaration.
-type EngineApiGetProcessDeclarationParams struct {
+// GetProcessDeclarationParams defines parameters for GetProcessDeclaration.
+type GetProcessDeclarationParams struct {
 	Rn *int64 `form:"rn,omitempty" json:"rn,omitempty"`
 }
 
-// EngineApiGetProcessExecutionParams defines parameters for EngineApiGetProcessExecution.
-type EngineApiGetProcessExecutionParams struct {
+// GetProcessExecutionParams defines parameters for GetProcessExecution.
+type GetProcessExecutionParams struct {
 	Rn *int64 `form:"rn,omitempty" json:"rn,omitempty"`
 }
 
-// EngineApiGetProcessTypeDefinitionParams defines parameters for EngineApiGetProcessTypeDefinition.
-type EngineApiGetProcessTypeDefinitionParams struct {
+// GetProcessTypeDefinitionParams defines parameters for GetProcessTypeDefinition.
+type GetProcessTypeDefinitionParams struct {
 	Rn *int64 `form:"rn,omitempty" json:"rn,omitempty"`
 }
 
-// EngineApiGetProcessAssociatedDeclarationParams defines parameters for EngineApiGetProcessAssociatedDeclaration.
-type EngineApiGetProcessAssociatedDeclarationParams struct {
+// GetProcessAssociatedDeclarationParams defines parameters for GetProcessAssociatedDeclaration.
+type GetProcessAssociatedDeclarationParams struct {
 	Rn *int64 `form:"rn,omitempty" json:"rn,omitempty"`
 }
 
-// EngineApiGetProcessDefinitionParams defines parameters for EngineApiGetProcessDefinition.
-type EngineApiGetProcessDefinitionParams struct {
+// GetProcessDefinitionParams defines parameters for GetProcessDefinition.
+type GetProcessDefinitionParams struct {
 	Rn *int64 `form:"rn,omitempty" json:"rn,omitempty"`
 }
 
-// EngineApiCreateProgramTextBody defines parameters for EngineApiCreateProgram.
-type EngineApiCreateProgramTextBody = string
+// CreateProgramTextBody defines parameters for CreateProgram.
+type CreateProgramTextBody = string
 
-// EngineApiCreatePoolDeclarationJSONRequestBody defines body for EngineApiCreatePoolDeclaration for application/json ContentType.
-type EngineApiCreatePoolDeclarationJSONRequestBody = PoolDecSpec
+// CreatePoolDeclarationJSONRequestBody defines body for CreatePoolDeclaration for application/json ContentType.
+type CreatePoolDeclarationJSONRequestBody = PoolDecSpec
 
-// EngineApiCreatePoolExecutionJSONRequestBody defines body for EngineApiCreatePoolExecution for application/json ContentType.
-type EngineApiCreatePoolExecutionJSONRequestBody = AnyExecSpec
+// CreatePoolExecutionJSONRequestBody defines body for CreatePoolExecution for application/json ContentType.
+type CreatePoolExecutionJSONRequestBody = AnyExecSpec
 
-// EngineApiSpawnPoolExecutionJSONRequestBody defines body for EngineApiSpawnPoolExecution for application/json ContentType.
-type EngineApiSpawnPoolExecutionJSONRequestBody = PoolStepSpec
+// SpawnPoolExecutionJSONRequestBody defines body for SpawnPoolExecution for application/json ContentType.
+type SpawnPoolExecutionJSONRequestBody = PoolStepSpec
 
-// EngineApiStepPoolExecutionJSONRequestBody defines body for EngineApiStepPoolExecution for application/json ContentType.
-type EngineApiStepPoolExecutionJSONRequestBody = PoolStepSpec
+// StepPoolExecutionJSONRequestBody defines body for StepPoolExecution for application/json ContentType.
+type StepPoolExecutionJSONRequestBody = PoolStepSpec
 
-// EngineApiCreatePoolTypeDefinitionJSONRequestBody defines body for EngineApiCreatePoolTypeDefinition for application/json ContentType.
-type EngineApiCreatePoolTypeDefinitionJSONRequestBody = PoolTypeDefSpec
+// CreatePoolTypeDefinitionJSONRequestBody defines body for CreatePoolTypeDefinition for application/json ContentType.
+type CreatePoolTypeDefinitionJSONRequestBody = PoolTypeDefSpec
 
-// EngineApiExtendPoolDefinitionJSONRequestBody defines body for EngineApiExtendPoolDefinition for application/json ContentType.
-type EngineApiExtendPoolDefinitionJSONRequestBody = PoolTermExprSpec
+// ExtendPoolDefinitionJSONRequestBody defines body for ExtendPoolDefinition for application/json ContentType.
+type ExtendPoolDefinitionJSONRequestBody = PoolTermExprSpec
 
-// EngineApiCreateProcessDeclarationJSONRequestBody defines body for EngineApiCreateProcessDeclaration for application/json ContentType.
-type EngineApiCreateProcessDeclarationJSONRequestBody = ProcDecSpec
+// CreateProcessDeclarationJSONRequestBody defines body for CreateProcessDeclaration for application/json ContentType.
+type CreateProcessDeclarationJSONRequestBody = ProcDecSpec
 
-// EngineApiStepProcessExecutionJSONRequestBody defines body for EngineApiStepProcessExecution for application/json ContentType.
-type EngineApiStepProcessExecutionJSONRequestBody = ProcStepSpec
+// StepProcessExecutionJSONRequestBody defines body for StepProcessExecution for application/json ContentType.
+type StepProcessExecutionJSONRequestBody = ProcStepSpec
 
-// EngineApiCreateProcessTypeDefinitionJSONRequestBody defines body for EngineApiCreateProcessTypeDefinition for application/json ContentType.
-type EngineApiCreateProcessTypeDefinitionJSONRequestBody = ProcTypeDefSpec
+// CreateProcessTypeDefinitionJSONRequestBody defines body for CreateProcessTypeDefinition for application/json ContentType.
+type CreateProcessTypeDefinitionJSONRequestBody = ProcTypeDefSpec
 
-// EngineApiExtendProcessDefinitionJSONRequestBody defines body for EngineApiExtendProcessDefinition for application/json ContentType.
-type EngineApiExtendProcessDefinitionJSONRequestBody = ProcTermExprSpec
+// ExtendProcessDefinitionJSONRequestBody defines body for ExtendProcessDefinition for application/json ContentType.
+type ExtendProcessDefinitionJSONRequestBody = ProcTermExprSpec
 
-// EngineApiCreateProgramTextRequestBody defines body for EngineApiCreateProgram for text/plain ContentType.
-type EngineApiCreateProgramTextRequestBody = EngineApiCreateProgramTextBody
+// CreateProgramTextRequestBody defines body for CreateProgram for text/plain ContentType.
+type CreateProgramTextRequestBody = CreateProgramTextBody
 
 // AsPoolTermHireSpec returns the union data inside the PoolTermExprSpec as a PoolTermHireSpec
 func (t PoolTermExprSpec) AsPoolTermHireSpec() (PoolTermHireSpec, error) {
@@ -1813,67 +1813,67 @@ func (t *ProcTypeExprSpec) UnmarshalJSON(b []byte) error {
 type ServerInterface interface {
 
 	// (POST /api/v1/pools/declarations)
-	EngineApiCreatePoolDeclaration(ctx echo.Context) error
+	CreatePoolDeclaration(ctx echo.Context) error
 
 	// (POST /api/v1/pools/executions)
-	EngineApiCreatePoolExecution(ctx echo.Context) error
+	CreatePoolExecution(ctx echo.Context) error
 
 	// (POST /api/v1/pools/executions/spawns)
-	EngineApiSpawnPoolExecution(ctx echo.Context) error
+	SpawnPoolExecution(ctx echo.Context) error
 
 	// (POST /api/v1/pools/executions/steps)
-	EngineApiStepPoolExecution(ctx echo.Context) error
+	StepPoolExecution(ctx echo.Context) error
 
 	// (POST /api/v1/pools/types)
-	EngineApiCreatePoolTypeDefinition(ctx echo.Context) error
+	CreatePoolTypeDefinition(ctx echo.Context) error
 
 	// (GET /api/v1/pools/types/{id})
-	EngineApiGetPoolTypeDefinition(ctx echo.Context, id string, params EngineApiGetPoolTypeDefinitionParams) error
+	GetPoolTypeDefinition(ctx echo.Context, id string, params GetPoolTypeDefinitionParams) error
 
 	// (GET /api/v1/pools/{id}/declaration)
-	EngineApiGetPoolAssociatedDeclaration(ctx echo.Context, id string, params EngineApiGetPoolAssociatedDeclarationParams) error
+	GetPoolAssociatedDeclaration(ctx echo.Context, id string, params GetPoolAssociatedDeclarationParams) error
 
 	// (GET /api/v1/pools/{id}/definition)
-	EngineApiGetPoolDefinition(ctx echo.Context, id string, params EngineApiGetPoolDefinitionParams) error
+	GetPoolDefinition(ctx echo.Context, id string, params GetPoolDefinitionParams) error
 
 	// (PATCH /api/v1/pools/{id}/definition)
-	EngineApiExtendPoolDefinition(ctx echo.Context, id string) error
+	ExtendPoolDefinition(ctx echo.Context, id string) error
 
 	// (GET /api/v1/pools/{id}/executions)
-	EngineApiListPoolExecutions(ctx echo.Context, id string) error
+	ListPoolExecutions(ctx echo.Context, id string) error
 
 	// (POST /api/v1/processes/declarations)
-	EngineApiCreateProcessDeclaration(ctx echo.Context) error
+	CreateProcessDeclaration(ctx echo.Context) error
 
 	// (GET /api/v1/processes/declarations/{id})
-	EngineApiGetProcessDeclaration(ctx echo.Context, id string, params EngineApiGetProcessDeclarationParams) error
+	GetProcessDeclaration(ctx echo.Context, id string, params GetProcessDeclarationParams) error
 
 	// (GET /api/v1/processes/executions/{id})
-	EngineApiGetProcessExecution(ctx echo.Context, id string, params EngineApiGetProcessExecutionParams) error
+	GetProcessExecution(ctx echo.Context, id string, params GetProcessExecutionParams) error
 
 	// (POST /api/v1/processes/executions/{id}/steps)
-	EngineApiStepProcessExecution(ctx echo.Context, id string) error
+	StepProcessExecution(ctx echo.Context, id string) error
 
 	// (POST /api/v1/processes/types)
-	EngineApiCreateProcessTypeDefinition(ctx echo.Context) error
+	CreateProcessTypeDefinition(ctx echo.Context) error
 
 	// (GET /api/v1/processes/types/{id})
-	EngineApiGetProcessTypeDefinition(ctx echo.Context, id string, params EngineApiGetProcessTypeDefinitionParams) error
+	GetProcessTypeDefinition(ctx echo.Context, id string, params GetProcessTypeDefinitionParams) error
 
 	// (GET /api/v1/processes/{id}/declaration)
-	EngineApiGetProcessAssociatedDeclaration(ctx echo.Context, id string, params EngineApiGetProcessAssociatedDeclarationParams) error
+	GetProcessAssociatedDeclaration(ctx echo.Context, id string, params GetProcessAssociatedDeclarationParams) error
 
 	// (GET /api/v1/processes/{id}/definition)
-	EngineApiGetProcessDefinition(ctx echo.Context, id string, params EngineApiGetProcessDefinitionParams) error
+	GetProcessDefinition(ctx echo.Context, id string, params GetProcessDefinitionParams) error
 
 	// (PATCH /api/v1/processes/{id}/definition)
-	EngineApiExtendProcessDefinition(ctx echo.Context, id string) error
+	ExtendProcessDefinition(ctx echo.Context, id string) error
 
 	// (GET /api/v1/processes/{id}/executions)
-	EngineApiListProcessExecutions(ctx echo.Context, id string) error
+	ListProcessExecutions(ctx echo.Context, id string) error
 
 	// (POST /api/v1/programs)
-	EngineApiCreateProgram(ctx echo.Context) error
+	CreateProgram(ctx echo.Context) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -1881,53 +1881,53 @@ type ServerInterfaceWrapper struct {
 	Handler ServerInterface
 }
 
-// EngineApiCreatePoolDeclaration converts echo context to params.
-func (w *ServerInterfaceWrapper) EngineApiCreatePoolDeclaration(ctx echo.Context) error {
+// CreatePoolDeclaration converts echo context to params.
+func (w *ServerInterfaceWrapper) CreatePoolDeclaration(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.EngineApiCreatePoolDeclaration(ctx)
+	err = w.Handler.CreatePoolDeclaration(ctx)
 	return err
 }
 
-// EngineApiCreatePoolExecution converts echo context to params.
-func (w *ServerInterfaceWrapper) EngineApiCreatePoolExecution(ctx echo.Context) error {
+// CreatePoolExecution converts echo context to params.
+func (w *ServerInterfaceWrapper) CreatePoolExecution(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.EngineApiCreatePoolExecution(ctx)
+	err = w.Handler.CreatePoolExecution(ctx)
 	return err
 }
 
-// EngineApiSpawnPoolExecution converts echo context to params.
-func (w *ServerInterfaceWrapper) EngineApiSpawnPoolExecution(ctx echo.Context) error {
+// SpawnPoolExecution converts echo context to params.
+func (w *ServerInterfaceWrapper) SpawnPoolExecution(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.EngineApiSpawnPoolExecution(ctx)
+	err = w.Handler.SpawnPoolExecution(ctx)
 	return err
 }
 
-// EngineApiStepPoolExecution converts echo context to params.
-func (w *ServerInterfaceWrapper) EngineApiStepPoolExecution(ctx echo.Context) error {
+// StepPoolExecution converts echo context to params.
+func (w *ServerInterfaceWrapper) StepPoolExecution(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.EngineApiStepPoolExecution(ctx)
+	err = w.Handler.StepPoolExecution(ctx)
 	return err
 }
 
-// EngineApiCreatePoolTypeDefinition converts echo context to params.
-func (w *ServerInterfaceWrapper) EngineApiCreatePoolTypeDefinition(ctx echo.Context) error {
+// CreatePoolTypeDefinition converts echo context to params.
+func (w *ServerInterfaceWrapper) CreatePoolTypeDefinition(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.EngineApiCreatePoolTypeDefinition(ctx)
+	err = w.Handler.CreatePoolTypeDefinition(ctx)
 	return err
 }
 
-// EngineApiGetPoolTypeDefinition converts echo context to params.
-func (w *ServerInterfaceWrapper) EngineApiGetPoolTypeDefinition(ctx echo.Context) error {
+// GetPoolTypeDefinition converts echo context to params.
+func (w *ServerInterfaceWrapper) GetPoolTypeDefinition(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -1938,7 +1938,7 @@ func (w *ServerInterfaceWrapper) EngineApiGetPoolTypeDefinition(ctx echo.Context
 	}
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params EngineApiGetPoolTypeDefinitionParams
+	var params GetPoolTypeDefinitionParams
 	// ------------- Optional query parameter "rn" -------------
 
 	err = runtime.BindQueryParameterWithOptions("form", false, false, "rn", ctx.QueryParams(), &params.Rn, runtime.BindQueryParameterOptions{Type: "integer", Format: "int64"})
@@ -1947,12 +1947,12 @@ func (w *ServerInterfaceWrapper) EngineApiGetPoolTypeDefinition(ctx echo.Context
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.EngineApiGetPoolTypeDefinition(ctx, id, params)
+	err = w.Handler.GetPoolTypeDefinition(ctx, id, params)
 	return err
 }
 
-// EngineApiGetPoolAssociatedDeclaration converts echo context to params.
-func (w *ServerInterfaceWrapper) EngineApiGetPoolAssociatedDeclaration(ctx echo.Context) error {
+// GetPoolAssociatedDeclaration converts echo context to params.
+func (w *ServerInterfaceWrapper) GetPoolAssociatedDeclaration(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -1963,7 +1963,7 @@ func (w *ServerInterfaceWrapper) EngineApiGetPoolAssociatedDeclaration(ctx echo.
 	}
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params EngineApiGetPoolAssociatedDeclarationParams
+	var params GetPoolAssociatedDeclarationParams
 	// ------------- Optional query parameter "rn" -------------
 
 	err = runtime.BindQueryParameterWithOptions("form", false, false, "rn", ctx.QueryParams(), &params.Rn, runtime.BindQueryParameterOptions{Type: "integer", Format: "int64"})
@@ -1972,12 +1972,12 @@ func (w *ServerInterfaceWrapper) EngineApiGetPoolAssociatedDeclaration(ctx echo.
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.EngineApiGetPoolAssociatedDeclaration(ctx, id, params)
+	err = w.Handler.GetPoolAssociatedDeclaration(ctx, id, params)
 	return err
 }
 
-// EngineApiGetPoolDefinition converts echo context to params.
-func (w *ServerInterfaceWrapper) EngineApiGetPoolDefinition(ctx echo.Context) error {
+// GetPoolDefinition converts echo context to params.
+func (w *ServerInterfaceWrapper) GetPoolDefinition(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -1988,7 +1988,7 @@ func (w *ServerInterfaceWrapper) EngineApiGetPoolDefinition(ctx echo.Context) er
 	}
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params EngineApiGetPoolDefinitionParams
+	var params GetPoolDefinitionParams
 	// ------------- Optional query parameter "rn" -------------
 
 	err = runtime.BindQueryParameterWithOptions("form", false, false, "rn", ctx.QueryParams(), &params.Rn, runtime.BindQueryParameterOptions{Type: "integer", Format: "int64"})
@@ -1997,12 +1997,12 @@ func (w *ServerInterfaceWrapper) EngineApiGetPoolDefinition(ctx echo.Context) er
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.EngineApiGetPoolDefinition(ctx, id, params)
+	err = w.Handler.GetPoolDefinition(ctx, id, params)
 	return err
 }
 
-// EngineApiExtendPoolDefinition converts echo context to params.
-func (w *ServerInterfaceWrapper) EngineApiExtendPoolDefinition(ctx echo.Context) error {
+// ExtendPoolDefinition converts echo context to params.
+func (w *ServerInterfaceWrapper) ExtendPoolDefinition(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -2013,12 +2013,12 @@ func (w *ServerInterfaceWrapper) EngineApiExtendPoolDefinition(ctx echo.Context)
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.EngineApiExtendPoolDefinition(ctx, id)
+	err = w.Handler.ExtendPoolDefinition(ctx, id)
 	return err
 }
 
-// EngineApiListPoolExecutions converts echo context to params.
-func (w *ServerInterfaceWrapper) EngineApiListPoolExecutions(ctx echo.Context) error {
+// ListPoolExecutions converts echo context to params.
+func (w *ServerInterfaceWrapper) ListPoolExecutions(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -2029,21 +2029,21 @@ func (w *ServerInterfaceWrapper) EngineApiListPoolExecutions(ctx echo.Context) e
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.EngineApiListPoolExecutions(ctx, id)
+	err = w.Handler.ListPoolExecutions(ctx, id)
 	return err
 }
 
-// EngineApiCreateProcessDeclaration converts echo context to params.
-func (w *ServerInterfaceWrapper) EngineApiCreateProcessDeclaration(ctx echo.Context) error {
+// CreateProcessDeclaration converts echo context to params.
+func (w *ServerInterfaceWrapper) CreateProcessDeclaration(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.EngineApiCreateProcessDeclaration(ctx)
+	err = w.Handler.CreateProcessDeclaration(ctx)
 	return err
 }
 
-// EngineApiGetProcessDeclaration converts echo context to params.
-func (w *ServerInterfaceWrapper) EngineApiGetProcessDeclaration(ctx echo.Context) error {
+// GetProcessDeclaration converts echo context to params.
+func (w *ServerInterfaceWrapper) GetProcessDeclaration(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -2054,7 +2054,7 @@ func (w *ServerInterfaceWrapper) EngineApiGetProcessDeclaration(ctx echo.Context
 	}
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params EngineApiGetProcessDeclarationParams
+	var params GetProcessDeclarationParams
 	// ------------- Optional query parameter "rn" -------------
 
 	err = runtime.BindQueryParameterWithOptions("form", false, false, "rn", ctx.QueryParams(), &params.Rn, runtime.BindQueryParameterOptions{Type: "integer", Format: "int64"})
@@ -2063,12 +2063,12 @@ func (w *ServerInterfaceWrapper) EngineApiGetProcessDeclaration(ctx echo.Context
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.EngineApiGetProcessDeclaration(ctx, id, params)
+	err = w.Handler.GetProcessDeclaration(ctx, id, params)
 	return err
 }
 
-// EngineApiGetProcessExecution converts echo context to params.
-func (w *ServerInterfaceWrapper) EngineApiGetProcessExecution(ctx echo.Context) error {
+// GetProcessExecution converts echo context to params.
+func (w *ServerInterfaceWrapper) GetProcessExecution(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -2079,7 +2079,7 @@ func (w *ServerInterfaceWrapper) EngineApiGetProcessExecution(ctx echo.Context) 
 	}
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params EngineApiGetProcessExecutionParams
+	var params GetProcessExecutionParams
 	// ------------- Optional query parameter "rn" -------------
 
 	err = runtime.BindQueryParameterWithOptions("form", false, false, "rn", ctx.QueryParams(), &params.Rn, runtime.BindQueryParameterOptions{Type: "integer", Format: "int64"})
@@ -2088,12 +2088,12 @@ func (w *ServerInterfaceWrapper) EngineApiGetProcessExecution(ctx echo.Context) 
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.EngineApiGetProcessExecution(ctx, id, params)
+	err = w.Handler.GetProcessExecution(ctx, id, params)
 	return err
 }
 
-// EngineApiStepProcessExecution converts echo context to params.
-func (w *ServerInterfaceWrapper) EngineApiStepProcessExecution(ctx echo.Context) error {
+// StepProcessExecution converts echo context to params.
+func (w *ServerInterfaceWrapper) StepProcessExecution(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -2104,21 +2104,21 @@ func (w *ServerInterfaceWrapper) EngineApiStepProcessExecution(ctx echo.Context)
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.EngineApiStepProcessExecution(ctx, id)
+	err = w.Handler.StepProcessExecution(ctx, id)
 	return err
 }
 
-// EngineApiCreateProcessTypeDefinition converts echo context to params.
-func (w *ServerInterfaceWrapper) EngineApiCreateProcessTypeDefinition(ctx echo.Context) error {
+// CreateProcessTypeDefinition converts echo context to params.
+func (w *ServerInterfaceWrapper) CreateProcessTypeDefinition(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.EngineApiCreateProcessTypeDefinition(ctx)
+	err = w.Handler.CreateProcessTypeDefinition(ctx)
 	return err
 }
 
-// EngineApiGetProcessTypeDefinition converts echo context to params.
-func (w *ServerInterfaceWrapper) EngineApiGetProcessTypeDefinition(ctx echo.Context) error {
+// GetProcessTypeDefinition converts echo context to params.
+func (w *ServerInterfaceWrapper) GetProcessTypeDefinition(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -2129,7 +2129,7 @@ func (w *ServerInterfaceWrapper) EngineApiGetProcessTypeDefinition(ctx echo.Cont
 	}
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params EngineApiGetProcessTypeDefinitionParams
+	var params GetProcessTypeDefinitionParams
 	// ------------- Optional query parameter "rn" -------------
 
 	err = runtime.BindQueryParameterWithOptions("form", false, false, "rn", ctx.QueryParams(), &params.Rn, runtime.BindQueryParameterOptions{Type: "integer", Format: "int64"})
@@ -2138,12 +2138,12 @@ func (w *ServerInterfaceWrapper) EngineApiGetProcessTypeDefinition(ctx echo.Cont
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.EngineApiGetProcessTypeDefinition(ctx, id, params)
+	err = w.Handler.GetProcessTypeDefinition(ctx, id, params)
 	return err
 }
 
-// EngineApiGetProcessAssociatedDeclaration converts echo context to params.
-func (w *ServerInterfaceWrapper) EngineApiGetProcessAssociatedDeclaration(ctx echo.Context) error {
+// GetProcessAssociatedDeclaration converts echo context to params.
+func (w *ServerInterfaceWrapper) GetProcessAssociatedDeclaration(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -2154,7 +2154,7 @@ func (w *ServerInterfaceWrapper) EngineApiGetProcessAssociatedDeclaration(ctx ec
 	}
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params EngineApiGetProcessAssociatedDeclarationParams
+	var params GetProcessAssociatedDeclarationParams
 	// ------------- Optional query parameter "rn" -------------
 
 	err = runtime.BindQueryParameterWithOptions("form", false, false, "rn", ctx.QueryParams(), &params.Rn, runtime.BindQueryParameterOptions{Type: "integer", Format: "int64"})
@@ -2163,12 +2163,12 @@ func (w *ServerInterfaceWrapper) EngineApiGetProcessAssociatedDeclaration(ctx ec
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.EngineApiGetProcessAssociatedDeclaration(ctx, id, params)
+	err = w.Handler.GetProcessAssociatedDeclaration(ctx, id, params)
 	return err
 }
 
-// EngineApiGetProcessDefinition converts echo context to params.
-func (w *ServerInterfaceWrapper) EngineApiGetProcessDefinition(ctx echo.Context) error {
+// GetProcessDefinition converts echo context to params.
+func (w *ServerInterfaceWrapper) GetProcessDefinition(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -2179,7 +2179,7 @@ func (w *ServerInterfaceWrapper) EngineApiGetProcessDefinition(ctx echo.Context)
 	}
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params EngineApiGetProcessDefinitionParams
+	var params GetProcessDefinitionParams
 	// ------------- Optional query parameter "rn" -------------
 
 	err = runtime.BindQueryParameterWithOptions("form", false, false, "rn", ctx.QueryParams(), &params.Rn, runtime.BindQueryParameterOptions{Type: "integer", Format: "int64"})
@@ -2188,12 +2188,12 @@ func (w *ServerInterfaceWrapper) EngineApiGetProcessDefinition(ctx echo.Context)
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.EngineApiGetProcessDefinition(ctx, id, params)
+	err = w.Handler.GetProcessDefinition(ctx, id, params)
 	return err
 }
 
-// EngineApiExtendProcessDefinition converts echo context to params.
-func (w *ServerInterfaceWrapper) EngineApiExtendProcessDefinition(ctx echo.Context) error {
+// ExtendProcessDefinition converts echo context to params.
+func (w *ServerInterfaceWrapper) ExtendProcessDefinition(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -2204,12 +2204,12 @@ func (w *ServerInterfaceWrapper) EngineApiExtendProcessDefinition(ctx echo.Conte
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.EngineApiExtendProcessDefinition(ctx, id)
+	err = w.Handler.ExtendProcessDefinition(ctx, id)
 	return err
 }
 
-// EngineApiListProcessExecutions converts echo context to params.
-func (w *ServerInterfaceWrapper) EngineApiListProcessExecutions(ctx echo.Context) error {
+// ListProcessExecutions converts echo context to params.
+func (w *ServerInterfaceWrapper) ListProcessExecutions(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -2220,16 +2220,16 @@ func (w *ServerInterfaceWrapper) EngineApiListProcessExecutions(ctx echo.Context
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.EngineApiListProcessExecutions(ctx, id)
+	err = w.Handler.ListProcessExecutions(ctx, id)
 	return err
 }
 
-// EngineApiCreateProgram converts echo context to params.
-func (w *ServerInterfaceWrapper) EngineApiCreateProgram(ctx echo.Context) error {
+// CreateProgram converts echo context to params.
+func (w *ServerInterfaceWrapper) CreateProgram(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.EngineApiCreateProgram(ctx)
+	err = w.Handler.CreateProgram(ctx)
 	return err
 }
 
@@ -2280,26 +2280,26 @@ func RegisterHandlersWithOptions(router EchoRouter, si ServerInterface, options 
 		Handler: si,
 	}
 
-	router.POST(options.BaseURL+"/api/v1/pools/declarations", wrapper.EngineApiCreatePoolDeclaration, options.OperationMiddlewares["EngineApi_createPoolDeclaration"]...)
-	router.POST(options.BaseURL+"/api/v1/pools/executions", wrapper.EngineApiCreatePoolExecution, options.OperationMiddlewares["EngineApi_createPoolExecution"]...)
-	router.POST(options.BaseURL+"/api/v1/pools/executions/spawns", wrapper.EngineApiSpawnPoolExecution, options.OperationMiddlewares["EngineApi_spawnPoolExecution"]...)
-	router.POST(options.BaseURL+"/api/v1/pools/executions/steps", wrapper.EngineApiStepPoolExecution, options.OperationMiddlewares["EngineApi_stepPoolExecution"]...)
-	router.POST(options.BaseURL+"/api/v1/pools/types", wrapper.EngineApiCreatePoolTypeDefinition, options.OperationMiddlewares["EngineApi_createPoolTypeDefinition"]...)
-	router.GET(options.BaseURL+"/api/v1/pools/types/:id", wrapper.EngineApiGetPoolTypeDefinition, options.OperationMiddlewares["EngineApi_getPoolTypeDefinition"]...)
-	router.GET(options.BaseURL+"/api/v1/pools/:id/declaration", wrapper.EngineApiGetPoolAssociatedDeclaration, options.OperationMiddlewares["EngineApi_getPoolAssociatedDeclaration"]...)
-	router.GET(options.BaseURL+"/api/v1/pools/:id/definition", wrapper.EngineApiGetPoolDefinition, options.OperationMiddlewares["EngineApi_getPoolDefinition"]...)
-	router.PATCH(options.BaseURL+"/api/v1/pools/:id/definition", wrapper.EngineApiExtendPoolDefinition, options.OperationMiddlewares["EngineApi_extendPoolDefinition"]...)
-	router.GET(options.BaseURL+"/api/v1/pools/:id/executions", wrapper.EngineApiListPoolExecutions, options.OperationMiddlewares["EngineApi_listPoolExecutions"]...)
-	router.POST(options.BaseURL+"/api/v1/processes/declarations", wrapper.EngineApiCreateProcessDeclaration, options.OperationMiddlewares["EngineApi_createProcessDeclaration"]...)
-	router.GET(options.BaseURL+"/api/v1/processes/declarations/:id", wrapper.EngineApiGetProcessDeclaration, options.OperationMiddlewares["EngineApi_getProcessDeclaration"]...)
-	router.GET(options.BaseURL+"/api/v1/processes/executions/:id", wrapper.EngineApiGetProcessExecution, options.OperationMiddlewares["EngineApi_getProcessExecution"]...)
-	router.POST(options.BaseURL+"/api/v1/processes/executions/:id/steps", wrapper.EngineApiStepProcessExecution, options.OperationMiddlewares["EngineApi_stepProcessExecution"]...)
-	router.POST(options.BaseURL+"/api/v1/processes/types", wrapper.EngineApiCreateProcessTypeDefinition, options.OperationMiddlewares["EngineApi_createProcessTypeDefinition"]...)
-	router.GET(options.BaseURL+"/api/v1/processes/types/:id", wrapper.EngineApiGetProcessTypeDefinition, options.OperationMiddlewares["EngineApi_getProcessTypeDefinition"]...)
-	router.GET(options.BaseURL+"/api/v1/processes/:id/declaration", wrapper.EngineApiGetProcessAssociatedDeclaration, options.OperationMiddlewares["EngineApi_getProcessAssociatedDeclaration"]...)
-	router.GET(options.BaseURL+"/api/v1/processes/:id/definition", wrapper.EngineApiGetProcessDefinition, options.OperationMiddlewares["EngineApi_getProcessDefinition"]...)
-	router.PATCH(options.BaseURL+"/api/v1/processes/:id/definition", wrapper.EngineApiExtendProcessDefinition, options.OperationMiddlewares["EngineApi_extendProcessDefinition"]...)
-	router.GET(options.BaseURL+"/api/v1/processes/:id/executions", wrapper.EngineApiListProcessExecutions, options.OperationMiddlewares["EngineApi_listProcessExecutions"]...)
-	router.POST(options.BaseURL+"/api/v1/programs", wrapper.EngineApiCreateProgram, options.OperationMiddlewares["EngineApi_createProgram"]...)
+	router.POST(options.BaseURL+"/api/v1/pools/declarations", wrapper.CreatePoolDeclaration, options.OperationMiddlewares["_createPoolDeclaration"]...)
+	router.POST(options.BaseURL+"/api/v1/pools/executions", wrapper.CreatePoolExecution, options.OperationMiddlewares["_createPoolExecution"]...)
+	router.POST(options.BaseURL+"/api/v1/pools/executions/spawns", wrapper.SpawnPoolExecution, options.OperationMiddlewares["_spawnPoolExecution"]...)
+	router.POST(options.BaseURL+"/api/v1/pools/executions/steps", wrapper.StepPoolExecution, options.OperationMiddlewares["_stepPoolExecution"]...)
+	router.POST(options.BaseURL+"/api/v1/pools/types", wrapper.CreatePoolTypeDefinition, options.OperationMiddlewares["_createPoolTypeDefinition"]...)
+	router.GET(options.BaseURL+"/api/v1/pools/types/:id", wrapper.GetPoolTypeDefinition, options.OperationMiddlewares["_getPoolTypeDefinition"]...)
+	router.GET(options.BaseURL+"/api/v1/pools/:id/declaration", wrapper.GetPoolAssociatedDeclaration, options.OperationMiddlewares["_getPoolAssociatedDeclaration"]...)
+	router.GET(options.BaseURL+"/api/v1/pools/:id/definition", wrapper.GetPoolDefinition, options.OperationMiddlewares["_getPoolDefinition"]...)
+	router.PATCH(options.BaseURL+"/api/v1/pools/:id/definition", wrapper.ExtendPoolDefinition, options.OperationMiddlewares["_extendPoolDefinition"]...)
+	router.GET(options.BaseURL+"/api/v1/pools/:id/executions", wrapper.ListPoolExecutions, options.OperationMiddlewares["_listPoolExecutions"]...)
+	router.POST(options.BaseURL+"/api/v1/processes/declarations", wrapper.CreateProcessDeclaration, options.OperationMiddlewares["_createProcessDeclaration"]...)
+	router.GET(options.BaseURL+"/api/v1/processes/declarations/:id", wrapper.GetProcessDeclaration, options.OperationMiddlewares["_getProcessDeclaration"]...)
+	router.GET(options.BaseURL+"/api/v1/processes/executions/:id", wrapper.GetProcessExecution, options.OperationMiddlewares["_getProcessExecution"]...)
+	router.POST(options.BaseURL+"/api/v1/processes/executions/:id/steps", wrapper.StepProcessExecution, options.OperationMiddlewares["_stepProcessExecution"]...)
+	router.POST(options.BaseURL+"/api/v1/processes/types", wrapper.CreateProcessTypeDefinition, options.OperationMiddlewares["_createProcessTypeDefinition"]...)
+	router.GET(options.BaseURL+"/api/v1/processes/types/:id", wrapper.GetProcessTypeDefinition, options.OperationMiddlewares["_getProcessTypeDefinition"]...)
+	router.GET(options.BaseURL+"/api/v1/processes/:id/declaration", wrapper.GetProcessAssociatedDeclaration, options.OperationMiddlewares["_getProcessAssociatedDeclaration"]...)
+	router.GET(options.BaseURL+"/api/v1/processes/:id/definition", wrapper.GetProcessDefinition, options.OperationMiddlewares["_getProcessDefinition"]...)
+	router.PATCH(options.BaseURL+"/api/v1/processes/:id/definition", wrapper.ExtendProcessDefinition, options.OperationMiddlewares["_extendProcessDefinition"]...)
+	router.GET(options.BaseURL+"/api/v1/processes/:id/executions", wrapper.ListProcessExecutions, options.OperationMiddlewares["_listProcessExecutions"]...)
+	router.POST(options.BaseURL+"/api/v1/programs", wrapper.CreateProgram, options.OperationMiddlewares["_createProgram"]...)
 
 }

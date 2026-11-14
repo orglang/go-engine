@@ -10,6 +10,13 @@ The comparison input is the committed OpenAPI contract at `openapi/openapi.yaml`
 
 ## Evidence collected so far
 
+### Pool.Type recursion isolation — comparison run #50
+
+- Commit: [ed63198](https://github.com/orglang/go-engine/commit/ed63198378b74eb9a4ef4ac1a170b14bb42f92cb); [CI run #43598381109](https://github.com/orglang/go-engine/actions/runs/43598381109) (#50) completed successfully. All 19 job steps passed, including the generated-package test step and artifact upload.
+- The new diagnostic filters the contract to `POST /api/v1/pools/types` and removes the recursive back-edges from the `Pool.Type.ExprSpec` variants. ogen v1.25.0 generated the package successfully (`exit_code=0`); CI then ran `go get ./ogen-no-recursion ./ogen-pool-types-no-recursion`, `go test ./ogen-no-recursion/...`, and `go test ./ogen-pool-types-no-recursion/...` successfully. The generated isolated package and its log/exit status are preserved in artifact [#14114949873](https://github.com/orglang/go-engine/actions/runs/43598381109/artifacts/14114949873).
+- The control using the same endpoint without removing recursive edges still fails with `schema name conflict: "PoolTypeExprSpecSum"`; removing Pool Step operations also does not remove that conflict. The full-contract baseline continues to fail separately with `PoolTermExpressionDefinitionSum`.
+- This strongly localizes the `PoolTypeExprSpecSum` collision to the recursive edges in the `Pool.Type.ExprSpec` schema graph. It does **not** prove that the distinct `PoolTermExpressionDefinitionSum` full-contract collision has the same cause, nor does it provide a production workaround: the successful diagnostic deliberately changes the schema and covers only one operation. It is not full-contract generation or runtime parity.
+
 ### Latest runtime integration and error-path evidence — comparison run #39
 
 - Commit: [b0c7dc0](https://github.com/orglang/go-engine/commit/b0c7dc029a57d46e780a4151e5b4bc22df1a20b9); [CI run #43597073203](https://github.com/orglang/go-engine/actions/runs/43597073203) (#39) completed successfully. All 12 main workflow steps passed, including the ogen diagnostic generation and package test, full-contract oapi-codegen generation, generated-package tests, and artifact upload. The preceding run [#43597036070](https://github.com/orglang/go-engine/actions/runs/43597036070) (#38) also completed successfully.

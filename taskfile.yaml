@@ -18,10 +18,17 @@ tasks:
     cmds:
       - GOWORK=off go get -tool -modfile=gear.mod github.com/golangci/golangci-lint/v2/cmd/golangci-lint github.com/jmattheis/goverter/cmd/goverter github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen
 
-  gear:sum:
-    desc: Generate checksums for tooling dependencies
+  deps:lock:
+    desc: Update checksums for tooling dependencies
     cmds:
       - GOWORK=off go mod download -modfile=gear.mod all
+
+  deps:check:
+    desc: Check tooling dependency checksums are up to date
+    deps:
+      - task: deps:lock
+    cmds:
+      - test -z "$(git status --porcelain -- gear.sum)"
 
   binaries:
     desc: Build application binaries

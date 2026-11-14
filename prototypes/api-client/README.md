@@ -86,8 +86,8 @@ if err != nil {
 
 processes := process.New(transport)
 _, err = processes.CreateType(ctx, &process.TypeDefSpec{
-    Qn: "example.process",
-    Expr: ptr(process.One()),
+    TypeQn: "example.process",
+    TypeExpr: ptr(process.One()),
 })
 if err != nil {
     return err

@@ -39,38 +39,41 @@ jobs:
         id: ogen_recursion_diagnostic
         shell: bash
         run: |
+          python3 -m pip install --quiet pyyaml
           python3 - <<'PY'
           import os
           from pathlib import Path
-          source = Path("openapi/openapi.yaml").read_text().splitlines()
-          targets = {"Pool.Term.HireSpec", "Pool.Term.ApplySpec", "Pool.Term.AcquireSpec", "Pool.Term.AcceptSpec"}
-          output = []
-          schema = None
-          section = None
-          skip_ref = False
-          for line in source:
-              if line.startswith("    ") and not line.startswith("      ") and line.rstrip().endswith(":"):
-                  schema = line.strip()[:-1]
-                  section = None
-              if schema in targets:
-                  if line == "      required:":
-                      section = "required"
-                  elif line == "      properties:":
-                      section = "properties"
-                  elif line.startswith("      ") and line.strip() not in {"required:", "properties:"}:
-                      if line.startswith("      ") and not line.startswith("        "):
-                          section = None
-                  if section == "required" and line.strip() == "- cont_expr":
-                      continue
-                  if section == "properties" and line.strip() == "cont_expr:":
-                      skip_ref = True
-                      continue
-                  if skip_ref:
-                      skip_ref = False
-                      if line.strip().startswith("$ref:"):
-                          continue
-              output.append(line)
-          Path(os.environ["RUNNER_TEMP"], "openapi-no-recursion.yaml").write_text("\n".join(output) + "\n")
+          import yaml
+
+          spec = yaml.safe_load(Path("openapi/openapi.yaml").read_text())
+          included_paths = {
+              "/api/v1/pools/executions/spawns",
+              "/api/v1/pools/executions/steps",
+          }
+          spec["paths"] = {
+              path: operations
+              for path, operations in spec["paths"].items()
+              if path in included_paths
+          }
+
+          targets = {
+              "Pool.Term.HireSpec",
+              "Pool.Term.ApplySpec",
+              "Pool.Term.AcquireSpec",
+              "Pool.Term.AcceptSpec",
+          }
+          schemas = spec.get("components", {}).get("schemas", {})
+          for name in targets:
+              schema = schemas.get(name)
+              if schema is None:
+                  raise SystemExit(f"missing expected schema: {name}")
+              schema.get("properties", {}).pop("cont_expr", None)
+              required = schema.get("required", [])
+              schema["required"] = [field for field in required if field != "cont_expr"]
+
+          Path(os.environ["RUNNER_TEMP"], "openapi-no-recursion.yaml").write_text(
+              yaml.safe_dump(spec, sort_keys=False)
+          )
           PY
           set +e
           go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \

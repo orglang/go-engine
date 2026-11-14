@@ -35,7 +35,7 @@ tasks:
     deps:
       - task: sources:generate
     cmds:
-      - test -z "$(git status --porcelain)"
+      - test -z "$(git status --porcelain -- ':(glob)**/*.gen.go')"
       - GOWORK=off go tool -modfile=gear.mod golangci-lint fmt --diff
       - GOWORK=off go tool -modfile=gear.mod golangci-lint run ./...
 

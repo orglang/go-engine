@@ -31,10 +31,10 @@ tasks:
       - task: engine:binary
 
   sources:check:
-    desc: Check prepared source artifact
+    desc: Check prepared source artifacts and run linters
     cmds:
-      - task: tools:install
-      - GOWORK=off go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...
+      - task: sources:generate
+      - git diff --exit-code -- internal/app/web/api/api.gen.go
       - GOWORK=off go tool -modfile=gear.mod golangci-lint fmt --diff
       - GOWORK=off go tool -modfile=gear.mod golangci-lint run ./...
 
@@ -45,10 +45,11 @@ tasks:
       - task: sources:generate
 
   sources:generate:
-    desc: Generate source artifacts with goverter
+    desc: Generate source artifacts
     cmds:
       - task: tools:install
       - GOWORK=off go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...
+      - task: api:generate
 
   api:generate:
     desc: Generate the Echo HTTP server from OpenAPI

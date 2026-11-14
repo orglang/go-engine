@@ -17,12 +17,16 @@ union ExprSpec {
   spawn: SpawnSpec,
 }
 
-model HireSpec { conn_ph: string; proc_qn: string; cont_expr: ExprSpec; }
+// TODO(ogen-go/ogen#1790, ogen-go/ogen#1792): restore requiredness once ogen supports recursive optional edges and required-field pointer indirection.
+model HireSpec { conn_ph: string; proc_qn: string; cont_expr?: ExprSpec; }
 model FireSpec { conn_ph: string; }
-model ApplySpec { conn_ph: string; proc_qn: string; cont_expr: ExprSpec; }
+// TODO(ogen-go/ogen#1790, ogen-go/ogen#1792): restore requiredness once ogen supports recursive optional edges and required-field pointer indirection.
+model ApplySpec { conn_ph: string; proc_qn: string; cont_expr?: ExprSpec; }
 model QuitSpec { conn_ph: string; proc_qn: string; }
-model AcquireSpec { conn_ph: string; cont_expr: ExprSpec; }
+// TODO(ogen-go/ogen#1790, ogen-go/ogen#1792): restore requiredness once ogen supports recursive optional edges and required-field pointer indirection.
+model AcquireSpec { conn_ph: string; cont_expr?: ExprSpec; }
 model ReleaseSpec { conn_ph: string; }
-model AcceptSpec { conn_ph: string; cont_expr: ExprSpec; }
+// TODO(ogen-go/ogen#1790, ogen-go/ogen#1792): restore requiredness once ogen supports recursive optional edges and required-field pointer indirection.
+model AcceptSpec { conn_ph: string; cont_expr?: ExprSpec; }
 model DetachSpec { conn_ph: string; }
 model SpawnSpec { proc_dr: Any.TermRef; proc_irs: Any.CompRef[]; }

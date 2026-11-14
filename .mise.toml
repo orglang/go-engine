@@ -44,3 +44,19 @@ run = [
 [tasks."generate:echo-server"]
 description = "Generate the Echo HTTP server from OpenAPI"
 run = "task api:generate"
+
+[tasks."deps:lock"]
+description = "Tidy Go modules and update mise and npm lockfiles"
+run = [
+  "GOWORK=off go mod tidy",
+  "GOWORK=off go mod tidy -modfile=gear.mod",
+  "mise lock",
+  { task = "generate:npm-lock" },
+]
+
+[tasks."deps:check"]
+description = "Check Go module manifests and tool lockfiles"
+run = [
+  { task = "deps:lock" },
+  "test -z \"$(git status --porcelain -- ':(glob)**/*.mod' ':(glob)**/*.sum' ':(glob)**/package-lock.json' mise.lock)\"",
+]

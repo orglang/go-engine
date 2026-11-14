@@ -31,10 +31,11 @@ tasks:
       - task: engine:binary
 
   sources:check:
-    desc: Check prepared source artifacts and run linters
-    cmds:
+    desc: Check generated source reproducibility and run linters
+    deps:
       - task: sources:generate
-      - test -z "$(git status --porcelain -- internal/app/web/api/api.gen.go)"
+    cmds:
+      - test -z "$(git status --porcelain)"
       - GOWORK=off go tool -modfile=gear.mod golangci-lint fmt --diff
       - GOWORK=off go tool -modfile=gear.mod golangci-lint run ./...
 

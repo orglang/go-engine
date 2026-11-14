@@ -45,8 +45,25 @@ jobs:
             go.sum
             gear.sum
 
-      - name: Generate artifacts
-        run: mise run generate
+      - name: Tidy Go modules
+        run: |
+          GOWORK=off go mod tidy
+          GOWORK=off go mod tidy -modfile=gear.mod
+
+      - name: Update mise lockfile
+        run: mise lock
+
+      - name: Update TypeSpec npm lockfile
+        run: npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund
+
+      - name: Install TypeSpec dependencies
+        run: npm ci --prefix tsp --no-audit --no-fund
+
+      - name: Generate OpenAPI
+        run: task specs:generate
+
+      - name: Generate Go sources
+        run: task sources:generate
 
       - name: Commit generated artifacts
         run: |

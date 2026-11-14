@@ -12,17 +12,17 @@ if (document.errors.length > 0) {
 }
 
 const paths = document.get("paths");
-if (!paths) throw new Error("OpenAPI document has no paths");
+if (!paths || !Array.isArray(paths.items)) throw new Error("OpenAPI document has no paths map");
 
 const retained = new Set([
   "/api/v1/pools/executions/spawns",
   "/api/v1/pools/executions/steps",
 ]);
-for (const key of [...paths.keys()]) {
-  if (!retained.has(key)) paths.delete(key);
+for (const pair of [...paths.items]) {
+  if (!retained.has(pair.key.value)) paths.delete(pair.key);
 }
-if (paths.size !== retained.size) {
-  throw new Error(`expected to retain ${retained.size} Pool.StepSpec operations, found ${paths.size}`);
+if (paths.items.length !== retained.size) {
+  throw new Error(`expected to retain ${retained.size} Pool.StepSpec operations, found ${paths.items.length}`);
 }
 
 await writeFile(output, stringify(document));

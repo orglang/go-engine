@@ -54,8 +54,7 @@ jobs:
             go.sum
             gear.sum
 
-      - name: Generate OpenAPI from TypeSpec (skipped for ogen prototype)
-        if: github.ref != 'refs/heads/prototype/ogen-pool-term-expr-name'
+      - name: Generate OpenAPI from TypeSpec
         run: cd tsp && npm ci && npm run build
 
       - name: Generate artifacts with verified recursion patch application

@@ -557,6 +557,93 @@ jobs:
               }
           }
 
+
+
+          func TestRequestEditorErrorPreventsTransportAndPropagates(t *testing.T) {
+              editorErr := errors.New("request editor failed")
+              transportCalled := false
+              client, err := NewClientWithResponses(
+                  "https://api.example.test",
+                  WithHTTPClient(&http.Client{Transport: roundTripperFunc(func(req *http.Request) (*http.Response, error) {
+                      transportCalled = true
+                      return nil, errors.New("transport should not be called")
+                  })}),
+                  WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
+                      return editorErr
+                  }),
+              )
+              if err != nil {
+                  t.Fatalf("create client: %v", err)
+              }
+              _, err = client.EngineApiCreatePoolExecutionWithResponse(
+                  context.Background(),
+                  AnyExecSpec{
+                      TermQn: "example.term",
+                      LiabVar: AnyExecVarSpec{ConnPh: "liability", TermQn: "example.Liab"},
+                      AssetVars: []AnyExecVarSpec{},
+                  },
+              )
+              if !errors.Is(err, editorErr) {
+                  t.Fatalf("request error = %v, want wrapped editor error", err)
+              }
+              if transportCalled {
+                  t.Fatal("transport was called after request editor failed")
+              }
+          }
+
+          func TestTransportErrorPropagates(t *testing.T) {
+              transportErr := errors.New("synthetic transport failure")
+              client, err := NewClientWithResponses(
+                  "https://api.example.test",
+                  WithHTTPClient(&http.Client{Transport: roundTripperFunc(func(req *http.Request) (*http.Response, error) {
+                      return nil, transportErr
+                  })}),
+              )
+              if err != nil {
+                  t.Fatalf("create client: %v", err)
+              }
+              _, err = client.EngineApiCreatePoolExecutionWithResponse(
+                  context.Background(),
+                  AnyExecSpec{
+                      TermQn: "example.term",
+                      LiabVar: AnyExecVarSpec{ConnPh: "liability", TermQn: "example.Liab"},
+                      AssetVars: []AnyExecVarSpec{},
+                  },
+              )
+              if !errors.Is(err, transportErr) {
+                  t.Fatalf("request error = %v, want wrapped transport error", err)
+              }
+          }
+
+          func TestMalformedJSONSuccessResponseReturnsDecodeError(t *testing.T) {
+              client, err := NewClientWithResponses(
+                  "https://api.example.test",
+                  WithHTTPClient(&http.Client{Transport: roundTripperFunc(func(req *http.Request) (*http.Response, error) {
+                      return &http.Response{
+                          StatusCode: http.StatusCreated,
+                          Status: "201 Created",
+                          Header: http.Header{"Content-Type": []string{"application/json"}},
+                          Body: io.NopCloser(strings.NewReader("{")),
+                          Request: req,
+                      }, nil
+                  })}),
+              )
+              if err != nil {
+                  t.Fatalf("create client: %v", err)
+              }
+              _, err = client.EngineApiCreatePoolExecutionWithResponse(
+                  context.Background(),
+                  AnyExecSpec{
+                      TermQn: "example.term",
+                      LiabVar: AnyExecVarSpec{ConnPh: "liability", TermQn: "example.Liab"},
+                      AssetVars: []AnyExecVarSpec{},
+                  },
+              )
+              if err == nil {
+                  t.Fatal("malformed JSON success response unexpectedly decoded")
+              }
+          }
+
           GO
       - name: Test generated oapi-codegen package
         working-directory: ${{ runner.temp }}

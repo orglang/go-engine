@@ -125,13 +125,13 @@ func main() {
     if err != nil {
         log.Fatal(err)
     }
-    if created.StatusCode() != http.StatusOK {
+    if created.StatusCode() != http.StatusCreated {
         log.Fatalf("create type: HTTP %s: %s", created.Status(), string(created.Body))
     }
-    if created.JSON200 == nil {
+    if created.JSON201 == nil {
         log.Fatal("create type: missing JSON response")
     }
-    typeID := created.JSON200.TypeId
+    typeID := created.JSON201.TypeId
 
     snapshot, err := client.EngineApiGetPoolTypeDefinitionWithResponse(
         context.Background(),

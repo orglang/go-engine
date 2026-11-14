@@ -16,7 +16,7 @@ tasks:
   tools:install:
     desc: Download tooling dependencies declared in gear.mod
     cmds:
-      - GOWORK=off go get -tool -modfile=gear.mod github.com/golangci/golangci-lint/v2/cmd/golangci-lint github.com/jmattheis/goverter/cmd/goverter
+      - GOWORK=off go get -tool -modfile=gear.mod github.com/golangci/golangci-lint/v2/cmd/golangci-lint github.com/jmattheis/goverter/cmd/goverter github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen
 
   gear:sum:
     desc: Generate checksums for tooling dependencies
@@ -48,6 +48,11 @@ tasks:
     cmds:
       - task: tools:install
       - GOWORK=off go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...
+
+  api:generate:
+    desc: Generate the Echo HTTP server from OpenAPI
+    cmds:
+      - GOWORK=off go tool -modfile=gear.mod oapi-codegen -config internal/app/web/api/cfg.yaml openapi/openapi.yaml
 
   specs:generate:
     desc: Generate OpenAPI from TypeSpec

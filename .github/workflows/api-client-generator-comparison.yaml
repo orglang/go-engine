@@ -40,6 +40,7 @@ jobs:
         shell: bash
         run: |
           python3 - <<'PY'
+          import os
           from pathlib import Path
           source = Path("openapi/openapi.yaml").read_text().splitlines()
           targets = {"Pool.Term.HireSpec", "Pool.Term.ApplySpec", "Pool.Term.AcquireSpec", "Pool.Term.AcceptSpec"}
@@ -69,7 +70,7 @@ jobs:
                       if line.strip().startswith("$ref:"):
                           continue
               output.append(line)
-          Path("$RUNNER_TEMP/openapi-no-recursion.yaml").write_text("\\n".join(output) + "\\n")
+          Path(os.environ["RUNNER_TEMP"], "openapi-no-recursion.yaml").write_text("\n".join(output) + "\n")
           PY
           set +e
           go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \\

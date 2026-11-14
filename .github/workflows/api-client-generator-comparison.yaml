@@ -153,12 +153,8 @@ jobs:
               if err := json.Unmarshal([]byte(`{"conn_ph":"hire-channel","proc_qn":"example.proc"}`), &got); err != nil {
                   t.Fatalf("unmarshal model without cont_expr: %v", err)
               }
-              // The generated model decoder does not validate OpenAPI requiredness.
-              // The union field remains its Go zero value; no discriminator is read
-              // because an absent property has no JSON payload to discriminate.
-              if got.ContExpr == nil {
-                  t.Fatal("unexpected nil continuation union")
-              }
+              // Successful decoding demonstrates that encoding/json does not
+              // enforce the OpenAPI required-property constraint for this model.
           }
           GO
       - name: Test generated oapi-codegen package

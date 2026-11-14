@@ -88,7 +88,7 @@ The follow-up workflow run [#43592376123](https://github.com/orglang/go-engine/a
 - [ ] Build a small usage example against a representative existing consumer; current tests use a focused generated-client harness, not a production consumer. The existing `internal/lib/e2e` adapters use `go-sdk` `RestySDK` implementations and SDK domain DTOs, while `tsp/README.md` explicitly says the target OpenAPI models are not claimed to be wire-compatible with current SDK DTOs. A direct substitution would therefore be misleading until an adapter/mapping boundary is defined (likely in the subsequent go-sdk integration stage).
 - [x] Record generated output sizes, with an explicit warning that the full oapi-codegen output and filtered ogen diagnostic are not comparable (run [#43596829412](https://github.com/orglang/go-engine/actions/runs/43596829412)).
 - [x] Record direct generated import surfaces: oapi-codegen uses `github.com/oapi-codegen/runtime`; the filtered ogen client also imports ogen support packages and OpenTelemetry packages.
-- [ ] Compare transitive dependency footprint and generated-code readability on equivalent scopes.
+- [ ] Compare transitive dependency footprint and generated-code readability on equivalent scopes. The workflow now records the non-standard transitive import-package and module closures for each generated package separately; this is awaiting CI validation and remains a scope-mismatched comparison until full-contract ogen generation works.
 - [ ] Make a final selection with explicit trade-offs. If ogen is selected, document the upstream issue dependencies and the temporary policy for pinned patches.
 
 ## Provisional direction

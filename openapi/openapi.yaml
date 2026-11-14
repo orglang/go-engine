@@ -6,7 +6,7 @@ tags: []
 paths:
   /api/v1/pools/declarations:
     post:
-      operationId: EngineApi_createPoolDeclaration
+      operationId: createPoolDeclaration
       description: Create a pool declaration and return its identity.
       parameters: []
       responses:
@@ -24,7 +24,7 @@ paths:
               $ref: '#/components/schemas/Pool.DecSpec'
   /api/v1/pools/executions:
     post:
-      operationId: EngineApi_createPoolExecution
+      operationId: createPoolExecution
       description: Create a pool execution and return its identity.
       parameters: []
       responses:
@@ -42,7 +42,7 @@ paths:
               $ref: '#/components/schemas/Any.ExecSpec'
   /api/v1/pools/executions/spawns:
     post:
-      operationId: EngineApi_spawnPoolExecution
+      operationId: spawnPoolExecution
       description: Spawn a child execution from a pool execution and return its identity.
       parameters: []
       responses:
@@ -60,7 +60,7 @@ paths:
               $ref: '#/components/schemas/Pool.StepSpec'
   /api/v1/pools/executions/steps:
     post:
-      operationId: EngineApi_stepPoolExecution
+      operationId: stepPoolExecution
       description: Apply a batch of steps to pool executions.
       parameters: []
       responses:
@@ -74,7 +74,7 @@ paths:
               $ref: '#/components/schemas/Pool.StepSpec'
   /api/v1/pools/types:
     post:
-      operationId: EngineApi_createPoolTypeDefinition
+      operationId: createPoolTypeDefinition
       description: Create a pool-level type definition and return its identity.
       parameters: []
       responses:
@@ -92,7 +92,7 @@ paths:
               $ref: '#/components/schemas/Pool.Type.DefSpec'
   /api/v1/pools/types/{id}:
     get:
-      operationId: EngineApi_getPoolTypeDefinition
+      operationId: getPoolTypeDefinition
       description: Get a pool type definition snapshot; omit rn to select the latest revision.
       parameters:
         - name: id
@@ -116,7 +116,7 @@ paths:
                 $ref: '#/components/schemas/Pool.Type.DefSnap'
   /api/v1/pools/{id}/declaration:
     get:
-      operationId: EngineApi_getPoolAssociatedDeclaration
+      operationId: getPoolAssociatedDeclaration
       description: Get the declaration associated with a pool.
       parameters:
         - name: id
@@ -140,7 +140,7 @@ paths:
                 $ref: '#/components/schemas/Pool.DecSnap'
   /api/v1/pools/{id}/definition:
     get:
-      operationId: EngineApi_getPoolDefinition
+      operationId: getPoolDefinition
       description: Get the term definition of a specific pool; omit rn to select its latest revision.
       parameters:
         - name: id
@@ -163,7 +163,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Pool.Term.ExprSpec'
     patch:
-      operationId: EngineApi_extendPoolDefinition
+      operationId: extendPoolDefinition
       description: Extend a pool term definition without replacing or removing existing expression parts.
       parameters:
         - name: id
@@ -186,7 +186,7 @@ paths:
               $ref: '#/components/schemas/Pool.Term.ExprSpec'
   /api/v1/pools/{id}/executions:
     get:
-      operationId: EngineApi_listPoolExecutions
+      operationId: listPoolExecutions
       description: List execution identities associated with a pool.
       parameters:
         - name: id
@@ -205,7 +205,7 @@ paths:
                   $ref: '#/components/schemas/Any.CompRef'
   /api/v1/processes/declarations:
     post:
-      operationId: EngineApi_createProcessDeclaration
+      operationId: createProcessDeclaration
       description: Create a process declaration and return its identity.
       parameters: []
       responses:
@@ -223,7 +223,7 @@ paths:
               $ref: '#/components/schemas/Proc.DecSpec'
   /api/v1/processes/declarations/{id}:
     get:
-      operationId: EngineApi_getProcessDeclaration
+      operationId: getProcessDeclaration
       description: Get a process declaration by identity and revision.
       parameters:
         - name: id
@@ -247,7 +247,7 @@ paths:
                 $ref: '#/components/schemas/Proc.DecSnap'
   /api/v1/processes/executions/{id}:
     get:
-      operationId: EngineApi_getProcessExecution
+      operationId: getProcessExecution
       description: Get a process execution; omit rn to select the latest available revision.
       parameters:
         - name: id
@@ -271,7 +271,7 @@ paths:
                 $ref: '#/components/schemas/Proc.CompSnap'
   /api/v1/processes/executions/{id}/steps:
     post:
-      operationId: EngineApi_stepProcessExecution
+      operationId: stepProcessExecution
       description: Apply one step to a process execution.
       parameters:
         - name: id
@@ -290,7 +290,7 @@ paths:
               $ref: '#/components/schemas/Proc.StepSpec'
   /api/v1/processes/types:
     post:
-      operationId: EngineApi_createProcessTypeDefinition
+      operationId: createProcessTypeDefinition
       description: Create a process type definition and return its identity.
       parameters: []
       responses:
@@ -308,7 +308,7 @@ paths:
               $ref: '#/components/schemas/Proc.Type.DefSpec'
   /api/v1/processes/types/{id}:
     get:
-      operationId: EngineApi_getProcessTypeDefinition
+      operationId: getProcessTypeDefinition
       description: Get a process type definition snapshot; omit rn to select the latest revision.
       parameters:
         - name: id
@@ -332,7 +332,7 @@ paths:
                 $ref: '#/components/schemas/Proc.Type.DefSnap'
   /api/v1/processes/{id}/declaration:
     get:
-      operationId: EngineApi_getProcessAssociatedDeclaration
+      operationId: getProcessAssociatedDeclaration
       description: Get the declaration associated with a process.
       parameters:
         - name: id
@@ -356,7 +356,7 @@ paths:
                 $ref: '#/components/schemas/Proc.DecSnap'
   /api/v1/processes/{id}/definition:
     get:
-      operationId: EngineApi_getProcessDefinition
+      operationId: getProcessDefinition
       description: Get the term definition of a specific process; omit rn to select its latest revision.
       parameters:
         - name: id
@@ -379,7 +379,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Proc.Term.ExprSpec'
     patch:
-      operationId: EngineApi_extendProcessDefinition
+      operationId: extendProcessDefinition
       description: Extend a process term definition without replacing or removing existing expression parts.
       parameters:
         - name: id
@@ -402,7 +402,7 @@ paths:
               $ref: '#/components/schemas/Proc.Term.ExprSpec'
   /api/v1/processes/{id}/executions:
     get:
-      operationId: EngineApi_listProcessExecutions
+      operationId: listProcessExecutions
       description: List execution identities associated with a process.
       parameters:
         - name: id
@@ -421,7 +421,7 @@ paths:
                   $ref: '#/components/schemas/Any.CompRef'
   /api/v1/programs:
     post:
-      operationId: EngineApi_createProgram
+      operationId: createProgram
       description: Submit program source text for parsing and registration.
       parameters: []
       responses:

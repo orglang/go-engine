@@ -1,6 +1,5 @@
 .task
 
-*.gen.go
 /engine
 
 /tsp/node_modules/

@@ -79,7 +79,7 @@ type PoolStepSpec struct {
 	CompRef AnyCompRef `json:"comp_ref"`
 
 	// PoolExpr Pool term expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	PoolExpr PoolTermExprSpec `json:"pool_expr"`
+	PoolExpr *PoolTermExprSpec `json:"pool_expr,omitempty"`
 }
 
 // PoolTermAcceptSpec defines model for Pool.Term.AcceptSpec.
@@ -152,7 +152,7 @@ type PoolTermSpawnSpec struct {
 // PoolTypeDefSnap defines model for Pool.Type.DefSnap.
 type PoolTypeDefSnap struct {
 	// Expr Pool type expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	Expr PoolTypeExprSpec `json:"expr"`
+	Expr *PoolTypeExprSpec `json:"expr,omitempty"`
 
 	// Ref Shared type identity.
 	Ref AnyTypeRef `json:"ref"`
@@ -161,14 +161,14 @@ type PoolTypeDefSnap struct {
 // PoolTypeDefSpec defines model for Pool.Type.DefSpec.
 type PoolTypeDefSpec struct {
 	// Expr Pool type expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	Expr PoolTypeExprSpec `json:"expr"`
-	Qn   string           `json:"qn"`
+	Expr *PoolTypeExprSpec `json:"expr,omitempty"`
+	Qn   string            `json:"qn"`
 }
 
 // PoolTypeDownSpec defines model for Pool.Type.DownSpec.
 type PoolTypeDownSpec struct {
 	// ContExpr Pool type expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ContExpr PoolTypeExprSpec `json:"cont_expr"`
+	ContExpr *PoolTypeExprSpec `json:"cont_expr,omitempty"`
 }
 
 // PoolTypeExprSpec Pool type expression specification. Exactly one variant is serialized inline with its kind discriminator.
@@ -184,10 +184,10 @@ type PoolTypeLinkSpec struct {
 // PoolTypeLolliSpec defines model for Pool.Type.LolliSpec.
 type PoolTypeLolliSpec struct {
 	// ContExpr Pool type expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ContExpr PoolTypeExprSpec `json:"cont_expr"`
+	ContExpr *PoolTypeExprSpec `json:"cont_expr,omitempty"`
 
 	// ValExpr Pool type expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ValExpr PoolTypeExprSpec `json:"val_expr"`
+	ValExpr *PoolTypeExprSpec `json:"val_expr,omitempty"`
 }
 
 // PoolTypeOneSpec defines model for Pool.Type.OneSpec.
@@ -196,30 +196,30 @@ type PoolTypeOneSpec = map[string]interface{}
 // PoolTypePlusSpec defines model for Pool.Type.PlusSpec.
 type PoolTypePlusSpec struct {
 	// ContExpr Pool type expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ContExpr PoolTypeExprSpec `json:"cont_expr"`
-	ProcQns  []string         `json:"proc_qns"`
+	ContExpr *PoolTypeExprSpec `json:"cont_expr,omitempty"`
+	ProcQns  []string          `json:"proc_qns"`
 }
 
 // PoolTypeTensorSpec defines model for Pool.Type.TensorSpec.
 type PoolTypeTensorSpec struct {
 	// ContExpr Pool type expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ContExpr PoolTypeExprSpec `json:"cont_expr"`
+	ContExpr *PoolTypeExprSpec `json:"cont_expr,omitempty"`
 
 	// ValExpr Pool type expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ValExpr PoolTypeExprSpec `json:"val_expr"`
+	ValExpr *PoolTypeExprSpec `json:"val_expr,omitempty"`
 }
 
 // PoolTypeUpSpec defines model for Pool.Type.UpSpec.
 type PoolTypeUpSpec struct {
 	// ContExpr Pool type expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ContExpr PoolTypeExprSpec `json:"cont_expr"`
+	ContExpr *PoolTypeExprSpec `json:"cont_expr,omitempty"`
 }
 
 // PoolTypeWithSpec defines model for Pool.Type.WithSpec.
 type PoolTypeWithSpec struct {
 	// ContExpr Pool type expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ContExpr PoolTypeExprSpec `json:"cont_expr"`
-	ProcQns  []string         `json:"proc_qns"`
+	ContExpr *PoolTypeExprSpec `json:"cont_expr,omitempty"`
+	ProcQns  []string          `json:"proc_qns"`
 }
 
 // ProcCompSnap defines model for Proc.CompSnap.
@@ -245,14 +245,14 @@ type ProcDecSpec struct {
 // ProcStepSpec defines model for Proc.StepSpec.
 type ProcStepSpec struct {
 	// ProcExpr Process term expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ProcExpr ProcTermExprSpec `json:"proc_expr"`
+	ProcExpr *ProcTermExprSpec `json:"proc_expr,omitempty"`
 }
 
 // ProcTermBranchSpec defines model for Proc.Term.BranchSpec.
 type ProcTermBranchSpec struct {
 	// ContExpr Process term expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ContExpr  ProcTermExprSpec `json:"cont_expr"`
-	PatternQn string           `json:"pattern_qn"`
+	ContExpr  *ProcTermExprSpec `json:"cont_expr,omitempty"`
+	PatternQn string            `json:"pattern_qn"`
 }
 
 // ProcTermCallSpec defines model for Proc.Term.CallSpec.
@@ -260,9 +260,9 @@ type ProcTermCallSpec struct {
 	BindPh string `json:"bind_ph"`
 
 	// ContExpr Process term expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ContExpr ProcTermExprSpec `json:"cont_expr"`
-	ProcQn   string           `json:"proc_qn"`
-	ValPhs   []string         `json:"val_phs"`
+	ContExpr *ProcTermExprSpec `json:"cont_expr,omitempty"`
+	ProcQn   string            `json:"proc_qn"`
+	ValPhs   []string          `json:"val_phs"`
 }
 
 // ProcTermCaseSpec defines model for Proc.Term.CaseSpec.
@@ -306,7 +306,7 @@ type ProcTermRecvSpec struct {
 	ConnPh string `json:"conn_ph"`
 
 	// ContExpr Process term expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ContExpr ProcTermExprSpec `json:"cont_expr"`
+	ContExpr *ProcTermExprSpec `json:"cont_expr,omitempty"`
 }
 
 // ProcTermSendSpec defines model for Proc.Term.SendSpec.
@@ -320,34 +320,34 @@ type ProcTermWaitSpec struct {
 	ConnPh string `json:"conn_ph"`
 
 	// ContExpr Process term expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ContExpr ProcTermExprSpec `json:"cont_expr"`
+	ContExpr *ProcTermExprSpec `json:"cont_expr,omitempty"`
 }
 
 // ProcTypeChoiceSpec defines model for Proc.Type.ChoiceSpec.
 type ProcTypeChoiceSpec struct {
 	// ContExpr Process type expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ContExpr ProcTypeExprSpec `json:"cont_expr"`
-	LabQn    string           `json:"lab_qn"`
+	ContExpr *ProcTypeExprSpec `json:"cont_expr,omitempty"`
+	LabQn    string            `json:"lab_qn"`
 }
 
 // ProcTypeDefSnap defines model for Proc.Type.DefSnap.
 type ProcTypeDefSnap struct {
 	// Ref Shared type identity.
-	Ref  AnyTypeRef      `json:"ref"`
-	Spec ProcTypeDefSpec `json:"spec"`
+	Ref  AnyTypeRef       `json:"ref"`
+	Spec *ProcTypeDefSpec `json:"spec,omitempty"`
 }
 
 // ProcTypeDefSpec defines model for Proc.Type.DefSpec.
 type ProcTypeDefSpec struct {
 	// TypeExpr Process type expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	TypeExpr ProcTypeExprSpec `json:"type_expr"`
-	TypeQn   string           `json:"type_qn"`
+	TypeExpr *ProcTypeExprSpec `json:"type_expr,omitempty"`
+	TypeQn   string            `json:"type_qn"`
 }
 
 // ProcTypeDownSpec defines model for Proc.Type.DownSpec.
 type ProcTypeDownSpec struct {
 	// ContExpr Process type expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ContExpr ProcTypeExprSpec `json:"cont_expr"`
+	ContExpr *ProcTypeExprSpec `json:"cont_expr,omitempty"`
 }
 
 // ProcTypeExprSpec Process type expression specification. Exactly one variant is serialized inline with its kind discriminator.
@@ -363,10 +363,10 @@ type ProcTypeLinkSpec struct {
 // ProcTypeLolliSpec defines model for Proc.Type.LolliSpec.
 type ProcTypeLolliSpec struct {
 	// ContExpr Process type expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ContExpr ProcTypeExprSpec `json:"cont_expr"`
+	ContExpr *ProcTypeExprSpec `json:"cont_expr,omitempty"`
 
 	// ValExpr Process type expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ValExpr ProcTypeExprSpec `json:"val_expr"`
+	ValExpr *ProcTypeExprSpec `json:"val_expr,omitempty"`
 }
 
 // ProcTypeOneSpec defines model for Proc.Type.OneSpec.
@@ -380,16 +380,16 @@ type ProcTypePlusSpec struct {
 // ProcTypeTensorSpec defines model for Proc.Type.TensorSpec.
 type ProcTypeTensorSpec struct {
 	// ContExpr Process type expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ContExpr ProcTypeExprSpec `json:"cont_expr"`
+	ContExpr *ProcTypeExprSpec `json:"cont_expr,omitempty"`
 
 	// ValExpr Process type expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ValExpr ProcTypeExprSpec `json:"val_expr"`
+	ValExpr *ProcTypeExprSpec `json:"val_expr,omitempty"`
 }
 
 // ProcTypeUpSpec defines model for Proc.Type.UpSpec.
 type ProcTypeUpSpec struct {
 	// ContExpr Process type expression specification. Exactly one variant is serialized inline with its kind discriminator.
-	ContExpr ProcTypeExprSpec `json:"cont_expr"`
+	ContExpr *ProcTypeExprSpec `json:"cont_expr,omitempty"`
 }
 
 // ProcTypeWithSpec defines model for Proc.Type.WithSpec.

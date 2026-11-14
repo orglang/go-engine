@@ -1,0 +1,50 @@
+name: Sources Verify
+
+on:
+  # Keep the default-branch Go cache warm for reuse by pull request workflows.
+  push:
+    branches: [main]
+  workflow_dispatch:
+  workflow_call:
+  pull_request:
+    branches: [main]
+    types:
+      - opened
+      - ready_for_review
+      - synchronize
+
+permissions:
+  contents: read
+
+jobs:
+  sources-verify:
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout engine
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up mise
+        uses: jdx/mise-action@v5
+        with:
+          cache: false
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: |
+            go.sum
+            gear.mod
+            gear.sum
+
+      - name: Verify dependencies
+        run: mise run deps:check
+
+      - name: Verify sources
+        run: GOWORK=off go tool -modfile=gear.mod task sources:check
+
+      - name: Run unit tests
+        run: GOWORK=off go tool -modfile=gear.mod task tests:unit

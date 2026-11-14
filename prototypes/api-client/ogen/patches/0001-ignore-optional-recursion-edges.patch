@@ -26,3 +26,29 @@ diff --git a/gen/generics.go b/gen/generics.go
 +					// Required recursive fields need a pointer to break Go value
 +					// recursion, but nil remains invalid so JSON requiredness is kept.
 +					return ir.Pointer(t, ir.NilInvalid), nil
+
+diff --git a/gen/_template/json/decode.tmpl b/gen/_template/json/decode.tmpl
+--- a/gen/_template/json/decode.tmpl
++++ b/gen/_template/json/decode.tmpl
+@@ -3,6 +3,20 @@
+ {{- define "json/dec_pointer" }}
++{{- if $.Type.NilSemantic.Null }}
++switch tt := d.Next(); tt {
++case jx.Null:
++	{{ $.Var }} = nil
++	if err := d.Skip(); err != nil {
++		return err
++	}
++default:
+ {{ $.Var }} = nil
+ var {{ $.NextVar }} {{ $.Type.PointerTo.Go }}
+ {{- template "json/dec" pointer_elem $ }}
+ {{ $.Var }} = &{{ $.NextVar }}
++}
++{{- else }}
++{{ $.Var }} = nil
++var {{ $.NextVar }} {{ $.Type.PointerTo.Go }}
++{{- template "json/dec" pointer_elem $ }}
++{{ $.Var }} = &{{ $.NextVar }}
++{{- end }}
+ {{- end -}}

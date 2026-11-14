@@ -23,7 +23,7 @@ tasks:
     cmds:
       - GOWORK=off go mod tidy
       - GOWORK=off go mod tidy -modfile=gear.mod
-      - npm install --package-lock-only --ignore-scripts
+      - cmd: npm install --package-lock-only --ignore-scripts
         dir: tsp
 
   deps:check:

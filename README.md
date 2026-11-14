@@ -23,8 +23,8 @@
 - `task specs:verify` — проверка спецификаций перед публикацией.
 - `task sources:generate` — генерация исходников, включая Echo HTTP server из `openapi/openapi.yaml`.
 - `task sources:check` — проверка воспроизводимости генерации и запуск линтеров; форматтеры пропускают файлы с заголовком generated code.
-- `task deps:lock` — обновление контрольных сумм инструментов разработки в `gear.sum`.
-- `task deps:check` — проверка актуальности контрольных сумм инструментов разработки.
+- `task deps:lock` — приведение зависимостей приложения и инструментов разработки к актуальному состоянию (`go.mod` / `go.sum` и `gear.mod` / `gear.sum`).
+- `task deps:check` — проверка актуальности всех Go module manifests и checksum-файлов.
 - `task tests:unit` — unit-тесты.
 - `task tests:it` — интеграционные тесты.
 - `task tests:e2e` — сквозные тесты.

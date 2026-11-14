@@ -25,24 +25,31 @@ The comparison input is the committed OpenAPI contract at `openapi/openapi.yaml`
 
 ### oapi-codegen
 
-- Candidate: `oapi-codegen v2.4.1` (to be pinned in the reproducible prototype).
-- Generation against the same committed OpenAPI document has not yet been run as part of this comparison.
-- Generated client compilation, recursive schema representation, nullable/optional behavior, and runtime JSON contract tests remain to be measured.
+- Candidate: `oapi-codegen v2.8.2` (pinned in the reproducible workflow).
+- The v2.8.2 full-contract generation completed successfully against the same committed OpenAPI input; generated client compilation, recursive schema representation, nullable/optional behavior, and runtime JSON contract tests remain to be measured.
 
-**Current assessment:** no conclusion yet. Do not treat the absence of a recorded failure as evidence that oapi-codegen passes.
+**Current assessment:** generation succeeds, but this is not yet evidence of compile-time or runtime contract parity.
 
 ## Reproducible generation baseline
 
-The workflow `.github/workflows/api-client-generator-comparison.yaml` runs both pinned generators against the same committed `openapi/openapi.yaml` and records that input's SHA-256 checksum. The first full-contract run (artifact from run [#43591782147](https://github.com/orglang/go-engine/actions/runs/43591782147)) recorded ogen v1.25.0 failing with a schema-name collision (`PoolTermExprSpecSum`) and oapi-codegen v2.4.1 generating output with an OpenAPI 3.1 support warning. The committed config now pins oapi-codegen v2.8.2, which adds initial OpenAPI 3.1 support; its result is pending. The workflow preserves logs and generated outputs as an artifact.
+The workflow `.github/workflows/api-client-generator-comparison.yaml` runs both pinned generators against the same committed `openapi/openapi.yaml` and records that input's SHA-256 checksum. The first full-contract run (artifact from run [#43591782147](https://github.com/orglang/go-engine/actions/runs/43591782147)) recorded ogen v1.25.0 failing with a schema-name collision (`PoolTermExprSpecSum`) and oapi-codegen v2.4.1 generating output with an OpenAPI 3.1 support warning. The follow-up run [#43591852634](https://github.com/orglang/go-engine/actions/runs/43591852634) completed with oapi-codegen v2.8.2 generation successful; ogen still reported the original name collision. The workflow preserves logs and generated outputs as an artifact.
 
 This first automation stage is intentionally a **generation baseline**, not a completed client comparison: it does not yet establish compile/runtime parity, integration ergonomics, or a final choice. Those checks remain required below. A successful generation job only means both generator processes ran and artifacts were collected; it does not imply the generated clients compile or behave correctly.
+
+## ogen schema-name override experiment
+
+The first ogen baseline failed while generating `/api/v1/pools/executions/spawns` because the generated sum type name `PoolTermExprSpecSum` collided. The current experiment adds the schema-level OpenAPI extension `x-ogen-name: PoolTermExpression` to `components.schemas.Pool.Term.ExprSpec`. This is generator metadata only; it does not change the JSON schema or wire contract, and oapi-codegen is expected to ignore the unknown extension.
+
+This is deliberately applied to the committed OpenAPI document only for the isolated generator experiment. The TypeSpec source has not yet been taught to emit the extension, so a normal TypeSpec regeneration may remove it. Do not treat this as a durable source-of-truth fix until the generated Go type name is verified and the extension is represented in the TypeSpec pipeline.
+
+The next workflow run determines whether ogen v1.25.0 applies the override to the conflicting oneOf sum type or whether the collision persists/moves. No result is claimed before that run completes.
 
 ## Comparison matrix
 
 | Criterion from workspace issue #114 | ogen v1.25.0 | oapi-codegen |
 | --- | --- | --- |
-| Same real OpenAPI input | Full-contract baseline attempted; stopped at `PoolTermExprSpecSum` name collision. Scoped recursion experiments separately passed | v2.4.1 generated; warned about unsupported OpenAPI 3.1. v2.8.2 run pending |
-| Request/response schemas and operations | Full-contract generation blocked by schema-name collision; recursive behavior still requires isolated evaluation | v2.4.1 generated client; full v2.8.2 evaluation pending |
+| Same real OpenAPI input | Full-contract baseline stopped at `PoolTermExprSpecSum` name collision; scoped recursion experiments separately passed | v2.8.2 generation succeeded; compile/runtime checks pending |
+| Request/response schemas and operations | Full-contract generation blocked by schema-name collision; recursive behavior still requires isolated evaluation | v2.8.2 generated client; compile/runtime evaluation pending |
 | Optional vs nullable fields | Tested for the four Pool.Term continuation fields in isolated experiments; required nullable behavior has a separate control experiment | Not yet run |
 | Enums and oneOf/discriminators | Present in the contract; full-contract output still needs review after recursion handling | Not yet run |
 | Auth/security schemes and parameters | Must be inventoried against the actual contract and verified in generated client API | Not yet run |
@@ -55,7 +62,7 @@ This first automation stage is intentionally a **generation baseline**, not a co
 
 ## Required work to finish PR 3
 
-- [x] Pin generator versions and run a first full-contract generation baseline against the exact same `openapi/openapi.yaml` (ogen v1.25.0; oapi-codegen v2.4.1). The current OpenAPI 3.1-capable oapi-codegen v2.8.2 run is pending.
+- [x] Pin generator versions and run full-contract generation against the exact same `openapi/openapi.yaml` (ogen v1.25.0; oapi-codegen v2.8.2).
 - [ ] Keep generated outputs and configuration isolated; do not migrate consumers.
 - [ ] Record generation success/failure and any required workarounds for each generator.
 - [ ] Compile both generated clients and add representative request/response tests using deterministic local fixtures.

@@ -97,6 +97,71 @@ jobs:
             > "$RUNNER_TEMP/oapi-codegen.yaml"
           go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.8.2 \
             -config "$RUNNER_TEMP/oapi-codegen.yaml" openapi/openapi.yaml
+      - name: Add deterministic oapi-codegen JSON contract tests
+        shell: bash
+        run: |
+          cat > "$RUNNER_TEMP/oapi-codegen/client_contract_test.go" <<'GO'
+          package api
+
+          import (
+              "encoding/json"
+              "testing"
+          )
+
+          func TestPoolTermHireRecursiveJSONRoundTrip(t *testing.T) {
+              input := []byte(`{"conn_ph":"hire-channel","proc_qn":"example.proc","cont_expr":{"kind":"fire","conn_ph":"fire-channel"}}`)
+              var got PoolTermHireSpec
+              if err := json.Unmarshal(input, &got); err != nil {
+                  t.Fatalf("unmarshal hire term: %v", err)
+              }
+
+              kind, err := got.ContExpr.Discriminator()
+              if err != nil {
+                  t.Fatalf("read continuation discriminator: %v", err)
+              }
+              if kind != "fire" {
+                  t.Fatalf("continuation kind = %q, want fire", kind)
+              }
+
+              encoded, err := json.Marshal(got)
+              if err != nil {
+                  t.Fatalf("marshal hire term: %v", err)
+              }
+              var wire struct {
+                  ContExpr json.RawMessage `json:"cont_expr"`
+              }
+              if err := json.Unmarshal(encoded, &wire); err != nil {
+                  t.Fatalf("decode marshaled hire term: %v", err)
+              }
+              var continuation map[string]json.RawMessage
+              if err := json.Unmarshal(wire.ContExpr, &continuation); err != nil {
+                  t.Fatalf("decode marshaled continuation: %v", err)
+              }
+              var roundTripKind string
+              if err := json.Unmarshal(continuation["kind"], &roundTripKind); err != nil {
+                  t.Fatalf("decode continuation kind: %v", err)
+              }
+              if roundTripKind != "fire" {
+                  t.Fatalf("round-trip continuation kind = %q, want fire", roundTripKind)
+              }
+          }
+
+          func TestPoolTermHireMissingRequiredContinuationIsNotValidated(t *testing.T) {
+              // oapi-codegen generates ordinary encoding/json model structs; decoding
+              // alone does not enforce OpenAPI required-property presence.
+              var got PoolTermHireSpec
+              if err := json.Unmarshal([]byte(`{"conn_ph":"hire-channel","proc_qn":"example.proc"}`), &got); err != nil {
+                  t.Fatalf("unmarshal model without cont_expr: %v", err)
+              }
+              kind, err := got.ContExpr.Discriminator()
+              if err != nil {
+                  t.Fatalf("read zero-value continuation discriminator: %v", err)
+              }
+              if kind != "" {
+                  t.Fatalf("zero-value continuation kind = %q, want empty", kind)
+              }
+          }
+          GO
       - name: Test generated oapi-codegen package
         working-directory: ${{ runner.temp }}
         run: |

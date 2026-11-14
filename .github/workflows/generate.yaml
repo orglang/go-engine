@@ -1,6 +1,8 @@
 name: Generate artifacts
 
 on:
+  push:
+    branches: [chore/api-sources-generation]
   workflow_dispatch:
 
 permissions: {}

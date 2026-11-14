@@ -28,12 +28,14 @@ jobs:
         run: task specs:generate
       - name: Normalize OpenAPI for ogen
         run: node tsp/scripts/normalize-openapi-for-ogen.mjs openapi/openapi.yaml /tmp/openapi-ogen-required.yaml
+      - name: Scope OpenAPI to Pool.Term recursion operations
+        run: node tsp/scripts/filter-openapi-for-optional-cont-expr.mjs /tmp/openapi-ogen-required.yaml /tmp/openapi-ogen-required-scoped.yaml
       - name: Confirm unmodified ogen rejects the recursive schema
         run: |
           if GOMODCACHE=/tmp/ogen-required-unpatched GOWORK=off go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
             --config prototypes/api-client/ogen.yml \
             --target /tmp/ogen-required-unpatched-client \
-            --package ogenclient --clean /tmp/openapi-ogen-required.yaml > /tmp/ogen-required-unpatched.log 2>&1; then
+            --package ogenclient --clean /tmp/openapi-ogen-required-scoped.yaml > /tmp/ogen-required-unpatched.log 2>&1; then
             echo "Expected unmodified ogen to reject the recursive schema"
             exit 1
           fi
@@ -50,7 +52,7 @@ jobs:
           path = Path("/tmp/ogen-required-gomodcache/github.com/ogen-go/ogen@v1.25.0/gen/generics.go")
           source = path.read_text()
           old = 'return nil, errors.Errorf("infinite recursion: %s.%s is required", s.Name, field.Name)'
-          new = '// Required recursive fields need indirection to keep the Go value representation finite.\n\t\t\t\treturn ir.Pointer(t, ir.NilInvalid), nil'
+          new = '// Required recursive fields need indirection to keep the Go value representation finite.\\n\\t\\t\\t\\treturn ir.Pointer(t, ir.NilInvalid), nil'
           count = source.count(old)
           if count != 1:
               raise SystemExit(f"expected exactly one required-recursion error site, found {count}")
@@ -62,7 +64,7 @@ jobs:
           GOMODCACHE=/tmp/ogen-required-gomodcache GOWORK=off go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
             --config prototypes/api-client/ogen.yml \
             --target prototypes/api-client/ogen-required-experiment/generated \
-            --package ogenclient --clean /tmp/openapi-ogen-required.yaml
+            --package ogenclient --clean /tmp/openapi-ogen-required-scoped.yaml
       - name: Compile and test required JSON contract
         run: |
           cp prototypes/api-client/ogen/pool_term_required_cont_expr_test.go prototypes/api-client/ogen-required-experiment/generated/

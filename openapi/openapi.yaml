@@ -563,7 +563,6 @@ components:
       type: object
       required:
         - comp_ref
-        - pool_expr
       properties:
         comp_ref:
           $ref: '#/components/schemas/Any.CompRef'
@@ -682,7 +681,6 @@ components:
       type: object
       required:
         - ref
-        - expr
       properties:
         ref:
           $ref: '#/components/schemas/Any.TypeRef'
@@ -692,7 +690,6 @@ components:
       type: object
       required:
         - qn
-        - expr
       properties:
         qn:
           type: string
@@ -701,7 +698,6 @@ components:
     Pool.Type.DownSpec:
       type: object
       required:
-        - cont_expr
       properties:
         cont_expr:
           $ref: '#/components/schemas/Pool.Type.ExprSpec'
@@ -737,8 +733,6 @@ components:
     Pool.Type.LolliSpec:
       type: object
       required:
-        - val_expr
-        - cont_expr
       properties:
         val_expr:
           $ref: '#/components/schemas/Pool.Type.ExprSpec'
@@ -750,7 +744,6 @@ components:
       type: object
       required:
         - proc_qns
-        - cont_expr
       properties:
         proc_qns:
           type: array
@@ -761,8 +754,6 @@ components:
     Pool.Type.TensorSpec:
       type: object
       required:
-        - val_expr
-        - cont_expr
       properties:
         val_expr:
           $ref: '#/components/schemas/Pool.Type.ExprSpec'
@@ -771,7 +762,6 @@ components:
     Pool.Type.UpSpec:
       type: object
       required:
-        - cont_expr
       properties:
         cont_expr:
           $ref: '#/components/schemas/Pool.Type.ExprSpec'
@@ -779,7 +769,6 @@ components:
       type: object
       required:
         - proc_qns
-        - cont_expr
       properties:
         proc_qns:
           type: array
@@ -822,7 +811,6 @@ components:
     Proc.StepSpec:
       type: object
       required:
-        - proc_expr
       properties:
         proc_expr:
           $ref: '#/components/schemas/Proc.Term.ExprSpec'
@@ -830,7 +818,6 @@ components:
       type: object
       required:
         - pattern_qn
-        - cont_expr
       properties:
         pattern_qn:
           type: string
@@ -842,7 +829,6 @@ components:
         - bind_ph
         - proc_qn
         - val_phs
-        - cont_expr
       properties:
         bind_ph:
           type: string
@@ -937,7 +923,6 @@ components:
       required:
         - conn_ph
         - bind_ph
-        - cont_expr
       properties:
         conn_ph:
           type: string
@@ -959,7 +944,6 @@ components:
       type: object
       required:
         - conn_ph
-        - cont_expr
       properties:
         conn_ph:
           type: string
@@ -969,7 +953,6 @@ components:
       type: object
       required:
         - lab_qn
-        - cont_expr
       properties:
         lab_qn:
           type: string
@@ -979,7 +962,6 @@ components:
       type: object
       required:
         - ref
-        - spec
       properties:
         ref:
           $ref: '#/components/schemas/Any.TypeRef'
@@ -989,7 +971,6 @@ components:
       type: object
       required:
         - type_qn
-        - type_expr
       properties:
         type_qn:
           type: string
@@ -998,7 +979,6 @@ components:
     Proc.Type.DownSpec:
       type: object
       required:
-        - cont_expr
       properties:
         cont_expr:
           $ref: '#/components/schemas/Proc.Type.ExprSpec'
@@ -1034,8 +1014,6 @@ components:
     Proc.Type.LolliSpec:
       type: object
       required:
-        - val_expr
-        - cont_expr
       properties:
         val_expr:
           $ref: '#/components/schemas/Proc.Type.ExprSpec'
@@ -1055,8 +1033,6 @@ components:
     Proc.Type.TensorSpec:
       type: object
       required:
-        - val_expr
-        - cont_expr
       properties:
         val_expr:
           $ref: '#/components/schemas/Proc.Type.ExprSpec'
@@ -1065,7 +1041,6 @@ components:
     Proc.Type.UpSpec:
       type: object
       required:
-        - cont_expr
       properties:
         cont_expr:
           $ref: '#/components/schemas/Proc.Type.ExprSpec'

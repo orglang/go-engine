@@ -19,7 +19,7 @@ jobs:
       - uses: jdx/mise-action@v3
         with:
           install: true
-      - uses: arduino/setup-task@v2
+      - uses: go-task/setup-task@v1
         with:
           version: 3.x
       - name: Install TypeSpec dependencies

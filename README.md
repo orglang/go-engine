@@ -23,12 +23,12 @@
 - `task specs:verify` — проверка спецификаций перед публикацией.
 - `task sources:generate` — генерация исходников, включая Echo HTTP server из `openapi/openapi.yaml`.
 - `task sources:check` — проверка воспроизводимости генерации и запуск линтеров; форматтеры пропускают файлы с заголовком generated code.
-- `task deps:lock` — приведение Go-зависимостей приложения и инструментов разработки к актуальному состоянию, а также обновление npm lock-файла TypeSpec (`tsp/package-lock.json`).
-- `task deps:check` — проверка актуальности Go module manifests, checksum-файлов и npm lock-файлов.
+- `task deps:lock` — приведение Go-зависимостей приложения и инструментов разработки к актуальному состоянию, а также обновление lock-файла инструментов mise (`mise.lock`) и npm lock-файла TypeSpec (`tsp/package-lock.json`).
+- `task deps:check` — проверка актуальности Go module manifests, checksum-файлов и npm и mise lock-файлов.
 - `task tests:unit` — unit-тесты.
 - `task tests:it` — интеграционные тесты.
 - `task tests:e2e` — сквозные тесты.
 - `task engine:binary` — сборка бинарника в `app/engine`.
 - `task engine:process` — запуск приложения.
 
-Инструменты разработки фиксируются отдельно в `gear.mod` / `gear.sum`; зависимости приложения — в `go.mod` / `go.sum`; зависимости TypeSpec — в `tsp/package.json` / `tsp/package-lock.json`.
+Инструменты разработки фиксируются отдельно в `gear.mod` / `gear.sum`; зависимости приложения — в `go.mod` / `go.sum`; зависимости TypeSpec — в `tsp/package.json` / `tsp/package-lock.json`; версии инструментов — в `.mise.toml` / `mise.lock`.

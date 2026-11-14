@@ -18,14 +18,19 @@
 
 ## Разработка
 
+- `mise install` — установка Go, Node.js и Go-инструментов, зафиксированных в `mise.toml` и `mise.lock`.
+- `mise run deps:lock` — приведение Go-зависимостей приложения к актуальному состоянию и обновление lock-файлов mise и TypeSpec npm.
+- `mise run deps:install` — загрузка Go-модулей и установка TypeSpec npm-зависимостей через `npm ci`.
+- `mise run deps:check` — проверка актуальности Go module manifests, checksum-файлов, npm- и mise-lock-файлов.
 - `task specs:generate` — генерация OpenAPI из TypeSpec.
 - `task specs:check` — компиляция TypeSpec и проверка актуальности сгенерированного OpenAPI.
 - `task specs:verify` — проверка спецификаций перед публикацией.
-- `task sources:check` — генерация/проверка исходников и линтеры.
+- `task sources:generate` — генерация исходников, включая Echo HTTP server из `openapi/openapi.yaml`.
+- `task sources:check` — проверка воспроизводимости генерации и запуск линтеров; форматтеры пропускают файлы с заголовком generated code.
 - `task tests:unit` — unit-тесты.
 - `task tests:it` — интеграционные тесты.
 - `task tests:e2e` — сквозные тесты.
 - `task engine:binary` — сборка бинарника в `app/engine`.
 - `task engine:process` — запуск приложения.
 
-Инструменты разработки фиксируются отдельно в `gear.mod` / `gear.sum`; зависимости приложения — в `go.mod` / `go.sum`.
+Версии Go, Node.js и Go CLI-инструментов фиксируются в `mise.toml` / `mise.lock`; зависимости приложения — в `go.mod` / `go.sum`; зависимости TypeSpec — в `tsp/package.json` / `tsp/package-lock.json`.

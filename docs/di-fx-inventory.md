@@ -150,10 +150,10 @@ This document does not claim that all possible dynamic or indirect Fx usage has 
 
 ### CI invocation
 
-The current `Sources Check` pull-request workflow's unit-test command is:
+The `Sources Verify` pull-request workflow installs the Go toolchain and Go CLI tools declared in `.mise.toml`, then runs:
 
 ```sh
-GOWORK=off go tool -modfile=gear.mod task tests:unit
+task tests:unit
 ```
 
-The workflow skips draft pull requests, and this documentation-only PR does not trigger the code-change test path. No fresh unit run is required for this inventory stage; implementation PRs must run the relevant checks against their own code changes.
+The workflow skips draft pull requests. This document is a historical inventory snapshot; implementation PRs must run the relevant checks against their own code changes.

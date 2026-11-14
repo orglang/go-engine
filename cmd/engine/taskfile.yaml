@@ -19,5 +19,4 @@ tasks:
   process:
     aliases: [proc]
     cmds:
-      - cmd: go run github.com/jmattheis/goverter/cmd/goverter gen -global 'skipCopySameType' ./...
       - cmd: go run ./cmd/engine

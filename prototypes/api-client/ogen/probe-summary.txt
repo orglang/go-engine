@@ -1,2 +1,4 @@
 optional-edge exit=0
 required-edge exit=0
+nullable-unpatched exit=0
+nullable-patched exit=0

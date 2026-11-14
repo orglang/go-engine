@@ -44,7 +44,7 @@ jobs:
           GOMODCACHE=/tmp/ogen-optional-gomodcache GOWORK=off go mod download github.com/ogen-go/ogen@v1.25.0
           ogen_dir="/tmp/ogen-optional-gomodcache/github.com/ogen-go/ogen@v1.25.0"
           chmod -R u+w "$ogen_dir/gen/ir" "$ogen_dir/gen"
-          patch -d "$ogen_dir" -p1 < prototypes/api-client/ogen/patches/0001-ignore-optional-recursion-edges.patch
+          patch -d "$ogen_dir" -p1 < prototypes/api-client/ogen-optional-experiment/0001-optional-recursion-edge-only.patch
       - name: Generate client with patched ogen v1.25.0
         run: |
           GOMODCACHE=/tmp/ogen-optional-gomodcache GOWORK=off go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \

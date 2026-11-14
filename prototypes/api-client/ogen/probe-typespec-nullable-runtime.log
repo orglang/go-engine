@@ -1,8 +1,1 @@
---- FAIL: TestRequiredNullableField (0.00s)
-    --- FAIL: TestRequiredNullableField/explicit_null_is_accepted (0.00s)
-        required_nullable_runtime_test.go:19: explicit null for required nullable field a must be accepted: decode B: callback: decode field "a": decode A: "{" expected: unexpected byte 110 'n' at 5
-    --- FAIL: TestRequiredNullableField/non-null_value_is_decoded (0.00s)
-        required_nullable_runtime_test.go:29: expected non-null recursive value to decode: decode B: callback: decode field "a": decode A: callback: decode field "b": decode B: callback: decode field "a": decode A: "{" expected: unexpected byte 110 'n' at 15
-FAIL
-FAIL	orglang/go-engine/prototypes/api-client/ogen/probe-typespec-nullable-client	0.003s
-FAIL
+ok  	orglang/go-engine/prototypes/api-client/ogen/probe-typespec-nullable-client	0.003s

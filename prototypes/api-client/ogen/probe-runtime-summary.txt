@@ -1,2 +1,2 @@
 unpatched runtime=fail
-patched runtime=fail
+patched runtime=pass

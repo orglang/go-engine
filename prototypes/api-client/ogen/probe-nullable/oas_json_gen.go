@@ -46,12 +46,20 @@ func (s *A) Decode(d *jx.Decoder) error {
 		case "b":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.B = nil
-				var elem B
-				if err := elem.Decode(d); err != nil {
-					return err
+				switch tt := d.Next(); tt {
+				case jx.Null:
+					s.B = nil
+					if err := d.Skip(); err != nil {
+						return err
+					}
+				default:
+					s.B = nil
+					var elem B
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.B = &elem
 				}
-				s.B = &elem
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"b\"")

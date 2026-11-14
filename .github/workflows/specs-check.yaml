@@ -41,7 +41,7 @@ jobs:
       - name: Set up mise
         uses: jdx/mise-action@v5
         with:
-          cache: false
+          cache: true
 
       - name: Install TypeSpec dependencies
         run: mise run deps:install

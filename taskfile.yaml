@@ -13,11 +13,6 @@ vars:
   PSV: shell # shell, docker
 
 tasks:
-  tools:install:
-    desc: Download tooling dependencies declared in gear.mod
-    cmds:
-      - GOWORK=off go get -tool -modfile=gear.mod github.com/golangci/golangci-lint/v2/cmd/golangci-lint github.com/jmattheis/goverter/cmd/goverter github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen
-
   binaries:
     desc: Build application binaries
     cmds:
@@ -30,21 +25,20 @@ tasks:
       - task: sources:generate
     cmds:
       - test -z "$(git status --porcelain -- ':(glob)**/*.gen.go')"
-      - GOWORK=off go tool -modfile=gear.mod golangci-lint fmt --diff
-      - GOWORK=off go tool -modfile=gear.mod golangci-lint run ./...
+      - golangci-lint fmt --diff
+      - golangci-lint run ./...
 
   sources:prepare:
     desc: Prepare source artifacts and format handwritten Go code
     cmds:
       - task: sources:generate
-      - GOWORK=off go tool -modfile=gear.mod golangci-lint fmt
+      - golangci-lint fmt
 
   sources:generate:
     desc: Generate source artifacts
     cmds:
-      - task: tools:install
-      - GOWORK=off go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...
-      - GOWORK=off go tool -modfile=gear.mod oapi-codegen -config internal/app/web/api/cfg.yaml openapi/openapi.yaml
+      - goverter gen -global 'skipCopySameType' ./...
+      - oapi-codegen -config internal/app/web/api/cfg.yaml openapi/openapi.yaml
 
   specs:generate:
     desc: Generate OpenAPI from TypeSpec

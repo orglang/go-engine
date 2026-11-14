@@ -1,0 +1,31 @@
+openapi: 3.1.0
+info:
+  title: Required nullable recursive fields
+  version: 1.0.0
+paths:
+  /probe:
+    get:
+      operationId: probeRequiredNullableCycle
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/A'
+        default:
+          description: Error
+components:
+  schemas:
+    A:
+      type: object
+      required: [b]
+      properties:
+        b:
+          $ref: '#/components/schemas/B'
+    B:
+      type: [object, "null"]
+      required: [a]
+      properties:
+        a:
+          $ref: '#/components/schemas/A'

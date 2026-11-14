@@ -34,6 +34,7 @@ run = [
   "test \"$(cat prototypes/api-client/ogen/probe-nullable-unpatched.exit-code)\" -eq 0",
   "test \"$(cat prototypes/api-client/ogen/probe-nullable.exit-code)\" -eq 0",
   "cp go.mod /tmp/ogen-probe.mod && cp go.sum /tmp/ogen-probe.sum && go mod edit -modfile=/tmp/ogen-probe.mod -require=github.com/ogen-go/ogen@v1.25.0 && GOWORK=off go test -mod=mod -modfile=/tmp/ogen-probe.mod ./prototypes/api-client/ogen/probe-nullable",
+  "cp prototypes/api-client/ogen/fixtures/required-nullable-runtime_test.go prototypes/api-client/ogen/probe-typespec-nullable-client/required_nullable_runtime_test.go",
   "GOWORK=off go test -mod=mod -modfile=/tmp/ogen-probe.mod ./prototypes/api-client/ogen/probe-typespec-nullable-client",
   "cp go.mod /tmp/ogen-prototype.mod && cp go.sum /tmp/ogen-prototype.sum && go mod edit -modfile=/tmp/ogen-prototype.mod -require=github.com/ogen-go/ogen@v1.25.0 && GOWORK=off go test -mod=mod -modfile=/tmp/ogen-prototype.mod ./prototypes/api-client/ogen ./prototypes/api-client/ogen-test ./prototypes/api-client/pool ./prototypes/api-client/process ./prototypes/api-client/program",
   "test \"$(cat prototypes/api-client/oapi-codegen/exit-code)\" -eq 0",

@@ -20,27 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - name: Resolve workspace ref
-        id: workspace-ref
-        shell: bash
-        env:
-          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
-        run: |
-          set -euo pipefail
-          ref="main"
-          if [[ -n "$BRANCH_NAME" ]]; then
-            remote_ref="$(git ls-remote --heads https://github.com/orglang/go-workspace.git "refs/heads/$BRANCH_NAME")"
-            if [[ -n "$remote_ref" ]]; then
-              ref="$BRANCH_NAME"
-            fi
-          fi
-          echo "Using orglang/go-workspace ref '$ref'."
-          echo "ref=$ref" >> "$GITHUB_OUTPUT"
-
       - name: Checkout workspace
         uses: actions/checkout@v6
         with:
-          ref: ${{ steps.workspace-ref.outputs.ref }}
+          ref: main
           repository: orglang/go-workspace
 
       - name: Checkout engine

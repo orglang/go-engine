@@ -27,7 +27,7 @@ jobs:
       - name: Set up mise
         uses: jdx/mise-action@v5
         with:
-          cache: false
+          cache: true
 
       - name: Verify dependencies
         run: mise run deps:check

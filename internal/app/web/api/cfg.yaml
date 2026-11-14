@@ -3,4 +3,4 @@ package: api
 generate:
   echo-server: true
   models: true
-output: api.gen.go
+output: internal/app/web/api/api.gen.go

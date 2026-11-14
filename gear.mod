@@ -6,6 +6,7 @@ require (
 	github.com/go-task/task/v3 v3.54.0
 	github.com/golangci/golangci-lint/v2 v2.15.0
 	github.com/jmattheis/goverter v1.11.1
+	github.com/oapi-codegen/oapi-codegen/v2 v2.8.2
 )
 
 require (
@@ -316,4 +317,5 @@ tool (
 	github.com/go-task/task/v3/cmd/task
 	github.com/golangci/golangci-lint/v2/cmd/golangci-lint
 	github.com/jmattheis/goverter/cmd/goverter
+	github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen
 )

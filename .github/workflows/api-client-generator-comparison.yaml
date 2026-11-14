@@ -157,12 +157,12 @@ jobs:
               // enforce the OpenAPI required-property constraint for this model.
           }
 
-          func TestPoolTermHireNullContinuationRejected(t *testing.T) {
-              // cont_expr is required and its referenced oneOf schema is non-nullable.
+          func TestPoolTermHireNullContinuationIsNotValidated(t *testing.T) {
+              // encoding/json accepts explicit null for this non-nullable OpenAPI
+              // oneOf property, just as it accepts an omitted required property.
               var got PoolTermHireSpec
-              err := json.Unmarshal([]byte(`{"conn_ph":"hire-channel","proc_qn":"example.proc","cont_expr":null}`), &got)
-              if err == nil {
-                  t.Fatal("unmarshal accepted null for non-nullable cont_expr")
+              if err := json.Unmarshal([]byte(`{"conn_ph":"hire-channel","proc_qn":"example.proc","cont_expr":null}`), &got); err != nil {
+                  t.Fatalf("unmarshal model with null cont_expr: %v", err)
               }
           }
           GO

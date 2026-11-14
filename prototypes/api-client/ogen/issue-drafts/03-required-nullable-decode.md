@@ -83,6 +83,23 @@ Both generated clients fail the explicit-null and nested-object-with-null cases.
 
 Therefore, this behavior is present in the unmodified v1.25.0 baseline and is not a regression introduced by the recursive-required-field prototype.
 
+## Prototype fix experiment
+
+The go-engine prototype now contains a local fix for this behavior:
+
+- recursive-field IR boxing detects null alternatives in `anyOf`, `oneOf`, and `allOf`, not only the schema-level `nullable` flag;
+- required nullable recursive fields are represented by a pointer with `NilNull` semantics;
+- the generated pointer decoder accepts an explicit JSON `null` while the required-field bitset still records that the property was present.
+
+On commit `2a3aa27c8539a0a797f241460dbed451009a16c4`, the isolated Ogen prototype validation workflow completed successfully. Its runtime comparison reports:
+
+```text
+unpatched runtime=fail
+patched runtime=pass
+```
+
+The patched runtime test covers all three expected cases above. The unmodified ogen v1.25.0 baseline continues to reject explicit null. This demonstrates the behavior is fixable in the local prototype; it does not change upstream ogen or imply that the upstream bug is fixed.
+
 ## Scope and suspected area
 
 This is a required/nullability decoding issue for OpenAPI 3.1 nullable unions represented as `anyOf: [object, null]`. The generated decoder appears to dispatch directly to the object decoder instead of accepting JSON `null` as the nullable alternative.

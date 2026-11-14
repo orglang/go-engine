@@ -8,6 +8,7 @@ on:
       - "prototypes/api-client/ogen/**"
       - "tsp/package.json"
       - "tsp/package-lock.json"
+      - "tsp/probes/**"
       - ".github/workflows/ogen-prototype.yml"
 
 permissions:

@@ -165,6 +165,80 @@ jobs:
                   t.Fatalf("unmarshal model with null cont_expr: %v", err)
               }
           }
+
+          func TestPoolTypeExprDiscriminatorRoundTrip(t *testing.T) {
+              input := []byte(`{"kind":"link","link":{"type_qn":"example.Type"}}`)
+              var got PoolTypeExprSpec
+              if err := json.Unmarshal(input, &got); err != nil {
+                  t.Fatalf("unmarshal pool type expression: %v", err)
+              }
+              kind, err := got.Discriminator()
+              if err != nil {
+                  t.Fatalf("read pool type discriminator: %v", err)
+              }
+              if kind != "link" {
+                  t.Fatalf("pool type discriminator = %q, want link", kind)
+              }
+              variant, err := got.AsPoolTypeLinkSpec()
+              if err != nil {
+                  t.Fatalf("decode Pool.Type.LinkSpec: %v", err)
+              }
+              if variant.Link.TypeQn != "example.Type" {
+                  t.Fatalf("link type_qn = %q, want example.Type", variant.Link.TypeQn)
+              }
+              encoded, err := json.Marshal(got)
+              if err != nil {
+                  t.Fatalf("marshal pool type expression: %v", err)
+              }
+              var wire map[string]json.RawMessage
+              if err := json.Unmarshal(encoded, &wire); err != nil {
+                  t.Fatalf("decode marshaled pool type expression: %v", err)
+              }
+              var roundTripKind string
+              if err := json.Unmarshal(wire["kind"], &roundTripKind); err != nil {
+                  t.Fatalf("decode marshaled discriminator: %v", err)
+              }
+              if roundTripKind != "link" {
+                  t.Fatalf("round-trip pool type discriminator = %q, want link", roundTripKind)
+              }
+          }
+
+          func TestProcTermExprDiscriminatorRoundTrip(t *testing.T) {
+              input := []byte(`{"kind":"close","conn_ph":"channel-1"}`)
+              var got ProcTermExprSpec
+              if err := json.Unmarshal(input, &got); err != nil {
+                  t.Fatalf("unmarshal process term expression: %v", err)
+              }
+              kind, err := got.Discriminator()
+              if err != nil {
+                  t.Fatalf("read process term discriminator: %v", err)
+              }
+              if kind != "close" {
+                  t.Fatalf("process term discriminator = %q, want close", kind)
+              }
+              variant, err := got.AsProcTermCloseSpec()
+              if err != nil {
+                  t.Fatalf("decode Proc.Term.CloseSpec: %v", err)
+              }
+              if variant.ConnPh != "channel-1" {
+                  t.Fatalf("close conn_ph = %q, want channel-1", variant.ConnPh)
+              }
+              encoded, err := json.Marshal(got)
+              if err != nil {
+                  t.Fatalf("marshal process term expression: %v", err)
+              }
+              var wire map[string]json.RawMessage
+              if err := json.Unmarshal(encoded, &wire); err != nil {
+                  t.Fatalf("decode marshaled process term expression: %v", err)
+              }
+              var roundTripKind string
+              if err := json.Unmarshal(wire["kind"], &roundTripKind); err != nil {
+                  t.Fatalf("decode marshaled discriminator: %v", err)
+              }
+              if roundTripKind != "close" {
+                  t.Fatalf("round-trip process term discriminator = %q, want close", roundTripKind)
+              }
+          }
           GO
       - name: Test generated oapi-codegen package
         working-directory: ${{ runner.temp }}

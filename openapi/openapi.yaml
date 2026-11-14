@@ -573,7 +573,6 @@ components:
       type: object
       required:
         - conn_ph
-        - cont_expr
       properties:
         conn_ph:
           type: string
@@ -583,7 +582,6 @@ components:
       type: object
       required:
         - conn_ph
-        - cont_expr
       properties:
         conn_ph:
           type: string
@@ -594,7 +592,6 @@ components:
       required:
         - conn_ph
         - proc_qn
-        - cont_expr
       properties:
         conn_ph:
           type: string
@@ -646,7 +643,6 @@ components:
       required:
         - conn_ph
         - proc_qn
-        - cont_expr
       properties:
         conn_ph:
           type: string

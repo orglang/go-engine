@@ -1,0 +1,19 @@
+diff --git a/gen/ir/recursion.go b/gen/ir/recursion.go
+index 128e8aac6dd05e71b8aeef30dce7e16dc8ae0e2a..0000000000000000000000000000000000000000 100644
+--- a/gen/ir/recursion.go
++++ b/gen/ir/recursion.go
+@@ -43,6 +43,11 @@ func (t *Type) recursive(target *Type, path *walkpath) bool {
+ 	case KindGeneric:
+ 		return t.recursive(target.GenericOf, path)
+ 	case KindStruct:
+ 		return slices.ContainsFunc(target.Fields, func(f *Field) (r bool) {
++			// Optional fields are represented through pointers. They break
++			// value-recursion and must not make an enclosing required field
++			// look recursive. The field currently being checked is still
++			// detected by the equality check above and will be pointer-boxed.
++			if f.Spec != nil && !f.Spec.Required {
++				return false
++			}
+ 			return t.recursive(f.Type, path)
+ 		})
+*** End Patch

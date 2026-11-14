@@ -18,7 +18,8 @@ The comparison input is the committed OpenAPI contract at `openapi/openapi.yaml`
 - Run #39 adds error-path coverage: an error returned by `WithRequestEditorFn` propagates and prevents the transport from running; a custom transport error propagates (verified with `errors.Is`); and malformed JSON in a modeled successful `201` response returns a decoding error. These tests exercise client behavior, not a typed API error schema.
 - Together with runs #36–39, the tested client behaviors now include JSON and text/plain request bodies, path parameter escaping, typed `201` success, empty `204`, raw body/status for an unmodeled `422`, custom transport, request editor success and failure, transport failure, malformed success JSON, and context cancellation. This remains focused test coverage, not a complete consumer integration or a comprehensive error contract.
 - The full-contract ogen baseline still fails with `schema name conflict: "PoolTermExpressionDefinitionSum"`; the green workflow records this expected failure and does not imply successful full-contract ogen generation. The filtered two-operation ogen diagnostic still generates and compiles.
-- Run #37 artifact sizes: full oapi-codegen output directory 224,588 bytes (generated `client.gen.go`: 206,559 bytes); filtered ogen diagnostic output directory 98,573 bytes. These remain incomparable because the generated scopes differ.
+- Run #39 artifact sizes: full oapi-codegen output directory 227,664 bytes (generated `client.gen.go`: 206,559 bytes); filtered ogen diagnostic output directory 98,573 bytes. These remain incomparable because the generated scopes differ.
+- Direct generated import surface: oapi-codegen uses the standard library plus `github.com/oapi-codegen/runtime`; the filtered ogen client imports `github.com/go-faster/errors`, three `github.com/ogen-go/ogen` packages, and five `go.opentelemetry.io/otel` packages. This is a direct-import observation only; a transitive module/size comparison has not yet been captured.
 
 ### ogen
 
@@ -84,9 +85,10 @@ The follow-up workflow run [#43592376123](https://github.com/orglang/go-engine/a
 - [x] Verify optional `rn` query serialization for a provided value and nil omission (CI run [#43596153549](https://github.com/orglang/go-engine/actions/runs/43596153549)).
 - [ ] Exercise the contract constructs that are actually present: recursive schemas, optional/nullable properties, enums, unions/discriminators, parameters, security (if declared), and response/error shapes.
 - [x] Exercise oapi-codegen transport injection, request editor, context cancellation, typed success, no-content success, and unmodeled error response behavior (runs [#43596671894](https://github.com/orglang/go-engine/actions/runs/43596671894) and [#43596829412](https://github.com/orglang/go-engine/actions/runs/43596829412)).
-- [ ] Build a small usage example against a representative existing consumer; current tests use a focused generated-client harness, not a production consumer.
+- [ ] Build a small usage example against a representative existing consumer; current tests use a focused generated-client harness, not a production consumer. The existing `internal/lib/e2e` adapters use `go-sdk` `RestySDK` implementations and SDK domain DTOs, while `tsp/README.md` explicitly says the target OpenAPI models are not claimed to be wire-compatible with current SDK DTOs. A direct substitution would therefore be misleading until an adapter/mapping boundary is defined (likely in the subsequent go-sdk integration stage).
 - [x] Record generated output sizes, with an explicit warning that the full oapi-codegen output and filtered ogen diagnostic are not comparable (run [#43596829412](https://github.com/orglang/go-engine/actions/runs/43596829412)).
-- [ ] Compare dependency footprint and generated-code readability on equivalent scopes.
+- [x] Record direct generated import surfaces: oapi-codegen uses `github.com/oapi-codegen/runtime`; the filtered ogen client also imports ogen support packages and OpenTelemetry packages.
+- [ ] Compare transitive dependency footprint and generated-code readability on equivalent scopes.
 - [ ] Make a final selection with explicit trade-offs. If ogen is selected, document the upstream issue dependencies and the temporary policy for pinned patches.
 
 ## Provisional direction

@@ -569,6 +569,7 @@ components:
           $ref: '#/components/schemas/Any.CompRef'
         pool_expr:
           $ref: '#/components/schemas/Pool.Term.ExprSpec'
+          x-ogen-name: PoolStepTermExpression
     Pool.Term.AcceptSpec:
       type: object
       required:
@@ -610,7 +611,7 @@ components:
         conn_ph:
           type: string
     Pool.Term.ExprSpec:
-      x-ogen-name: PoolTermExpression
+      x-ogen-name: PoolTermExpressionDefinition
       type: object
       oneOf:
         - $ref: '#/components/schemas/Pool.Term.HireSpec'

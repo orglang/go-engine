@@ -61,7 +61,7 @@ jobs:
         uses: jdx/mise-action@v5
         with:
           working_directory: engine
-          cache: false
+          cache: true
 
       - name: Install tools and dependencies
         working-directory: engine

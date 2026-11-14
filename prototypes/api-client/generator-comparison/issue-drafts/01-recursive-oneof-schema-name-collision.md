@@ -77,9 +77,9 @@ The `next` property is intentionally optional. Making it required exercises a se
 Save the document as `recursive-oneof.yaml` and run:
 
 ```sh
-go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \\
-  --target /tmp/ogen-recursive-oneof \\
-  --package probe \\
+go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
+  --target /tmp/ogen-recursive-oneof \
+  --package probe \
   --clean recursive-oneof.yaml
 ```
 

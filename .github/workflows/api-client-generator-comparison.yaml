@@ -97,6 +97,11 @@ jobs:
             > "$RUNNER_TEMP/oapi-codegen.yaml"
           go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.8.2 \
             -config "$RUNNER_TEMP/oapi-codegen.yaml" openapi/openapi.yaml
+      - name: Test generated oapi-codegen package
+        working-directory: ${{ runner.temp }}
+        run: |
+          go get ./oapi-codegen
+          go test ./oapi-codegen/...
       - name: Record generated output sizes
         if: always()
         run: |

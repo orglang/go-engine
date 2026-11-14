@@ -1,6 +1,6 @@
 --- a/gen/schema_gen.go
 +++ b/gen/schema_gen.go
-@@ -220,6 +220,29 @@
+@@ -220,3 +220,29 @@
  		return g.regtype(name, t), nil
  	}
  
@@ -31,10 +31,7 @@
 +		})
 +	}
 +
- 	if schema.DefaultSet {
-@@ -367,12 +390,15 @@
- 		}
- 
+@@ -367,7 +393,10 @@
 -		s := g.regtype(name, &ir.Type{
 -			Kind:                kind,
 -			Name:                name,

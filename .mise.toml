@@ -1,19 +1,6 @@
 [tools]
 node = "22"
 
-[tasks.generate]
-description = "Generate all derived repository artifacts"
-run = [
-  "go mod tidy",
-  "task gear:sum",
-  "task sources:generate",
-  "mise lock",
-  "npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund",
-  "npm ci --prefix tsp --no-audit --no-fund",
-  "task specs:generate",
-  "task api:generate",
-]
-
 [tasks."deps:lock"]
 description = "Tidy Go modules and update mise and npm lockfiles"
 run = [

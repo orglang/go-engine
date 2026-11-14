@@ -1,14 +1,12 @@
-# Bug: optional fields are incorrectly considered when detecting recursive Go value types
+## Description
 
-## Summary
+The recursion detector reports infinite recursion for a required property even when the recursive path is broken by an optional property.
 
-`ogen` v1.25.0 may report an infinite-recursion error for a required field even when the apparent cycle is broken by an optional field.
+Optional object properties are represented by pointer-like optional wrappers in generated Go types. Such a property breaks Go value recursion and must not be followed as a value edge when checking whether a type is recursively embedded by value.
 
-Optional object properties are represented as pointers in generated Go code. A pointer edge breaks Go value recursion, so recursion detection must not traverse through an optional property when deciding whether an enclosing required field needs pointer boxing.
+## OpenAPI specification
 
-## Minimal OpenAPI 3.1 reproduction
-
-Save as `optional-edge.yaml`:
+The following OpenAPI 3.1 document reproduces the problem:
 
 ```yaml
 openapi: 3.1.0
@@ -26,8 +24,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/A'
-        default:
-          description: Error
 components:
   schemas:
     A:
@@ -49,11 +45,17 @@ components:
           $ref: '#/components/schemas/B'
 ```
 
-The graph is `A --required--> B --optional--> C --required--> B`. The optional `B.c` property is a pointer boundary, so `A.b` does not create an infinite Go value-recursion chain.
+The relevant graph is:
 
-## Reproduction
+```text
+A --required--> B --optional--> C --required--> B
+```
 
-With ogen v1.25.0, run:
+The optional `B.c` edge breaks the Go value-recursion cycle.
+
+## Steps to reproduce
+
+Save the document as `optional-edge.yaml` and run:
 
 ```sh
 go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
@@ -62,34 +64,20 @@ go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
   --clean optional-edge.yaml
 ```
 
-Expected: generation succeeds.
+## Expected behavior
 
-Actual: generation reports an error similar to:
+Code generation succeeds. The generated Go types are finite because the optional property provides an indirection in the recursive path.
+
+## Actual behavior
+
+Code generation fails with an infinite-recursion error similar to:
 
 ```text
 infinite recursion: A.b is required
 ```
 
-## Proposed fix
+## Suspected cause
 
-In `gen/ir/recursion.go`, skip optional struct fields while walking the target type's fields:
+The recursion detection for struct types traverses all fields without excluding optional fields. It therefore treats an optional pointer-like edge as a Go value edge and reports a cycle that cannot cause infinite value recursion.
 
-```go
-case KindStruct:
-    return slices.ContainsFunc(target.Fields, func(f *Field) (r bool) {
-        // Optional fields are represented through pointers and break
-        // value-recursion.
-        if f.Spec != nil && !f.Spec.Required {
-            return false
-        }
-        return t.recursive(f.Type, path)
-    })
-```
-
-This is the first hunk in the prototype patch:
-
-[0001-ignore-optional-recursion-edges.patch](../patches/0001-ignore-optional-recursion-edges.patch)
-
-## Scope
-
-This is distinct from required-to-required recursion. It concerns a false positive caused by traversing an optional edge. The separate required-recursion case is documented in [02-required-recursive-fields.md](02-required-recursive-fields.md).
+The recursion detector should skip optional struct fields when searching for recursive value paths.

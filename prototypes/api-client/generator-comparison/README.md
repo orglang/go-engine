@@ -31,6 +31,12 @@ The comparison input is the committed OpenAPI contract at `openapi/openapi.yaml`
 
 **Current assessment:** no conclusion yet. Do not treat the absence of a recorded failure as evidence that oapi-codegen passes.
 
+## Reproducible generation baseline
+
+The workflow `.github/workflows/api-client-generator-comparison.yaml` runs both pinned generators against the same committed `openapi/openapi.yaml` and records that input's SHA-256 checksum. It preserves the unmodified ogen generation log (including its expected required-recursion failure) and the generated oapi-codegen output as a workflow artifact. The oapi-codegen settings are committed in `oapi-codegen.yaml`.
+
+This first automation stage is intentionally a **generation baseline**, not a completed client comparison: it does not yet establish compile/runtime parity, integration ergonomics, or a final choice. Those checks remain required below. A successful workflow only means oapi-codegen generated output and the baseline artifacts were collected; it does not imply the generated client is correct.
+
 ## Comparison matrix
 
 | Criterion from workspace issue #114 | ogen v1.25.0 | oapi-codegen |

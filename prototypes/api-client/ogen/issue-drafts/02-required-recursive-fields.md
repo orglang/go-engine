@@ -82,6 +82,26 @@ The corresponding second hunk is in:
 
 [0001-ignore-optional-recursion-edges.patch](../patches/0001-ignore-optional-recursion-edges.patch)
 
+## Nullable control experiment
+
+A separate fixture is available at
+[`fixtures/required-nullable-cycle.yaml`](../fixtures/required-nullable-cycle.yaml).
+It keeps the recursive edge required, but makes the referenced object schema
+nullable using OpenAPI 3.1's `type: [object, "null"]`.
+
+This is a control experiment, not a proposed schema change. It should be run
+alongside the non-nullable reproduction with the same ogen version and patch
+state. Compare whether generation succeeds and, if it does, whether the
+generated decoder distinguishes:
+- a missing required property;
+- an explicitly `null` property (allowed by this nullable schema);
+- a non-null recursive object.
+
+**Status: exploratory — do not file this as a bug yet.** The nullable fixture
+has been added, but its generation and runtime validation behavior have not
+yet been executed. In particular, the proposed `ir.Pointer(t, ir.NilInvalid)`
+change still needs verification against ogen's actual decode/encode semantics.
+
 ## Scope
 
 This is distinct from false-positive recursion through optional properties. The optional-edge case is documented in [01-optional-edge-recursion-detection.md](01-optional-edge-recursion-detection.md).

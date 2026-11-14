@@ -22,6 +22,6 @@ run = [
   "test \"$(cat prototypes/api-client/ogen/exit-code)\" -eq 0",
   "test \"$(cat prototypes/api-client/ogen/probe-optional.exit-code)\" -eq 0",
   "test \"$(cat prototypes/api-client/ogen/probe-required.exit-code)\" -eq 0",
-  "GOWORK=off go test ./prototypes/api-client/ogen",
+  "cp go.mod /tmp/ogen-prototype.mod && cp go.sum /tmp/ogen-prototype.sum && go mod edit -modfile=/tmp/ogen-prototype.mod -require=github.com/ogen-go/ogen@v1.24.0 && GOWORK=off go test -mod=mod -modfile=/tmp/ogen-prototype.mod ./prototypes/api-client/ogen",
   "test \"$(cat prototypes/api-client/oapi-codegen/exit-code)\" -eq 0",
 ]

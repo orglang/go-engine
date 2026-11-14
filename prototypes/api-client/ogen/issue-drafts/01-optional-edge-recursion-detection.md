@@ -80,4 +80,6 @@ infinite recursion: A.b is required
 
 The recursion detection for struct types traverses all fields without excluding optional fields. It therefore treats an optional pointer-like edge as a Go value edge and reports a cycle that cannot cause infinite value recursion.
 
-The recursion detector should skip optional struct fields when searching for recursive value paths.
+## Proposed change
+
+Exclude optional struct fields from the value-recursion graph. Their generated representation already provides indirection, so they cannot create infinite recursion through Go struct values. Continue traversing required fields so that cycles consisting entirely of value fields are still detected.

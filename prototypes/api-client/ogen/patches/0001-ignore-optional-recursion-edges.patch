@@ -18,11 +18,13 @@ diff --git a/gen/ir/recursion.go b/gen/ir/recursion.go
 
 diff --git a/gen/generics.go b/gen/generics.go
 --- a/gen/generics.go
-@@ -16,4 +16,14 @@
++++ b/gen/generics.go
+@@ -16,4 +16,15 @@ func checkStructRecursions(s *ir.Type) error {
 -		v := ir.GenericVariant{
 -			Nullable: field.Spec.Schema.Nullable,
 -			Optional: !field.Spec.Required,
 -		}
++		// Recursive nullable unions retain their null branch.
 +		nullable := field.Spec.Schema.Nullable
 +		for _, variant := range field.Spec.Schema.AnyOf {
 +			nullable = nullable || variant.Nullable
@@ -37,9 +39,7 @@ diff --git a/gen/generics.go b/gen/generics.go
 +			Nullable: nullable,
 +			Optional: !field.Spec.Required,
 +		}
-+
-+++ b/gen/generics.go
-@@ -40,3 +50,14 @@
+@@ -40,3 +51,14 @@ func checkStructRecursions(s *ir.Type) error {
 -				default:
 -					// Required.
 -					return nil, errors.Errorf("infinite recursion: %s.%s is required", s.Name, field.Name)
@@ -61,7 +61,7 @@ diff --git a/gen/generics.go b/gen/generics.go
 diff --git a/gen/_template/json/decode.tmpl b/gen/_template/json/decode.tmpl
 --- a/gen/_template/json/decode.tmpl
 +++ b/gen/_template/json/decode.tmpl
-@@ -3,6 +3,20 @@
+@@ -3,6 +3,21 @@
  {{- define "json/dec_pointer" }}
 +{{- if $.Type.NilSemantic.Null }}
 +switch tt := d.Next(); tt {

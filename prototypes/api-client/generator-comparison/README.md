@@ -13,7 +13,7 @@ The comparison input is the committed OpenAPI contract at `openapi/openapi.yaml`
 ### ogen
 
 - Prototype version: `ogen v1.25.0`.
-- The real contract contains recursive expression schemas. On the current contract, unmodified ogen reports an `infinite recursion` error for required recursive fields.
+- The full contract contains recursive expression schemas. In the first full-contract baseline run, unmodified ogen v1.25.0 stopped earlier with a generated schema-name collision (`PoolTermExprSpecSum`) while processing `/api/v1/pools/executions/spawns`; it did **not** reach a conclusive full-contract recursion result. The separate scoped recursion experiments remain valid evidence for their tested Pool.Term shapes, but must not be conflated with the full-contract run.
 - Isolated experiments against the actual `Pool.Term` request schemas demonstrated two possible recursion-handling changes:
   - skip optional fields when detecting value-recursion, because their generated Go representation is indirect;
   - add pointer indirection for required recursive fields, preserving the OpenAPI `required` contract.
@@ -33,16 +33,16 @@ The comparison input is the committed OpenAPI contract at `openapi/openapi.yaml`
 
 ## Reproducible generation baseline
 
-The workflow `.github/workflows/api-client-generator-comparison.yaml` runs both pinned generators against the same committed `openapi/openapi.yaml` and records that input's SHA-256 checksum. It preserves the unmodified ogen generation log (including its expected required-recursion failure) and the generated oapi-codegen output as a workflow artifact. The oapi-codegen settings are committed in `oapi-codegen.yaml`.
+The workflow `.github/workflows/api-client-generator-comparison.yaml` runs both pinned generators against the same committed `openapi/openapi.yaml` and records that input's SHA-256 checksum. The first full-contract run (artifact from run [#43591782147](https://github.com/orglang/go-engine/actions/runs/43591782147)) recorded ogen v1.25.0 failing with a schema-name collision (`PoolTermExprSpecSum`) and oapi-codegen v2.4.1 generating output with an OpenAPI 3.1 support warning. The committed config now pins oapi-codegen v2.8.2, which adds initial OpenAPI 3.1 support; its result is pending. The workflow preserves logs and generated outputs as an artifact.
 
-This first automation stage is intentionally a **generation baseline**, not a completed client comparison: it does not yet establish compile/runtime parity, integration ergonomics, or a final choice. Those checks remain required below. A successful workflow only means oapi-codegen generated output and the baseline artifacts were collected; it does not imply the generated client is correct.
+This first automation stage is intentionally a **generation baseline**, not a completed client comparison: it does not yet establish compile/runtime parity, integration ergonomics, or a final choice. Those checks remain required below. A successful generation job only means both generator processes ran and artifacts were collected; it does not imply the generated clients compile or behave correctly.
 
 ## Comparison matrix
 
 | Criterion from workspace issue #114 | ogen v1.25.0 | oapi-codegen |
 | --- | --- | --- |
-| Same real OpenAPI input | Used in isolated recursion experiments (scoped to the affected Pool.Term operations) | Not yet run |
-| Request/response schemas and operations | Full-contract generation is blocked by required recursion without a generator change | Not yet run |
+| Same real OpenAPI input | Full-contract baseline attempted; stopped at `PoolTermExprSpecSum` name collision. Scoped recursion experiments separately passed | v2.4.1 generated; warned about unsupported OpenAPI 3.1. v2.8.2 run pending |
+| Request/response schemas and operations | Full-contract generation blocked by schema-name collision; recursive behavior still requires isolated evaluation | v2.4.1 generated client; full v2.8.2 evaluation pending |
 | Optional vs nullable fields | Tested for the four Pool.Term continuation fields in isolated experiments; required nullable behavior has a separate control experiment | Not yet run |
 | Enums and oneOf/discriminators | Present in the contract; full-contract output still needs review after recursion handling | Not yet run |
 | Auth/security schemes and parameters | Must be inventoried against the actual contract and verified in generated client API | Not yet run |
@@ -55,7 +55,7 @@ This first automation stage is intentionally a **generation baseline**, not a co
 
 ## Required work to finish PR 3
 
-- [ ] Pin both generator versions and generate clients from the exact same `openapi/openapi.yaml`.
+- [x] Pin generator versions and run a first full-contract generation baseline against the exact same `openapi/openapi.yaml` (ogen v1.25.0; oapi-codegen v2.4.1). The current OpenAPI 3.1-capable oapi-codegen v2.8.2 run is pending.
 - [ ] Keep generated outputs and configuration isolated; do not migrate consumers.
 - [ ] Record generation success/failure and any required workarounds for each generator.
 - [ ] Compile both generated clients and add representative request/response tests using deterministic local fixtures.

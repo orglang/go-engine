@@ -35,6 +35,33 @@ jobs:
           cat "$RUNNER_TEMP/ogen.log"
           # A failure is currently expected: required recursive schemas are a known
           # blocker in the unmodified pinned ogen release. Preserve the log as evidence.
+      - name: Isolate POST /api/v1/pools/types
+        id: ogen_pool_types_post
+        shell: bash
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          import yaml
+
+          spec = yaml.safe_load(Path("openapi/openapi.yaml").read_text())
+          path = "/api/v1/pools/types"
+          operation = spec.get("paths", {}).get(path, {}).get("post")
+          if operation is None:
+              raise SystemExit(f"missing expected operation: POST {path}")
+          spec["paths"] = {path: {"post": operation}}
+          Path(os.environ["RUNNER_TEMP"], "openapi-pool-types-post-only.yaml").write_text(
+              yaml.safe_dump(spec, sort_keys=False)
+          )
+          PY
+          set +e
+          go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
+            --target "$RUNNER_TEMP/ogen-pool-types-post-only" -package api --clean "$RUNNER_TEMP/openapi-pool-types-post-only.yaml" \
+            > "$RUNNER_TEMP/ogen-pool-types-post-only.log" 2>&1
+          status=$?
+          printf "exit_code=%s\\n" "$status" | tee "$RUNNER_TEMP/ogen-pool-types-post-only.exit"
+          cat "$RUNNER_TEMP/ogen-pool-types-post-only.log"
       - name: Diagnose Pool.StepSpec operation references
         id: ogen_without_pool_steps
         shell: bash
@@ -706,6 +733,9 @@ jobs:
           cp "$RUNNER_TEMP/ogen-no-recursion.exit" "$RUNNER_TEMP/comparison/" || true
           cp "$RUNNER_TEMP/ogen-without-pool-steps.log" "$RUNNER_TEMP/comparison/" || true
           cp "$RUNNER_TEMP/ogen-without-pool-steps.exit" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/ogen-pool-types-post-only.log" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/ogen-pool-types-post-only.exit" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/openapi-pool-types-post-only.yaml" "$RUNNER_TEMP/comparison/" || true
           cp "$RUNNER_TEMP/openapi-without-pool-steps.yaml" "$RUNNER_TEMP/comparison/" || true
           cp "$RUNNER_TEMP/openapi-no-recursion.yaml" "$RUNNER_TEMP/comparison/" || true
           if [ -d "$RUNNER_TEMP/ogen-no-recursion" ]; then

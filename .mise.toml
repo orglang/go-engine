@@ -9,6 +9,7 @@ run = [
   { task = "generate:mise-lock" },
   { task = "generate:npm-lock" },
   { task = "generate:openapi" },
+  { task = "generate:echo-server" },
 ]
 
 [tasks."generate:go-sum"]
@@ -34,3 +35,7 @@ run = [
   "npm ci --prefix tsp --no-audit --no-fund",
   "task specs:generate",
 ]
+
+[tasks."generate:echo-server"]
+description = "Generate the Echo HTTP server from OpenAPI"
+run = "task api:generate"

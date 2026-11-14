@@ -6,6 +6,8 @@ on:
     paths:
       - ".mise.toml"
       - "prototypes/api-client/ogen/**"
+      - "tsp/package.json"
+      - "tsp/package-lock.json"
       - ".github/workflows/ogen-prototype.yml"
 
 permissions:
@@ -27,6 +29,9 @@ jobs:
         uses: jdx/mise-action@v3
         with:
           install: true
+
+      - name: Install TypeSpec script dependencies
+        run: npm ci --prefix tsp
 
       - name: Run isolated ogen prototype validation
         run: mise run generate:api-client-prototypes

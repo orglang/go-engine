@@ -49,3 +49,5 @@ jobs:
             prototypes/api-client/ogen/probe-*.log
             prototypes/api-client/ogen/probe-*.exit-code
             prototypes/api-client/ogen/probe-summary.txt
+            prototypes/api-client/ogen/probe-typespec-nullable/openapi.yaml
+            prototypes/api-client/ogen/probe-typespec-nullable-client/**

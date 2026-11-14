@@ -105,3 +105,12 @@ ogen remains the leading candidate because its generator model and the successfu
 ## Scope
 
 This is generator evaluation only. It does not add the maintained generated client to `orglang/go-sdk`, change server adapters, or migrate consumers. Those belong to PRs 4 and 7 in workspace issue #114.
+
+
+### Pool.Term spawn recursion isolation — comparison run #53
+
+- Commit: [181b7ee](https://github.com/orglang/go-engine/commit/181b7eeb54768c5550bbe38dae0e104f683dd604); [CI run #43598707737](https://github.com/orglang/go-engine/actions/runs/43598707737) (#53) completed successfully. All workflow steps passed, including the three generated ogen package compile checks, the full-contract oapi-codegen test suite, and artifact upload [#14115605720](https://github.com/orglang/go-engine/actions/runs/43598707737/artifacts/14115605720).
+- The new isolated diagnostic keeps only `POST /api/v1/pools/executions/spawns` and removes the four recursive `cont_expr` edges from `Pool.Term.HireSpec`, `ApplySpec`, `AcquireSpec`, and `AcceptSpec`. ogen v1.25.0 generates this altered package successfully (`exit_code=0`); `go test ./ogen-spawn-no-recursion/...` passes (the generated package compiles; it contains no test files).
+- The companion two-operation Pool execution diagnostic with the same four edges removed also generates successfully and compiles. The separate Pool.Type diagnostic still succeeds with its recursive edges removed. Their corresponding controls with recursive edges intact still fail: the full baseline reports `PoolTermExpressionDefinitionSum`, while isolated `POST /api/v1/pools/types` and the contract without Pool Step operations report `PoolTypeExprSpecSum`.
+- This adds evidence that the Pool.Term collision is associated with recursive Pool.Term schema edges, just as the isolated Pool.Type collision is associated with recursive Pool.Type edges. It does not establish that every recursive schema is unsupported, identify a production-safe schema transformation, or make either filtered package equivalent to the original contract. The successful packages are diagnostic artifacts only; no recursive fields were present in the altered schemas.
+- The workflow fix in this commit also separates the three `go test` commands into actual YAML lines. The previous CI failure was a malformed shell command caused by a literal `\\n`, not a generator or Go compilation failure.

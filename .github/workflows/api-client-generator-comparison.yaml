@@ -1,0 +1,69 @@
+name: API client generator comparison
+
+on:
+  pull_request:
+    paths:
+      - "openapi/**"
+      - "prototypes/api-client/generator-comparison/**"
+      - ".github/workflows/api-client-generator-comparison.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.27.0"
+          cache: false
+      - name: Record input checksum
+        run: sha256sum openapi/openapi.yaml | tee "$RUNNER_TEMP/openapi.sha256"
+      - name: Generate with ogen v1.25.0 (baseline)
+        id: ogen
+        shell: bash
+        run: |
+          set +e
+          go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
+            --target "$RUNNER_TEMP/ogen" -package api --clean openapi/openapi.yaml \
+            > "$RUNNER_TEMP/ogen.log" 2>&1
+          status=$?
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          cat "$RUNNER_TEMP/ogen.log"
+          # A failure is currently expected: required recursive schemas are a known
+          # blocker in the unmodified pinned ogen release. Preserve the log as evidence.
+      - name: Generate with oapi-codegen v2.4.1
+        run: |
+          mkdir -p "$RUNNER_TEMP/oapi-codegen"
+          cat > "$RUNNER_TEMP/oapi-codegen.yaml" <<EOF
+          package: api
+          output: $RUNNER_TEMP/oapi-codegen/client.gen.go
+          generate:
+            client: true
+            models: true
+          EOF
+          go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.4.1 \
+            -config "$RUNNER_TEMP/oapi-codegen.yaml" openapi/openapi.yaml
+      - name: Record generated output sizes
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/comparison"
+          cp "$RUNNER_TEMP/openapi.sha256" "$RUNNER_TEMP/comparison/"
+          cp "$RUNNER_TEMP/ogen.log" "$RUNNER_TEMP/comparison/" || true
+          if [ -d "$RUNNER_TEMP/ogen" ]; then
+            du -sb "$RUNNER_TEMP/ogen" | tee "$RUNNER_TEMP/comparison/ogen-size.txt"
+            cp -R "$RUNNER_TEMP/ogen" "$RUNNER_TEMP/comparison/ogen"
+          fi
+          if [ -d "$RUNNER_TEMP/oapi-codegen" ]; then
+            du -sb "$RUNNER_TEMP/oapi-codegen" | tee "$RUNNER_TEMP/comparison/oapi-codegen-size.txt"
+            cp -R "$RUNNER_TEMP/oapi-codegen" "$RUNNER_TEMP/comparison/oapi-codegen"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: api-client-generator-comparison
+          path: ${{ runner.temp }}/comparison/
+          if-no-files-found: error

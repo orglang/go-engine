@@ -35,13 +35,13 @@ jobs:
           cat "$RUNNER_TEMP/ogen.log"
           # A failure is currently expected: required recursive schemas are a known
           # blocker in the unmodified pinned ogen release. Preserve the log as evidence.
-      - name: Generate with oapi-codegen v2.4.1
+      - name: Generate with oapi-codegen v2.8.2
         run: |
           mkdir -p "$RUNNER_TEMP/oapi-codegen"
           sed "s|output: client.gen.go|output: $RUNNER_TEMP/oapi-codegen/client.gen.go|" \
             prototypes/api-client/generator-comparison/oapi-codegen.yaml \
             > "$RUNNER_TEMP/oapi-codegen.yaml"
-          go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.4.1 \
+          go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.8.2 \
             -config "$RUNNER_TEMP/oapi-codegen.yaml" openapi/openapi.yaml
       - name: Record generated output sizes
         if: always()

@@ -1,0 +1,60 @@
+name: Ogen required cont_expr pointer-boxing experiment
+
+on:
+  push:
+    branches:
+      - experiment/ogen-cont-expr-required-pointer-boxing
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: "1.27.x"
+      - uses: jdx/mise-action@v3
+        with:
+          install: true
+      - uses: go-task/setup-task@v1
+        with:
+          version: 3.x
+      - name: Install TypeSpec dependencies
+        run: npm ci --prefix tsp
+      - name: Regenerate required OpenAPI from TypeSpec
+        run: task specs:generate
+      - name: Normalize OpenAPI for ogen
+        run: node tsp/scripts/normalize-openapi-for-ogen.mjs openapi/openapi.yaml /tmp/openapi-ogen-required.yaml
+      - name: Confirm unmodified ogen rejects the recursive schema
+        run: |
+          if GOMODCACHE=/tmp/ogen-required-unpatched GOWORK=off go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
+            --config prototypes/api-client/ogen.yml \
+            --target /tmp/ogen-required-unpatched-client \
+            --package ogenclient --clean /tmp/openapi-ogen-required.yaml > /tmp/ogen-required-unpatched.log 2>&1; then
+            echo "Expected unmodified ogen to reject the recursive schema"
+            exit 1
+          fi
+          grep -q "infinite recursion" /tmp/ogen-required-unpatched.log
+          cat /tmp/ogen-required-unpatched.log
+      - name: Apply isolated required-pointer-boxing patch
+        run: |
+          GOMODCACHE=/tmp/ogen-required-gomodcache GOWORK=off go mod download github.com/ogen-go/ogen@v1.25.0
+          ogen_dir="/tmp/ogen-required-gomodcache/github.com/ogen-go/ogen@v1.25.0"
+          chmod -R u+w "$ogen_dir/gen"
+          patch -d "$ogen_dir" -p1 < prototypes/api-client/ogen/patches/0001-required-recursion-pointer-boxing.patch
+      - name: Generate client with pointer-boxing ogen v1.25.0
+        run: |
+          GOMODCACHE=/tmp/ogen-required-gomodcache GOWORK=off go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
+            --config prototypes/api-client/ogen.yml \
+            --target prototypes/api-client/ogen-required-experiment/generated \
+            --package ogenclient --clean /tmp/openapi-ogen-required.yaml
+      - name: Compile and test required JSON contract
+        run: |
+          cp prototypes/api-client/ogen/pool_term_required_cont_expr_test.go prototypes/api-client/ogen-required-experiment/generated/
+          cp go.mod /tmp/ogen-required.mod
+          cp go.sum /tmp/ogen-required.sum
+          go mod edit -modfile=/tmp/ogen-required.mod -require=github.com/ogen-go/ogen@v1.25.0
+          GOWORK=off go test -mod=mod -modfile=/tmp/ogen-required.mod ./prototypes/api-client/ogen-required-experiment/generated

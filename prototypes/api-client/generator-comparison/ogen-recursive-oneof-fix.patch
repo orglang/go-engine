@@ -45,4 +45,13 @@
 +				DenyAdditionalProps: denyAdditionalProps,
 +			})
 +		}
- 		s.Validators.SetObject(schema)
+--- a/gen/generics.go
++++ b/gen/generics.go
+@@ -39,8 +39,9 @@
+ 				default:
+-					// Required.
+-					return nil, errors.Errorf("infinite recursion: %s.%s is required", s.Name, field.Name)
++					// Required recursive fields still need indirection in Go's type graph.
++					// Required-property presence must remain enforced by JSON decoding.
++					return ir.Pointer(t, ir.NilNull), nil
+ 				}

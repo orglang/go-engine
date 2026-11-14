@@ -306,190 +306,6 @@ func (o OptPoolTermExprSpec) Or(d PoolTermExprSpec) PoolTermExprSpec {
 	return d
 }
 
-// NewOptPoolTypeExprSpec returns new OptPoolTypeExprSpec with value set to v.
-func NewOptPoolTypeExprSpec(v PoolTypeExprSpec) OptPoolTypeExprSpec {
-	return OptPoolTypeExprSpec{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptPoolTypeExprSpec is optional PoolTypeExprSpec.
-type OptPoolTypeExprSpec struct {
-	Value PoolTypeExprSpec
-	Set   bool
-}
-
-// IsSet returns true if OptPoolTypeExprSpec was set.
-func (o OptPoolTypeExprSpec) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptPoolTypeExprSpec) Reset() {
-	var v PoolTypeExprSpec
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptPoolTypeExprSpec) SetTo(v PoolTypeExprSpec) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptPoolTypeExprSpec) Get() (v PoolTypeExprSpec, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptPoolTypeExprSpec) Or(d PoolTypeExprSpec) PoolTypeExprSpec {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptProcTermExprSpec returns new OptProcTermExprSpec with value set to v.
-func NewOptProcTermExprSpec(v ProcTermExprSpec) OptProcTermExprSpec {
-	return OptProcTermExprSpec{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptProcTermExprSpec is optional ProcTermExprSpec.
-type OptProcTermExprSpec struct {
-	Value ProcTermExprSpec
-	Set   bool
-}
-
-// IsSet returns true if OptProcTermExprSpec was set.
-func (o OptProcTermExprSpec) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptProcTermExprSpec) Reset() {
-	var v ProcTermExprSpec
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptProcTermExprSpec) SetTo(v ProcTermExprSpec) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptProcTermExprSpec) Get() (v ProcTermExprSpec, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptProcTermExprSpec) Or(d ProcTermExprSpec) ProcTermExprSpec {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptProcTypeDefSpec returns new OptProcTypeDefSpec with value set to v.
-func NewOptProcTypeDefSpec(v ProcTypeDefSpec) OptProcTypeDefSpec {
-	return OptProcTypeDefSpec{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptProcTypeDefSpec is optional ProcTypeDefSpec.
-type OptProcTypeDefSpec struct {
-	Value ProcTypeDefSpec
-	Set   bool
-}
-
-// IsSet returns true if OptProcTypeDefSpec was set.
-func (o OptProcTypeDefSpec) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptProcTypeDefSpec) Reset() {
-	var v ProcTypeDefSpec
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptProcTypeDefSpec) SetTo(v ProcTypeDefSpec) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptProcTypeDefSpec) Get() (v ProcTypeDefSpec, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptProcTypeDefSpec) Or(d ProcTypeDefSpec) ProcTypeDefSpec {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptProcTypeExprSpec returns new OptProcTypeExprSpec with value set to v.
-func NewOptProcTypeExprSpec(v ProcTypeExprSpec) OptProcTypeExprSpec {
-	return OptProcTypeExprSpec{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptProcTypeExprSpec is optional ProcTypeExprSpec.
-type OptProcTypeExprSpec struct {
-	Value ProcTypeExprSpec
-	Set   bool
-}
-
-// IsSet returns true if OptProcTypeExprSpec was set.
-func (o OptProcTypeExprSpec) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptProcTypeExprSpec) Reset() {
-	var v ProcTypeExprSpec
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptProcTypeExprSpec) SetTo(v ProcTypeExprSpec) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptProcTypeExprSpec) Get() (v ProcTypeExprSpec, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptProcTypeExprSpec) Or(d ProcTypeExprSpec) ProcTypeExprSpec {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // Ref: #/components/schemas/Pool.DecSnap
 type PoolDecSnap struct {
 	Ref  AnyTermRef  `json:"ref"`
@@ -555,8 +371,8 @@ func (s *PoolDecSpec) SetAssetVars(val []AnyConnVarSpec) {
 
 // Ref: #/components/schemas/Pool.StepSpec
 type PoolStepSpec struct {
-	CompRef  AnyCompRef          `json:"comp_ref"`
-	PoolExpr OptPoolTermExprSpec `json:"pool_expr"`
+	CompRef  AnyCompRef       `json:"comp_ref"`
+	PoolExpr PoolTermExprSpec `json:"pool_expr"`
 }
 
 // GetCompRef returns the value of CompRef.
@@ -565,7 +381,7 @@ func (s *PoolStepSpec) GetCompRef() AnyCompRef {
 }
 
 // GetPoolExpr returns the value of PoolExpr.
-func (s *PoolStepSpec) GetPoolExpr() OptPoolTermExprSpec {
+func (s *PoolStepSpec) GetPoolExpr() PoolTermExprSpec {
 	return s.PoolExpr
 }
 
@@ -575,7 +391,7 @@ func (s *PoolStepSpec) SetCompRef(val AnyCompRef) {
 }
 
 // SetPoolExpr sets the value of PoolExpr.
-func (s *PoolStepSpec) SetPoolExpr(val OptPoolTermExprSpec) {
+func (s *PoolStepSpec) SetPoolExpr(val PoolTermExprSpec) {
 	s.PoolExpr = val
 }
 
@@ -1072,8 +888,8 @@ func (s *PoolTermSpawnSpec) SetProcIrs(val []AnyCompRef) {
 
 // Ref: #/components/schemas/Pool.Type.DefSnap
 type PoolTypeDefSnap struct {
-	Ref  AnyTypeRef          `json:"ref"`
-	Expr OptPoolTypeExprSpec `json:"expr"`
+	Ref  AnyTypeRef        `json:"ref"`
+	Expr *PoolTypeExprSpec `json:"expr"`
 }
 
 // GetRef returns the value of Ref.
@@ -1082,7 +898,7 @@ func (s *PoolTypeDefSnap) GetRef() AnyTypeRef {
 }
 
 // GetExpr returns the value of Expr.
-func (s *PoolTypeDefSnap) GetExpr() OptPoolTypeExprSpec {
+func (s *PoolTypeDefSnap) GetExpr() *PoolTypeExprSpec {
 	return s.Expr
 }
 
@@ -1092,14 +908,14 @@ func (s *PoolTypeDefSnap) SetRef(val AnyTypeRef) {
 }
 
 // SetExpr sets the value of Expr.
-func (s *PoolTypeDefSnap) SetExpr(val OptPoolTypeExprSpec) {
+func (s *PoolTypeDefSnap) SetExpr(val *PoolTypeExprSpec) {
 	s.Expr = val
 }
 
 // Ref: #/components/schemas/Pool.Type.DefSpec
 type PoolTypeDefSpec struct {
-	Qn   string              `json:"qn"`
-	Expr OptPoolTypeExprSpec `json:"expr"`
+	Qn   string            `json:"qn"`
+	Expr *PoolTypeExprSpec `json:"expr"`
 }
 
 // GetQn returns the value of Qn.
@@ -1108,7 +924,7 @@ func (s *PoolTypeDefSpec) GetQn() string {
 }
 
 // GetExpr returns the value of Expr.
-func (s *PoolTypeDefSpec) GetExpr() OptPoolTypeExprSpec {
+func (s *PoolTypeDefSpec) GetExpr() *PoolTypeExprSpec {
 	return s.Expr
 }
 
@@ -1118,7 +934,7 @@ func (s *PoolTypeDefSpec) SetQn(val string) {
 }
 
 // SetExpr sets the value of Expr.
-func (s *PoolTypeDefSpec) SetExpr(val OptPoolTypeExprSpec) {
+func (s *PoolTypeDefSpec) SetExpr(val *PoolTypeExprSpec) {
 	s.Expr = val
 }
 
@@ -1590,23 +1406,23 @@ func (s *ProcDecSpec) SetAssetVars(val []AnyConnVarSpec) {
 
 // Ref: #/components/schemas/Proc.StepSpec
 type ProcStepSpec struct {
-	ProcExpr OptProcTermExprSpec `json:"proc_expr"`
+	ProcExpr *ProcTermExprSpec `json:"proc_expr"`
 }
 
 // GetProcExpr returns the value of ProcExpr.
-func (s *ProcStepSpec) GetProcExpr() OptProcTermExprSpec {
+func (s *ProcStepSpec) GetProcExpr() *ProcTermExprSpec {
 	return s.ProcExpr
 }
 
 // SetProcExpr sets the value of ProcExpr.
-func (s *ProcStepSpec) SetProcExpr(val OptProcTermExprSpec) {
+func (s *ProcStepSpec) SetProcExpr(val *ProcTermExprSpec) {
 	s.ProcExpr = val
 }
 
 // Ref: #/components/schemas/Proc.Term.BranchSpec
 type ProcTermBranchSpec struct {
-	PatternQn string              `json:"pattern_qn"`
-	ContExpr  OptProcTermExprSpec `json:"cont_expr"`
+	PatternQn string            `json:"pattern_qn"`
+	ContExpr  *ProcTermExprSpec `json:"cont_expr"`
 }
 
 // GetPatternQn returns the value of PatternQn.
@@ -1615,7 +1431,7 @@ func (s *ProcTermBranchSpec) GetPatternQn() string {
 }
 
 // GetContExpr returns the value of ContExpr.
-func (s *ProcTermBranchSpec) GetContExpr() OptProcTermExprSpec {
+func (s *ProcTermBranchSpec) GetContExpr() *ProcTermExprSpec {
 	return s.ContExpr
 }
 
@@ -1625,7 +1441,7 @@ func (s *ProcTermBranchSpec) SetPatternQn(val string) {
 }
 
 // SetContExpr sets the value of ContExpr.
-func (s *ProcTermBranchSpec) SetContExpr(val OptProcTermExprSpec) {
+func (s *ProcTermBranchSpec) SetContExpr(val *ProcTermExprSpec) {
 	s.ContExpr = val
 }
 
@@ -2162,8 +1978,8 @@ func (s *ProcTermWaitSpec) SetContExpr(val *ProcTermExprSpec) {
 
 // Ref: #/components/schemas/Proc.Type.ChoiceSpec
 type ProcTypeChoiceSpec struct {
-	LabQn    string              `json:"lab_qn"`
-	ContExpr OptProcTypeExprSpec `json:"cont_expr"`
+	LabQn    string            `json:"lab_qn"`
+	ContExpr *ProcTypeExprSpec `json:"cont_expr"`
 }
 
 // GetLabQn returns the value of LabQn.
@@ -2172,7 +1988,7 @@ func (s *ProcTypeChoiceSpec) GetLabQn() string {
 }
 
 // GetContExpr returns the value of ContExpr.
-func (s *ProcTypeChoiceSpec) GetContExpr() OptProcTypeExprSpec {
+func (s *ProcTypeChoiceSpec) GetContExpr() *ProcTypeExprSpec {
 	return s.ContExpr
 }
 
@@ -2182,14 +1998,14 @@ func (s *ProcTypeChoiceSpec) SetLabQn(val string) {
 }
 
 // SetContExpr sets the value of ContExpr.
-func (s *ProcTypeChoiceSpec) SetContExpr(val OptProcTypeExprSpec) {
+func (s *ProcTypeChoiceSpec) SetContExpr(val *ProcTypeExprSpec) {
 	s.ContExpr = val
 }
 
 // Ref: #/components/schemas/Proc.Type.DefSnap
 type ProcTypeDefSnap struct {
-	Ref  AnyTypeRef         `json:"ref"`
-	Spec OptProcTypeDefSpec `json:"spec"`
+	Ref  AnyTypeRef       `json:"ref"`
+	Spec *ProcTypeDefSpec `json:"spec"`
 }
 
 // GetRef returns the value of Ref.
@@ -2198,7 +2014,7 @@ func (s *ProcTypeDefSnap) GetRef() AnyTypeRef {
 }
 
 // GetSpec returns the value of Spec.
-func (s *ProcTypeDefSnap) GetSpec() OptProcTypeDefSpec {
+func (s *ProcTypeDefSnap) GetSpec() *ProcTypeDefSpec {
 	return s.Spec
 }
 
@@ -2208,14 +2024,14 @@ func (s *ProcTypeDefSnap) SetRef(val AnyTypeRef) {
 }
 
 // SetSpec sets the value of Spec.
-func (s *ProcTypeDefSnap) SetSpec(val OptProcTypeDefSpec) {
+func (s *ProcTypeDefSnap) SetSpec(val *ProcTypeDefSpec) {
 	s.Spec = val
 }
 
 // Ref: #/components/schemas/Proc.Type.DefSpec
 type ProcTypeDefSpec struct {
-	TypeQn   string              `json:"type_qn"`
-	TypeExpr OptProcTypeExprSpec `json:"type_expr"`
+	TypeQn   string            `json:"type_qn"`
+	TypeExpr *ProcTypeExprSpec `json:"type_expr"`
 }
 
 // GetTypeQn returns the value of TypeQn.
@@ -2224,7 +2040,7 @@ func (s *ProcTypeDefSpec) GetTypeQn() string {
 }
 
 // GetTypeExpr returns the value of TypeExpr.
-func (s *ProcTypeDefSpec) GetTypeExpr() OptProcTypeExprSpec {
+func (s *ProcTypeDefSpec) GetTypeExpr() *ProcTypeExprSpec {
 	return s.TypeExpr
 }
 
@@ -2234,7 +2050,7 @@ func (s *ProcTypeDefSpec) SetTypeQn(val string) {
 }
 
 // SetTypeExpr sets the value of TypeExpr.
-func (s *ProcTypeDefSpec) SetTypeExpr(val OptProcTypeExprSpec) {
+func (s *ProcTypeDefSpec) SetTypeExpr(val *ProcTypeExprSpec) {
 	s.TypeExpr = val
 }
 

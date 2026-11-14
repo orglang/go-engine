@@ -843,138 +843,6 @@ func (s *OptPoolTermExprSpec) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode encodes PoolTypeExprSpec as json.
-func (o OptPoolTypeExprSpec) Encode(e *jx.Encoder) {
-	if !o.Set {
-		return
-	}
-	o.Value.Encode(e)
-}
-
-// Decode decodes PoolTypeExprSpec from json.
-func (o *OptPoolTypeExprSpec) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode OptPoolTypeExprSpec to nil")
-	}
-	o.Set = true
-	if err := o.Value.Decode(d); err != nil {
-		return err
-	}
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s OptPoolTypeExprSpec) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *OptPoolTypeExprSpec) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ProcTermExprSpec as json.
-func (o OptProcTermExprSpec) Encode(e *jx.Encoder) {
-	if !o.Set {
-		return
-	}
-	o.Value.Encode(e)
-}
-
-// Decode decodes ProcTermExprSpec from json.
-func (o *OptProcTermExprSpec) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode OptProcTermExprSpec to nil")
-	}
-	o.Set = true
-	if err := o.Value.Decode(d); err != nil {
-		return err
-	}
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s OptProcTermExprSpec) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *OptProcTermExprSpec) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ProcTypeDefSpec as json.
-func (o OptProcTypeDefSpec) Encode(e *jx.Encoder) {
-	if !o.Set {
-		return
-	}
-	o.Value.Encode(e)
-}
-
-// Decode decodes ProcTypeDefSpec from json.
-func (o *OptProcTypeDefSpec) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode OptProcTypeDefSpec to nil")
-	}
-	o.Set = true
-	if err := o.Value.Decode(d); err != nil {
-		return err
-	}
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s OptProcTypeDefSpec) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *OptProcTypeDefSpec) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ProcTypeExprSpec as json.
-func (o OptProcTypeExprSpec) Encode(e *jx.Encoder) {
-	if !o.Set {
-		return
-	}
-	o.Value.Encode(e)
-}
-
-// Decode decodes ProcTypeExprSpec from json.
-func (o *OptProcTypeExprSpec) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode OptProcTypeExprSpec to nil")
-	}
-	o.Set = true
-	if err := o.Value.Decode(d); err != nil {
-		return err
-	}
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s OptProcTypeExprSpec) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *OptProcTypeExprSpec) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
 // Encode implements json.Marshaler.
 func (s *PoolDecSnap) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -1236,10 +1104,8 @@ func (s *PoolStepSpec) encodeFields(e *jx.Encoder) {
 		s.CompRef.Encode(e)
 	}
 	{
-		if s.PoolExpr.Set {
-			e.FieldStart("pool_expr")
-			s.PoolExpr.Encode(e)
-		}
+		e.FieldStart("pool_expr")
+		s.PoolExpr.Encode(e)
 	}
 }
 
@@ -1268,8 +1134,8 @@ func (s *PoolStepSpec) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"comp_ref\"")
 			}
 		case "pool_expr":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				s.PoolExpr.Reset()
 				if err := s.PoolExpr.Decode(d); err != nil {
 					return err
 				}
@@ -1287,7 +1153,7 @@ func (s *PoolStepSpec) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000001,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -2628,7 +2494,7 @@ func (s *PoolTypeDefSnap) encodeFields(e *jx.Encoder) {
 		s.Ref.Encode(e)
 	}
 	{
-		if s.Expr.Set {
+		if s.Expr != nil {
 			e.FieldStart("expr")
 			s.Expr.Encode(e)
 		}
@@ -2660,11 +2526,14 @@ func (s *PoolTypeDefSnap) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"ref\"")
 			}
 		case "expr":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				s.Expr.Reset()
-				if err := s.Expr.Decode(d); err != nil {
+				s.Expr = nil
+				var elem PoolTypeExprSpec
+				if err := elem.Decode(d); err != nil {
 					return err
 				}
+				s.Expr = &elem
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"expr\"")
@@ -2679,7 +2548,7 @@ func (s *PoolTypeDefSnap) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000001,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -2739,7 +2608,7 @@ func (s *PoolTypeDefSpec) encodeFields(e *jx.Encoder) {
 		e.Str(s.Qn)
 	}
 	{
-		if s.Expr.Set {
+		if s.Expr != nil {
 			e.FieldStart("expr")
 			s.Expr.Encode(e)
 		}
@@ -2773,11 +2642,14 @@ func (s *PoolTypeDefSpec) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"qn\"")
 			}
 		case "expr":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				s.Expr.Reset()
-				if err := s.Expr.Decode(d); err != nil {
+				s.Expr = nil
+				var elem PoolTypeExprSpec
+				if err := elem.Decode(d); err != nil {
 					return err
 				}
+				s.Expr = &elem
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"expr\"")
@@ -2792,7 +2664,7 @@ func (s *PoolTypeDefSpec) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000001,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -2864,10 +2736,12 @@ func (s *PoolTypeDownSpec) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode PoolTypeDownSpec to nil")
 	}
+	var requiredBitSet [1]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
 		case "cont_expr":
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				s.ContExpr = nil
 				var elem PoolTypeExprSpec
@@ -2885,6 +2759,38 @@ func (s *PoolTypeDownSpec) Decode(d *jx.Decoder) error {
 		return nil
 	}); err != nil {
 		return errors.Wrap(err, "decode PoolTypeDownSpec")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000001,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfPoolTypeDownSpec) {
+					name = jsonFieldsNameOfPoolTypeDownSpec[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
 	}
 
 	return nil
@@ -3267,10 +3173,12 @@ func (s *PoolTypeLolliSpec) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode PoolTypeLolliSpec to nil")
 	}
+	var requiredBitSet [1]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
 		case "val_expr":
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				s.ValExpr = nil
 				var elem PoolTypeExprSpec
@@ -3283,6 +3191,7 @@ func (s *PoolTypeLolliSpec) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"val_expr\"")
 			}
 		case "cont_expr":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				s.ContExpr = nil
 				var elem PoolTypeExprSpec
@@ -3300,6 +3209,38 @@ func (s *PoolTypeLolliSpec) Decode(d *jx.Decoder) error {
 		return nil
 	}); err != nil {
 		return errors.Wrap(err, "decode PoolTypeLolliSpec")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000011,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfPoolTypeLolliSpec) {
+					name = jsonFieldsNameOfPoolTypeLolliSpec[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
 	}
 
 	return nil
@@ -3422,6 +3363,7 @@ func (s *PoolTypePlusSpec) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"proc_qns\"")
 			}
 		case "cont_expr":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				s.ContExpr = nil
 				var elem PoolTypeExprSpec
@@ -3443,7 +3385,7 @@ func (s *PoolTypePlusSpec) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000001,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -3522,10 +3464,12 @@ func (s *PoolTypeTensorSpec) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode PoolTypeTensorSpec to nil")
 	}
+	var requiredBitSet [1]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
 		case "val_expr":
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				s.ValExpr = nil
 				var elem PoolTypeExprSpec
@@ -3538,6 +3482,7 @@ func (s *PoolTypeTensorSpec) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"val_expr\"")
 			}
 		case "cont_expr":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				s.ContExpr = nil
 				var elem PoolTypeExprSpec
@@ -3555,6 +3500,38 @@ func (s *PoolTypeTensorSpec) Decode(d *jx.Decoder) error {
 		return nil
 	}); err != nil {
 		return errors.Wrap(err, "decode PoolTypeTensorSpec")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000011,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfPoolTypeTensorSpec) {
+					name = jsonFieldsNameOfPoolTypeTensorSpec[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
 	}
 
 	return nil
@@ -3599,10 +3576,12 @@ func (s *PoolTypeUpSpec) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode PoolTypeUpSpec to nil")
 	}
+	var requiredBitSet [1]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
 		case "cont_expr":
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				s.ContExpr = nil
 				var elem PoolTypeExprSpec
@@ -3620,6 +3599,38 @@ func (s *PoolTypeUpSpec) Decode(d *jx.Decoder) error {
 		return nil
 	}); err != nil {
 		return errors.Wrap(err, "decode PoolTypeUpSpec")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000001,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfPoolTypeUpSpec) {
+					name = jsonFieldsNameOfPoolTypeUpSpec[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
 	}
 
 	return nil
@@ -3698,6 +3709,7 @@ func (s *PoolTypeWithSpec) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"proc_qns\"")
 			}
 		case "cont_expr":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				s.ContExpr = nil
 				var elem PoolTypeExprSpec
@@ -3719,7 +3731,7 @@ func (s *PoolTypeWithSpec) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000001,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -4116,7 +4128,7 @@ func (s *ProcStepSpec) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *ProcStepSpec) encodeFields(e *jx.Encoder) {
 	{
-		if s.ProcExpr.Set {
+		if s.ProcExpr != nil {
 			e.FieldStart("proc_expr")
 			s.ProcExpr.Encode(e)
 		}
@@ -4132,15 +4144,19 @@ func (s *ProcStepSpec) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode ProcStepSpec to nil")
 	}
+	var requiredBitSet [1]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
 		case "proc_expr":
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.ProcExpr.Reset()
-				if err := s.ProcExpr.Decode(d); err != nil {
+				s.ProcExpr = nil
+				var elem ProcTermExprSpec
+				if err := elem.Decode(d); err != nil {
 					return err
 				}
+				s.ProcExpr = &elem
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"proc_expr\"")
@@ -4151,6 +4167,38 @@ func (s *ProcStepSpec) Decode(d *jx.Decoder) error {
 		return nil
 	}); err != nil {
 		return errors.Wrap(err, "decode ProcStepSpec")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000001,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfProcStepSpec) {
+					name = jsonFieldsNameOfProcStepSpec[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
 	}
 
 	return nil
@@ -4183,7 +4231,7 @@ func (s *ProcTermBranchSpec) encodeFields(e *jx.Encoder) {
 		e.Str(s.PatternQn)
 	}
 	{
-		if s.ContExpr.Set {
+		if s.ContExpr != nil {
 			e.FieldStart("cont_expr")
 			s.ContExpr.Encode(e)
 		}
@@ -4217,11 +4265,14 @@ func (s *ProcTermBranchSpec) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"pattern_qn\"")
 			}
 		case "cont_expr":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				s.ContExpr.Reset()
-				if err := s.ContExpr.Decode(d); err != nil {
+				s.ContExpr = nil
+				var elem ProcTermExprSpec
+				if err := elem.Decode(d); err != nil {
 					return err
 				}
+				s.ContExpr = &elem
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"cont_expr\"")
@@ -4236,7 +4287,7 @@ func (s *ProcTermBranchSpec) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000001,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -4376,6 +4427,7 @@ func (s *ProcTermCallSpec) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"val_phs\"")
 			}
 		case "cont_expr":
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				s.ContExpr = nil
 				var elem ProcTermExprSpec
@@ -4397,7 +4449,7 @@ func (s *ProcTermCallSpec) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000111,
+		0b00001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -5382,6 +5434,7 @@ func (s *ProcTermRecvSpec) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"bind_ph\"")
 			}
 		case "cont_expr":
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
 				s.ContExpr = nil
 				var elem ProcTermExprSpec
@@ -5403,7 +5456,7 @@ func (s *ProcTermRecvSpec) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000011,
+		0b00000111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -5610,6 +5663,7 @@ func (s *ProcTermWaitSpec) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"conn_ph\"")
 			}
 		case "cont_expr":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				s.ContExpr = nil
 				var elem ProcTermExprSpec
@@ -5631,7 +5685,7 @@ func (s *ProcTermWaitSpec) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000001,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -5691,7 +5745,7 @@ func (s *ProcTypeChoiceSpec) encodeFields(e *jx.Encoder) {
 		e.Str(s.LabQn)
 	}
 	{
-		if s.ContExpr.Set {
+		if s.ContExpr != nil {
 			e.FieldStart("cont_expr")
 			s.ContExpr.Encode(e)
 		}
@@ -5725,11 +5779,14 @@ func (s *ProcTypeChoiceSpec) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"lab_qn\"")
 			}
 		case "cont_expr":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				s.ContExpr.Reset()
-				if err := s.ContExpr.Decode(d); err != nil {
+				s.ContExpr = nil
+				var elem ProcTypeExprSpec
+				if err := elem.Decode(d); err != nil {
 					return err
 				}
+				s.ContExpr = &elem
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"cont_expr\"")
@@ -5744,7 +5801,7 @@ func (s *ProcTypeChoiceSpec) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000001,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -5804,7 +5861,7 @@ func (s *ProcTypeDefSnap) encodeFields(e *jx.Encoder) {
 		s.Ref.Encode(e)
 	}
 	{
-		if s.Spec.Set {
+		if s.Spec != nil {
 			e.FieldStart("spec")
 			s.Spec.Encode(e)
 		}
@@ -5836,11 +5893,14 @@ func (s *ProcTypeDefSnap) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"ref\"")
 			}
 		case "spec":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				s.Spec.Reset()
-				if err := s.Spec.Decode(d); err != nil {
+				s.Spec = nil
+				var elem ProcTypeDefSpec
+				if err := elem.Decode(d); err != nil {
 					return err
 				}
+				s.Spec = &elem
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"spec\"")
@@ -5855,7 +5915,7 @@ func (s *ProcTypeDefSnap) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000001,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -5915,7 +5975,7 @@ func (s *ProcTypeDefSpec) encodeFields(e *jx.Encoder) {
 		e.Str(s.TypeQn)
 	}
 	{
-		if s.TypeExpr.Set {
+		if s.TypeExpr != nil {
 			e.FieldStart("type_expr")
 			s.TypeExpr.Encode(e)
 		}
@@ -5949,11 +6009,14 @@ func (s *ProcTypeDefSpec) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"type_qn\"")
 			}
 		case "type_expr":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				s.TypeExpr.Reset()
-				if err := s.TypeExpr.Decode(d); err != nil {
+				s.TypeExpr = nil
+				var elem ProcTypeExprSpec
+				if err := elem.Decode(d); err != nil {
 					return err
 				}
+				s.TypeExpr = &elem
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"type_expr\"")
@@ -5968,7 +6031,7 @@ func (s *ProcTypeDefSpec) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000001,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -6040,10 +6103,12 @@ func (s *ProcTypeDownSpec) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode ProcTypeDownSpec to nil")
 	}
+	var requiredBitSet [1]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
 		case "cont_expr":
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				s.ContExpr = nil
 				var elem ProcTypeExprSpec
@@ -6061,6 +6126,38 @@ func (s *ProcTypeDownSpec) Decode(d *jx.Decoder) error {
 		return nil
 	}); err != nil {
 		return errors.Wrap(err, "decode ProcTypeDownSpec")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000001,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfProcTypeDownSpec) {
+					name = jsonFieldsNameOfProcTypeDownSpec[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
 	}
 
 	return nil
@@ -6431,10 +6528,12 @@ func (s *ProcTypeLolliSpec) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode ProcTypeLolliSpec to nil")
 	}
+	var requiredBitSet [1]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
 		case "val_expr":
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				s.ValExpr = nil
 				var elem ProcTypeExprSpec
@@ -6447,6 +6546,7 @@ func (s *ProcTypeLolliSpec) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"val_expr\"")
 			}
 		case "cont_expr":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				s.ContExpr = nil
 				var elem ProcTypeExprSpec
@@ -6464,6 +6564,38 @@ func (s *ProcTypeLolliSpec) Decode(d *jx.Decoder) error {
 		return nil
 	}); err != nil {
 		return errors.Wrap(err, "decode ProcTypeLolliSpec")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000011,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfProcTypeLolliSpec) {
+					name = jsonFieldsNameOfProcTypeLolliSpec[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
 	}
 
 	return nil
@@ -6665,10 +6797,12 @@ func (s *ProcTypeTensorSpec) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode ProcTypeTensorSpec to nil")
 	}
+	var requiredBitSet [1]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
 		case "val_expr":
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				s.ValExpr = nil
 				var elem ProcTypeExprSpec
@@ -6681,6 +6815,7 @@ func (s *ProcTypeTensorSpec) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"val_expr\"")
 			}
 		case "cont_expr":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				s.ContExpr = nil
 				var elem ProcTypeExprSpec
@@ -6698,6 +6833,38 @@ func (s *ProcTypeTensorSpec) Decode(d *jx.Decoder) error {
 		return nil
 	}); err != nil {
 		return errors.Wrap(err, "decode ProcTypeTensorSpec")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000011,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfProcTypeTensorSpec) {
+					name = jsonFieldsNameOfProcTypeTensorSpec[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
 	}
 
 	return nil
@@ -6742,10 +6909,12 @@ func (s *ProcTypeUpSpec) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode ProcTypeUpSpec to nil")
 	}
+	var requiredBitSet [1]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
 		case "cont_expr":
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				s.ContExpr = nil
 				var elem ProcTypeExprSpec
@@ -6763,6 +6932,38 @@ func (s *ProcTypeUpSpec) Decode(d *jx.Decoder) error {
 		return nil
 	}); err != nil {
 		return errors.Wrap(err, "decode ProcTypeUpSpec")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000001,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfProcTypeUpSpec) {
+					name = jsonFieldsNameOfProcTypeUpSpec[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
 	}
 
 	return nil

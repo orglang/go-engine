@@ -85,15 +85,8 @@ func (s *PoolStepSpec) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
-		if value, ok := s.PoolExpr.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
+		if err := s.PoolExpr.Validate(); err != nil {
+			return err
 		}
 		return nil
 	}(); err != nil {
@@ -302,15 +295,19 @@ func (s *PoolTypeDefSnap) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
-		if value, ok := s.Expr.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
+		if s.Expr == nil {
+			return errors.New("nil is invalid value")
+		}
+		if s.Expr == nil {
+			return nil // invalid
+		}
+		if err := func() error {
+			if err := s.Expr.Validate(); err != nil {
 				return err
 			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "pointer")
 		}
 		return nil
 	}(); err != nil {
@@ -332,15 +329,19 @@ func (s *PoolTypeDefSpec) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
-		if value, ok := s.Expr.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
+		if s.Expr == nil {
+			return errors.New("nil is invalid value")
+		}
+		if s.Expr == nil {
+			return nil // invalid
+		}
+		if err := func() error {
+			if err := s.Expr.Validate(); err != nil {
 				return err
 			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "pointer")
 		}
 		return nil
 	}(); err != nil {
@@ -363,7 +364,10 @@ func (s *PoolTypeDownSpec) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if s.ContExpr == nil {
-			return nil // optional
+			return errors.New("nil is invalid value")
+		}
+		if s.ContExpr == nil {
+			return nil // invalid
 		}
 		if err := func() error {
 			if err := s.ContExpr.Validate(); err != nil {
@@ -435,7 +439,10 @@ func (s *PoolTypeLolliSpec) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if s.ValExpr == nil {
-			return nil // optional
+			return errors.New("nil is invalid value")
+		}
+		if s.ValExpr == nil {
+			return nil // invalid
 		}
 		if err := func() error {
 			if err := s.ValExpr.Validate(); err != nil {
@@ -454,7 +461,10 @@ func (s *PoolTypeLolliSpec) Validate() error {
 	}
 	if err := func() error {
 		if s.ContExpr == nil {
-			return nil // optional
+			return errors.New("nil is invalid value")
+		}
+		if s.ContExpr == nil {
+			return nil // invalid
 		}
 		if err := func() error {
 			if err := s.ContExpr.Validate(); err != nil {
@@ -496,7 +506,10 @@ func (s *PoolTypePlusSpec) Validate() error {
 	}
 	if err := func() error {
 		if s.ContExpr == nil {
-			return nil // optional
+			return errors.New("nil is invalid value")
+		}
+		if s.ContExpr == nil {
+			return nil // invalid
 		}
 		if err := func() error {
 			if err := s.ContExpr.Validate(); err != nil {
@@ -527,7 +540,10 @@ func (s *PoolTypeTensorSpec) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if s.ValExpr == nil {
-			return nil // optional
+			return errors.New("nil is invalid value")
+		}
+		if s.ValExpr == nil {
+			return nil // invalid
 		}
 		if err := func() error {
 			if err := s.ValExpr.Validate(); err != nil {
@@ -546,7 +562,10 @@ func (s *PoolTypeTensorSpec) Validate() error {
 	}
 	if err := func() error {
 		if s.ContExpr == nil {
-			return nil // optional
+			return errors.New("nil is invalid value")
+		}
+		if s.ContExpr == nil {
+			return nil // invalid
 		}
 		if err := func() error {
 			if err := s.ContExpr.Validate(); err != nil {
@@ -577,7 +596,10 @@ func (s *PoolTypeUpSpec) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if s.ContExpr == nil {
-			return nil // optional
+			return errors.New("nil is invalid value")
+		}
+		if s.ContExpr == nil {
+			return nil // invalid
 		}
 		if err := func() error {
 			if err := s.ContExpr.Validate(); err != nil {
@@ -619,7 +641,10 @@ func (s *PoolTypeWithSpec) Validate() error {
 	}
 	if err := func() error {
 		if s.ContExpr == nil {
-			return nil // optional
+			return errors.New("nil is invalid value")
+		}
+		if s.ContExpr == nil {
+			return nil // invalid
 		}
 		if err := func() error {
 			if err := s.ContExpr.Validate(); err != nil {
@@ -695,15 +720,19 @@ func (s *ProcStepSpec) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
-		if value, ok := s.ProcExpr.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
+		if s.ProcExpr == nil {
+			return errors.New("nil is invalid value")
+		}
+		if s.ProcExpr == nil {
+			return nil // invalid
+		}
+		if err := func() error {
+			if err := s.ProcExpr.Validate(); err != nil {
 				return err
 			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "pointer")
 		}
 		return nil
 	}(); err != nil {
@@ -725,15 +754,19 @@ func (s *ProcTermBranchSpec) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
-		if value, ok := s.ContExpr.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
+		if s.ContExpr == nil {
+			return errors.New("nil is invalid value")
+		}
+		if s.ContExpr == nil {
+			return nil // invalid
+		}
+		if err := func() error {
+			if err := s.ContExpr.Validate(); err != nil {
 				return err
 			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "pointer")
 		}
 		return nil
 	}(); err != nil {
@@ -767,7 +800,10 @@ func (s *ProcTermCallSpec) Validate() error {
 	}
 	if err := func() error {
 		if s.ContExpr == nil {
-			return nil // optional
+			return errors.New("nil is invalid value")
+		}
+		if s.ContExpr == nil {
+			return nil // invalid
 		}
 		if err := func() error {
 			if err := s.ContExpr.Validate(); err != nil {
@@ -901,7 +937,10 @@ func (s *ProcTermRecvSpec) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if s.ContExpr == nil {
-			return nil // optional
+			return errors.New("nil is invalid value")
+		}
+		if s.ContExpr == nil {
+			return nil // invalid
 		}
 		if err := func() error {
 			if err := s.ContExpr.Validate(); err != nil {
@@ -932,7 +971,10 @@ func (s *ProcTermWaitSpec) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if s.ContExpr == nil {
-			return nil // optional
+			return errors.New("nil is invalid value")
+		}
+		if s.ContExpr == nil {
+			return nil // invalid
 		}
 		if err := func() error {
 			if err := s.ContExpr.Validate(); err != nil {
@@ -962,15 +1004,19 @@ func (s *ProcTypeChoiceSpec) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
-		if value, ok := s.ContExpr.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
+		if s.ContExpr == nil {
+			return errors.New("nil is invalid value")
+		}
+		if s.ContExpr == nil {
+			return nil // invalid
+		}
+		if err := func() error {
+			if err := s.ContExpr.Validate(); err != nil {
 				return err
 			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "pointer")
 		}
 		return nil
 	}(); err != nil {
@@ -992,15 +1038,19 @@ func (s *ProcTypeDefSnap) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
-		if value, ok := s.Spec.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
+		if s.Spec == nil {
+			return errors.New("nil is invalid value")
+		}
+		if s.Spec == nil {
+			return nil // invalid
+		}
+		if err := func() error {
+			if err := s.Spec.Validate(); err != nil {
 				return err
 			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "pointer")
 		}
 		return nil
 	}(); err != nil {
@@ -1022,15 +1072,19 @@ func (s *ProcTypeDefSpec) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
-		if value, ok := s.TypeExpr.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
+		if s.TypeExpr == nil {
+			return errors.New("nil is invalid value")
+		}
+		if s.TypeExpr == nil {
+			return nil // invalid
+		}
+		if err := func() error {
+			if err := s.TypeExpr.Validate(); err != nil {
 				return err
 			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "pointer")
 		}
 		return nil
 	}(); err != nil {
@@ -1053,7 +1107,10 @@ func (s *ProcTypeDownSpec) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if s.ContExpr == nil {
-			return nil // optional
+			return errors.New("nil is invalid value")
+		}
+		if s.ContExpr == nil {
+			return nil // invalid
 		}
 		if err := func() error {
 			if err := s.ContExpr.Validate(); err != nil {
@@ -1125,7 +1182,10 @@ func (s *ProcTypeLolliSpec) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if s.ValExpr == nil {
-			return nil // optional
+			return errors.New("nil is invalid value")
+		}
+		if s.ValExpr == nil {
+			return nil // invalid
 		}
 		if err := func() error {
 			if err := s.ValExpr.Validate(); err != nil {
@@ -1144,7 +1204,10 @@ func (s *ProcTypeLolliSpec) Validate() error {
 	}
 	if err := func() error {
 		if s.ContExpr == nil {
-			return nil // optional
+			return errors.New("nil is invalid value")
+		}
+		if s.ContExpr == nil {
+			return nil // invalid
 		}
 		if err := func() error {
 			if err := s.ContExpr.Validate(); err != nil {
@@ -1215,7 +1278,10 @@ func (s *ProcTypeTensorSpec) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if s.ValExpr == nil {
-			return nil // optional
+			return errors.New("nil is invalid value")
+		}
+		if s.ValExpr == nil {
+			return nil // invalid
 		}
 		if err := func() error {
 			if err := s.ValExpr.Validate(); err != nil {
@@ -1234,7 +1300,10 @@ func (s *ProcTypeTensorSpec) Validate() error {
 	}
 	if err := func() error {
 		if s.ContExpr == nil {
-			return nil // optional
+			return errors.New("nil is invalid value")
+		}
+		if s.ContExpr == nil {
+			return nil // invalid
 		}
 		if err := func() error {
 			if err := s.ContExpr.Validate(); err != nil {
@@ -1265,7 +1334,10 @@ func (s *ProcTypeUpSpec) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if s.ContExpr == nil {
-			return nil // optional
+			return errors.New("nil is invalid value")
+		}
+		if s.ContExpr == nil {
+			return nil // invalid
 		}
 		if err := func() error {
 			if err := s.ContExpr.Validate(); err != nil {

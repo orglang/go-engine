@@ -39,7 +39,7 @@ diff --git a/gen/generics.go b/gen/generics.go
 +		}
 +
 +++ b/gen/generics.go
-@@ -40,3 +40,14 @@
+@@ -40,3 +50,14 @@
 -				default:
 -					// Required.
 -					return nil, errors.Errorf("infinite recursion: %s.%s is required", s.Name, field.Name)

@@ -1,4 +1,4 @@
-name: Sources Check
+name: Sources Verify
 
 on:
   # Keep the default-branch Go cache warm for reuse by pull request workflows.

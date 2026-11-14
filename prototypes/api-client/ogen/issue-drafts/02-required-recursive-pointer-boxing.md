@@ -142,6 +142,8 @@ A regression test should verify both generated type finiteness and JSON behavior
 
 ## Relation to #1790
 
+The required-recursion proposal is now tracked upstream in [#1792](https://github.com/ogen-go/ogen/issues/1792).
+
 This is related to, but distinct from, [#1790](https://github.com/ogen-go/ogen/issues/1790) (optional fields should break value-recursion cycles).
 
 - **#1790:** the recursive path contains an optional property. Because that property is represented through indirection, it should break value-recursion during cycle detection.

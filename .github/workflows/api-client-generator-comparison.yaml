@@ -194,8 +194,9 @@ jobs:
         working-directory: ${{ runner.temp }}
         run: |
           go mod init example.com/ogen-recursion-diagnostic
-          go get ./ogen-no-recursion
+          go get ./ogen-no-recursion ./ogen-pool-types-no-recursion
           go test ./ogen-no-recursion/...
+          go test ./ogen-pool-types-no-recursion/...
       - name: Generate with oapi-codegen v2.8.2
         run: |
           mkdir -p "$RUNNER_TEMP/oapi-codegen"
@@ -784,9 +785,16 @@ jobs:
           cp "$RUNNER_TEMP/ogen-without-pool-steps.exit" "$RUNNER_TEMP/comparison/" || true
           cp "$RUNNER_TEMP/ogen-pool-types-post-only.log" "$RUNNER_TEMP/comparison/" || true
           cp "$RUNNER_TEMP/ogen-pool-types-post-only.exit" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/ogen-pool-types-no-recursion.log" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/ogen-pool-types-no-recursion.exit" "$RUNNER_TEMP/comparison/" || true
           cp "$RUNNER_TEMP/openapi-pool-types-post-only.yaml" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/openapi-pool-types-no-recursion.yaml" "$RUNNER_TEMP/comparison/" || true
           cp "$RUNNER_TEMP/openapi-without-pool-steps.yaml" "$RUNNER_TEMP/comparison/" || true
           cp "$RUNNER_TEMP/openapi-no-recursion.yaml" "$RUNNER_TEMP/comparison/" || true
+          if [ -d "$RUNNER_TEMP/ogen-pool-types-no-recursion" ]; then
+            du -sb "$RUNNER_TEMP/ogen-pool-types-no-recursion" | tee "$RUNNER_TEMP/comparison/ogen-pool-types-no-recursion-size.txt"
+            cp -R "$RUNNER_TEMP/ogen-pool-types-no-recursion" "$RUNNER_TEMP/comparison/ogen-pool-types-no-recursion"
+          fi
           if [ -d "$RUNNER_TEMP/ogen-no-recursion" ]; then
             du -sb "$RUNNER_TEMP/ogen-no-recursion" | tee "$RUNNER_TEMP/comparison/ogen-no-recursion-size.txt"
             cp -R "$RUNNER_TEMP/ogen-no-recursion" "$RUNNER_TEMP/comparison/ogen-no-recursion"

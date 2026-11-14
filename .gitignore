@@ -1,7 +1,5 @@
 .task
 
-*.gen.go
-!internal/app/web/api/api.gen.go
 /engine
 
 /tsp/node_modules/

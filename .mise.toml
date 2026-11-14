@@ -9,7 +9,7 @@ run = "mise run generate:api-client-prototypes"
 description = "Compare ogen and oapi-codegen against the committed OpenAPI contract"
 run = [
   "GOWORK=off go mod download github.com/ogen-go/ogen@v1.24.0",
-  'ogen_dir="$(go env GOPATH)/pkg/mod/github.com/ogen-go/ogen@v1.24.0" && chmod -R u+w "$ogen_dir/gen/ir" && (grep -q "Optional fields are represented through pointers." "$ogen_dir/gen/ir/recursion.go" || patch -d "$ogen_dir" -p1 < prototypes/api-client/ogen/patches/0001-ignore-optional-recursion-edges.patch)',
+  'ogen_dir="$(go env GOPATH)/pkg/mod/github.com/ogen-go/ogen@v1.24.0" && chmod -R u+w "$ogen_dir/gen/ir" && (grep -q "Optional fields are represented through pointers." "$ogen_dir/gen/ir/recursion.go" || (patch -d "$ogen_dir" -p1 < prototypes/api-client/ogen/patches/0001-ignore-optional-recursion-edges.patch || grep -q "Optional fields are represented through pointers." "$ogen_dir/gen/ir/recursion.go"))',
 
   "mkdir -p prototypes/api-client/ogen prototypes/api-client/oapi-codegen",
   "if GOWORK=off go run github.com/ogen-go/ogen/cmd/ogen@v1.24.0 --config prototypes/api-client/ogen.yml --target prototypes/api-client/ogen --package ogenclient --clean openapi/openapi.yaml > prototypes/api-client/ogen/generate.log 2>&1; then echo 0 > prototypes/api-client/ogen/exit-code; else echo $? > prototypes/api-client/ogen/exit-code; fi",

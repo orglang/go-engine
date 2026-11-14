@@ -58,7 +58,7 @@ jobs:
         if: github.ref != 'refs/heads/prototype/ogen-pool-term-expr-name'
         run: cd tsp && npm ci && npm run build
 
-      - name: Generate artifacts with grep-guarded recursion patch hook
+      - name: Generate artifacts with verified recursion patch application
         run: mise run generate
 
       - name: Commit generated artifacts

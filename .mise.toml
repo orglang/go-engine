@@ -56,7 +56,5 @@ run = [
 
 [tasks."deps:check"]
 description = "Check Go module manifests and tool lockfiles"
-run = [
-  { task = "deps:lock" },
-  "test -z \"$(git status --porcelain -- ':(glob)**/*.mod' ':(glob)**/*.sum' ':(glob)**/package-lock.json' mise.lock)\"",
-]
+depends = ["deps:lock"]
+run = "test -z \"$(git status --porcelain -- ':(glob)**/*.mod' ':(glob)**/*.sum' ':(glob)**/package-lock.json' mise.lock)\""

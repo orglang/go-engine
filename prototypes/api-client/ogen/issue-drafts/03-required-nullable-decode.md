@@ -89,4 +89,6 @@ The input with the missing property is rejected, as expected.
 
 The generated decoder does not handle the null alternative of a nullable union when decoding the required property. It dispatches to the object decoder and rejects JSON `null`.
 
-The decoder should accept an explicit `null` for a nullable property while retaining the required-property presence check. Non-nullable required properties must continue to reject `null`.
+## Proposed change
+
+When decoding a required nullable property, accept an explicit JSON `null` as a valid value while still marking the property as present for the required-field check. Keep rejecting the property when it is absent, and continue rejecting `null` for required non-nullable properties.

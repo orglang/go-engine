@@ -44,14 +44,14 @@ The follow-up experiment gives the component schema the name `PoolTermExpression
 
 These extensions are generator metadata only; they do not change the JSON schema or wire contract, and oapi-codegen is expected to ignore them. They are applied to the committed OpenAPI document only for this experiment. The TypeSpec source has not yet been taught to emit them, so normal TypeSpec regeneration may remove them. Do not treat this as a durable source-of-truth fix until the generated Go names are verified and the extension is represented in the TypeSpec pipeline.
 
-The follow-up workflow run will show whether ogen honors the property-level override on a `$ref` sibling and whether the collision moves or disappears.
+The follow-up workflow run [#43592376123](https://github.com/orglang/go-engine/actions/runs/43592376123) completed successfully as a workflow, but the saved `ogen.log` shows that ogen v1.25.0 still exits with `schema name conflict: "PoolTermExpressionDefinitionSum"` while generating the `/api/v1/pools/executions/spawns` request body. The component-level rename changed the conflicting generated name again; the property-level `$ref` sibling did not eliminate the collision. The green workflow is expected because the script captures the ogen exit status and uploads diagnostics rather than failing the job on this known generator failure. oapi-codegen v2.8.2 still completed generation successfully.
 
 ## Comparison matrix
 
 | Criterion from workspace issue #114 | ogen v1.25.0 | oapi-codegen |
 | --- | --- | --- |
-| Same real OpenAPI input | Full-contract baseline stopped at `PoolTermExprSpecSum` name collision; scoped recursion experiments separately passed | v2.8.2 generation succeeded; compile/runtime checks pending |
-| Request/response schemas and operations | Full-contract generation blocked by schema-name collision; recursive behavior still requires isolated evaluation | v2.8.2 generated client; compile/runtime evaluation pending |
+| Same real OpenAPI input | Full-contract baseline still stops at a sum-type name collision (`PoolTermExpressionDefinitionSum` after schema-name overrides); scoped recursion experiments separately passed | v2.8.2 generation succeeded; compile/runtime checks pending |
+| Request/response schemas and operations | Full-contract generation blocked by persistent schema-name collision; recursive behavior still requires isolated evaluation | v2.8.2 generated client; compile/runtime evaluation pending |
 | Optional vs nullable fields | Tested for the four Pool.Term continuation fields in isolated experiments; required nullable behavior has a separate control experiment | Not yet run |
 | Enums and oneOf/discriminators | Present in the contract; full-contract output still needs review after recursion handling | Not yet run |
 | Auth/security schemes and parameters | Must be inventoried against the actual contract and verified in generated client API | Not yet run |

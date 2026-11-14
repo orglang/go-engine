@@ -106,7 +106,22 @@ This is a source-level diagnosis based on ogen v1.25.0. It should be treated as 
 
 Register the outer object schema before traversing its `oneOf`/`anyOf` variants. When a variant refers back to the outer schema, reference resolution should reuse that pre-registered object instead of entering composition generation again and registering a duplicate sum type.
 
-The registration should preserve the schema's object representation (struct or map, depending on its properties and additional-properties configuration). The normal object-generation path should then reuse the pre-registered IR type rather than registering it a second time.
+At a high level, the generation order should look like this:
+
+```go
+// Schematic pseudocode; names are illustrative.
+if isObjectSchema(schema) && hasComposition(schema) {
+    registerObjectType(schema)
+}
+
+generateCompositionVariants(schema)
+
+if isObjectSchema(schema) {
+    reuseRegisteredObjectType(schema)
+}
+```
+
+The registration should preserve the schema's object representation (struct or map, depending on its properties and additional-properties configuration). The normal object-generation path should reuse the pre-registered IR type rather than registering it a second time.
 
 A regression test should verify that:
 
@@ -115,17 +130,3 @@ A regression test should verify that:
 3. The recursive reference resolves to the outer schema's object type, without a duplicate `ExprSum`.
 4. Existing non-recursive discriminated `oneOf` schemas continue to generate as before.
 
-## Experimental validation
-
-A local candidate change in ogen v1.25.0 pre-registers object schemas that contain `oneOf`/`anyOf` before generating their variants.
-
-The isolated CI experiment confirmed both sides of the reproduction:
-
-- Without the candidate change, the minimal document fails with `schema name conflict: "ExprSum"`.
-- With the candidate change, ogen generates the client and `go test ./client/...` compiles the generated package.
-
-This validates the collision workaround for the optional-recursion fixture. It is not yet an upstream fix, and the experiment does not establish runtime JSON behavior or compatibility across a broader schema set.
-
-## Related issues
-
-- [orglang/go-engine#79](https://github.com/orglang/go-engine/pull/79) contains a related prototype and issue-draft format for recursion behavior.

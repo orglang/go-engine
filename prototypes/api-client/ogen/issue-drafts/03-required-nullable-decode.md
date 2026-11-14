@@ -93,6 +93,27 @@ The generated decoder does not handle the null alternative of a nullable union w
 
 When decoding a required nullable property, accept an explicit JSON `null` as a valid value while still marking the property as present for the required-field check. Keep rejecting the property when it is absent, and continue rejecting `null` for required non-nullable properties.
 
+The decoder logic should conceptually distinguish an explicit null from an absent property:
+
+```go
+// Illustrative pseudocode; decoder APIs depend on the generated code.
+switch d.PeekKind() {
+case json.Null:
+    if !field.Nullable {
+        return errors.New("unexpected null")
+    }
+    d.Null()
+    markFieldPresent(field)
+default:
+    if err := decodeField(d); err != nil {
+        return err
+    }
+    markFieldPresent(field)
+}
+```
+
+The important detail is that accepting `null` must still mark the property as present, so the required-field check rejects omission but accepts an explicit nullable value.
+
 ## Related issue
 
 [ogen-go/ogen#1562](https://github.com/ogen-go/ogen/issues/1562) reports a related `null` decoding failure in the generated `OptString.Decode()` method. The case here is distinct: the property is required, its nullability is expressed as an OpenAPI 3.1 `anyOf` null alternative, and it participates in a recursive object schema. The required-property presence check must still reject an omitted property even though an explicit `null` is valid.

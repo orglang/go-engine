@@ -49,6 +49,33 @@ jobs:
             echo "ogen failed, but not with the expected ExprSum collision."
             exit 1
           fi
+      - name: Test candidate recursive oneOf fix against ogen v1.25.0
+        id: ogen_recursive_oneof_fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          module_dir="$(go env GOPATH)/pkg/mod/github.com/ogen-go/ogen@v1.25.0"
+          if [ ! -d "$module_dir" ]; then
+            go mod download github.com/ogen-go/ogen@v1.25.0
+          fi
+          cp -R "$module_dir" "$RUNNER_TEMP/ogen-src"
+          chmod -R u+w "$RUNNER_TEMP/ogen-src"
+          git -C "$RUNNER_TEMP/ogen-src" apply --check \
+            "$GITHUB_WORKSPACE/prototypes/api-client/generator-comparison/ogen-recursive-oneof-fix.patch"
+          git -C "$RUNNER_TEMP/ogen-src" apply \
+            "$GITHUB_WORKSPACE/prototypes/api-client/generator-comparison/ogen-recursive-oneof-fix.patch"
+          (
+            cd "$RUNNER_TEMP/ogen-src"
+            go run ./cmd/ogen \
+              --target "$RUNNER_TEMP/ogen-recursive-oneof-fixed" -package api --clean \
+              "$GITHUB_WORKSPACE/prototypes/api-client/generator-comparison/ogen-recursive-oneof-repro.yaml"
+          )
+          cd "$RUNNER_TEMP"
+          mkdir -p ogen-recursive-oneof-fixed-test
+          cd ogen-recursive-oneof-fixed-test
+          go mod init example.com/ogen-recursive-oneof-fixed-test
+          go get github.com/ogen-go/ogen@v1.25.0
+          go test "$RUNNER_TEMP/ogen-recursive-oneof-fixed/..."
       - name: Generate with ogen v1.25.0 (baseline)
         id: ogen
         shell: bash

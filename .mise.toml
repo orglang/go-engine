@@ -1,3 +1,4 @@
+# Prototype validation includes non-nullable and nullable required-recursion fixtures.
 [tools]
 node = "22"
 

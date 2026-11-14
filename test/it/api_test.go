@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/labstack/echo/v4"
@@ -63,6 +64,90 @@ func TestIntegrationGeneratedEchoServer(t *testing.T) {
 			t.Fatal("API handler was invoked despite an invalid query parameter")
 		}
 	})
+
+	t.Run("binds a JSON request and writes a typed creation response", func(t *testing.T) {
+		handler := &apiServerBodyStub{}
+		e := echo.New()
+		api.RegisterHandlers(e, handler)
+
+		const requestBody = `{
+			"asset_vars": [{"conn_ph": "asset", "type_qn": "example.Asset"}],
+			"liab_var": {"conn_ph": "liability", "type_qn": "example.Liability"},
+			"term_qn": "example.Process"
+		}`
+		req := httptest.NewRequestWithContext(
+			context.Background(),
+			http.MethodPost,
+			"/api/v1/processes/declarations",
+			strings.NewReader(requestBody),
+		)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		e.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusCreated {
+			t.Fatalf("unexpected status: got %d, want %d; body: %s", rec.Code, http.StatusCreated, rec.Body.String())
+		}
+		if !handler.called {
+			t.Fatal("generated route did not invoke the API handler")
+		}
+		if handler.body.TermQn != "example.Process" {
+			t.Errorf("unexpected term_qn: got %q, want %q", handler.body.TermQn, "example.Process")
+		}
+		if len(handler.body.AssetVars) != 1 || handler.body.AssetVars[0].ConnPh != "asset" {
+			t.Errorf("unexpected asset_vars: got %+v", handler.body.AssetVars)
+		}
+		if handler.body.LiabVar.ConnPh != "liability" {
+			t.Errorf("unexpected liab_var: got %+v", handler.body.LiabVar)
+		}
+
+		var response api.AnyTermRef
+		if err := json.NewDecoder(rec.Body).Decode(&response); err != nil {
+			t.Fatalf("decode typed response: %v", err)
+		}
+		if response.TermId != "term-123" || response.TermRn != 7 {
+			t.Errorf("unexpected typed response: got %+v, want term-123 revision 7", response)
+		}
+	})
+
+	t.Run("maps handler errors to HTTP error responses", func(t *testing.T) {
+		e := echo.New()
+		api.RegisterHandlers(e, &apiServerErrorStub{})
+
+		req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/v1/processes/executions/exec-123", nil)
+		rec := httptest.NewRecorder()
+		e.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusUnprocessableEntity {
+			t.Fatalf("unexpected status: got %d, want %d; body: %s", rec.Code, http.StatusUnprocessableEntity, rec.Body.String())
+		}
+
+		var response struct {
+			Message string `json:"message"`
+		}
+		if err := json.NewDecoder(rec.Body).Decode(&response); err != nil {
+			t.Fatalf("decode error response: %v", err)
+		}
+		if response.Message != "execution cannot be advanced" {
+			t.Errorf("unexpected error message: got %q", response.Message)
+		}
+	})
+
+	t.Run("supports a no-content operation", func(t *testing.T) {
+		e := echo.New()
+		api.RegisterHandlers(e, &apiServerNoContentStub{})
+
+		req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/v1/pools/executions/steps", nil)
+		rec := httptest.NewRecorder()
+		e.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusNoContent {
+			t.Fatalf("unexpected status: got %d, want %d; body: %s", rec.Code, http.StatusNoContent, rec.Body.String())
+		}
+		if rec.Body.Len() != 0 {
+			t.Errorf("expected an empty response body, got %q", rec.Body.String())
+		}
+	})
 }
 
 type apiServerStub struct {
@@ -89,4 +174,39 @@ func (s *apiServerStub) GetProcessExecution(c echo.Context, id string, params ap
 		ID: id,
 		RN: *params.Rn,
 	})
+}
+
+type apiServerBodyStub struct {
+	api.ServerInterface
+
+	called bool
+	body   api.ProcDecSpec
+}
+
+func (s *apiServerBodyStub) CreateProcessDeclaration(c echo.Context) error {
+	s.called = true
+	if err := c.Bind(&s.body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid declaration")
+	}
+
+	return c.JSON(http.StatusCreated, api.AnyTermRef{
+		TermId: "term-123",
+		TermRn: 7,
+	})
+}
+
+type apiServerErrorStub struct {
+	api.ServerInterface
+}
+
+func (s *apiServerErrorStub) GetProcessExecution(echo.Context, string, api.GetProcessExecutionParams) error {
+	return echo.NewHTTPError(http.StatusUnprocessableEntity, "execution cannot be advanced")
+}
+
+type apiServerNoContentStub struct {
+	api.ServerInterface
+}
+
+func (s *apiServerNoContentStub) StepPoolExecution(c echo.Context) error {
+	return c.NoContent(http.StatusNoContent)
 }

@@ -27,10 +27,7 @@ jobs:
       - name: Set up mise
         uses: jdx/mise-action@v5
         with:
-          cache: false
-
-      - name: Install tools
-        run: mise install
+          cache: true
 
       - name: Run binary checks
         run: mise exec -- task binaries

@@ -15,7 +15,8 @@ const schemas = document.get("components")?.get("schemas");
 if (!schemas) throw new Error("OpenAPI document has no components.schemas");
 
 let normalized = 0;
-for (const [name, schema] of schemas.items) {
+for (const pair of schemas.items) {
+  const schema = pair.value;
   if (schema.get("oneOf") && schema.get("discriminator") && schema.has("type")) {
     schema.delete("type");
     normalized++;

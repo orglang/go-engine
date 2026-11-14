@@ -7,7 +7,8 @@ that generated file by hand. The generation workflow also refreshes
 
 ## Generate
 
-Requires Node.js 22 and npm. After the generation workflow has created or refreshed `package-lock.json`, install the exact dependency versions and generate OpenAPI:
+Requires Node.js 22 and npm. After the generation workflow has created or refreshed
+`package-lock.json`, install the exact dependency versions and generate OpenAPI:
 
 ```sh
 cd tsp
@@ -25,7 +26,14 @@ The `/ssr` web presenter routes are intentionally out of scope.
 
 ## Generate the Echo HTTP server
 
-The Go HTTP server boundary is generated from the emitted OpenAPI document with `oapi-codegen` and its Echo v4 integration. The generator version is pinned in `gear.mod`; the configuration and `go:generate` directive live in `internal/app/web/api`.
+The Go HTTP server boundary is generated from the emitted OpenAPI document with
+`oapi-codegen` and its Echo v4 integration. The generator version is pinned in
+`gear.mod`; its configuration lives in `internal/app/web/api/cfg.yaml`.
+
+The repository currently uses Echo v4 in its application and existing adapters.
+Although `oapi-codegen` also supports Echo v5, switching only the generated
+boundary would make it incompatible with the current Echo runtime. Migrating the
+application and all existing Echo adapters to v5 is a separate, broader change.
 
 After generating OpenAPI, run:
 
@@ -33,7 +41,10 @@ After generating OpenAPI, run:
 task api:generate
 ```
 
-The generated `ServerInterface` and route registration are transport-layer artifacts. Implementations belong in Echo adapters; generated files must not contain handwritten business logic. This step does not migrate the currently registered routes or claim that the normalized contract paths are already served.
+The generated `ServerInterface` and route registration are transport-layer artifacts.
+Implementations belong in Echo adapters; generated files must not contain handwritten
+business logic. This step does not migrate the currently registered routes or claim
+that the normalized contract paths are already served.
 
 ## Model organization
 
@@ -102,8 +113,8 @@ Both GET operations accept the optional `rn` revision query. Both PATCH
 operations apply the supplied expression as an additive extension to the
 existing term definition; they do not replace it. Existing expression parts
 cannot be removed or changed. The extension must be applied atomically: if
-any part conflicts or violates expression constraints, the whole operation
-is rejected. A successful extension creates a new term revision.
+any part conflicts or violates expression constraints, the whole operation is
+rejected. A successful extension creates a new term revision.
 
 Type definitions remain separate resources, retrieved through
 `GET /api/v1/processes/types/{id}` and `GET /api/v1/pools/types/{id}`.
@@ -115,10 +126,10 @@ in this contract.
 POST operations that create a resource return `201 Created` with the created
 resource's reference (`TypeRef`, `TermRef`, or `CompRef`) rather than its
 full snapshot. Program submission is command-style and returns `201` without
-a body. PATCH extension operations return `200 OK` with the new reference. Read operations return the requested snapshot, expression, or
-reference collection. Command-style operations that do not create a distinct
-resource return an empty `200 OK` or `204 No Content` response as specified
-by the operation.
+a body. PATCH extension operations return `200 OK` with the new reference.
+Read operations return the requested snapshot, expression, or reference collection.
+Command-style operations that do not create a distinct resource return an
+empty `200 OK` or `204 No Content` response as specified by the operation.
 
 ## Revision query
 

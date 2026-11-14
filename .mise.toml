@@ -10,6 +10,10 @@ run = [
   "npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund",
 ]
 
+[tasks."deps:install"]
+description = "Install TypeSpec dependencies"
+run = "npm ci --prefix tsp --no-audit --no-fund"
+
 [tasks."deps:check"]
 description = "Check Go module manifests and tool lockfiles"
 depends = ["deps:lock"]

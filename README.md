@@ -1,6 +1,6 @@
 # OrgLang Engine
 
-Рантime исполнения OrgLang на Go.
+Рантайм исполнения OrgLang на Go.
 
 ## Структура
 

@@ -6,7 +6,7 @@ description = "Generate temporary API client generator prototypes"
 run = "mise run generate:api-client-prototypes"
 
 [tasks."generate:api-client-prototypes"]
-description = "Verify ogen recursion patch, generated models, and compilation"
+description = "Verify ogen v1.25.0 recursion patch, generated models, and compilation"
 run = [
   "GOWORK=off go mod download github.com/ogen-go/ogen@v1.25.0",
   'ogen_dir="$(go env GOPATH)/pkg/mod/github.com/ogen-go/ogen@v1.25.0" && chmod -R u+w "$ogen_dir/gen/ir" "$ogen_dir/gen" && ((grep -q "Optional fields are represented through pointers." "$ogen_dir/gen/ir/recursion.go" && grep -q "Required recursive fields need a pointer" "$ogen_dir/gen/generics.go") || (patch -d "$ogen_dir" -p1 < prototypes/api-client/ogen/patches/0001-ignore-optional-recursion-edges.patch || true) && grep -q "Optional fields are represented through pointers." "$ogen_dir/gen/ir/recursion.go" && grep -q "Required recursive fields need a pointer" "$ogen_dir/gen/generics.go")',

@@ -1,0 +1,39 @@
+name: Ogen optional cont_expr experiment
+
+on:
+  push:
+    branches:
+      - experiment/ogen-cont-expr-optional
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: "1.27.x"
+      - uses: jdx/mise-action@v3
+        with:
+          install: true
+      - name: Install TypeSpec dependencies
+        run: npm ci --prefix tsp
+      - name: Regenerate OpenAPI from the modified TypeSpec source
+        run: task specs:generate
+      - name: Normalize OpenAPI for ogen
+        run: node tsp/scripts/normalize-openapi-for-ogen.mjs openapi/openapi.yaml /tmp/openapi-ogen-optional.yaml
+      - name: Generate client with unmodified ogen v1.25.0
+        run: |
+          GOMODCACHE=/tmp/ogen-optional-gomodcache GOWORK=off go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
+            --config prototypes/api-client/ogen.yml \
+            --target prototypes/api-client/ogen-optional-experiment \
+            --package ogenclient --clean /tmp/openapi-ogen-optional.yaml
+      - name: Compile and test optional contract
+        run: |
+          cp go.mod /tmp/ogen-optional.mod
+          cp go.sum /tmp/ogen-optional.sum
+          go mod edit -modfile=/tmp/ogen-optional.mod -require=github.com/ogen-go/ogen@v1.25.0
+          GOWORK=off go test -mod=mod -modfile=/tmp/ogen-optional.mod ./prototypes/api-client/ogen-optional-experiment

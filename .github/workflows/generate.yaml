@@ -23,16 +23,10 @@ jobs:
           ref: ${{ github.ref }}
           fetch-depth: 0
 
-      - name: Cache mise
-        uses: actions/cache@v6
-        with:
-          path: ~/.cache/mise
-          key: mise-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('mise.lock') }}
-
       - name: Set up mise
         uses: jdx/mise-action@v5
         with:
-          cache: false
+          cache: true
 
       - name: Lock dependencies
         run: mise run deps:lock

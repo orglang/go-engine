@@ -45,16 +45,8 @@ jobs:
             go.sum
             gear.sum
 
-      - name: Tidy Go modules
-        run: |
-          GOWORK=off go mod tidy
-          GOWORK=off go mod tidy -modfile=gear.mod
-
-      - name: Update mise lockfile
-        run: mise lock
-
-      - name: Update TypeSpec npm lockfile
-        run: npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Lock dependencies
+        run: mise run deps:lock
 
       - name: Install TypeSpec dependencies
         run: npm ci --prefix tsp --no-audit --no-fund

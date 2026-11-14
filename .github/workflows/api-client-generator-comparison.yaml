@@ -73,8 +73,8 @@ jobs:
           Path(os.environ["RUNNER_TEMP"], "openapi-no-recursion.yaml").write_text("\n".join(output) + "\n")
           PY
           set +e
-          go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \\
-            --target "$RUNNER_TEMP/ogen-no-recursion" -package api --clean "$RUNNER_TEMP/openapi-no-recursion.yaml" \\
+          go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
+            --target "$RUNNER_TEMP/ogen-no-recursion" -package api --clean "$RUNNER_TEMP/openapi-no-recursion.yaml" \
             > "$RUNNER_TEMP/ogen-no-recursion.log" 2>&1
           status=$?
           echo "exit_code=$status" >> "$GITHUB_OUTPUT"

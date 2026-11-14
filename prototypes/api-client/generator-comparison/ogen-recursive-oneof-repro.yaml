@@ -39,7 +39,6 @@ components:
       type: object
       required:
         - kind
-        - next
       properties:
         kind:
           type: string

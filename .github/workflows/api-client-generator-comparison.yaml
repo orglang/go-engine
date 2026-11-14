@@ -76,6 +76,7 @@ jobs:
           cd ogen-recursive-oneof-fixed-test
           go mod init example.com/ogen-recursive-oneof-fixed-test
           go get github.com/ogen-go/ogen@v1.25.0
+          go mod tidy
           go test ./client/...
       - name: Generate with ogen v1.25.0 (baseline)
         id: ogen

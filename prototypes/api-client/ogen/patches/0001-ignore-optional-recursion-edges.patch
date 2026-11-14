@@ -2,7 +2,7 @@ diff --git a/gen/ir/recursion.go b/gen/ir/recursion.go
 index 128e8aac6dd05e71b8aeef30dce7e16dc8ae0e2a..0000000000000000000000000000000000000000 100644
 --- a/gen/ir/recursion.go
 +++ b/gen/ir/recursion.go
-@@ -43,6 +43,17 @@ func (t *Type) recursive(target *Type, path *walkpath) bool {
+@@ -43,6 +43,12 @@ func (t *Type) recursive(target *Type, path *walkpath) bool {
  	case KindGeneric:
  		return t.recursive(target.GenericOf, path)
  	case KindStruct:

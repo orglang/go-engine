@@ -19,6 +19,9 @@ jobs:
       - uses: jdx/mise-action@v3
         with:
           install: true
+      - uses: arduino/setup-task@v2
+        with:
+          version: 3.x
       - name: Install TypeSpec dependencies
         run: npm ci --prefix tsp
       - name: Regenerate OpenAPI from the modified TypeSpec source
@@ -29,11 +32,12 @@ jobs:
         run: |
           GOMODCACHE=/tmp/ogen-optional-gomodcache GOWORK=off go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
             --config prototypes/api-client/ogen.yml \
-            --target prototypes/api-client/ogen-optional-experiment \
+            --target prototypes/api-client/ogen-optional-experiment/generated \
             --package ogenclient --clean /tmp/openapi-ogen-optional.yaml
       - name: Compile and test optional contract
         run: |
+          cp prototypes/api-client/ogen-optional-experiment/optional_cont_expr_test.go prototypes/api-client/ogen-optional-experiment/generated/
           cp go.mod /tmp/ogen-optional.mod
           cp go.sum /tmp/ogen-optional.sum
           go mod edit -modfile=/tmp/ogen-optional.mod -require=github.com/ogen-go/ogen@v1.25.0
-          GOWORK=off go test -mod=mod -modfile=/tmp/ogen-optional.mod ./prototypes/api-client/ogen-optional-experiment
+          GOWORK=off go test -mod=mod -modfile=/tmp/ogen-optional.mod ./prototypes/api-client/ogen-optional-experiment/generated

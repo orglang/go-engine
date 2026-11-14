@@ -121,9 +121,32 @@ They should be handled independently.
 
 ## Proposed change
 
-When a required struct field closes a value-recursion cycle, generate that field through pointer indirection instead of returning an infinite-recursion error.
+The [ogen README's recursive-types section](https://github.com/ogen-go/ogen#recursive-types) already documents pointers as a fallback when recursive types cannot be expressed directly in Go. This proposal applies that stated principle to a required-only recursion cycle: when a required struct field closes a value-recursion cycle, generate that field through pointer indirection instead of returning an infinite-recursion error.
 
-The generated decoder must continue tracking whether the property appeared in the input. In particular, a nil Go pointer must not by itself be used to infer that the property was absent: required-field validation should be based on JSON field presence.
+Conceptually, the generated representation could look like this:
+
+```go
+type ARecursive struct {
+    B *B // pointer provides Go-level indirection; the JSON property remains required
+}
+```
+
+The decoder must preserve required-property validation independently of that representation. For example, its logic should be equivalent to:
+
+```go
+var seenB bool
+
+// When the "b" JSON property is encountered:
+seenB = true
+// Decode its non-null value into the pointer field.
+
+// After the object has been decoded:
+if !seenB {
+    return errMissingRequiredField
+}
+```
+
+This is an illustrative sketch, not a request to adopt these exact generated names or implementation details. In particular, a nil Go pointer must not by itself be used to infer that the property was absent: required-field validation should be based on JSON field presence. The OpenAPI schema and its `required` arrays remain unchanged.
 
 A regression test should verify both generated type finiteness and JSON behavior. It should cover:
 
@@ -131,6 +154,15 @@ A regression test should verify both generated type finiteness and JSON behavior
 2. Present non-null recursive property is decoded.
 3. Explicit `null` is rejected for a non-nullable property.
 4. Marshaling and decoding a valid finite instance preserves the recursive structure.
+
+## Relation to #1790
+
+This is related to, but distinct from, [#1790](https://github.com/ogen-go/ogen/issues/1790) (optional fields should break value-recursion cycles).
+
+- **#1790:** the recursive path contains an optional property. Because that property is represented through indirection, it should break value-recursion during cycle detection.
+- **This issue:** the recursive path consists entirely of required properties. There is no optional edge to skip; the generator must introduce indirection for a required recursive field while preserving its wire-level requiredness.
+
+The two changes address different cases in recursion analysis and can be implemented and tested independently.
 
 ## Compatibility considerations
 

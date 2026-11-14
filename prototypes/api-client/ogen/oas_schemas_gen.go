@@ -555,8 +555,8 @@ func (s *PoolDecSpec) SetAssetVars(val []AnyConnVarSpec) {
 
 // Ref: #/components/schemas/Pool.StepSpec
 type PoolStepSpec struct {
-	CompRef  AnyCompRef        `json:"comp_ref"`
-	PoolExpr *PoolTermExprSpec `json:"pool_expr"`
+	CompRef  AnyCompRef          `json:"comp_ref"`
+	PoolExpr OptPoolTermExprSpec `json:"pool_expr"`
 }
 
 // GetCompRef returns the value of CompRef.
@@ -565,7 +565,7 @@ func (s *PoolStepSpec) GetCompRef() AnyCompRef {
 }
 
 // GetPoolExpr returns the value of PoolExpr.
-func (s *PoolStepSpec) GetPoolExpr() *PoolTermExprSpec {
+func (s *PoolStepSpec) GetPoolExpr() OptPoolTermExprSpec {
 	return s.PoolExpr
 }
 
@@ -575,7 +575,7 @@ func (s *PoolStepSpec) SetCompRef(val AnyCompRef) {
 }
 
 // SetPoolExpr sets the value of PoolExpr.
-func (s *PoolStepSpec) SetPoolExpr(val *PoolTermExprSpec) {
+func (s *PoolStepSpec) SetPoolExpr(val OptPoolTermExprSpec) {
 	s.PoolExpr = val
 }
 
@@ -1072,8 +1072,8 @@ func (s *PoolTermSpawnSpec) SetProcIrs(val []AnyCompRef) {
 
 // Ref: #/components/schemas/Pool.Type.DefSnap
 type PoolTypeDefSnap struct {
-	Ref  AnyTypeRef        `json:"ref"`
-	Expr *PoolTypeExprSpec `json:"expr"`
+	Ref  AnyTypeRef          `json:"ref"`
+	Expr OptPoolTypeExprSpec `json:"expr"`
 }
 
 // GetRef returns the value of Ref.
@@ -1082,7 +1082,7 @@ func (s *PoolTypeDefSnap) GetRef() AnyTypeRef {
 }
 
 // GetExpr returns the value of Expr.
-func (s *PoolTypeDefSnap) GetExpr() *PoolTypeExprSpec {
+func (s *PoolTypeDefSnap) GetExpr() OptPoolTypeExprSpec {
 	return s.Expr
 }
 
@@ -1092,14 +1092,14 @@ func (s *PoolTypeDefSnap) SetRef(val AnyTypeRef) {
 }
 
 // SetExpr sets the value of Expr.
-func (s *PoolTypeDefSnap) SetExpr(val *PoolTypeExprSpec) {
+func (s *PoolTypeDefSnap) SetExpr(val OptPoolTypeExprSpec) {
 	s.Expr = val
 }
 
 // Ref: #/components/schemas/Pool.Type.DefSpec
 type PoolTypeDefSpec struct {
-	Qn   string            `json:"qn"`
-	Expr *PoolTypeExprSpec `json:"expr"`
+	Qn   string              `json:"qn"`
+	Expr OptPoolTypeExprSpec `json:"expr"`
 }
 
 // GetQn returns the value of Qn.
@@ -1108,7 +1108,7 @@ func (s *PoolTypeDefSpec) GetQn() string {
 }
 
 // GetExpr returns the value of Expr.
-func (s *PoolTypeDefSpec) GetExpr() *PoolTypeExprSpec {
+func (s *PoolTypeDefSpec) GetExpr() OptPoolTypeExprSpec {
 	return s.Expr
 }
 
@@ -1118,7 +1118,7 @@ func (s *PoolTypeDefSpec) SetQn(val string) {
 }
 
 // SetExpr sets the value of Expr.
-func (s *PoolTypeDefSpec) SetExpr(val *PoolTypeExprSpec) {
+func (s *PoolTypeDefSpec) SetExpr(val OptPoolTypeExprSpec) {
 	s.Expr = val
 }
 
@@ -1590,23 +1590,23 @@ func (s *ProcDecSpec) SetAssetVars(val []AnyConnVarSpec) {
 
 // Ref: #/components/schemas/Proc.StepSpec
 type ProcStepSpec struct {
-	ProcExpr *ProcTermExprSpec `json:"proc_expr"`
+	ProcExpr OptProcTermExprSpec `json:"proc_expr"`
 }
 
 // GetProcExpr returns the value of ProcExpr.
-func (s *ProcStepSpec) GetProcExpr() *ProcTermExprSpec {
+func (s *ProcStepSpec) GetProcExpr() OptProcTermExprSpec {
 	return s.ProcExpr
 }
 
 // SetProcExpr sets the value of ProcExpr.
-func (s *ProcStepSpec) SetProcExpr(val *ProcTermExprSpec) {
+func (s *ProcStepSpec) SetProcExpr(val OptProcTermExprSpec) {
 	s.ProcExpr = val
 }
 
 // Ref: #/components/schemas/Proc.Term.BranchSpec
 type ProcTermBranchSpec struct {
-	PatternQn string            `json:"pattern_qn"`
-	ContExpr  *ProcTermExprSpec `json:"cont_expr"`
+	PatternQn string              `json:"pattern_qn"`
+	ContExpr  OptProcTermExprSpec `json:"cont_expr"`
 }
 
 // GetPatternQn returns the value of PatternQn.
@@ -1615,7 +1615,7 @@ func (s *ProcTermBranchSpec) GetPatternQn() string {
 }
 
 // GetContExpr returns the value of ContExpr.
-func (s *ProcTermBranchSpec) GetContExpr() *ProcTermExprSpec {
+func (s *ProcTermBranchSpec) GetContExpr() OptProcTermExprSpec {
 	return s.ContExpr
 }
 
@@ -1625,7 +1625,7 @@ func (s *ProcTermBranchSpec) SetPatternQn(val string) {
 }
 
 // SetContExpr sets the value of ContExpr.
-func (s *ProcTermBranchSpec) SetContExpr(val *ProcTermExprSpec) {
+func (s *ProcTermBranchSpec) SetContExpr(val OptProcTermExprSpec) {
 	s.ContExpr = val
 }
 
@@ -2162,8 +2162,8 @@ func (s *ProcTermWaitSpec) SetContExpr(val *ProcTermExprSpec) {
 
 // Ref: #/components/schemas/Proc.Type.ChoiceSpec
 type ProcTypeChoiceSpec struct {
-	LabQn    string            `json:"lab_qn"`
-	ContExpr *ProcTypeExprSpec `json:"cont_expr"`
+	LabQn    string              `json:"lab_qn"`
+	ContExpr OptProcTypeExprSpec `json:"cont_expr"`
 }
 
 // GetLabQn returns the value of LabQn.
@@ -2172,7 +2172,7 @@ func (s *ProcTypeChoiceSpec) GetLabQn() string {
 }
 
 // GetContExpr returns the value of ContExpr.
-func (s *ProcTypeChoiceSpec) GetContExpr() *ProcTypeExprSpec {
+func (s *ProcTypeChoiceSpec) GetContExpr() OptProcTypeExprSpec {
 	return s.ContExpr
 }
 
@@ -2182,14 +2182,14 @@ func (s *ProcTypeChoiceSpec) SetLabQn(val string) {
 }
 
 // SetContExpr sets the value of ContExpr.
-func (s *ProcTypeChoiceSpec) SetContExpr(val *ProcTypeExprSpec) {
+func (s *ProcTypeChoiceSpec) SetContExpr(val OptProcTypeExprSpec) {
 	s.ContExpr = val
 }
 
 // Ref: #/components/schemas/Proc.Type.DefSnap
 type ProcTypeDefSnap struct {
-	Ref  AnyTypeRef       `json:"ref"`
-	Spec *ProcTypeDefSpec `json:"spec"`
+	Ref  AnyTypeRef         `json:"ref"`
+	Spec OptProcTypeDefSpec `json:"spec"`
 }
 
 // GetRef returns the value of Ref.
@@ -2198,7 +2198,7 @@ func (s *ProcTypeDefSnap) GetRef() AnyTypeRef {
 }
 
 // GetSpec returns the value of Spec.
-func (s *ProcTypeDefSnap) GetSpec() *ProcTypeDefSpec {
+func (s *ProcTypeDefSnap) GetSpec() OptProcTypeDefSpec {
 	return s.Spec
 }
 
@@ -2208,14 +2208,14 @@ func (s *ProcTypeDefSnap) SetRef(val AnyTypeRef) {
 }
 
 // SetSpec sets the value of Spec.
-func (s *ProcTypeDefSnap) SetSpec(val *ProcTypeDefSpec) {
+func (s *ProcTypeDefSnap) SetSpec(val OptProcTypeDefSpec) {
 	s.Spec = val
 }
 
 // Ref: #/components/schemas/Proc.Type.DefSpec
 type ProcTypeDefSpec struct {
-	TypeQn   string            `json:"type_qn"`
-	TypeExpr *ProcTypeExprSpec `json:"type_expr"`
+	TypeQn   string              `json:"type_qn"`
+	TypeExpr OptProcTypeExprSpec `json:"type_expr"`
 }
 
 // GetTypeQn returns the value of TypeQn.
@@ -2224,7 +2224,7 @@ func (s *ProcTypeDefSpec) GetTypeQn() string {
 }
 
 // GetTypeExpr returns the value of TypeExpr.
-func (s *ProcTypeDefSpec) GetTypeExpr() *ProcTypeExprSpec {
+func (s *ProcTypeDefSpec) GetTypeExpr() OptProcTypeExprSpec {
 	return s.TypeExpr
 }
 
@@ -2234,7 +2234,7 @@ func (s *ProcTypeDefSpec) SetTypeQn(val string) {
 }
 
 // SetTypeExpr sets the value of TypeExpr.
-func (s *ProcTypeDefSpec) SetTypeExpr(val *ProcTypeExprSpec) {
+func (s *ProcTypeDefSpec) SetTypeExpr(val OptProcTypeExprSpec) {
 	s.TypeExpr = val
 }
 

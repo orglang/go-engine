@@ -85,16 +85,15 @@ func (s *PoolStepSpec) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
-		if s.PoolExpr == nil {
-			return nil // optional
-		}
-		if err := func() error {
-			if err := s.PoolExpr.Validate(); err != nil {
+		if value, ok := s.PoolExpr.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
 				return err
 			}
-			return nil
-		}(); err != nil {
-			return errors.Wrap(err, "pointer")
 		}
 		return nil
 	}(); err != nil {
@@ -303,16 +302,15 @@ func (s *PoolTypeDefSnap) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
-		if s.Expr == nil {
-			return nil // optional
-		}
-		if err := func() error {
-			if err := s.Expr.Validate(); err != nil {
+		if value, ok := s.Expr.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
 				return err
 			}
-			return nil
-		}(); err != nil {
-			return errors.Wrap(err, "pointer")
 		}
 		return nil
 	}(); err != nil {
@@ -334,16 +332,15 @@ func (s *PoolTypeDefSpec) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
-		if s.Expr == nil {
-			return nil // optional
-		}
-		if err := func() error {
-			if err := s.Expr.Validate(); err != nil {
+		if value, ok := s.Expr.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
 				return err
 			}
-			return nil
-		}(); err != nil {
-			return errors.Wrap(err, "pointer")
 		}
 		return nil
 	}(); err != nil {
@@ -698,16 +695,15 @@ func (s *ProcStepSpec) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
-		if s.ProcExpr == nil {
-			return nil // optional
-		}
-		if err := func() error {
-			if err := s.ProcExpr.Validate(); err != nil {
+		if value, ok := s.ProcExpr.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
 				return err
 			}
-			return nil
-		}(); err != nil {
-			return errors.Wrap(err, "pointer")
 		}
 		return nil
 	}(); err != nil {
@@ -729,16 +725,15 @@ func (s *ProcTermBranchSpec) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
-		if s.ContExpr == nil {
-			return nil // optional
-		}
-		if err := func() error {
-			if err := s.ContExpr.Validate(); err != nil {
+		if value, ok := s.ContExpr.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
 				return err
 			}
-			return nil
-		}(); err != nil {
-			return errors.Wrap(err, "pointer")
 		}
 		return nil
 	}(); err != nil {
@@ -967,16 +962,15 @@ func (s *ProcTypeChoiceSpec) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
-		if s.ContExpr == nil {
-			return nil // optional
-		}
-		if err := func() error {
-			if err := s.ContExpr.Validate(); err != nil {
+		if value, ok := s.ContExpr.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
 				return err
 			}
-			return nil
-		}(); err != nil {
-			return errors.Wrap(err, "pointer")
 		}
 		return nil
 	}(); err != nil {
@@ -998,16 +992,15 @@ func (s *ProcTypeDefSnap) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
-		if s.Spec == nil {
-			return nil // optional
-		}
-		if err := func() error {
-			if err := s.Spec.Validate(); err != nil {
+		if value, ok := s.Spec.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
 				return err
 			}
-			return nil
-		}(); err != nil {
-			return errors.Wrap(err, "pointer")
 		}
 		return nil
 	}(); err != nil {
@@ -1029,16 +1022,15 @@ func (s *ProcTypeDefSpec) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
-		if s.TypeExpr == nil {
-			return nil // optional
-		}
-		if err := func() error {
-			if err := s.TypeExpr.Validate(); err != nil {
+		if value, ok := s.TypeExpr.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
 				return err
 			}
-			return nil
-		}(); err != nil {
-			return errors.Wrap(err, "pointer")
 		}
 		return nil
 	}(); err != nil {

@@ -1236,7 +1236,7 @@ func (s *PoolStepSpec) encodeFields(e *jx.Encoder) {
 		s.CompRef.Encode(e)
 	}
 	{
-		if s.PoolExpr != nil {
+		if s.PoolExpr.Set {
 			e.FieldStart("pool_expr")
 			s.PoolExpr.Encode(e)
 		}
@@ -1269,12 +1269,10 @@ func (s *PoolStepSpec) Decode(d *jx.Decoder) error {
 			}
 		case "pool_expr":
 			if err := func() error {
-				s.PoolExpr = nil
-				var elem PoolTermExprSpec
-				if err := elem.Decode(d); err != nil {
+				s.PoolExpr.Reset()
+				if err := s.PoolExpr.Decode(d); err != nil {
 					return err
 				}
-				s.PoolExpr = &elem
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"pool_expr\"")
@@ -2630,7 +2628,7 @@ func (s *PoolTypeDefSnap) encodeFields(e *jx.Encoder) {
 		s.Ref.Encode(e)
 	}
 	{
-		if s.Expr != nil {
+		if s.Expr.Set {
 			e.FieldStart("expr")
 			s.Expr.Encode(e)
 		}
@@ -2663,12 +2661,10 @@ func (s *PoolTypeDefSnap) Decode(d *jx.Decoder) error {
 			}
 		case "expr":
 			if err := func() error {
-				s.Expr = nil
-				var elem PoolTypeExprSpec
-				if err := elem.Decode(d); err != nil {
+				s.Expr.Reset()
+				if err := s.Expr.Decode(d); err != nil {
 					return err
 				}
-				s.Expr = &elem
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"expr\"")
@@ -2743,7 +2739,7 @@ func (s *PoolTypeDefSpec) encodeFields(e *jx.Encoder) {
 		e.Str(s.Qn)
 	}
 	{
-		if s.Expr != nil {
+		if s.Expr.Set {
 			e.FieldStart("expr")
 			s.Expr.Encode(e)
 		}
@@ -2778,12 +2774,10 @@ func (s *PoolTypeDefSpec) Decode(d *jx.Decoder) error {
 			}
 		case "expr":
 			if err := func() error {
-				s.Expr = nil
-				var elem PoolTypeExprSpec
-				if err := elem.Decode(d); err != nil {
+				s.Expr.Reset()
+				if err := s.Expr.Decode(d); err != nil {
 					return err
 				}
-				s.Expr = &elem
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"expr\"")
@@ -4122,7 +4116,7 @@ func (s *ProcStepSpec) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *ProcStepSpec) encodeFields(e *jx.Encoder) {
 	{
-		if s.ProcExpr != nil {
+		if s.ProcExpr.Set {
 			e.FieldStart("proc_expr")
 			s.ProcExpr.Encode(e)
 		}
@@ -4143,12 +4137,10 @@ func (s *ProcStepSpec) Decode(d *jx.Decoder) error {
 		switch string(k) {
 		case "proc_expr":
 			if err := func() error {
-				s.ProcExpr = nil
-				var elem ProcTermExprSpec
-				if err := elem.Decode(d); err != nil {
+				s.ProcExpr.Reset()
+				if err := s.ProcExpr.Decode(d); err != nil {
 					return err
 				}
-				s.ProcExpr = &elem
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"proc_expr\"")
@@ -4191,7 +4183,7 @@ func (s *ProcTermBranchSpec) encodeFields(e *jx.Encoder) {
 		e.Str(s.PatternQn)
 	}
 	{
-		if s.ContExpr != nil {
+		if s.ContExpr.Set {
 			e.FieldStart("cont_expr")
 			s.ContExpr.Encode(e)
 		}
@@ -4226,12 +4218,10 @@ func (s *ProcTermBranchSpec) Decode(d *jx.Decoder) error {
 			}
 		case "cont_expr":
 			if err := func() error {
-				s.ContExpr = nil
-				var elem ProcTermExprSpec
-				if err := elem.Decode(d); err != nil {
+				s.ContExpr.Reset()
+				if err := s.ContExpr.Decode(d); err != nil {
 					return err
 				}
-				s.ContExpr = &elem
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"cont_expr\"")
@@ -5701,7 +5691,7 @@ func (s *ProcTypeChoiceSpec) encodeFields(e *jx.Encoder) {
 		e.Str(s.LabQn)
 	}
 	{
-		if s.ContExpr != nil {
+		if s.ContExpr.Set {
 			e.FieldStart("cont_expr")
 			s.ContExpr.Encode(e)
 		}
@@ -5736,12 +5726,10 @@ func (s *ProcTypeChoiceSpec) Decode(d *jx.Decoder) error {
 			}
 		case "cont_expr":
 			if err := func() error {
-				s.ContExpr = nil
-				var elem ProcTypeExprSpec
-				if err := elem.Decode(d); err != nil {
+				s.ContExpr.Reset()
+				if err := s.ContExpr.Decode(d); err != nil {
 					return err
 				}
-				s.ContExpr = &elem
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"cont_expr\"")
@@ -5816,7 +5804,7 @@ func (s *ProcTypeDefSnap) encodeFields(e *jx.Encoder) {
 		s.Ref.Encode(e)
 	}
 	{
-		if s.Spec != nil {
+		if s.Spec.Set {
 			e.FieldStart("spec")
 			s.Spec.Encode(e)
 		}
@@ -5849,12 +5837,10 @@ func (s *ProcTypeDefSnap) Decode(d *jx.Decoder) error {
 			}
 		case "spec":
 			if err := func() error {
-				s.Spec = nil
-				var elem ProcTypeDefSpec
-				if err := elem.Decode(d); err != nil {
+				s.Spec.Reset()
+				if err := s.Spec.Decode(d); err != nil {
 					return err
 				}
-				s.Spec = &elem
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"spec\"")
@@ -5929,7 +5915,7 @@ func (s *ProcTypeDefSpec) encodeFields(e *jx.Encoder) {
 		e.Str(s.TypeQn)
 	}
 	{
-		if s.TypeExpr != nil {
+		if s.TypeExpr.Set {
 			e.FieldStart("type_expr")
 			s.TypeExpr.Encode(e)
 		}
@@ -5964,12 +5950,10 @@ func (s *ProcTypeDefSpec) Decode(d *jx.Decoder) error {
 			}
 		case "type_expr":
 			if err := func() error {
-				s.TypeExpr = nil
-				var elem ProcTypeExprSpec
-				if err := elem.Decode(d); err != nil {
+				s.TypeExpr.Reset()
+				if err := s.TypeExpr.Decode(d); err != nil {
 					return err
 				}
-				s.TypeExpr = &elem
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"type_expr\"")

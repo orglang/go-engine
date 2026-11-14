@@ -1,2 +1,2 @@
-optional-edge exit=1
+optional-edge exit=0
 required-edge exit=1

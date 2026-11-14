@@ -1,18 +1,25 @@
 [tools]
+go = "1.27.0"
 node = "22"
+"go:github.com/go-task/task/v3/cmd/task" = "3.54.0"
+"go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint" = "2.15.0"
+"go:github.com/jmattheis/goverter/cmd/goverter" = "1.11.1"
+"go:github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen" = "2.8.2"
 
 [tasks."deps:lock"]
 description = "Tidy Go modules and update mise and npm lockfiles"
 run = [
   "GOWORK=off go mod tidy",
-  "GOWORK=off go mod tidy -modfile=gear.mod",
   "mise lock",
   "npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund",
 ]
 
 [tasks."deps:install"]
-description = "Install TypeSpec dependencies"
-run = "npm ci --prefix tsp --no-audit --no-fund"
+description = "Download Go modules and install TypeSpec dependencies"
+run = [
+  "GOWORK=off go mod download",
+  "npm ci --prefix tsp --no-audit --no-fund",
+]
 
 [tasks."deps:check"]
 description = "Check Go module manifests and tool lockfiles"

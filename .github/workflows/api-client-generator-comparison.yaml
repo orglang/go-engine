@@ -79,8 +79,13 @@ jobs:
           status=$?
           echo "exit_code=$status" >> "$GITHUB_OUTPUT"
           printf "exit_code=%s\\n" "$status" | tee "$RUNNER_TEMP/ogen-no-recursion.exit"
-          ls -la "$RUNNER_TEMP/ogen-no-recursion" > "$RUNNER_TEMP/ogen-no-recursion-files.txt" 2>&1 || true
           cat "$RUNNER_TEMP/ogen-no-recursion.log"
+      - name: Test generated ogen package
+        working-directory: ${{ runner.temp }}
+        run: |
+          go mod init example.com/ogen-recursion-diagnostic
+          go get github.com/ogen-go/ogen@v1.25.0
+          go test ./ogen-no-recursion/...
       - name: Generate with oapi-codegen v2.8.2
         run: |
           mkdir -p "$RUNNER_TEMP/oapi-codegen"
@@ -97,7 +102,6 @@ jobs:
           cp "$RUNNER_TEMP/ogen.log" "$RUNNER_TEMP/comparison/" || true
           cp "$RUNNER_TEMP/ogen-no-recursion.log" "$RUNNER_TEMP/comparison/" || true
           cp "$RUNNER_TEMP/ogen-no-recursion.exit" "$RUNNER_TEMP/comparison/" || true
-          cp "$RUNNER_TEMP/ogen-no-recursion-files.txt" "$RUNNER_TEMP/comparison/" || true
           cp "$RUNNER_TEMP/openapi-no-recursion.yaml" "$RUNNER_TEMP/comparison/" || true
           if [ -d "$RUNNER_TEMP/ogen-no-recursion" ]; then
             du -sb "$RUNNER_TEMP/ogen-no-recursion" | tee "$RUNNER_TEMP/comparison/ogen-no-recursion-size.txt"

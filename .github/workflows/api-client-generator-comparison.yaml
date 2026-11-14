@@ -241,27 +241,69 @@ jobs:
           }
 
           
-          func TestEngineApiGetPoolTypeDefinitionOptionalRnQueryParameter(t *testing.T) {
+          func TestOptionalRnQueryParameters(t *testing.T) {
               tests := []struct {
                   name  string
-                  rn    *int64
-                  want  string
+                  build func(*int64) (string, error)
               }{
-                  {name: "provided", rn: func() *int64 { value := int64(42); return &value }(), want: "rn=42"},
-                  {name: "omitted", rn: nil, want: ""},
+                  {name: "pool type definition", build: func(rn *int64) (string, error) {
+                      req, err := NewEngineApiGetPoolTypeDefinitionRequest("https://example.com", "pool-1", &EngineApiGetPoolTypeDefinitionParams{Rn: rn})
+                      if err != nil { return "", err }
+                      return req.URL.RawQuery, nil
+                  }},
+                  {name: "pool associated declaration", build: func(rn *int64) (string, error) {
+                      req, err := NewEngineApiGetPoolAssociatedDeclarationRequest("https://example.com", "pool-1", &EngineApiGetPoolAssociatedDeclarationParams{Rn: rn})
+                      if err != nil { return "", err }
+                      return req.URL.RawQuery, nil
+                  }},
+                  {name: "pool definition", build: func(rn *int64) (string, error) {
+                      req, err := NewEngineApiGetPoolDefinitionRequest("https://example.com", "pool-1", &EngineApiGetPoolDefinitionParams{Rn: rn})
+                      if err != nil { return "", err }
+                      return req.URL.RawQuery, nil
+                  }},
+                  {name: "process declaration", build: func(rn *int64) (string, error) {
+                      req, err := NewEngineApiGetProcessDeclarationRequest("https://example.com", "process-1", &EngineApiGetProcessDeclarationParams{Rn: rn})
+                      if err != nil { return "", err }
+                      return req.URL.RawQuery, nil
+                  }},
+                  {name: "process execution", build: func(rn *int64) (string, error) {
+                      req, err := NewEngineApiGetProcessExecutionRequest("https://example.com", "process-1", &EngineApiGetProcessExecutionParams{Rn: rn})
+                      if err != nil { return "", err }
+                      return req.URL.RawQuery, nil
+                  }},
+                  {name: "process type definition", build: func(rn *int64) (string, error) {
+                      req, err := NewEngineApiGetProcessTypeDefinitionRequest("https://example.com", "process-1", &EngineApiGetProcessTypeDefinitionParams{Rn: rn})
+                      if err != nil { return "", err }
+                      return req.URL.RawQuery, nil
+                  }},
+                  {name: "process associated declaration", build: func(rn *int64) (string, error) {
+                      req, err := NewEngineApiGetProcessAssociatedDeclarationRequest("https://example.com", "process-1", &EngineApiGetProcessAssociatedDeclarationParams{Rn: rn})
+                      if err != nil { return "", err }
+                      return req.URL.RawQuery, nil
+                  }},
+                  {name: "process definition", build: func(rn *int64) (string, error) {
+                      req, err := NewEngineApiGetProcessDefinitionRequest("https://example.com", "process-1", &EngineApiGetProcessDefinitionParams{Rn: rn})
+                      if err != nil { return "", err }
+                      return req.URL.RawQuery, nil
+                  }},
               }
 
+              value := int64(42)
               for _, tt := range tests {
                   t.Run(tt.name, func(t *testing.T) {
-                      req, err := NewEngineApiGetPoolTypeDefinitionRequest(
-                          "https://example.com", "pool-1",
-                          &EngineApiGetPoolTypeDefinitionParams{Rn: tt.rn},
-                      )
-                      if err != nil {
-                          t.Fatalf("build request: %v", err)
-                      }
-                      if got := req.URL.RawQuery; got != tt.want {
-                          t.Fatalf("query = %q, want %q", got, tt.want)
+                      for _, tc := range []struct {
+                          name string
+                          rn   *int64
+                          want string
+                      }{
+                          {name: "provided", rn: &value, want: "rn=42"},
+                          {name: "omitted", rn: nil, want: ""},
+                      } {
+                          t.Run(tc.name, func(t *testing.T) {
+                              got, err := tt.build(tc.rn)
+                              if err != nil { t.Fatalf("build request: %v", err) }
+                              if got != tc.want { t.Fatalf("query = %q, want %q", got, tc.want) }
+                          })
                       }
                   })
               }

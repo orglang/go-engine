@@ -39,12 +39,24 @@ jobs:
           fi
           grep -q "infinite recursion" /tmp/ogen-required-unpatched.log
           cat /tmp/ogen-required-unpatched.log
-      - name: Apply isolated required-pointer-boxing patch
+      - name: Apply isolated required-pointer-boxing change
         run: |
           GOMODCACHE=/tmp/ogen-required-gomodcache GOWORK=off go mod download github.com/ogen-go/ogen@v1.25.0
-          ogen_dir="/tmp/ogen-required-gomodcache/github.com/ogen-go/ogen@v1.25.0"
-          chmod -R u+w "$ogen_dir/gen"
-          patch -d "$ogen_dir" -p1 < prototypes/api-client/ogen/patches/0001-required-recursion-pointer-boxing.patch
+          ogen_file="/tmp/ogen-required-gomodcache/github.com/ogen-go/ogen@v1.25.0/gen/generics.go"
+          chmod u+w "$ogen_file"
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("/tmp/ogen-required-gomodcache/github.com/ogen-go/ogen@v1.25.0/gen/generics.go")
+          source = path.read_text()
+          old = 'return nil, errors.Errorf("infinite recursion: %s.%s is required", s.Name, field.Name)'
+          new = '// Required recursive fields need indirection to keep the Go value representation finite.\n\t\t\t\treturn ir.Pointer(t, ir.NilInvalid), nil'
+          count = source.count(old)
+          if count != 1:
+              raise SystemExit(f"expected exactly one required-recursion error site, found {count}")
+          path.write_text(source.replace(old, new, 1))
+          PY
+          grep -n -B2 -A2 'NilInvalid' "$ogen_file"
       - name: Generate client with pointer-boxing ogen v1.25.0
         run: |
           GOMODCACHE=/tmp/ogen-required-gomodcache GOWORK=off go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \

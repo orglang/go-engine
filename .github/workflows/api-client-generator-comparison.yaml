@@ -190,13 +190,56 @@ jobs:
           echo "exit_code=$status" >> "$GITHUB_OUTPUT"
           printf "exit_code=%s\\n" "$status" | tee "$RUNNER_TEMP/ogen-no-recursion.exit"
           cat "$RUNNER_TEMP/ogen-no-recursion.log"
+      - name: Diagnose POST pool execution spawn without recursive Pool.Term edges
+        id: ogen_spawn_no_recursion
+        shell: bash
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          import yaml
+
+          spec = yaml.safe_load(Path("openapi/openapi.yaml").read_text())
+          path = "/api/v1/pools/executions/spawns"
+          operation = spec.get("paths", {}).get(path, {}).get("post")
+          if operation is None:
+              raise SystemExit(f"missing expected operation: POST {path}")
+          spec["paths"] = {path: {"post": operation}}
+
+          targets = {
+              "Pool.Term.HireSpec",
+              "Pool.Term.ApplySpec",
+              "Pool.Term.AcquireSpec",
+              "Pool.Term.AcceptSpec",
+          }
+          schemas = spec.get("components", {}).get("schemas", {})
+          for name in targets:
+              schema = schemas.get(name)
+              if schema is None:
+                  raise SystemExit(f"missing expected schema: {name}")
+              schema.get("properties", {}).pop("cont_expr", None)
+              required = schema.get("required", [])
+              schema["required"] = [field for field in required if field != "cont_expr"]
+
+          Path(os.environ["RUNNER_TEMP"], "openapi-spawn-no-recursion.yaml").write_text(
+              yaml.safe_dump(spec, sort_keys=False)
+          )
+          PY
+          set +e
+          go run github.com/ogen-go/ogen/cmd/ogen@v1.25.0 \
+            --target "$RUNNER_TEMP/ogen-spawn-no-recursion" -package api --clean "$RUNNER_TEMP/openapi-spawn-no-recursion.yaml" \
+            > "$RUNNER_TEMP/ogen-spawn-no-recursion.log" 2>&1
+          status=$?
+          printf "exit_code=%s\\n" "$status" | tee "$RUNNER_TEMP/ogen-spawn-no-recursion.exit"
+          cat "$RUNNER_TEMP/ogen-spawn-no-recursion.log"
       - name: Test generated ogen package
         working-directory: ${{ runner.temp }}
         run: |
           go mod init example.com/ogen-recursion-diagnostic
-          go get ./ogen-no-recursion ./ogen-pool-types-no-recursion
+          go get ./ogen-no-recursion ./ogen-pool-types-no-recursion ./ogen-spawn-no-recursion
           go test ./ogen-no-recursion/...
-          go test ./ogen-pool-types-no-recursion/...
+          go test ./ogen-pool-types-no-recursion/...\n          go test ./ogen-spawn-no-recursion/...
       - name: Generate with oapi-codegen v2.8.2
         run: |
           mkdir -p "$RUNNER_TEMP/oapi-codegen"
@@ -787,10 +830,17 @@ jobs:
           cp "$RUNNER_TEMP/ogen-pool-types-post-only.exit" "$RUNNER_TEMP/comparison/" || true
           cp "$RUNNER_TEMP/ogen-pool-types-no-recursion.log" "$RUNNER_TEMP/comparison/" || true
           cp "$RUNNER_TEMP/ogen-pool-types-no-recursion.exit" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/ogen-spawn-no-recursion.log" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/ogen-spawn-no-recursion.exit" "$RUNNER_TEMP/comparison/" || true
+          cp "$RUNNER_TEMP/openapi-spawn-no-recursion.yaml" "$RUNNER_TEMP/comparison/" || true
           cp "$RUNNER_TEMP/openapi-pool-types-post-only.yaml" "$RUNNER_TEMP/comparison/" || true
           cp "$RUNNER_TEMP/openapi-pool-types-no-recursion.yaml" "$RUNNER_TEMP/comparison/" || true
           cp "$RUNNER_TEMP/openapi-without-pool-steps.yaml" "$RUNNER_TEMP/comparison/" || true
           cp "$RUNNER_TEMP/openapi-no-recursion.yaml" "$RUNNER_TEMP/comparison/" || true
+          if [ -d "$RUNNER_TEMP/ogen-spawn-no-recursion" ]; then
+            du -sb "$RUNNER_TEMP/ogen-spawn-no-recursion" | tee "$RUNNER_TEMP/comparison/ogen-spawn-no-recursion-size.txt"
+            cp -R "$RUNNER_TEMP/ogen-spawn-no-recursion" "$RUNNER_TEMP/comparison/ogen-spawn-no-recursion"
+          fi
           if [ -d "$RUNNER_TEMP/ogen-pool-types-no-recursion" ]; then
             du -sb "$RUNNER_TEMP/ogen-pool-types-no-recursion" | tee "$RUNNER_TEMP/comparison/ogen-pool-types-no-recursion-size.txt"
             cp -R "$RUNNER_TEMP/ogen-pool-types-no-recursion" "$RUNNER_TEMP/comparison/ogen-pool-types-no-recursion"

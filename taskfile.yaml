@@ -18,22 +18,6 @@ tasks:
     cmds:
       - GOWORK=off go get -tool -modfile=gear.mod github.com/golangci/golangci-lint/v2/cmd/golangci-lint github.com/jmattheis/goverter/cmd/goverter github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen
 
-  deps:lock:
-    desc: Tidy Go modules and update mise and npm lockfiles
-    cmds:
-      - GOWORK=off go mod tidy
-      - GOWORK=off go mod tidy -modfile=gear.mod
-      - mise lock
-      - cmd: npm install --package-lock-only --ignore-scripts
-        dir: tsp
-
-  deps:check:
-    desc: Check Go module manifests and tool lockfiles
-    deps:
-      - task: deps:lock
-    cmds:
-      - test -z "$(git status --porcelain -- ':(glob)**/*.mod' ':(glob)**/*.sum' ':(glob)**/package-lock.json' mise.lock)"
-
   binaries:
     desc: Build application binaries
     cmds:

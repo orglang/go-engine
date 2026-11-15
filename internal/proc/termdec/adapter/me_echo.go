@@ -28,6 +28,7 @@ func newControllerEcho(a termdec.API, l *slog.Logger) *controllerEcho {
 
 func cfgEchoController(e *echo.Echo, h *controllerEcho) error {
 	e.POST("/api/v1/procs/decs", h.PostSpec)
+	e.POST("/api/v1/processes/declarations", newGeneratedController(h.api).CreateProcessDeclaration)
 	e.GET("/api/v1/procs/decs/:id", h.GetSnap)
 	return nil
 }

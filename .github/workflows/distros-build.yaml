@@ -46,10 +46,8 @@ jobs:
           cache: true
           install: false
 
-      - name: Install distribution toolchains
-        run: |
-          mise -E distros-dev install --locked
-          mise -E distros-run install --locked
+      - name: Install distribution toolchain
+        run: mise -E distros install --locked
 
       - name: Install engine toolchains
         working-directory: engine
@@ -65,6 +63,8 @@ jobs:
         working-directory: engine
         run: mise -E sources exec -- task sources:generate
 
+      # mise pins the Buildx CLI for local use; this action additionally creates and boots
+      # the docker-container builder required by CI (including its BuildKit lifecycle).
       - name: Setup Buildx
         uses: docker/setup-buildx-action@v3
         with:
@@ -74,8 +74,8 @@ jobs:
       - name: Expose GitHub Actions runtime
         uses: crazy-max/ghaction-github-runtime@v3
 
-      - name: Build images
-        run: docker buildx bake --load
+      - name: Build distribution artifacts
+        run: mise -E distros exec -- task distros
 
       - name: Check common stack services
         working-directory: engine

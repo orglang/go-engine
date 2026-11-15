@@ -12,7 +12,6 @@ run = [
   "mise lock",
   "mise -E specs lock",
   "mise -E sources lock",
-  "mise -E binaries lock",
   "mise -E specs exec -- npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund",
 ]
 

@@ -1,7 +1,6 @@
 package db
 
 import (
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/app"
@@ -19,7 +18,7 @@ var Package = do.Package(
 		}
 		return newStorageProps(loader)
 	}),
-	do.Lazy[*pgxpool.Pool](func(i do.Injector) (*pgxpool.Pool, error) {
+	do.Lazy[*pgxPoolResource](func(i do.Injector) (*pgxPoolResource, error) {
 		props, err := do.Invoke[storageProps](i)
 		if err != nil {
 			return nil, err
@@ -31,10 +30,10 @@ var Package = do.Package(
 		return newPoolPgxDo(props, lifecycle)
 	}),
 	do.Lazy[tx.Transactor](func(i do.Injector) (tx.Transactor, error) {
-		pool, err := do.Invoke[*pgxpool.Pool](i)
+		resource, err := do.Invoke[*pgxPoolResource](i)
 		if err != nil {
 			return nil, err
 		}
-		return adapter.NewTransactorPgx(pool), nil
+		return adapter.NewTransactorPgx(resource.pool), nil
 	}),
 )

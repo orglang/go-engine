@@ -51,7 +51,7 @@ func TestGeneratedProcessDeclarationRoute(t *testing.T) {
 		}
 
 		var response struct {
-			TermId string `json:"term_id"`
+			TermID string `json:"term_id"`
 			TermRn int64  `json:"term_rn"`
 		}
 		if err := json.NewDecoder(rec.Body).Decode(&response); err != nil {

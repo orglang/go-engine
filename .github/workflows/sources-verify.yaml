@@ -29,15 +29,18 @@ jobs:
         uses: jdx/mise-action@v5
         with:
           cache: true
+          install: false
+
+      - name: Install specs and sources toolchains
+        run: |
+          mise -E specs install --locked
+          mise -E sources install --locked
 
       - name: Check dependencies
         run: mise run deps:check
 
-      - name: Install sources toolchain
-        run: mise -E sources-dev install --locked
-
       - name: Check sources
-        run: mise -E sources-dev exec -- task sources:check
+        run: mise -E sources exec -- task sources:check
 
       - name: Run unit tests
-        run: mise -E binaries-dev exec -- task tests:unit
+        run: mise -E binaries exec -- task tests:unit

@@ -6,7 +6,7 @@ go = "1.27.0"
 "go:github.com/go-task/task/v3/cmd/task" = "v3.54.0"
 
 [tasks."deps:lock"]
-description = "Tidy Go modules and update toolchain and npm lockfiles"
+description = "Update Go modules, specs/sources toolchains, and TypeSpec lockfiles"
 run = [
   "GOWORK=off go mod tidy",
   "mise lock",

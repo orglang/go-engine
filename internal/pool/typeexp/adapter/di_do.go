@@ -5,7 +5,7 @@ import (
 
 	"github.com/samber/do/v2"
 
-	core "orglang/go-engine/internal/pool/typeexp/core"
+	"orglang/go-engine/internal/pool/typeexp/core"
 )
 
 // Package registers the pool type-expression repository and its private query builder.

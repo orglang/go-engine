@@ -71,7 +71,11 @@ func TestEchoServerResourceStartsAndShutsDown(t *testing.T) {
 	resource.mu.Unlock()
 
 	client := &http.Client{Timeout: time.Second}
-	response, err := client.Get("http://" + address + "/health")
+	request, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "http://"+address+"/health", nil)
+	if err != nil {
+		t.Fatalf("create health request: %v", err)
+	}
+	response, err := client.Do(request)
 	if err != nil {
 		t.Fatalf("request health endpoint: %v", err)
 	}

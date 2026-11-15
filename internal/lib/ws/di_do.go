@@ -46,11 +46,12 @@ var Package = do.Package(
 			address:      fmt.Sprintf(":%d", config.Protocol.HTTP.Port),
 			shutdownDone: make(chan struct{}),
 		}
-		if err := lifecycle.Append(app.Hook{
+		appendErr := lifecycle.Append(app.Hook{
 			OnStart: resource.start,
 			OnStop:  resource.Shutdown,
-		}); err != nil {
-			return nil, err
+		})
+		if appendErr != nil {
+			return nil, appendErr
 		}
 		return resource, nil
 	}),
@@ -103,7 +104,7 @@ func (r *echoServerResource) start(ctx context.Context) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	listener, err := net.Listen("tcp", r.address)
+	listener, err := (&net.ListenConfig{}).Listen(ctx, "tcp", r.address)
 	if err != nil {
 		return fmt.Errorf("listen on %s: %w", r.address, err)
 	}

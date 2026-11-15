@@ -30,4 +30,4 @@ jobs:
           cache: true
 
       - name: Run binary checks
-        run: mise exec -- task binaries
+        run: mise -E binaries-dev exec -- task binaries

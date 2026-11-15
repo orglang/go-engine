@@ -4,6 +4,7 @@
 package adapter
 
 import (
+	webapi "orglang/go-engine/internal/app/web/api"
 	termsem1 "github.com/orglang/go-sdk/adt/termsem"
 	termvar "github.com/orglang/go-sdk/adt/termvar"
 	termdec "github.com/orglang/go-sdk/proc/termdec"
@@ -312,4 +313,52 @@ func coreDecSnapDSToTermsemSemRef(source core.DecSnapDS) (termsem.SemRef, error)
 	termsemSemRef.TermID = identityADT
 	termsemSemRef.TermRN = seqnum.ADT(source.TermRN)
 	return termsemSemRef, nil
+}
+
+
+func init() {
+	ConnVarFromGenerated = func(source webapi.AnyConnVarSpec) (termvar1.VarSpec, error) {
+		var result termvar1.VarSpec
+		chnlPH, err := symbol.ConvertFromString(source.ConnPh)
+		if err != nil {
+			return result, err
+		}
+		result.ChnlPH = chnlPH
+		typeQN, err := uniqsym.ConvertFromString(source.TypeQn)
+		if err != nil {
+			return result, err
+		}
+		result.TypeQN = typeQN
+		return result, nil
+	}
+	DecSpecFromGenerated = func(source webapi.ProcDecSpec) (core.DecSpec, error) {
+		var result core.DecSpec
+		termQN, err := uniqsym.ConvertFromString(source.TermQn)
+		if err != nil {
+			return result, err
+		}
+		result.TermQN = termQN
+		liabVar, err := ConnVarFromGenerated(source.LiabVar)
+		if err != nil {
+			return result, err
+		}
+		result.LiabVar = liabVar
+		if source.AssetVars != nil {
+			result.AssetVars = make([]termvar1.VarSpec, len(source.AssetVars))
+			for i := range source.AssetVars {
+				assetVar, err := ConnVarFromGenerated(source.AssetVars[i])
+				if err != nil {
+					return result, err
+				}
+				result.AssetVars[i] = assetVar
+			}
+		}
+		return result, nil
+	}
+	DecSnapToGenerated = func(source core.DecSnap) webapi.AnyTermRef {
+		return webapi.AnyTermRef{
+			TermId: identity.ConvertToString(source.TermRef.TermID),
+			TermRn: int64(source.TermRef.TermRN),
+		}
+	}
 }

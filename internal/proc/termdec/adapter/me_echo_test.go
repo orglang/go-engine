@@ -24,7 +24,7 @@ func TestGeneratedProcessDeclarationRoute(t *testing.T) {
 		if err := cfgEchoController(e, h); err != nil {
 			t.Fatalf("configure controller: %v", err)
 		}
-		webapi.RegisterHandlers(e, h)
+		e.POST("/api/v1/processes/declarations", h.CreateProcessDeclaration)
 
 		const body = `{
 			"asset_vars": [{"conn_ph": "asset", "type_qn": "example.Asset"}],

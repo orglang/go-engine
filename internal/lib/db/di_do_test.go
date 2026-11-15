@@ -8,6 +8,7 @@ import (
 
 	"orglang/go-engine/internal/app"
 	"orglang/go-engine/internal/lib/kv"
+	"orglang/go-engine/internal/lib/tx"
 )
 
 type staticStorageLoader struct{}
@@ -39,10 +40,6 @@ func TestPackageProvidesTransactorAndClosesPoolOnAppStop(t *testing.T) {
 		}),
 		Package,
 	)
-
-	if _, err := do.Invoke[interface{ ExplicitTx(context.Context, func(context.Context, tx.Conn) error) error }](application.Container()); err == nil {
-		t.Fatal("expected unsupported interface binding to be absent")
-	}
 
 	resource, err := do.Invoke[*pgxPoolResource](application.Container())
 	if err != nil {

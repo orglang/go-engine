@@ -21,20 +21,20 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Checkout workspace
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: main
           repository: orglang/go-workspace
 
       - name: Checkout engine
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           repository: orglang/go-engine
           path: engine
 
       - name: Checkout SDK
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: main
           repository: orglang/go-sdk

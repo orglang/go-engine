@@ -6,6 +6,9 @@ The `samber/do/v2` migration starts by exposing infrastructure registrations as 
 
 - `internal/lib/lf.Package` lazily provides the shared `*slog.Logger`.
 - `internal/lib/kv.Package` lazily provides the `kv.Loader` port. It resolves the logger from the same injector and returns reference-configuration read errors to the caller instead of panicking.
+- `internal/lib/db.Package` lazily provides PostgreSQL storage configuration and the `tx.Transactor`. Pool readiness is registered with `app.Lifecycle`, while pool closure is owned by a `samber/do` shutdown resource.
+- `internal/lib/wp.Package` lazily provides both worker-pool implementations and registers shutdown resources. Application shutdown stops accepting work and waits for accepted tasks to drain, subject to the caller's shutdown context.
+- `internal/lib/ws.Package` lazily provides the Echo server. Its lifecycle hook binds the TCP listener synchronously during startup, reports bind failures to `App.Start`, and gracefully shuts down the server.
 
 A minimal composition is:
 
@@ -21,8 +24,6 @@ The configuration loader is lazy: the reference file is read when `kv.Loader` is
 
 ## Intentionally not migrated in this slice
 
-- `db` owns a PostgreSQL pool and currently couples pool ping/close to Fx hooks. Its `OnStop` callback also returns before `pool.Close` completes. It needs an explicit shutdown contract before registration moves.
-- `ws` owns the Echo server and currently starts it asynchronously from an Fx hook without waiting for listener readiness. It needs explicit start/stop orchestration and startup error propagation.
-- `wp` owns worker pools; their stop/wait semantics must be connected to the future App lifecycle rather than left to container garbage collection.
+- The production entrypoint still uses the legacy Fx modules. The `samber/do` packages are available for the future composition-root switch; this slice does not change `cmd/engine/main.go` or remove Fx.
 
-These providers remain on the existing Fx production composition until the lifecycle work establishes a single, explicit owner. This slice does not switch the production entrypoint or remove Fx.
+The legacy Fx modules remain available for the current production composition. This slice does not switch the production entrypoint or remove Fx.

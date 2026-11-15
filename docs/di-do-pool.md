@@ -27,11 +27,15 @@ The broker and API form a runtime relationship, so subscription is not hidden
 inside a lazy provider. The application composition root must call
 `compexecadapter.SubscribeBroker(injector)` after registering `pool.Package`.
 
-## Not included yet
+## HTTP boundary
 
-HTTP controller construction and route registration remain on the legacy Fx
-composition and will move at the inbound/composition boundary. The production
-entrypoint remains on Fx during this incremental migration.
+The pool computation-execution adapter exposes
+`compexecadapter.RegisterRoutes(echoServer, api, logger)` as an explicit
+inbound composition function. The legacy Fx module invokes this function, so
+the existing production routes remain active while the application entrypoint
+is migrated in a later step. A focused adapter test verifies all three routes.
+
+The production entrypoint remains on Fx during this incremental migration.
 
 `termexp` remains intentionally unwired because its repository has no
 production consumer. Translation/model-only packages do not receive DI modules.

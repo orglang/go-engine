@@ -74,7 +74,9 @@ func TestDriverQueryAdaptsColumnNames(t *testing.T) {
 	if result.NextResultSet() {
 		t.Fatal("pgx adapter must not report multiple result sets")
 	}
-	result.Close()
+	if err := result.Close(); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestDriverDisablesEntTransactions(t *testing.T) {

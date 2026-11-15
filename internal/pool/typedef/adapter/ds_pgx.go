@@ -60,12 +60,13 @@ func (dao *daoPgx) Update(ctx context.Context, conn tx.Conn, rec typedef.DefRec)
 		return convErr
 	}
 	args := pgx.NamedArgs{
-		"desc_id": dto.TypeID,
+		"type_id": dto.TypeID,
+		"type_rn": dto.TypeRN,
 		"exp_ck":  dto.ExpCK,
 	}
 	_, execErr := conn.Pgx.Exec(ctx, updateRec, args)
 	if execErr != nil {
-		dao.log.Error("query execution failed", refAttr)
+		dao.log.Error("query execution failed", refAttr, slog.String("sql", updateRec))
 		return execErr
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "update succeed", refAttr)
@@ -142,15 +143,14 @@ func (dao *daoPgx) SelectRecsByRefs(ctx context.Context, conn tx.Conn, refs []ty
 		rows, err := br.Query()
 		if err != nil {
 			dao.log.Error("query execution failed", slog.Any("defRef", defRef), slog.String("q", selectRecByID))
+			return nil, err
 		}
 		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[typedef.DefRecDS])
 		if err != nil {
 			dao.log.Error("row scanning failed", slog.Any("defRef", defRef))
+			return nil, err
 		}
 		dtos = append(dtos, dto)
-	}
-	if err != nil {
-		return nil, err
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("dtos", dtos))
 	return DataToDefRecs(dtos)
@@ -191,32 +191,32 @@ func (dao *daoPgx) GetRecsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 const (
 	updateRec = `
 		update pool_type_defs
-		set def_rn = @def_rn,
+		set type_rn = @type_rn,
 			exp_ck = @exp_ck
-		where desc_id = @desc_id
-			and def_rn = @def_rn - 1`
+		where type_id = @type_id
+			and type_rn = @type_rn - 1`
 
 	selectRefs = `
 		select
-			desc_id,
-			def_rn
+			type_id,
+			type_rn
 		from pool_type_defs`
 
 	selectRecByQN = `
 		select
-			xd.desc_id,
-			xd.def_rn,
+			xd.type_id,
+			xd.type_rn,
 			xd.exp_ck
 		from pool_type_defs xd
-		left join desc_binds db
-			on db.desc_id = xd.desc_id
+		join pool_desc_binds db
+			on db.desc_id = xd.type_id
 		where db.desc_qn = $1`
 
 	selectRecByID = `
 		select
-			desc_id,
-			def_rn,
+			type_id,
+			type_rn,
 			exp_ck
 		from pool_type_defs
-		where desc_id = $1`
+		where type_id = $1`
 )

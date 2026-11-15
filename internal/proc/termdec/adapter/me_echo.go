@@ -11,24 +11,25 @@ import (
 	sdktermdec "github.com/orglang/go-sdk/proc/termdec"
 
 	"orglang/go-engine/internal/adt/termsem"
-
+	webapi "orglang/go-engine/internal/app/web/api"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
 // Server-side primary adapter
 type controllerEcho struct {
+	webapi.ServerInterface
 	api termdec.API
 	log *slog.Logger
 }
 
 func newControllerEcho(a termdec.API, l *slog.Logger) *controllerEcho {
 	name := slog.String("name", reflect.TypeFor[controllerEcho]().Name())
-	return &controllerEcho{a, l.With(name)}
+	return &controllerEcho{api: a, log: l.With(name)}
 }
 
 func cfgEchoController(e *echo.Echo, h *controllerEcho) error {
 	e.POST("/api/v1/procs/decs", h.PostSpec)
-	e.POST("/api/v1/processes/declarations", newGeneratedController(h.api).CreateProcessDeclaration)
+	e.POST("/api/v1/processes/declarations", h.CreateProcessDeclaration)
 	e.GET("/api/v1/procs/decs/:id", h.GetSnap)
 	return nil
 }

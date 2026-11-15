@@ -34,7 +34,7 @@ jobs:
         run: mise run deps:check
 
       - name: Install sources toolchain
-        run: mise -E sources-dev install
+        run: mise -E sources-dev install --locked
 
       - name: Check sources
         run: mise -E sources-dev exec -- task sources:check

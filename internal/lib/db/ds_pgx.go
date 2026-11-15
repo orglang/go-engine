@@ -63,7 +63,7 @@ func newPoolPgxDo(props storageProps, lifecycle app.Lifecycle) (*pgxPoolResource
 	}
 	resource := &pgxPoolResource{pool: pool}
 
-	if err := lifecycle.Append(app.Hook{
+	appendErr := lifecycle.Append(app.Hook{
 		OnStart: func(ctx context.Context) error {
 			if err := pool.Ping(ctx); err != nil {
 				resource.close()
@@ -71,9 +71,10 @@ func newPoolPgxDo(props storageProps, lifecycle app.Lifecycle) (*pgxPoolResource
 			}
 			return nil
 		},
-	}); err != nil {
+	})
+	if appendErr != nil {
 		resource.close()
-		return nil, err
+		return nil, appendErr
 	}
 
 	return resource, nil

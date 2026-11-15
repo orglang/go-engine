@@ -1,6 +1,7 @@
 package adapter
 
 import (
+	"io"
 	"log/slog"
 	"testing"
 

@@ -34,11 +34,14 @@ jobs:
       - name: Install dependencies
         run: mise run deps:install
 
+      - name: Install sources toolchain
+        run: mise -E sources install --locked
+
       - name: Generate specs
-        run: task specs:generate
+        run: mise -E specs exec -- task specs:generate
 
       - name: Generate sources
-        run: task sources:generate
+        run: mise -E sources exec -- task sources:generate
 
       - name: Commit sources
         run: |

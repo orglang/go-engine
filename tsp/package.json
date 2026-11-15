@@ -1,0 +1,13 @@
+{
+  "name": "@orglang/go-engine-api-contract",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsp compile ."
+  },
+  "dependencies": {
+    "@typespec/compiler": "^1.0.0",
+    "@typespec/http": "^1.0.0",
+    "@typespec/openapi3": "^1.0.0"
+  }
+}

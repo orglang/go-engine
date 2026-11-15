@@ -13,46 +13,61 @@ vars:
   PSV: shell # shell, docker
 
 tasks:
-  tools:install:
-    desc: Download tooling dependencies declared in gear.mod
-    cmds:
-      - GOWORK=off go get -tool -modfile=gear.mod github.com/golangci/golangci-lint/v2/cmd/golangci-lint github.com/jmattheis/goverter/cmd/goverter
-
-  gear:sum:
-    desc: Generate checksums for tooling dependencies
-    cmds:
-      - GOWORK=off go mod download -modfile=gear.mod all
-
   binaries:
+    desc: Run integration checks and build application binaries
+    cmds:
+      - task: binaries:test
+      - task: binaries:build
+
+  binaries:test:
+    desc: Run integration tests required for binary delivery
+    cmds:
+      - task: tests:it
+
+  binaries:build:
     desc: Build application binaries
     cmds:
-      - task: sources:generate
       - task: engine:binary
 
   sources:check:
-    desc: Check prepared source artifact
+    desc: Verify generated sources and run linters
+    deps:
+      - task: sources:generate
     cmds:
-      - task: tools:install
-      - GOWORK=off go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...
-      - GOWORK=off go tool -modfile=gear.mod golangci-lint fmt --diff
-      - GOWORK=off go tool -modfile=gear.mod golangci-lint run ./...
+      - test -z "$(git status --porcelain -- ':(glob)**/*.gen.go')"
+      - golangci-lint fmt --diff
+      - golangci-lint run ./...
 
   sources:prepare:
-    desc: Prepare source artifact
+    desc: Generate source artifacts and format handwritten Go code
     cmds:
-      - gofmt -s -w .
       - task: sources:generate
+      - golangci-lint fmt
 
   sources:generate:
-    desc: Generate source artifacts with goverter
+    desc: Generate source artifacts
     cmds:
-      - task: tools:install
-      - GOWORK=off go tool -modfile=gear.mod goverter gen -global 'skipCopySameType' ./...
+      - goverter gen -global 'skipCopySameType' ./...
+      - oapi-codegen -config internal/app/web/api/cfg.yaml openapi/openapi.yaml
 
-  sources:verify:
-    desc: Verify the current HEAD before publishing
+  specs:generate:
+    desc: Generate OpenAPI from TypeSpec
+    dir: tsp
     cmds:
-      - task: tests:unit
+      - npm run build
+
+  specs:check:
+    desc: Check TypeSpec compilation and generated OpenAPI
+    deps:
+      - task: specs:generate
+    cmds:
+      - test -f openapi/openapi.yaml
+      - test -z "$(git status --porcelain -- openapi/openapi.yaml)"
+
+  specs:verify:
+    desc: Verify specs before publishing
+    cmds:
+      - task: specs:check
 
   hooks:install:
     desc: Configure this repository to use versioned Git hooks
@@ -84,7 +99,7 @@ tasks:
     cmds:
       - cmd: go test -tags=unit ./internal/lib/... ./internal/adt/... ./internal/app/... ./cmd/... ./internal/pool/... ./internal/proc/... ./internal/prog/... ./internal/proto/...
         if: '{{eq .LEVEL "unit"}}'
-      - cmd: go test -run=TestIntegration ./internal/lib/... ./internal/adt/... ./internal/app/... ./cmd/...
+      - cmd: go test -run=TestIntegration ./internal/lib/... ./internal/adt/... ./internal/app/... ./cmd/... ./test/it/...
         if: '{{eq .LEVEL "it"}}'
       - cmd: go test -failfast ./test/...
         if: '{{eq .LEVEL "e2e"}}'

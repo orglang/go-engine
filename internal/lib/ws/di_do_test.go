@@ -3,7 +3,6 @@ package ws
 import (
 	"context"
 	"errors"
-	"net"
 	"net/http"
 	"testing"
 	"time"
@@ -72,7 +71,7 @@ func TestEchoServerResourceStartsAndShutsDown(t *testing.T) {
 	resource.mu.Unlock()
 
 	client := &http.Client{Timeout: time.Second}
-	response, err := client.Get("http://" + net.JoinHostPort(hostname(address), port(address)) + "/health")
+	response, err := client.Get("http://" + address + "/health")
 	if err != nil {
 		t.Fatalf("request health endpoint: %v", err)
 	}
@@ -86,18 +85,3 @@ func TestEchoServerResourceStartsAndShutsDown(t *testing.T) {
 	}
 }
 
-func hostname(address string) string {
-	host, _, err := net.SplitHostPort(address)
-	if err != nil {
-		return address
-	}
-	return host
-}
-
-func port(address string) string {
-	_, port, err := net.SplitHostPort(address)
-	if err != nil {
-		return ""
-	}
-	return port
-}

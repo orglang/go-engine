@@ -49,6 +49,9 @@ func TestGeneratedProcessDeclarationRoute(t *testing.T) {
 		if got := uniqsym.ConvertToString(decAPI.spec.LiabVar.TypeQN); got != "example.Liability" {
 			t.Errorf("unexpected liability type qn: got %q", got)
 		}
+		if got := string(decAPI.spec.LiabVar.ChnlPH); got != "liability" {
+			t.Errorf("unexpected liability channel: got %q", got)
+		}
 		if len(decAPI.spec.AssetVars) != 1 || uniqsym.ConvertToString(decAPI.spec.AssetVars[0].TypeQN) != "example.Asset" {
 			t.Errorf("unexpected asset vars: %+v", decAPI.spec.AssetVars)
 		}

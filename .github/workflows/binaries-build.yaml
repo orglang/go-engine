@@ -30,8 +30,8 @@ jobs:
           cache: true
           install: false
 
-      - name: Install binaries toolchain
-        run: mise -E binaries install --locked
+      - name: Install base toolchain
+        run: mise install --locked
 
       - name: Run binary checks
-        run: mise -E binaries exec -- task binaries
+        run: mise exec -- task binaries

@@ -45,6 +45,7 @@ jobs:
         with:
           working_directory: engine
           cache: true
+          install: false
 
       - name: Install tools and dependencies
         working-directory: engine
@@ -52,11 +53,11 @@ jobs:
 
       - name: Install sources toolchain
         working-directory: engine
-        run: mise -E sources-dev install --locked
+        run: mise -E sources install --locked
 
       - name: Generate engine sources
         working-directory: engine
-        run: mise -E sources-dev exec -- task sources:generate
+        run: mise -E sources exec -- task sources:generate
 
       - name: Setup Buildx
         uses: docker/setup-buildx-action@v3

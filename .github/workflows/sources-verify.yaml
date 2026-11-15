@@ -30,6 +30,8 @@ jobs:
         with:
           cache: true
           install: false
+          # Save after the explicit mise installs below so newly installed tools are cached.
+          cache_save_post: true
 
       - name: Install specs and sources toolchains
         run: |

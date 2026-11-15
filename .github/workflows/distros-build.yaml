@@ -23,7 +23,8 @@ jobs:
       - name: Checkout workspace
         uses: actions/checkout@v6
         with:
-          ref: ci/stage-orchestration
+          # If go-workspace and go-engine changes need to land together, merge go-workspace first.
+          ref: main
           repository: orglang/go-workspace
 
       - name: Checkout engine

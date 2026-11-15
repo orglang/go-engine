@@ -10,17 +10,17 @@ description = "Tidy Go modules and update mise and npm lockfiles"
 run = [
   "GOWORK=off go mod tidy",
   "mise lock",
-  "mise -E specs-dev lock",
-  "mise -E sources-dev lock",
-  "mise -E specs-dev exec -- npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund",
+  "mise -E specs lock",
+  "mise -E sources lock",
+  "mise -E specs exec -- npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund",
 ]
 
 [tasks."deps:install"]
 description = "Download Go modules and install TypeSpec dependencies"
 run = [
+  "mise -E specs install --locked",
   "GOWORK=off go mod download",
-  "mise -E specs-dev install --locked",
-  "mise -E specs-dev exec -- npm ci --prefix tsp --no-audit --no-fund",
+  "mise -E specs exec -- npm ci --prefix tsp --no-audit --no-fund",
 ]
 
 [tasks."deps:check"]

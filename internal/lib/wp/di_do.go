@@ -1,0 +1,87 @@
+package wp
+
+import (
+	"context"
+	"sync"
+
+	"github.com/alitto/pond/v2"
+	"github.com/gammazero/workerpool"
+	"github.com/samber/do/v2"
+)
+
+// Package registers worker pools and gives the application container explicit
+// ownership of their shutdown.
+var Package = do.Package(
+	do.Lazy[*pondPoolResource](func(do.Injector) (*pondPoolResource, error) {
+		return &pondPoolResource{
+			pool: newPondPool(),
+			done: make(chan struct{}),
+		}, nil
+	}),
+	do.Lazy[pond.Pool](func(i do.Injector) (pond.Pool, error) {
+		resource, err := do.Invoke[*pondPoolResource](i)
+		if err != nil {
+			return nil, err
+		}
+		return resource.pool, nil
+	}),
+	do.Lazy[*workerPoolResource](func(do.Injector) (*workerPoolResource, error) {
+		return &workerPoolResource{
+			pool: newWorkerPool(),
+			done: make(chan struct{}),
+		}, nil
+	}),
+	do.Lazy[*workerpool.WorkerPool](func(i do.Injector) (*workerpool.WorkerPool, error) {
+		resource, err := do.Invoke[*workerPoolResource](i)
+		if err != nil {
+			return nil, err
+		}
+		return resource.pool, nil
+	}),
+)
+
+type pondPoolResource struct {
+	pool pond.Pool
+	once sync.Once
+	done chan struct{}
+}
+
+// Shutdown stops accepting work and waits for all accepted pond tasks.
+func (r *pondPoolResource) Shutdown(ctx context.Context) error {
+	r.once.Do(func() {
+		go func() {
+			r.pool.StopAndWait()
+			close(r.done)
+		}()
+	})
+
+	select {
+	case <-r.done:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+}
+
+type workerPoolResource struct {
+	pool *workerpool.WorkerPool
+	once sync.Once
+	done chan struct{}
+}
+
+// Shutdown drains accepted worker-pool tasks before returning.
+func (r *workerPoolResource) Shutdown(ctx context.Context) error {
+	r.once.Do(func() {
+		go func() {
+			r.pool.StopWait()
+			close(r.done)
+		}()
+	})
+
+	select {
+	case <-r.done:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+}

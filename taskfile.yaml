@@ -14,13 +14,13 @@ vars:
 
 tasks:
   binaries:
-    desc: Run binary stage checks and build application binaries
+    desc: Run integration checks and build application binaries
     cmds:
       - task: binaries:test
       - task: binaries:build
 
   binaries:test:
-    desc: Run integration tests for the binary stage
+    desc: Run integration tests required for binary delivery
     cmds:
       - task: tests:it
 
@@ -30,7 +30,7 @@ tasks:
       - task: engine:binary
 
   sources:check:
-    desc: Check generated source reproducibility and run linters
+    desc: Verify generated sources and run linters
     deps:
       - task: sources:generate
     cmds:
@@ -39,7 +39,7 @@ tasks:
       - golangci-lint run ./...
 
   sources:prepare:
-    desc: Prepare source artifacts and format handwritten Go code
+    desc: Generate source artifacts and format handwritten Go code
     cmds:
       - task: sources:generate
       - golangci-lint fmt

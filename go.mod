@@ -3,6 +3,7 @@ module orglang/go-engine
 go 1.27.0
 
 require (
+	entgo.io/ent v0.14.6
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/alitto/pond/v2 v2.7.0
 	github.com/gammazero/workerpool v1.3.0

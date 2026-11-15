@@ -42,8 +42,8 @@ var Package = do.Package(
 
 		server := newEcho(logger)
 		resource := &echoServerResource{
-			server:      server,
-			address:     fmt.Sprintf(":%d", config.Protocol.HTTP.Port),
+			server:       server,
+			address:      fmt.Sprintf(":%d", config.Protocol.HTTP.Port),
 			shutdownDone: make(chan struct{}),
 		}
 		if err := lifecycle.Append(app.Hook{
@@ -88,8 +88,8 @@ func newEcho(logger *slog.Logger) *echo.Echo {
 }
 
 type echoServerResource struct {
-	server   *echo.Echo
-	address  string
+	server  *echo.Echo
+	address string
 
 	mu           sync.Mutex
 	listener     net.Listener

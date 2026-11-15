@@ -84,4 +84,3 @@ func TestEchoServerResourceStartsAndShutsDown(t *testing.T) {
 		t.Fatalf("shutdown server: %v", err)
 	}
 }
-

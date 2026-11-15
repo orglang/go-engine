@@ -14,10 +14,18 @@ import (
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/app"
+	"orglang/go-engine/internal/lib/kv"
 )
 
 // Package registers the Echo HTTP server and its explicit application lifecycle.
 var Package = do.Package(
+	do.Lazy[exchangeCS](func(i do.Injector) (exchangeCS, error) {
+		loader, err := do.Invoke[kv.Loader](i)
+		if err != nil {
+			return exchangeCS{}, err
+		}
+		return newExchangeCS(loader)
+	}),
 	do.Lazy[*echoServerResource](func(i do.Injector) (*echoServerResource, error) {
 		config, err := do.Invoke[exchangeCS](i)
 		if err != nil {
@@ -32,7 +40,7 @@ var Package = do.Package(
 			return nil, err
 		}
 
-		server := newEcho(config, logger)
+		server := newEcho(logger)
 		resource := &echoServerResource{
 			server: server,
 			address: fmt.Sprintf(":%d", config.Protocol.HTTP.Port),
@@ -55,7 +63,7 @@ var Package = do.Package(
 	}),
 )
 
-func newEcho(config exchangeCS, logger *slog.Logger) *echo.Echo {
+func newEcho(logger *slog.Logger) *echo.Echo {
 	server := echo.New()
 	log := logger.With(slog.String("name", "echoServer"))
 	server.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{

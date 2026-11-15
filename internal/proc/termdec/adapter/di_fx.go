@@ -5,8 +5,8 @@ import (
 
 	"orglang/go-engine/internal/adt/typesem"
 	typesemadapter "orglang/go-engine/internal/adt/typesem/adapter"
-	"orglang/go-engine/internal/lib/te"
 	webapi "orglang/go-engine/internal/app/web/api"
+	"orglang/go-engine/internal/lib/te"
 
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 )

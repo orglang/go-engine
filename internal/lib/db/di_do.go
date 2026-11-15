@@ -5,6 +5,7 @@ import (
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/app"
+	"orglang/go-engine/internal/lib/db/adapter"
 	"orglang/go-engine/internal/lib/kv"
 	"orglang/go-engine/internal/lib/tx"
 )

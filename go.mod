@@ -12,7 +12,7 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/huandu/go-sqlbuilder v1.40.2
 	github.com/jackc/pgx/v5 v5.9.2
-	github.com/labstack/echo/v4 v4.16.3
+	github.com/labstack/echo/v4 v4.16.4
 	github.com/oapi-codegen/runtime v1.9.0
 	github.com/orglang/go-sdk v0.0.0-20260912152343-a8600e41f90d
 	github.com/rs/xid v1.6.0

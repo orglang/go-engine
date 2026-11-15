@@ -1,0 +1,37 @@
+name: Mise Tools
+
+on:
+  schedule:
+    - cron: "41 5 * * 1"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  outdated:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up mise
+        uses: jdx/mise-action@v5
+        with:
+          cache: true
+          install: true
+
+      - name: Update the mise tools issue
+        run: node mise/scripts/outdated-issue.mjs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

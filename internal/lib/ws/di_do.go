@@ -42,13 +42,13 @@ var Package = do.Package(
 
 		server := newEcho(logger)
 		resource := &echoServerResource{
-			server: server,
-			address: fmt.Sprintf(":%d", config.Protocol.HTTP.Port),
+			server:      server,
+			address:     fmt.Sprintf(":%d", config.Protocol.HTTP.Port),
 			shutdownDone: make(chan struct{}),
 		}
 		if err := lifecycle.Append(app.Hook{
 			OnStart: resource.start,
-			OnStop: resource.Shutdown,
+			OnStop:  resource.Shutdown,
 		}); err != nil {
 			return nil, err
 		}
@@ -88,15 +88,15 @@ func newEcho(logger *slog.Logger) *echo.Echo {
 }
 
 type echoServerResource struct {
-	server *echo.Echo
-	address string
+	server   *echo.Echo
+	address  string
 
-	mu sync.Mutex
-	listener net.Listener
-	serveDone chan error
+	mu           sync.Mutex
+	listener     net.Listener
+	serveDone    chan error
 	shutdownOnce sync.Once
 	shutdownDone chan struct{}
-	shutdownErr error
+	shutdownErr  error
 }
 
 func (r *echoServerResource) start(ctx context.Context) error {
@@ -115,7 +115,7 @@ func (r *echoServerResource) start(ctx context.Context) error {
 	r.mu.Unlock()
 
 	go func() {
-		err := r.server.StartListener(listener)
+		err := r.server.Server.Serve(listener)
 		if errors.Is(err, http.ErrServerClosed) {
 			err = nil
 		}

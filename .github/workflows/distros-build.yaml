@@ -23,8 +23,8 @@ jobs:
       - name: Checkout workspace
         uses: actions/checkout@v6
         with:
-          # If go-workspace and go-engine changes need to land together, merge go-workspace first.
-          ref: main
+          # Keep this ref on the workspace migration branch until it is merged.
+          ref: mise/workspace-task-runner
           repository: orglang/go-workspace
 
       - name: Checkout engine
@@ -78,11 +78,11 @@ jobs:
         uses: crazy-max/ghaction-github-runtime@v3
 
       - name: Build distribution artifacts
-        run: mise -E distros exec -- task distros
+        run: mise -E distros run distros
 
       - name: Check common stack services
         working-directory: engine
-        run: mise exec -- task --dir .. stack:commons
+        run: mise -C .. -E distros run stack commons
 
       - name: PostgreSQL compose diagnostics
         if: ${{ failure() }}

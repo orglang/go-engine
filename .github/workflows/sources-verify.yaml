@@ -43,4 +43,4 @@ jobs:
         run: mise -E sources exec -- task sources:check
 
       - name: Run unit tests
-        run: mise -E binaries exec -- task tests:unit
+        run: mise exec -- task tests:unit

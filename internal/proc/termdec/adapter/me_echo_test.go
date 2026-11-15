@@ -10,10 +10,9 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	webapi "orglang/go-engine/internal/app/web/api"
-
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/uniqsym"
+	webapi "orglang/go-engine/internal/app/web/api"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 

@@ -1,7 +1,6 @@
 package adapter
 
 import (
-	"fmt"
 	"log/slog"
 	"net/http"
 	"reflect"
@@ -11,18 +10,13 @@ import (
 	sdk "github.com/orglang/go-sdk/adt/termsem"
 	sdktermdec "github.com/orglang/go-sdk/proc/termdec"
 
-	"orglang/go-engine/internal/adt/identity"
-	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/termsem"
-	"orglang/go-engine/internal/adt/termvar"
-	"orglang/go-engine/internal/adt/uniqsym"
 	webapi "orglang/go-engine/internal/app/web/api"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
 // Server-side primary adapter
 type controllerEcho struct {
-	webapi.ServerInterface
 	api termdec.API
 	log *slog.Logger
 }
@@ -34,7 +28,6 @@ func newControllerEcho(a termdec.API, l *slog.Logger) *controllerEcho {
 
 func cfgEchoController(e *echo.Echo, h *controllerEcho) error {
 	e.POST("/api/v1/procs/decs", h.PostSpec)
-	e.POST("/api/v1/processes/declarations", h.CreateProcessDeclaration)
 	e.GET("/api/v1/procs/decs/:id", h.GetSnap)
 	return nil
 }
@@ -88,7 +81,7 @@ func (h *controllerEcho) CreateProcessDeclaration(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	spec, err := decSpecFromGenerated(dto)
+	spec, err := DecSpecFromGenerated(dto)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -98,47 +91,46 @@ func (h *controllerEcho) CreateProcessDeclaration(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusCreated, webapi.AnyTermRef{
-		TermId: identity.ConvertToString(snap.TermRef.TermID),
-		TermRn: int64(snap.TermRef.TermRN),
-	})
+	return c.JSON(http.StatusCreated, DecSnapToGenerated(snap))
 }
 
-func decSpecFromGenerated(dto webapi.ProcDecSpec) (termdec.DecSpec, error) {
-	termQN, err := uniqsym.ConvertFromString(dto.TermQn)
-	if err != nil {
-		return termdec.DecSpec{}, fmt.Errorf("term_qn: %w", err)
-	}
-
-	liabVar, err := connVarFromGenerated(dto.LiabVar)
-	if err != nil {
-		return termdec.DecSpec{}, fmt.Errorf("liab_var: %w", err)
-	}
-
-	assetVars := make([]termvar.VarSpec, len(dto.AssetVars))
-	for i, dtoVar := range dto.AssetVars {
-		assetVars[i], err = connVarFromGenerated(dtoVar)
-		if err != nil {
-			return termdec.DecSpec{}, fmt.Errorf("asset_vars[%d]: %w", i, err)
-		}
-	}
-
-	return termdec.DecSpec{
-		TermQN:    termQN,
-		LiabVar:   liabVar,
-		AssetVars: assetVars,
-	}, nil
+func notImplemented() error {
+	return echo.NewHTTPError(http.StatusNotImplemented, "operation is not implemented")
 }
 
-func connVarFromGenerated(dto webapi.AnyConnVarSpec) (termvar.VarSpec, error) {
-	chnlPH, err := symbol.ConvertFromString(dto.ConnPh)
-	if err != nil {
-		return termvar.VarSpec{}, fmt.Errorf("conn_ph: %w", err)
-	}
-	typeQN, err := uniqsym.ConvertFromString(dto.TypeQn)
-	if err != nil {
-		return termvar.VarSpec{}, fmt.Errorf("type_qn: %w", err)
-	}
-
-	return termvar.VarSpec{ChnlPH: chnlPH, TypeQN: typeQN}, nil
+func (h *controllerEcho) CreatePoolDeclaration(echo.Context) error { return notImplemented() }
+func (h *controllerEcho) CreatePoolExecution(echo.Context) error { return notImplemented() }
+func (h *controllerEcho) SpawnPoolExecution(echo.Context) error { return notImplemented() }
+func (h *controllerEcho) StepPoolExecution(echo.Context) error { return notImplemented() }
+func (h *controllerEcho) CreatePoolTypeDefinition(echo.Context) error { return notImplemented() }
+func (h *controllerEcho) GetPoolTypeDefinition(echo.Context, string, webapi.GetPoolTypeDefinitionParams) error {
+	return notImplemented()
 }
+func (h *controllerEcho) GetPoolAssociatedDeclaration(echo.Context, string, webapi.GetPoolAssociatedDeclarationParams) error {
+	return notImplemented()
+}
+func (h *controllerEcho) GetPoolDefinition(echo.Context, string, webapi.GetPoolDefinitionParams) error {
+	return notImplemented()
+}
+func (h *controllerEcho) ExtendPoolDefinition(echo.Context, string) error { return notImplemented() }
+func (h *controllerEcho) ListPoolExecutions(echo.Context, string) error { return notImplemented() }
+func (h *controllerEcho) GetProcessDeclaration(echo.Context, string, webapi.GetProcessDeclarationParams) error {
+	return notImplemented()
+}
+func (h *controllerEcho) GetProcessExecution(echo.Context, string, webapi.GetProcessExecutionParams) error {
+	return notImplemented()
+}
+func (h *controllerEcho) StepProcessExecution(echo.Context, string) error { return notImplemented() }
+func (h *controllerEcho) CreateProcessTypeDefinition(echo.Context) error { return notImplemented() }
+func (h *controllerEcho) GetProcessTypeDefinition(echo.Context, string, webapi.GetProcessTypeDefinitionParams) error {
+	return notImplemented()
+}
+func (h *controllerEcho) GetProcessAssociatedDeclaration(echo.Context, string, webapi.GetProcessAssociatedDeclarationParams) error {
+	return notImplemented()
+}
+func (h *controllerEcho) GetProcessDefinition(echo.Context, string, webapi.GetProcessDefinitionParams) error {
+	return notImplemented()
+}
+func (h *controllerEcho) ExtendProcessDefinition(echo.Context, string) error { return notImplemented() }
+func (h *controllerEcho) ListProcessExecutions(echo.Context, string) error { return notImplemented() }
+func (h *controllerEcho) CreateProgram(echo.Context) error { return notImplemented() }

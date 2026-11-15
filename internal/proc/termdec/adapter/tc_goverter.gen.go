@@ -4,16 +4,17 @@
 package adapter
 
 import (
-	webapi "orglang/go-engine/internal/app/web/api"
 	termsem1 "github.com/orglang/go-sdk/adt/termsem"
 	termvar "github.com/orglang/go-sdk/adt/termvar"
 	termdec "github.com/orglang/go-sdk/proc/termdec"
+
 	identity "orglang/go-engine/internal/adt/identity"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
 	symbol "orglang/go-engine/internal/adt/symbol"
 	termsem "orglang/go-engine/internal/adt/termsem"
 	termvar1 "orglang/go-engine/internal/adt/termvar"
 	uniqsym "orglang/go-engine/internal/adt/uniqsym"
+	webapi "orglang/go-engine/internal/app/web/api"
 	core "orglang/go-engine/internal/proc/termdec/core"
 )
 

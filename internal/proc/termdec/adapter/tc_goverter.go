@@ -3,9 +3,9 @@ package adapter
 import (
 	sdktermdec "github.com/orglang/go-sdk/proc/termdec"
 
+	"orglang/go-engine/internal/adt/termvar"
 	webapi "orglang/go-engine/internal/app/web/api"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
-	"orglang/go-engine/internal/adt/termvar"
 )
 
 // goverter:variables

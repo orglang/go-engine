@@ -6,22 +6,19 @@ go = "1.27.0"
 "go:github.com/go-task/task/v3/cmd/task" = "v3.54.0"
 
 [tasks."deps:lock"]
-description = "Tidy Go modules and update mise and npm lockfiles"
+description = "Tidy Go modules and update toolchain and npm lockfiles"
 run = [
   "GOWORK=off go mod tidy",
   "mise lock",
   "mise -E specs lock",
   "mise -E sources lock",
+  "mise -E binaries lock",
   "mise -E specs exec -- npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund",
 ]
 
 [tasks."deps:install"]
-description = "Download Go modules and install TypeSpec dependencies"
-run = [
-  "mise -E specs install --locked",
-  "GOWORK=off go mod download",
-  "mise -E specs exec -- npm ci --prefix tsp --no-audit --no-fund",
-]
+description = "Install TypeSpec dependencies"
+run = "mise -E specs exec -- npm ci --prefix tsp --no-audit --no-fund"
 
 [tasks."deps:check"]
 description = "Check Go module manifests and tool lockfiles"

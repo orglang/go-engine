@@ -24,14 +24,6 @@ url = "https://download.docker.com/mac/static/stable/aarch64/docker-29.9.3.tgz"
 checksum = "sha256:f7d8f835391cd0a8c676d9a8d2547f909da6a2d029595943b0ce8d5f169abe47"
 url = "https://download.docker.com/mac/static/stable/x86_64/docker-29.9.3.tgz"
 
-[tools."aqua:docker/compose"."platforms.macos-arm64"]
-checksum = "sha256:5a9aa8b5fb5b1e3cd83f39c80e570ae30aafd74cd9b47264fbe4ff7e6e6251ca"
-url = "https://github.com/docker/compose/releases/download/v5.7.1/docker-compose-darwin-aarch64"
-
-[tools."aqua:docker/compose"."platforms.macos-x64"]
-checksum = "sha256:c28b37c7bf1cc315acdf511c2c0f34ce19d4d33b6038611617063a99c45417c6"
-url = "https://github.com/docker/compose/releases/download/v5.7.1/docker-compose-darwin-x86_64"
-
 [[tools."aqua:docker/compose"]]
 version = "5.7.1"
 backend = "aqua:docker/compose"
@@ -44,3 +36,11 @@ url = "https://github.com/docker/compose/releases/download/v5.7.1/docker-compose
 [tools."aqua:docker/compose"."platforms.linux-x64"]
 checksum = "sha256:af426722a8af5de812fcee30cc1c39f0639f5f723cbadefb25e5d4db054064cf"
 url = "https://github.com/docker/compose/releases/download/v5.7.1/docker-compose-linux-x86_64"
+
+[tools."aqua:docker/compose"."platforms.macos-arm64"]
+checksum = "sha256:5a9aa8b5fb5b1e3cd83f39c80e570ae30aafd74cd9b47264fbe4ff7e6e6251ca"
+url = "https://github.com/docker/compose/releases/download/v5.7.1/docker-compose-darwin-aarch64"
+
+[tools."aqua:docker/compose"."platforms.macos-x64"]
+checksum = "sha256:c28b37c7bf1cc315acdf511c2c0f34ce19d4d33b6038611617063a99c45417c6"
+url = "https://github.com/docker/compose/releases/download/v5.7.1/docker-compose-darwin-x86_64"

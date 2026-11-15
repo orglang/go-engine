@@ -15,20 +15,7 @@ import (
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
-// generatedController adapts the generated HTTP contract to the process
-// declaration application API. The embedded interface keeps this adapter
-// usable with the generated ServerInterface without implementing unrelated
-// operations.
-type generatedController struct {
-	api.ServerInterface
-	decAPI termdec.API
-}
-
-func newGeneratedController(decAPI termdec.API) *generatedController {
-	return &generatedController{decAPI: decAPI}
-}
-
-func (h *generatedController) CreateProcessDeclaration(c echo.Context) error {
+func (h *controllerEcho) CreateProcessDeclaration(c echo.Context) error {
 	var dto api.ProcDecSpec
 	if err := c.Bind(&dto); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -39,7 +26,7 @@ func (h *generatedController) CreateProcessDeclaration(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	snap, err := h.decAPI.Create(spec)
+	snap, err := h.api.Create(spec)
 	if err != nil {
 		return err
 	}

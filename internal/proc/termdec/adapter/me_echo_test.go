@@ -12,11 +12,10 @@ import (
 
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/uniqsym"
-	webapi "orglang/go-engine/internal/app/web/api"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
-func TestGeneratedProcessDeclarationRoute(t *testing.T) {
+func TestCreateProcessDeclarationHandler(t *testing.T) {
 	t.Run("creates a declaration and returns its identity", func(t *testing.T) {
 		decAPI := &generatedDecAPIStub{}
 		e := echo.New()
@@ -75,7 +74,7 @@ func TestGeneratedProcessDeclarationRoute(t *testing.T) {
 		if err := cfgEchoController(e, h); err != nil {
 			t.Fatalf("configure controller: %v", err)
 		}
-		webapi.RegisterHandlers(e, h)
+		e.POST("/api/v1/processes/declarations", h.CreateProcessDeclaration)
 
 		const body = `{
 			"asset_vars": [],

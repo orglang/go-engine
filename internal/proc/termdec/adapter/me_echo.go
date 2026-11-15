@@ -17,6 +17,7 @@ import (
 
 // Server-side primary adapter
 type controllerEcho struct {
+	webapi.ServerInterface
 	api termdec.API
 	log *slog.Logger
 }
@@ -96,43 +97,3 @@ func (h *controllerEcho) CreateProcessDeclaration(c echo.Context) error {
 	return c.JSON(http.StatusCreated, DecSnapToGenerated(snap))
 }
 
-func notImplemented() error {
-	return echo.NewHTTPError(http.StatusNotImplemented, "operation is not implemented")
-}
-
-func (h *controllerEcho) CreatePoolDeclaration(echo.Context) error { return notImplemented() }
-func (h *controllerEcho) CreatePoolExecution(echo.Context) error { return notImplemented() }
-func (h *controllerEcho) SpawnPoolExecution(echo.Context) error { return notImplemented() }
-func (h *controllerEcho) StepPoolExecution(echo.Context) error { return notImplemented() }
-func (h *controllerEcho) CreatePoolTypeDefinition(echo.Context) error { return notImplemented() }
-func (h *controllerEcho) GetPoolTypeDefinition(echo.Context, string, webapi.GetPoolTypeDefinitionParams) error {
-	return notImplemented()
-}
-func (h *controllerEcho) GetPoolAssociatedDeclaration(echo.Context, string, webapi.GetPoolAssociatedDeclarationParams) error {
-	return notImplemented()
-}
-func (h *controllerEcho) GetPoolDefinition(echo.Context, string, webapi.GetPoolDefinitionParams) error {
-	return notImplemented()
-}
-func (h *controllerEcho) ExtendPoolDefinition(echo.Context, string) error { return notImplemented() }
-func (h *controllerEcho) ListPoolExecutions(echo.Context, string) error { return notImplemented() }
-func (h *controllerEcho) GetProcessDeclaration(echo.Context, string, webapi.GetProcessDeclarationParams) error {
-	return notImplemented()
-}
-func (h *controllerEcho) GetProcessExecution(echo.Context, string, webapi.GetProcessExecutionParams) error {
-	return notImplemented()
-}
-func (h *controllerEcho) StepProcessExecution(echo.Context, string) error { return notImplemented() }
-func (h *controllerEcho) CreateProcessTypeDefinition(echo.Context) error { return notImplemented() }
-func (h *controllerEcho) GetProcessTypeDefinition(echo.Context, string, webapi.GetProcessTypeDefinitionParams) error {
-	return notImplemented()
-}
-func (h *controllerEcho) GetProcessAssociatedDeclaration(echo.Context, string, webapi.GetProcessAssociatedDeclarationParams) error {
-	return notImplemented()
-}
-func (h *controllerEcho) GetProcessDefinition(echo.Context, string, webapi.GetProcessDefinitionParams) error {
-	return notImplemented()
-}
-func (h *controllerEcho) ExtendProcessDefinition(echo.Context, string) error { return notImplemented() }
-func (h *controllerEcho) ListProcessExecutions(echo.Context, string) error { return notImplemented() }
-func (h *controllerEcho) CreateProgram(echo.Context) error { return notImplemented() }

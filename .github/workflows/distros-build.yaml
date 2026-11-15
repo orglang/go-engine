@@ -1,4 +1,4 @@
-name: Distros Build Build
+name: Distros Build
 
 on:
   pull_request:
@@ -23,7 +23,7 @@ jobs:
       - name: Checkout workspace
         uses: actions/checkout@v6
         with:
-          ref: main
+          ref: ci/stage-orchestration
           repository: orglang/go-workspace
 
       - name: Checkout engine

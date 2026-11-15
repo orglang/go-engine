@@ -58,13 +58,13 @@ var (
 // goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/symbol:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
+// goverter:extend ConnVarFromGenerated
 var (
 	// goverter:map ConnPh ChnlPH
 	// goverter:map TypeQn TypeQN
 	ConnVarFromGenerated func(webapi.AnyConnVarSpec) (termvar.VarSpec, error)
 
 	// goverter:map TermQn TermQN
-	// goverter:extend ConnVarFromGenerated
 	DecSpecFromGenerated func(webapi.ProcDecSpec) (termdec.DecSpec, error)
 
 	// goverter:map TermRef.TermID TermId

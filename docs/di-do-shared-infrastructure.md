@@ -6,6 +6,7 @@ The `samber/do/v2` migration starts by exposing infrastructure registrations as 
 
 - `internal/lib/lf.Package` lazily provides the shared `*slog.Logger`.
 - `internal/lib/kv.Package` lazily provides the `kv.Loader` port. It resolves the logger from the same injector and returns reference-configuration read errors to the caller instead of panicking.
+- `internal/lib/wp.Package` lazily provides both worker-pool implementations and registers shutdown resources. Application shutdown stops accepting work and waits for accepted tasks to drain, subject to the caller's shutdown context.
 
 A minimal composition is:
 
@@ -21,8 +22,7 @@ The configuration loader is lazy: the reference file is read when `kv.Loader` is
 
 ## Intentionally not migrated in this slice
 
-- `db` owns a PostgreSQL pool and currently couples pool ping/close to Fx hooks. Its `OnStop` callback also returns before `pool.Close` completes. It needs an explicit shutdown contract before registration moves.
+- `db` now has a `samber/do` package that owns PostgreSQL pool shutdown and ties readiness to the explicit application lifecycle. Its legacy Fx module remains for the production composition until the root is migrated.
 - `ws` owns the Echo server and currently starts it asynchronously from an Fx hook without waiting for listener readiness. It needs explicit start/stop orchestration and startup error propagation.
-- `wp` owns worker pools; their stop/wait semantics must be connected to the future App lifecycle rather than left to container garbage collection.
 
 These providers remain on the existing Fx production composition until the lifecycle work establishes a single, explicit owner. This slice does not switch the production entrypoint or remove Fx.

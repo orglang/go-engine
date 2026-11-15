@@ -4,7 +4,7 @@ go 1.27.0
 
 require (
 	github.com/Masterminds/sprig/v3 v3.3.0
-	github.com/alitto/pond/v2 v2.7.0
+	github.com/alitto/pond/v2 v2.7.3
 	github.com/gammazero/workerpool v1.3.0
 	github.com/georgysavva/scany/v2 v2.1.4
 	github.com/go-ozzo/ozzo-validation/v4 v4.5.0

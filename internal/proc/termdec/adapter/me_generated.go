@@ -6,6 +6,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
+	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/uniqsym"
@@ -44,7 +45,7 @@ func (h *generatedController) CreateProcessDeclaration(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusCreated, api.AnyTermRef{
-		TermId: identityString(snap.TermRef.TermID),
+		TermId: identity.ConvertToString(snap.TermRef.TermID),
 		TermRn: int64(snap.TermRef.TermRN),
 	})
 }

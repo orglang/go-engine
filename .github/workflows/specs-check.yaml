@@ -28,12 +28,10 @@ jobs:
         uses: jdx/mise-action@v5
         with:
           cache: true
+          install: false
 
       - name: Install TypeSpec dependencies
         run: mise run deps:install
 
-      - name: Install specs toolchain
-        run: mise -E specs-dev install --locked
-
       - name: Check specs
-        run: mise -E specs-dev exec -- task specs:check
+        run: mise -E specs exec -- task specs:check

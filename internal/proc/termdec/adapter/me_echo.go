@@ -17,6 +17,8 @@ import (
 
 // Server-side primary adapter
 type controllerEcho struct {
+	// Only operations explicitly mounted by the generated route filter are
+	// dispatched; embedding keeps the generated interface forward-compatible.
 	webapi.ServerInterface
 	api termdec.API
 	log *slog.Logger

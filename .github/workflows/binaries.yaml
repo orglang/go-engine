@@ -28,6 +28,10 @@ jobs:
         uses: jdx/mise-action@v5
         with:
           cache: true
+          install: false
+
+      - name: Install binaries toolchain
+        run: mise -E binaries install --locked
 
       - name: Run binary checks
-        run: mise -E binaries-dev exec -- task binaries
+        run: mise -E binaries exec -- task binaries

@@ -69,9 +69,11 @@ func TestGeneratedProcessDeclarationRoute(t *testing.T) {
 	t.Run("rejects invalid qualified names before creating", func(t *testing.T) {
 		decAPI := &generatedDecAPIStub{}
 		e := echo.New()
-		if err := cfgEchoController(e, &controllerEcho{api: decAPI}); err != nil {
+		h := &controllerEcho{api: decAPI}
+		if err := cfgEchoController(e, h); err != nil {
 			t.Fatalf("configure controller: %v", err)
 		}
+		webapi.RegisterHandlers(e, h)
 
 		const body = `{
 			"asset_vars": [],

@@ -33,7 +33,7 @@ jobs:
         run: mise run deps:install
 
       - name: Install specs toolchain
-        run: mise -E specs-dev install
+        run: mise -E specs-dev install --locked
 
       - name: Check specs
         run: mise -E specs-dev exec -- task specs:check

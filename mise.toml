@@ -19,11 +19,11 @@ run = [
 description = "Download Go modules and install TypeSpec dependencies"
 run = [
   "GOWORK=off go mod download",
-  "mise -E specs-dev install",
+  "mise -E specs-dev install --locked",
   "mise -E specs-dev exec -- npm ci --prefix tsp --no-audit --no-fund",
 ]
 
 [tasks."deps:check"]
 description = "Check Go module manifests and tool lockfiles"
 depends = ["deps:lock"]
-run = "test -z \"$(git status --porcelain -- ':(glob)**/*.mod' ':(glob)**/*.sum' ':(glob)**/package-lock.json' 'mise*.lock')\""
+run = "test -z \"$(git status --porcelain -- ':(glob)**/*.mod' ':(glob)**/*.sum' ':(glob)**/package-lock.json' mise.lock 'mise.*.lock')\""

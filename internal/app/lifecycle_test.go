@@ -14,8 +14,7 @@ func TestLifecycleStartsInOrderAndStopsInReverse(t *testing.T) {
 	lifecycle := NewLifecycle()
 
 	for _, name := range []string{"db", "server"} {
-		name := name
-		if err := lifecycle.Append(Hook{
+		hook := Hook{
 			OnStart: func(context.Context) error {
 				calls = append(calls, "start:"+name)
 				return nil
@@ -24,7 +23,8 @@ func TestLifecycleStartsInOrderAndStopsInReverse(t *testing.T) {
 				calls = append(calls, "stop:"+name)
 				return nil
 			},
-		}); err != nil {
+		}
+		if err := lifecycle.Append(hook); err != nil {
 			t.Fatalf("append %s hook: %v", name, err)
 		}
 	}

@@ -21,6 +21,8 @@ type controllerEcho struct {
 	log *slog.Logger
 }
 
+var _ webapi.ServerInterface = (*controllerEcho)(nil)
+
 func newControllerEcho(a termdec.API, l *slog.Logger) *controllerEcho {
 	name := slog.String("name", reflect.TypeFor[controllerEcho]().Name())
 	return &controllerEcho{api: a, log: l.With(name)}

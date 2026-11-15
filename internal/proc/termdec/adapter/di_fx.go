@@ -6,6 +6,7 @@ import (
 	"orglang/go-engine/internal/adt/typesem"
 	typesemadapter "orglang/go-engine/internal/adt/typesem/adapter"
 	"orglang/go-engine/internal/lib/te"
+	webapi "orglang/go-engine/internal/app/web/api"
 
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
@@ -16,8 +17,10 @@ var Module = fx.Module("proc/termdec",
 		fx.Annotate(NewDaoPgx, fx.As(new(termdec.Repo))),
 	),
 	fx.Provide(
+		fx.Annotate(newControllerEcho, fx.As(fx.Self(), new(webapi.ServerInterface))),
+	),
+	fx.Provide(
 		fx.Private,
-		newControllerEcho,
 		newEchoPresenter,
 		fx.Annotate(newSQLBuilder, fx.As(new(termdec.QueryBuilder))),
 		fx.Annotate(newRendererStdlib, fx.As(new(te.Renderer))),

@@ -29,6 +29,8 @@ jobs:
         with:
           cache: true
           install: false
+          # Save after the explicit mise install below so newly installed tools are cached.
+          cache_save_post: true
 
       - name: Install specs toolchain
         run: mise -E specs install --locked

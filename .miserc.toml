@@ -2,6 +2,5 @@
 specs = ["specs-dev"]
 sources = ["sources-dev"]
 binaries = ["binaries-dev"]
-distros = ["distros-dev"]
 
 # Workloads environments will be added with the workload toolchain contract.

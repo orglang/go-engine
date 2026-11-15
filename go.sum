@@ -29,10 +29,10 @@ github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHk
 github.com/frankban/quicktest v1.14.6/go.mod h1:4ptaffx2x8+WTWXmUCuVU6aPUX1/Mz7zb5vbUoiM6w0=
 github.com/fsnotify/fsnotify v1.9.0 h1:2Ml+OJNzbYCTzsxtv8vKSFD9PbJjmhYF14k/jKC7S9k=
 github.com/fsnotify/fsnotify v1.9.0/go.mod h1:8jBTzvmWwFyi3Pb8djgCCO5IBqzKJ/Jwo8TRcHyHii0=
-github.com/gammazero/deque v1.2.1 h1:9fnQVFCCZ9/NOc7ccTNqzoKd1tCWOqeI05/lPqFPMGQ=
-github.com/gammazero/deque v1.2.1/go.mod h1:5nSFkzVm+afG9+gy0VIowlqVAW4N8zNcMne+CMQVD2g=
-github.com/gammazero/workerpool v1.2.1 h1:MEDvUJsNYGuCvl1RwIXNKu2YtQtHqCSF9XWF04N7lqs=
-github.com/gammazero/workerpool v1.2.1/go.mod h1:E32GVRUanF4d6QtRmdss3AScgaDkIyrvPtgRQUWgmx4=
+github.com/gammazero/deque v1.2.2 h1:zD+4g/JzU5MdHWiPzMeG7OeFW5plbhYKqHfSNDnQ3E8=
+github.com/gammazero/deque v1.2.2/go.mod h1:b0Hd32YGkBkCvq+lAX5i2bKhsBc9AJNZvv4vqNqsvJc=
+github.com/gammazero/workerpool v1.3.0 h1:TD/xAtP7MXbBoFyBGV4lj3LlWBi6P0wOcyRFvWqIx0g=
+github.com/gammazero/workerpool v1.3.0/go.mod h1:nbtgxeEYc+vZWZdZjYpHOyVwqXlStlplhfOf1bQu27s=
 github.com/georgysavva/scany/v2 v2.1.4 h1:nrzHEJ4oQVRoiKmocRqA1IyGOmM/GQOEsg9UjMR5Ip4=
 github.com/georgysavva/scany/v2 v2.1.4/go.mod h1:fqp9yHZzM/PFVa3/rYEC57VmDx+KDch0LoqrJzkvtos=
 github.com/go-ozzo/ozzo-validation/v4 v4.3.0 h1:byhDUpfEwjsVQb1vBunvIjh2BHQ9ead57VkAEY4V+Es=

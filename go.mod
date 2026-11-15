@@ -10,7 +10,7 @@ require (
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/go-resty/resty/v2 v2.17.1
 	github.com/google/go-cmp v0.7.0
-	github.com/huandu/go-sqlbuilder v1.40.2
+	github.com/huandu/go-sqlbuilder v1.44.1
 	github.com/jackc/pgx/v5 v5.9.2
 	github.com/labstack/echo/v4 v4.16.3
 	github.com/oapi-codegen/runtime v1.9.0

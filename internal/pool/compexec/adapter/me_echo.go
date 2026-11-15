@@ -26,7 +26,10 @@ func newControllerEcho(api compexec.API, log *slog.Logger) *controllerEcho {
 	return &controllerEcho{api, log.With(name)}
 }
 
-func cfgEchoController(server *echo.Echo, controller *controllerEcho) error {
+// RegisterRoutes attaches the pool computation-execution HTTP endpoints to an
+// Echo server. The application composition root owns when this is called.
+func RegisterRoutes(server *echo.Echo, api compexec.API, logger *slog.Logger) error {
+	controller := newControllerEcho(api, logger)
 	server.POST("/api/v1/pools/execs", controller.PostSpec)
 	server.POST("/api/v1/pools/execs/steps", controller.PostSpec2)
 	server.POST("/api/v1/pools/execs/spawns", controller.PostSpec3)

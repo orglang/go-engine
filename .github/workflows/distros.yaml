@@ -52,7 +52,7 @@ jobs:
 
       - name: Install sources toolchain
         working-directory: engine
-        run: mise -E sources-dev install
+        run: mise -E sources-dev install --locked
 
       - name: Generate engine sources
         working-directory: engine

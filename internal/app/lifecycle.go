@@ -177,7 +177,7 @@ func (a *App) Start(ctx context.Context) error {
 func (a *App) Stop(ctx context.Context) error {
 	hookErr := a.lifecycle.Stop(ctx)
 	report := a.injector.ShutdownWithContext(ctx)
-	if report == nil {
+	if report == nil || report.Succeed {
 		return hookErr
 	}
 	return errors.Join(hookErr, report)

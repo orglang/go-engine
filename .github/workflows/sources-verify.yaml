@@ -23,7 +23,7 @@ jobs:
       - name: Checkout engine
         uses: actions/checkout@v6
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up mise
         uses: jdx/mise-action@v5
@@ -33,8 +33,11 @@ jobs:
       - name: Check dependencies
         run: mise run deps:check
 
+      - name: Install sources toolchain
+        run: mise -E sources-dev install
+
       - name: Check sources
-        run: task sources:check
+        run: mise -E sources-dev exec -- task sources:check
 
       - name: Run unit tests
-        run: task tests:unit
+        run: mise -E binaries-dev exec -- task tests:unit

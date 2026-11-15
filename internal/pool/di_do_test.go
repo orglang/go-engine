@@ -7,9 +7,10 @@ import (
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/lib/lf"
+	compexecadapter "orglang/go-engine/internal/pool/compexec/adapter"
+	compexec "orglang/go-engine/internal/pool/compexec/core"
 	"orglang/go-engine/internal/lib/tx"
 	compconn "orglang/go-engine/internal/pool/compconn/core"
-	compexec "orglang/go-engine/internal/pool/compexec/core"
 	compvar "orglang/go-engine/internal/pool/compvar/core"
 	termdef "orglang/go-engine/internal/pool/termdef/core"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
@@ -70,6 +71,13 @@ func TestPackageProvidesPersistencePortsAndDefinitionServices(t *testing.T) {
 		{"pool term-definition service", func() error {
 			_, err := do.Invoke[termdef.API](injector)
 			return err
+		}},
+		{"pool computation-execution service", func() error {
+			_, err := do.Invoke[compexec.API](injector)
+			return err
+		}},
+		{"pool computation-execution broker subscription", func() error {
+			return compexecadapter.SubscribeBroker(injector)
 		}},
 	}
 

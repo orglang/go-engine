@@ -74,7 +74,7 @@ jobs:
 
       # Expose the Actions cache runtime variables to the inline Buildx CLI.
       - name: Expose GitHub Actions runtime
-        uses: crazy-max/ghaction-github-runtime@v3
+        uses: crazy-max/ghaction-github-runtime@v4
 
       - name: Build distribution artifacts
         run: mise -E distros run distros

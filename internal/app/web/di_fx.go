@@ -4,7 +4,6 @@ import (
 	"go.uber.org/fx"
 
 	"orglang/go-engine/internal/lib/te"
-	webapi "orglang/go-engine/internal/app/web/api"
 )
 
 var Module = fx.Module("app/web",

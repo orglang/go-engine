@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/samber/do/v2"
@@ -17,7 +18,10 @@ func (staticStorageLoader) Load(key string, dst any) error {
 	if key != "storage" {
 		return nil
 	}
-	props := dst.(*storageProps)
+	props, ok := dst.(*storageProps)
+	if !ok {
+		return errors.New("storage destination must be *storageProps")
+	}
 	*props = storageProps{
 		Protocol: protoProps{
 			Mode: postgresMode,

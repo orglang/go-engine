@@ -8,6 +8,7 @@ import (
 	"orglang/go-engine/internal/adt/descsem"
 	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
 	compconn "orglang/go-engine/internal/pool/compconn/adapter"
+	compexec "orglang/go-engine/internal/pool/compexec/adapter"
 	compvar "orglang/go-engine/internal/pool/compvar/adapter"
 	termdef "orglang/go-engine/internal/pool/termdef/adapter"
 	typedef "orglang/go-engine/internal/pool/typedef/adapter"
@@ -20,6 +21,7 @@ import (
 var Package = do.Package(
 	compconn.Package,
 	compvar.Package,
+	compexec.Package,
 	typeexp.Package,
 	typedef.Package,
 	termdef.Package,

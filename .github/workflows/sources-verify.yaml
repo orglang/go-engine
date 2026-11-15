@@ -29,8 +29,8 @@ jobs:
         uses: jdx/mise-action@v5
         with:
           cache: true
-          install: false
-          # Save after the explicit mise installs below so newly installed tools are cached.
+          install: true
+          # Defer saving until later environment-specific installs have populated the cache.
           cache_save_post: true
 
       - name: Install specs and sources toolchains

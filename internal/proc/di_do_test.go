@@ -1,11 +1,14 @@
 package proc
 
 import (
+	"context"
 	"testing"
 
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/lib/lf"
+	"orglang/go-engine/internal/lib/tx"
+	"orglang/go-engine/internal/adt/typesem"
 	compconn "orglang/go-engine/internal/proc/compconn/core"
 	compexec "orglang/go-engine/internal/proc/compexec/core"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
@@ -14,9 +17,18 @@ import (
 	typeexp "orglang/go-engine/internal/proc/typeexp/core"
 )
 
-func TestPackageProvidesPersistencePorts(t *testing.T) {
-	injector := do.New(lf.Package, Package)
+type testTransactor struct{}
 
+func (testTransactor) ExplicitTx(context.Context, func(context.Context, tx.Conn) error) error {
+	return nil
+}
+
+func (testTransactor) ImplicitTx(context.Context, func(context.Context, tx.Conn) error) error {
+	return nil
+}
+
+func TestPackageProvidesPersistencePorts(t *testing.T) {
+	injector := newTestInjector()
 	providers := []struct {
 		name string
 		call func() error
@@ -55,3 +67,46 @@ func TestPackageProvidesPersistencePorts(t *testing.T) {
 		})
 	}
 }
+
+func TestPackageProvidesApplicationServices(t *testing.T) {
+	injector := newTestInjector()
+
+	providers := []struct {
+		name string
+		call func() error
+	}{
+		{"computation-execution service", func() error {
+			_, err := do.Invoke[compexec.API](injector)
+			return err
+		}},
+		{"term-declaration service", func() error {
+			_, err := do.Invoke[termdec.API](injector)
+			return err
+		}},
+		{"type-definition service", func() error {
+			_, err := do.Invoke[typedef.API](injector)
+			return err
+		}},
+	}
+
+	for _, provider := range providers {
+		t.Run(provider.name, func(t *testing.T) {
+			if err := provider.call(); err != nil {
+				t.Fatalf("resolve provider: %v", err)
+			}
+		})
+	}
+}
+
+func newTestInjector() do.Injector {
+	return do.New(
+		lf.Package,
+		do.Package(func(i do.Injector) {
+			do.ProvideValue[tx.Transactor](i, testTransactor{})
+		}),
+		Package,
+	)
+}
+
+// Keep the import tied to the shared semantic repository port used by proc.
+var _ typesem.Repo

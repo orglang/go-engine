@@ -6,8 +6,16 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/samber/do/v2"
 
+	webapi "orglang/go-engine/internal/app/web/api"
 	coreprog "orglang/go-engine/internal/prog/core"
 )
+
+// Controller is the generated API contract implemented by the program adapter.
+// It is a distinct port so it can coexist with other generated controllers in
+// the same application injector.
+type Controller interface {
+	webapi.ServerInterface
+}
 
 // Package registers the program service and its generated HTTP adapter.
 var Package = do.Package(

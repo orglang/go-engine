@@ -18,6 +18,13 @@ import (
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
+// Presenter is the server-rendered HTTP port implemented by the Echo adapter.
+type Presenter interface {
+	PostSpec(echo.Context) error
+	GetRefs(echo.Context) error
+	GetSnap(echo.Context) error
+}
+
 type echoPresenter struct {
 	api termdec.API
 	ssr te.Renderer

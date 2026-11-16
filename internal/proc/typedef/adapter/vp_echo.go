@@ -18,6 +18,13 @@ import (
 	typeexp "orglang/go-engine/internal/proc/typeexp/core"
 )
 
+// Presenter is the server-rendered HTTP port implemented by the Echo adapter.
+type Presenter interface {
+	PostOne(echo.Context) error
+	GetMany(echo.Context) error
+	GetOne(echo.Context) error
+}
+
 // Adapter
 type echoPresenter struct {
 	api typedef.API

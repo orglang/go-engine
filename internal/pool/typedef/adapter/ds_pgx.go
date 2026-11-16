@@ -15,11 +15,7 @@ import (
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 )
 
-type daoPgx struct {
-	log *slog.Logger
-}
-
-func (dao *daoPgx) GetRecsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uniqsym.ADT) (_ map[uniqsym.ADT]typedef.DefRec, err error) {
+func (dao *daoEnt) GetRecsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uniqsym.ADT) (_ map[uniqsym.ADT]typedef.DefRec, err error) {
 	if len(typeQNs) == 0 {
 		return map[uniqsym.ADT]typedef.DefRec{}, nil
 	}

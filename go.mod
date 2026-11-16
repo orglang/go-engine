@@ -4,14 +4,14 @@ go 1.27.0
 
 require (
 	github.com/Masterminds/sprig/v3 v3.3.0
-	github.com/alitto/pond/v2 v2.7.0
+	github.com/alitto/pond/v2 v2.7.3
 	github.com/gammazero/workerpool v1.3.0
 	github.com/georgysavva/scany/v2 v2.1.4
 	github.com/go-ozzo/ozzo-validation/v4 v4.5.0
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/google/go-cmp v0.7.0
 	github.com/huandu/go-sqlbuilder v1.40.2
-	github.com/jackc/pgx/v5 v5.9.2
+	github.com/jackc/pgx/v5 v5.12.0
 	github.com/labstack/echo/v4 v4.16.4
 	github.com/oapi-codegen/runtime v1.9.0
 	github.com/orglang/go-sdk v0.0.0-20260912152343-a8600e41f90d
@@ -36,7 +36,7 @@ require (
 	github.com/huandu/xstrings v1.5.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
-	github.com/jackc/puddle/v2 v2.2.2 // indirect
+	github.com/jackc/puddle/v2 v2.2.3 // indirect
 	github.com/labstack/gommon v0.5.0 // indirect
 	github.com/mattn/go-colorable v0.1.15 // indirect
 	github.com/mattn/go-isatty v0.0.22 // indirect

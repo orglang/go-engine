@@ -58,7 +58,6 @@ var (
 // goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/symbol:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
-// goverter:extend ConnVarFromGenerated
 var (
 	// goverter:map ConnPh ChnlPH
 	// goverter:map TypeQn TypeQN

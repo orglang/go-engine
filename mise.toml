@@ -11,7 +11,7 @@ run = [
   "GOWORK=off go mod tidy",
   "mise lock",
   "mise -E specs lock",
-  "mise -E sources-dev lock",
+  "mise -E sources lock",
   "mise -E specs exec -- npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund",
 ]
 

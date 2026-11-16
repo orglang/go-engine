@@ -14,6 +14,5 @@ var Module = fx.Module("app/web",
 	),
 	fx.Invoke(
 		cfgEchoController,
-		cfgGeneratedServer,
 	),
 )

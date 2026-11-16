@@ -17,8 +17,8 @@ func TestRegisterRoutes(t *testing.T) {
 	}
 
 	want := map[string]bool{
-		"POST /api/v1/pools/execs":       false,
-		"POST /api/v1/pools/execs/steps": false,
+		"POST /api/v1/pools/execs":        false,
+		"POST /api/v1/pools/execs/steps":  false,
 		"POST /api/v1/pools/execs/spawns": false,
 	}
 	for _, route := range server.Routes() {

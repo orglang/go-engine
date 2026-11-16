@@ -6,7 +6,8 @@ import (
 
 	sdkcompsem "github.com/orglang/go-sdk/adt/compsem"
 	sdkcompstep "github.com/orglang/go-sdk/proc/compstep"
-	sdktermexp "github.com/orglang/go-sdk/proc/termexp"
+
+	"github.com/labstack/echo/v4"
 
 	webapi "orglang/go-engine/internal/app/web/api"
 	compstep "orglang/go-engine/internal/proc/compstep/adapter"
@@ -81,4 +82,3 @@ func (h *controllerEcho) StepProcessExecution(c echo.Context, id string) error {
 	return c.NoContent(200)
 }
 
-var _ sdktermexp.ExpSpec

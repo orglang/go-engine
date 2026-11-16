@@ -11,6 +11,7 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 	compconn "orglang/go-engine/internal/proc/compconn/core"
+	compexecadapter "orglang/go-engine/internal/proc/compexec/adapter"
 	compexec "orglang/go-engine/internal/proc/compexec/core"
 	termdecadapter "orglang/go-engine/internal/proc/termdec/adapter"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
@@ -116,6 +117,10 @@ func TestPackageProvidesHTTPAdapters(t *testing.T) {
 		name string
 		call func() error
 	}{
+		{"computation-execution controller", func() error {
+			_, err := do.Invoke[compexecadapter.Controller](injector)
+			return err
+		}},
 		{"term-declaration controller", func() error {
 			_, err := do.Invoke[termdecadapter.Controller](injector)
 			return err

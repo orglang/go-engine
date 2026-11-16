@@ -3,7 +3,7 @@ package pool
 import (
 	"context"
 	"reflect"
-	"sort"
+	"slices"
 	"testing"
 
 	"github.com/labstack/echo/v4"
@@ -106,8 +106,8 @@ func TestPackageProvidesHTTPControllersAndRegistersRoutes(t *testing.T) {
 		"POST /api/v1/xacts/defs",
 		"POST /api/v1/pools/decs",
 	}
-	sort.Strings(got)
-	sort.Strings(want)
+	slices.Sort(got)
+	slices.Sort(want)
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("registered routes = %v, want %v", got, want)
 	}

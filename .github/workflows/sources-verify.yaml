@@ -36,13 +36,13 @@ jobs:
       - name: Install specs and sources toolchains
         run: |
           mise -E specs install --locked
-          mise -E sources-dev install --locked
+          mise -E sources install --locked
 
       - name: Check dependencies
         run: mise run deps:check
 
       - name: Check sources
-        run: mise -E sources-dev exec -- task sources:check
+        run: mise -E sources exec -- task sources:check
 
       - name: Run unit tests
         run: mise exec -- task tests:unit

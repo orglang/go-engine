@@ -15,6 +15,12 @@ import (
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
+// Controller is the inbound HTTP port implemented by the Echo adapter.
+type Controller interface {
+	PostSpec(echo.Context) error
+	GetSnap(echo.Context) error
+}
+
 // Server-side primary adapter
 type controllerEcho struct {
 	api termdec.API

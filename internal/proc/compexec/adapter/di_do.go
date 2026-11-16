@@ -66,7 +66,9 @@ var Package = do.Package(
 			return nil, err
 		}
 		logger, err := do.Invoke[*slog.Logger](i)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		return newControllerEcho(api, logger), nil
 	}),
 	do.Lazy[Controller](func(i do.Injector) (Controller, error) {

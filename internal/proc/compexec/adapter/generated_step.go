@@ -3,10 +3,10 @@ package adapter
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 
 	sdkcompsem "github.com/orglang/go-sdk/adt/compsem"
 	sdkcompstep "github.com/orglang/go-sdk/proc/compstep"
-
 	"github.com/labstack/echo/v4"
 
 	webapi "orglang/go-engine/internal/app/web/api"
@@ -79,6 +79,6 @@ func (h *controllerEcho) StepProcessExecution(c echo.Context, id string) error {
 	if err := h.api.Take(coreSpec); err != nil {
 		return err
 	}
-	return c.NoContent(200)
+	return c.NoContent(http.StatusOK)
 }
 

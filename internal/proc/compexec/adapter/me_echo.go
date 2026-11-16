@@ -23,6 +23,11 @@ type Controller interface {
 	PostStep(echo.Context) error
 }
 
+// GeneratedController is the generated process-execution HTTP port.
+type GeneratedController interface {
+	webapi.ServerInterface
+}
+
 func cfgLegacyStepRoute(e *echo.Echo, h *controllerEcho) {
 	e.POST("/api/v1/procs/:id/steps", h.PostStep)
 }

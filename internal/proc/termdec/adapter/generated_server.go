@@ -1,6 +1,7 @@
 package adapter
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -68,7 +69,7 @@ func TestCfgGeneratedServerRegistersGeneratedRoutes(t *testing.T) {
 	e := echo.New()
 	cfgGeneratedServer(e, generatedServerStub{})
 
-	req := httptest.NewRequest(http.MethodPost, processDeclarationRoute, nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, processDeclarationRoute, nil)
 	rec := httptest.NewRecorder()
 	e.ServeHTTP(rec, req)
 

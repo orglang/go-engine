@@ -18,6 +18,5 @@ var Module = fx.Module("proc/compexec",
 	),
 	fx.Invoke(
 		cfgGeneratedServer,
-		cfgLegacyStepRoute,
 	),
 )

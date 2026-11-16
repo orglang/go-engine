@@ -14,6 +14,17 @@ import (
 	termdef "orglang/go-engine/internal/pool/termdef/core"
 )
 
+// Controller is the inbound HTTP port implemented by the Echo adapter.
+type Controller interface {
+	PostSpec(echo.Context) error
+}
+
+// RegisterRoutes attaches the pool term-definition endpoint to Echo.
+func RegisterRoutes(e *echo.Echo, h Controller) error {
+	e.POST("/api/v1/pools/decs", h.PostSpec)
+	return nil
+}
+
 // Server-side primary adapter
 type controllerEcho struct {
 	api termdef.API
@@ -26,8 +37,7 @@ func newControllerEcho(a termdef.API, l *slog.Logger) *controllerEcho {
 }
 
 func cfgEchoController(e *echo.Echo, h *controllerEcho) error {
-	e.POST("/api/v1/pools/decs", h.PostSpec)
-	return nil
+	return RegisterRoutes(e, h)
 }
 
 func (h *controllerEcho) PostSpec(c echo.Context) error {

@@ -124,6 +124,10 @@ func TestPackageProvidesHTTPAdapters(t *testing.T) {
 			_, err := do.Invoke[compexecadapter.Controller](injector)
 			return err
 		}},
+		{"generated process execution controller", func() error {
+			_, err := do.Invoke[compexecadapter.GeneratedController](injector)
+			return err
+		}},
 		{"term-declaration controller", func() error {
 			_, err := do.Invoke[webapi.ServerInterface](injector)
 			return err
@@ -164,8 +168,7 @@ func TestRegisterRoutes(t *testing.T) {
 		got = append(got, route.Method+" "+route.Path)
 	}
 	want := []string{
-		"GET /api/v1/procs/:id",
-		"POST /api/v1/procs/:id/steps",
+		"GET /api/v1/processes/executions/:id",
 		"POST /api/v1/processes/declarations",
 		"GET /api/v1/processes/declarations/:id",
 		"POST /api/v1/types",

@@ -17,6 +17,7 @@ var Module = fx.Module("proc/compexec",
 		fx.Annotate(newSQLBuilder, fx.As(new(compexec.QueryBuilder))),
 	),
 	fx.Invoke(
-		cfgEchoController,
+		cfgGeneratedServer,
+		cfgLegacyStepRoute,
 	),
 )

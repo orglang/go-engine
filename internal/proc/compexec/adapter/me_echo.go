@@ -13,44 +13,43 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 
 	"orglang/go-engine/internal/adt/compsem"
+	webapi "orglang/go-engine/internal/app/web/api"
 	compexec "orglang/go-engine/internal/proc/compexec/core"
 	compstep "orglang/go-engine/internal/proc/compstep/adapter"
 )
 
 // Controller is the inbound HTTP port implemented by the Echo adapter.
 type Controller interface {
-	GetSnap(echo.Context) error
 	PostStep(echo.Context) error
 }
 
-// RegisterRoutes registers computation-execution API routes on the Echo server.
-// Controller construction is owned by the application container.
-func RegisterRoutes(e *echo.Echo, h Controller) error {
-	e.GET("/api/v1/procs/:id", h.GetSnap)
+// GeneratedController is the generated process-execution HTTP port.
+type GeneratedController interface {
+	webapi.ServerInterface
+}
+
+func cfgLegacyStepRoute(e *echo.Echo, h *controllerEcho) {
 	e.POST("/api/v1/procs/:id/steps", h.PostStep)
-	return nil
 }
 
 // Server-side primary adapter
 type controllerEcho struct {
+	webapi.ServerInterface
 	api compexec.API
 	log *slog.Logger
 }
 
+var _ webapi.ServerInterface = (*controllerEcho)(nil)
+var _ GeneratedController = (*controllerEcho)(nil)
+
 func newControllerEcho(a compexec.API, l *slog.Logger) *controllerEcho {
-	return &controllerEcho{a, l}
+	return &controllerEcho{api: a, log: l}
 }
 
-func cfgEchoController(e *echo.Echo, h *controllerEcho) error {
-	return RegisterRoutes(e, h)
-}
-
-func (h *controllerEcho) GetSnap(c echo.Context) error {
-	var dto sdk1.SemRef
-	bindErr := c.Bind(&dto)
-	if bindErr != nil {
-		h.log.Error("binding failed", slog.Any("dto", dto))
-		return bindErr
+func (h *controllerEcho) GetProcessExecution(c echo.Context, id string, params webapi.GetProcessExecutionParams) error {
+	dto := sdk1.SemRef{CompID: id}
+	if params.Rn != nil {
+		dto.CompRN = *params.Rn
 	}
 	ref, convErr := compsem.MsgToRef(dto)
 	if convErr != nil {

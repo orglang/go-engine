@@ -120,10 +120,6 @@ func TestPackageProvidesHTTPAdapters(t *testing.T) {
 		name string
 		call func() error
 	}{
-		{"computation-execution controller", func() error {
-			_, err := do.Invoke[compexecadapter.Controller](injector)
-			return err
-		}},
 		{"generated process execution controller", func() error {
 			_, err := do.Invoke[compexecadapter.GeneratedController](injector)
 			return err
@@ -169,6 +165,7 @@ func TestRegisterRoutes(t *testing.T) {
 	}
 	want := []string{
 		"GET /api/v1/processes/executions/:id",
+		"POST /api/v1/processes/executions/:id/steps",
 		"POST /api/v1/processes/declarations",
 		"GET /api/v1/processes/declarations/:id",
 		"POST /api/v1/types",

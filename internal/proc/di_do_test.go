@@ -6,10 +6,10 @@ import (
 
 	"github.com/samber/do/v2"
 
-	"orglang/go-engine/internal/lib/lf"
-	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/adt/typesem"
+	"orglang/go-engine/internal/lib/lf"
+	"orglang/go-engine/internal/lib/tx"
 	compconn "orglang/go-engine/internal/proc/compconn/core"
 	compexec "orglang/go-engine/internal/proc/compexec/core"
 	termdec "orglang/go-engine/internal/proc/termdec/core"

@@ -5,6 +5,7 @@ import (
 
 	"github.com/samber/do/v2"
 
+	webapi "orglang/go-engine/internal/app/web/api"
 	"orglang/go-engine/internal/lib/tx"
 	compconn "orglang/go-engine/internal/proc/compconn/core"
 	"orglang/go-engine/internal/proc/compexec/core"
@@ -59,6 +60,13 @@ var Package = do.Package(
 			return nil, err
 		}
 		return core.NewService(execRepo, connRepo, termDecRepo, typeDefRepo, typeExpRepo, transactor, logger), nil
+	}),
+	do.Lazy[GeneratedController](func(i do.Injector) (GeneratedController, error) {
+		api, err := do.Invoke[core.API](i)
+		if err != nil { return nil, err }
+		logger, err := do.Invoke[*slog.Logger](i)
+		if err != nil { return nil, err }
+		return newControllerEcho(api, logger), nil
 	}),
 	do.Lazy[Controller](func(i do.Injector) (Controller, error) {
 		api, err := do.Invoke[core.API](i)

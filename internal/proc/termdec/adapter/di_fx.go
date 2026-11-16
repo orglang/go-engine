@@ -26,7 +26,6 @@ var Module = fx.Module("proc/termdec",
 		fx.Annotate(typesemadapter.NewDaoPgx(typeDefs, descBinds), fx.As(new(typesem.Repo))),
 	),
 	fx.Invoke(
-		cfgEchoController,
 		cfgGeneratedServer,
 		cfgEchoPresenter,
 	),

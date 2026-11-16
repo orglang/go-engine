@@ -16,6 +16,7 @@ import (
 	pooltypedef "orglang/go-engine/internal/pool/typedef/adapter"
 	pooltypeexp "orglang/go-engine/internal/pool/typeexp/adapter"
 	proccompconnadapter "orglang/go-engine/internal/proc/compconn/adapter"
+	progadapter "orglang/go-engine/internal/prog/adapter"
 
 	proccompexecadapter "orglang/go-engine/internal/proc/compexec/adapter"
 	termdec "orglang/go-engine/internal/proc/termdec/adapter"
@@ -48,6 +49,7 @@ func main() {
 		termdef.Module,
 		termdec.Module,
 		proccompexecadapter.Module,
+		progadapter.Module,
 		// app
 		web.Module,
 	).Run()

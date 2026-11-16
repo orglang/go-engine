@@ -20,9 +20,6 @@ func TestCreateProcessDeclarationHandler(t *testing.T) {
 		decAPI := &generatedDecAPIStub{}
 		e := echo.New()
 		h := &controllerEcho{api: decAPI}
-		if err := cfgEchoController(e, h); err != nil {
-			t.Fatalf("configure controller: %v", err)
-		}
 		e.POST("/api/v1/processes/declarations", h.CreateProcessDeclaration)
 
 		const body = `{
@@ -71,9 +68,6 @@ func TestCreateProcessDeclarationHandler(t *testing.T) {
 		decAPI := &generatedDecAPIStub{}
 		e := echo.New()
 		h := &controllerEcho{api: decAPI}
-		if err := cfgEchoController(e, h); err != nil {
-			t.Fatalf("configure controller: %v", err)
-		}
 		e.POST("/api/v1/processes/declarations", h.CreateProcessDeclaration)
 
 		const body = `{

@@ -11,6 +11,7 @@ import (
 
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
+	proccompexecadapter "orglang/go-engine/internal/proc/compexec/adapter"
 	compconn "orglang/go-engine/internal/pool/compconn/core"
 	compexecadapter "orglang/go-engine/internal/pool/compexec/adapter"
 	compexec "orglang/go-engine/internal/pool/compexec/core"
@@ -119,6 +120,7 @@ func newTestInjector() do.Injector {
 		do.Package(func(i do.Injector) {
 			do.ProvideValue[tx.Transactor](i, testTransactor{})
 		}),
+		proccompexecadapter.Package,
 		Package,
 	)
 }

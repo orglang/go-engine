@@ -181,9 +181,7 @@ func TestRegisterRoutes(t *testing.T) {
 	slices.Sort(got)
 	slices.Sort(want)
 	if !slices.Equal(got, want) {
-		t.Fatalf("unexpected process routes:
- got: %v
-want: %v", got, want)
+		t.Fatalf("unexpected process routes: got %v, want %v", got, want)
 	}
 }
 

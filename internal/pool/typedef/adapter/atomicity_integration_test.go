@@ -129,7 +129,6 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 	}
 }
 
-
 func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 	dsn := os.Getenv("ENTPGX_TEST_DATABASE_URL")
 	if dsn == "" {

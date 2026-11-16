@@ -28,7 +28,7 @@ type GeneratedController interface {
 	webapi.ServerInterface
 }
 
-func cfgLegacyStepRoute(e *echo.Echo, h *controllerEcho) {
+func cfgLegacyStepRoute(e *echo.Echo, h Controller) {
 	e.POST("/api/v1/procs/:id/steps", h.PostStep)
 }
 

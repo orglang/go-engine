@@ -11,7 +11,6 @@ import (
 
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
-	proccompexecadapter "orglang/go-engine/internal/proc/compexec/adapter"
 	compconn "orglang/go-engine/internal/pool/compconn/core"
 	compexecadapter "orglang/go-engine/internal/pool/compexec/adapter"
 	compexec "orglang/go-engine/internal/pool/compexec/core"
@@ -19,6 +18,7 @@ import (
 	termdef "orglang/go-engine/internal/pool/termdef/core"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 	typeexp "orglang/go-engine/internal/pool/typeexp/core"
+	proccompexecadapter "orglang/go-engine/internal/proc/compexec/adapter"
 )
 
 type testTransactor struct{}

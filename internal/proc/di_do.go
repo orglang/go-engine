@@ -5,10 +5,10 @@ import (
 
 	"github.com/samber/do/v2"
 
-	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
 	"orglang/go-engine/internal/adt/descsem"
-	typesemadapter "orglang/go-engine/internal/adt/typesem/adapter"
+	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
 	"orglang/go-engine/internal/adt/typesem"
+	typesemadapter "orglang/go-engine/internal/adt/typesem/adapter"
 	compconn "orglang/go-engine/internal/proc/compconn/adapter"
 	compexec "orglang/go-engine/internal/proc/compexec/adapter"
 	termdec "orglang/go-engine/internal/proc/termdec/adapter"

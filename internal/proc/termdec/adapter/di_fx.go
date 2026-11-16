@@ -28,6 +28,7 @@ var Module = fx.Module("proc/termdec",
 	),
 	fx.Invoke(
 		cfgEchoController,
+		cfgGeneratedServer,
 		cfgEchoPresenter,
 	),
 )

@@ -16,6 +16,17 @@ import (
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 )
 
+// Controller is the inbound HTTP port implemented by the Echo adapter.
+type Controller interface {
+	PostSpec(echo.Context) error
+}
+
+// RegisterRoutes attaches the pool type-definition endpoint to Echo.
+func RegisterRoutes(e *echo.Echo, h Controller) error {
+	e.POST("/api/v1/xacts/defs", h.PostSpec)
+	return nil
+}
+
 // Server-side primary adapter
 type controllerEcho struct {
 	api typedef.API
@@ -28,8 +39,7 @@ func newControllerEcho(a typedef.API, l *slog.Logger) *controllerEcho {
 }
 
 func cfgEchoController(e *echo.Echo, h *controllerEcho) error {
-	e.POST("/api/v1/xacts/defs", h.PostSpec)
-	return nil
+	return RegisterRoutes(e, h)
 }
 
 func (h *controllerEcho) PostSpec(c echo.Context) error {

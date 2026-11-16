@@ -2,8 +2,10 @@ package pool
 
 import (
 	"context"
+	"reflect"
 	"testing"
 
+	"github.com/labstack/echo/v4"
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/lib/lf"
@@ -28,13 +30,7 @@ func (testTransactor) ImplicitTx(context.Context, func(context.Context, tx.Conn)
 }
 
 func TestPackageProvidesPersistencePortsAndDefinitionServices(t *testing.T) {
-	injector := do.New(
-		lf.Package,
-		do.Package(func(i do.Injector) {
-			do.ProvideValue[tx.Transactor](i, testTransactor{})
-		}),
-		Package,
-	)
+	injector := newTestInjector()
 
 	providers := []struct {
 		name string
@@ -88,4 +84,38 @@ func TestPackageProvidesPersistencePortsAndDefinitionServices(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestPackageProvidesHTTPControllersAndRegistersRoutes(t *testing.T) {
+	injector := newTestInjector()
+	server := echo.New()
+
+	if err := RegisterRoutes(server, injector); err != nil {
+		t.Fatalf("register pool routes: %v", err)
+	}
+
+	got := make([]string, 0, len(server.Routes()))
+	for _, route := range server.Routes() {
+		got = append(got, route.Method+" "+route.Path)
+	}
+	want := []string{
+		"POST /api/v1/pools/execs",
+		"POST /api/v1/pools/execs/steps",
+		"POST /api/v1/pools/execs/spawns",
+		"POST /api/v1/xacts/defs",
+		"POST /api/v1/pools/decs",
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("registered routes = %v, want %v", got, want)
+	}
+}
+
+func newTestInjector() do.Injector {
+	return do.New(
+		lf.Package,
+		do.Package(func(i do.Injector) {
+			do.ProvideValue[tx.Transactor](i, testTransactor{})
+		}),
+		Package,
+	)
 }

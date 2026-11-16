@@ -11,7 +11,7 @@ import (
 	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 )
 
-// Package registers the type-definition service and persistence adapter.
+// Package registers the type-definition service, persistence, and HTTP adapter.
 var Package = do.Package(
 	do.Lazy[core.QueryBuilder](func(do.Injector) (core.QueryBuilder, error) {
 		return newSQLBuilder(), nil
@@ -49,5 +49,16 @@ var Package = do.Package(
 			return nil, err
 		}
 		return core.NewService(repo, typeExpRepo, descRepo, transactor, logger), nil
+	}),
+	do.Lazy[Controller](func(i do.Injector) (Controller, error) {
+		api, err := do.Invoke[core.API](i)
+		if err != nil {
+			return nil, err
+		}
+		logger, err := do.Invoke[*slog.Logger](i)
+		if err != nil {
+			return nil, err
+		}
+		return newControllerEcho(api, logger), nil
 	}),
 )

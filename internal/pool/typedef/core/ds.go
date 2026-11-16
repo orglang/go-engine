@@ -14,7 +14,7 @@ type Repo interface {
 }
 
 type DefRecDS struct {
-	TypeID string
-	TypeRN int64
-	ExpCK  int64
+	TypeID string `db:"type_id"`
+	TypeRN int64  `db:"type_rn"`
+	ExpCK  int64  `db:"exp_ck"`
 }

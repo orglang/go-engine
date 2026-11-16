@@ -95,15 +95,6 @@ func TestCfgGeneratedServerRegistersProcessExecutionRoute(t *testing.T) {
 	}
 }
 
-type legacyStepStub struct {
-	called bool
-}
-
-func (s *legacyStepStub) PostStep(c echo.Context) error {
-	s.called = true
-	return c.NoContent(http.StatusOK)
-}
-
 func TestCfgLegacyStepRouteRegistersOnlyUnmigratedStepOperation(t *testing.T) {
 	e := echo.New()
 	handler := &controllerEcho{log: slog.Default()}

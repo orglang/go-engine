@@ -3,6 +3,7 @@ package adapter
 import (
 	"io"
 	"log/slog"
+	"net/http"
 	"reflect"
 
 	"github.com/labstack/echo/v4"

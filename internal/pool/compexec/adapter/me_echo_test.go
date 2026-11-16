@@ -11,8 +11,9 @@ import (
 func TestRegisterRoutes(t *testing.T) {
 	server := echo.New()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	controller := newControllerEcho(nil, logger)
 
-	if err := RegisterRoutes(server, nil, logger); err != nil {
+	if err := RegisterRoutes(server, controller); err != nil {
 		t.Fatalf("register routes: %v", err)
 	}
 

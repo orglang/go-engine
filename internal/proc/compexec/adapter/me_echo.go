@@ -17,6 +17,20 @@ import (
 	compstep "orglang/go-engine/internal/proc/compstep/adapter"
 )
 
+// Controller is the inbound HTTP port implemented by the Echo adapter.
+type Controller interface {
+	GetSnap(echo.Context) error
+	PostStep(echo.Context) error
+}
+
+// RegisterRoutes registers computation-execution API routes on the Echo server.
+// Controller construction is owned by the application container.
+func RegisterRoutes(e *echo.Echo, h Controller) error {
+	e.GET("/api/v1/procs/:id", h.GetSnap)
+	e.POST("/api/v1/procs/:id/steps", h.PostStep)
+	return nil
+}
+
 // Server-side primary adapter
 type controllerEcho struct {
 	api compexec.API
@@ -28,9 +42,7 @@ func newControllerEcho(a compexec.API, l *slog.Logger) *controllerEcho {
 }
 
 func cfgEchoController(e *echo.Echo, h *controllerEcho) error {
-	e.GET("/api/v1/procs/:id", h.GetSnap)
-	e.POST("/api/v1/procs/:id/steps", h.PostStep)
-	return nil
+	return RegisterRoutes(e, h)
 }
 
 func (h *controllerEcho) GetSnap(c echo.Context) error {

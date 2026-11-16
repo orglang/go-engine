@@ -15,6 +15,12 @@ import (
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
+// Controller is the inbound HTTP port implemented by the Echo adapter.
+type Controller interface {
+	PostSpec(echo.Context) error
+	GetSnap(echo.Context) error
+}
+
 // Server-side primary adapter
 type controllerEcho struct {
 	api termdec.API
@@ -26,10 +32,15 @@ func newControllerEcho(a termdec.API, l *slog.Logger) *controllerEcho {
 	return &controllerEcho{a, l.With(name)}
 }
 
-func cfgEchoController(e *echo.Echo, h *controllerEcho) error {
+// RegisterRoutes attaches the term-declaration API routes to an Echo server.
+func RegisterRoutes(e *echo.Echo, h Controller) error {
 	e.POST("/api/v1/procs/decs", h.PostSpec)
 	e.GET("/api/v1/procs/decs/:id", h.GetSnap)
 	return nil
+}
+
+func cfgEchoController(e *echo.Echo, h *controllerEcho) error {
+	return RegisterRoutes(e, h)
 }
 
 func (h *controllerEcho) PostSpec(c echo.Context) error {

@@ -8,6 +8,7 @@ import (
 
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
+	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/adt/typesem"
 	compconn "orglang/go-engine/internal/proc/compconn/core"
 	compexec "orglang/go-engine/internal/proc/compexec/core"
@@ -55,6 +56,14 @@ func TestPackageProvidesPersistencePorts(t *testing.T) {
 		}},
 		{"type-expression repository", func() error {
 			_, err := do.Invoke[typeexp.Repo](injector)
+			return err
+		}},
+		{"shared type-semantic repository", func() error {
+			_, err := do.Invoke[typesem.Repo](injector)
+			return err
+		}},
+		{"shared description-semantic repository", func() error {
+			_, err := do.Invoke[descsem.Repo](injector)
 			return err
 		}},
 	}
@@ -107,6 +116,3 @@ func newTestInjector() do.Injector {
 		Package,
 	)
 }
-
-// Keep the import tied to the shared semantic repository port used by proc.
-var _ typesem.Repo

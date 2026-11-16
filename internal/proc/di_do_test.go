@@ -122,7 +122,7 @@ func TestPackageProvidesHTTPAdapters(t *testing.T) {
 			return err
 		}},
 		{"term-declaration controller", func() error {
-			_, err := do.Invoke[termdecadapter.Controller](injector)
+			_, err := do.Invoke[*termdecadapter.controllerEcho](injector)
 			return err
 		}},
 		{"term-declaration presenter", func() error {

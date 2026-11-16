@@ -13,6 +13,17 @@ import (
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
+// Controller is the inbound HTTP port implemented by the Echo adapter.
+type Controller interface {
+	Home(echo.Context) error
+}
+
+// RegisterRoutes registers the web application's HTTP routes.
+// Controller construction is owned by the application container.
+func RegisterRoutes(e *echo.Echo, h Controller) {
+	e.GET("/", h.Home)
+}
+
 // Adapter
 type controllerEcho struct {
 	api typedef.API
@@ -26,7 +37,7 @@ func newControllerEcho(a typedef.API, r te.Renderer, l *slog.Logger) *controller
 }
 
 func cfgEchoController(e *echo.Echo, h *controllerEcho) {
-	e.GET("/", h.Home)
+	RegisterRoutes(e, h)
 }
 
 func (h *controllerEcho) Home(c echo.Context) error {

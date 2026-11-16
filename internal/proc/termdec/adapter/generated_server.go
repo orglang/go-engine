@@ -50,13 +50,26 @@ func (r generatedRouteFilter) TRACE(string, echo.HandlerFunc, ...echo.Middleware
 	return nil
 }
 
-// cfgGeneratedServer registers only the contract-generated route migrated by
-// this PR on the application's existing Echo instance. It does not start a
-// second HTTP listener or expose unrelated, not-yet-migrated operations.
-func cfgGeneratedServer(e *echo.Echo, h *controllerEcho) {
-	registerGeneratedServer(e, h)
+type generatedServerAdapter struct {
+	webapi.ServerInterface
+	handler interface {
+		CreateProcessDeclaration(echo.Context) error
+	}
 }
 
+func (a generatedServerAdapter) CreateProcessDeclaration(c echo.Context) error {
+	return a.handler.CreateProcessDeclaration(c)
+}
+
+// RegisterGeneratedRoutes mounts the migrated contract-generated process
+// declaration route without exposing the other, not-yet-migrated operations.
+func RegisterGeneratedRoutes(e *echo.Echo, h Controller) error {
+	registerGeneratedServer(e, generatedServerAdapter{handler: h})
+	return nil
+}
+
+// registerGeneratedServer registers the generated handlers through the route
+// filter so only the explicitly migrated operation is exposed.
 func registerGeneratedServer(e *echo.Echo, h webapi.ServerInterface) {
 	webapi.RegisterHandlers(generatedRouteFilter{EchoRouter: e}, h)
 }

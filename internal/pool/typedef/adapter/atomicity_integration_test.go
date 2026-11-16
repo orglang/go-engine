@@ -205,7 +205,7 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Create() error = %v, want nil", err)
 	}
-	if ref.TypeID == "" {
+	if ref.TypeID.IsEmpty() {
 		t.Fatal("Create() returned an empty type ID")
 	}
 
@@ -217,7 +217,7 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 
 	var descBindCount, typeExpCount, typeDefCount int
 	if err := verifyConn.QueryRow(ctx,
-		"SELECT count(*) FROM pool_desc_binds WHERE desc_id = $1", ref.TypeID,
+		"SELECT count(*) FROM pool_desc_binds WHERE desc_id = $1", ref.TypeID.String(),
 	).Scan(&descBindCount); err != nil {
 		t.Fatalf("count descriptor bindings: %v", err)
 	}
@@ -226,7 +226,7 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 		t.Fatalf("count type expressions: %v", err)
 	}
 	if err := verifyConn.QueryRow(ctx,
-		"SELECT count(*) FROM pool_type_defs WHERE type_id = $1", ref.TypeID,
+		"SELECT count(*) FROM pool_type_defs WHERE type_id = $1", ref.TypeID.String(),
 	).Scan(&typeDefCount); err != nil {
 		t.Fatalf("count type definitions: %v", err)
 	}

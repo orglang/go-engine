@@ -11,7 +11,7 @@ import (
 	"orglang/go-engine/internal/pool/ent"
 )
 
-func TestPostgresIntegrationUsesCallbackTransaction(t *testing.T) {
+func TestIntegrationEntPGXUsesCallbackTransaction(t *testing.T) {
 	dsn := os.Getenv("ENTPGX_TEST_DATABASE_URL")
 	if dsn == "" {
 		t.Skip("ENTPGX_TEST_DATABASE_URL is not set")

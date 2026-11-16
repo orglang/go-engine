@@ -32,15 +32,13 @@ jobs:
         run: mise run deps:lock
 
       - name: Install dependencies
-        run: |
-          mise -E sources-dev install --locked
-          mise run deps:install
+        run: mise run deps:install
 
       - name: Generate specs
         run: task specs:generate
 
       - name: Generate sources
-        run: task sources:generate
+        run: mise -E sources exec -- task sources:generate
 
       - name: Commit sources
         run: |

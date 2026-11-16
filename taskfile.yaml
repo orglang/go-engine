@@ -83,15 +83,9 @@ tasks:
 
   container:
     aliases: [cnt]
-    desc: Start specified process in foreground
+    desc: Start specified container in background
     cmds:
-      - task: engine:process
-
-  container:
-    aliases: [cnt]
-    desc: Start specified process in foreground
-    cmds:
-      - task: engine:process
+      - cmd: container started
 
   processes:
     aliases: [procs]

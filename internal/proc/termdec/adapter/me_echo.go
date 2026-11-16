@@ -19,6 +19,7 @@ import (
 type Controller interface {
 	PostSpec(echo.Context) error
 	GetSnap(echo.Context) error
+	CreateProcessDeclaration(echo.Context) error
 }
 
 // Server-side primary adapter

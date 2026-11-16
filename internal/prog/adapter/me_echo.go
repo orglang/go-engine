@@ -3,30 +3,29 @@ package adapter
 import (
 	"io"
 	"log/slog"
-	"net/http"
 	"reflect"
 
 	"github.com/labstack/echo/v4"
 	sdkprog "github.com/orglang/go-sdk/prog"
 
+	webapi "orglang/go-engine/internal/app/web/api"
 	coreprog "orglang/go-engine/internal/prog/core"
 )
 
 type controllerEcho struct {
+	webapi.ServerInterface
 	api coreprog.API
 	log *slog.Logger
 }
 
+var _ webapi.ServerInterface = (*controllerEcho)(nil)
+
 func newControllerEcho(a coreprog.API, l *slog.Logger) *controllerEcho {
 	name := slog.String("name", reflect.TypeFor[controllerEcho]().Name())
-	return &controllerEcho{a, l.With(name)}
+	return &controllerEcho{api: a, log: l.With(name)}
 }
 
-func cfgControllerEcho(e *echo.Echo, h *controllerEcho) {
-	e.POST("/api/v1/progs", h.PostSpec)
-}
-
-func (h *controllerEcho) PostSpec(ctx echo.Context) error {
+func (h *controllerEcho) CreateProgram(ctx echo.Context) error {
 	text, readErr := io.ReadAll(ctx.Request().Body)
 	if readErr != nil {
 		h.log.Error("reading failed", slog.Any("err", readErr))
@@ -42,8 +41,7 @@ func (h *controllerEcho) PostSpec(ctx echo.Context) error {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
 		return convErr
 	}
-	apiErr := h.api.Create(spec)
-	if apiErr != nil {
+	if apiErr := h.api.Create(spec); apiErr != nil {
 		return apiErr
 	}
 	return ctx.NoContent(http.StatusCreated)

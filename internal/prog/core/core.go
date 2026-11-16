@@ -20,11 +20,7 @@ type service struct {
 	log *slog.Logger
 }
 
-func newAPI() API {
-	return new(service)
-}
-
-func newService(log *slog.Logger) *service {
+func NewService(log *slog.Logger) API {
 	return &service{log: log}
 }
 

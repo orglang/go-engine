@@ -39,8 +39,3 @@ url = "https://dl.google.com/go/go1.27.4.windows-amd64.zip"
 version = "3.54.0"
 backend = "go:github.com/go-task/task/v3/cmd/task"
 specifiers = ["v3.54.0"]
-
-[[tools."go:entgo.io/ent/cmd/ent"]]
-version = "v0.14.6"
-backend = "go:entgo.io/ent/cmd/ent"
-specifiers = ["v0.14.6"]

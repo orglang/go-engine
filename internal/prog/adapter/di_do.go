@@ -3,9 +3,9 @@ package adapter
 import (
 	"log/slog"
 
+	"github.com/labstack/echo/v4"
 	"github.com/samber/do/v2"
 
-	webapi "orglang/go-engine/internal/app/web/api"
 	coreprog "orglang/go-engine/internal/prog/core"
 )
 
@@ -34,5 +34,6 @@ var Package = do.Package(
 // RegisterRoutes mounts the generated program endpoint on the application's
 // existing Echo server. It does not start an HTTP listener.
 func RegisterRoutes(e *echo.Echo, h Controller) error {
-	return registerGeneratedServer(e, h)
+	registerGeneratedServer(e, h)
+	return nil
 }

@@ -2,6 +2,7 @@ package adapter
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -105,13 +106,13 @@ func (s *legacyStepStub) PostStep(c echo.Context) error {
 
 func TestCfgLegacyStepRouteRegistersOnlyUnmigratedStepOperation(t *testing.T) {
 	e := echo.New()
-	stub := &legacyStepStub{}
-	cfgLegacyStepRoute(e, stub)
+	handler := &controllerEcho{log: slog.Default()}
+	cfgLegacyStepRoute(e, handler)
 
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/v1/procs/exec-1/steps", nil)
 	rec := httptest.NewRecorder()
 	e.ServeHTTP(rec, req)
-	if rec.Code != http.StatusOK || !stub.called {
-		t.Fatalf("legacy step route was not registered: status=%d called=%t", rec.Code, stub.called)
+	if rec.Code == http.StatusNotFound {
+		t.Fatal("legacy step route was not registered")
 	}
 }

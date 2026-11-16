@@ -7,14 +7,13 @@ import (
 	termsem1 "github.com/orglang/go-sdk/adt/termsem"
 	termvar "github.com/orglang/go-sdk/adt/termvar"
 	termdec "github.com/orglang/go-sdk/proc/termdec"
-
 	identity "orglang/go-engine/internal/adt/identity"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
 	symbol "orglang/go-engine/internal/adt/symbol"
 	termsem "orglang/go-engine/internal/adt/termsem"
 	termvar1 "orglang/go-engine/internal/adt/termvar"
 	uniqsym "orglang/go-engine/internal/adt/uniqsym"
-	webapi "orglang/go-engine/internal/app/web/api"
+	api "orglang/go-engine/internal/app/web/api"
 	core "orglang/go-engine/internal/proc/termdec/core"
 )
 
@@ -315,24 +314,17 @@ func coreDecSnapDSToTermsemSemRef(source core.DecSnapDS) (termsem.SemRef, error)
 	termsemSemRef.TermRN = seqnum.ADT(source.TermRN)
 	return termsemSemRef, nil
 }
-
-
 func init() {
-	ConnVarFromGenerated = func(source webapi.AnyConnVarSpec) (termvar1.VarSpec, error) {
-		var termvarVarSpec termvar1.VarSpec
-		symbolADT, err := symbol.ConvertFromString(source.ConnPh)
-		if err != nil {
-			return termvarVarSpec, err
-		}
-		termvarVarSpec.ChnlPH = symbolADT
-		uniqsymADT, err := uniqsym.ConvertFromString(source.TypeQn)
-		if err != nil {
-			return termvarVarSpec, err
-		}
-		termvarVarSpec.TypeQN = uniqsymADT
-		return termvarVarSpec, nil
+	ConnVarFromGenerated = func(source api.AnyConnVarSpec) (termvar1.VarSpec, error) {
+		return ConnVarFromGenerated(source)
 	}
-	DecSpecFromGenerated = func(source webapi.ProcDecSpec) (core.DecSpec, error) {
+	DecSnapToGenerated = func(source core.DecSnap) api.AnyTermRef {
+		var apiAnyTermRef api.AnyTermRef
+		apiAnyTermRef.TermId = identity.ConvertToString(source.TermRef.TermID)
+		apiAnyTermRef.TermRn = seqnum.ConvertToInt(source.TermRef.TermRN)
+		return apiAnyTermRef
+	}
+	DecSpecFromGenerated = func(source api.ProcDecSpec) (core.DecSpec, error) {
 		var coreDecSpec core.DecSpec
 		uniqsymADT, err := uniqsym.ConvertFromString(source.TermQn)
 		if err != nil {
@@ -347,19 +339,13 @@ func init() {
 		if source.AssetVars != nil {
 			coreDecSpec.AssetVars = make([]termvar1.VarSpec, len(source.AssetVars))
 			for i := 0; i < len(source.AssetVars); i++ {
-				termvarVarSpec, err := ConnVarFromGenerated(source.AssetVars[i])
+				termvarVarSpec2, err := ConnVarFromGenerated(source.AssetVars[i])
 				if err != nil {
 					return coreDecSpec, err
 				}
-				coreDecSpec.AssetVars[i] = termvarVarSpec
+				coreDecSpec.AssetVars[i] = termvarVarSpec2
 			}
 		}
 		return coreDecSpec, nil
-	}
-	DecSnapToGenerated = func(source core.DecSnap) webapi.AnyTermRef {
-		var webapiAnyTermRef webapi.AnyTermRef
-		webapiAnyTermRef.TermId = identity.ConvertToString(source.TermRef.TermID)
-		webapiAnyTermRef.TermRn = seqnum.ConvertToInt(source.TermRef.TermRN)
-		return webapiAnyTermRef
 	}
 }

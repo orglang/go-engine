@@ -98,17 +98,17 @@ func typesemSemRefToTypesemSemRef2(source typesem1.SemRef) (typesem.SemRef, erro
 	return typesemSemRef, nil
 }
 func init() {
-	DataFromDefRec = func(source core.DefRec) (core.DefRecDS, error) {
-		var coreDefRecDS core.DefRecDS
+	DataFromDefRec = func(source core.DefRec) (DefRecDS, error) {
+		var coreDefRecDS DefRecDS
 		coreDefRecDS.TypeID = identity.ConvertToString(source.TypeRef.TypeID)
 		coreDefRecDS.TypeRN = seqnum.ConvertToInt(source.TypeRef.TypeRN)
 		coreDefRecDS.ExpCK = contkey.ConvertToInt(source.ExpCK)
 		return coreDefRecDS, nil
 	}
-	DataFromDefRecs = func(source []core.DefRec) ([]core.DefRecDS, error) {
-		var coreDefRecDSList []core.DefRecDS
+	DataFromDefRecs = func(source []core.DefRec) ([]DefRecDS, error) {
+		var coreDefRecDSList []DefRecDS
 		if source != nil {
-			coreDefRecDSList = make([]core.DefRecDS, len(source))
+			coreDefRecDSList = make([]DefRecDS, len(source))
 			for i := 0; i < len(source); i++ {
 				coreDefRecDS, err := DataFromDefRec(source[i])
 				if err != nil {
@@ -119,7 +119,7 @@ func init() {
 		}
 		return coreDefRecDSList, nil
 	}
-	DataToDefRec = func(source core.DefRecDS) (core.DefRec, error) {
+	DataToDefRec = func(source DefRecDS) (core.DefRec, error) {
 		var coreDefRec core.DefRec
 		typesemSemRef, err := coreDefRecDSToTypesemSemRef(source)
 		if err != nil {
@@ -133,7 +133,7 @@ func init() {
 		coreDefRec.ExpCK = contkeyADT
 		return coreDefRec, nil
 	}
-	DataToDefRecMap = func(source map[uniqsym.ADT]core.DefRecDS) (map[uniqsym.ADT]core.DefRec, error) {
+	DataToDefRecMap = func(source map[uniqsym.ADT]DefRecDS) (map[uniqsym.ADT]core.DefRec, error) {
 		var mapUniqsymADTCoreDefRec map[uniqsym.ADT]core.DefRec
 		if source != nil {
 			mapUniqsymADTCoreDefRec = make(map[uniqsym.ADT]core.DefRec, len(source))
@@ -147,7 +147,7 @@ func init() {
 		}
 		return mapUniqsymADTCoreDefRec, nil
 	}
-	DataToDefRecs = func(source []core.DefRecDS) ([]core.DefRec, error) {
+	DataToDefRecs = func(source []DefRecDS) ([]core.DefRec, error) {
 		var coreDefRecList []core.DefRec
 		if source != nil {
 			coreDefRecList = make([]core.DefRec, len(source))
@@ -162,7 +162,7 @@ func init() {
 		return coreDefRecList, nil
 	}
 }
-func coreDefRecDSToTypesemSemRef(source core.DefRecDS) (typesem.SemRef, error) {
+func coreDefRecDSToTypesemSemRef(source DefRecDS) (typesem.SemRef, error) {
 	var typesemSemRef typesem.SemRef
 	identityADT, err := identity.ConvertFromString(source.TypeID)
 	if err != nil {

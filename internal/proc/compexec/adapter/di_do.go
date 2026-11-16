@@ -6,8 +6,8 @@ import (
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/lib/tx"
-	"orglang/go-engine/internal/proc/compexec/core"
 	compconn "orglang/go-engine/internal/proc/compconn/core"
+	"orglang/go-engine/internal/proc/compexec/core"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 	typeexp "orglang/go-engine/internal/proc/typeexp/core"

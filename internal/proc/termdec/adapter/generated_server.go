@@ -54,6 +54,10 @@ func (r generatedRouteFilter) TRACE(string, echo.HandlerFunc, ...echo.Middleware
 // this PR on the application's existing Echo instance. It does not start a
 // second HTTP listener or expose unrelated, not-yet-migrated operations.
 func cfgGeneratedServer(e *echo.Echo, h *controllerEcho) {
+	registerGeneratedServer(e, h)
+}
+
+func registerGeneratedServer(e *echo.Echo, h webapi.ServerInterface) {
 	webapi.RegisterHandlers(generatedRouteFilter{EchoRouter: e}, h)
 }
 
@@ -67,7 +71,7 @@ func (generatedServerStub) CreateProcessDeclaration(c echo.Context) error {
 
 func TestCfgGeneratedServerRegistersGeneratedRoutes(t *testing.T) {
 	e := echo.New()
-	cfgGeneratedServer(e, generatedServerStub{})
+	registerGeneratedServer(e, generatedServerStub{})
 
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, processDeclarationRoute, nil)
 	rec := httptest.NewRecorder()

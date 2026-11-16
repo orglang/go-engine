@@ -19,6 +19,7 @@ func TestPostgresIntegrationUsesCallbackTransaction(t *testing.T) {
 
 	ctx, cancel := context.WithTimeout(t.Context(), 15*time.Second)
 	defer cancel()
+	cleanupCtx := context.WithoutCancel(ctx)
 
 	pool, err := pgxpool.New(ctx, dsn)
 	if err != nil {
@@ -46,7 +47,7 @@ func TestPostgresIntegrationUsesCallbackTransaction(t *testing.T) {
 				t.Fatalf("create temporary table: %v", err)
 			}
 			t.Cleanup(func() {
-				_, dropErr := conn.Exec(context.Background(), "DROP TABLE IF EXISTS pool_type_defs")
+				_, dropErr := conn.Exec(cleanupCtx, "DROP TABLE IF EXISTS pool_type_defs")
 				if dropErr != nil {
 					t.Errorf("drop temporary table: %v", dropErr)
 				}
@@ -57,7 +58,7 @@ func TestPostgresIntegrationUsesCallbackTransaction(t *testing.T) {
 				t.Fatalf("begin transaction: %v", err)
 			}
 			defer func() {
-				_ = tx.Rollback(context.Background())
+				_ = tx.Rollback(cleanupCtx)
 			}()
 
 			client := ent.NewClient(ent.Driver(New()))

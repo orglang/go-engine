@@ -49,7 +49,7 @@ tasks:
     cmds:
       - goverter gen -global 'skipCopySameType' ./...
       - oapi-codegen -config internal/app/web/api/cfg.yaml openapi/openapi.yaml
-      - go tool ent generate --target internal/pool/ent internal/pool/ent/schema
+      - go tool ent generate --target internal/pool/ent ./internal/pool/ent/schema
 
   specs:generate:
     desc: Generate OpenAPI from TypeSpec

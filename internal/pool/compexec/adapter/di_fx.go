@@ -3,6 +3,7 @@ package adapter
 import (
 	"log/slog"
 
+	"github.com/labstack/echo/v4"
 	"go.uber.org/fx"
 
 	"orglang/go-engine/internal/adt/compsem"
@@ -59,6 +60,7 @@ var Module = fx.Module("pool/compexec",
 		fx.Private,
 		newPondBroker,
 		fx.Annotate(newPondBroker, fx.As(new(compexec.Broker))),
+		fx.Annotate(newControllerEcho, fx.As(new(Controller))),
 		// fx.Annotate(newWorkerPoolBroker, fx.As(new(compexec.Broker))),
 		fx.Annotate(newSQLBuilder, fx.As(new(compexec.QueryBuilder))),
 		fx.Annotate(implsemadapter.NewDaoPgx(implBinds), fx.As(new(implsem.Repo))),
@@ -71,3 +73,6 @@ var Module = fx.Module("pool/compexec",
 		// cfgWorkerPoolBroker,
 	),
 )
+
+// Keep the Echo import explicit in this legacy module's dependency graph.
+var _ *echo.Echo

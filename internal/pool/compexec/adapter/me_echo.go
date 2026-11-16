@@ -15,7 +15,14 @@ import (
 	compstep "orglang/go-engine/internal/pool/compstep/adapter"
 )
 
-// Server-side primary adapter
+// Controller is the inbound HTTP port implemented by the Echo adapter.
+type Controller interface {
+	PostSpec(echo.Context) error
+	PostSpec2(echo.Context) error
+	PostSpec3(echo.Context) error
+}
+
+// Server-side primary adapter.
 type controllerEcho struct {
 	api compexec.API
 	log *slog.Logger
@@ -27,9 +34,8 @@ func newControllerEcho(api compexec.API, log *slog.Logger) *controllerEcho {
 }
 
 // RegisterRoutes attaches the pool computation-execution HTTP endpoints to an
-// Echo server. The application composition root owns when this is called.
-func RegisterRoutes(server *echo.Echo, api compexec.API, logger *slog.Logger) error {
-	controller := newControllerEcho(api, logger)
+// Echo server. Controller construction is owned by the application container.
+func RegisterRoutes(server *echo.Echo, controller Controller) error {
 	server.POST("/api/v1/pools/execs", controller.PostSpec)
 	server.POST("/api/v1/pools/execs/steps", controller.PostSpec2)
 	server.POST("/api/v1/pools/execs/spawns", controller.PostSpec3)

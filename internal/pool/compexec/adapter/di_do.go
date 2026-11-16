@@ -19,8 +19,9 @@ import (
 	proccompexec "orglang/go-engine/internal/proc/compexec/core"
 )
 
-// Package registers the computation-execution repository, service and broker.
-// Broker subscription is deliberately a separate, explicit composition step.
+// Package registers the computation-execution repository, service, broker and
+// inbound controller. Broker subscription and route registration are explicit
+// composition steps.
 var Package = do.Package(
 	do.Lazy[compexec.QueryBuilder](func(do.Injector) (compexec.QueryBuilder, error) {
 		return newSQLBuilder(), nil
@@ -100,11 +101,22 @@ var Package = do.Package(
 			TypeExpRepo:    typeRepo,
 			ProcExecRepo:   procRepo,
 			TermDefRepo:    termRepo,
-			ImplSemRepo:    implRepo,
-			CompSemRepo:    compRepo,
-			Transactor:     transactor,
-			Logger:         logger,
+			ImplSemRepo:   implRepo,
+			CompSemRepo:   compRepo,
+			Transactor:    transactor,
+			Logger:        logger,
 		}), nil
+	}),
+	do.Lazy[Controller](func(i do.Injector) (Controller, error) {
+		api, err := do.Invoke[compexec.API](i)
+		if err != nil {
+			return nil, err
+		}
+		logger, err := do.Invoke[*slog.Logger](i)
+		if err != nil {
+			return nil, err
+		}
+		return newControllerEcho(api, logger), nil
 	}),
 	do.Lazy[compsem.Repo](func(i do.Injector) (compsem.Repo, error) {
 		logger, err := do.Invoke[*slog.Logger](i)

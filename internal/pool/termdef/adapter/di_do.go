@@ -11,7 +11,7 @@ import (
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 )
 
-// Package registers the term-definition service and persistence adapter.
+// Package registers the term-definition service, persistence, and HTTP adapter.
 var Package = do.Package(
 	do.Lazy[core.QueryBuilder](func(do.Injector) (core.QueryBuilder, error) {
 		return newSQLBuilder(), nil
@@ -49,5 +49,16 @@ var Package = do.Package(
 			return nil, err
 		}
 		return core.NewService(repo, typeDefRepo, descRepo, transactor, logger), nil
+	}),
+	do.Lazy[Controller](func(i do.Injector) (Controller, error) {
+		api, err := do.Invoke[core.API](i)
+		if err != nil {
+			return nil, err
+		}
+		logger, err := do.Invoke[*slog.Logger](i)
+		if err != nil {
+			return nil, err
+		}
+		return newControllerEcho(api, logger), nil
 	}),
 )

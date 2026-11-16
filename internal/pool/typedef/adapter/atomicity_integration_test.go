@@ -14,9 +14,9 @@ import (
 	dbadapter "orglang/go-engine/internal/lib/db/adapter"
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/pool/ent"
+	typedef "orglang/go-engine/internal/pool/typedef/core"
 	typeexpadapter "orglang/go-engine/internal/pool/typeexp/adapter"
 	typeexp "orglang/go-engine/internal/pool/typeexp/core"
-	typedef "orglang/go-engine/internal/pool/typedef/core"
 )
 
 type integrationTypeExpQueryBuilder struct{}

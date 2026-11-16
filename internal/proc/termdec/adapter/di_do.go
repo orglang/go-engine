@@ -50,7 +50,7 @@ var Package = do.Package(
 		}
 		return core.NewService(termDecRepo, typeDefRepo, typeSemRepo, transactor, logger), nil
 	}),
-	do.Lazy[Controller](func(i do.Injector) (Controller, error) {
+	do.Lazy[*controllerEcho](func(i do.Injector) (*controllerEcho, error) {
 		api, err := do.Invoke[core.API](i)
 		if err != nil {
 			return nil, err

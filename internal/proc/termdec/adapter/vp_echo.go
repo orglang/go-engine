@@ -36,11 +36,16 @@ func newEchoPresenter(a termdec.API, r te.Renderer, l *slog.Logger) *echoPresent
 	return &echoPresenter{a, r, l.With(name)}
 }
 
-func cfgEchoPresenter(e *echo.Echo, p *echoPresenter) error {
+// RegisterPresenterRoutes attaches the term-declaration SSR routes to Echo.
+func RegisterPresenterRoutes(e *echo.Echo, p Presenter) error {
 	e.POST("/ssr/decs", p.PostSpec)
 	e.GET("/ssr/decs", p.GetRefs)
 	e.GET("/ssr/decs/:id", p.GetSnap)
 	return nil
+}
+
+func cfgEchoPresenter(e *echo.Echo, p *echoPresenter) error {
+	return RegisterPresenterRoutes(e, p)
 }
 
 func (p *echoPresenter) PostSpec(c echo.Context) error {

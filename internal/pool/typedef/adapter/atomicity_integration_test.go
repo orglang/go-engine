@@ -128,3 +128,114 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 		}
 	}
 }
+
+
+func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
+	dsn := os.Getenv("ENTPGX_TEST_DATABASE_URL")
+	if dsn == "" {
+		t.Skip("ENTPGX_TEST_DATABASE_URL is not set")
+	}
+
+	ctx, cancel := context.WithTimeout(t.Context(), 20*time.Second)
+	defer cancel()
+
+	config, err := pgxpool.ParseConfig(dsn)
+	if err != nil {
+		t.Fatalf("parse PostgreSQL config: %v", err)
+	}
+	config.MaxConns = 1
+	pool, err := pgxpool.NewWithConfig(ctx, config)
+	if err != nil {
+		t.Fatalf("open PostgreSQL pool: %v", err)
+	}
+	t.Cleanup(pool.Close)
+
+	conn, err := pool.Acquire(ctx)
+	if err != nil {
+		t.Fatalf("acquire PostgreSQL connection: %v", err)
+	}
+	_, err = conn.Exec(ctx, `
+		CREATE EXTENSION IF NOT EXISTS ltree;
+		CREATE TEMP TABLE pool_desc_binds (
+			desc_qn ltree UNIQUE,
+			desc_id varchar,
+			kind smallint
+		);
+		CREATE TEMP TABLE pool_type_exps (
+			exp_ck bigint UNIQUE,
+			sup_exp_ck bigint,
+			kind smallint,
+			spec jsonb
+		);
+		CREATE TEMP TABLE pool_type_defs (
+			type_id varchar UNIQUE,
+			type_rn bigint,
+			exp_ck bigint
+		);
+	`)
+	if err != nil {
+		conn.Release()
+		t.Fatalf("create temporary integration schema: %v", err)
+	}
+	conn.Release()
+
+	logger := slog.Default()
+	entClient := ent.NewClient(ent.Driver(entpgx.New()))
+	t.Cleanup(func() {
+		if err := entClient.Close(); err != nil {
+			t.Errorf("close Ent client: %v", err)
+		}
+	})
+
+	service := typedef.NewService(
+		NewDaoEnt(entClient, logger),
+		typeexpadapter.NewDaoPgx(integrationTypeExpQueryBuilder{}, logger),
+		descsemadapter.NewDaoPgx(descBinds)(logger),
+		dbadapter.NewTransactorPgx(pool),
+		logger,
+	)
+
+	typeQN, err := uniqsym.ConvertFromString("integration.atomicity.success")
+	if err != nil {
+		t.Fatalf("create type qualified name: %v", err)
+	}
+	ref, err := service.Create(typedef.DefSpec{
+		TypeQN:  typeQN,
+		TypeExp: typeexp.OneSpec{},
+	})
+	if err != nil {
+		t.Fatalf("Create() error = %v, want nil", err)
+	}
+	if ref.TypeID == "" {
+		t.Fatal("Create() returned an empty type ID")
+	}
+
+	verifyConn, err := pool.Acquire(ctx)
+	if err != nil {
+		t.Fatalf("acquire PostgreSQL connection for verification: %v", err)
+	}
+	defer verifyConn.Release()
+
+	var descBindCount, typeExpCount, typeDefCount int
+	if err := verifyConn.QueryRow(ctx,
+		"SELECT count(*) FROM pool_desc_binds WHERE desc_id = $1", ref.TypeID,
+	).Scan(&descBindCount); err != nil {
+		t.Fatalf("count descriptor bindings: %v", err)
+	}
+	if err := verifyConn.QueryRow(ctx, "SELECT count(*) FROM pool_type_exps").
+		Scan(&typeExpCount); err != nil {
+		t.Fatalf("count type expressions: %v", err)
+	}
+	if err := verifyConn.QueryRow(ctx,
+		"SELECT count(*) FROM pool_type_defs WHERE type_id = $1", ref.TypeID,
+	).Scan(&typeDefCount); err != nil {
+		t.Fatalf("count type definitions: %v", err)
+	}
+
+	if descBindCount != 1 || typeExpCount == 0 || typeDefCount != 1 {
+		t.Errorf(
+			"persisted rows: desc binds = %d, type exps = %d, type defs = %d; want 1, >0, 1",
+			descBindCount, typeExpCount, typeDefCount,
+		)
+	}
+}

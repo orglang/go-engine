@@ -34,11 +34,16 @@ func newControllerEcho(a typedef.API, l *slog.Logger) *controllerEcho {
 	return &controllerEcho{a, l.With(name)}
 }
 
-func cfgEchoController(e *echo.Echo, h *controllerEcho) error {
+// RegisterRoutes attaches the type-definition API routes to an Echo server.
+func RegisterRoutes(e *echo.Echo, h Controller) error {
 	e.POST("/api/v1/types", h.PostSpec)
 	e.GET("/api/v1/types/:id", h.GetSnap)
 	e.PATCH("/api/v1/types/:id", h.PatchOne)
 	return nil
+}
+
+func cfgEchoController(e *echo.Echo, h *controllerEcho) error {
+	return RegisterRoutes(e, h)
 }
 
 func (h *controllerEcho) PostSpec(c echo.Context) error {

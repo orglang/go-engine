@@ -53,7 +53,7 @@ func (r generatedRouteFilter) TRACE(string, echo.HandlerFunc, ...echo.Middleware
 // cfgGeneratedServer registers only the contract-generated route migrated by
 // this PR on the application's existing Echo instance. It does not start a
 // second HTTP listener or expose unrelated, not-yet-migrated operations.
-func cfgGeneratedServer(e *echo.Echo, h webapi.ServerInterface) {
+func cfgGeneratedServer(e *echo.Echo, h *controllerEcho) {
 	webapi.RegisterHandlers(generatedRouteFilter{EchoRouter: e}, h)
 }
 

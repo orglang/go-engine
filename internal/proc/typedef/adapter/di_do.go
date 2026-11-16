@@ -6,9 +6,6 @@ import (
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/adt/descsem"
-	"github.com/labstack/echo/v4"
-
-	"orglang/go-engine/internal/lib/te"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/typedef/core"
 	typeexp "orglang/go-engine/internal/proc/typeexp/core"

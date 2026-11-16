@@ -16,6 +16,13 @@ import (
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
+// Controller is the inbound HTTP port implemented by the Echo adapter.
+type Controller interface {
+	PostSpec(echo.Context) error
+	GetSnap(echo.Context) error
+	PatchOne(echo.Context) error
+}
+
 // Server-side primary adapter
 type controllerEcho struct {
 	api typedef.API

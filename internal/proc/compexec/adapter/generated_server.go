@@ -43,6 +43,12 @@ func (r generatedRouteFilter) TRACE(string, echo.HandlerFunc, ...echo.Middleware
 	return nil
 }
 
+// RegisterGeneratedRoutes mounts the migrated generated process-execution routes.
+func RegisterGeneratedRoutes(e *echo.Echo, h GeneratedController) error {
+	registerGeneratedServer(e, h)
+	return nil
+}
+
 func cfgGeneratedServer(e *echo.Echo, h *controllerEcho) {
 	registerGeneratedServer(e, h)
 }

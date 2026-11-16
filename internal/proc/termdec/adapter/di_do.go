@@ -7,6 +7,7 @@ import (
 
 	"orglang/go-engine/internal/adt/typesem"
 	"orglang/go-engine/internal/lib/tx"
+	webapi "orglang/go-engine/internal/app/web/api"
 	"orglang/go-engine/internal/proc/termdec/core"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
@@ -50,7 +51,7 @@ var Package = do.Package(
 		}
 		return core.NewService(termDecRepo, typeDefRepo, typeSemRepo, transactor, logger), nil
 	}),
-	do.Lazy[*controllerEcho](func(i do.Injector) (*controllerEcho, error) {
+	do.Lazy[webapi.ServerInterface](func(i do.Injector) (webapi.ServerInterface, error) {
 		api, err := do.Invoke[core.API](i)
 		if err != nil {
 			return nil, err

@@ -11,6 +11,18 @@ import (
 	webapi "orglang/go-engine/internal/app/web/api"
 )
 
+type generatedServerStub struct {
+	webapi.ServerInterface
+	gotID string
+	gotRN *int64
+}
+
+func (s *generatedServerStub) GetProcessExecution(_ echo.Context, id string, params webapi.GetProcessExecutionParams) error {
+	s.gotID = id
+	s.gotRN = params.Rn
+	return nil
+}
+
 func TestCfgGeneratedServerRegistersProcessExecutionRoute(t *testing.T) {
 	e := echo.New()
 	stub := &generatedServerStub{}

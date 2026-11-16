@@ -8,7 +8,7 @@ import (
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/app"
-	web "orglang/go-engine/internal/app/web"
+	"orglang/go-engine/internal/app/web"
 	"orglang/go-engine/internal/lib/db"
 	"orglang/go-engine/internal/lib/kv"
 	"orglang/go-engine/internal/lib/lf"

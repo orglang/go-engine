@@ -28,7 +28,7 @@ type GeneratedController interface {
 	webapi.ServerInterface
 }
 
-func cfgLegacyStepRoute(e *echo.Echo, h Controller) {
+func cfgLegacyStepRoute(e *echo.Echo, h *controllerEcho) {
 	e.POST("/api/v1/procs/:id/steps", h.PostStep)
 }
 
@@ -40,6 +40,7 @@ type controllerEcho struct {
 }
 
 var _ webapi.ServerInterface = (*controllerEcho)(nil)
+var _ GeneratedController = (*controllerEcho)(nil)
 
 func newControllerEcho(a compexec.API, l *slog.Logger) *controllerEcho {
 	return &controllerEcho{api: a, log: l}

@@ -20,7 +20,8 @@ type service struct {
 	log *slog.Logger
 }
 
-// NewService constructs the program service.\nfunc NewService(log *slog.Logger) API {
+// NewService constructs the program service.
+func NewService(log *slog.Logger) API {
 	return &service{log: log}
 }
 

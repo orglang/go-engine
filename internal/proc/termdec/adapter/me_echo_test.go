@@ -20,16 +20,13 @@ func TestCreateProcessDeclarationHandler(t *testing.T) {
 		decAPI := &generatedDecAPIStub{}
 		e := echo.New()
 		h := &controllerEcho{api: decAPI}
-		if err := cfgEchoController(e, h); err != nil {
-			t.Fatalf("configure controller: %v", err)
-		}
 		e.POST("/api/v1/processes/declarations", h.CreateProcessDeclaration)
 
-		const body = `{
+		const body = \`{
 			"asset_vars": [{"conn_ph": "asset", "type_qn": "example.Asset"}],
 			"liab_var": {"conn_ph": "liability", "type_qn": "example.Liability"},
 			"term_qn": "example.Process"
-		}`
+		}\`
 		req := httptest.NewRequestWithContext(context.Background(), http.MethodPost,
 			"/api/v1/processes/declarations", strings.NewReader(body))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -56,8 +53,8 @@ func TestCreateProcessDeclarationHandler(t *testing.T) {
 		}
 
 		var response struct {
-			TermID string `json:"term_id"`
-			TermRn int64  `json:"term_rn"`
+			TermID string \`json:"term_id"\`
+			TermRn int64  \`json:"term_rn"\`
 		}
 		if err := json.NewDecoder(rec.Body).Decode(&response); err != nil {
 			t.Fatalf("decode response: %v", err)
@@ -71,16 +68,13 @@ func TestCreateProcessDeclarationHandler(t *testing.T) {
 		decAPI := &generatedDecAPIStub{}
 		e := echo.New()
 		h := &controllerEcho{api: decAPI}
-		if err := cfgEchoController(e, h); err != nil {
-			t.Fatalf("configure controller: %v", err)
-		}
 		e.POST("/api/v1/processes/declarations", h.CreateProcessDeclaration)
 
-		const body = `{
+		const body = \`{
 			"asset_vars": [],
 			"liab_var": {"conn_ph": "liability", "type_qn": ""},
 			"term_qn": "example.Process"
-		}`
+		}\`
 		req := httptest.NewRequestWithContext(context.Background(), http.MethodPost,
 			"/api/v1/processes/declarations", strings.NewReader(body))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)

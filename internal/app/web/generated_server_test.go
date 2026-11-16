@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -22,7 +23,7 @@ func TestCfgGeneratedServerRegistersGeneratedRoutes(t *testing.T) {
 	e := echo.New()
 	cfgGeneratedServer(e, generatedServerStub{})
 
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/processes/declarations", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/v1/processes/declarations", nil)
 	rec := httptest.NewRecorder()
 	e.ServeHTTP(rec, req)
 
@@ -30,7 +31,7 @@ func TestCfgGeneratedServerRegistersGeneratedRoutes(t *testing.T) {
 		t.Fatalf("unexpected status: got %d, want %d", rec.Code, http.StatusCreated)
 	}
 
-	req = httptest.NewRequest(http.MethodPost, "/api/v1/programs", nil)
+	req = httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/v1/programs", nil)
 	rec = httptest.NewRecorder()
 	e.ServeHTTP(rec, req)
 	if rec.Code != http.StatusNotFound {

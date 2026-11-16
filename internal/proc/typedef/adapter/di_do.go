@@ -6,6 +6,9 @@ import (
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/adt/descsem"
+	"github.com/labstack/echo/v4"
+
+	"orglang/go-engine/internal/lib/te"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/typedef/core"
 	typeexp "orglang/go-engine/internal/proc/typeexp/core"
@@ -49,5 +52,21 @@ var Package = do.Package(
 			return nil, err
 		}
 		return core.NewService(typeDefRepo, typeExpRepo, descSemRepo, transactor, logger), nil
+	}),
+	do.Lazy[Controller](func(i do.Injector) (Controller, error) {
+		api, err := do.Invoke[core.API](i)
+		if err != nil { return nil, err }
+		logger, err := do.Invoke[*slog.Logger](i)
+		if err != nil { return nil, err }
+		return newControllerEcho(api, logger), nil
+	}),
+	do.Lazy[Presenter](func(i do.Injector) (Presenter, error) {
+		api, err := do.Invoke[core.API](i)
+		if err != nil { return nil, err }
+		logger, err := do.Invoke[*slog.Logger](i)
+		if err != nil { return nil, err }
+		renderer, err := newRendererStdlib(logger)
+		if err != nil { return nil, err }
+		return newEchoPresenter(api, renderer, logger), nil
 	}),
 )

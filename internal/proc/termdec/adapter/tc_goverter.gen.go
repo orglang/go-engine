@@ -316,7 +316,18 @@ func coreDecSnapDSToTermsemSemRef(source core.DecSnapDS) (termsem.SemRef, error)
 }
 func init() {
 	ConnVarFromGenerated = func(source api.AnyConnVarSpec) (termvar1.VarSpec, error) {
-		return ConnVarFromGenerated(source)
+		var termvarVarSpec termvar1.VarSpec
+		symbolADT, err := symbol.ConvertFromString(source.ConnPh)
+		if err != nil {
+			return termvarVarSpec, err
+		}
+		termvarVarSpec.ChnlPH = symbolADT
+		uniqsymADT, err := uniqsym.ConvertFromString(source.TypeQn)
+		if err != nil {
+			return termvarVarSpec, err
+		}
+		termvarVarSpec.TypeQN = uniqsymADT
+		return termvarVarSpec, nil
 	}
 	DecSnapToGenerated = func(source core.DecSnap) api.AnyTermRef {
 		var apiAnyTermRef api.AnyTermRef

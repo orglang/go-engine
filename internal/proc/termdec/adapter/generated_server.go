@@ -110,4 +110,19 @@ func TestCfgGeneratedServerRegistersGeneratedRoutes(t *testing.T) {
 	if rec.Code != http.StatusNotFound {
 		t.Fatalf("unmigrated operation was registered: got %d, want %d", rec.Code, http.StatusNotFound)
 	}
+
+	for _, route := range []struct {
+		method string
+		path   string
+	}{
+		{method: http.MethodPost, path: "/api/v1/procs/decs"},
+		{method: http.MethodGet, path: "/api/v1/procs/decs/proc-1"},
+	} {
+		req = httptest.NewRequestWithContext(context.Background(), route.method, route.path, nil)
+		rec = httptest.NewRecorder()
+		e.ServeHTTP(rec, req)
+		if rec.Code != http.StatusNotFound {
+			t.Errorf("legacy route %s %s is still registered: got %d, want %d", route.method, route.path, rec.Code, http.StatusNotFound)
+		}
+	}
 }

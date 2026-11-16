@@ -18,6 +18,7 @@ import (
 	termdef "orglang/go-engine/internal/pool/termdef/core"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 	typeexp "orglang/go-engine/internal/pool/typeexp/core"
+	proccompexecadapter "orglang/go-engine/internal/proc/compexec/adapter"
 )
 
 type testTransactor struct{}
@@ -119,6 +120,7 @@ func newTestInjector() do.Injector {
 		do.Package(func(i do.Injector) {
 			do.ProvideValue[tx.Transactor](i, testTransactor{})
 		}),
+		proccompexecadapter.Package,
 		Package,
 	)
 }

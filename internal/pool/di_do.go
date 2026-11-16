@@ -15,14 +15,13 @@ import (
 	termdef "orglang/go-engine/internal/pool/termdef/adapter"
 	typedef "orglang/go-engine/internal/pool/typedef/adapter"
 	typeexp "orglang/go-engine/internal/pool/typeexp/adapter"
-	proccompexec "orglang/go-engine/internal/proc/compexec/adapter"
 )
 
 // Package is the pool-domain composition boundary. It registers persistence
 // adapters, services, and HTTP controllers; route registration stays explicit.
+// Shared process providers are registered by proc.Package.
 var Package = do.Package(
 	wp.Package,
-	proccompexec.Package,
 	compconn.Package,
 	compvar.Package,
 	compexec.Package,

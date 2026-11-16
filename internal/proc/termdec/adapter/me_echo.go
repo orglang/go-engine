@@ -37,7 +37,7 @@ func newControllerEcho(a termdec.API, l *slog.Logger) *controllerEcho {
 	return &controllerEcho{api: a, log: l.With(name)}
 }
 
-// RegisterRoutes attaches the term-declaration API routes to an Echo server.
+// RegisterRoutes attaches the legacy term-declaration routes to an Echo server.
 func RegisterRoutes(e *echo.Echo, h Controller) error {
 	e.POST("/api/v1/procs/decs", h.PostSpec)
 	e.GET("/api/v1/procs/decs/:id", h.GetSnap)
@@ -79,6 +79,18 @@ func (h *controllerEcho) GetSnap(c echo.Context) error {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
 		return bindErr
 	}
+	return h.getSnap(c, dto)
+}
+
+func (h *controllerEcho) GetProcessDeclaration(c echo.Context, id string, params webapi.GetProcessDeclarationParams) error {
+	dto := sdk.SemRef{TermID: id}
+	if params.Rn != nil {
+		dto.TermRN = *params.Rn
+	}
+	return h.getSnap(c, dto)
+}
+
+func (h *controllerEcho) getSnap(c echo.Context, dto sdk.SemRef) error {
 	ref, convErr := termsem.MsgToRef(dto)
 	if convErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))

@@ -11,7 +11,7 @@ import (
 	sdktermdec "github.com/orglang/go-sdk/proc/termdec"
 
 	"orglang/go-engine/internal/adt/termsem"
-
+	webapi "orglang/go-engine/internal/app/web/api"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
@@ -23,13 +23,18 @@ type Controller interface {
 
 // Server-side primary adapter
 type controllerEcho struct {
+	// Only operations explicitly mounted by the generated route filter are
+	// dispatched; embedding keeps the generated interface forward-compatible.
+	webapi.ServerInterface
 	api termdec.API
 	log *slog.Logger
 }
 
+var _ webapi.ServerInterface = (*controllerEcho)(nil)
+
 func newControllerEcho(a termdec.API, l *slog.Logger) *controllerEcho {
 	name := slog.String("name", reflect.TypeFor[controllerEcho]().Name())
-	return &controllerEcho{a, l.With(name)}
+	return &controllerEcho{api: a, log: l.With(name)}
 }
 
 // RegisterRoutes attaches the term-declaration API routes to an Echo server.
@@ -84,4 +89,23 @@ func (h *controllerEcho) GetSnap(c echo.Context) error {
 		return retrieveErr
 	}
 	return c.JSON(http.StatusOK, MsgFromDecSnap(snap))
+}
+
+func (h *controllerEcho) CreateProcessDeclaration(c echo.Context) error {
+	var dto webapi.ProcDecSpec
+	if err := c.Bind(&dto); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	spec, err := DecSpecFromGenerated(dto)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	snap, err := h.api.Create(spec)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusCreated, DecSnapToGenerated(snap))
 }

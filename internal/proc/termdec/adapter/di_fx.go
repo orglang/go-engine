@@ -16,8 +16,10 @@ var Module = fx.Module("proc/termdec",
 		fx.Annotate(NewDaoPgx, fx.As(new(termdec.Repo))),
 	),
 	fx.Provide(
-		fx.Private,
 		newControllerEcho,
+	),
+	fx.Provide(
+		fx.Private,
 		newEchoPresenter,
 		fx.Annotate(newSQLBuilder, fx.As(new(termdec.QueryBuilder))),
 		fx.Annotate(newRendererStdlib, fx.As(new(te.Renderer))),
@@ -25,6 +27,7 @@ var Module = fx.Module("proc/termdec",
 	),
 	fx.Invoke(
 		cfgEchoController,
+		cfgGeneratedServer,
 		cfgEchoPresenter,
 	),
 )

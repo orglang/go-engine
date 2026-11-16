@@ -6,7 +6,6 @@ import (
 	"orglang/go-engine/internal/adt/descsem"
 	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
 
-	"orglang/go-engine/internal/pool/ent"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 )
 

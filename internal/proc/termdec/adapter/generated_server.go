@@ -53,8 +53,13 @@ func (r generatedRouteFilter) TRACE(string, echo.HandlerFunc, ...echo.Middleware
 	return nil
 }
 
-// cfgGeneratedServer registers only migrated contract routes on the
-// application's existing Echo instance.
+// RegisterGeneratedRoutes mounts only the migrated generated process
+// declaration operations on the application's existing Echo server.
+func RegisterGeneratedRoutes(e *echo.Echo, h webapi.ServerInterface) error {
+	registerGeneratedServer(e, h)
+	return nil
+}
+
 func cfgGeneratedServer(e *echo.Echo, h *controllerEcho) {
 	registerGeneratedServer(e, h)
 }

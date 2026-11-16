@@ -3,12 +3,14 @@ package proc
 import (
 	"log/slog"
 
+	"github.com/labstack/echo/v4"
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/adt/descsem"
 	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
 	"orglang/go-engine/internal/adt/typesem"
 	typesemadapter "orglang/go-engine/internal/adt/typesem/adapter"
+	webapi "orglang/go-engine/internal/app/web/api"
 	compconn "orglang/go-engine/internal/proc/compconn/adapter"
 	compexec "orglang/go-engine/internal/proc/compexec/adapter"
 	termdec "orglang/go-engine/internal/proc/termdec/adapter"
@@ -42,3 +44,43 @@ var Package = do.Package(
 		return descsemadapter.NewDaoPgx("proc_desc_binds ")(logger), nil
 	}),
 )
+
+// RegisterRoutes resolves the process HTTP adapters and mounts the currently
+// migrated API and server-rendered routes on the application's Echo server.
+// It is an explicit composition function; it does not start an HTTP listener.
+func RegisterRoutes(server *echo.Echo, i do.Injector) error {
+	execController, err := do.Invoke[compexec.Controller](i)
+	if err != nil {
+		return err
+	}
+	termDecController, err := do.Invoke[webapi.ServerInterface](i)
+	if err != nil {
+		return err
+	}
+	termDecPresenter, err := do.Invoke[termdec.Presenter](i)
+	if err != nil {
+		return err
+	}
+	typeDefController, err := do.Invoke[typedef.Controller](i)
+	if err != nil {
+		return err
+	}
+	typeDefPresenter, err := do.Invoke[typedef.Presenter](i)
+	if err != nil {
+		return err
+	}
+
+	if err := compexec.RegisterRoutes(server, execController); err != nil {
+		return err
+	}
+	if err := termdec.RegisterGeneratedRoutes(server, termDecController); err != nil {
+		return err
+	}
+	if err := termdec.RegisterPresenterRoutes(server, termDecPresenter); err != nil {
+		return err
+	}
+	if err := typedef.RegisterRoutes(server, typeDefController); err != nil {
+		return err
+	}
+	return typedef.RegisterPresenterRoutes(server, typeDefPresenter)
+}

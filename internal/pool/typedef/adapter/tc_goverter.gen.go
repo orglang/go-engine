@@ -99,29 +99,29 @@ func typesemSemRefToTypesemSemRef2(source typesem1.SemRef) (typesem.SemRef, erro
 }
 func init() {
 	DataFromDefRec = func(source core.DefRec) (DefRecDS, error) {
-		var coreDefRecDS DefRecDS
-		coreDefRecDS.TypeID = identity.ConvertToString(source.TypeRef.TypeID)
-		coreDefRecDS.TypeRN = seqnum.ConvertToInt(source.TypeRef.TypeRN)
-		coreDefRecDS.ExpCK = contkey.ConvertToInt(source.ExpCK)
-		return coreDefRecDS, nil
+		var adapterDefRecDS DefRecDS
+		adapterDefRecDS.TypeID = identity.ConvertToString(source.TypeRef.TypeID)
+		adapterDefRecDS.TypeRN = seqnum.ConvertToInt(source.TypeRef.TypeRN)
+		adapterDefRecDS.ExpCK = contkey.ConvertToInt(source.ExpCK)
+		return adapterDefRecDS, nil
 	}
 	DataFromDefRecs = func(source []core.DefRec) ([]DefRecDS, error) {
-		var coreDefRecDSList []DefRecDS
+		var adapterDefRecDSList []DefRecDS
 		if source != nil {
-			coreDefRecDSList = make([]DefRecDS, len(source))
+			adapterDefRecDSList = make([]DefRecDS, len(source))
 			for i := 0; i < len(source); i++ {
-				coreDefRecDS, err := DataFromDefRec(source[i])
+				adapterDefRecDS, err := DataFromDefRec(source[i])
 				if err != nil {
 					return nil, err
 				}
-				coreDefRecDSList[i] = coreDefRecDS
+				adapterDefRecDSList[i] = adapterDefRecDS
 			}
 		}
-		return coreDefRecDSList, nil
+		return adapterDefRecDSList, nil
 	}
 	DataToDefRec = func(source DefRecDS) (core.DefRec, error) {
 		var coreDefRec core.DefRec
-		typesemSemRef, err := coreDefRecDSToTypesemSemRef(source)
+		typesemSemRef, err := adapterDefRecDSToTypesemSemRef(source)
 		if err != nil {
 			return coreDefRec, err
 		}
@@ -162,7 +162,7 @@ func init() {
 		return coreDefRecList, nil
 	}
 }
-func coreDefRecDSToTypesemSemRef(source DefRecDS) (typesem.SemRef, error) {
+func adapterDefRecDSToTypesemSemRef(source DefRecDS) (typesem.SemRef, error) {
 	var typesemSemRef typesem.SemRef
 	identityADT, err := identity.ConvertFromString(source.TypeID)
 	if err != nil {

@@ -79,7 +79,7 @@ func (h *controllerEcho) GetSnap(c echo.Context) error {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
 		return bindErr
 	}
-	return h.getSnap(c, dto)
+	return h.retrieveSnap(c, dto)
 }
 
 func (h *controllerEcho) GetProcessDeclaration(c echo.Context, id string, params webapi.GetProcessDeclarationParams) error {
@@ -87,10 +87,10 @@ func (h *controllerEcho) GetProcessDeclaration(c echo.Context, id string, params
 	if params.Rn != nil {
 		dto.TermRN = *params.Rn
 	}
-	return h.getSnap(c, dto)
+	return h.retrieveSnap(c, dto)
 }
 
-func (h *controllerEcho) getSnap(c echo.Context, dto sdk.SemRef) error {
+func (h *controllerEcho) retrieveSnap(c echo.Context, dto sdk.SemRef) error {
 	ref, convErr := termsem.MsgToRef(dto)
 	if convErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))

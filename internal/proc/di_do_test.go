@@ -11,11 +11,11 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 	compconn "orglang/go-engine/internal/proc/compconn/core"
-	termdecadapter "orglang/go-engine/internal/proc/termdec/adapter"
-	typedefadapter "orglang/go-engine/internal/proc/typedef/adapter"
 	compexec "orglang/go-engine/internal/proc/compexec/core"
+	termdecadapter "orglang/go-engine/internal/proc/termdec/adapter"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 	termdef "orglang/go-engine/internal/proc/termdef/core"
+	typedefadapter "orglang/go-engine/internal/proc/typedef/adapter"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 	typeexp "orglang/go-engine/internal/proc/typeexp/core"
 )

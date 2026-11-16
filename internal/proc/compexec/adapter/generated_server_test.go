@@ -17,7 +17,6 @@ type generatedServerStub struct {
 	gotID string
 	gotRN *int64
 	stepID string
-	stepBody webapi.ProcStepSpec
 }
 
 func (s *generatedServerStub) GetProcessExecution(_ echo.Context, id string, params webapi.GetProcessExecutionParams) error {

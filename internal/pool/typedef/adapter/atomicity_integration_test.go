@@ -67,21 +67,13 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 			kind smallint,
 			spec jsonb
 		);
+		CREATE TEMP TABLE pool_type_def_guard (id varchar PRIMARY KEY);
 		CREATE TEMP TABLE pool_type_defs (
-			type_id varchar UNIQUE,
+			type_id varchar UNIQUE REFERENCES pool_type_def_guard(id)
+				DEFERRABLE INITIALLY DEFERRED,
 			type_rn bigint,
 			exp_ck bigint
 		);
-		CREATE FUNCTION pg_temp.reject_type_def_commit() RETURNS trigger
-		LANGUAGE plpgsql AS $$
-		BEGIN
-			RAISE EXCEPTION 'forced deferred constraint failure';
-		END;
-		$$;
-		CREATE CONSTRAINT TRIGGER reject_type_def_commit
-		AFTER INSERT ON pool_type_defs
-		DEFERRABLE INITIALLY DEFERRED
-		FOR EACH ROW EXECUTE FUNCTION pg_temp.reject_type_def_commit();
 	`)
 	if err != nil {
 		conn.Release()

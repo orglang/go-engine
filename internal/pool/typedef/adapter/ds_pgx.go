@@ -27,7 +27,7 @@ func (dao *daoEnt) GetRecsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	dtos := make(map[uniqsym.ADT]typedef.DefRecDS, len(typeQNs))
+	dtos := make(map[uniqsym.ADT]DefRecDS, len(typeQNs))
 	for _, typeQN := range typeQNs {
 		qnAttr := slog.Any("qn", typeQN)
 		rows, readErr := br.Query()
@@ -35,7 +35,7 @@ func (dao *daoEnt) GetRecsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 			dao.log.Error("query execution failed", qnAttr, slog.Any("sql", selectRecByQN))
 			return map[uniqsym.ADT]typedef.DefRec{}, readErr
 		}
-		dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[typedef.DefRecDS])
+		dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRecDS])
 		if scanErr != nil {
 			dao.log.Error("row scanning failed", qnAttr)
 			return map[uniqsym.ADT]typedef.DefRec{}, scanErr

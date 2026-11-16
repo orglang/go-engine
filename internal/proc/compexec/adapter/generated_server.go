@@ -106,7 +106,7 @@ func (s *legacyStepStub) PostStep(c echo.Context) error {
 func TestCfgLegacyStepRouteRegistersOnlyUnmigratedStepOperation(t *testing.T) {
 	e := echo.New()
 	stub := &legacyStepStub{}
-	e.POST("/api/v1/procs/:id/steps", stub.PostStep)
+	cfgLegacyStepRoute(e, stub)
 
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/v1/procs/exec-1/steps", nil)
 	rec := httptest.NewRecorder()

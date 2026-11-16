@@ -101,10 +101,10 @@ var Package = do.Package(
 			TypeExpRepo:    typeRepo,
 			ProcExecRepo:   procRepo,
 			TermDefRepo:    termRepo,
-			ImplSemRepo:   implRepo,
-			CompSemRepo:   compRepo,
-			Transactor:    transactor,
-			Logger:        logger,
+			ImplSemRepo:    implRepo,
+			CompSemRepo:    compRepo,
+			Transactor:     transactor,
+			Logger:         logger,
 		}), nil
 	}),
 	do.Lazy[Controller](func(i do.Injector) (Controller, error) {

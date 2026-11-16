@@ -2,7 +2,7 @@
 lockfile = true
 
 [tools]
-go = "1.27.0"
+go = "1.27.4"
 "go:github.com/go-task/task/v3/cmd/task" = "v3.54.0"
 "go:entgo.io/ent/cmd/ent" = "v0.14.6"
 

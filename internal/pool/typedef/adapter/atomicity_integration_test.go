@@ -216,18 +216,20 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 	defer verifyConn.Release()
 
 	var descBindCount, typeExpCount, typeDefCount int
-	if err := verifyConn.QueryRow(ctx,
+	err = verifyConn.QueryRow(ctx,
 		"SELECT count(*) FROM pool_desc_binds WHERE desc_id = $1", ref.TypeID.String(),
-	).Scan(&descBindCount); err != nil {
+	).Scan(&descBindCount)
+	if err != nil {
 		t.Fatalf("count descriptor bindings: %v", err)
 	}
-	if err := verifyConn.QueryRow(ctx, "SELECT count(*) FROM pool_type_exps").
-		Scan(&typeExpCount); err != nil {
+	err = verifyConn.QueryRow(ctx, "SELECT count(*) FROM pool_type_exps").Scan(&typeExpCount)
+	if err != nil {
 		t.Fatalf("count type expressions: %v", err)
 	}
-	if err := verifyConn.QueryRow(ctx,
+	err = verifyConn.QueryRow(ctx,
 		"SELECT count(*) FROM pool_type_defs WHERE type_id = $1", ref.TypeID.String(),
-	).Scan(&typeDefCount); err != nil {
+	).Scan(&typeDefCount)
+	if err != nil {
 		t.Fatalf("count type definitions: %v", err)
 	}
 

@@ -120,8 +120,8 @@ func generatedProcessExpressionToCore(dto webapi.ProcTermExprSpec) (termexpcore.
 		for _, branch := range spec.ContBses {
 			label, err := uniqsym.ConvertFromString(branch.PatternQn)
 			if err != nil {
-			return nil, err
-		}
+				return nil, err
+			}
 			cont, err := generatedProcessExpressionToCore(branch.ContExpr)
 			if err != nil {
 			return nil, err
@@ -146,8 +146,8 @@ func generatedProcessExpressionToCore(dto webapi.ProcTermExprSpec) (termexpcore.
 		for i, value := range spec.Ys {
 			ys[i], err = identity.ConvertFromString(value)
 			if err != nil {
-			return nil, err
-		}
+				return nil, err
+			}
 		}
 		return termexpcore.LinkSpec{ProcTermQN: proc, X: x, Ys: ys}, nil
 	case "fwd":
@@ -181,8 +181,8 @@ func generatedProcessExpressionToCore(dto webapi.ProcTermExprSpec) (termexpcore.
 		for i, value := range spec.ValPhs {
 			values[i], err = symbol.ConvertFromString(value)
 			if err != nil {
-			return nil, err
-		}
+				return nil, err
+			}
 		}
 		cont, err := generatedProcessExpressionToCore(spec.ContExpr)
 		if err != nil {

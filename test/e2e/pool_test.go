@@ -15,6 +15,10 @@ func TestPool(t *testing.T) {
 	s := suite{}
 	s.beforeAll(t)
 	t.Run("WaitClose", s.waitClose)
+	// t.Run("RecvSend", s.recvSend)
+	// t.Run("CaseLab", s.caseLab)
+	// t.Run("Call", s.call)
+	// t.Run("Fwd", s.fwd)
 }
 
 type suite struct {
@@ -24,13 +28,19 @@ type suite struct {
 
 func (s *suite) beforeAll(t *testing.T) {
 	db, err := sql.Open("pgx", "postgres://orglang:orglang@localhost:5432/orglang")
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	t.Cleanup(func() {
-		if err := db.Close(); err != nil { t.Logf("stop failed: %s", err) }
+		if err := db.Close(); err != nil {
+			t.Logf("stop failed: %s", err)
+		}
 	})
 	s.db = db
 	s.api, err = newGeneratedAPI("http://localhost:8080")
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func (s *suite) beforeEach(t *testing.T) {
@@ -41,7 +51,9 @@ func (s *suite) beforeEach(t *testing.T) {
 		"proc_impl_binds", "proc_comp_execs", "proc_comp_vars", "proc_comp_conns", "proc_conn_acts",
 	}
 	for _, table := range tables {
-		if _, err := s.db.ExecContext(t.Context(), fmt.Sprintf("truncate table %v", table)); err != nil { t.Fatal(err) }
+		if _, err := s.db.ExecContext(t.Context(), fmt.Sprintf("truncate table %v", table)); err != nil {
+			t.Fatal(err)
+		}
 	}
 }
 
@@ -58,13 +70,21 @@ func poolTermExpr(kind string, value any) api.PoolTermExprSpec {
 func decodeUnion[T any](kind string, value any) T {
 	var result T
 	payload, err := json.Marshal(value)
-	if err != nil { panic(err) }
+	if err != nil {
+		panic(err)
+	}
 	var fields map[string]json.RawMessage
-	if err := json.Unmarshal(payload, &fields); err != nil { panic(err) }
+	if err := json.Unmarshal(payload, &fields); err != nil {
+		panic(err)
+	}
 	fields["kind"], _ = json.Marshal(kind)
 	payload, err = json.Marshal(fields)
-	if err != nil { panic(err) }
-	if err := json.Unmarshal(payload, &result); err != nil { panic(err) }
+	if err != nil {
+		panic(err)
+	}
+	if err := json.Unmarshal(payload, &result); err != nil {
+		panic(err)
+	}
 	return result
 }
 
@@ -86,23 +106,33 @@ func (s *suite) waitClose(t *testing.T) {
 			}),
 		}),
 	})
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	poolTermQN, poolCompQN := "pool-term-qn", "pool-comp-qn"
 	poolAssetPH, poolLiabPH := "pool-asset-ph", "pool-liab-ph"
 	_, err = s.api.createPoolDeclaration(api.PoolDecSpec{
-		DescQn: poolTermQN,
+		DescQn:  poolTermQN,
 		LiabVar: api.AnyConnVarSpec{ConnPh: poolLiabPH, TypeQn: poolTypeQN},
-		AssetVars: []api.AnyConnVarSpec{{ConnPh: poolAssetPH, TypeQn: poolTypeQN}},
+		AssetVars: []api.AnyConnVarSpec{
+			{ConnPh: poolAssetPH, TypeQn: poolTypeQN},
+		},
 	})
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	poolExecRef, err := s.api.createPoolExecution(api.AnyExecSpec{
-		TermQn: poolTermQN,
+		TermQn:  poolTermQN,
 		LiabVar: api.AnyExecVarSpec{ConnPh: poolLiabPH, TermQn: poolCompQN},
-		AssetVars: []api.AnyExecVarSpec{{ConnPh: poolAssetPH, TermQn: poolCompQN}},
+		AssetVars: []api.AnyExecVarSpec{
+			{ConnPh: poolAssetPH, TermQn: poolCompQN},
+		},
 	})
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	err = s.api.stepPoolExecution(api.PoolStepSpec{
 		CompRef: poolExecRef,
@@ -115,7 +145,9 @@ func (s *suite) waitClose(t *testing.T) {
 			}),
 		}),
 	})
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	err = s.api.stepPoolExecution(api.PoolStepSpec{
 		CompRef: poolExecRef,
@@ -128,5 +160,7 @@ func (s *suite) waitClose(t *testing.T) {
 			}),
 		}),
 	})
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 }

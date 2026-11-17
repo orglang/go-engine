@@ -36,7 +36,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		descRepo, err := do.Invoke[descsem.Repo](i)
+		descRepo, err := do.InvokeNamed[descsem.Repo](i, "pool-descsem")
 		if err != nil {
 			return nil, err
 		}

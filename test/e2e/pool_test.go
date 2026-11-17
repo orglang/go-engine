@@ -6,12 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-resty/resty/v2"
 	_ "github.com/jackc/pgx/v5/stdlib"
-	"go.uber.org/fx"
-
-	"orglang/go-engine/internal/lib/e2e"
-
-	"github.com/orglang/go-sdk/lib/rc"
 
 	"github.com/orglang/go-sdk/adt/compsem"
 	"github.com/orglang/go-sdk/adt/compvar"
@@ -22,6 +18,7 @@ import (
 	pooltermexp "github.com/orglang/go-sdk/pool/termexp"
 	pooltypedef "github.com/orglang/go-sdk/pool/typedef"
 	pooltypeexp "github.com/orglang/go-sdk/pool/typeexp"
+	proccompexec "github.com/orglang/go-sdk/proc/compexec"
 	proccompstep "github.com/orglang/go-sdk/proc/compstep"
 	proctermdec "github.com/orglang/go-sdk/proc/termdec"
 	proctermexp "github.com/orglang/go-sdk/proc/termexp"
@@ -40,14 +37,13 @@ func TestPool(t *testing.T) {
 }
 
 type suite struct {
-	fx.In
-	PoolDecAPI  e2e.PoolDecAPI
-	PoolExecAPI e2e.PoolExecAPI
-	XactDefAPI  e2e.XactDefAPI
-	ProcDecAPI  e2e.ProcDecAPI
-	ProcExecAPI e2e.ProcExecAPI
-	TypeDefAPI  e2e.TypeDefAPI
-	DB          *sql.DB `optional:"true"`
+	PoolDecAPI  *pooltermdec.RestySDK
+	PoolExecAPI *compexec.RestySDK
+	XactDefAPI  *pooltypedef.RestySDK
+	ProcDecAPI  *proctermdec.RestySDK
+	ProcExecAPI *proccompexec.RestySDK
+	TypeDefAPI  *typedef.RestySDK
+	DB          *sql.DB
 }
 
 func (s *suite) beforeAll(t *testing.T) {
@@ -61,14 +57,14 @@ func (s *suite) beforeAll(t *testing.T) {
 			t.Logf("stop failed: %s", err)
 		}
 	})
-	app := fx.New(rc.Module, e2e.Module, fx.Populate(s))
 	s.DB = db
-	t.Cleanup(func() {
-		err := app.Stop(t.Context())
-		if err != nil {
-			t.Logf("stop failed: %s", err)
-		}
-	})
+	client := resty.New().SetBaseURL("http://localhost:8080/api/v1")
+	s.PoolDecAPI = &pooltermdec.RestySDK{Client: client}
+	s.PoolExecAPI = &compexec.RestySDK{Client: client}
+	s.XactDefAPI = &pooltypedef.RestySDK{Client: client}
+	s.ProcDecAPI = &proctermdec.RestySDK{Client: client}
+	s.ProcExecAPI = &proccompexec.RestySDK{Client: client}
+	s.TypeDefAPI = &typedef.RestySDK{Client: client}
 }
 
 func (s *suite) beforeEach(t *testing.T) {

@@ -2,10 +2,11 @@ package e2e
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 
-	api "orglang/go-engine/internal/lib/e2e/api"
+	"orglang/go-engine/internal/lib/e2e/api"
 )
 
 type generatedAPI struct {
@@ -38,7 +39,7 @@ func (c *generatedAPI) createPoolDeclaration(spec api.PoolDecSpec) (api.AnyTermR
 	if ref := r.GetJSON201(); ref != nil {
 		return *ref, nil
 	}
-	return api.AnyTermRef{}, fmt.Errorf("create pool declaration: empty response")
+	return api.AnyTermRef{}, errors.New("create pool declaration: empty response")
 }
 
 func (c *generatedAPI) createPoolExecution(spec api.AnyExecSpec) (api.AnyCompRef, error) {
@@ -52,7 +53,7 @@ func (c *generatedAPI) createPoolExecution(spec api.AnyExecSpec) (api.AnyCompRef
 	if ref := r.GetJSON201(); ref != nil {
 		return *ref, nil
 	}
-	return api.AnyCompRef{}, fmt.Errorf("create pool execution: empty response")
+	return api.AnyCompRef{}, errors.New("create pool execution: empty response")
 }
 
 func (c *generatedAPI) stepPoolExecution(spec api.PoolStepSpec) error {
@@ -74,5 +75,5 @@ func (c *generatedAPI) createPoolTypeDefinition(spec api.PoolTypeDefSpec) (api.A
 	if ref := r.GetJSON201(); ref != nil {
 		return *ref, nil
 	}
-	return api.AnyTypeRef{}, fmt.Errorf("create pool type definition: empty response")
+	return api.AnyTypeRef{}, errors.New("create pool type definition: empty response")
 }

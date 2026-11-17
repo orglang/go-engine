@@ -148,4 +148,3 @@ func poolTypeQNsToCore(values []string) ([]uniqsym.ADT, error) {
 	}
 	return result, nil
 }
-

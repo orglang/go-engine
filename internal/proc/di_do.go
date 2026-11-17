@@ -6,8 +6,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/samber/do/v2"
 
-	"orglang/go-engine/internal/adt/descsem"
-	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
 	"orglang/go-engine/internal/adt/typesem"
 	typesemadapter "orglang/go-engine/internal/adt/typesem/adapter"
 	webapi "orglang/go-engine/internal/app/web/api"
@@ -35,13 +33,6 @@ var Package = do.Package(
 			return nil, err
 		}
 		return typesemadapter.NewDaoPgx("proc_type_defs ", "proc_desc_binds ")(logger), nil
-	}),
-	do.Lazy[descsem.Repo](func(i do.Injector) (descsem.Repo, error) {
-		logger, err := do.Invoke[*slog.Logger](i)
-		if err != nil {
-			return nil, err
-		}
-		return descsemadapter.NewDaoPgx("proc_desc_binds ")(logger), nil
 	}),
 )
 

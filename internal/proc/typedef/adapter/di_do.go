@@ -36,7 +36,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		descSemRepo, err := do.Invoke[descsem.Repo](i)
+		descSemRepo, err := do.InvokeNamed[descsem.Repo](i, "proc-descsem")
 		if err != nil {
 			return nil, err
 		}

@@ -281,8 +281,8 @@ func (s *suite) waitClose(t *testing.T) {
 // 	// 	// then
 // 	// 	// TODO добавить проверку
 // }
-// 
-// 
+//
+//
 
 // func (s *suite) recvSend(t *testing.T) {
 // 	s.beforeEach(t)
@@ -514,7 +514,7 @@ func (s *suite) waitClose(t *testing.T) {
 // 	// then
 // 	// TODO добавить проверку
 // }
-// 
+//
 // func (s *suite) caseLab(t *testing.T) {
 // 	s.beforeEach(t)
 // 	// given
@@ -666,7 +666,7 @@ func (s *suite) waitClose(t *testing.T) {
 // 	// then
 // 	// TODO добавить проверку
 // }
-// 
+//
 // func (s *suite) call(t *testing.T) {
 // 	s.beforeEach(t)
 // 	// given
@@ -814,7 +814,7 @@ func (s *suite) waitClose(t *testing.T) {
 // 	// then
 // 	// TODO добавить проверку
 // }
-// 
+//
 // func (s *suite) fwd(t *testing.T) {
 // 	s.beforeEach(t)
 // 	// given
@@ -1003,4 +1003,4 @@ func (s *suite) waitClose(t *testing.T) {
 // 	// then
 // 	// TODO добавить проверку
 // }
-// 
+//

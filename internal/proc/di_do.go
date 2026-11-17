@@ -36,7 +36,7 @@ var Package = do.Package(
 		}
 		return typesemadapter.NewDaoPgx("proc_type_defs ", "proc_desc_binds ")(logger), nil
 	}),
-	do.Lazy[descsem.Repo](func(i do.Injector) (descsem.Repo, error) {
+	do.LazyNamed[descsem.Repo]("proc-descsem", func(i do.Injector) (descsem.Repo, error) {
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil {
 			return nil, err

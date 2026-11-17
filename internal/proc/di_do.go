@@ -36,7 +36,7 @@ var Package = do.Package(
 		}
 		return typesemadapter.NewDaoPgx("proc_type_defs ", "proc_desc_binds ")(logger), nil
 	}),
-	do.Lazy[descsem.Repo](func(i do.Injector) (descsem.Repo, error) {
+	do.LazyNamed[descsem.Repo]("proc-descsem", func(i do.Injector) (descsem.Repo, error) {
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil {
 			return nil, err
@@ -77,6 +77,7 @@ func RegisterRoutes(server *echo.Echo, i do.Injector) error {
 	if err := compexec.RegisterGeneratedRoutes(server, execController); err != nil {
 		return err
 	}
+	compexec.RegisterLegacyProcessRoute(server, execController)
 	compexec.RegisterLegacyStepRoute(server, legacyStepController)
 	if err := termdec.RegisterGeneratedRoutes(server, termDecController); err != nil {
 		return err

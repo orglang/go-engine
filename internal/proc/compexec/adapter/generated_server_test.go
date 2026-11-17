@@ -40,12 +40,24 @@ func TestCfgGeneratedServerRegistersProcessExecutionRoute(t *testing.T) {
 	if stub.gotRN == nil || *stub.gotRN != 42 {
 		t.Errorf("unexpected rn: got %v, want 42", stub.gotRN)
 	}
+}
 
-	req = httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/v1/procs/exec-1", nil)
-	rec = httptest.NewRecorder()
+func TestRegisterLegacyProcessRoute(t *testing.T) {
+	e := echo.New()
+	stub := &generatedServerStub{}
+	RegisterLegacyProcessRoute(e, stub)
+
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/v1/procs/exec-1", nil)
+	rec := httptest.NewRecorder()
 	e.ServeHTTP(rec, req)
-	if rec.Code != http.StatusNotFound {
-		t.Fatalf("legacy route is still registered: got %d, want %d", rec.Code, http.StatusNotFound)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("unexpected status: got %d, want %d; body: %s", rec.Code, http.StatusOK, rec.Body.String())
+	}
+	if stub.gotID != "exec-1" {
+		t.Errorf("unexpected id: got %q, want %q", stub.gotID, "exec-1")
+	}
+	if stub.gotRN != nil {
+		t.Errorf("unexpected rn: got %v, want nil", *stub.gotRN)
 	}
 }
 

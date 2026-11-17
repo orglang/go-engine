@@ -69,7 +69,7 @@ func TestPackageProvidesPersistencePorts(t *testing.T) {
 			return err
 		}},
 		{"shared description-semantic repository", func() error {
-			_, err := do.Invoke[descsem.Repo](injector)
+			_, err := do.InvokeNamed[descsem.Repo](injector, "proc-descsem")
 			return err
 		}},
 	}
@@ -169,6 +169,7 @@ func TestRegisterRoutes(t *testing.T) {
 	}
 	want := []string{
 		"GET /api/v1/processes/executions/:id",
+		"GET /api/v1/procs/:id",
 		"POST /api/v1/procs/:id/steps",
 		"POST /api/v1/processes/declarations",
 		"GET /api/v1/processes/declarations/:id",

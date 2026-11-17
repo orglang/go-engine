@@ -1,7 +1,6 @@
 package adapter
 
 import (
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -124,5 +123,3 @@ func poolTypeQNsToCore(values []string) ([]uniqsym.ADT, error) {
 	return result, nil
 }
 
-// Keep the generated contract DTO JSON shape explicit at the adapter boundary.
-var _ = json.Valid

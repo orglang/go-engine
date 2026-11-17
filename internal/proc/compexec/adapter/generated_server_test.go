@@ -14,8 +14,8 @@ import (
 
 type generatedServerStub struct {
 	webapi.ServerInterface
-	gotID string
-	gotRN *int64
+	gotID  string
+	gotRN  *int64
 	stepID string
 }
 
@@ -63,4 +63,3 @@ func TestCfgGeneratedServerRegistersProcessExecutionRoute(t *testing.T) {
 		t.Fatalf("legacy route is still registered: got %d, want %d", rec.Code, http.StatusNotFound)
 	}
 }
-

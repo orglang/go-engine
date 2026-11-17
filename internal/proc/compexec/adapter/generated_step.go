@@ -124,8 +124,8 @@ func generatedProcessExpressionToCore(dto webapi.ProcTermExprSpec) (termexpcore.
 			}
 			cont, err := generatedProcessExpressionToCore(branch.ContExpr)
 			if err != nil {
-			return nil, err
-		}
+				return nil, err
+			}
 			branches[label] = cont
 		}
 		return termexpcore.CaseSpec{ConnChnlPH: conn, ContExps: branches}, nil

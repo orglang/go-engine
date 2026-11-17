@@ -11,8 +11,7 @@ on:
       - opened
       - ready_for_review
       - synchronize
-  # Publish a successful skipped job for merge-queue entries. The full
-  # verification remains a pull-request check and is not repeated here.
+  # Run the same verification against the merge-group commit.
   merge_group:
     types:
       - checks_requested
@@ -22,7 +21,7 @@ permissions:
 
 jobs:
   sources-verify:
-    if: github.event_name != 'merge_group' && (github.event_name != 'pull_request' || !github.event.pull_request.draft)
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-latest
     steps:
       - name: Checkout engine

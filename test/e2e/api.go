@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/orglang/go-engine/internal/lib/e2e/api"
+	"orglang/go-engine/internal/lib/e2e/api"
 	"github.com/orglang/go-sdk/adt/compsem"
 	"github.com/orglang/go-sdk/adt/termsem"
 	"github.com/orglang/go-sdk/adt/termvar"

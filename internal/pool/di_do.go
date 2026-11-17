@@ -28,7 +28,7 @@ var Package = do.Package(
 	typeexp.Package,
 	typedef.Package,
 	termdef.Package,
-	do.Lazy[descsem.Repo](func(i do.Injector) (descsem.Repo, error) {
+	do.LazyNamed[descsem.Repo]("pool-descsem", func(i do.Injector) (descsem.Repo, error) {
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil {
 			return nil, err

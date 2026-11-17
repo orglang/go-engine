@@ -48,4 +48,3 @@ func (h *controllerEcho) GetProcessExecution(c echo.Context, id string, params w
 	}
 	return c.JSON(http.StatusOK, MsgFromExecSnap(snap))
 }
-

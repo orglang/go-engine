@@ -8,7 +8,6 @@ import (
 
 	"github.com/orglang/go-engine/internal/lib/e2e/api"
 	"github.com/orglang/go-sdk/adt/compsem"
-	"github.com/orglang/go-sdk/adt/compvar"
 	"github.com/orglang/go-sdk/adt/termsem"
 	"github.com/orglang/go-sdk/adt/termvar"
 	"github.com/orglang/go-sdk/adt/typesem"
@@ -204,5 +203,4 @@ var (
 	_ interface{ Create(proctermdec.DecSpec) (proctermdec.DecSnap, error) } = (*processDeclarationClient)(nil)
 	_ interface{ Take(proccompstep.StepSpec) error } = (*processExecutionClient)(nil)
 	_ interface{ Create(proctypedef.DefSpec) (proctypedef.DefSnap, error) } = (*processTypeDefinitionClient)(nil)
-	_ = compvar.VarSpec{}
 )

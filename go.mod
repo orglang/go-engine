@@ -8,7 +8,6 @@ require (
 	github.com/gammazero/workerpool v1.3.0
 	github.com/georgysavva/scany/v2 v2.1.4
 	github.com/go-ozzo/ozzo-validation/v4 v4.5.0
-	github.com/go-resty/resty/v2 v2.17.2
 	github.com/google/go-cmp v0.7.0
 	github.com/huandu/go-sqlbuilder v1.40.2
 	github.com/jackc/pgx/v5 v5.12.0

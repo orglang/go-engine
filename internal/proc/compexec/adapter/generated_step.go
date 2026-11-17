@@ -1,7 +1,6 @@
 package adapter
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -32,18 +31,12 @@ func generatedStepToCore(id string, dto webapi.ProcStepSpec) (compstepcore.StepS
 }
 
 func generatedProcessExpressionToCore(dto webapi.ProcTermExprSpec) (termexpcore.ExpSpec, error) {
-	raw, err := json.Marshal(dto)
+	kind, err := dto.Discriminator()
 	if err != nil {
-		return nil, fmt.Errorf("marshal generated process expression: %w", err)
-	}
-	var discriminator struct {
-		Kind string `json:"kind"`
-	}
-	if err := json.Unmarshal(raw, &discriminator); err != nil {
 		return nil, fmt.Errorf("read generated process expression kind: %w", err)
 	}
 
-	switch discriminator.Kind {
+	switch kind {
 	case "close":
 		spec, err := dto.AsProcTermCloseSpec()
 		if err != nil {
@@ -197,7 +190,7 @@ func generatedProcessExpressionToCore(dto webapi.ProcTermExprSpec) (termexpcore.
 		}
 		return termexpcore.CallSpec{NewChnlPH: bind, ProcTermQN: proc, ValChnlPHs: values, ContExp: cont}, nil
 	default:
-		return nil, fmt.Errorf("unsupported process expression kind %q", discriminator.Kind)
+		return nil, fmt.Errorf("unsupported process expression kind %q", kind)
 	}
 }
 

@@ -28,12 +28,9 @@ jobs:
         uses: jdx/mise-action@v5
         with:
           cache: true
-          install: false
-          # Save after the explicit mise install below so newly installed tools are cached.
+          cache_key: "{{default}}-binaries"
+          install: true
           cache_save_post: true
-
-      - name: Install base toolchain
-        run: mise install --locked
 
       - name: Run binary checks
         run: mise exec -- task binaries

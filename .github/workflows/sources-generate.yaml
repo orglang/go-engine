@@ -27,6 +27,8 @@ jobs:
         uses: jdx/mise-action@v5
         with:
           cache: true
+          cache_key: "{{default}}-sources"
+          cache_save_post: true
 
       - name: Lock dependencies
         run: mise run deps:lock

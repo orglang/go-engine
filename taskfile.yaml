@@ -17,7 +17,6 @@ tasks:
     desc: Run integration checks and build application binaries
     cmds:
       - task: binaries:test
-      - task: binaries:build
 
   binaries:test:
     desc: Run integration tests required for binary delivery
@@ -99,7 +98,7 @@ tasks:
     cmds:
       - cmd: go test -tags=unit ./internal/... ./cmd/...
         if: '{{eq .LEVEL "unit"}}'
-      - cmd: go test -run=TestIntegration ./internal/lib/... ./internal/adt/... ./internal/app/... ./cmd/... ./test/it/...
+      - cmd: go test -run=TestIntegration ./internal/... ./cmd/... ./test/it/...
         if: '{{eq .LEVEL "it"}}'
       - cmd: go test -failfast ./test/...
         if: '{{eq .LEVEL "e2e"}}'

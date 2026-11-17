@@ -28,6 +28,7 @@ jobs:
         uses: jdx/mise-action@v5
         with:
           cache: true
+          cache_key: "{{default}}-binaries"
           install: false
           # Save after the explicit mise install below so newly installed tools are cached.
           cache_save_post: true

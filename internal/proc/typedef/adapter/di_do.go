@@ -5,8 +5,8 @@ import (
 
 	"github.com/samber/do/v2"
 
-	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
 	"orglang/go-engine/internal/adt/descsem"
+	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/typedef/core"
 	typeexp "orglang/go-engine/internal/proc/typeexp/core"

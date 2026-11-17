@@ -53,10 +53,6 @@ func RegisterRoutes(server *echo.Echo, i do.Injector) error {
 	if err != nil {
 		return err
 	}
-	legacyStepController, err := do.Invoke[compexec.Controller](i)
-	if err != nil {
-		return err
-	}
 	termDecController, err := do.Invoke[webapi.ServerInterface](i)
 	if err != nil {
 		return err
@@ -77,7 +73,6 @@ func RegisterRoutes(server *echo.Echo, i do.Injector) error {
 	if err := compexec.RegisterGeneratedRoutes(server, execController); err != nil {
 		return err
 	}
-	compexec.RegisterLegacyStepRoute(server, legacyStepController)
 	if err := termdec.RegisterGeneratedRoutes(server, termDecController); err != nil {
 		return err
 	}

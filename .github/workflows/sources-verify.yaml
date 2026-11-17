@@ -11,6 +11,10 @@ on:
       - opened
       - ready_for_review
       - synchronize
+  # Run the same verification against the merge-group commit.
+  merge_group:
+    types:
+      - checks_requested
 
 permissions:
   contents: read

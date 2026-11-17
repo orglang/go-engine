@@ -29,6 +29,11 @@ type GeneratedController interface {
 }
 
 func cfgLegacyStepRoute(e *echo.Echo, h *controllerEcho) {
+	RegisterLegacyStepRoute(e, h)
+}
+
+// RegisterLegacyStepRoute mounts the not-yet-generated process step endpoint.
+func RegisterLegacyStepRoute(e *echo.Echo, h Controller) {
 	e.POST("/api/v1/procs/:id/steps", h.PostStep)
 }
 
@@ -41,6 +46,7 @@ type controllerEcho struct {
 
 var _ webapi.ServerInterface = (*controllerEcho)(nil)
 var _ GeneratedController = (*controllerEcho)(nil)
+var _ Controller = (*controllerEcho)(nil)
 
 func newControllerEcho(a compexec.API, l *slog.Logger) *controllerEcho {
 	return &controllerEcho{api: a, log: l}

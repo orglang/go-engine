@@ -36,9 +36,9 @@ func newControllerEcho(api compexec.API, log *slog.Logger) *controllerEcho {
 // RegisterRoutes attaches the pool computation-execution HTTP endpoints to an
 // Echo server. Controller construction is owned by the application container.
 func RegisterRoutes(server *echo.Echo, controller Controller) error {
-	server.POST("/api/v1/pools/execs", controller.PostSpec)
-	server.POST("/api/v1/pools/execs/steps", controller.PostSpec2)
-	server.POST("/api/v1/pools/execs/spawns", controller.PostSpec3)
+	server.POST("/api/v1/pools/executions", controller.PostSpec)
+	server.POST("/api/v1/pools/executions/steps", controller.PostSpec2)
+	server.POST("/api/v1/pools/executions/spawns", controller.PostSpec3)
 	return nil
 }
 

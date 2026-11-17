@@ -8,7 +8,7 @@ import (
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 
-	api "orglang/go-engine/internal/lib/e2e/api"
+	"orglang/go-engine/internal/lib/e2e/api"
 )
 
 func TestPool(t *testing.T) {

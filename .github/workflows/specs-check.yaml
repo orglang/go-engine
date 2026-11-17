@@ -28,6 +28,7 @@ jobs:
         uses: jdx/mise-action@v5
         with:
           cache: true
+          cache_key: "{{default}}-specs"
           install: true
           # Defer saving until later environment-specific installs have populated the cache.
           cache_save_post: true

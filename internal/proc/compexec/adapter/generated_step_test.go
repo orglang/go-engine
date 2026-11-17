@@ -17,10 +17,11 @@ func TestGeneratedStepToCoreMapsNestedProcessExpression(t *testing.T) {
 		t.Fatalf("build generated close expression: %v", err)
 	}
 	var waitExpr webapi.ProcTermExprSpec
-	if err := waitExpr.FromProcTermWaitSpec(webapi.ProcTermWaitSpec{
+	err := waitExpr.FromProcTermWaitSpec(webapi.ProcTermWaitSpec{
 		ConnPh:   "wait-channel",
 		ContExpr: closeExpr,
-	}); err != nil {
+	})
+	if err != nil {
 		t.Fatalf("build generated wait expression: %v", err)
 	}
 
@@ -38,22 +39,23 @@ func TestGeneratedStepToCoreMapsNestedProcessExpression(t *testing.T) {
 	if got := symbol.ConvertToString(wait.ContChnlPH); got != "wait-channel" {
 		t.Errorf("unexpected wait channel: got %q", got)
 	}
-	close, ok := wait.ContExp.(termexpcore.CloseSpec)
+	closeSpec, ok := wait.ContExp.(termexpcore.CloseSpec)
 	if !ok {
 		t.Fatalf("expected core close continuation, got %T", wait.ContExp)
 	}
-	if got := symbol.ConvertToString(close.ContChnlPH); got != "close-channel" {
+	if got := symbol.ConvertToString(closeSpec.ContChnlPH); got != "close-channel" {
 		t.Errorf("unexpected close channel: got %q", got)
 	}
 }
 
 func TestGeneratedStepToCoreMapsLinkExpression(t *testing.T) {
 	var linkExpr webapi.ProcTermExprSpec
-	if err := linkExpr.FromProcTermLinkSpec(webapi.ProcTermLinkSpec{
+	err := linkExpr.FromProcTermLinkSpec(webapi.ProcTermLinkSpec{
 		ProcQn: "process",
 		X:      testExecutionID,
 		Ys:     []string{testExecutionID},
-	}); err != nil {
+	})
+	if err != nil {
 		t.Fatalf("build generated link expression: %v", err)
 	}
 

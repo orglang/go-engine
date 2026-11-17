@@ -46,93 +46,155 @@ func generatedProcessExpressionToCore(dto webapi.ProcTermExprSpec) (termexpcore.
 	switch discriminator.Kind {
 	case "close":
 		spec, err := dto.AsProcTermCloseSpec()
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		channel, err := symbol.ConvertFromString(spec.ConnPh)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		return termexpcore.CloseSpec{ContChnlPH: channel}, nil
 	case "wait":
 		spec, err := dto.AsProcTermWaitSpec()
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		channel, err := symbol.ConvertFromString(spec.ConnPh)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		cont, err := generatedProcessExpressionToCore(spec.ContExpr)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		return termexpcore.WaitSpec{ContChnlPH: channel, ContExp: cont}, nil
 	case "send":
 		spec, err := dto.AsProcTermSendSpec()
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		conn, err := symbol.ConvertFromString(spec.ConnPh)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		value, err := symbol.ConvertFromString(spec.ValPh)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		return termexpcore.SendSpec{ConnChnlPH: conn, ValChnlPH: value}, nil
 	case "recv":
 		spec, err := dto.AsProcTermRecvSpec()
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		conn, err := symbol.ConvertFromString(spec.ConnPh)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		bind, err := symbol.ConvertFromString(spec.BindPh)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		cont, err := generatedProcessExpressionToCore(spec.ContExpr)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		return termexpcore.RecvSpec{ConnChnlPH: conn, NewChnlPH: bind, ContExp: cont}, nil
 	case "lab":
 		spec, err := dto.AsProcTermLabSpec()
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		conn, err := symbol.ConvertFromString(spec.ConnPh)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		label, err := uniqsym.ConvertFromString(spec.PatternQn)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		return termexpcore.LabSpec{ConnChnlPH: conn, ValLabQN: label}, nil
 	case "case":
 		spec, err := dto.AsProcTermCaseSpec()
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		conn, err := symbol.ConvertFromString(spec.ConnPh)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		branches := make(map[uniqsym.ADT]termexpcore.ExpSpec, len(spec.ContBses))
 		for _, branch := range spec.ContBses {
 			label, err := uniqsym.ConvertFromString(branch.PatternQn)
-			if err != nil { return nil, err }
+			if err != nil {
+			return nil, err
+		}
 			cont, err := generatedProcessExpressionToCore(branch.ContExpr)
-			if err != nil { return nil, err }
+			if err != nil {
+			return nil, err
+		}
 			branches[label] = cont
 		}
 		return termexpcore.CaseSpec{ConnChnlPH: conn, ContExps: branches}, nil
 	case "link":
 		spec, err := dto.AsProcTermLinkSpec()
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		proc, err := uniqsym.ConvertFromString(spec.ProcQn)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		x, err := identity.ConvertFromString(spec.X)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		ys := make([]identity.ADT, len(spec.Ys))
 		for i, value := range spec.Ys {
 			ys[i], err = identity.ConvertFromString(value)
-			if err != nil { return nil, err }
+			if err != nil {
+			return nil, err
+		}
 		}
 		return termexpcore.LinkSpec{ProcTermQN: proc, X: x, Ys: ys}, nil
 	case "fwd":
 		spec, err := dto.AsProcTermFwdSpec()
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		conn, err := symbol.ConvertFromString(spec.ConnPh)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		cont, err := symbol.ConvertFromString(spec.ContPh)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		return termexpcore.FwdSpec{ConnChnlPH: conn, ContChnlPH: cont}, nil
 	case "call":
 		spec, err := dto.AsProcTermCallSpec()
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		bind, err := symbol.ConvertFromString(spec.BindPh)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		proc, err := uniqsym.ConvertFromString(spec.ProcQn)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		values := make([]symbol.ADT, len(spec.ValPhs))
 		for i, value := range spec.ValPhs {
 			values[i], err = symbol.ConvertFromString(value)
-			if err != nil { return nil, err }
+			if err != nil {
+			return nil, err
+		}
 		}
 		cont, err := generatedProcessExpressionToCore(spec.ContExpr)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		return termexpcore.CallSpec{NewChnlPH: bind, ProcTermQN: proc, ValChnlPHs: values, ContExp: cont}, nil
 	default:
 		return nil, fmt.Errorf("unsupported process expression kind %q", discriminator.Kind)

@@ -69,7 +69,7 @@ func TestPackageProvidesPersistencePorts(t *testing.T) {
 			return err
 		}},
 		{"shared description-semantic repository", func() error {
-			_, err := do.Invoke[descsem.Repo](injector)
+			_, err := do.InvokeNamed[descsem.Repo](injector, "proc-descsem")
 			return err
 		}},
 	}

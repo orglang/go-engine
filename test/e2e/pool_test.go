@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	_ "github.com/go-resty/resty/v2"
-	"github.com/jackc/pgx/v5/stdlib"
+	"github.com/go-resty/resty/v2"
+	_ "github.com/jackc/pgx/v5/stdlib"
 
 	"github.com/orglang/go-sdk/adt/compsem"
 	"github.com/orglang/go-sdk/adt/compvar"

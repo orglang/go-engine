@@ -61,8 +61,8 @@ func TestNewWithPackagesComposesHTTPRoutes(t *testing.T) {
 
 	required := []string{
 		"GET /",
-		"GET /api/v1/procs/:id",
-		"POST /api/v1/procs/:id/steps",
+		"GET /api/v1/processes/executions/:id",
+		"POST /api/v1/processes/executions/:id/steps",
 		"POST /api/v1/pools/execs",
 		"POST /api/v1/processes/declarations",
 		"POST /api/v1/types",
@@ -71,6 +71,16 @@ func TestNewWithPackagesComposesHTTPRoutes(t *testing.T) {
 	for _, route := range required {
 		if _, ok := routes[route]; !ok {
 			t.Errorf("application route %q was not registered", route)
+		}
+	}
+
+	legacy := []string{
+		"GET /api/v1/procs/:id",
+		"POST /api/v1/procs/:id/steps",
+	}
+	for _, route := range legacy {
+		if _, ok := routes[route]; ok {
+			t.Errorf("legacy application route %q is still registered", route)
 		}
 	}
 

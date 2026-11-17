@@ -33,8 +33,11 @@ func (r generatedRouteFilter) OPTIONS(string, echo.HandlerFunc, ...echo.Middlewa
 func (r generatedRouteFilter) PATCH(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route {
 	return nil
 }
-func (r generatedRouteFilter) POST(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route {
-	return nil
+func (r generatedRouteFilter) POST(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
+	if path != processExecutionRoute+"/:id/steps" {
+		return nil
+	}
+	return r.EchoRouter.POST(path, h, m...)
 }
 func (r generatedRouteFilter) PUT(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route {
 	return nil

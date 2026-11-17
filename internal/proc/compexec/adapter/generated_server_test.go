@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/labstack/echo/v4"
@@ -13,13 +14,19 @@ import (
 
 type generatedServerStub struct {
 	webapi.ServerInterface
-	gotID string
-	gotRN *int64
+	gotID  string
+	gotRN  *int64
+	stepID string
 }
 
 func (s *generatedServerStub) GetProcessExecution(_ echo.Context, id string, params webapi.GetProcessExecutionParams) error {
 	s.gotID = id
 	s.gotRN = params.Rn
+	return nil
+}
+
+func (s *generatedServerStub) StepProcessExecution(_ echo.Context, id string) error {
+	s.stepID = id
 	return nil
 }
 
@@ -40,35 +47,19 @@ func TestCfgGeneratedServerRegistersProcessExecutionRoute(t *testing.T) {
 	if stub.gotRN == nil || *stub.gotRN != 42 {
 		t.Errorf("unexpected rn: got %v, want 42", stub.gotRN)
 	}
-}
 
-func TestRegisterLegacyProcessRoute(t *testing.T) {
-	e := echo.New()
-	stub := &generatedServerStub{}
-	RegisterLegacyProcessRoute(e, stub)
-
-	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/v1/procs/exec-1", nil)
-	rec := httptest.NewRecorder()
+	req = httptest.NewRequestWithContext(context.Background(), http.MethodPost, processExecutionRoute+"/exec-2/steps", strings.NewReader(`{"proc_expr":{"kind":"close","conn_ph":"c"}}`))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec = httptest.NewRecorder()
 	e.ServeHTTP(rec, req)
-	if rec.Code != http.StatusOK {
-		t.Fatalf("unexpected status: got %d, want %d; body: %s", rec.Code, http.StatusOK, rec.Body.String())
+	if rec.Code != http.StatusOK || stub.stepID != "exec-2" {
+		t.Fatalf("generated step route not registered: status=%d id=%q body=%s", rec.Code, stub.stepID, rec.Body.String())
 	}
-	if stub.gotID != "exec-1" {
-		t.Errorf("unexpected id: got %q, want %q", stub.gotID, "exec-1")
-	}
-	if stub.gotRN != nil {
-		t.Errorf("unexpected rn: got %v, want nil", *stub.gotRN)
-	}
-}
 
-func TestCfgLegacyStepRouteRegistersOnlyUnmigratedStepOperation(t *testing.T) {
-	e := echo.New()
-	cfgLegacyStepRoute(e, &controllerEcho{})
-
-	for _, route := range e.Routes() {
-		if route.Method == http.MethodPost && route.Path == "/api/v1/procs/:id/steps" {
-			return
-		}
+	req = httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/v1/procs/exec-1", nil)
+	rec = httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+	if rec.Code != http.StatusNotFound {
+		t.Fatalf("legacy route is still registered: got %d, want %d", rec.Code, http.StatusNotFound)
 	}
-	t.Fatal("legacy step route was not registered")
 }

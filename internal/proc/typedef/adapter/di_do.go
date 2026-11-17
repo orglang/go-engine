@@ -5,7 +5,7 @@ import (
 
 	"github.com/samber/do/v2"
 
-	"orglang/go-engine/internal/adt/descsem"
+	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/typedef/core"
 	typeexp "orglang/go-engine/internal/proc/typeexp/core"
@@ -27,6 +27,13 @@ var Package = do.Package(
 		}
 		return NewDaoPgx(builder, logger), nil
 	}),
+	do.Lazy[core.DescSemRepo](func(i do.Injector) (core.DescSemRepo, error) {
+		logger, err := do.Invoke[*slog.Logger](i)
+		if err != nil {
+			return nil, err
+		}
+		return descsemadapter.NewDaoPgx("proc_desc_binds ")(logger), nil
+	}),
 	do.Lazy[core.API](func(i do.Injector) (core.API, error) {
 		typeDefRepo, err := do.Invoke[core.Repo](i)
 		if err != nil {
@@ -36,7 +43,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		descSemRepo, err := do.InvokeNamed[descsem.Repo](i, "proc-descsem")
+		descSemRepo, err := do.Invoke[core.DescSemRepo](i)
 		if err != nil {
 			return nil, err
 		}

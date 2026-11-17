@@ -8,7 +8,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/samber/do/v2"
 
-	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/adt/typesem"
 	webapi "orglang/go-engine/internal/app/web/api"
 	"orglang/go-engine/internal/lib/lf"
@@ -68,8 +67,8 @@ func TestPackageProvidesPersistencePorts(t *testing.T) {
 			_, err := do.Invoke[typesem.Repo](injector)
 			return err
 		}},
-		{"shared description-semantic repository", func() error {
-			_, err := do.InvokeNamed[descsem.Repo](injector, "proc-descsem")
+		{"process description-semantic repository", func() error {
+			_, err := do.Invoke[typedef.DescSemRepo](injector)
 			return err
 		}},
 	}
@@ -120,10 +119,6 @@ func TestPackageProvidesHTTPAdapters(t *testing.T) {
 		name string
 		call func() error
 	}{
-		{"computation-execution controller", func() error {
-			_, err := do.Invoke[compexecadapter.Controller](injector)
-			return err
-		}},
 		{"generated process execution controller", func() error {
 			_, err := do.Invoke[compexecadapter.GeneratedController](injector)
 			return err
@@ -169,8 +164,7 @@ func TestRegisterRoutes(t *testing.T) {
 	}
 	want := []string{
 		"GET /api/v1/processes/executions/:id",
-		"GET /api/v1/procs/:id",
-		"POST /api/v1/procs/:id/steps",
+		"POST /api/v1/processes/executions/:id/steps",
 		"POST /api/v1/processes/declarations",
 		"GET /api/v1/processes/declarations/:id",
 		"POST /api/v1/types",

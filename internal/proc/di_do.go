@@ -6,8 +6,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/samber/do/v2"
 
-	"orglang/go-engine/internal/adt/descsem"
-	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
 	"orglang/go-engine/internal/adt/typesem"
 	typesemadapter "orglang/go-engine/internal/adt/typesem/adapter"
 	webapi "orglang/go-engine/internal/app/web/api"
@@ -36,13 +34,6 @@ var Package = do.Package(
 		}
 		return typesemadapter.NewDaoPgx("proc_type_defs ", "proc_desc_binds ")(logger), nil
 	}),
-	do.LazyNamed[descsem.Repo]("proc-descsem", func(i do.Injector) (descsem.Repo, error) {
-		logger, err := do.Invoke[*slog.Logger](i)
-		if err != nil {
-			return nil, err
-		}
-		return descsemadapter.NewDaoPgx("proc_desc_binds ")(logger), nil
-	}),
 )
 
 // RegisterRoutes resolves the process HTTP adapters and mounts the currently
@@ -50,10 +41,6 @@ var Package = do.Package(
 // It is an explicit composition function; it does not start an HTTP listener.
 func RegisterRoutes(server *echo.Echo, i do.Injector) error {
 	execController, err := do.Invoke[compexec.GeneratedController](i)
-	if err != nil {
-		return err
-	}
-	legacyStepController, err := do.Invoke[compexec.Controller](i)
 	if err != nil {
 		return err
 	}
@@ -77,8 +64,6 @@ func RegisterRoutes(server *echo.Echo, i do.Injector) error {
 	if err := compexec.RegisterGeneratedRoutes(server, execController); err != nil {
 		return err
 	}
-	compexec.RegisterLegacyProcessRoute(server, execController)
-	compexec.RegisterLegacyStepRoute(server, legacyStepController)
 	if err := termdec.RegisterGeneratedRoutes(server, termDecController); err != nil {
 		return err
 	}

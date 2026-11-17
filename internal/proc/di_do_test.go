@@ -169,6 +169,7 @@ func TestRegisterRoutes(t *testing.T) {
 	}
 	want := []string{
 		"GET /api/v1/processes/executions/:id",
+		"GET /api/v1/procs/:id",
 		"POST /api/v1/procs/:id/steps",
 		"POST /api/v1/processes/declarations",
 		"GET /api/v1/processes/declarations/:id",

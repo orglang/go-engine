@@ -8,7 +8,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/samber/do/v2"
 
-	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/adt/typesem"
 	webapi "orglang/go-engine/internal/app/web/api"
 	"orglang/go-engine/internal/lib/lf"
@@ -68,8 +67,8 @@ func TestPackageProvidesPersistencePorts(t *testing.T) {
 			_, err := do.Invoke[typesem.Repo](injector)
 			return err
 		}},
-		{"shared description-semantic repository", func() error {
-			_, err := do.Invoke[descsem.Repo](injector)
+		{"process description-semantic repository", func() error {
+			_, err := do.Invoke[typedef.DescSemRepo](injector)
 			return err
 		}},
 	}

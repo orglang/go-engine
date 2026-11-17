@@ -32,6 +32,13 @@ func cfgLegacyStepRoute(e *echo.Echo, h *controllerEcho) {
 	RegisterLegacyStepRoute(e, h)
 }
 
+// RegisterLegacyProcessRoute mounts the legacy process retrieval endpoint.
+func RegisterLegacyProcessRoute(e *echo.Echo, h GeneratedController) {
+	e.GET("/api/v1/procs/:id", func(c echo.Context) error {
+		return h.GetProcessExecution(c, c.Param("id"), webapi.GetProcessExecutionParams{})
+	})
+}
+
 // RegisterLegacyStepRoute mounts the not-yet-generated process step endpoint.
 func RegisterLegacyStepRoute(e *echo.Echo, h Controller) {
 	e.POST("/api/v1/procs/:id/steps", h.PostStep)

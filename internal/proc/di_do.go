@@ -77,6 +77,7 @@ func RegisterRoutes(server *echo.Echo, i do.Injector) error {
 	if err := compexec.RegisterGeneratedRoutes(server, execController); err != nil {
 		return err
 	}
+	compexec.RegisterLegacyProcessRoute(server, execController)
 	compexec.RegisterLegacyStepRoute(server, legacyStepController)
 	if err := termdec.RegisterGeneratedRoutes(server, termDecController); err != nil {
 		return err

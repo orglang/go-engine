@@ -21,7 +21,7 @@ type Controller interface {
 
 // RegisterRoutes attaches the pool term-definition endpoint to Echo.
 func RegisterRoutes(e *echo.Echo, h Controller) error {
-	e.POST("/api/v1/pools/decs", h.PostSpec)
+	e.POST("/api/v1/pools/declarations", h.PostSpec)
 	return nil
 }
 

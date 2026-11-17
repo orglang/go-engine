@@ -139,8 +139,8 @@ func (s *suite) waitClose(t *testing.T) {
 		PoolExpr: poolTermExpr("acquire", api.PoolTermAcquireSpec{
 			ConnPh: poolAssetPH,
 			ContExpr: poolTermExpr("hire", api.PoolTermHireSpec{
-				ConnPh: poolAssetPH,
-				ProcQn: closerProcQN,
+				ConnPh:   poolAssetPH,
+				ProcQn:   closerProcQN,
 				ContExpr: poolTermExpr("release", api.PoolTermReleaseSpec{ConnPh: poolAssetPH}),
 			}),
 		}),
@@ -154,8 +154,8 @@ func (s *suite) waitClose(t *testing.T) {
 		PoolExpr: poolTermExpr("accept", api.PoolTermAcceptSpec{
 			ConnPh: poolLiabPH,
 			ContExpr: poolTermExpr("apply", api.PoolTermApplySpec{
-				ConnPh: poolLiabPH,
-				ProcQn: closerProcQN,
+				ConnPh:   poolLiabPH,
+				ProcQn:   closerProcQN,
 				ContExpr: poolTermExpr("detach", api.PoolTermDetachSpec{ConnPh: poolLiabPH}),
 			}),
 		}),

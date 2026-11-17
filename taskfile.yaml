@@ -17,6 +17,7 @@ tasks:
     desc: Run integration checks and build application binaries
     cmds:
       - task: binaries:test
+      - task: binaries:build
 
   binaries:test:
     desc: Run integration tests required for binary delivery
@@ -87,7 +88,7 @@ tasks:
 
   processes:
     aliases: [procs]
-    desc: Run and interrupt all processes
+    desc: Run specified process in foreground
     cmds:
       - task: engine:process
 

@@ -1,56 +1,49 @@
 package main
 
 import (
-	"go.uber.org/fx"
+	"context"
+	"errors"
+	"fmt"
+	"log/slog"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
-	"orglang/go-engine/internal/lib/db"
-	"orglang/go-engine/internal/lib/kv"
-	"orglang/go-engine/internal/lib/lf"
-	"orglang/go-engine/internal/lib/wp"
-	"orglang/go-engine/internal/lib/ws"
-
-	poolcompconn "orglang/go-engine/internal/pool/compconn/adapter"
-	poolconfexec "orglang/go-engine/internal/pool/compexec/adapter"
-	compvar "orglang/go-engine/internal/pool/compvar/adapter"
-	pooltermdef "orglang/go-engine/internal/pool/termdef/adapter"
-	pooltypedef "orglang/go-engine/internal/pool/typedef/adapter"
-	pooltypeexp "orglang/go-engine/internal/pool/typeexp/adapter"
-	proccompconnadapter "orglang/go-engine/internal/proc/compconn/adapter"
-	progadapter "orglang/go-engine/internal/prog/adapter"
-
-	proccompexecadapter "orglang/go-engine/internal/proc/compexec/adapter"
-	termdec "orglang/go-engine/internal/proc/termdec/adapter"
-	termdef "orglang/go-engine/internal/proc/termdef/adapter"
-	typedef "orglang/go-engine/internal/proc/typedef/adapter"
-	typeexp "orglang/go-engine/internal/proc/typeexp/adapter"
-
-	"orglang/go-engine/internal/app/web"
+	"orglang/go-engine/internal/bootstrap"
 )
 
 func main() {
-	fx.New(
-		// lib
-		db.Module,
-		kv.Module,
-		lf.Module,
-		wp.Module,
-		ws.Module,
-		// adt
-		pooltypedef.Module,
-		pooltypeexp.Module,
-		poolcompconn.Module,
-		pooltermdef.Module,
-		poolconfexec.Module,
-		compvar.Module,
-		typedef.Module,
-		typeexp.Module,
+	if err := run(); err != nil {
+		slog.Error("application failed", slog.Any("error", err))
+		os.Exit(1)
+	}
+}
 
-		proccompconnadapter.Module,
-		termdef.Module,
-		termdec.Module,
-		proccompexecadapter.Module,
-		progadapter.Module,
-		// app
-		web.Module,
-	).Run()
+func run() error {
+	application, err := bootstrap.New()
+	if err != nil {
+		return fmt.Errorf("compose application: %w", err)
+	}
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	if err := application.Start(ctx); err != nil {
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		return errors.Join(
+			fmt.Errorf("start application: %w", err),
+			application.Stop(shutdownCtx),
+		)
+	}
+
+	<-ctx.Done()
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := application.Stop(shutdownCtx); err != nil {
+		return fmt.Errorf("stop application: %w", err)
+	}
+	return nil
 }

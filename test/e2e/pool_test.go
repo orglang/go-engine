@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-resty/resty/v2"
 	_ "github.com/jackc/pgx/v5/stdlib"
 
 	"github.com/orglang/go-sdk/adt/compsem"
@@ -18,7 +17,6 @@ import (
 	pooltermexp "github.com/orglang/go-sdk/pool/termexp"
 	pooltypedef "github.com/orglang/go-sdk/pool/typedef"
 	pooltypeexp "github.com/orglang/go-sdk/pool/typeexp"
-	proccompexec "github.com/orglang/go-sdk/proc/compexec"
 	proccompstep "github.com/orglang/go-sdk/proc/compstep"
 	proctermdec "github.com/orglang/go-sdk/proc/termdec"
 	proctermexp "github.com/orglang/go-sdk/proc/termexp"
@@ -37,12 +35,12 @@ func TestPool(t *testing.T) {
 }
 
 type suite struct {
-	PoolDecAPI  *pooltermdec.RestySDK
-	PoolExecAPI *compexec.RestySDK
-	XactDefAPI  *pooltypedef.RestySDK
-	ProcDecAPI  *proctermdec.RestySDK
-	ProcExecAPI *proccompexec.RestySDK
-	TypeDefAPI  *typedef.RestySDK
+	PoolDecAPI  *poolDeclarationClient
+	PoolExecAPI *poolExecutionClient
+	XactDefAPI  *poolTypeDefinitionClient
+	ProcDecAPI  *processDeclarationClient
+	ProcExecAPI *processExecutionClient
+	TypeDefAPI  *processTypeDefinitionClient
 	DB          *sql.DB
 }
 
@@ -58,13 +56,16 @@ func (s *suite) beforeAll(t *testing.T) {
 		}
 	})
 	s.DB = db
-	client := resty.New().SetBaseURL("http://localhost:8080/api/v1")
-	s.PoolDecAPI = &pooltermdec.RestySDK{Client: client}
-	s.PoolExecAPI = &compexec.RestySDK{Client: client}
-	s.XactDefAPI = &pooltypedef.RestySDK{Client: client}
-	s.ProcDecAPI = &proctermdec.RestySDK{Client: client}
-	s.ProcExecAPI = &proccompexec.RestySDK{Client: client}
-	s.TypeDefAPI = &typedef.RestySDK{Client: client}
+	client, err := newGeneratedAPI("http://localhost:8080")
+	if err != nil {
+		t.Fatal(err)
+	}
+	s.PoolDecAPI = &poolDeclarationClient{api: client}
+	s.PoolExecAPI = &poolExecutionClient{api: client}
+	s.XactDefAPI = &poolTypeDefinitionClient{api: client}
+	s.ProcDecAPI = &processDeclarationClient{api: client}
+	s.ProcExecAPI = &processExecutionClient{api: client}
+	s.TypeDefAPI = &processTypeDefinitionClient{api: client}
 }
 
 func (s *suite) beforeEach(t *testing.T) {

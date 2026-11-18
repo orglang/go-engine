@@ -134,7 +134,7 @@ func (c *controllerEcho) PostSpec3(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return ctx.JSON(http.StatusCreated, compsem.MsgFromRef(ref))
+	return ctx.JSON(http.StatusCreated, compRefToAPI(ref))
 }
 
 func poolStepSpecToCore(dto api.PoolStepSpec) (compstep.StepSpec, error) {

@@ -35,7 +35,7 @@ jobs:
         id: detect
         uses: ./.github/actions/change-detection
 
-  distros:
+  distros-gate:
     name: Distros Gate
     needs: detect-changes
     if: ${{ (needs.detect-changes.outputs.specs == 'true' || needs.detect-changes.outputs.sources == 'true' || needs.detect-changes.outputs.binaries == 'true' || needs.detect-changes.outputs.distros == 'true') && !github.event.pull_request.draft }}

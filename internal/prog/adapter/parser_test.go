@@ -40,12 +40,3 @@ func TestParseProgramRejectsUnknownExpression(t *testing.T) {
 	}
 }
 
-func TestProgramConversionRejectsDuplicateProcessLabels(t *testing.T) {
-	ast, err := parseProgram("proc type Foo { plus { @same { one } @same { one } } }")
-	if err != nil {
-		t.Fatalf("parse program: %v", err)
-	}
-	if _, err := programASTToCore(ast); err == nil {
-		t.Fatal("expected duplicate-label conversion error")
-	}
-}

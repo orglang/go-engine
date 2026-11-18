@@ -31,7 +31,7 @@ type poolDefAST struct {
 func (poolDefAST) programExpression() {}
 
 type procDefAST struct {
-	TypeQN  string      `parser:"'proc' 'type' @Ident"`
+	TypeQN  string     `parser:"'proc' 'type' @Ident"`
 	TypeExp procExpAST `parser:"'{' @@? '}'"`
 }
 

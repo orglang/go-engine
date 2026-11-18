@@ -15,7 +15,7 @@ The resulting outputs are:
 ## Current path rules
 
 - `app-deps`: Go module manifests and sums (`go.mod`, `go.sum`).
-- `tool-deps`: TypeSpec npm manifests and lockfiles.
+- `tool-deps`: TypeSpec npm manifests/lockfiles and mise toolchain manifests/lockfiles.
 - `app-specs`: TypeSpec source files and generated OpenAPI.
 - `tool-specs`: TypeSpec compiler configuration.
 - `app-sources`: Go and SQL source files.

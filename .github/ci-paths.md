@@ -1,46 +1,49 @@
-# CI path classification
+# Change detection
 
-The change detector classifies pull-request paths on two independent axes:
+The change detector classifies pull-request paths into independent input groups. Classification describes **what changed**; it does not decide by itself which CI jobs must run.
 
-- **Area:** `app` or `tool`.
-- **Kind:** `deps`, `specs`, `sources`, `binaries`, or `distros`.
+## Input groups
 
-The resulting outputs are:
+The application/tooling matrix has ten groups:
 
-| Area | Dependency inputs | Specifications | Sources | Binaries | Distributions |
+| Area | Dependencies | Specifications | Sources | Binaries | Distributions |
 |---|---|---|---|---|---|
 | Application | `app-deps` | `app-specs` | `app-sources` | `app-binaries` | `app-distros` |
 | Tooling | `tool-deps` | `tool-specs` | `tool-sources` | `tool-binaries` | `tool-distros` |
 
-## Implementation
+Shared repository configuration is classified separately:
 
-The composite action at `.github/actions/ci-changes` uses `dorny/paths-filter@v4`, following the established pattern in `orglang/go-workspace`.
+| Group | Inputs |
+|---|---|
+| `ci-config` | GitHub Actions workflows/actions and this change-group configuration |
+| `task-config` | Taskfiles |
+| `toolchain-config` | mise manifests, lockfiles, and mise configuration |
 
-The filter definitions live in `.github/ci-paths.yaml`. Each filter includes the shared broad-invalidation paths so workflow/action definitions, Taskfiles, and mise configuration/lockfiles conservatively select all ten outputs.
+This keeps application dependencies (`go.mod`, `go.sum`) separate from tool dependencies (currently the TypeSpec npm manifest and lockfile). mise files are not package dependencies: they describe the toolchain. Taskfiles describe task orchestration. Neither is duplicated across all ten input groups.
 
-The action only invokes the path filter for `pull_request` events. For every other event it reports `true` for all outputs, preserving full validation for push, merge queue, and manual runs. Pull request workflows using the action must grant `pull-requests: read`.
+A path can belong to more than one input group when it genuinely serves multiple roles (for example, a Go file under `cmd/engine/` is both application source and an application binary input).
 
-## Current path rules
+## Impact mapping
 
-- `app-deps`: Go module manifests and sums (`go.mod`, `go.sum`).
-- `tool-deps`: TypeSpec npm manifests/lockfiles and mise toolchain manifests/lockfiles.
-- `app-specs`: TypeSpec source files and generated OpenAPI.
-- `tool-specs`: TypeSpec compiler configuration.
-- `app-sources`: Go and SQL source files.
-- `tool-sources`: repository scripts used by source/tooling workflows.
-- `app-binaries`: application command entrypoint/build inputs under `cmd/engine/`.
-- `app-distros`: Dockerfiles, Compose files, and Docker ignore configuration.
-- `tool-distros`: distribution-specific mise manifests/lockfiles.
-- `tool-binaries`: reserved for tool-specific binary build inputs; currently selected through broad tooling invalidation.
+The groups above are change classification, not a one-to-one job list. Workflows must apply a separate impact mapping:
 
-A path may select more than one group. For example, the application command entrypoint is both a Go source and an application binary input.
+- `app-deps` invalidates application binaries and downstream distributions.
+- `tool-deps` invalidates checks that install or execute the affected tooling, plus their downstream outputs.
+- `app-specs` invalidates specification checks and downstream generated sources, binaries, and distributions.
+- `tool-specs` invalidates specification-generation/checking and downstream outputs.
+- `app-sources` invalidates source checks, tests, binaries, and distributions as applicable.
+- `tool-sources` invalidates checks that execute those scripts and their downstream outputs.
+- `app-binaries` and `app-distros` invalidate their corresponding build/package checks.
+- `tool-binaries` and `tool-distros` are reserved for future tool artifact pipelines.
+- `ci-config` invalidates all ten checks because workflow/action behavior can change.
+- `task-config` and `toolchain-config` currently invalidate all ten checks conservatively. This is an explicit fallback until task-to-workflow and toolchain-to-workflow dependencies are documented; it is not a claim that these files are inputs to every group.
 
-## Classification versus impact
+When a narrower impact cannot be proven safe, prefer broader invalidation. Do not use workflow-level path filters on required workflows, because skipped workflows can leave required checks pending.
 
-These outputs describe which input groups changed. They are not a one-to-one list of jobs to run. Workflow jobs must apply a separate impact/fan-out mapping for upstream dependencies. For example, application dependencies affect binary and distribution checks even though the changed path is classified as `app-deps`; TypeSpec changes can affect generated sources and downstream artifacts.
+## Action
 
-If the impact of a path cannot be established safely, broaden invalidation. Do not add workflow-level path filters to required workflows.
+The composite action at `.github/actions/change-detection` uses `dorny/paths-filter@v4` and reads `.github/change-groups.yaml`.
 
-## Delivery
+It exposes the ten application/tooling outputs and the three shared-configuration outputs above. It runs path filtering only for `pull_request`; other events report `true` for every output so push, merge-queue, and manual runs retain full validation. Pull-request workflows using the action must grant `pull-requests: read`.
 
-This PR introduces and exercises the classification contract only. Existing CI jobs are intentionally not gated in this step.
+This change introduces and exercises the classification contract only. Existing CI jobs are not gated yet.

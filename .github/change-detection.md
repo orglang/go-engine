@@ -9,17 +9,17 @@ There are four public stage groups. Within each group, comments distinguish appl
 | Stage | Application inputs | Dependencies | Tooling |
 |---|---|---|---|
 | specs | TypeSpec definitions and generated OpenAPI contract | TypeSpec npm manifests | TypeSpec toolchain |
-| sources | Go source code | — | Source generators, linters, and their toolchain |
+| sources | Go source code | — | Sources toolchain |
 | binaries | Database bootstrap and migrations | Go module manifests (go.mod, go.sum) | — |
 | distros | Dockerfiles and Compose definitions | — | Distribution-specific toolchain, when defined here |
 
-Shared orchestration/configuration is an internal filter, not a public stage group:
+Shared orchestration/configuration is an internal catch-all filter, not a public stage group:
 
 - GitHub Actions workflows/actions and the change-group definition.
 - Taskfiles.
 - Root mise configuration and lockfile, plus .miserc.toml.
 
-A shared-configuration change conservatively marks all four public stage outputs as changed. Stage-specific mise toolchains are classified with the earliest stage that consumes them: mise.specs-dev.* under specs, and mise.sources-dev.* under sources.
+A match in the `any` filter conservatively marks all four public stage outputs as changed. Stage-specific mise toolchains are classified with the earliest stage that consumes them: mise.specs-dev.* under specs, and mise.sources-dev.* under sources.
 
 ## Impact mapping
 
@@ -30,7 +30,7 @@ A changed stage input invalidates that stage and every downstream stage:
 - binaries invalidates binaries and distros.
 - distros invalidates only distros.
 
-Shared configuration invalidates all four stages. When a narrower impact cannot be proven safe, prefer broader invalidation.
+The `any` filter invalidates all four stages. When a narrower impact cannot be proven safe, prefer broader invalidation.
 
 Do not use workflow-level path filters on required workflows: skipped workflows can leave required checks pending. Workflow jobs should use this contract to decide whether to run while allowing the required workflows themselves to start.
 

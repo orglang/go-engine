@@ -1,4 +1,4 @@
-name: Sources Gate
+name: Sources
 
 on:
   # Keep the default-branch Go cache warm for reuse by pull request workflows.

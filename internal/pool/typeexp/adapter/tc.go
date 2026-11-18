@@ -6,7 +6,6 @@ import (
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/uniqsym"
 
-
 	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 )
 

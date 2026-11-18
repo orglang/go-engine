@@ -12,7 +12,7 @@ import (
 	pooltypedef "orglang/go-engine/internal/pool/typedef/core"
 	pooltypeexp "orglang/go-engine/internal/pool/typeexp/core"
 	proctypedef "orglang/go-engine/internal/proc/typedef/core"
-	proctypeexp "orglang/go-engine/internal/proc/typeexp/core"
+	proctypexp "orglang/go-engine/internal/proc/typeexp/core"
 )
 
 type programExpression interface {

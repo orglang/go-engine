@@ -8,20 +8,48 @@ import (
 
 const poolTypeDefinitionsRoute = "/api/v1/pools/types"
 
-type generatedRouteFilter struct { webapi.EchoRouter }
+type generatedRouteFilter struct {
+	webapi.EchoRouter
+}
 
-func (r generatedRouteFilter) CONNECT(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route { return nil }
-func (r generatedRouteFilter) DELETE(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route { return nil }
-func (r generatedRouteFilter) GET(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route { return nil }
-func (r generatedRouteFilter) HEAD(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route { return nil }
-func (r generatedRouteFilter) OPTIONS(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route { return nil }
-func (r generatedRouteFilter) PATCH(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route { return nil }
+func (r generatedRouteFilter) CONNECT(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route {
+	return nil
+}
+
+func (r generatedRouteFilter) DELETE(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route {
+	return nil
+}
+
+func (r generatedRouteFilter) GET(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route {
+	return nil
+}
+
+func (r generatedRouteFilter) HEAD(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route {
+	return nil
+}
+
+func (r generatedRouteFilter) OPTIONS(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route {
+	return nil
+}
+
+func (r generatedRouteFilter) PATCH(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route {
+	return nil
+}
+
 func (r generatedRouteFilter) POST(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
-	if path != poolTypeDefinitionsRoute { return nil }
+	if path != poolTypeDefinitionsRoute {
+		return nil
+	}
 	return r.EchoRouter.POST(path, h, m...)
 }
-func (r generatedRouteFilter) PUT(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route { return nil }
-func (r generatedRouteFilter) TRACE(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route { return nil }
+
+func (r generatedRouteFilter) PUT(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route {
+	return nil
+}
+
+func (r generatedRouteFilter) TRACE(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route {
+	return nil
+}
 
 func RegisterGeneratedRoutes(e *echo.Echo, h GeneratedController) error {
 	webapi.RegisterHandlers(generatedRouteFilter{EchoRouter: e}, generatedServer{handler: h})

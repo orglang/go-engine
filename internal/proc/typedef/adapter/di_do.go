@@ -6,12 +6,12 @@ import (
 	"github.com/samber/do/v2"
 
 	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
-	webapi "orglang/go-engine/internal/app/web/api"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/typedef/core"
 	typeexp "orglang/go-engine/internal/proc/typeexp/core"
 )
 
+// Package registers process type-definition persistence, service, and HTTP adapters.
 var Package = do.Package(
 	do.Lazy[core.QueryBuilder](func(do.Injector) (core.QueryBuilder, error) { return newSQLBuilder(), nil }),
 	do.Lazy[core.Repo](func(i do.Injector) (core.Repo, error) {
@@ -31,7 +31,7 @@ var Package = do.Package(
 		logger, err := do.Invoke[*slog.Logger](i); if err != nil { return nil, err }
 		return core.NewService(typeDefRepo, typeExpRepo, descSemRepo, transactor, logger), nil
 	}),
-	do.Lazy[webapi.ServerInterface](func(i do.Injector) (webapi.ServerInterface, error) {
+	do.Lazy[GeneratedController](func(i do.Injector) (GeneratedController, error) {
 		api, err := do.Invoke[core.API](i); if err != nil { return nil, err }
 		logger, err := do.Invoke[*slog.Logger](i); if err != nil { return nil, err }
 		return newControllerEcho(api, logger), nil

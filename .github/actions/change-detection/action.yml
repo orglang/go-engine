@@ -4,16 +4,16 @@ description: Classify changed paths into pipeline stage groups.
 outputs:
   specs:
     description: Specification-stage inputs changed.
-    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['specs'] == 'true' || steps.filter.outputs['shared-config'] == 'true' }}
+    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['specs'] == 'true' || steps.filter.outputs['any'] == 'true' }}
   sources:
     description: Source-stage inputs changed.
-    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['sources'] == 'true' || steps.filter.outputs['shared-config'] == 'true' }}
+    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['sources'] == 'true' || steps.filter.outputs['any'] == 'true' }}
   binaries:
     description: Binary-stage inputs changed.
-    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['binaries'] == 'true' || steps.filter.outputs['shared-config'] == 'true' }}
+    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['binaries'] == 'true' || steps.filter.outputs['any'] == 'true' }}
   distros:
     description: Distribution-stage inputs changed.
-    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['distros'] == 'true' || steps.filter.outputs['shared-config'] == 'true' }}
+    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['distros'] == 'true' || steps.filter.outputs['any'] == 'true' }}
 
 runs:
   using: composite

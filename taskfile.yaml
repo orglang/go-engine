@@ -22,10 +22,17 @@ tasks:
       - task: binaries:build
 
   binaries:check:
-    desc: Check Go module manifests
+    desc: Check Go module and toolchain lockfiles
+    deps:
+      - task: binaries:lock
+    cmds:
+      - test -z "$(git status --porcelain -- go.mod go.sum mise.lock)"
+
+  binaries:lock:
+    desc: Refresh Go module and root toolchain lockfiles
     cmds:
       - GOWORK=off go mod tidy
-      - test -z "$(git status --porcelain -- go.mod go.sum)"
+      - mise lock
 
   binaries:test:
     desc: Run integration tests required for binary delivery
@@ -43,7 +50,7 @@ tasks:
       - task: sources:generate
       - task: sources:lock
     cmds:
-      - test -z "$(git status --porcelain -- mise.lock mise.sources-dev.lock)"
+      - test -z "$(git status --porcelain -- mise.sources-dev.lock)"
       - test -z "$(git status --porcelain -- ':(glob)**/*.gen.go')"
       - golangci-lint fmt --diff
       - golangci-lint run ./...
@@ -51,7 +58,6 @@ tasks:
   sources:lock:
     desc: Refresh source toolchain lockfiles
     cmds:
-      - mise lock
       - mise -E sources lock
 
   sources:prepare:

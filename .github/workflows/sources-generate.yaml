@@ -31,7 +31,10 @@ jobs:
           cache_save_post: true
 
       - name: Lock dependencies
-        run: mise run deps:lock
+        run: |
+          task specs:lock
+          task sources:lock
+          task binaries:lock
 
       - name: Install dependencies
         run: mise run deps:install

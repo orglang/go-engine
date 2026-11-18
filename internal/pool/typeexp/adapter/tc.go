@@ -6,84 +6,9 @@ import (
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/uniqsym"
 
-	sdktypeexp "github.com/orglang/go-sdk/pool/typeexp"
 
 	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 )
-
-func MsgFromExpSpec(s typeexp.ExpSpec) sdktypeexp.ExpSpec {
-	switch spec := s.(type) {
-	case typeexp.OneSpec:
-		return sdktypeexp.ExpSpec{K: sdktypeexp.One}
-	case typeexp.LinkSpec:
-		return sdktypeexp.ExpSpec{
-			K:    sdktypeexp.Link,
-			Link: &sdktypeexp.LinkSpec{TypeQN: uniqsym.ConvertToString(spec.TypeQN)}}
-	case typeexp.WithSpec:
-		return sdktypeexp.ExpSpec{
-			K: sdktypeexp.With,
-			With: &sdktypeexp.LaborSpec{
-				ProcQNs: uniqsym.ConvertToStrings(spec.ProcQNs),
-				ContExp: MsgFromExpSpec(spec.ContExp)},
-		}
-	case typeexp.PlusSpec:
-		return sdktypeexp.ExpSpec{
-			K: sdktypeexp.Plus,
-			Plus: &sdktypeexp.LaborSpec{
-				ProcQNs: uniqsym.ConvertToStrings(spec.ProcQNs),
-				ContExp: MsgFromExpSpec(spec.ContExp)},
-		}
-	default:
-		panic(typeexp.ErrSpecTypeUnexpected(s))
-	}
-}
-
-func MsgToExpSpec(dto sdktypeexp.ExpSpec) (typeexp.ExpSpec, error) {
-	switch dto.K {
-	case sdktypeexp.One:
-		return typeexp.OneSpec{}, nil
-	case sdktypeexp.Link:
-		xactQN, err := uniqsym.ConvertFromString(dto.Link.TypeQN)
-		if err != nil {
-			return nil, err
-		}
-		return typeexp.LinkSpec{TypeQN: xactQN}, nil
-	case sdktypeexp.Plus:
-		procQNs, err := uniqsym.ConvertFromStrings(dto.Plus.ProcQNs)
-		if err != nil {
-			return nil, err
-		}
-		contExp, err := MsgToExpSpec(dto.Plus.ContExp)
-		if err != nil {
-			return nil, err
-		}
-		return typeexp.PlusSpec{ProcQNs: procQNs, ContExp: contExp}, nil
-	case sdktypeexp.With:
-		procQNs, err := uniqsym.ConvertFromStrings(dto.With.ProcQNs)
-		if err != nil {
-			return nil, err
-		}
-		contExp, err := MsgToExpSpec(dto.With.ContExp)
-		if err != nil {
-			return nil, err
-		}
-		return typeexp.WithSpec{ProcQNs: procQNs, ContExp: contExp}, nil
-	case sdktypeexp.Up:
-		contExp, err := MsgToExpSpec(dto.Up.ContExp)
-		if err != nil {
-			return nil, err
-		}
-		return typeexp.UpSpec{ContExp: contExp}, nil
-	case sdktypeexp.Down:
-		contExp, err := MsgToExpSpec(dto.Down.ContExp)
-		if err != nil {
-			return nil, err
-		}
-		return typeexp.DownSpec{ContExp: contExp}, nil
-	default:
-		panic(sdktypeexp.ErrKindUnexpected(dto.K))
-	}
-}
 
 func dataFromExpRef(ref typeexp.ExpRef) typeexp.ExpRefDS {
 	if ref == nil {

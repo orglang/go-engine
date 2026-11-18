@@ -4,8 +4,11 @@ import (
 	"log/slog"
 	"net/http"
 	"reflect"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
+
+	"orglang/go-engine/internal/app/web/api"
 
 	sdktypedef "github.com/orglang/go-sdk/proc/typedef"
 
@@ -25,11 +28,6 @@ type Controller interface {
 }
 
 // Server-side primary adapter
-type typeDefRefDTO struct {
-	TypeID string `json:"type_id"`
-	TypeRN int64  `json:"type_rn"`
-}
-
 type controllerEcho struct {
 	api typedef.API
 	log *slog.Logger
@@ -80,21 +78,18 @@ func (h *controllerEcho) PostSpec(c echo.Context) error {
 }
 
 func (h *controllerEcho) GetSnap(c echo.Context) error {
-	var dto typeDefRefDTO
-	bindErr := c.Bind(&dto)
-	if bindErr != nil {
-		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
-		return bindErr
+	dto := api.AnyTypeRef{TypeId: c.Param("id")}
+	rn, parseErr := strconv.ParseInt(c.QueryParam("rn"), 10, 64)
+	if parseErr != nil || rn < 1 {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid revision")
 	}
-	typeID, convErr := identity.ConvertFromString(dto.TypeID)
+	dto.TypeRn = rn
+	typeID, convErr := identity.ConvertFromString(dto.TypeId)
 	if convErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
 		return echo.NewHTTPError(http.StatusBadRequest, convErr.Error())
 	}
-	if dto.TypeRN < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid revision")
-	}
-	ref := typesem.SemRef{TypeID: typeID, TypeRN: seqnum.ConvertFromInt(dto.TypeRN)}
+	ref := typesem.SemRef{TypeID: typeID, TypeRN: seqnum.ConvertFromInt(dto.TypeRn)}
 	snap, retrieveErr := h.api.RetrieveSnap(ref)
 	if retrieveErr != nil {
 		return retrieveErr

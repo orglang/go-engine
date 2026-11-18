@@ -10,8 +10,6 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	sdkcompexec "github.com/orglang/go-sdk/pool/compexec"
-
 	"orglang/go-engine/internal/adt/compsem"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
@@ -21,6 +19,7 @@ import (
 	"orglang/go-engine/internal/app/web/api"
 	compexec "orglang/go-engine/internal/pool/compexec/core"
 	compstep "orglang/go-engine/internal/pool/compstep/core"
+	compvar "orglang/go-engine/internal/pool/compvar/core"
 	termexp "orglang/go-engine/internal/pool/termexp/core"
 )
 
@@ -52,27 +51,55 @@ func RegisterRoutes(server *echo.Echo, controller Controller) error {
 }
 
 func (c *controllerEcho) PostSpec(ctx echo.Context) error {
-	var dto sdkcompexec.ExecSpec
-	bindErr := ctx.Bind(&dto)
-	if bindErr != nil {
-		c.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
-		return bindErr
+	var dto api.AnyExecSpec
+	if err := ctx.Bind(&dto); err != nil {
+		c.log.Error("binding failed", slog.Any("dto", reflect.TypeFor[api.AnyExecSpec]()))
+		return err
 	}
-	validErr := dto.Validate()
-	if validErr != nil {
-		c.log.Error("validation failed", slog.Any("dto", dto))
-		return validErr
+	spec, err := poolExecSpecToCore(dto)
+	if err != nil {
+		c.log.Error("conversion failed", slog.Any("dto", dto), slog.Any("error", err))
+		return err
 	}
-	spec, convErr := MsgToExecSpec(dto)
-	if convErr != nil {
-		c.log.Error("conversion failed", slog.Any("dto", dto))
-		return convErr
-	}
-	ref, apiErr := c.api.Run(spec)
-	if apiErr != nil {
-		return apiErr
+	ref, err := c.api.Run(spec)
+	if err != nil {
+		return err
 	}
 	return ctx.JSON(http.StatusCreated, compsem.MsgFromRef(ref))
+}
+
+func poolExecSpecToCore(dto api.AnyExecSpec) (compexec.ExecSpec, error) {
+	termQN, err := uniqsym.ConvertFromString(dto.TermQn)
+	if err != nil {
+		return compexec.ExecSpec{}, err
+	}
+	liabVar, err := poolExecVarToCore(dto.LiabVar)
+	if err != nil {
+		return compexec.ExecSpec{}, err
+	}
+	assetVars := make([]compvar.VarSpec, len(dto.AssetVars))
+	for i, assetVar := range dto.AssetVars {
+		assetVars[i], err = poolExecVarToCore(assetVar)
+		if err != nil {
+			return compexec.ExecSpec{}, fmt.Errorf("asset_vars[%d]: %w", i, err)
+		}
+	}
+	return compexec.ExecSpec{TermQN: termQN, LiabVar: liabVar, AssetVars: assetVars}, nil
+}
+
+func poolExecVarToCore(dto api.AnyExecVarSpec) (compvar.VarSpec, error) {
+	if dto.ConnPh == "" {
+		return compvar.VarSpec{}, errors.New("conn_ph cannot be blank")
+	}
+	connPH, err := symbol.ConvertFromString(dto.ConnPh)
+	if err != nil {
+		return compvar.VarSpec{}, err
+	}
+	termQN, err := uniqsym.ConvertFromString(dto.TermQn)
+	if err != nil {
+		return compvar.VarSpec{}, err
+	}
+	return compvar.VarSpec{ChnlPH: connPH, TermQN: termQN}, nil
 }
 
 func (c *controllerEcho) PostSpec2(ctx echo.Context) error {

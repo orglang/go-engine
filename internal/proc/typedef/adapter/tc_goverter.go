@@ -1,23 +1,7 @@
 package adapter
 
 import (
-	sdktypedef "github.com/orglang/go-sdk/proc/typedef"
-
 	typedef "orglang/go-engine/internal/proc/typedef/core"
-)
-
-// goverter:variables
-// goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
-// goverter:extend orglang/go-engine/internal/proc/typeexp/adapter:Msg.*
-var (
-	MsgFromDefSpec  func(typedef.DefSpec) sdktypedef.DefSpec
-	MsgToDefSpec    func(sdktypedef.DefSpec) (typedef.DefSpec, error)
-	MsgFromDefSnap  func(typedef.DefSnap) sdktypedef.DefSnap
-	MsgToDefSnap    func(sdktypedef.DefSnap) (typedef.DefSnap, error)
-	MsgFromDefSnaps func([]typedef.DefSnap) []sdktypedef.DefSnap
-	MsgToDefSnaps   func([]sdktypedef.DefSnap) ([]typedef.DefSnap, error)
 )
 
 // goverter:variables

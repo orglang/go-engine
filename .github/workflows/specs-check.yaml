@@ -35,7 +35,7 @@ jobs:
         id: detect
         uses: ./.github/actions/change-detection
 
-  specs-check:
+  specs-gate:
     name: Specs Gate
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.specs == 'true' && !github.event.pull_request.draft }}

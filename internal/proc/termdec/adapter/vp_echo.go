@@ -72,7 +72,7 @@ func (p *echoPresenter) PostSpec(c echo.Context) error {
 	if inceptionErr != nil {
 		return inceptionErr
 	}
-	html, renderingErr := p.ssr.Render("view-one", termsem.MsgFromRef(ref))
+	html, renderingErr := p.ssr.Render("view-one", ref)
 	if renderingErr != nil {
 		p.log.Error("rendering failed", slog.Any("ref", ref))
 		return renderingErr

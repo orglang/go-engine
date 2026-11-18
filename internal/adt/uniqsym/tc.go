@@ -3,6 +3,7 @@ package uniqsym
 import (
 	"database/sql"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"orglang/go-engine/internal/adt/symbol"
@@ -10,12 +11,18 @@ import (
 
 const (
 	sep = "."
+	maxLength = 512
 )
 
+var qualifiedSymbolPattern = regexp.MustCompile(`^[0-9A-Za-z_-]+(\.[0-9A-Za-z_-]+)*$`)
+
+// ConvertFromString constructs a qualified symbol and rejects values outside
+// the domain's qualified-symbol syntax.
 func ConvertFromString(str string) (ADT, error) {
-	if str == "" {
-		return empty, fmt.Errorf("invalid value: %s", str)
+	if len(str) == 0 || len(str) > maxLength || !qualifiedSymbolPattern.MatchString(str) {
+		return empty, fmt.Errorf("invalid qualified symbol: %q", str)
 	}
+
 	idx := strings.LastIndex(str, sep)
 	if idx < 0 {
 		return ADT{symbol.New(str), nil}, nil
@@ -35,19 +42,7 @@ func ConvertFromNullString(str sql.NullString) (ADT, error) {
 	if !str.Valid {
 		return empty, nil
 	}
-	idx := strings.LastIndex(str.String, sep)
-	if idx < 0 {
-		return ADT{symbol.New(str.String), nil}, nil
-	}
-	sym, err := symbol.ConvertFromString(str.String[idx+1:])
-	if err != nil {
-		return empty, err
-	}
-	ns, err := ConvertFromString(str.String[:idx])
-	if err != nil {
-		return empty, err
-	}
-	return ADT{sym, &ns}, nil
+	return ConvertFromString(str.String)
 }
 
 func ConvertToString(adt ADT) string {

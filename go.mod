@@ -3,8 +3,8 @@ module orglang/go-engine
 go 1.27.0
 
 require (
-	github.com/alecthomas/participle/v2 v2.1.4
 	github.com/Masterminds/sprig/v3 v3.3.0
+	github.com/alecthomas/participle/v2 v2.1.4
 	github.com/alitto/pond/v2 v2.7.3
 	github.com/gammazero/workerpool v1.3.0
 	github.com/georgysavva/scany/v2 v2.1.4

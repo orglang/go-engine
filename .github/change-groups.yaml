@@ -1,16 +1,5 @@
-# Classify changed inputs. These groups are deliberately disjoint from
-# shared orchestration/configuration groups; downstream impact is documented
+# Classify changed inputs by pipeline stage. Downstream impact is documented
 # separately in .github/change-detection.md.
-
-app-deps:
-  - 'go.mod'
-  - '**/go.mod'
-  - 'go.sum'
-  - '**/go.sum'
-
-tool-deps:
-  - 'tsp/package.json'
-  - 'tsp/package-lock.json'
 
 app-specs:
   - 'tsp/*.tsp'
@@ -19,12 +8,18 @@ app-specs:
 
 tool-specs:
   - 'tsp/tspconfig.yaml'
+  - 'tsp/package.json'
+  - 'tsp/package-lock.json'
 
 app-sources:
   - '**/*.go'
   - '**/*.sql'
   - '*.go'
   - '*.sql'
+  - 'go.mod'
+  - 'go.sum'
+  - '**/go.mod'
+  - '**/go.sum'
 
 tool-sources:
   - 'scripts/**/*.py'

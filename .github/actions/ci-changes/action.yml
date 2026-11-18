@@ -41,4 +41,4 @@ runs:
       if: ${{ github.event_name == 'pull_request' }}
       uses: dorny/paths-filter@v4
       with:
-        filters: ${{ github.action_path }}/../../ci-paths.yaml
+        filters: .github/ci-paths.yaml

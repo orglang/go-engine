@@ -5,18 +5,7 @@ import (
 	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/app/web/api"
 
-	"github.com/orglang/go-sdk/pool/termdec"
-
 	termdef "orglang/go-engine/internal/pool/termdef/core"
-)
-
-// goverter:variables
-// goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
-// goverter:extend orglang/go-engine/internal/pool/typedef/adapter:Msg.*
-var (
-	MsgToDecSpec   func(termdec.DecSpec) (termdef.DefSpec, error)
-	MsgFromDecSpec func(termdef.DefSpec) termdec.DecSpec
 )
 
 // goverter:variables

@@ -250,11 +250,7 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (termexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		qn, err := uniqsym.ConvertFromString(value.ProcQn)
-		if err != nil {
-			return nil, err
-		}
-		return termexp.FireSpec{ConnChnlPH: ph, ProcTermQN: qn}, nil
+		return termexp.FireSpec{ConnChnlPH: ph}, nil
 	case "quit":
 		value, err := dto.AsPoolTermQuitSpec()
 		if err != nil {

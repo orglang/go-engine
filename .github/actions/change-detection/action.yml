@@ -4,23 +4,23 @@ description: Classify changed paths into pipeline stage groups.
 outputs:
   specs:
     description: Specification-stage inputs changed.
-    value: \${{ github.event_name != 'pull_request' || steps.filter.outputs['specs'] == 'true' || steps.filter.outputs['shared-config'] == 'true' }}
+    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['specs'] == 'true' || steps.filter.outputs['shared-config'] == 'true' }}
   sources:
     description: Source-stage inputs changed.
-    value: \${{ github.event_name != 'pull_request' || steps.filter.outputs['sources'] == 'true' || steps.filter.outputs['shared-config'] == 'true' }}
+    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['sources'] == 'true' || steps.filter.outputs['shared-config'] == 'true' }}
   binaries:
     description: Binary-stage inputs changed.
-    value: \${{ github.event_name != 'pull_request' || steps.filter.outputs['binaries'] == 'true' || steps.filter.outputs['shared-config'] == 'true' }}
+    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['binaries'] == 'true' || steps.filter.outputs['shared-config'] == 'true' }}
   distros:
     description: Distribution-stage inputs changed.
-    value: \${{ github.event_name != 'pull_request' || steps.filter.outputs['distros'] == 'true' || steps.filter.outputs['shared-config'] == 'true' }}
+    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['distros'] == 'true' || steps.filter.outputs['shared-config'] == 'true' }}
 
 runs:
   using: composite
   steps:
     - name: Detect pull request changes
       id: filter
-      if: \${{ github.event_name == 'pull_request' }}
+      if: ${{ github.event_name == 'pull_request' }}
       uses: dorny/paths-filter@v4
       with:
         filters: .github/change-groups.yaml

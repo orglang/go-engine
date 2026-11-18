@@ -1,4 +1,4 @@
-name: Binaries Build
+name: Binaries
 
 on:
   pull_request:
@@ -34,7 +34,8 @@ jobs:
         id: detect
         uses: ./.github/actions/change-detection
 
-  binaries:
+  binaries-gate:
+    name: Binaries Gate
     needs: detect-changes
     if: ${{ (needs.detect-changes.outputs.specs == 'true' || needs.detect-changes.outputs.sources == 'true' || needs.detect-changes.outputs.binaries == 'true') && !github.event.pull_request.draft }}
     runs-on: ubuntu-latest

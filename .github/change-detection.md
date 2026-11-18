@@ -44,7 +44,7 @@ Dependency-lock consistency is checked by the stage that owns each dependency se
 
 The Generation maintenance workflow at `.github/workflows/generation.yaml` refreshes all three sets explicitly by running `task specs:lock`, `task sources:lock`, and `task binaries:lock` before generation. There is no aggregate `deps:lock` task; keeping the stage ownership explicit avoids a second, hidden orchestration entry point.
 
-Unit tests run in Binaries Build alongside integration tests and binary compilation. This ensures Go module changes are validated without requiring Sources Verify to run.
+Unit tests run in Binaries Gate alongside integration tests and binary compilation. This ensures Go module changes are validated without requiring Sources Gate to run.
 
 ## Action
 
@@ -52,4 +52,4 @@ The composite action at .github/actions/change-detection uses dorny/paths-filter
 
 It exposes four stage outputs: specs, sources, binaries, and distros. It runs path filtering only for pull_request; other events report true for every output so merge-queue and manual runs retain full validation. Pull-request workflows using the action must grant pull-requests: read.
 
-Specs Check uses the `specs` output to skip its expensive job when a pull request does not change specs inputs. Sources Verify uses `specs` and `sources`: a specs change also invalidates source verification under the downstream impact mapping. Binaries Build uses `specs`, `sources`, and `binaries`; Distro Build uses all four outputs because every earlier stage can invalidate distribution artifacts. Each job also skips draft pull requests. Merge-group and workflow_dispatch runs continue to execute all four checks. Push runs continue to execute the workflows configured for push events.
+Specs Gate uses the `specs` output to skip its expensive job when a pull request does not change specs inputs. Sources Gate uses `specs` and `sources`: a specs change also invalidates source verification under the downstream impact mapping. Binaries Gate uses `specs`, `sources`, and `binaries`; Distros Gate uses all four outputs because every earlier stage can invalidate distribution artifacts. The workflow display names are `Specs`, `Sources`, `Binaries`, and `Distros`; their primary job display names are `Specs Gate`, `Sources Gate`, `Binaries Gate`, and `Distros Gate`, with matching job IDs `specs-gate`, `sources-gate`, `binaries-gate`, and `distros-gate`. Each job also skips draft pull requests. Merge-group and workflow_dispatch runs continue to execute all four checks. Push runs continue to execute the workflows configured for push events.

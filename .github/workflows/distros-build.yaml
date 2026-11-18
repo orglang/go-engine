@@ -1,4 +1,4 @@
-name: Distros Build
+name: Distros Gate
 
 on:
   pull_request:
@@ -36,6 +36,7 @@ jobs:
         uses: ./.github/actions/change-detection
 
   distros:
+    name: Distros Gate
     needs: detect-changes
     if: ${{ (needs.detect-changes.outputs.specs == 'true' || needs.detect-changes.outputs.sources == 'true' || needs.detect-changes.outputs.binaries == 'true' || needs.detect-changes.outputs.distros == 'true') && !github.event.pull_request.draft }}
     runs-on: ubuntu-latest

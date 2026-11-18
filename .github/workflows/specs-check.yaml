@@ -37,7 +37,7 @@ jobs:
 
   specs-check:
     needs: detect-changes
-    if: ${{ needs.detect-changes.outputs.specs == 'true' && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }}
+    if: ${{ needs.detect-changes.outputs.specs == 'true' && !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout engine

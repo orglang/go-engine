@@ -41,8 +41,8 @@ jobs:
           # Defer saving until later environment-specific installs have populated the cache.
           cache_save_post: true
 
-      - name: Detect CI changes
-        uses: ./.github/actions/ci-changes
+      - name: Detect changed areas
+        uses: ./.github/actions/change-detection
 
       - name: Install specs and sources toolchains
         run: |

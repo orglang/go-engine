@@ -8,7 +8,6 @@ import (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
-// goverter:extend orglang/go-engine/internal/proc/typeexp/adapter:Msg.*
 var (
 	ViewFromDefSnap func(typedef.DefSnap) DefSnapVP
 )

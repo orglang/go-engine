@@ -23,6 +23,9 @@ jobs:
   sources-verify:
     if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - name: Checkout engine
         uses: actions/checkout@v7
@@ -38,8 +41,8 @@ jobs:
           # Defer saving until later environment-specific installs have populated the cache.
           cache_save_post: true
 
-      - name: Test CI change detector
-        run: python3 -m unittest discover -s .github/actions/ci-changes -p 'test_*.py'
+      - name: Detect CI changes
+        uses: ./.github/actions/ci-changes
 
       - name: Install specs and sources toolchains
         run: |

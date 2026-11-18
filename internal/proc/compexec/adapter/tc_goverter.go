@@ -2,12 +2,14 @@ package adapter
 
 import (
 	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/compvar"
 	compexec "orglang/go-engine/internal/proc/compexec/core"
 )
 
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/compvar:Data.*
 var (
 	// goverter:map . CompRef | dataToSemRef
 	DataToExecRec func(compexec.ExecRecDS) (compexec.ExecRec, error)

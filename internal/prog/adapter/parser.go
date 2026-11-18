@@ -65,8 +65,8 @@ type procExpAST struct {
 	Lolli  *procProdAST   `parser:"| 'lolli' @@"`
 	Plus   *procSumAST    `parser:"| 'plus' @@"`
 	With   *procSumAST    `parser:"| 'with' @@"`
-	Up     *procShiftAST      `parser:"| 'up' @@"`
-	Down   *shiftAST      `parser:"| 'down' @@ )"`
+	Up     *procShiftAST `parser:"| 'up' @@"`
+	Down   *procShiftAST `parser:"| 'down' @@ )"`
 }
 
 type linkAST struct {

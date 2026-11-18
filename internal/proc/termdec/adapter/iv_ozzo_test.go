@@ -10,7 +10,7 @@ func TestDecSpecVPValidate(t *testing.T) {
 		name  string
 		value string
 		valid bool
-}{
+		}{
 		{name: "simple", value: "alpha", valid: true},
 		{name: "qualified", value: "alpha.beta_2", valid: true},
 		{name: "maximum length", value: strings.Repeat("a", 512), valid: true},

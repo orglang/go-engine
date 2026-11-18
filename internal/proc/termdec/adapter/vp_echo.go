@@ -86,7 +86,7 @@ func (p *echoPresenter) GetRefs(c echo.Context) error {
 	if retrieveErr != nil {
 		return retrieveErr
 	}
-	html, renderingErr := p.ssr.Render("view-many", termsem.MsgFromRefs(refs))
+	html, renderingErr := p.ssr.Render("view-many", refs)
 	if renderingErr != nil {
 		p.log.Error("rendering failed", slog.Any("refs", refs))
 		return renderingErr

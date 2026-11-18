@@ -1,4 +1,4 @@
-name: Sources Generate
+name: Generation
 
 on:
   workflow_dispatch:
@@ -6,11 +6,11 @@ on:
 permissions: {}
 
 concurrency:
-  group: sources-generate-${{ github.ref }}
+  group: generation-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  sources-generate:
+  generation:
     if: github.ref_type == 'branch' && github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 30

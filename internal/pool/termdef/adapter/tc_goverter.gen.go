@@ -4,74 +4,18 @@
 package adapter
 
 import (
-	termvar "github.com/orglang/go-sdk/adt/termvar"
-	termdec "github.com/orglang/go-sdk/pool/termdec"
 	identity "orglang/go-engine/internal/adt/identity"
 	symbol "orglang/go-engine/internal/adt/symbol"
 	termsem "orglang/go-engine/internal/adt/termsem"
-	termvar1 "orglang/go-engine/internal/adt/termvar"
+	termvar "orglang/go-engine/internal/adt/termvar"
 	uniqsym "orglang/go-engine/internal/adt/uniqsym"
 	api "orglang/go-engine/internal/app/web/api"
 	core "orglang/go-engine/internal/pool/termdef/core"
 )
 
 func init() {
-	MsgFromDecSpec = func(source core.DefSpec) termdec.DecSpec {
-		var termdecDecSpec termdec.DecSpec
-		termdecDecSpec.TermQN = uniqsym.ConvertToString(source.TermQN)
-		termdecDecSpec.LiabVar = termvarVarSpecToTermvarVarSpec(source.LiabVar)
-		if source.AssetVars != nil {
-			termdecDecSpec.AssetVars = make([]termvar.VarSpec, len(source.AssetVars))
-			for i := 0; i < len(source.AssetVars); i++ {
-				termdecDecSpec.AssetVars[i] = termvarVarSpecToTermvarVarSpec(source.AssetVars[i])
-			}
-		}
-		return termdecDecSpec
-	}
-	MsgToDecSpec = func(source termdec.DecSpec) (core.DefSpec, error) {
-		var coreDefSpec core.DefSpec
-		uniqsymADT, err := uniqsym.ConvertFromString(source.TermQN)
-		if err != nil {
-			return coreDefSpec, err
-		}
-		coreDefSpec.TermQN = uniqsymADT
-		termvarVarSpec, err := termvarVarSpecToTermvarVarSpec2(source.LiabVar)
-		if err != nil {
-			return coreDefSpec, err
-		}
-		coreDefSpec.LiabVar = termvarVarSpec
-		if source.AssetVars != nil {
-			coreDefSpec.AssetVars = make([]termvar1.VarSpec, len(source.AssetVars))
-			for i := 0; i < len(source.AssetVars); i++ {
-				termvarVarSpec2, err := termvarVarSpecToTermvarVarSpec2(source.AssetVars[i])
-				if err != nil {
-					return coreDefSpec, err
-				}
-				coreDefSpec.AssetVars[i] = termvarVarSpec2
-			}
-		}
-		return coreDefSpec, nil
-	}
-}
-func termvarVarSpecToTermvarVarSpec(source termvar1.VarSpec) termvar.VarSpec {
-	var termvarVarSpec termvar.VarSpec
-	termvarVarSpec.ChnlPH = string(source.ChnlPH)
-	termvarVarSpec.TypeQN = uniqsym.ConvertToString(source.TypeQN)
-	return termvarVarSpec
-}
-func termvarVarSpecToTermvarVarSpec2(source termvar.VarSpec) (termvar1.VarSpec, error) {
-	var termvarVarSpec termvar1.VarSpec
-	termvarVarSpec.ChnlPH = symbol.ADT(source.ChnlPH)
-	uniqsymADT, err := uniqsym.ConvertFromString(source.TypeQN)
-	if err != nil {
-		return termvarVarSpec, err
-	}
-	termvarVarSpec.TypeQN = uniqsymADT
-	return termvarVarSpec, nil
-}
-func init() {
-	ConnVarFromGenerated = func(source api.AnyConnVarSpec) (termvar1.VarSpec, error) {
-		var termvarVarSpec termvar1.VarSpec
+	ConnVarFromGenerated = func(source api.AnyConnVarSpec) (termvar.VarSpec, error) {
+		var termvarVarSpec termvar.VarSpec
 		symbolADT, err := symbol.ConvertFromString(source.ConnPh)
 		if err != nil {
 			return termvarVarSpec, err
@@ -99,7 +43,7 @@ func init() {
 		}
 		coreDefSpec.LiabVar = termvarVarSpec
 		if source.AssetVars != nil {
-			coreDefSpec.AssetVars = make([]termvar1.VarSpec, len(source.AssetVars))
+			coreDefSpec.AssetVars = make([]termvar.VarSpec, len(source.AssetVars))
 			for i := 0; i < len(source.AssetVars); i++ {
 				termvarVarSpec2, err := ConnVarFromGenerated(source.AssetVars[i])
 				if err != nil {
@@ -116,15 +60,15 @@ func init() {
 		var coreDefRecDS core.DefRecDS
 		coreDefRecDS.TermID = identity.ConvertToString(source.TermRef.TermID)
 		coreDefRecDS.TermRN = int64(source.TermRef.TermRN)
-		termvarVarRecDS, err := termvar1.DataFromVarRec(source.LiabVar)
+		termvarVarRecDS, err := termvar.DataFromVarRec(source.LiabVar)
 		if err != nil {
 			return coreDefRecDS, err
 		}
 		coreDefRecDS.LiabVar = termvarVarRecDS
 		if source.AssetVars != nil {
-			coreDefRecDS.AssetVars = make([]termvar1.VarRecDS, len(source.AssetVars))
+			coreDefRecDS.AssetVars = make([]termvar.VarRecDS, len(source.AssetVars))
 			for i := 0; i < len(source.AssetVars); i++ {
-				termvarVarRecDS2, err := termvar1.DataFromVarRec(source.AssetVars[i])
+				termvarVarRecDS2, err := termvar.DataFromVarRec(source.AssetVars[i])
 				if err != nil {
 					return coreDefRecDS, err
 				}
@@ -140,15 +84,15 @@ func init() {
 			return coreDefRec, err
 		}
 		coreDefRec.TermRef = termsemSemRef
-		termvarVarRec, err := termvar1.DataToVarRec(source.LiabVar)
+		termvarVarRec, err := termvar.DataToVarRec(source.LiabVar)
 		if err != nil {
 			return coreDefRec, err
 		}
 		coreDefRec.LiabVar = termvarVarRec
 		if source.AssetVars != nil {
-			coreDefRec.AssetVars = make([]termvar1.VarRec, len(source.AssetVars))
+			coreDefRec.AssetVars = make([]termvar.VarRec, len(source.AssetVars))
 			for i := 0; i < len(source.AssetVars); i++ {
-				termvarVarRec2, err := termvar1.DataToVarRec(source.AssetVars[i])
+				termvarVarRec2, err := termvar.DataToVarRec(source.AssetVars[i])
 				if err != nil {
 					return coreDefRec, err
 				}

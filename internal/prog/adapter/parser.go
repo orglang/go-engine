@@ -68,7 +68,7 @@ type procExpAST struct {
 	With   *procSumAST   `parser:"| 'with' @@"`
 	Up     *procShiftAST `parser:"| 'up' @@"`
 	Down   *procShiftAST `parser:"| 'down' @@"`
-	One    bool          `parser:"| 'one' )"
+	One    bool          `parser:"| 'one' )"`
 }
 
 type linkAST struct {

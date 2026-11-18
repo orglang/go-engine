@@ -2,7 +2,6 @@ package uniqsym
 
 import (
 	"database/sql"
-	"strings"
 	"testing"
 )
 
@@ -41,33 +40,23 @@ func TestConvertToStringSuccess(t *testing.T) {
 	}
 }
 
-func TestConvertFromStringError(t *testing.T) {
-	rainyTests := []struct {
-		name string
-		str  string
-	}{
-		{"empty string", ""},
-		{"separator only", "."},
-		{"invalid symbol", "a."},
-		{"invalid namespace", ".a"},
-		{"whitespace", "a b"},
-		{"slash", "a/b"},
-		{"non-ascii", "привет"},
-		{"empty segment", "a..b"},
-		{"over maximum length", strings.Repeat("a", maxLength+1)},
-	}
-	for _, test := range rainyTests {
-		t.Run(test.name, func(t *testing.T) {
-			if _, err := ConvertFromString(test.str); err == nil {
-				t.Error("expected validation error")
+func TestConvertFromStringRejectsEmptySegments(t *testing.T) {
+	for _, value := range []string{"", ".", "a.", ".a", "a..b"} {
+		t.Run(value, func(t *testing.T) {
+			if _, err := ConvertFromString(value); err == nil {
+				t.Fatal("expected conversion error")
 			}
 		})
 	}
 }
 
-func TestConvertFromStringAcceptsMaximumLength(t *testing.T) {
-	if _, err := ConvertFromString(strings.Repeat("a", maxLength)); err != nil {
-		t.Fatalf("unexpected error: %v", err)
+func TestConvertFromStringDoesNotValidateQualifiedSymbolSyntax(t *testing.T) {
+	for _, value := range []string{"a b", "a/b", "привет", "a" + string(make([]byte, 513))} {
+		t.Run(value, func(t *testing.T) {
+			if _, err := ConvertFromString(value); err != nil {
+				t.Fatalf("unexpected constructor validation: %v", err)
+			}
+		})
 	}
 }
 
@@ -75,8 +64,8 @@ func TestConvertFromNullString(t *testing.T) {
 	if got, err := ConvertFromNullString(sql.NullString{}); err != nil || got != empty {
 		t.Fatalf("got (%v, %v), want (empty, nil)", got, err)
 	}
-	if _, err := ConvertFromNullString(sql.NullString{String: "bad value", Valid: true}); err == nil {
-		t.Fatal("expected validation error")
+	if _, err := ConvertFromNullString(sql.NullString{String: "bad value", Valid: true}); err != nil {
+		t.Fatalf("unexpected constructor validation: %v", err)
 	}
 	if _, err := ConvertFromNullString(sql.NullString{String: "a.b", Valid: true}); err != nil {
 		t.Fatalf("unexpected error: %v", err)

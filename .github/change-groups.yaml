@@ -18,12 +18,6 @@ sources:
   - '**/*.go'
   - '*.go'
   # tool: source generators, linters, and their toolchain
-  - 'scripts/**/*.py'
-  - 'scripts/*.py'
-  - 'scripts/**/*.sh'
-  - 'scripts/*.sh'
-  - '*.sh'
-  - '**/*.sh'
   - 'mise.sources-dev.toml'
   - 'mise.sources-dev.lock'
 
@@ -58,9 +52,8 @@ distros:
   - 'mise.distros.toml'
   - 'mise.distros.lock'
 
-# Internal filter: shared orchestration/configuration changes conservatively
-# invalidate every public stage output.
-shared-config:
+# Internal catch-all filter: changes here invalidate every public stage output.
+any:
   - '.github/workflows/**'
   - '.github/actions/**'
   - '.github/change-groups.yaml'

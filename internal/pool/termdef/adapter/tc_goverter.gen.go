@@ -4,7 +4,6 @@
 package adapter
 
 import (
-	api "orglang/go-engine/internal/app/web/api"
 	termvar "github.com/orglang/go-sdk/adt/termvar"
 	termdec "github.com/orglang/go-sdk/pool/termdec"
 	identity "orglang/go-engine/internal/adt/identity"
@@ -166,42 +165,3 @@ func init() {
 	}
 }
 
-func init() {
-	ConnVarFromGenerated = func(source api.AnyConnVarSpec) (termvar1.VarSpec, error) {
-		var target termvar1.VarSpec
-		symbolADT, err := symbol.ConvertFromString(source.ConnPh)
-		if err != nil {
-			return target, err
-		}
-		target.ChnlPH = symbolADT
-		uniqsymADT, err := uniqsym.ConvertFromString(source.TypeQn)
-		if err != nil {
-			return target, err
-		}
-		target.TypeQN = uniqsymADT
-		return target, nil
-	}
-	DecSpecFromGenerated = func(source api.PoolDecSpec) (core.DefSpec, error) {
-		var target core.DefSpec
-		uniqsymADT, err := uniqsym.ConvertFromString(source.DescQn)
-		if err != nil {
-			return target, err
-		}
-		target.TermQN = uniqsymADT
-		liabVar, err := ConnVarFromGenerated(source.LiabVar)
-		if err != nil {
-			return target, err
-		}
-		target.LiabVar = liabVar
-		if source.AssetVars != nil {
-			target.AssetVars = make([]termvar1.VarSpec, len(source.AssetVars))
-			for i := range source.AssetVars {
-				target.AssetVars[i], err = ConnVarFromGenerated(source.AssetVars[i])
-				if err != nil {
-					return core.DefSpec{}, err
-				}
-			}
-		}
-		return target, nil
-	}
-}

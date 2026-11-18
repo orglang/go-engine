@@ -38,7 +38,7 @@ jobs:
         id: detect
         uses: ./.github/actions/change-detection
 
-  sources-verify:
+  sources-gate:
     name: Sources Gate
     needs: detect-changes
     if: ${{ (needs.detect-changes.outputs.specs == 'true' || needs.detect-changes.outputs.sources == 'true') && !github.event.pull_request.draft }}

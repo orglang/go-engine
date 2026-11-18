@@ -8,3 +8,7 @@ go = "1.27.0"
 [tasks."deps:install"]
 description = "Install TypeSpec dependencies"
 run = "mise -E specs exec -- npm ci --prefix tsp --no-audit --no-fund"
+
+[tasks."deps:lock"]
+description = "Refresh all dependency manifests and lockfiles"
+run = "task specs:lock && task sources:lock && task binaries:lock"

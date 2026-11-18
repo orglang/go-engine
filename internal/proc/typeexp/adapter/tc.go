@@ -123,49 +123,6 @@ func MsgToExpSpec(dto sdktypeexp.ExpSpec) (typeexp.ExpSpec, error) {
 	}
 }
 
-func MsgFromExpRef(ref typeexp.ExpRef) sdktypeexp.ExpRef {
-	expCK := contkey.ConvertToInt(ref.Key())
-	switch ref.(type) {
-	case typeexp.OneRef, typeexp.OneRec:
-		return sdktypeexp.ExpRef{K: sdktypeexp.One, ExpVK: expCK}
-	case typeexp.LinkRef, typeexp.LinkRec:
-		return sdktypeexp.ExpRef{K: sdktypeexp.Link, ExpVK: expCK}
-	case typeexp.TensorRef, typeexp.TensorRec:
-		return sdktypeexp.ExpRef{K: sdktypeexp.Tensor, ExpVK: expCK}
-	case typeexp.LolliRef, typeexp.LolliRec:
-		return sdktypeexp.ExpRef{K: sdktypeexp.Lolli, ExpVK: expCK}
-	case typeexp.PlusRef, typeexp.PlusRec:
-		return sdktypeexp.ExpRef{K: sdktypeexp.Plus, ExpVK: expCK}
-	case typeexp.WithRef, typeexp.WithRec:
-		return sdktypeexp.ExpRef{K: sdktypeexp.With, ExpVK: expCK}
-	default:
-		panic(typeexp.ErrRefTypeUnexpected(ref))
-	}
-}
-
-func MsgToExpRef(dto sdktypeexp.ExpRef) (typeexp.ExpRef, error) {
-	expCK, err := contkey.ConvertFromInt(dto.ExpVK)
-	if err != nil {
-		return nil, err
-	}
-	switch dto.K {
-	case sdktypeexp.One:
-		return typeexp.OneRef{ExpCK: expCK}, nil
-	case sdktypeexp.Link:
-		return typeexp.LinkRef{ExpCK: expCK}, nil
-	case sdktypeexp.Tensor:
-		return typeexp.TensorRef{ExpCK: expCK}, nil
-	case sdktypeexp.Lolli:
-		return typeexp.LolliRef{ExpCK: expCK}, nil
-	case sdktypeexp.Plus:
-		return typeexp.PlusRef{ExpCK: expCK}, nil
-	case sdktypeexp.With:
-		return typeexp.WithRef{ExpCK: expCK}, nil
-	default:
-		panic(sdktypeexp.ErrKindUnexpected(dto.K))
-	}
-}
-
 func dataFromExpRef(ref typeexp.ExpRef) typeexp.ExpRefDS {
 	if ref == nil {
 		panic("can't be null")

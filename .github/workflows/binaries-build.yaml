@@ -1,4 +1,4 @@
-name: Binaries Gate
+name: Binaries
 
 on:
   pull_request:

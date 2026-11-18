@@ -39,4 +39,3 @@ func TestParseProgramRejectsUnknownExpression(t *testing.T) {
 		t.Fatal("expected parser error for unknown declaration")
 	}
 }
-

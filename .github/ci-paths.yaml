@@ -1,74 +1,30 @@
-# Paths that directly affect each CI input group.
-# CI orchestration and shared toolchain changes conservatively select all groups.
+# Classify changed inputs. These groups are deliberately disjoint from
+# shared orchestration/configuration groups; downstream impact is documented
+# separately in .github/change-detection.md.
 
 app-deps:
   - 'go.mod'
   - '**/go.mod'
   - 'go.sum'
   - '**/go.sum'
-  - '.github/workflows/**'
-  - '.github/actions/**'
-  - '**/taskfile.yaml'
-  - 'taskfile.yaml'
-  - 'mise*.toml'
-  - 'mise*.lock'
-  - '.miserc.toml'
-  - '**/mise*.toml'
-  - '**/mise*.lock'
 
 tool-deps:
   - 'tsp/package.json'
   - 'tsp/package-lock.json'
-  - 'mise*.toml'
-  - 'mise*.lock'
-  - '.miserc.toml'
-  - '**/mise*.toml'
-  - '**/mise*.lock'
-  - '.github/workflows/**'
-  - '.github/actions/**'
-  - '**/taskfile.yaml'
-  - 'taskfile.yaml'
 
 app-specs:
   - 'tsp/*.tsp'
   - 'tsp/**/*.tsp'
   - 'openapi/openapi.yaml'
-  - '.github/workflows/**'
-  - '.github/actions/**'
-  - '**/taskfile.yaml'
-  - 'taskfile.yaml'
-  - 'mise*.toml'
-  - 'mise*.lock'
-  - '.miserc.toml'
-  - '**/mise*.toml'
-  - '**/mise*.lock'
 
 tool-specs:
   - 'tsp/tspconfig.yaml'
-  - '.github/workflows/**'
-  - '.github/actions/**'
-  - '**/taskfile.yaml'
-  - 'taskfile.yaml'
-  - 'mise*.toml'
-  - 'mise*.lock'
-  - '.miserc.toml'
-  - '**/mise*.toml'
-  - '**/mise*.lock'
 
 app-sources:
   - '**/*.go'
   - '**/*.sql'
   - '*.go'
   - '*.sql'
-  - '.github/workflows/**'
-  - '.github/actions/**'
-  - '**/taskfile.yaml'
-  - 'taskfile.yaml'
-  - 'mise*.toml'
-  - 'mise*.lock'
-  - '.miserc.toml'
-  - '**/mise*.toml'
-  - '**/mise*.lock'
 
 tool-sources:
   - 'scripts/**/*.py'
@@ -77,38 +33,11 @@ tool-sources:
   - 'scripts/*.sh'
   - '*.sh'
   - '**/*.sh'
-  - '.github/workflows/**'
-  - '.github/actions/**'
-  - '**/taskfile.yaml'
-  - 'taskfile.yaml'
-  - 'mise*.toml'
-  - 'mise*.lock'
-  - '.miserc.toml'
-  - '**/mise*.toml'
-  - '**/mise*.lock'
 
 app-binaries:
   - 'cmd/engine/**'
-  - '.github/workflows/**'
-  - '.github/actions/**'
-  - '**/taskfile.yaml'
-  - 'taskfile.yaml'
-  - 'mise*.toml'
-  - 'mise*.lock'
-  - '.miserc.toml'
-  - '**/mise*.toml'
-  - '**/mise*.lock'
 
-tool-binaries:
-  - '.github/workflows/**'
-  - '.github/actions/**'
-  - '**/taskfile.yaml'
-  - 'taskfile.yaml'
-  - 'mise*.toml'
-  - 'mise*.lock'
-  - '.miserc.toml'
-  - '**/mise*.toml'
-  - '**/mise*.lock'
+tool-binaries: []
 
 app-distros:
   - 'Dockerfile'
@@ -126,23 +55,21 @@ app-distros:
   - '**/compose.yml'
   - '**/*.compose.yaml'
   - '**/*.compose.yml'
-  - '.github/workflows/**'
-  - '.github/actions/**'
-  - '**/taskfile.yaml'
-  - 'taskfile.yaml'
-  - 'mise*.toml'
-  - 'mise*.lock'
-  - '.miserc.toml'
-  - '**/mise*.toml'
-  - '**/mise*.lock'
 
 tool-distros:
   - 'mise.distros.toml'
   - 'mise.distros.lock'
+
+ci-config:
   - '.github/workflows/**'
   - '.github/actions/**'
-  - '**/taskfile.yaml'
+  - '.github/change-groups.yaml'
+
+task-config:
   - 'taskfile.yaml'
+  - '**/taskfile.yaml'
+
+toolchain-config:
   - 'mise*.toml'
   - 'mise*.lock'
   - '.miserc.toml'

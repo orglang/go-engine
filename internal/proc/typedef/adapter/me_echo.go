@@ -4,122 +4,60 @@ import (
 	"log/slog"
 	"net/http"
 	"reflect"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
-
-	"orglang/go-engine/internal/app/web/api"
-
-	sdktypedef "github.com/orglang/go-sdk/proc/typedef"
-
-	"orglang/go-engine/internal/lib/lf"
 
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/typesem"
+	webapi "orglang/go-engine/internal/app/web/api"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
-// Controller is the inbound HTTP port implemented by the Echo adapter.
-type Controller interface {
-	PostSpec(echo.Context) error
-	GetSnap(echo.Context) error
-	PatchOne(echo.Context) error
-}
-
-// Server-side primary adapter
 type controllerEcho struct {
+	webapi.ServerInterface
 	api typedef.API
 	log *slog.Logger
 }
 
+var _ webapi.ServerInterface = (*controllerEcho)(nil)
+
 func newControllerEcho(a typedef.API, l *slog.Logger) *controllerEcho {
 	name := slog.String("name", reflect.TypeFor[controllerEcho]().Name())
-	return &controllerEcho{a, l.With(name)}
+	return &controllerEcho{api: a, log: l.With(name)}
 }
 
-// RegisterRoutes attaches the type-definition API routes to an Echo server.
-func RegisterRoutes(e *echo.Echo, h Controller) error {
-	e.POST("/api/v1/types", h.PostSpec)
-	e.GET("/api/v1/types/:id", h.GetSnap)
-	e.PATCH("/api/v1/types/:id", h.PatchOne)
-	return nil
+func (h *controllerEcho) CreateProcessTypeDefinition(c echo.Context) error {
+	var dto webapi.ProcTypeDefSpec
+	if err := c.Bind(&dto); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if err := (DefSpecVP{TypeQN: dto.TypeQn}).Validate(); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	spec, err := DefSpecFromGenerated(dto)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	snap, err := h.api.Create(spec)
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusCreated, DefSnapToGenerated(snap))
 }
 
-func cfgEchoController(e *echo.Echo, h *controllerEcho) error {
-	return RegisterRoutes(e, h)
-}
-
-func (h *controllerEcho) PostSpec(c echo.Context) error {
-	var dto sdktypedef.DefSpec
-	bindErr := c.Bind(&dto)
-	if bindErr != nil {
-		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
-		return bindErr
+func (h *controllerEcho) GetProcessTypeDefinition(c echo.Context, id string, params webapi.GetProcessTypeDefinitionParams) error {
+	typeID, err := identity.ConvertFromString(id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	ctx := c.Request().Context()
-	h.log.Log(ctx, lf.LevelTrace, "posting started", slog.Any("dto", dto))
-	validateErr := dto.Validate()
-	if validateErr != nil {
-		h.log.Error("validation failed", slog.Any("dto", dto))
-		return validateErr
+	ref := typesem.SemRef{TypeID: typeID}
+	if params.Rn != nil {
+		ref.TypeRN = seqnum.ConvertFromInt(*params.Rn)
 	}
-	spec, convErr := MsgToDefSpec(dto)
-	if convErr != nil {
-		h.log.Error("conversion failed", slog.Any("dto", dto))
-		return convErr
+	snap, err := h.api.RetrieveSnap(ref)
+	if err != nil {
+		return err
 	}
-	snap, createErr := h.api.Create(spec)
-	if createErr != nil {
-		return createErr
-	}
-	h.log.Log(ctx, lf.LevelTrace, "posting succeed", slog.Any("ref", snap.TypeRef))
-	return c.JSON(http.StatusCreated, MsgFromDefSnap(snap))
-}
-
-func (h *controllerEcho) GetSnap(c echo.Context) error {
-	dto := api.AnyTypeRef{TypeId: c.Param("id")}
-	rn, parseErr := strconv.ParseInt(c.QueryParam("rn"), 10, 64)
-	if parseErr != nil || rn < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid revision")
-	}
-	dto.TypeRn = rn
-	typeID, convErr := identity.ConvertFromString(dto.TypeId)
-	if convErr != nil {
-		h.log.Error("conversion failed", slog.Any("dto", dto))
-		return echo.NewHTTPError(http.StatusBadRequest, convErr.Error())
-	}
-	ref := typesem.SemRef{TypeID: typeID, TypeRN: seqnum.ConvertFromInt(dto.TypeRn)}
-	snap, retrieveErr := h.api.RetrieveSnap(ref)
-	if retrieveErr != nil {
-		return retrieveErr
-	}
-	return c.JSON(http.StatusOK, MsgFromDefSnap(snap))
-}
-
-func (h *controllerEcho) PatchOne(c echo.Context) error {
-	var dto sdktypedef.DefSnap
-	bindErr := c.Bind(&dto)
-	if bindErr != nil {
-		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
-		return bindErr
-	}
-	ctx := c.Request().Context()
-	h.log.Log(ctx, lf.LevelTrace, "patching started", slog.Any("dto", dto))
-	validateErr := dto.Validate()
-	if validateErr != nil {
-		h.log.Error("validation failed", slog.Any("dto", dto))
-		return validateErr
-	}
-	reqSnap, convErr := MsgToDefSnap(dto)
-	if convErr != nil {
-		h.log.Error("conversion failed", slog.Any("dto", dto))
-		return convErr
-	}
-	resSnap, modificationErr := h.api.Modify(reqSnap)
-	if modificationErr != nil {
-		return modificationErr
-	}
-	h.log.Log(ctx, lf.LevelTrace, "patching succeed", slog.Any("ref", resSnap.TypeRef))
-	return c.JSON(http.StatusOK, MsgFromDefSnap(resSnap))
+	return c.JSON(http.StatusOK, DefSnapToGenerated(snap))
 }

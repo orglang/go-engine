@@ -3,10 +3,8 @@ package adapter
 import (
 	"fmt"
 
-
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/uniqsym"
-
 
 	typeexp "orglang/go-engine/internal/proc/typeexp/core"
 )

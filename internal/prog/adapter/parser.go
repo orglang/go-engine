@@ -54,8 +54,8 @@ type poolExpAST struct {
 	With   *poolLaborAST `parser:"| 'with' @@"`
 	Tensor *poolResAST   `parser:"| 'tensor' @@"`
 	Lolli  *poolResAST   `parser:"| 'lolli' @@"`
-	Up     *procShiftAST `parser:"| 'up' @@"`
-	Down   *procShiftAST `parser:"| 'down' @@ )"`
+	Up     *shiftAST `parser:"| 'up' @@"`
+	Down   *shiftAST `parser:"| 'down' @@ )"`
 }
 
 type procExpAST struct {
@@ -65,7 +65,7 @@ type procExpAST struct {
 	Lolli  *procProdAST   `parser:"| 'lolli' @@"`
 	Plus   *procSumAST    `parser:"| 'plus' @@"`
 	With   *procSumAST    `parser:"| 'with' @@"`
-	Up     *shiftAST      `parser:"| 'up' @@"`
+	Up     *procShiftAST      `parser:"| 'up' @@"`
 	Down   *shiftAST      `parser:"| 'down' @@ )"`
 }
 

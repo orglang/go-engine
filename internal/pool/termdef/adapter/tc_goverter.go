@@ -22,7 +22,7 @@ var (
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/internal/adt/symbol:Convert.*
- // goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
 var (
 	// goverter:map ConnPh ChnlPH
 	// goverter:map TypeQn TypeQN

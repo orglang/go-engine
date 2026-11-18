@@ -3,19 +3,8 @@
 
 package adapter
 
-import (
-	typeexp "github.com/orglang/go-sdk/proc/typeexp"
-	core "orglang/go-engine/internal/proc/typeexp/core"
-)
+import core "orglang/go-engine/internal/proc/typeexp/core"
 
-func init() {
-	MsgFromExpRefs = func(source []core.ExpRef) []typeexp.ExpRef {
-		return MsgFromExpRefs(source)
-	}
-	MsgToExpRefs = func(source []typeexp.ExpRef) ([]core.ExpRef, error) {
-		return MsgToExpRefs(source)
-	}
-}
 func init() {
 	DataFromExpRecs = func(source []core.ExpRec) []core.ExpRecDS {
 		var coreExpRecDSList []core.ExpRecDS

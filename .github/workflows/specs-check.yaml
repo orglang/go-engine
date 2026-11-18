@@ -1,4 +1,4 @@
-name: Specs Check
+name: Specs Gate
 
 on:
   push:
@@ -36,6 +36,7 @@ jobs:
         uses: ./.github/actions/change-detection
 
   specs-check:
+    name: Specs Gate
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.specs == 'true' && !github.event.pull_request.draft }}
     runs-on: ubuntu-latest

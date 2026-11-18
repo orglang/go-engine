@@ -42,7 +42,7 @@ Dependency-lock consistency is checked by the stage that owns each dependency se
 - sources:check refreshes the Sources toolchain lock, then verifies it and generated Go files are unchanged.
 - binaries:check runs GOWORK=off go mod tidy and mise lock, then verifies go.mod, go.sum, and mise.lock are unchanged.
 
-The Sources Generate maintenance workflow refreshes all three sets explicitly by running `task specs:lock`, `task sources:lock`, and `task binaries:lock` before generation. There is no aggregate `deps:lock` task; keeping the stage ownership explicit avoids a second, hidden orchestration entry point.
+The Generation maintenance workflow at `.github/workflows/generation.yaml` refreshes all three sets explicitly by running `task specs:lock`, `task sources:lock`, and `task binaries:lock` before generation. There is no aggregate `deps:lock` task; keeping the stage ownership explicit avoids a second, hidden orchestration entry point.
 
 Unit tests run in Binaries Build alongside integration tests and binary compilation. This ensures Go module changes are validated without requiring Sources Verify to run.
 

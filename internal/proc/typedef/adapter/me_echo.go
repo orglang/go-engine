@@ -14,13 +14,17 @@ import (
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
+type GeneratedController interface {
+	CreateProcessTypeDefinition(echo.Context) error
+	GetProcessTypeDefinition(echo.Context, string, webapi.GetProcessTypeDefinitionParams) error
+}
+
 type controllerEcho struct {
-	webapi.ServerInterface
 	api typedef.API
 	log *slog.Logger
 }
 
-var _ webapi.ServerInterface = (*controllerEcho)(nil)
+var _ GeneratedController = (*controllerEcho)(nil)
 
 func newControllerEcho(a typedef.API, l *slog.Logger) *controllerEcho {
 	name := slog.String("name", reflect.TypeFor[controllerEcho]().Name())
@@ -40,24 +44,16 @@ func (h *controllerEcho) CreateProcessTypeDefinition(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	snap, err := h.api.Create(spec)
-	if err != nil {
-		return err
-	}
+	if err != nil { return err }
 	return c.JSON(http.StatusCreated, DefSnapToGenerated(snap))
 }
 
 func (h *controllerEcho) GetProcessTypeDefinition(c echo.Context, id string, params webapi.GetProcessTypeDefinitionParams) error {
 	typeID, err := identity.ConvertFromString(id)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
+	if err != nil { return echo.NewHTTPError(http.StatusBadRequest, err.Error()) }
 	ref := typesem.SemRef{TypeID: typeID}
-	if params.Rn != nil {
-		ref.TypeRN = seqnum.ConvertFromInt(*params.Rn)
-	}
+	if params.Rn != nil { ref.TypeRN = seqnum.ConvertFromInt(*params.Rn) }
 	snap, err := h.api.RetrieveSnap(ref)
-	if err != nil {
-		return err
-	}
+	if err != nil { return err }
 	return c.JSON(http.StatusOK, DefSnapToGenerated(snap))
 }

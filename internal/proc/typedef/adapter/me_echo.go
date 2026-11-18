@@ -47,7 +47,7 @@ func (h *controllerEcho) CreateProcessTypeDefinition(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusCreated, DefSnapToGenerated(snap))
+	return c.JSON(http.StatusCreated, DefSnapToGenerated(snap).Ref)
 }
 
 func (h *controllerEcho) GetProcessTypeDefinition(c echo.Context, id string, params webapi.GetProcessTypeDefinitionParams) error {

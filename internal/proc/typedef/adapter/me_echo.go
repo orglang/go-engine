@@ -44,16 +44,24 @@ func (h *controllerEcho) CreateProcessTypeDefinition(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	snap, err := h.api.Create(spec)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	return c.JSON(http.StatusCreated, DefSnapToGenerated(snap))
 }
 
 func (h *controllerEcho) GetProcessTypeDefinition(c echo.Context, id string, params webapi.GetProcessTypeDefinitionParams) error {
 	typeID, err := identity.ConvertFromString(id)
-	if err != nil { return echo.NewHTTPError(http.StatusBadRequest, err.Error()) }
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 	ref := typesem.SemRef{TypeID: typeID}
-	if params.Rn != nil { ref.TypeRN = seqnum.ConvertFromInt(*params.Rn) }
+	if params.Rn != nil {
+		ref.TypeRN = seqnum.ConvertFromInt(*params.Rn)
+	}
 	snap, err := h.api.RetrieveSnap(ref)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	return c.JSON(http.StatusOK, DefSnapToGenerated(snap))
 }

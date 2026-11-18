@@ -1,0 +1,53 @@
+name: Detect changed areas
+description: Classify changed paths into application, tooling, and shared configuration groups.
+
+outputs:
+  app-deps:
+    description: Application dependency inputs changed.
+    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['app-deps'] == 'true' }}
+  tool-deps:
+    description: Tool dependency inputs changed.
+    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['tool-deps'] == 'true' }}
+  app-specs:
+    description: Application specification inputs changed.
+    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['app-specs'] == 'true' }}
+  tool-specs:
+    description: Specification tooling inputs changed.
+    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['tool-specs'] == 'true' }}
+  app-sources:
+    description: Application source inputs changed.
+    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['app-sources'] == 'true' }}
+  tool-sources:
+    description: Source-generation and task tooling inputs changed.
+    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['tool-sources'] == 'true' }}
+  app-binaries:
+    description: Application binary-specific inputs changed.
+    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['app-binaries'] == 'true' }}
+  tool-binaries:
+    description: Tool-specific binary build inputs changed.
+    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['tool-binaries'] == 'true' }}
+  app-distros:
+    description: Application distribution inputs changed.
+    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['app-distros'] == 'true' }}
+  tool-distros:
+    description: Distribution-specific tooling inputs changed.
+    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['tool-distros'] == 'true' }}
+  ci-config:
+    description: GitHub Actions workflows, actions, and change-group configuration changed.
+    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['ci-config'] == 'true' }}
+  task-config:
+    description: Taskfile orchestration changed.
+    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['task-config'] == 'true' }}
+  toolchain-config:
+    description: mise toolchain configuration or lockfiles changed.
+    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['toolchain-config'] == 'true' }}
+
+runs:
+  using: composite
+  steps:
+    - name: Detect pull request changes
+      id: filter
+      if: ${{ github.event_name == 'pull_request' }}
+      uses: dorny/paths-filter@v4
+      with:
+        filters: .github/change-groups.yaml

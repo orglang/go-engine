@@ -52,4 +52,18 @@ The composite action at .github/actions/change-detection uses dorny/paths-filter
 
 It exposes four stage outputs: specs, sources, binaries, and distros. It runs path filtering only for pull_request; other events report true for every output so merge-queue and manual runs retain full validation. Pull-request workflows using the action must grant pull-requests: read.
 
-Specs Gate uses the `specs` output to skip its expensive job when a pull request does not change specs inputs. Sources Gate uses `specs` and `sources`: a specs change also invalidates source verification under the downstream impact mapping. Binaries Gate uses `specs`, `sources`, and `binaries`; Distros Gate uses all four outputs because every earlier stage can invalidate distribution artifacts. The workflow display names are `Specs`, `Sources`, `Binaries`, and `Distros`; their primary job display names are `Specs Gate`, `Sources Gate`, `Binaries Gate`, and `Distros Gate`, with matching job IDs `specs-gate`, `sources-gate`, `binaries-gate`, and `distros-gate`. Each job also skips draft pull requests. Merge-group and workflow_dispatch runs continue to execute all four checks. Push runs continue to execute the workflows configured for push events.
+Specs Gate uses the `specs` output to skip its expensive job when a pull request does not change specs inputs. Sources Gate uses `specs` and `sources`: a specs change also invalidates source verification under the downstream impact mapping. Binaries Gate uses `specs`, `sources`, and `binaries`; Distros Gate uses all four outputs because every earlier stage can invalidate distribution artifacts. The workflow display names are `Specs`, `Sources`, `Binaries`, and `Distros`; their primary job display names are `Specs Gate`, `Sources Gate`, `Binaries Gate`, and `Distros Gate`, with matching job IDs `specs-gate`, `sources-gate`, `binaries-gate`, and `distros-gate`. Each job also skips draft pull requests.
+
+All four workflows run for merge-group and workflow_dispatch events. For push events, the detector selects every stage; only workflows configured with a push trigger start. Currently Specs Check and Sources Verify have push triggers, while Binaries Build and Distro Build do not. This distinction is intentional: change detection does not add or broaden workflow triggers.
+
+## Maintaining the mapping
+
+When adding or moving an input path:
+
+1. Add it to the earliest stage in `.github/change-groups.yaml` that consumes it. Keep dependency manifests with the stage that owns those dependencies; do not classify them as source code merely because they support a build.
+2. If an input is shared orchestration or its impact cannot be bounded safely, add it to `any` rather than guessing a narrower stage.
+3. Check the impact mapping above. A stage output must be included in that stage's job and every downstream job it invalidates.
+4. If adding a workflow or a new gated job, use the shared composite action, expose only the outputs the job needs, grant `pull-requests: read` for PR path filtering, and preserve the required job's existing name.
+5. Keep event triggers explicit. Non-PR events are deliberately unfiltered by the action; a workflow runs for an event only if that workflow declares the corresponding trigger.
+
+Before merging mapping or gating changes, review representative isolated changes for each affected group, combinations of upstream and downstream groups, and shared/catch-all changes. Also verify that merge_group and workflow_dispatch select every stage, and that push-triggered workflows select every stage. Do not add workflow-level `paths` filters to required workflows.

@@ -65,7 +65,7 @@ func TestNewWithPackagesComposesHTTPRoutes(t *testing.T) {
 		"POST /api/v1/processes/executions/:id/steps",
 		"POST /api/v1/pools/executions",
 		"POST /api/v1/processes/declarations",
-		"POST /api/v1/types",
+		"POST /api/v1/processes/types",
 		"POST /api/v1/programs",
 	}
 	for _, route := range required {

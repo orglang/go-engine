@@ -13,6 +13,7 @@ import (
 
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
+	"orglang/go-engine/internal/adt/typesem"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 

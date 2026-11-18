@@ -14,6 +14,7 @@ require (
 	github.com/labstack/echo/v4 v4.16.4
 	github.com/oapi-codegen/runtime v1.9.0
 	github.com/orglang/go-sdk v0.0.0-20260912152343-a8600e41f90d
+	github.com/alecthomas/participle/v2 v2.1.4
 	github.com/rs/xid v1.6.0
 	github.com/samber/do/v2 v2.1.0
 	github.com/spf13/viper v1.21.0
@@ -24,7 +25,6 @@ require (
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
-	github.com/alecthomas/participle/v2 v2.1.4 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/gammazero/deque v1.2.2 // indirect

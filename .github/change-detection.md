@@ -42,7 +42,7 @@ Dependency-lock consistency is checked by the stage that owns each dependency se
 - sources:check refreshes the Sources toolchain lock, then verifies it and generated Go files are unchanged.
 - binaries:check runs GOWORK=off go mod tidy and mise lock, then verifies go.mod, go.sum, and mise.lock are unchanged.
 
-The Sources Generate maintenance workflow refreshes all three sets explicitly by running `task specs:lock`, `task sources:lock`, and `task binaries:lock` before generation. There is no aggregate `deps:lock` task; keeping the stage ownership explicit avoids a second, hidden orchestration entry point.
+The Generation maintenance workflow at `.github/workflows/generation.yaml` refreshes all three sets explicitly by running `task specs:lock`, `task sources:lock`, and `task binaries:lock` before generation. There is no aggregate `deps:lock` task; keeping the stage ownership explicit avoids a second, hidden orchestration entry point.
 
 Unit tests run in Binaries Build alongside integration tests and binary compilation. This ensures Go module changes are validated without requiring Sources Verify to run.
 
@@ -52,4 +52,4 @@ The composite action at .github/actions/change-detection uses dorny/paths-filter
 
 It exposes four stage outputs: specs, sources, binaries, and distros. It runs path filtering only for pull_request; other events report true for every output so push, merge-queue, and manual runs retain full validation. Pull-request workflows using the action must grant pull-requests: read.
 
-Specs Check now uses the `specs` output to skip its expensive job when a pull request does not change specs inputs. Push, merge_group, and workflow_dispatch runs continue to execute the check. The remaining stage workflows will be gated in follow-up changes.
+Specs Check uses the `specs` output to skip its expensive job when a pull request does not change specs inputs. Sources Verify uses `specs` and `sources`: a specs change also invalidates source verification under the downstream impact mapping. Binaries Build uses `specs`, `sources`, and `binaries` for the same reason: changes in either upstream stage invalidate binary checks. Push, merge_group, and workflow_dispatch runs continue to execute all three checks. Distro Build remains ungated and will be handled in the final workflow-gating step.

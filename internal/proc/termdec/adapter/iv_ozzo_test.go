@@ -7,7 +7,7 @@ import (
 
 func TestDecSpecVPValidate(t *testing.T) {
 	tests := []struct {
-		name string
+		name  string
 		value string
 		valid bool
 }{

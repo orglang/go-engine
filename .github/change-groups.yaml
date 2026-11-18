@@ -1,0 +1,64 @@
+# Classify changed inputs by the earliest pipeline stage that consumes them.
+# Downstream impact is defined separately in .github/change-detection.md.
+
+specs:
+  # app: TypeSpec definitions and their generated API contract
+  - 'tsp/*.tsp'
+  - 'tsp/**/*.tsp'
+  - 'openapi/openapi.yaml'
+  # deps: TypeSpec package manifests
+  - 'tsp/package.json'
+  - 'tsp/package-lock.json'
+  # tool: TypeSpec toolchain
+  - 'mise.specs-dev.toml'
+  - 'mise.specs-dev.lock'
+
+sources:
+  # app: Go source code
+  - '**/*.go'
+  - '*.go'
+  # tool: source generators, linters, and their toolchain
+  - 'mise.sources-dev.toml'
+  - 'mise.sources-dev.lock'
+
+binaries:
+  # app: database bootstrap and migration inputs
+  - '*.sql'
+  - '**/*.sql'
+  # deps: Go module manifests
+  - 'go.mod'
+  - 'go.sum'
+  - '**/go.mod'
+  - '**/go.sum'
+
+distros:
+  # app: container and distribution definitions
+  - 'Dockerfile'
+  - 'Dockerfile.*'
+  - '**/Dockerfile'
+  - '**/Dockerfile.*'
+  - '*.Dockerfile'
+  - '**/*.Dockerfile'
+  - '.dockerignore'
+  - 'compose.yaml'
+  - 'compose.yml'
+  - '*.compose.yaml'
+  - '*.compose.yml'
+  - '**/compose.yaml'
+  - '**/compose.yml'
+  - '**/*.compose.yaml'
+  - '**/*.compose.yml'
+  # tool: distribution-specific toolchain, when defined in this repository
+  - 'mise.distros.toml'
+  - 'mise.distros.lock'
+
+# Internal catch-all filter: changes here invalidate every public stage output.
+any:
+  - '.github/workflows/**'
+  - '.github/actions/**'
+  - '.github/change-groups.yaml'
+  - 'taskfile.yaml'
+  - '**/taskfile.yaml'
+  - 'mise.toml'
+  - 'mise.lock'
+  - '.miserc.toml'

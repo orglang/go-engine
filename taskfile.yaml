@@ -14,10 +14,25 @@ vars:
 
 tasks:
   binaries:
-    desc: Run integration checks and build application binaries
+    desc: Check Go dependencies, run tests, and build application binaries
     cmds:
+      - task: binaries:check
+      - task: tests:unit
       - task: binaries:test
       - task: binaries:build
+
+  binaries:check:
+    desc: Check Go module and toolchain lockfiles
+    deps:
+      - task: binaries:lock
+    cmds:
+      - test -z "$(git status --porcelain -- go.mod go.sum mise.lock)"
+
+  binaries:lock:
+    desc: Refresh Go module and root toolchain lockfiles
+    cmds:
+      - GOWORK=off go mod tidy
+      - mise lock
 
   binaries:test:
     desc: Run integration tests required for binary delivery
@@ -30,13 +45,20 @@ tasks:
       - task: engine:binary
 
   sources:check:
-    desc: Verify generated sources and run linters
+    desc: Verify generated sources, tool locks, and linters
     deps:
       - task: sources:generate
+      - task: sources:lock
     cmds:
+      - test -z "$(git status --porcelain -- mise.sources-dev.lock)"
       - test -z "$(git status --porcelain -- ':(glob)**/*.gen.go')"
       - golangci-lint fmt --diff
       - golangci-lint run ./...
+
+  sources:lock:
+    desc: Refresh source toolchain lockfiles
+    cmds:
+      - mise -E sources lock
 
   sources:prepare:
     desc: Generate source artifacts and format handwritten Go code
@@ -60,12 +82,20 @@ tasks:
       - npm run build
 
   specs:check:
-    desc: Check TypeSpec compilation and generated OpenAPI
+    desc: Check TypeSpec compilation, dependency locks, and generated OpenAPI
     deps:
       - task: specs:generate
+      - task: specs:lock
     cmds:
+      - test -z "$(git status --porcelain -- mise.specs-dev.lock tsp/package-lock.json)"
       - test -f openapi/openapi.yaml
       - test -z "$(git status --porcelain -- openapi/openapi.yaml)"
+
+  specs:lock:
+    desc: Refresh specs toolchain and npm dependency lockfiles
+    cmds:
+      - mise -E specs lock
+      - npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund
 
   specs:verify:
     desc: Verify specs before publishing
@@ -86,8 +116,7 @@ tasks:
   container:
     aliases: [cnt]
     desc: Start specified container in background
-    cmds:
-      - cmd: container started
+    cmd: container started
 
   processes:
     aliases: [procs]

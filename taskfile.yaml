@@ -81,15 +81,15 @@ tasks:
       - task: specs:generate
       - task: specs:lock
     cmds:
-      - npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund
       - test -z "$(git status --porcelain -- mise.specs-dev.lock tsp/package-lock.json)"
       - test -f openapi/openapi.yaml
       - test -z "$(git status --porcelain -- openapi/openapi.yaml)"
 
   specs:lock:
-    desc: Refresh specs toolchain lockfile
+    desc: Refresh specs toolchain and npm dependency lockfiles
     cmds:
       - mise -E specs lock
+      - npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund
 
   specs:verify:
     desc: Verify specs before publishing

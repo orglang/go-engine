@@ -23,7 +23,7 @@ func TestExpSpecFromGenerated(t *testing.T) {
 
 	var tensor webapi.ProcTypeExprSpec
 	if err := tensor.FromProcTypeTensorSpec(webapi.ProcTypeTensorSpec{
-		ValExpr: one,
+		ValExpr:  one,
 		ContExpr: link,
 	}); err != nil {
 		t.Fatal(err)
@@ -32,7 +32,7 @@ func TestExpSpecFromGenerated(t *testing.T) {
 	var plus webapi.ProcTypeExprSpec
 	if err := plus.FromProcTypePlusSpec(webapi.ProcTypePlusSpec{
 		Choices: []webapi.ProcTypeChoiceSpec{{
-			LabQn: "choice.a",
+			LabQn:    "choice.a",
 			ContExpr: tensor,
 		}},
 	}); err != nil {

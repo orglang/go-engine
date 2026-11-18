@@ -1,12 +1,14 @@
 package adapter
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
 	"reflect"
 
 	"github.com/labstack/echo/v4"
 
+	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/uniqsym"
@@ -83,12 +85,15 @@ func poolDecSpecToCore(dto api.PoolDecSpec) (termdef.DefSpec, error) {
 }
 
 func poolConnVarToCore(dto api.AnyConnVarSpec) (termvar.VarSpec, error) {
+	if dto.ConnPh == "" {
+		return termvar.VarSpec{}, errors.New("conn_ph cannot be blank")
+	}
 	typeQN, err := uniqsym.ConvertFromString(dto.TypeQn)
 	if err != nil {
 		return termvar.VarSpec{}, err
 	}
 	return termvar.VarSpec{
-		ChnlPH: dto.ConnPh,
+		ChnlPH: symbol.New(dto.ConnPh),
 		TypeQN: typeQN,
 	}, nil
 }

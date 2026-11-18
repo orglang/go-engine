@@ -66,6 +66,7 @@ func TestNewWithPackagesComposesHTTPRoutes(t *testing.T) {
 		"POST /api/v1/pools/executions",
 		"POST /api/v1/processes/declarations",
 		"POST /api/v1/processes/types",
+		"GET /api/v1/processes/types/:id",
 		"POST /api/v1/programs",
 	}
 	for _, route := range required {
@@ -77,6 +78,9 @@ func TestNewWithPackagesComposesHTTPRoutes(t *testing.T) {
 	legacy := []string{
 		"GET /api/v1/procs/:id",
 		"POST /api/v1/procs/:id/steps",
+		"POST /api/v1/types",
+		"GET /api/v1/types/:id",
+		"PATCH /api/v1/types/:id",
 	}
 	for _, route := range legacy {
 		if _, ok := routes[route]; ok {

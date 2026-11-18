@@ -60,7 +60,9 @@ PATH_PATTERNS = {
         "**/*.sql",
     ),
     "tool-sources": (
+        "scripts/*.py",
         "scripts/**/*.py",
+        "scripts/*.sh",
         "scripts/**/*.sh",
         "*.sh",
         "**/*.sh",
@@ -137,18 +139,22 @@ def changed_paths(base_sha: str, head_sha: str) -> list[str]:
     return result.stdout.splitlines()
 
 
-def main() -> int:
-    event_name = os.environ.get("EVENT_NAME", "")
+def groups_for_event(
+    event_name: str, base_sha: str = "", head_sha: str = ""
+) -> dict[str, bool]:
     if event_name == "pull_request":
-        groups = classify_paths(
-            changed_paths(
-                os.environ.get("BASE_SHA", ""),
-                os.environ.get("HEAD_SHA", ""),
-            )
-        )
-    else:
-        # Do not accidentally filter merge queue, push, or manual runs.
-        groups = {group: True for group in GROUPS}
+        return classify_paths(changed_paths(base_sha, head_sha))
+
+    # Do not accidentally filter merge queue, push, or manual runs.
+    return {group: True for group in GROUPS}
+
+
+def main() -> int:
+    groups = groups_for_event(
+        os.environ.get("EVENT_NAME", ""),
+        os.environ.get("BASE_SHA", ""),
+        os.environ.get("HEAD_SHA", ""),
+    )
 
     output_path = os.environ.get("GITHUB_OUTPUT")
     if not output_path:
@@ -157,7 +163,7 @@ def main() -> int:
 
     with open(output_path, "a", encoding="utf-8") as output:
         for group in GROUPS:
-            output.write(f"{group}={str(groups[group]).lower()}\n")
+            output.write(f"{group}={str(groups[group]).lower()}\\n")
 
     return 0
 

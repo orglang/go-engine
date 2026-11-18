@@ -34,8 +34,11 @@ Although `oapi-codegen` also supports Echo v5, switching only the generated
 boundary would make it incompatible with the current Echo runtime. Migrating the
 application and all existing Echo adapters to v5 is a separate, broader change.
 
-The `task sources:generate` task generates both Goverter adapters and the
-Echo server boundary from `openapi/openapi.yaml`.
+The `task sources:generate` task generates Goverter adapters, the Echo server
+boundary, and the E2E HTTP client from `openapi/openapi.yaml`. The E2E client
+uses a separate `oapi-codegen` configuration and package under
+`internal/lib/e2e/api`; its generated models are intentionally isolated from
+the server package.
 
 The generated `ServerInterface` and route registration are transport-layer
 artifacts. Implementations belong in Echo adapters; generated files must not

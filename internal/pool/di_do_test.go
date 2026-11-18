@@ -101,11 +101,11 @@ func TestPackageProvidesHTTPControllersAndRegistersRoutes(t *testing.T) {
 		got = append(got, route.Method+" "+route.Path)
 	}
 	want := []string{
-		"POST /api/v1/pools/execs",
-		"POST /api/v1/pools/execs/steps",
-		"POST /api/v1/pools/execs/spawns",
-		"POST /api/v1/xacts/defs",
-		"POST /api/v1/pools/decs",
+		"POST /api/v1/pools/executions",
+		"POST /api/v1/pools/executions/steps",
+		"POST /api/v1/pools/executions/spawns",
+		"POST /api/v1/pools/types",
+		"POST /api/v1/pools/declarations",
 	}
 	slices.Sort(got)
 	slices.Sort(want)

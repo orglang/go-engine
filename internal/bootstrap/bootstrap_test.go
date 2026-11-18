@@ -63,7 +63,7 @@ func TestNewWithPackagesComposesHTTPRoutes(t *testing.T) {
 		"GET /",
 		"GET /api/v1/processes/executions/:id",
 		"POST /api/v1/processes/executions/:id/steps",
-		"POST /api/v1/pools/execs",
+		"POST /api/v1/pools/executions",
 		"POST /api/v1/processes/declarations",
 		"POST /api/v1/types",
 		"POST /api/v1/programs",

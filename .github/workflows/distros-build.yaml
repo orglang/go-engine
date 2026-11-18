@@ -1,4 +1,4 @@
-name: Distros Gate
+name: Distros
 
 on:
   pull_request:

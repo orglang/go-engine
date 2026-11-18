@@ -59,10 +59,8 @@ jobs:
           # Defer saving until later environment-specific installs have populated the cache.
           cache_save_post: true
 
-      - name: Install specs and sources toolchains
-        run: |
-          mise -E specs install --locked
-          mise -E sources install --locked
+      - name: Install sources toolchain
+        run: mise -E sources install --locked
 
       - name: Check sources
         run: mise -E sources exec -- task sources:check

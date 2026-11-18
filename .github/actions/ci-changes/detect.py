@@ -44,6 +44,9 @@ PATH_PATTERNS = {
     "tool-deps": (
         "tsp/package.json",
         "tsp/package-lock.json",
+        "mise*.toml",
+        "mise*.lock",
+        ".miserc.toml",
     ),
     "app-specs": (
         "tsp/**/*.tsp",
@@ -110,7 +113,6 @@ def classify_paths(paths: Iterable[str]) -> dict[str, bool]:
 
         if matches(path, BROAD_PATTERNS):
             changed = {group: True for group in GROUPS}
-            continue
 
         for group, patterns in PATH_PATTERNS.items():
             if matches(path, patterns):

@@ -39,12 +39,12 @@ Do not use workflow-level path filters on required workflows: skipped workflows 
 Dependency-lock consistency is checked by the stage that owns each dependency set:
 
 - specs:check refreshes the TypeSpec toolchain lock and npm package lock, then verifies neither changed.
-- sources:check refreshes the root mise lock and Sources toolchain lock, then verifies neither changed.
-- binaries:check runs GOWORK=off go mod tidy and verifies go.mod and go.sum are unchanged.
+- sources:check refreshes the Sources toolchain lock, then verifies it and generated Go files are unchanged.
+- binaries:check runs GOWORK=off go mod tidy and mise lock, then verifies go.mod, go.sum, and mise.lock are unchanged.
+
+The developer-facing deps:lock task remains available to refresh all stage-owned dependency locks together; the aggregate CI deps:check task is removed.
 
 Unit tests run in Binaries Build alongside integration tests and binary compilation. This ensures Go module changes are validated without requiring Sources Verify to run.
-
-The developer-facing deps:lock task remains available to update all dependency manifests and lockfiles together; the aggregate CI deps:check task is removed.
 
 ## Action
 
@@ -52,4 +52,4 @@ The composite action at .github/actions/change-detection uses dorny/paths-filter
 
 It exposes four stage outputs: specs, sources, binaries, and distros. It runs path filtering only for pull_request; other events report true for every output so push, merge-queue, and manual runs retain full validation. Pull-request workflows using the action must grant pull-requests: read.
 
-This change introduces and exercises the classification contract only. Existing CI jobs are not gated yet.
+Specs Check now uses the `specs` output to skip its expensive job when a pull request does not change specs inputs. Push, merge_group, and workflow_dispatch runs continue to execute the check. The remaining stage workflows will be gated in follow-up changes.

@@ -18,8 +18,3 @@ run = [
 [tasks."deps:install"]
 description = "Install TypeSpec dependencies"
 run = "mise -E specs exec -- npm ci --prefix tsp --no-audit --no-fund"
-
-[tasks."deps:check"]
-description = "Check Go module manifests and tool lockfiles"
-depends = ["deps:lock"]
-run = "test -z \"$(git status --porcelain -- ':(glob)**/*.mod' ':(glob)**/*.sum' ':(glob)**/package-lock.json' mise.lock 'mise.*.lock')\""

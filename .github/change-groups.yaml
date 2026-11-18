@@ -1,40 +1,44 @@
-# Classify changed inputs by pipeline stage. Downstream impact is documented
-# separately in .github/change-detection.md.
+# Classify changed inputs by the earliest pipeline stage that consumes them.
+# Downstream impact is defined separately in .github/change-detection.md.
 
-app-specs:
+specs:
+  # app: TypeSpec definitions and their generated API contract
   - 'tsp/*.tsp'
   - 'tsp/**/*.tsp'
   - 'openapi/openapi.yaml'
-
-tool-specs:
-  - 'tsp/tspconfig.yaml'
+  # deps: TypeSpec package manifests
   - 'tsp/package.json'
   - 'tsp/package-lock.json'
+  # tool: TypeSpec toolchain
+  - 'mise.specs-dev.toml'
+  - 'mise.specs-dev.lock'
 
-app-sources:
+sources:
+  # app: Go source code
   - '**/*.go'
-  - '**/*.sql'
   - '*.go'
-  - '*.sql'
-  - 'go.mod'
-  - 'go.sum'
-  - '**/go.mod'
-  - '**/go.sum'
-
-tool-sources:
+  # tool: source generators, linters, and their toolchain
   - 'scripts/**/*.py'
   - 'scripts/*.py'
   - 'scripts/**/*.sh'
   - 'scripts/*.sh'
   - '*.sh'
   - '**/*.sh'
+  - 'mise.sources-dev.toml'
+  - 'mise.sources-dev.lock'
 
-app-binaries:
-  - 'cmd/engine/**'
+binaries:
+  # app: database bootstrap and migration inputs
+  - '*.sql'
+  - '**/*.sql'
+  # deps: Go module manifests
+  - 'go.mod'
+  - 'go.sum'
+  - '**/go.mod'
+  - '**/go.sum'
 
-tool-binaries: []
-
-app-distros:
+distros:
+  # app: container and distribution definitions
   - 'Dockerfile'
   - 'Dockerfile.*'
   - '**/Dockerfile'
@@ -50,23 +54,18 @@ app-distros:
   - '**/compose.yml'
   - '**/*.compose.yaml'
   - '**/*.compose.yml'
-
-tool-distros:
+  # tool: distribution-specific toolchain, when defined in this repository
   - 'mise.distros.toml'
   - 'mise.distros.lock'
 
-ci-config:
+# Internal filter: shared orchestration/configuration changes conservatively
+# invalidate every public stage output.
+shared-config:
   - '.github/workflows/**'
   - '.github/actions/**'
   - '.github/change-groups.yaml'
-
-task-config:
   - 'taskfile.yaml'
   - '**/taskfile.yaml'
-
-toolchain-config:
-  - 'mise*.toml'
-  - 'mise*.lock'
+  - 'mise.toml'
+  - 'mise.lock'
   - '.miserc.toml'
-  - '**/mise*.toml'
-  - '**/mise*.lock'

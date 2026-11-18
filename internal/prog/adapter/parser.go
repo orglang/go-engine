@@ -88,7 +88,7 @@ type shiftAST struct {
 }
 
 type procShiftAST struct {
-	Cont procExpAST `parser:"'{' @@? '}'`
+	Cont procExpAST `parser:"'{' @@? '}'"`
 }
 
 type procProdAST struct {

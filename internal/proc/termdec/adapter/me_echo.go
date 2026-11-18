@@ -42,7 +42,7 @@ func (h *controllerEcho) GetProcessDeclaration(c echo.Context, id string, params
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, MsgFromDecSnap(snap))
+	return c.JSON(http.StatusOK, DecSnapToGenerated(snap))
 }
 
 func (h *controllerEcho) CreateProcessDeclaration(c echo.Context) error {

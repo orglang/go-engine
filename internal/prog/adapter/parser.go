@@ -96,7 +96,7 @@ func programASTToCore(ast programAST) (coreprog.Spec, error) {
 		switch expression := expression.(type) {
 		case poolDefAST:
 			qn, err := uniqsym.ConvertFromString(expression.TypeQN); if err != nil { return coreprog.Spec{}, err }
-			exp, err := poolExpToCore(expression.TypeExp); if err != nil { return coreSpec{}, err }
+			exp, err := poolExpToCore(expression.TypeExp); if err != nil { return coreprog.Spec{}, err }
 			result.Pools = append(result.Pools, pooltypedef.DefSpec{TypeQN: qn, TypeExp: exp})
 		case procDefAST:
 			qn, err := uniqsym.ConvertFromString(expression.TypeQN); if err != nil { return coreSpec{}, err }
@@ -107,11 +107,6 @@ func programASTToCore(ast programAST) (coreprog.Spec, error) {
 		}
 	}
 	return result, nil
-}
-
-type coreSpec struct {
-	Pools []pooltypedef.DefSpec
-	Procs []proctypedef.DefSpec
 }
 
 func poolExpToCore(ast poolExpAST) (pooltypeexp.ExpSpec, error) {

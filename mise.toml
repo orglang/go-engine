@@ -5,21 +5,6 @@ lockfile = true
 go = "1.27.0"
 "go:github.com/go-task/task/v3/cmd/task" = "v3.54.0"
 
-[tasks."deps:lock"]
-description = "Update Go modules, specs/sources toolchains, and TypeSpec lockfiles"
-run = [
-  "GOWORK=off go mod tidy",
-  "mise lock",
-  "mise -E specs lock",
-  "mise -E sources lock",
-  "mise -E specs exec -- npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund",
-]
-
 [tasks."deps:install"]
 description = "Install TypeSpec dependencies"
 run = "mise -E specs exec -- npm ci --prefix tsp --no-audit --no-fund"
-
-[tasks."deps:check"]
-description = "Check Go module manifests and tool lockfiles"
-depends = ["deps:lock"]
-run = "test -z \"$(git status --porcelain -- ':(glob)**/*.mod' ':(glob)**/*.sum' ':(glob)**/package-lock.json' mise.lock 'mise.*.lock')\""

@@ -56,7 +56,7 @@ type poolExpAST struct {
 	Lolli  *poolResAST   `parser:"| 'lolli' @@"`
 	Up     *shiftAST     `parser:"| 'up' @@"`
 	Down   *shiftAST     `parser:"| 'down' @@"`
-	One    bool          `parser:"| 'one' )"
+	One    bool          `parser:"| 'one' )"`
 }
 
 type procExpAST struct {

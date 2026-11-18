@@ -4,14 +4,15 @@ import (
 	"log/slog"
 	"net/http"
 	"reflect"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
-
-	sdk "github.com/orglang/go-sdk/adt/typesem"
 
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/te"
 
+	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/typesem"
 	"orglang/go-engine/internal/adt/uniqsym"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
@@ -95,24 +96,22 @@ func (p *echoPresenter) GetMany(c echo.Context) error {
 }
 
 func (p *echoPresenter) GetOne(c echo.Context) error {
-	var dto sdk.SemRef
-	bindErr := c.Bind(&dto)
-	if bindErr != nil {
-		p.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
-		return bindErr
-	}
-	ctx := c.Request().Context()
-	p.log.Log(ctx, lf.LevelTrace, "getting started", slog.Any("dto", dto))
-	validateErr := dto.Validate()
-	if validateErr != nil {
-		p.log.Error("validation failed", slog.Any("dto", dto))
-		return validateErr
-	}
-	ref, convErr := typesem.MsgToRef(dto)
+	id, convErr := identity.ConvertFromString(c.Param("id"))
 	if convErr != nil {
-		p.log.Error("conversion failed", slog.Any("dto", dto))
+		p.log.Error("conversion failed", slog.String("id", c.Param("id")))
 		return convErr
 	}
+	var rn int64
+	if value := c.QueryParam("rn"); value != "" {
+		rn, convErr = strconv.ParseInt(value, 10, 64)
+		if convErr != nil {
+			p.log.Error("invalid revision", slog.String("rn", value))
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid revision").SetInternal(convErr)
+		}
+	}
+	ref := typesem.SemRef{TypeID: id, TypeRN: seqnum.ConvertFromInt(rn)}
+	ctx := c.Request().Context()
+	p.log.Log(ctx, lf.LevelTrace, "getting started", slog.Any("ref", ref))
 	snap, retrieveErr := p.api.RetrieveSnap(ref)
 	if retrieveErr != nil {
 		return retrieveErr

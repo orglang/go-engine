@@ -99,7 +99,7 @@ func programASTToCore(ast programAST) (coreprog.Spec, error) {
 			exp, err := poolExpToCore(expression.TypeExp); if err != nil { return coreprog.Spec{}, err }
 			result.Pools = append(result.Pools, pooltypedef.DefSpec{TypeQN: qn, TypeExp: exp})
 		case procDefAST:
-			qn, err := uniqsym.ConvertFromString(expression.TypeQN); if err != nil { return coreSpec{}, err }
+			qn, err := uniqsym.ConvertFromString(expression.TypeQN); if err != nil { return coreprog.Spec{}, err }
 			exp, err := procExpToCore(expression.TypeExp); if err != nil { return coreSpec{}, err }
 			result.Procs = append(result.Procs, proctypedef.DefSpec{TypeQN: qn, TypeExp: exp})
 		default:

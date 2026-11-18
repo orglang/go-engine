@@ -7,10 +7,10 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/orglang/go-sdk/pool/termdec"
-
 	"orglang/go-engine/internal/adt/termsem"
-
+	"orglang/go-engine/internal/adt/termvar"
+	"orglang/go-engine/internal/adt/uniqsym"
+	"orglang/go-engine/internal/app/web/api"
 	termdef "orglang/go-engine/internal/pool/termdef/core"
 )
 
@@ -41,18 +41,13 @@ func cfgEchoController(e *echo.Echo, h *controllerEcho) error {
 }
 
 func (h *controllerEcho) PostSpec(c echo.Context) error {
-	var dto termdec.DecSpec
+	var dto api.PoolDecSpec
 	bindErr := c.Bind(&dto)
 	if bindErr != nil {
 		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
 		return bindErr
 	}
-	validateErr := dto.Validate()
-	if validateErr != nil {
-		h.log.Error("validation failed", slog.Any("dto", dto))
-		return validateErr
-	}
-	spec, convErr := MsgToDecSpec(dto)
+	spec, convErr := poolDecSpecToCore(dto)
 	if convErr != nil {
 		h.log.Error("conversion failed", slog.Any("dto", dto))
 		return convErr
@@ -62,4 +57,38 @@ func (h *controllerEcho) PostSpec(c echo.Context) error {
 		return createErr
 	}
 	return c.JSON(http.StatusCreated, termsem.MsgFromRef(ref))
+}
+
+func poolDecSpecToCore(dto api.PoolDecSpec) (termdef.DefSpec, error) {
+	termQN, err := uniqsym.ConvertFromString(dto.DescQn)
+	if err != nil {
+		return termdef.DefSpec{}, err
+	}
+	liabVar, err := poolConnVarToCore(dto.LiabVar)
+	if err != nil {
+		return termdef.DefSpec{}, err
+	}
+	assetVars := make([]termvar.VarSpec, len(dto.AssetVars))
+	for i, assetVar := range dto.AssetVars {
+		assetVars[i], err = poolConnVarToCore(assetVar)
+		if err != nil {
+			return termdef.DefSpec{}, err
+		}
+	}
+	return termdef.DefSpec{
+		TermQN:    termQN,
+		LiabVar:   liabVar,
+		AssetVars: assetVars,
+	}, nil
+}
+
+func poolConnVarToCore(dto api.AnyConnVarSpec) (termvar.VarSpec, error) {
+	typeQN, err := uniqsym.ConvertFromString(dto.TypeQn)
+	if err != nil {
+		return termvar.VarSpec{}, err
+	}
+	return termvar.VarSpec{
+		ChnlPH: dto.ConnPh,
+		TypeQN: typeQN,
+	}, nil
 }

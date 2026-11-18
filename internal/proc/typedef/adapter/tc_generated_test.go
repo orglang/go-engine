@@ -10,44 +10,51 @@ import (
 
 func TestExpSpecFromGenerated(t *testing.T) {
 	var one webapi.ProcTypeExprSpec
-	if err := one.FromProcTypeOneSpec(webapi.ProcTypeOneSpec{}); err != nil {
+	err := one.FromProcTypeOneSpec(webapi.ProcTypeOneSpec{})
+	if err != nil {
 		t.Fatal(err)
 	}
 
-	var link webapi.ProcTypeExprSpec
-	if err := link.FromProcTypeLinkSpec(webapi.ProcTypeLinkSpec{
+	linkSpec := webapi.ProcTypeLinkSpec{
 		Link: webapi.AnyTypeLinkSpec{TypeQn: "domain.type"},
-	}); err != nil {
+	}
+	var link webapi.ProcTypeExprSpec
+	err = link.FromProcTypeLinkSpec(linkSpec)
+	if err != nil {
 		t.Fatal(err)
 	}
 
-	var tensor webapi.ProcTypeExprSpec
-	if err := tensor.FromProcTypeTensorSpec(webapi.ProcTypeTensorSpec{
+	tensorSpec := webapi.ProcTypeTensorSpec{
 		ValExpr:  one,
 		ContExpr: link,
-	}); err != nil {
+	}
+	var tensor webapi.ProcTypeExprSpec
+	err = tensor.FromProcTypeTensorSpec(tensorSpec)
+	if err != nil {
 		t.Fatal(err)
 	}
 
-	var plus webapi.ProcTypeExprSpec
-	if err := plus.FromProcTypePlusSpec(webapi.ProcTypePlusSpec{
+	plusSpec := webapi.ProcTypePlusSpec{
 		Choices: []webapi.ProcTypeChoiceSpec{{
 			LabQn:    "choice.a",
 			ContExpr: tensor,
 		}},
-	}); err != nil {
+	}
+	var plus webapi.ProcTypeExprSpec
+	err = plus.FromProcTypePlusSpec(plusSpec)
+	if err != nil {
 		t.Fatal(err)
 	}
 
 	tests := []struct {
 		name string
 		dto  webapi.ProcTypeExprSpec
-		want any
+		want string
 	}{
-		{name: "one", dto: one, want: typeexp.OneSpec{}},
-		{name: "link", dto: link, want: typeexp.LinkSpec{}},
-		{name: "tensor", dto: tensor, want: typeexp.TensorSpec{}},
-		{name: "plus", dto: plus, want: typeexp.PlusSpec{}},
+		{name: "one", dto: one, want: "one"},
+		{name: "link", dto: link, want: "link"},
+		{name: "tensor", dto: tensor, want: "tensor"},
+		{name: "plus", dto: plus, want: "plus"},
 	}
 
 	for _, tt := range tests {
@@ -56,25 +63,27 @@ func TestExpSpecFromGenerated(t *testing.T) {
 			if err != nil {
 				t.Fatalf("convert generated expression: %v", err)
 			}
-			switch tt.want.(type) {
-			case typeexp.OneSpec:
+			switch tt.want {
+			case "one":
 				if _, ok := got.(typeexp.OneSpec); !ok {
 					t.Fatalf("unexpected expression type %T", got)
 				}
-			case typeexp.LinkSpec:
+			case "link":
 				value, ok := got.(typeexp.LinkSpec)
 				if !ok || uniqsym.ConvertToString(value.TypeQN) != "domain.type" {
 					t.Fatalf("unexpected link expression: %#v", got)
 				}
-			case typeexp.TensorSpec:
+			case "tensor":
 				if _, ok := got.(typeexp.TensorSpec); !ok {
 					t.Fatalf("unexpected expression type %T", got)
 				}
-			case typeexp.PlusSpec:
+			case "plus":
 				value, ok := got.(typeexp.PlusSpec)
 				if !ok || len(value.Choices) != 1 {
 					t.Fatalf("unexpected plus expression: %#v", got)
 				}
+			default:
+				t.Fatalf("unknown expected expression type %q", tt.want)
 			}
 		})
 	}

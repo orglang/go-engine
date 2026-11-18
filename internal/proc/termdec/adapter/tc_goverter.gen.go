@@ -136,15 +136,9 @@ func termvarVarSpecToTermvarVarSpec2(source termvar.VarSpec) (termvar1.VarSpec, 
 func init() {
 	ViewFromDecSnap = func(source core.DecSnap) DecSnapVP {
 		var adapterDecSnapVP DecSnapVP
-		adapterDecSnapVP.TermRef = termsemSemRefToTermsemSemRef3(source.TermRef)
+		adapterDecSnapVP.TermRef = source.TermRef
 		return adapterDecSnapVP
 	}
-}
-func termsemSemRefToTermsemSemRef3(source termsem.SemRef) termsem1.SemRef {
-	var termsemSemRef termsem1.SemRef
-	termsemSemRef.TermID = identity.ConvertToString(source.TermID)
-	termsemSemRef.TermRN = int64(source.TermRN)
-	return termsemSemRef
 }
 func init() {
 	DataFromDecRec = func(source core.DecRec) (core.DecRecDS, error) {

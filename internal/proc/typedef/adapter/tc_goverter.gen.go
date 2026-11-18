@@ -100,7 +100,7 @@ func typesemSemRefToTypesemSemRef2(source typesem1.SemRef) (typesem.SemRef, erro
 func init() {
 	ViewFromDefSnap = func(source core.DefSnap) DefSnapVP {
 		var adapterDefSnapVP DefSnapVP
-		adapterDefSnapVP.TypeRef = typesemSemRefToTypesemSemRef3(source.TypeRef)
+		adapterDefSnapVP.TypeRef = source.TypeRef
 		adapterDefSnapVP.DefSpec = coreDefSpecToAdapterDefSpecVP(source.DefSpec)
 		return adapterDefSnapVP
 	}
@@ -109,12 +109,6 @@ func coreDefSpecToAdapterDefSpecVP(source core.DefSpec) DefSpecVP {
 	var adapterDefSpecVP DefSpecVP
 	adapterDefSpecVP.TypeQN = uniqsym.ConvertToString(source.TypeQN)
 	return adapterDefSpecVP
-}
-func typesemSemRefToTypesemSemRef3(source typesem.SemRef) typesem1.SemRef {
-	var typesemSemRef typesem1.SemRef
-	typesemSemRef.TypeID = identity.ConvertToString(source.TypeID)
-	typesemSemRef.TypeRN = int64(source.TypeRN)
-	return typesemSemRef
 }
 func init() {
 	DataFromDefRec = func(source core.DefRec) (core.DefRecDS, error) {

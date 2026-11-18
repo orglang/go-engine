@@ -1,8 +1,6 @@
 package adapter
 
 import (
-	"net/http"
-
 	"github.com/labstack/echo/v4"
 
 	webapi "orglang/go-engine/internal/app/web/api"
@@ -42,4 +40,3 @@ func (s generatedServer) GetProcessTypeDefinition(c echo.Context, id string, par
 	return s.handler.GetProcessTypeDefinition(c, id, params)
 }
 
-var _ = http.MethodGet

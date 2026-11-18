@@ -1,0 +1,56 @@
+name: Detect CI changes
+description: Classify changed paths into app/tool dependency and artifact groups.
+
+inputs:
+  event_name:
+    description: GitHub event name.
+    required: true
+  base_sha:
+    description: Pull request base commit SHA.
+    required: false
+  head_sha:
+    description: Pull request head commit SHA.
+    required: false
+
+outputs:
+  app-deps:
+    description: Application dependency inputs changed.
+    value: ${{ steps.detect.outputs.app-deps }}
+  tool-deps:
+    description: Tool dependency inputs changed.
+    value: ${{ steps.detect.outputs.tool-deps }}
+  app-specs:
+    description: Application specification inputs changed.
+    value: ${{ steps.detect.outputs.app-specs }}
+  tool-specs:
+    description: Specification tooling inputs changed.
+    value: ${{ steps.detect.outputs.tool-specs }}
+  app-sources:
+    description: Application source inputs changed.
+    value: ${{ steps.detect.outputs.app-sources }}
+  tool-sources:
+    description: Source-generation and task tooling inputs changed.
+    value: ${{ steps.detect.outputs.tool-sources }}
+  app-binaries:
+    description: Application binary-specific inputs changed.
+    value: ${{ steps.detect.outputs.app-binaries }}
+  tool-binaries:
+    description: Binary workflow/tooling inputs changed.
+    value: ${{ steps.detect.outputs.tool-binaries }}
+  app-distros:
+    description: Application distribution inputs changed.
+    value: ${{ steps.detect.outputs.app-distros }}
+  tool-distros:
+    description: Distribution workflow/tooling inputs changed.
+    value: ${{ steps.detect.outputs.tool-distros }}
+
+runs:
+  using: composite
+  steps:
+    - id: detect
+      shell: bash
+      env:
+        EVENT_NAME: ${{ inputs.event_name }}
+        BASE_SHA: ${{ inputs.base_sha }}
+        HEAD_SHA: ${{ inputs.head_sha }}
+      run: python3 "${{ github.action_path }}/detect.py"

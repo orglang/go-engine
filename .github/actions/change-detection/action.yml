@@ -2,12 +2,6 @@ name: Detect changed areas
 description: Classify changed paths into application, tooling, and shared configuration groups.
 
 outputs:
-  app-deps:
-    description: Application dependency inputs changed.
-    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['app-deps'] == 'true' }}
-  tool-deps:
-    description: Tool dependency inputs changed.
-    value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['tool-deps'] == 'true' }}
   app-specs:
     description: Application specification inputs changed.
     value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['app-specs'] == 'true' }}
@@ -15,7 +9,7 @@ outputs:
     description: Specification tooling inputs changed.
     value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['tool-specs'] == 'true' }}
   app-sources:
-    description: Application source inputs changed.
+    description: Application source and Go module inputs changed.
     value: ${{ github.event_name != 'pull_request' || steps.filter.outputs['app-sources'] == 'true' }}
   tool-sources:
     description: Source-generation and task tooling inputs changed.

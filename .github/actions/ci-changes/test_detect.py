@@ -81,6 +81,7 @@ class ClassifyPathsTest(unittest.TestCase):
         changed = ci_detect.classify_paths(["mise.sources-dev.lock"])
 
         self.assertTrue(all(changed.values()))
+        self.assertTrue(changed["tool-deps"])
 
     def test_multiple_changed_paths_accumulate_groups(self):
         changed = ci_detect.classify_paths(

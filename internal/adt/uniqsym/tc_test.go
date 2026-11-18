@@ -2,6 +2,7 @@ package uniqsym
 
 import (
 	"database/sql"
+	"strings"
 	"testing"
 )
 
@@ -51,7 +52,7 @@ func TestConvertFromStringRejectsEmptySegments(t *testing.T) {
 }
 
 func TestConvertFromStringDoesNotValidateQualifiedSymbolSyntax(t *testing.T) {
-	for _, value := range []string{"a b", "a/b", "привет", "a" + string(make([]byte, 513))} {
+	for _, value := range []string{"a b", "a/b", "привет", strings.Repeat("a", 513)} {
 		t.Run(value, func(t *testing.T) {
 			if _, err := ConvertFromString(value); err != nil {
 				t.Fatalf("unexpected constructor validation: %v", err)

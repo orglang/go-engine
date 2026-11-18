@@ -46,6 +46,15 @@ func TestExpSpecFromGenerated(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	var up webapi.ProcTypeExprSpec
+	if err = up.FromProcTypeUpSpec(webapi.ProcTypeUpSpec{ContExpr: link}); err != nil {
+		t.Fatal(err)
+	}
+	var down webapi.ProcTypeExprSpec
+	if err = down.FromProcTypeDownSpec(webapi.ProcTypeDownSpec{ContExpr: one}); err != nil {
+		t.Fatal(err)
+	}
+
 	tests := []struct {
 		name string
 		dto  webapi.ProcTypeExprSpec
@@ -55,6 +64,8 @@ func TestExpSpecFromGenerated(t *testing.T) {
 		{name: "link", dto: link, want: "link"},
 		{name: "tensor", dto: tensor, want: "tensor"},
 		{name: "plus", dto: plus, want: "plus"},
+		{name: "up", dto: up, want: "up"},
+		{name: "down", dto: down, want: "down"},
 	}
 
 	for _, tt := range tests {
@@ -81,6 +92,14 @@ func TestExpSpecFromGenerated(t *testing.T) {
 				value, ok := got.(typeexp.PlusSpec)
 				if !ok || len(value.Choices) != 1 {
 					t.Fatalf("unexpected plus expression: %#v", got)
+				}
+			case "up":
+				if _, ok := got.(typeexp.UpSpec); !ok {
+					t.Fatalf("unexpected expression type %T", got)
+				}
+			case "down":
+				if _, ok := got.(typeexp.DownSpec); !ok {
+					t.Fatalf("unexpected expression type %T", got)
 				}
 			default:
 				t.Fatalf("unknown expected expression type %q", tt.want)

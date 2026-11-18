@@ -3,6 +3,7 @@ module orglang/go-engine
 go 1.27.0
 
 require (
+	github.com/alecthomas/participle/v2 v2.1.4
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/alitto/pond/v2 v2.7.3
 	github.com/gammazero/workerpool v1.3.0
@@ -14,7 +15,6 @@ require (
 	github.com/labstack/echo/v4 v4.16.4
 	github.com/oapi-codegen/runtime v1.9.0
 	github.com/orglang/go-sdk v0.0.0-20260912152343-a8600e41f90d
-	github.com/alecthomas/participle/v2 v2.1.4
 	github.com/rs/xid v1.6.0
 	github.com/samber/do/v2 v2.1.0
 	github.com/spf13/viper v1.21.0

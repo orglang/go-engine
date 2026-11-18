@@ -118,6 +118,26 @@ func expSpecFromGenerated(dto webapi.ProcTypeExprSpec) (typeexp.ExpSpec, error) 
 			choices[label] = cont
 		}
 		return typeexp.WithSpec{Choices: choices}, nil
+	case "up":
+		v, err := dto.AsProcTypeUpSpec()
+		if err != nil {
+			return nil, err
+		}
+		cont, err := expSpecFromGenerated(v.ContExpr)
+		if err != nil {
+			return nil, err
+		}
+		return typeexp.UpSpec{Cont: cont}, nil
+	case "down":
+		v, err := dto.AsProcTypeDownSpec()
+		if err != nil {
+			return nil, err
+		}
+		cont, err := expSpecFromGenerated(v.ContExpr)
+		if err != nil {
+			return nil, err
+		}
+		return typeexp.DownSpec{Cont: cont}, nil
 	default:
 		return nil, fmt.Errorf("unsupported process type expression kind %q", kind)
 	}

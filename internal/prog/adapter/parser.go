@@ -8,11 +8,11 @@ import (
 	"github.com/alecthomas/participle/v2/lexer"
 
 	"orglang/go-engine/internal/adt/uniqsym"
-	coreprog "orglang/go-engine/internal/prog/core"
 	pooltypedef "orglang/go-engine/internal/pool/typedef/core"
 	pooltypeexp "orglang/go-engine/internal/pool/typeexp/core"
 	proctypedef "orglang/go-engine/internal/proc/typedef/core"
 	proctypexp "orglang/go-engine/internal/proc/typeexp/core"
+	coreprog "orglang/go-engine/internal/prog/core"
 )
 
 type programExpression interface {
@@ -24,7 +24,7 @@ type programAST struct {
 }
 
 type poolDefAST struct {
-	TypeQN  string      `parser:"'pool' 'type' @Ident"`
+	TypeQN  string     `parser:"'pool' 'type' @Ident"`
 	TypeExp poolExpAST `parser:"'{' @@? '}'"`
 }
 
@@ -54,17 +54,17 @@ type poolExpAST struct {
 	With   *poolLaborAST `parser:"| 'with' @@"`
 	Tensor *poolResAST   `parser:"| 'tensor' @@"`
 	Lolli  *poolResAST   `parser:"| 'lolli' @@"`
-	Up     *shiftAST `parser:"| 'up' @@"`
-	Down   *shiftAST `parser:"| 'down' @@ )"`
+	Up     *shiftAST     `parser:"| 'up' @@"`
+	Down   *shiftAST     `parser:"| 'down' @@ )"`
 }
 
 type procExpAST struct {
-	Kind   expKind        `parser:"@@"`
-	Link   *linkAST       `parser:"( 'link' @@"`
-	Tensor *procProdAST   `parser:"| 'tensor' @@"`
-	Lolli  *procProdAST   `parser:"| 'lolli' @@"`
-	Plus   *procSumAST    `parser:"| 'plus' @@"`
-	With   *procSumAST    `parser:"| 'with' @@"`
+	Kind   expKind       `parser:"@@"`
+	Link   *linkAST      `parser:"( 'link' @@"`
+	Tensor *procProdAST  `parser:"| 'tensor' @@"`
+	Lolli  *procProdAST  `parser:"| 'lolli' @@"`
+	Plus   *procSumAST   `parser:"| 'plus' @@"`
+	With   *procSumAST   `parser:"| 'with' @@"`
 	Up     *procShiftAST `parser:"| 'up' @@"`
 	Down   *procShiftAST `parser:"| 'down' @@ )"`
 }

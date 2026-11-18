@@ -8,6 +8,7 @@ import (
 	"github.com/alecthomas/participle/v2/lexer"
 
 	"orglang/go-engine/internal/adt/uniqsym"
+	coreprog "orglang/go-engine/internal/prog/core"
 	pooltypedef "orglang/go-engine/internal/pool/typedef/core"
 	pooltypeexp "orglang/go-engine/internal/pool/typeexp/core"
 	proctypedef "orglang/go-engine/internal/proc/typedef/core"
@@ -89,12 +90,12 @@ func parseProgram(text string) (programAST, error) {
 	return *ast, nil
 }
 
-func programASTToCore(ast programAST) (coreSpec, error) {
-	var result coreSpec
+func programASTToCore(ast programAST) (coreprog.Spec, error) {
+	var result coreprog.Spec
 	for _, expression := range ast.Expressions {
 		switch expression := expression.(type) {
 		case poolDefAST:
-			qn, err := uniqsym.ConvertFromString(expression.TypeQN); if err != nil { return coreSpec{}, err }
+			qn, err := uniqsym.ConvertFromString(expression.TypeQN); if err != nil { return coreprog.Spec{}, err }
 			exp, err := poolExpToCore(expression.TypeExp); if err != nil { return coreSpec{}, err }
 			result.Pools = append(result.Pools, pooltypedef.DefSpec{TypeQN: qn, TypeExp: exp})
 		case procDefAST:
@@ -102,7 +103,7 @@ func programASTToCore(ast programAST) (coreSpec, error) {
 			exp, err := procExpToCore(expression.TypeExp); if err != nil { return coreSpec{}, err }
 			result.Procs = append(result.Procs, proctypedef.DefSpec{TypeQN: qn, TypeExp: exp})
 		default:
-			return coreSpec{}, fmt.Errorf("unsupported program expression: %T", expression)
+			return coreprog.Spec{}, fmt.Errorf("unsupported program expression: %T", expression)
 		}
 	}
 	return result, nil

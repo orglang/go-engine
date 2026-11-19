@@ -25,6 +25,7 @@ jobs:
         with:
           repository: orglang/go-workspace
           ref: ci/distros-gate-task
+          fetch-depth: 0
 
       - name: Checkout engine
         uses: actions/checkout@v7

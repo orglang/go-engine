@@ -67,7 +67,6 @@ func TestEchoServerResourceStartsAndShutsDown(t *testing.T) {
 		t.Fatalf("start server: %v", err)
 	}
 	address := resource.listenerAddr.String()
-undefined
 	client := &http.Client{Timeout: time.Second}
 	request, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "http://"+address+"/health", nil)
 	if err != nil {

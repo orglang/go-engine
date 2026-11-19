@@ -18,8 +18,8 @@ permissions:
   contents: read
 
 jobs:
-  specs-pipe:
-    name: Specs Pipe
+  specs:
+    name: Specs
     runs-on: ubuntu-latest
     steps:
       - name: Checkout engine

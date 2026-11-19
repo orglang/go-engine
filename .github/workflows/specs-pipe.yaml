@@ -39,8 +39,6 @@ jobs:
       - name: Install specs toolchain
         run: mise -E specs install --locked
 
-      - name: Install TypeSpec dependencies
-        run: mise run deps:install
 
       - name: Run Specs gate pipeline
         shell: bash

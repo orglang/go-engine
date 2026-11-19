@@ -54,6 +54,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           repository: orglang/go-engine
           path: engine
+          fetch-depth: 0
 
       - name: Checkout SDK
         uses: actions/checkout@v7
@@ -99,8 +100,15 @@ jobs:
       - name: Expose GitHub Actions runtime
         uses: crazy-max/ghaction-github-runtime@v4
 
-      - name: Build distribution artifacts
-        run: mise -E distros run distros
+      - name: Build affected distribution artifacts
+        working-directory: engine
+        shell: bash
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            mise run --affected --affected-committed --affected-base "origin/$GITHUB_BASE_REF" --affected-head HEAD distros:gate
+          else
+            mise run distros:gate
+          fi
 
       - name: Check common stack services
         working-directory: engine

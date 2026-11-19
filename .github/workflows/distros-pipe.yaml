@@ -1,0 +1,120 @@
+name: Distros Pipe
+
+on:
+  pull_request:
+    branches: [main]
+    types:
+      - opened
+      - ready_for_review
+      - synchronize
+  merge_group:
+    types:
+      - checks_requested
+
+permissions:
+  contents: read
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      specs: ${{ steps.detect.outputs.specs }}
+      sources: ${{ steps.detect.outputs.sources }}
+      binaries: ${{ steps.detect.outputs.binaries }}
+      distros: ${{ steps.detect.outputs.distros }}
+    steps:
+      - name: Checkout engine
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Detect changed areas
+        id: detect
+        uses: ./.github/actions/change-detection
+
+  distros-pipe:
+    name: Distros Pipe
+    needs: detect-changes
+    if: ${{ (needs.detect-changes.outputs.specs == 'true' || needs.detect-changes.outputs.sources == 'true' || needs.detect-changes.outputs.binaries == 'true' || needs.detect-changes.outputs.distros == 'true') && !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout workspace
+        uses: actions/checkout@v7
+        with:
+          ref: main
+
+      - name: Checkout engine
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          repository: orglang/go-engine
+          path: engine
+          fetch-depth: 0
+
+      - name: Checkout SDK
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          repository: orglang/go-sdk
+          path: sdk
+
+      - name: Set up mise
+        uses: jdx/mise-action@v5
+        with:
+          cache: true
+          cache_key: "{{default}}-distros-pipe-${{ hashFiles('engine/mise*.toml', 'engine/mise*.lock') }}"
+          install: true
+          cache_save_post: true
+
+      - name: Install pipeline toolchains
+        working-directory: engine
+        run: |
+          mise -E specs install --locked
+          mise -E sources install --locked
+
+      - name: Install distribution toolchain
+        run: mise -E distros install --locked
+
+      - name: Install TypeSpec dependencies
+        working-directory: engine
+        run: mise run deps:install
+
+      - name: Restore experimental mise task artifact cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/mise/task-artifacts/v2
+          key: mise-task-artifacts-pipe-v2-${{ runner.os }}-${{ runner.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            mise-task-artifacts-pipe-v2-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v4
+        with:
+          version: v0.39.0
+
+      - name: Expose GitHub Actions runtime
+        uses: crazy-max/ghaction-github-runtime@v4
+
+      - name: Run experimental Distros pipeline
+        working-directory: engine
+        shell: bash
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            mise run --affected --affected-committed --affected-base "origin/$GITHUB_BASE_REF" --affected-head HEAD distros:pipe
+          else
+            mise run distros:pipe
+          fi
+
+      - name: PostgreSQL compose diagnostics
+        if: ${{ failure() }}
+        working-directory: stack
+        run: >-
+          docker compose
+          -f ops/postgres.compose.yaml
+          -f ops/engine.compose.yaml
+          --env-file ops/commons/.env
+          logs --no-color || true

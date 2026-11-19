@@ -81,14 +81,6 @@ jobs:
           mise -E specs install --locked
           mise -E sources install --locked
 
-      - name: Install TypeSpec dependencies
-        working-directory: engine
-        run: mise run deps:install
-
-      - name: Generate engine sources
-        working-directory: engine
-        run: mise -E sources exec -- task sources:generate
-
       # mise pins the Buildx CLI for local use; this action additionally creates and boots
       # the docker-container builder required by CI (including its BuildKit lifecycle).
       - name: Setup Buildx
@@ -100,7 +92,7 @@ jobs:
       - name: Expose GitHub Actions runtime
         uses: crazy-max/ghaction-github-runtime@v4
 
-      - name: Build affected distribution artifacts
+      - name: Run affected distribution checks
         working-directory: engine
         shell: bash
         run: |
@@ -109,10 +101,6 @@ jobs:
           else
             mise run distros:gate
           fi
-
-      - name: Check common stack services
-        working-directory: engine
-        run: mise -E distros run //:stack commons
 
       - name: PostgreSQL compose diagnostics
         if: ${{ failure() }}

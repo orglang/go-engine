@@ -86,6 +86,6 @@ outputs = []
 [tasks."distros:gate"]
 description = "Run Specs, Sources, Binaries, then Distros in the CI pipeline"
 depends = ["binaries:gate"]
-run = "mise run deps:install && mise -E sources exec -- task sources:generate && cd .. && mise -E distros run distros && mise -E distros run //:stack commons"
+run = "mise run deps:install && cd .. && mise -E distros run distros && mise -E distros run //:stack commons"
 sources = ["@group:distros"]
 outputs = []

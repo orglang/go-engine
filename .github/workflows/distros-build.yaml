@@ -71,12 +71,6 @@ jobs:
           # Defer saving until later environment-specific installs have populated the cache.
           cache_save_post: true
 
-      - name: Install engine toolchains
-        working-directory: engine
-        run: |
-          mise -E specs install --locked
-          mise -E sources install --locked
-
       # mise pins the Buildx CLI for local use; this action additionally creates and boots
       # the docker-container builder required by CI (including its BuildKit lifecycle).
       - name: Setup Buildx

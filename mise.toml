@@ -10,8 +10,8 @@ go = "1.27.0"
 description = "Install TypeSpec dependencies"
 run = "mise -E specs exec -- npm ci --prefix tsp --no-audit --no-fund"
 
-# Reusable source groups keep the cumulative stage impact mapping in one place.
-# The order is intentional: each later stage includes all earlier-stage inputs.
+# Reusable source groups keep stage-owned input paths in one place.
+# Stage gates compose these groups to reflect the downstream impact mapping.
 [task_config.input_groups]
 common = [
   ".github/**",

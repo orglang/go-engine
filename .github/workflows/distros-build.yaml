@@ -54,7 +54,6 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           repository: orglang/go-engine
           path: engine
-          fetch-depth: 0
 
       - name: Checkout SDK
         uses: actions/checkout@v7
@@ -81,6 +80,14 @@ jobs:
           mise -E specs install --locked
           mise -E sources install --locked
 
+      - name: Install TypeSpec dependencies
+        working-directory: engine
+        run: mise run deps:install
+
+      - name: Generate engine sources
+        working-directory: engine
+        run: mise -E sources exec -- task sources:generate
+
       # mise pins the Buildx CLI for local use; this action additionally creates and boots
       # the docker-container builder required by CI (including its BuildKit lifecycle).
       - name: Setup Buildx
@@ -92,15 +99,12 @@ jobs:
       - name: Expose GitHub Actions runtime
         uses: crazy-max/ghaction-github-runtime@v4
 
-      - name: Run affected distribution checks
+      - name: Build distribution artifacts
+        run: mise -E distros run distros
+
+      - name: Check common stack services
         working-directory: engine
-        shell: bash
-        run: |
-          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            mise run --affected --affected-committed --affected-base "origin/$GITHUB_BASE_REF" --affected-head HEAD distros:gate
-          else
-            mise run distros:gate
-          fi
+        run: mise -E distros run //:stack commons
 
       - name: PostgreSQL compose diagnostics
         if: ${{ failure() }}

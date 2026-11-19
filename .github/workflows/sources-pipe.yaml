@@ -18,8 +18,8 @@ permissions:
   contents: read
 
 jobs:
-  sources-pipe:
-    name: Sources Pipe
+  sources:
+    name: Sources
     runs-on: ubuntu-latest
     steps:
       - name: Checkout engine

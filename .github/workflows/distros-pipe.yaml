@@ -62,6 +62,7 @@ jobs:
         run: mise run //:distros:gate
 
       - name: PostgreSQL compose diagnostics
+        if: ${{ failure() }}
         working-directory: stack
         run: >-
           docker compose

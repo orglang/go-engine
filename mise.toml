@@ -90,7 +90,13 @@ outputs = []
 [tasks."distros:gate"]
 description = "Run workspace distribution checks when engine inputs change"
 run = "mise run deps:install && mise -E sources exec -- task sources:generate && cd .. && mise -E distros run distros && mise -E distros run //:stack commons"
-sources = ["@group:common", "@group:distros"]
+sources = [
+  "@group:common",
+  "@group:specs",
+  "@group:sources",
+  "@group:binaries",
+  "@group:distros",
+]
 outputs = []
 
 # Experimental cumulative pipelines. Keep the regular stage gates independent.
@@ -112,29 +118,16 @@ outputs = []
 description = "Run Specs, Sources, then Binaries in the experimental pipeline"
 depends = ["sources:pipe"]
 run = "mise run binaries:gate"
-sources = [
-  "@group:common",
-  "@group:specs",
-  "@group:sources",
-  "@group:binaries",
-]
+sources = ["@group:common", "@group:binaries"]
 outputs = []
 
 [tasks."distros:pipe"]
 description = "Run Specs, Sources, Binaries, then Distros in the experimental pipeline"
 depends = ["binaries:pipe"]
 run = "mise run distros:gate"
-sources = [
-  "@group:common",
-  "@group:specs",
-  "@group:sources",
-  "@group:binaries",
-  "@group:distros",
-]
+sources = ["@group:common", "@group:distros"]
 outputs = []
 
-# These checks have no workspace outputs consumed by later tasks, so their
-# successful result and log can be safely stored by mise's artifact cache.
 [tasks."sources:lint"]
 description = "Run Go lint checks"
 run = "golangci-lint run ./..."

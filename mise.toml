@@ -75,7 +75,7 @@ outputs = []
 [tasks."sources:gate"]
 description = "Run Specs, then Sources in the CI pipeline"
 depends = ["specs:gate"]
-run = "task sources:check"
+run = "mise -E sources exec -- task sources:check"
 sources = ["@group:sources"]
 outputs = []
 
@@ -89,6 +89,6 @@ outputs = []
 [tasks."distros:gate"]
 description = "Run Specs, Sources, Binaries, then Distros in the CI pipeline"
 depends = ["binaries:gate"]
-run = "cd .. && mise -E distros run distros && mise -E distros run //:stack commons"
+run = "cd .. && MISE_EXPERIMENTAL=1 mise -E distros run distros && MISE_EXPERIMENTAL=1 mise -E distros run //:stack commons"
 sources = ["@group:distros"]
 outputs = []

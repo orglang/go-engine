@@ -56,33 +56,13 @@ Specs Gate uses the `specs` output to skip its expensive job when a pull request
 
 All four workflows run for merge-group and workflow_dispatch events. For push events, the detector selects every stage; only workflows configured with a push trigger start. Currently Specs Check and Sources Verify have push triggers, while Binaries Build and Distro Build do not. This distinction is intentional: change detection does not add or broaden workflow triggers.
 
-## Task-level gates
+## Mise task pipeline
 
-CI keeps the path-based stage gates above. After a stage job starts, its mise gate selects the work inside that stage with `mise run --affected`:
+The mise tasks form one cumulative chain: `specs:gate` → `sources:gate` → `binaries:gate` → `distros:gate`. Each task declares only its own stage inputs. The Specs task also includes `@group:common`, because shared orchestration changes must invalidate the chain from its root. Downstream tasks depend on the preceding task rather than repeating upstream input groups.
 
-- `specs:gate` selects specs checks for specs inputs.
-- `sources:gate` selects source checks for specs or sources inputs.
-- `binaries:gate` selects binary checks for specs, sources, or binaries inputs.
-- `distros:gate` selects distribution checks for any engine stage input. It also performs the engine source preparation and workspace distribution checks, so those steps are skipped together when the gate is unaffected.
+The Pipe workflows invoke these same `*:gate` tasks with `mise run --affected`; there is no second set of task definitions. For pull requests, they fetch full Git history and compare `HEAD` with `origin/$GITHUB_BASE_REF`. Other events execute the selected gate chain without affected filtering.
 
-The `sources` declared by each gate mirror the downstream impact mapping above. Keep the two layers aligned: #87 decides whether a stage job starts; mise decides whether that stage's work is affected. Do not replace the existing job-level checks with mise gates.
-
-Within `mise.toml`, the gates use named `task_config.input_groups` to compose cumulative stage inputs without repeating path lists. Keep the gates independent: each stage has its own GitHub Actions workflow, and a `depends` chain would execute upstream gates again inside downstream workflows. Use task dependencies for actual task prerequisites, not to encode CI stage ordering.
-
-For pull requests, the gated jobs fetch full Git history and compare `HEAD` with `origin/$GITHUB_BASE_REF`. Merge-group, push, and manual runs execute the stage task unconditionally so they retain full validation.
-
-## Experimental Pipe workflows
-
-The `Specs Pipe`, `Sources Pipe`, `Binaries Pipe`, and `Distros Pipe` workflows are an opt-in comparison of cumulative stage execution. They start independently on every matching PR (without the regular workflows' `detect-changes` job or path admission), then let `mise run --affected` select the cumulative task chain:
-
-- `specs:pipe` runs Specs.
-- `sources:pipe` depends on `specs:pipe` and then runs Sources.
-- `binaries:pipe` depends on `sources:pipe` and then runs Binaries.
-- `distros:pipe` depends on `binaries:pipe` and then runs Distros.
-
-The regular `*:gate` tasks and their workflows remain independent and unchanged. Each Pipe task declares only its own stage inputs; task dependencies define the cumulative execution chain. Once a Pipe task is selected with `mise run --affected`, mise expands its dependencies, so upstream stages run as prerequisites even when their own inputs did not change. This deliberately measures the cost and behavior of cumulative execution against the independent-stage baseline.
-
-Pipe workflows are not required checks. Since they do not use `detect-changes`, they incur workflow/job startup for every matching PR even when mise ultimately skips the task. Compare runs for the same PR revisions to measure the cost of cumulative execution.
+The regular stage workflows and the Pipe comparison workflows remain separate: the former preserve the existing required-check behavior, while Pipe workflows start independently on matching PRs without `detect-changes` and measure cumulative task execution. Pipe workflows are not required checks.
 
 ## Maintaining the mapping
 

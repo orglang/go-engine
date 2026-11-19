@@ -10,102 +10,41 @@ go = "1.27.0"
 description = "Install TypeSpec dependencies"
 run = "mise -E specs exec -- npm ci --prefix tsp --no-audit --no-fund"
 
-# Stage gates mirror the downstream impact mapping in .github/change-detection.md.
-# They are selected with "mise run --affected" inside the CI jobs that #87 already gates.
-[tasks."specs:gate"]
-description = "Run specs checks when specs inputs change"
-run = "task specs:check"
-sources = [
-  "tsp/**",
-  "openapi/openapi.yaml",
-  "tsp/package.json",
-  "tsp/package-lock.json",
-  "mise.specs-dev.toml",
-  "mise.specs-dev.lock",
+# Reusable source groups keep the cumulative stage impact mapping in one place.
+# The order is intentional: each later stage includes all earlier-stage inputs.
+[task_config.input_groups]
+common = [
   ".github/**",
   "taskfile.yaml",
   "**/taskfile.yaml",
   "mise.lock",
   ".miserc.toml",
 ]
-outputs = []
-
-[tasks."sources:gate"]
-description = "Run sources checks when specs or sources inputs change"
-run = "task sources:check"
-sources = [
+specs = [
   "tsp/**",
   "openapi/openapi.yaml",
-  "tsp/package.json",
-  "tsp/package-lock.json",
   "mise.specs-dev.toml",
   "mise.specs-dev.lock",
-  "*.go",
-  "**/*.go",
-  "mise.sources-dev.toml",
-  "mise.sources-dev.lock",
-  ".golangci.yml",
-  "staticcheck.conf",
-  ".github/**",
-  "taskfile.yaml",
-  "**/taskfile.yaml",
-  "mise.lock",
-  ".miserc.toml",
 ]
-outputs = []
-
-[tasks."binaries:gate"]
-description = "Run binary checks when specs, sources, or binary inputs change"
-run = "task binaries"
 sources = [
-  "tsp/**",
-  "openapi/openapi.yaml",
-  "tsp/package.json",
-  "tsp/package-lock.json",
-  "mise.specs-dev.toml",
-  "mise.specs-dev.lock",
   "*.go",
   "**/*.go",
   "mise.sources-dev.toml",
   "mise.sources-dev.lock",
   ".golangci.yml",
   "staticcheck.conf",
-  "*.sql",
-  "**/*.sql",
+]
+go-modules = [
   "go.mod",
   "go.sum",
   "**/go.mod",
   "**/go.sum",
-  ".github/**",
-  "taskfile.yaml",
-  "**/taskfile.yaml",
-  "mise.lock",
-  ".miserc.toml",
 ]
-outputs = []
-
-[tasks."distros:gate"]
-description = "Run workspace distribution checks when engine inputs change"
-run = "mise run deps:install && mise -E sources exec -- task sources:generate && cd .. && mise -E distros run distros && mise -E distros run //:stack commons"
-sources = [
-  "tsp/**",
-  "openapi/openapi.yaml",
-  "tsp/package.json",
-  "tsp/package-lock.json",
-  "mise.specs-dev.toml",
-  "mise.specs-dev.lock",
-  "*.go",
-  "**/*.go",
-  "mise.sources-dev.toml",
-  "mise.sources-dev.lock",
-  ".golangci.yml",
-  "staticcheck.conf",
+binaries = [
   "*.sql",
   "**/*.sql",
-  "go.mod",
-  "go.sum",
-  "**/go.mod",
-  "**/go.sum",
+]
+distros = [
   "Dockerfile",
   "Dockerfile.*",
   "**/Dockerfile",
@@ -123,11 +62,49 @@ sources = [
   "**/*.compose.yml",
   "mise.distros.toml",
   "mise.distros.lock",
-  ".github/**",
-  "taskfile.yaml",
-  "**/taskfile.yaml",
-  "mise.lock",
-  ".miserc.toml",
+]
+unit-tests = [
+  "internal/**",
+  "cmd/**",
+]
+
+# Stage gates mirror the downstream impact mapping in .github/change-detection.md.
+# Keep them independent: each CI stage has its own workflow and invokes only its gate.
+# The groups above encode cumulative inputs without making gates depend on one another.
+[tasks."specs:gate"]
+description = "Run specs checks when specs inputs change"
+run = "task specs:check"
+sources = ["@group:common", "@group:specs"]
+outputs = []
+
+[tasks."sources:gate"]
+description = "Run sources checks when specs or sources inputs change"
+run = "task sources:check"
+sources = ["@group:common", "@group:specs", "@group:sources"]
+outputs = []
+
+[tasks."binaries:gate"]
+description = "Run binary checks when specs, sources, or binary inputs change"
+run = "task binaries"
+sources = [
+  "@group:common",
+  "@group:specs",
+  "@group:sources",
+  "@group:binaries",
+  "@group:go-modules",
+]
+outputs = []
+
+[tasks."distros:gate"]
+description = "Run workspace distribution checks when engine inputs change"
+run = "mise run deps:install && mise -E sources exec -- task sources:generate && cd .. && mise -E distros run distros && mise -E distros run //:stack commons"
+sources = [
+  "@group:common",
+  "@group:specs",
+  "@group:sources",
+  "@group:binaries",
+  "@group:go-modules",
+  "@group:distros",
 ]
 outputs = []
 
@@ -137,18 +114,9 @@ outputs = []
 description = "Run Go lint checks"
 run = "golangci-lint run ./..."
 sources = [
-  "*.go",
-  "**/*.go",
-  ".golangci.yml",
-  "staticcheck.conf",
-  "go.mod",
-  "go.sum",
-  "mise.sources-dev.toml",
-  "mise.sources-dev.lock",
-  "mise.lock",
-  ".miserc.toml",
-  "taskfile.yaml",
-  "**/taskfile.yaml",
+  "@group:common",
+  "@group:sources",
+  "@group:go-modules",
 ]
 outputs = []
 cache = { enabled = true, env = ["CI", "CGO_ENABLED", "GOFLAGS", "GOWORK"] }
@@ -157,14 +125,9 @@ cache = { enabled = true, env = ["CI", "CGO_ENABLED", "GOFLAGS", "GOWORK"] }
 description = "Run Go unit tests"
 run = "go test -tags=unit ./internal/... ./cmd/..."
 sources = [
-  "internal/**",
-  "cmd/**",
-  "go.mod",
-  "go.sum",
-  "mise.lock",
-  ".miserc.toml",
-  "taskfile.yaml",
-  "**/taskfile.yaml",
+  "@group:common",
+  "@group:unit-tests",
+  "@group:go-modules",
 ]
 outputs = []
 cache = { enabled = true, env = ["CI", "CGO_ENABLED", "GOFLAGS", "GOWORK"] }

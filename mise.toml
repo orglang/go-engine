@@ -44,25 +44,6 @@ binaries = [
   "**/go.mod",
   "**/go.sum",
 ]
-distros = [
-  "Dockerfile",
-  "Dockerfile.*",
-  "**/Dockerfile",
-  "**/Dockerfile.*",
-  "*.Dockerfile",
-  "**/*.Dockerfile",
-  ".dockerignore",
-  "compose.yaml",
-  "compose.yml",
-  "*.compose.yaml",
-  "*.compose.yml",
-  "**/compose.yaml",
-  "**/compose.yml",
-  "**/*.compose.yaml",
-  "**/*.compose.yml",
-  "mise.distros.toml",
-  "mise.distros.lock",
-]
 # The gate chain follows the pipeline order. Each task declares only its
 # own stage inputs; dependencies provide the cumulative execution order.
 [tasks."specs:gate"]
@@ -86,9 +67,3 @@ run = "task binaries"
 sources = ["@group:binaries"]
 outputs = []
 
-[tasks."distros:gate"]
-description = "Run Specs, Sources, Binaries, then Distros in the CI pipeline"
-depends = ["binaries:gate"]
-run = "cd .. && MISE_EXPERIMENTAL=1 mise -E distros run distros && MISE_EXPERIMENTAL=1 mise -E distros run //:stack commons"
-sources = ["@group:distros"]
-outputs = []

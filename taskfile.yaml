@@ -53,7 +53,7 @@ tasks:
       - test -z "$(git status --porcelain -- mise.sources-dev.lock)"
       - test -z "$(git status --porcelain -- ':(glob)**/*.gen.go')"
       - golangci-lint fmt --diff
-      - mise -E sources run sources:lint
+      - mise -E sources run --task-cache-stats sources:lint
 
   sources:lock:
     desc: Refresh source toolchain lockfiles
@@ -129,7 +129,7 @@ tasks:
     vars:
       LEVEL: '{{index .MATCH 0}}'
     cmds:
-      - cmd: mise run tests:unit
+      - cmd: mise run --task-cache-stats tests:unit
         if: '{{eq .LEVEL "unit"}}'
       - cmd: go test -run=TestIntegration ./internal/... ./cmd/... ./test/it/...
         if: '{{eq .LEVEL "it"}}'

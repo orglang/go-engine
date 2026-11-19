@@ -20,7 +20,7 @@ func (r generatedRouteFilter) DELETE(string, echo.HandlerFunc, ...echo.Middlewar
 	return echo.RouteInfo{}
 }
 
-func (r generatedRouteFilter) GET(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
+func (r generatedRouteFilter) GET(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) echo.RouteInfo {
 	if path != processTypeDefinitionsRoute+"/:id" {
 		return nil
 	}
@@ -39,7 +39,7 @@ func (r generatedRouteFilter) PATCH(string, echo.HandlerFunc, ...echo.Middleware
 	return echo.RouteInfo{}
 }
 
-func (r generatedRouteFilter) POST(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
+func (r generatedRouteFilter) POST(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) echo.RouteInfo {
 	if path != processTypeDefinitionsRoute {
 		return nil
 	}

@@ -36,7 +36,7 @@ func (r generatedRouteFilter) PATCH(string, echo.HandlerFunc, ...echo.Middleware
 	return echo.RouteInfo{}
 }
 
-func (r generatedRouteFilter) POST(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
+func (r generatedRouteFilter) POST(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) echo.RouteInfo {
 	if path != poolTypeDefinitionsRoute {
 		return nil
 	}

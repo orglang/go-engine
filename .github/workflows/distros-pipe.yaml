@@ -35,10 +35,6 @@ jobs:
           path: engine
           fetch-depth: 0
 
-      - name: Fetch workspace base branch
-        if: github.event_name == 'pull_request'
-        run: git fetch origin "$GITHUB_BASE_REF" --no-tags
-
       - name: Checkout SDK
         uses: actions/checkout@v7
         with:

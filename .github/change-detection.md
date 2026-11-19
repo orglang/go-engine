@@ -56,6 +56,23 @@ Specs Gate uses the `specs` output to skip its expensive job when a pull request
 
 All four workflows run for merge-group and workflow_dispatch events. For push events, the detector selects every stage; only workflows configured with a push trigger start. Currently Specs Check and Sources Verify have push triggers, while Binaries Build and Distro Build do not. This distinction is intentional: change detection does not add or broaden workflow triggers.
 
+## Task-level gates and artifact cache
+
+CI keeps the path-based stage gates above. After a stage job starts, its mise gate selects the work inside that stage with `mise run --affected`:
+
+- `specs:gate` selects specs checks for specs inputs.
+- `sources:gate` selects source checks for specs or sources inputs.
+- `binaries:gate` selects binary checks for specs, sources, or binaries inputs.
+- `distros:gate` selects distribution checks for any engine stage input. It also performs the engine source preparation and workspace distribution checks, so those steps are skipped together when the gate is unaffected.
+
+The `sources` declared by each gate mirror the downstream impact mapping above. Keep the two layers aligned: #87 decides whether a stage job starts; mise decides whether that stage's work is affected. Do not replace the existing job-level checks with mise gates.
+
+For pull requests, the gated jobs fetch full Git history and compare `HEAD` with `origin/$GITHUB_BASE_REF`. Merge-group, push, and manual runs execute the stage task unconditionally so they retain full validation.
+
+The mise artifact cache is enabled only for `sources:lint` and `tests:unit`. Both declare `outputs = []`: they do not produce workspace files that later steps need. Do not apply this setting to generation or build tasks unless every required output is declared and can be restored correctly.
+
+CI persists only `$MISE_CACHE_DIR/task-artifacts/v2` with GitHub Actions Cache. Each run writes to a unique key and restores from the OS-specific prefix; mise's own task keys decide whether an entry is reusable. GitHub's cache branch scoping keeps pull-request writes separate from the base branch cache.
+
 ## Maintaining the mapping
 
 When adding or moving an input path:

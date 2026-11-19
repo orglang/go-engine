@@ -28,6 +28,7 @@ sources = [
   "mise.lock",
   ".miserc.toml",
 ]
+outputs = []
 
 [tasks."sources:gate"]
 description = "Run sources checks when specs or sources inputs change"
@@ -51,6 +52,7 @@ sources = [
   "mise.lock",
   ".miserc.toml",
 ]
+outputs = []
 
 [tasks."binaries:gate"]
 description = "Run binary checks when specs, sources, or binary inputs change"
@@ -78,6 +80,7 @@ sources = [
   "mise.lock",
   ".miserc.toml",
 ]
+outputs = []
 
 [tasks."distros:gate"]
 description = "Run workspace distribution checks when engine inputs change"
@@ -122,6 +125,7 @@ sources = [
   "mise.lock",
   ".miserc.toml",
 ]
+outputs = []
 
 # These checks have no workspace outputs consumed by later tasks, so their
 # successful result and log can be safely stored by mise's artifact cache.
@@ -139,6 +143,8 @@ sources = [
   "mise.sources-dev.lock",
   "mise.lock",
   ".miserc.toml",
+  "taskfile.yaml",
+  "**/taskfile.yaml",
 ]
 outputs = []
 cache = { enabled = true, env = ["CI", "CGO_ENABLED", "GOFLAGS", "GOWORK"] }
@@ -153,6 +159,8 @@ sources = [
   "go.sum",
   "mise.lock",
   ".miserc.toml",
+  "taskfile.yaml",
+  "**/taskfile.yaml",
 ]
 outputs = []
 cache = { enabled = true, env = ["CI", "CGO_ENABLED", "GOFLAGS", "GOWORK"] }

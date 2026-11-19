@@ -33,13 +33,6 @@ jobs:
           install: true
           cache_save_post: true
 
-      - name: Install pipeline toolchains
-        run: |
-          mise install --locked
-          mise -E specs install --locked
-          mise -E sources install --locked
-
-
       - name: Run Binaries gate pipeline
         shell: bash
         run: |

@@ -69,14 +69,14 @@ jobs:
       - name: Expose GitHub Actions runtime
         uses: crazy-max/ghaction-github-runtime@v4
 
-      - name: Run experimental Distros pipeline
+      - name: Run Distros gate pipeline
         working-directory: engine
         shell: bash
         run: |
           if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            mise run --affected --affected-committed --affected-base "origin/$GITHUB_BASE_REF" --affected-head HEAD distros:pipe
+            mise run --affected --affected-committed --affected-base "origin/$GITHUB_BASE_REF" --affected-head HEAD distros:gate
           else
-            mise run distros:pipe
+            mise run distros:gate
           fi
 
       - name: PostgreSQL compose diagnostics

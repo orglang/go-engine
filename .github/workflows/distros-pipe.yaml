@@ -34,6 +34,10 @@ jobs:
           path: engine
           fetch-depth: 0
 
+      - name: Fetch engine base branch
+        working-directory: engine
+        run: git fetch origin "$GITHUB_BASE_REF" --no-tags
+
       - name: Checkout SDK
         uses: actions/checkout@v7
         with:

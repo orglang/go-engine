@@ -45,7 +45,7 @@ jobs:
       - name: Checkout workspace
         uses: actions/checkout@v7
         with:
-          ref: main
+          ref: ci/distros-gate-task
           repository: orglang/go-workspace
 
       - name: Checkout engine
@@ -70,9 +70,6 @@ jobs:
           install: true
           # Defer saving until later environment-specific installs have populated the cache.
           cache_save_post: true
-
-      - name: Install distribution toolchain
-        run: mise -E distros install --locked
 
       - name: Install engine toolchains
         working-directory: engine
@@ -99,12 +96,8 @@ jobs:
       - name: Expose GitHub Actions runtime
         uses: crazy-max/ghaction-github-runtime@v4
 
-      - name: Build distribution artifacts
-        run: MISE_EXPERIMENTAL=1 mise -E distros run distros
-
-      - name: Check common stack services
-        working-directory: engine
-        run: mise -E distros run //:stack commons
+      - name: Run workspace Distros gate
+        run: mise run //:distros:gate
 
       - name: PostgreSQL compose diagnostics
         if: ${{ failure() }}

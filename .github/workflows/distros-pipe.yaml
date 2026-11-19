@@ -57,8 +57,6 @@ jobs:
       - name: Install distribution toolchain
         run: mise -E distros install --locked
 
-      - name: Install TypeSpec dependencies
-        working-directory: engine
         run: mise run deps:install
 
       - name: Setup Buildx

@@ -84,8 +84,6 @@ linters:
               desc: Core/domain code must depend on a port, not an adapter.
             - pkg: orglang/go-engine/internal/adt/typesem/adapter
               desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: github.com/orglang/go-sdk
-              desc: Keep wire-format SDK dependencies in inbound/outbound adapters.
             - pkg: github.com/jackc/pgx
               desc: Use lib/tx contracts; keep pgx in infrastructure adapters.
         ADT:
@@ -105,8 +103,6 @@ linters:
               desc: Domain types must not depend on concrete adapters.
             - pkg: orglang/go-engine/internal/adt/typesem/adapter
               desc: Domain types must not depend on concrete adapters.
-            - pkg: github.com/orglang/go-sdk
-              desc: Keep SDK mapping in adapters.
             - pkg: github.com/jackc/pgx
               desc: Keep database drivers outside the domain.
             - pkg: github.com/huandu/go-sqlbuilder

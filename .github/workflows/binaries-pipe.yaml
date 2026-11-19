@@ -15,8 +15,8 @@ permissions:
   contents: read
 
 jobs:
-  binaries-pipe:
-    name: Binaries Pipe
+  binaries:
+    name: Binaries
     runs-on: ubuntu-latest
     steps:
       - name: Checkout engine

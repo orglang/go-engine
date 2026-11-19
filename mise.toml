@@ -110,6 +110,48 @@ outputs = []
 
 # These checks have no workspace outputs consumed by later tasks, so their
 # successful result and log can be safely stored by mise's artifact cache.
+# Experimental cumulative pipelines. Keep the regular stage gates independent.
+# Each Pipe task runs all upstream stages before its own stage.
+[tasks."specs:pipe"]
+description = "Run the Specs stage in the experimental pipeline"
+run = "mise -E specs run specs:gate"
+sources = ["@group:common", "@group:specs"]
+outputs = []
+
+[tasks."sources:pipe"]
+description = "Run Specs, then Sources in the experimental pipeline"
+depends = ["specs:pipe"]
+run = "mise -E sources run sources:gate"
+sources = ["@group:common", "@group:specs", "@group:sources"]
+outputs = []
+
+[tasks."binaries:pipe"]
+description = "Run Specs, Sources, then Binaries in the experimental pipeline"
+depends = ["sources:pipe"]
+run = "mise run binaries:gate"
+sources = [
+  "@group:common",
+  "@group:specs",
+  "@group:sources",
+  "@group:binaries",
+  "@group:go-modules",
+]
+outputs = []
+
+[tasks."distros:pipe"]
+description = "Run Specs, Sources, Binaries, then Distros in the experimental pipeline"
+depends = ["binaries:pipe"]
+run = "mise run distros:gate"
+sources = [
+  "@group:common",
+  "@group:specs",
+  "@group:sources",
+  "@group:binaries",
+  "@group:go-modules",
+  "@group:distros",
+]
+outputs = []
+
 [tasks."sources:lint"]
 description = "Run Go lint checks"
 run = "golangci-lint run ./..."

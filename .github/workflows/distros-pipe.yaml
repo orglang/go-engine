@@ -15,8 +15,8 @@ permissions:
   contents: read
 
 jobs:
-  distros-pipe:
-    name: Distros Pipe
+  distros:
+    name: Distros
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:

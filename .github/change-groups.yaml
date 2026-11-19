@@ -20,6 +20,8 @@ sources:
   # tool: source generators, linters, and their toolchain
   - 'mise.sources-dev.toml'
   - 'mise.sources-dev.lock'
+  - '.golangci.yml'
+  - 'staticcheck.conf'
 
 binaries:
   # app: database bootstrap and migration inputs

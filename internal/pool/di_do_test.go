@@ -96,8 +96,8 @@ func TestPackageProvidesHTTPControllersAndRegistersRoutes(t *testing.T) {
 		t.Fatalf("register pool routes: %v", err)
 	}
 
-	got := make([]string, 0, len(server.Routes()))
-	for _, route := range server.Routes() {
+	got := make([]string, 0, len(server.Router().Routes()))
+	for _, route := range server.Router().Routes() {
 		got = append(got, route.Method+" "+route.Path)
 	}
 	want := []string{

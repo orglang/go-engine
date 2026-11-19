@@ -54,8 +54,8 @@ func TestNewWithPackagesComposesHTTPRoutes(t *testing.T) {
 		t.Fatalf("resolve Echo server: %v", err)
 	}
 
-	routes := make(map[string]struct{}, len(server.Routes()))
-	for _, route := range server.Routes() {
+	routes := make(map[string]struct{}, len(server.Router().Routes()))
+	for _, route := range server.Router().Routes() {
 		routes[route.Method+" "+route.Path] = struct{}{}
 	}
 
@@ -88,7 +88,7 @@ func TestNewWithPackagesComposesHTTPRoutes(t *testing.T) {
 		}
 	}
 
-	if len(routes) != len(server.Routes()) {
+	if len(routes) != len(server.Router().Routes()) {
 		t.Fatal("application registered duplicate HTTP routes")
 	}
 

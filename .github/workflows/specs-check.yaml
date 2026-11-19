@@ -45,7 +45,6 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          fetch-depth: 0
 
       - name: Set up mise
         uses: jdx/mise-action@v5
@@ -62,11 +61,5 @@ jobs:
       - name: Install TypeSpec dependencies
         run: mise run deps:install
 
-      - name: Check affected specs
-        shell: bash
-        run: |
-          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            mise -E specs run --affected --affected-committed --affected-base "origin/$GITHUB_BASE_REF" --affected-head HEAD specs:gate
-          else
-            mise -E specs run specs:gate
-          fi
+      - name: Check specs
+        run: mise -E specs exec -- task specs:check

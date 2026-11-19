@@ -14,7 +14,6 @@ require (
 	github.com/jackc/pgx/v5 v5.12.0
 	github.com/labstack/echo/v4 v4.16.4
 	github.com/oapi-codegen/runtime v1.9.0
-	github.com/orglang/go-sdk v0.0.0-20260912152343-a8600e41f90d
 	github.com/rs/xid v1.6.0
 	github.com/samber/do/v2 v2.1.0
 	github.com/spf13/viper v1.21.0

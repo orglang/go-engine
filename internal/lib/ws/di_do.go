@@ -81,12 +81,12 @@ func newEcho(logger *slog.Logger) *echo.Echo {
 				slog.Int("status", values.Status),
 				slog.Duration("latency", values.Latency),
 			}
-			if values.Error != nil {
+			if values.Error == nil {
+				log.Info("request completed", attrs...)
+			} else {
 				attrs = append(attrs, slog.String("reason", values.Error.Error()))
 				log.Error("request processing failed", attrs...)
-				return nil
 			}
-			log.Info("request completed", attrs...)
 			return nil
 		},
 	}))

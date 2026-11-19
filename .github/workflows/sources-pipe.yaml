@@ -36,17 +36,11 @@ jobs:
           install: true
           cache_save_post: true
 
-      - name: Install pipeline toolchains
-        run: |
-          mise -E specs install --locked
-          mise -E sources install --locked
-
-
       - name: Run Sources gate pipeline
         shell: bash
         run: |
           if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            mise -E sources run --affected --affected-committed --affected-base "origin/$GITHUB_BASE_REF" --affected-head HEAD sources:gate
+            mise run --affected --affected-committed --affected-base "origin/$GITHUB_BASE_REF" --affected-head HEAD sources:gate
           else
-            mise -E sources run sources:gate
+            mise run sources:gate
           fi

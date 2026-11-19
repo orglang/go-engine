@@ -1,6 +1,8 @@
 package uniqsym
 
 import (
+	"database/sql"
+	"strings"
 	"testing"
 )
 
@@ -17,7 +19,10 @@ var sunnyTests = []struct {
 func TestConvertFromStringSuccess(t *testing.T) {
 	for _, test := range sunnyTests {
 		t.Run(test.name, func(t *testing.T) {
-			got, _ := ConvertFromString(test.str)
+			got, err := ConvertFromString(test.str)
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
 			if !got.Equal(test.adt) {
 				t.Errorf("got %+v, want %+v", got, test.adt)
 			}
@@ -36,22 +41,34 @@ func TestConvertToStringSuccess(t *testing.T) {
 	}
 }
 
-func TestConvertFromStringError(t *testing.T) {
-	var rainyTests = []struct {
-		name string
-		str  string
-	}{
-		{"empty string", ""},
-		{"sep only", "."},
-		{"invalid sym", "a."},
-		{"invalid ns", ".a"},
-	}
-	for _, test := range rainyTests {
-		t.Run(test.name, func(t *testing.T) {
-			_, err := ConvertFromString(test.str)
-			if err == nil {
-				t.Error("got nil error")
+func TestConvertFromStringRejectsEmptySegments(t *testing.T) {
+	for _, value := range []string{"", ".", "a.", ".a", "a..b"} {
+		t.Run(value, func(t *testing.T) {
+			if _, err := ConvertFromString(value); err == nil {
+				t.Fatal("expected conversion error")
 			}
 		})
+	}
+}
+
+func TestConvertFromStringDoesNotValidateQualifiedSymbolSyntax(t *testing.T) {
+	for _, value := range []string{"a b", "a/b", "привет", strings.Repeat("a", 513)} {
+		t.Run(value, func(t *testing.T) {
+			if _, err := ConvertFromString(value); err != nil {
+				t.Fatalf("unexpected constructor validation: %v", err)
+			}
+		})
+	}
+}
+
+func TestConvertFromNullString(t *testing.T) {
+	if got, err := ConvertFromNullString(sql.NullString{}); err != nil || got != empty {
+		t.Fatalf("got (%v, %v), want (empty, nil)", got, err)
+	}
+	if _, err := ConvertFromNullString(sql.NullString{String: "bad value", Valid: true}); err != nil {
+		t.Fatalf("unexpected constructor validation: %v", err)
+	}
+	if _, err := ConvertFromNullString(sql.NullString{String: "a.b", Valid: true}); err != nil {
+		t.Fatalf("unexpected error: %v", err)
 	}
 }

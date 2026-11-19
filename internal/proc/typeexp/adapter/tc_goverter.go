@@ -1,19 +1,7 @@
 package adapter
 
 import (
-	sdktypeexp "github.com/orglang/go-sdk/proc/typeexp"
-
 	typeexp "orglang/go-engine/internal/proc/typeexp/core"
-)
-
-// goverter:variables
-// goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
-// goverter:extend Msg.*
-var (
-	MsgFromExpRefs func([]typeexp.ExpRef) []sdktypeexp.ExpRef
-	MsgToExpRefs   func([]sdktypeexp.ExpRef) ([]typeexp.ExpRef, error)
 )
 
 // goverter:variables

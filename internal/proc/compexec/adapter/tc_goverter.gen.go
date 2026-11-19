@@ -4,47 +4,12 @@
 package adapter
 
 import (
-	compsem1 "github.com/orglang/go-sdk/adt/compsem"
-	compexec "github.com/orglang/go-sdk/proc/compexec"
 	compsem "orglang/go-engine/internal/adt/compsem"
 	compvar "orglang/go-engine/internal/adt/compvar"
 	identity "orglang/go-engine/internal/adt/identity"
-	seqnum "orglang/go-engine/internal/adt/seqnum"
 	core "orglang/go-engine/internal/proc/compexec/core"
 )
 
-func init() {
-	MsgFromExecSnap = func(source core.ExecSnap) compexec.ExecSnap {
-		var compexecExecSnap compexec.ExecSnap
-		compexecExecSnap.CompRef = compsemSemRefToCompsemSemRef(source.CompRef)
-		return compexecExecSnap
-	}
-	MsgToExecSnap = func(source compexec.ExecSnap) (core.ExecSnap, error) {
-		var coreExecSnap core.ExecSnap
-		compsemSemRef, err := compsemSemRefToCompsemSemRef2(source.CompRef)
-		if err != nil {
-			return coreExecSnap, err
-		}
-		coreExecSnap.CompRef = compsemSemRef
-		return coreExecSnap, nil
-	}
-}
-func compsemSemRefToCompsemSemRef(source compsem.SemRef) compsem1.SemRef {
-	var compsemSemRef compsem1.SemRef
-	compsemSemRef.CompID = identity.ConvertToString(source.CompID)
-	compsemSemRef.CompRN = int64(source.CompRN)
-	return compsemSemRef
-}
-func compsemSemRefToCompsemSemRef2(source compsem1.SemRef) (compsem.SemRef, error) {
-	var compsemSemRef compsem.SemRef
-	identityADT, err := identity.ConvertFromString(source.CompID)
-	if err != nil {
-		return compsemSemRef, err
-	}
-	compsemSemRef.CompID = identityADT
-	compsemSemRef.CompRN = seqnum.ADT(source.CompRN)
-	return compsemSemRef, nil
-}
 func init() {
 	DataFromExecRec = func(source core.ExecRec) core.ExecRecDS {
 		var coreExecRecDS core.ExecRecDS

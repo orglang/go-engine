@@ -65,7 +65,7 @@ func (c *controllerEcho) PostSpec(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return ctx.JSON(http.StatusCreated, compsem.MsgFromRef(ref))
+	return ctx.JSON(http.StatusCreated, compRefToAPI(ref))
 }
 
 func poolExecSpecToCore(dto api.AnyExecSpec) (compexec.ExecSpec, error) {
@@ -134,7 +134,7 @@ func (c *controllerEcho) PostSpec3(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return ctx.JSON(http.StatusCreated, compsem.MsgFromRef(ref))
+	return ctx.JSON(http.StatusCreated, compRefToAPI(ref))
 }
 
 func poolStepSpecToCore(dto api.PoolStepSpec) (compstep.StepSpec, error) {
@@ -155,6 +155,13 @@ func compRefFromAPI(dto api.AnyCompRef) (compsem.SemRef, error) {
 		return compsem.SemRef{}, err
 	}
 	return compsem.SemRef{CompID: id, CompRN: seqnum.ConvertFromInt(dto.CompRn)}, nil
+}
+
+func compRefToAPI(ref compsem.SemRef) api.AnyCompRef {
+	return api.AnyCompRef{
+		CompId: identity.ConvertToString(ref.CompID),
+		CompRn: seqnum.ConvertToInt(ref.CompRN),
+	}
 }
 
 func termRefFromAPI(dto api.AnyTermRef) (termsem.SemRef, error) {

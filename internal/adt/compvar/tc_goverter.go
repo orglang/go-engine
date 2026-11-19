@@ -3,8 +3,6 @@ package compvar
 import (
 	"database/sql"
 
-	"github.com/orglang/go-sdk/adt/compvar"
-
 	"orglang/go-engine/internal/adt/compsem"
 	"orglang/go-engine/internal/adt/identity"
 )
@@ -14,17 +12,6 @@ import (
 // goverter:extend ConvertRecToRef
 var (
 	ConvertRecsToRefs func([]LinearRec) []compsem.SemRef
-)
-
-// goverter:variables
-// goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/internal/adt/symbol:Convert.*
-// goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
-var (
-	MsgFromVarSpec  func(VarSpec) compvar.VarSpec
-	MsgFromVarSpecs func([]VarSpec) []compvar.VarSpec
-	MsgToVarSpec    func(compvar.VarSpec) (VarSpec, error)
-	MsgToVarSpecs   func([]compvar.VarSpec) ([]VarSpec, error)
 )
 
 // goverter:variables

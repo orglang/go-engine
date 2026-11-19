@@ -1,26 +1,9 @@
 package adapter
 
 import (
-	sdktermdec "github.com/orglang/go-sdk/proc/termdec"
-
 	"orglang/go-engine/internal/adt/termvar"
 	webapi "orglang/go-engine/internal/app/web/api"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
-)
-
-// goverter:variables
-// goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
-// goverter:extend orglang/go-engine/internal/proc/typedef/adapter:Msg.*
-// goverter:extend MsgFromTermVarRec
-// goverter:extend MsgToTermVarRec
-var (
-	MsgToDecSpec    func(sdktermdec.DecSpec) (termdec.DecSpec, error)
-	MsgFromDecSpec  func(termdec.DecSpec) sdktermdec.DecSpec
-	MsgToDecSnap    func(sdktermdec.DecSnap) (termdec.DecSnap, error)
-	MsgFromDecSnap  func(termdec.DecSnap) sdktermdec.DecSnap
-	MsgFromDecSnaps func([]termdec.DecSnap) []sdktermdec.DecSnap
 )
 
 // goverter:variables

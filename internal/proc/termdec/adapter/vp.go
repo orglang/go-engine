@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	"github.com/orglang/go-sdk/adt/termsem"
+	"orglang/go-engine/internal/adt/termsem"
 )
 
 type DecSpecVP struct {

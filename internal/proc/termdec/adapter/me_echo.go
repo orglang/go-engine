@@ -7,8 +7,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	sdk "github.com/orglang/go-sdk/adt/termsem"
-
+	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/termsem"
 	webapi "orglang/go-engine/internal/app/web/api"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
@@ -29,24 +29,20 @@ func newControllerEcho(a termdec.API, l *slog.Logger) *controllerEcho {
 }
 
 func (h *controllerEcho) GetProcessDeclaration(c echo.Context, id string, params webapi.GetProcessDeclarationParams) error {
-	dto := sdk.SemRef{TermID: id}
+	termID, err := identity.ConvertFromString(id)
+	if err != nil {
+		h.log.Error("conversion failed", slog.Any("id", id), slog.Any("err", err))
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	ref := termsem.SemRef{TermID: termID}
 	if params.Rn != nil {
-		dto.TermRN = *params.Rn
+		ref.TermRN = seqnum.ConvertFromInt(*params.Rn)
 	}
-	return h.retrieveSnap(c, dto)
-}
-
-func (h *controllerEcho) retrieveSnap(c echo.Context, dto sdk.SemRef) error {
-	ref, convErr := termsem.MsgToRef(dto)
-	if convErr != nil {
-		h.log.Error("conversion failed", slog.Any("dto", dto))
-		return convErr
+	snap, err := h.api.RetrieveSnap(ref)
+	if err != nil {
+		return err
 	}
-	snap, retrieveErr := h.api.RetrieveSnap(ref)
-	if retrieveErr != nil {
-		return retrieveErr
-	}
-	return c.JSON(http.StatusOK, MsgFromDecSnap(snap))
+	return c.JSON(http.StatusOK, DecSnapToGenerated(snap))
 }
 
 func (h *controllerEcho) CreateProcessDeclaration(c echo.Context) error {

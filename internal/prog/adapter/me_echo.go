@@ -7,7 +7,6 @@ import (
 	"reflect"
 
 	"github.com/labstack/echo/v4"
-	sdkprog "github.com/orglang/go-sdk/prog"
 
 	webapi "orglang/go-engine/internal/app/web/api"
 	coreprog "orglang/go-engine/internal/prog/core"
@@ -32,14 +31,14 @@ func (h *controllerEcho) CreateProgram(ctx echo.Context) error {
 		h.log.Error("reading failed", slog.Any("err", readErr))
 		return readErr
 	}
-	dto, parseErr := sdkprog.MsgFromText(string(text))
+	ast, parseErr := parseProgram(string(text))
 	if parseErr != nil {
-		h.log.Error("parsing failed", slog.Any("dto", reflect.TypeFor[sdkprog.Spec]()))
+		h.log.Error("parsing failed", slog.Any("parser", "program DSL"))
 		return parseErr
 	}
-	spec, convErr := MsgToSpec(dto)
+	spec, convErr := programASTToCore(ast)
 	if convErr != nil {
-		h.log.Error("conversion failed", slog.Any("dto", dto))
+		h.log.Error("conversion failed", slog.Any("ast", ast))
 		return convErr
 	}
 	if apiErr := h.api.Create(spec); apiErr != nil {

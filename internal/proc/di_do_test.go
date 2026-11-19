@@ -131,8 +131,8 @@ func TestPackageProvidesHTTPAdapters(t *testing.T) {
 			_, err := do.Invoke[termdecadapter.Presenter](injector)
 			return err
 		}},
-		{"type-definition controller", func() error {
-			_, err := do.Invoke[typedefadapter.Controller](injector)
+		{"generated type-definition controller", func() error {
+			_, err := do.Invoke[typedefadapter.GeneratedController](injector)
 			return err
 		}},
 		{"type-definition presenter", func() error {
@@ -167,9 +167,8 @@ func TestRegisterRoutes(t *testing.T) {
 		"POST /api/v1/processes/executions/:id/steps",
 		"POST /api/v1/processes/declarations",
 		"GET /api/v1/processes/declarations/:id",
-		"POST /api/v1/types",
-		"GET /api/v1/types/:id",
-		"PATCH /api/v1/types/:id",
+		"POST /api/v1/processes/types",
+		"GET /api/v1/processes/types/:id",
 		"POST /ssr/decs",
 		"GET /ssr/decs",
 		"GET /ssr/decs/:id",

@@ -4,6 +4,7 @@ go 1.27.0
 
 require (
 	github.com/Masterminds/sprig/v3 v3.3.0
+	github.com/alecthomas/participle/v2 v2.1.4
 	github.com/alitto/pond/v2 v2.7.3
 	github.com/gammazero/workerpool v1.3.0
 	github.com/georgysavva/scany/v2 v2.1.4
@@ -13,22 +14,18 @@ require (
 	github.com/jackc/pgx/v5 v5.12.0
 	github.com/labstack/echo/v4 v4.16.4
 	github.com/oapi-codegen/runtime v1.9.0
-	github.com/orglang/go-sdk v0.0.0-20260912152343-a8600e41f90d
 	github.com/rs/xid v1.6.0
 	github.com/samber/do/v2 v2.1.0
 	github.com/spf13/viper v1.21.0
-	golang.org/x/exp v0.0.0-20260112195511-716be5621a96
 )
 
 require (
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
-	github.com/alecthomas/participle/v2 v2.1.4 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/gammazero/deque v1.2.2 // indirect
-	github.com/go-resty/resty/v2 v2.17.2 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/huandu/go-clone v1.7.3 // indirect

@@ -4,13 +4,11 @@
 package compvar
 
 import (
-	compvar "github.com/orglang/go-sdk/adt/compvar"
 	compsem "orglang/go-engine/internal/adt/compsem"
 	contkey "orglang/go-engine/internal/adt/contkey"
 	identity "orglang/go-engine/internal/adt/identity"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
 	symbol "orglang/go-engine/internal/adt/symbol"
-	uniqsym "orglang/go-engine/internal/adt/uniqsym"
 )
 
 func init() {
@@ -23,52 +21,6 @@ func init() {
 			}
 		}
 		return compsemSemRefList
-	}
-}
-func init() {
-	MsgFromVarSpec = func(source VarSpec) compvar.VarSpec {
-		var compvarVarSpec compvar.VarSpec
-		compvarVarSpec.ChnlPH = symbol.ConvertToString(source.ChnlPH)
-		compvarVarSpec.TermQN = uniqsym.ConvertToString(source.TermQN)
-		return compvarVarSpec
-	}
-	MsgFromVarSpecs = func(source []VarSpec) []compvar.VarSpec {
-		var compvarVarSpecList []compvar.VarSpec
-		if source != nil {
-			compvarVarSpecList = make([]compvar.VarSpec, len(source))
-			for i := 0; i < len(source); i++ {
-				compvarVarSpecList[i] = MsgFromVarSpec(source[i])
-			}
-		}
-		return compvarVarSpecList
-	}
-	MsgToVarSpec = func(source compvar.VarSpec) (VarSpec, error) {
-		var compvarVarSpec VarSpec
-		symbolADT, err := symbol.ConvertFromString(source.ChnlPH)
-		if err != nil {
-			return compvarVarSpec, err
-		}
-		compvarVarSpec.ChnlPH = symbolADT
-		uniqsymADT, err := uniqsym.ConvertFromString(source.TermQN)
-		if err != nil {
-			return compvarVarSpec, err
-		}
-		compvarVarSpec.TermQN = uniqsymADT
-		return compvarVarSpec, nil
-	}
-	MsgToVarSpecs = func(source []compvar.VarSpec) ([]VarSpec, error) {
-		var compvarVarSpecList []VarSpec
-		if source != nil {
-			compvarVarSpecList = make([]VarSpec, len(source))
-			for i := 0; i < len(source); i++ {
-				compvarVarSpec, err := MsgToVarSpec(source[i])
-				if err != nil {
-					return nil, err
-				}
-				compvarVarSpecList[i] = compvarVarSpec
-			}
-		}
-		return compvarVarSpecList, nil
 	}
 }
 func init() {

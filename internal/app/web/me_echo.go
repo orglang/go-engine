@@ -9,7 +9,6 @@ import (
 
 	"orglang/go-engine/internal/lib/te"
 
-	"orglang/go-engine/internal/adt/typesem"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
@@ -45,7 +44,7 @@ func (h *controllerEcho) Home(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	html, err := h.ssr.Render("home.html", typesem.MsgFromRefs(refs))
+	html, err := h.ssr.Render("home.html", refs)
 	if err != nil {
 		return err
 	}

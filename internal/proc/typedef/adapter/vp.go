@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	"github.com/orglang/go-sdk/adt/typesem"
+	"orglang/go-engine/internal/adt/typesem"
 )
 
 type DefSpecVP struct {

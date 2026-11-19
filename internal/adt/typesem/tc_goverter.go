@@ -1,21 +1,6 @@
 package typesem
 
-import (
-	"orglang/go-engine/internal/adt/uniqsym"
-
-	"github.com/orglang/go-sdk/adt/typesem"
-)
-
-// goverter:variables
-// goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
-var (
-	MsgFromRef  func(SemRef) typesem.SemRef
-	MsgFromRefs func([]SemRef) []typesem.SemRef
-	MsgToRef    func(typesem.SemRef) (SemRef, error)
-	MsgToRefs   func([]typesem.SemRef) ([]SemRef, error)
-)
+import "orglang/go-engine/internal/adt/uniqsym"
 
 // goverter:variables
 // goverter:output:format assign-variable

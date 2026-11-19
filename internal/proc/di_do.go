@@ -52,7 +52,7 @@ func RegisterRoutes(server *echo.Echo, i do.Injector) error {
 	if err != nil {
 		return err
 	}
-	typeDefController, err := do.Invoke[typedef.Controller](i)
+	typeDefController, err := do.Invoke[typedef.GeneratedController](i)
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func RegisterRoutes(server *echo.Echo, i do.Injector) error {
 	if err := termdec.RegisterPresenterRoutes(server, termDecPresenter); err != nil {
 		return err
 	}
-	if err := typedef.RegisterRoutes(server, typeDefController); err != nil {
+	if err := typedef.RegisterGeneratedRoutes(server, typeDefController); err != nil {
 		return err
 	}
 	return typedef.RegisterPresenterRoutes(server, typeDefPresenter)

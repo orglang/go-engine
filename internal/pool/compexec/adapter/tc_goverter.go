@@ -4,18 +4,6 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 
 	compexec "orglang/go-engine/internal/pool/compexec/core"
-
-	sdkcompexec "github.com/orglang/go-sdk/pool/compexec"
-)
-
-// goverter:variables
-// goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
-// goverter:extend orglang/go-engine/internal/adt/compsem:Msg.*
-var (
-	MsgToExecSpec   func(sdkcompexec.ExecSpec) (compexec.ExecSpec, error)
-	MsgFromExecSpec func(compexec.ExecSpec) sdkcompexec.ExecSpec
 )
 
 // goverter:variables

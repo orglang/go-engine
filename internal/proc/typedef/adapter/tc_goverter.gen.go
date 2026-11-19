@@ -4,103 +4,18 @@
 package adapter
 
 import (
-	typesem1 "github.com/orglang/go-sdk/adt/typesem"
-	typedef "github.com/orglang/go-sdk/proc/typedef"
 	contkey "orglang/go-engine/internal/adt/contkey"
 	identity "orglang/go-engine/internal/adt/identity"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
 	typesem "orglang/go-engine/internal/adt/typesem"
 	uniqsym "orglang/go-engine/internal/adt/uniqsym"
 	core "orglang/go-engine/internal/proc/typedef/core"
-	adapter "orglang/go-engine/internal/proc/typeexp/adapter"
 )
 
 func init() {
-	MsgFromDefSnap = func(source core.DefSnap) typedef.DefSnap {
-		var typedefDefSnap typedef.DefSnap
-		typedefDefSnap.TypeRef = typesemSemRefToTypesemSemRef(source.TypeRef)
-		typedefDefSnap.DefSpec = MsgFromDefSpec(source.DefSpec)
-		return typedefDefSnap
-	}
-	MsgFromDefSnaps = func(source []core.DefSnap) []typedef.DefSnap {
-		var typedefDefSnapList []typedef.DefSnap
-		if source != nil {
-			typedefDefSnapList = make([]typedef.DefSnap, len(source))
-			for i := 0; i < len(source); i++ {
-				typedefDefSnapList[i] = MsgFromDefSnap(source[i])
-			}
-		}
-		return typedefDefSnapList
-	}
-	MsgFromDefSpec = func(source core.DefSpec) typedef.DefSpec {
-		var typedefDefSpec typedef.DefSpec
-		typedefDefSpec.TypeQN = uniqsym.ConvertToString(source.TypeQN)
-		typedefDefSpec.TypeExp = adapter.MsgFromExpSpec(source.TypeExp)
-		return typedefDefSpec
-	}
-	MsgToDefSnap = func(source typedef.DefSnap) (core.DefSnap, error) {
-		var coreDefSnap core.DefSnap
-		typesemSemRef, err := typesemSemRefToTypesemSemRef2(source.TypeRef)
-		if err != nil {
-			return coreDefSnap, err
-		}
-		coreDefSnap.TypeRef = typesemSemRef
-		coreDefSpec, err := MsgToDefSpec(source.DefSpec)
-		if err != nil {
-			return coreDefSnap, err
-		}
-		coreDefSnap.DefSpec = coreDefSpec
-		return coreDefSnap, nil
-	}
-	MsgToDefSnaps = func(source []typedef.DefSnap) ([]core.DefSnap, error) {
-		var coreDefSnapList []core.DefSnap
-		if source != nil {
-			coreDefSnapList = make([]core.DefSnap, len(source))
-			for i := 0; i < len(source); i++ {
-				coreDefSnap, err := MsgToDefSnap(source[i])
-				if err != nil {
-					return nil, err
-				}
-				coreDefSnapList[i] = coreDefSnap
-			}
-		}
-		return coreDefSnapList, nil
-	}
-	MsgToDefSpec = func(source typedef.DefSpec) (core.DefSpec, error) {
-		var coreDefSpec core.DefSpec
-		uniqsymADT, err := uniqsym.ConvertFromString(source.TypeQN)
-		if err != nil {
-			return coreDefSpec, err
-		}
-		coreDefSpec.TypeQN = uniqsymADT
-		coreExpSpec, err := adapter.MsgToExpSpec(source.TypeExp)
-		if err != nil {
-			return coreDefSpec, err
-		}
-		coreDefSpec.TypeExp = coreExpSpec
-		return coreDefSpec, nil
-	}
-}
-func typesemSemRefToTypesemSemRef(source typesem.SemRef) typesem1.SemRef {
-	var typesemSemRef typesem1.SemRef
-	typesemSemRef.TypeID = identity.ConvertToString(source.TypeID)
-	typesemSemRef.TypeRN = int64(source.TypeRN)
-	return typesemSemRef
-}
-func typesemSemRefToTypesemSemRef2(source typesem1.SemRef) (typesem.SemRef, error) {
-	var typesemSemRef typesem.SemRef
-	identityADT, err := identity.ConvertFromString(source.TypeID)
-	if err != nil {
-		return typesemSemRef, err
-	}
-	typesemSemRef.TypeID = identityADT
-	typesemSemRef.TypeRN = seqnum.ADT(source.TypeRN)
-	return typesemSemRef, nil
-}
-func init() {
 	ViewFromDefSnap = func(source core.DefSnap) DefSnapVP {
 		var adapterDefSnapVP DefSnapVP
-		adapterDefSnapVP.TypeRef = typesemSemRefToTypesemSemRef3(source.TypeRef)
+		adapterDefSnapVP.TypeRef = source.TypeRef
 		adapterDefSnapVP.DefSpec = coreDefSpecToAdapterDefSpecVP(source.DefSpec)
 		return adapterDefSnapVP
 	}
@@ -109,12 +24,6 @@ func coreDefSpecToAdapterDefSpecVP(source core.DefSpec) DefSpecVP {
 	var adapterDefSpecVP DefSpecVP
 	adapterDefSpecVP.TypeQN = uniqsym.ConvertToString(source.TypeQN)
 	return adapterDefSpecVP
-}
-func typesemSemRefToTypesemSemRef3(source typesem.SemRef) typesem1.SemRef {
-	var typesemSemRef typesem1.SemRef
-	typesemSemRef.TypeID = identity.ConvertToString(source.TypeID)
-	typesemSemRef.TypeRN = int64(source.TypeRN)
-	return typesemSemRef
 }
 func init() {
 	DataFromDefRec = func(source core.DefRec) (core.DefRecDS, error) {

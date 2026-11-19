@@ -1,99 +1,50 @@
 package adapter
 
 import (
-	"errors"
 	"log/slog"
 	"net/http"
 	"reflect"
 
 	"github.com/labstack/echo/v4"
 
-	"orglang/go-engine/internal/adt/symbol"
-	"orglang/go-engine/internal/adt/termsem"
-	"orglang/go-engine/internal/adt/termvar"
-	"orglang/go-engine/internal/adt/uniqsym"
-	"orglang/go-engine/internal/app/web/api"
+	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/seqnum"
+	webapi "orglang/go-engine/internal/app/web/api"
 	termdef "orglang/go-engine/internal/pool/termdef/core"
 )
 
-// Controller is the inbound HTTP port implemented by the Echo adapter.
-type Controller interface {
-	PostSpec(echo.Context) error
+// GeneratedController is the inbound HTTP port for pool term definitions.
+type GeneratedController interface {
+	CreatePoolDeclaration(echo.Context) error
 }
 
-// RegisterRoutes attaches the pool term-definition endpoint to Echo.
-func RegisterRoutes(e *echo.Echo, h Controller) error {
-	e.POST("/api/v1/pools/declarations", h.PostSpec)
-	return nil
-}
-
-// Server-side primary adapter
 type controllerEcho struct {
 	api termdef.API
 	log *slog.Logger
 }
 
+var _ GeneratedController = (*controllerEcho)(nil)
+
 func newControllerEcho(a termdef.API, l *slog.Logger) *controllerEcho {
 	name := slog.String("name", reflect.TypeFor[controllerEcho]().Name())
-	return &controllerEcho{a, l.With(name)}
+	return &controllerEcho{api: a, log: l.With(name)}
 }
 
-func cfgEchoController(e *echo.Echo, h *controllerEcho) error {
-	return RegisterRoutes(e, h)
-}
-
-func (h *controllerEcho) PostSpec(c echo.Context) error {
-	var dto api.PoolDecSpec
-	bindErr := c.Bind(&dto)
-	if bindErr != nil {
-		h.log.Error("binding failed", slog.Any("dto", reflect.TypeOf(dto)))
-		return bindErr
+func (h *controllerEcho) CreatePoolDeclaration(c echo.Context) error {
+	var dto webapi.PoolDecSpec
+	if err := c.Bind(&dto); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	spec, convErr := poolDecSpecToCore(dto)
-	if convErr != nil {
-		h.log.Error("conversion failed", slog.Any("dto", dto))
-		return convErr
-	}
-	ref, createErr := h.api.Create(spec)
-	if createErr != nil {
-		return createErr
-	}
-	return c.JSON(http.StatusCreated, termsem.MsgFromRef(ref))
-}
-
-func poolDecSpecToCore(dto api.PoolDecSpec) (termdef.DefSpec, error) {
-	termQN, err := uniqsym.ConvertFromString(dto.DescQn)
+	spec, err := DecSpecFromGenerated(dto)
 	if err != nil {
-		return termdef.DefSpec{}, err
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	liabVar, err := poolConnVarToCore(dto.LiabVar)
+	ref, err := h.api.Create(spec)
 	if err != nil {
-		return termdef.DefSpec{}, err
+		return err
 	}
-	assetVars := make([]termvar.VarSpec, len(dto.AssetVars))
-	for i, assetVar := range dto.AssetVars {
-		assetVars[i], err = poolConnVarToCore(assetVar)
-		if err != nil {
-			return termdef.DefSpec{}, err
-		}
-	}
-	return termdef.DefSpec{
-		TermQN:    termQN,
-		LiabVar:   liabVar,
-		AssetVars: assetVars,
-	}, nil
-}
-
-func poolConnVarToCore(dto api.AnyConnVarSpec) (termvar.VarSpec, error) {
-	if dto.ConnPh == "" {
-		return termvar.VarSpec{}, errors.New("conn_ph cannot be blank")
-	}
-	typeQN, err := uniqsym.ConvertFromString(dto.TypeQn)
-	if err != nil {
-		return termvar.VarSpec{}, err
-	}
-	return termvar.VarSpec{
-		ChnlPH: symbol.New(dto.ConnPh),
-		TypeQN: typeQN,
-	}, nil
+	return c.JSON(http.StatusCreated, webapi.AnyTermRef{
+		TermId: identity.ConvertToString(ref.TermID),
+		TermRn: seqnum.ConvertToInt(ref.TermRN),
+	})
 }

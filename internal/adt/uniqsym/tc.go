@@ -8,9 +8,7 @@ import (
 	"orglang/go-engine/internal/adt/symbol"
 )
 
-const (
-	sep = "."
-)
+const sep = "."
 
 func ConvertFromString(str string) (ADT, error) {
 	if str == "" {
@@ -35,19 +33,7 @@ func ConvertFromNullString(str sql.NullString) (ADT, error) {
 	if !str.Valid {
 		return empty, nil
 	}
-	idx := strings.LastIndex(str.String, sep)
-	if idx < 0 {
-		return ADT{symbol.New(str.String), nil}, nil
-	}
-	sym, err := symbol.ConvertFromString(str.String[idx+1:])
-	if err != nil {
-		return empty, err
-	}
-	ns, err := ConvertFromString(str.String[:idx])
-	if err != nil {
-		return empty, err
-	}
-	return ADT{sym, &ns}, nil
+	return ConvertFromString(str.String)
 }
 
 func ConvertToString(adt ADT) string {

@@ -8,48 +8,35 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"orglang/go-engine/internal/adt/typesem"
+	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/uniqsym"
-	"orglang/go-engine/internal/app/web/api"
-	"orglang/go-engine/internal/lib/lf"
+	webapi "orglang/go-engine/internal/app/web/api"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 )
 
-// Controller is the inbound HTTP port implemented by the Echo adapter.
-type Controller interface {
-	PostSpec(echo.Context) error
+type GeneratedController interface {
+	CreatePoolTypeDefinition(echo.Context) error
 }
 
-// RegisterRoutes attaches the pool type-definition endpoint to Echo.
-func RegisterRoutes(e *echo.Echo, h Controller) error {
-	e.POST("/api/v1/pools/types", h.PostSpec)
-	return nil
-}
-
-// Server-side primary adapter
 type controllerEcho struct {
 	api typedef.API
 	log *slog.Logger
 }
 
+var _ GeneratedController = (*controllerEcho)(nil)
+
 func newControllerEcho(a typedef.API, l *slog.Logger) *controllerEcho {
 	name := slog.String("name", reflect.TypeFor[controllerEcho]().Name())
-	return &controllerEcho{a, l.With(name)}
+	return &controllerEcho{api: a, log: l.With(name)}
 }
 
-func cfgEchoController(e *echo.Echo, h *controllerEcho) error {
-	return RegisterRoutes(e, h)
-}
-
-func (h *controllerEcho) PostSpec(c echo.Context) error {
-	var dto api.PoolTypeDefSpec
+func (h *controllerEcho) CreatePoolTypeDefinition(c echo.Context) error {
+	var dto webapi.PoolTypeDefSpec
 	if err := c.Bind(&dto); err != nil {
-		h.log.Error("binding failed", slog.Any("error", err))
-		return err
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	ctx := c.Request().Context()
-	h.log.Log(ctx, lf.LevelTrace, "posting started", slog.Any("dto", dto))
 	qn, err := uniqsym.ConvertFromString(dto.Qn)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -62,11 +49,13 @@ func (h *controllerEcho) PostSpec(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	h.log.Log(ctx, lf.LevelTrace, "posting succeed", slog.Any("ref", ref))
-	return c.JSON(http.StatusCreated, typesem.MsgFromRef(ref))
+	return c.JSON(http.StatusCreated, webapi.AnyTypeRef{
+		TypeId: identity.ConvertToString(ref.TypeID),
+		TypeRn: seqnum.ConvertToInt(ref.TypeRN),
+	})
 }
 
-func poolTypeExprToCore(dto api.PoolTypeExprSpec) (typeexp.ExpSpec, error) {
+func poolTypeExprToCore(dto webapi.PoolTypeExprSpec) (typeexp.ExpSpec, error) {
 	kind, err := dto.Discriminator()
 	if err != nil {
 		return nil, fmt.Errorf("read pool type expression kind: %w", err)

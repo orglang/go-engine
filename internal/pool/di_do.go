@@ -17,9 +17,6 @@ import (
 	typeexp "orglang/go-engine/internal/pool/typeexp/adapter"
 )
 
-// Package is the pool-domain composition boundary. It registers persistence
-// adapters, services, and HTTP controllers; route registration stays explicit.
-// Shared process providers are registered by proc.Package.
 var Package = do.Package(
 	wp.Package,
 	compconn.Package,
@@ -37,7 +34,6 @@ var Package = do.Package(
 	}),
 )
 
-// RegisterRoutes mounts the pool HTTP adapters on the application's Echo server.
 func RegisterRoutes(server *echo.Echo, i do.Injector) error {
 	execController, err := do.Invoke[compexec.Controller](i)
 	if err != nil {
@@ -47,17 +43,17 @@ func RegisterRoutes(server *echo.Echo, i do.Injector) error {
 		return err
 	}
 
-	typeController, err := do.Invoke[typedef.Controller](i)
+	typeController, err := do.Invoke[typedef.GeneratedController](i)
 	if err != nil {
 		return err
 	}
-	if err := typedef.RegisterRoutes(server, typeController); err != nil {
+	if err := typedef.RegisterGeneratedRoutes(server, typeController); err != nil {
 		return err
 	}
 
-	termController, err := do.Invoke[termdef.Controller](i)
+	termController, err := do.Invoke[termdef.GeneratedController](i)
 	if err != nil {
 		return err
 	}
-	return termdef.RegisterRoutes(server, termController)
+	return termdef.RegisterGeneratedRoutes(server, termController)
 }

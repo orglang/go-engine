@@ -1,21 +1,6 @@
 package compsem
 
-import (
-	"orglang/go-engine/internal/adt/uniqsym"
-
-	"github.com/orglang/go-sdk/adt/compsem"
-)
-
-// goverter:variables
-// goverter:output:format assign-variable
-// goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
-var (
-	MsgFromRef  func(SemRef) compsem.SemRef
-	MsgFromRefs func([]SemRef) []compsem.SemRef
-	MsgToRef    func(compsem.SemRef) (SemRef, error)
-	MsgToRefs   func([]compsem.SemRef) ([]SemRef, error)
-)
+import "orglang/go-engine/internal/adt/uniqsym"
 
 // goverter:variables
 // goverter:output:format assign-variable

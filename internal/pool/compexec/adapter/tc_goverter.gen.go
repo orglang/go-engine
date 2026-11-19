@@ -4,71 +4,14 @@
 package adapter
 
 import (
-	compvar "github.com/orglang/go-sdk/adt/compvar"
-	compexec "github.com/orglang/go-sdk/pool/compexec"
 	compsem "orglang/go-engine/internal/adt/compsem"
-	compvar1 "orglang/go-engine/internal/adt/compvar"
+	compvar "orglang/go-engine/internal/adt/compvar"
 	identity "orglang/go-engine/internal/adt/identity"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
-	symbol "orglang/go-engine/internal/adt/symbol"
 	uniqsym "orglang/go-engine/internal/adt/uniqsym"
 	core "orglang/go-engine/internal/pool/compexec/core"
 )
 
-func init() {
-	MsgFromExecSpec = func(source core.ExecSpec) compexec.ExecSpec {
-		var compexecExecSpec compexec.ExecSpec
-		compexecExecSpec.TermQN = uniqsym.ConvertToString(source.TermQN)
-		compexecExecSpec.LiabVar = compvarVarSpecToCompvarVarSpec(source.LiabVar)
-		if source.AssetVars != nil {
-			compexecExecSpec.AssetVars = make([]compvar.VarSpec, len(source.AssetVars))
-			for i := 0; i < len(source.AssetVars); i++ {
-				compexecExecSpec.AssetVars[i] = compvarVarSpecToCompvarVarSpec(source.AssetVars[i])
-			}
-		}
-		return compexecExecSpec
-	}
-	MsgToExecSpec = func(source compexec.ExecSpec) (core.ExecSpec, error) {
-		var coreExecSpec core.ExecSpec
-		uniqsymADT, err := uniqsym.ConvertFromString(source.TermQN)
-		if err != nil {
-			return coreExecSpec, err
-		}
-		coreExecSpec.TermQN = uniqsymADT
-		compvarVarSpec, err := compvarVarSpecToCompvarVarSpec2(source.LiabVar)
-		if err != nil {
-			return coreExecSpec, err
-		}
-		coreExecSpec.LiabVar = compvarVarSpec
-		if source.AssetVars != nil {
-			coreExecSpec.AssetVars = make([]compvar1.VarSpec, len(source.AssetVars))
-			for i := 0; i < len(source.AssetVars); i++ {
-				compvarVarSpec2, err := compvarVarSpecToCompvarVarSpec2(source.AssetVars[i])
-				if err != nil {
-					return coreExecSpec, err
-				}
-				coreExecSpec.AssetVars[i] = compvarVarSpec2
-			}
-		}
-		return coreExecSpec, nil
-	}
-}
-func compvarVarSpecToCompvarVarSpec(source compvar1.VarSpec) compvar.VarSpec {
-	var compvarVarSpec compvar.VarSpec
-	compvarVarSpec.ChnlPH = string(source.ChnlPH)
-	compvarVarSpec.TermQN = uniqsym.ConvertToString(source.TermQN)
-	return compvarVarSpec
-}
-func compvarVarSpecToCompvarVarSpec2(source compvar.VarSpec) (compvar1.VarSpec, error) {
-	var compvarVarSpec compvar1.VarSpec
-	compvarVarSpec.ChnlPH = symbol.ADT(source.ChnlPH)
-	uniqsymADT, err := uniqsym.ConvertFromString(source.TermQN)
-	if err != nil {
-		return compvarVarSpec, err
-	}
-	compvarVarSpec.TermQN = uniqsymADT
-	return compvarVarSpec, nil
-}
 func init() {
 	DataFromExecRec = func(source core.ExecRec) core.ExecRecDS {
 		var coreExecRecDS core.ExecRecDS
@@ -82,8 +25,8 @@ func init() {
 		coreExecSnap2DS.CompID = identity.ConvertToString(source.CompRef.CompID)
 		coreExecSnap2DS.CompRN = int64(source.CompRef.CompRN)
 		coreExecSnap2DS.LiabMode = int16(source.LiabMode)
-		coreExecSnap2DS.StructVars = compvar1.DataFromStructRecs(source.StructVars)
-		coreExecSnap2DS.LinearVars = compvar1.DataFromLinearRecs(source.LinearVars)
+		coreExecSnap2DS.StructVars = compvar.DataFromStructRecs(source.StructVars)
+		coreExecSnap2DS.LinearVars = compvar.DataFromLinearRecs(source.LinearVars)
 		return coreExecSnap2DS
 	}
 	DataToExecRec = func(source core.ExecRecDS) (core.ExecRec, error) {
@@ -93,7 +36,7 @@ func init() {
 			return coreExecRec, err
 		}
 		coreExecRec.CompRef = compsemSemRef
-		coreExecRec.LiabMode = compvar1.Mode(source.LiabMode)
+		coreExecRec.LiabMode = compvar.Mode(source.LiabMode)
 		return coreExecRec, nil
 	}
 	DataToExecSnap2 = func(source core.ExecSnap2DS) (core.ExecSnap2, error) {
@@ -103,13 +46,13 @@ func init() {
 			return coreExecSnap2, err
 		}
 		coreExecSnap2.CompRef = compsemSemRef
-		coreExecSnap2.LiabMode = compvar1.Mode(source.LiabMode)
-		compvarStructRecList, err := compvar1.DataToStructRecs(source.StructVars)
+		coreExecSnap2.LiabMode = compvar.Mode(source.LiabMode)
+		compvarStructRecList, err := compvar.DataToStructRecs(source.StructVars)
 		if err != nil {
 			return coreExecSnap2, err
 		}
 		coreExecSnap2.StructVars = compvarStructRecList
-		compvarLinearRecList, err := compvar1.DataToLinearRecs(source.LinearVars)
+		compvarLinearRecList, err := compvar.DataToLinearRecs(source.LinearVars)
 		if err != nil {
 			return coreExecSnap2, err
 		}

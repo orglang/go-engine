@@ -1,84 +1,8 @@
 package adapter
 
 import (
-	sdktermexp "github.com/orglang/go-sdk/pool/termexp"
-
-	"orglang/go-engine/internal/adt/compsem"
-	"orglang/go-engine/internal/adt/termsem"
-
 	termexp "orglang/go-engine/internal/pool/termexp/core"
 )
-
-func MsgFromExpSpecNilable(spec termexp.ExpSpec) *sdktermexp.ExpSpec {
-	if spec == nil {
-		return nil
-	}
-	dto := MsgFromExpSpec(spec)
-	return &dto
-}
-
-func MsgFromExpSpec(s termexp.ExpSpec) sdktermexp.ExpSpec {
-	switch spec := s.(type) {
-	case termexp.HireSpec:
-		return sdktermexp.ExpSpec{K: sdktermexp.Hire, Hire: MsgFromHireSpec(spec)}
-	case termexp.ApplySpec:
-		return sdktermexp.ExpSpec{K: sdktermexp.Apply, Apply: MsgFromApplySpec(spec)}
-	case termexp.AcquireSpec:
-		return sdktermexp.ExpSpec{K: sdktermexp.Acquire, Acquire: MsgFromAcquireSpec(spec)}
-	case termexp.AcceptSpec:
-		return sdktermexp.ExpSpec{K: sdktermexp.Accept, Accept: MsgFromAcceptSpec(spec)}
-	case termexp.ReleaseSpec:
-		return sdktermexp.ExpSpec{K: sdktermexp.Release, Release: MsgFromReleaseSpec(spec)}
-	case termexp.DetachSpec:
-		return sdktermexp.ExpSpec{K: sdktermexp.Detach, Detach: MsgFromDetachSpec(spec)}
-	case termexp.SpawnSpec2:
-		return sdktermexp.ExpSpec{
-			K: sdktermexp.Spawn,
-			Spawn: &sdktermexp.SpawnSpec{
-				ProcTermRef:  termsem.MsgFromRef(spec.ProcTermRef),
-				ProcCompRefs: compsem.MsgFromRefs(spec.ProcCompRefs),
-			},
-		}
-	default:
-		panic(termexp.ErrSpecTypeUnexpected(s))
-	}
-}
-
-func MsgToExpSpecNilable(dto *sdktermexp.ExpSpec) (termexp.ExpSpec, error) {
-	if dto == nil {
-		return nil, nil
-	}
-	return MsgToExpSpec(*dto)
-}
-
-func MsgToExpSpec(dto sdktermexp.ExpSpec) (termexp.ExpSpec, error) {
-	switch dto.K {
-	case sdktermexp.Acquire:
-		return MsgToAcquireSpec(dto.Acquire)
-	case sdktermexp.Accept:
-		return MsgToAcceptSpec(dto.Accept)
-	case sdktermexp.Hire:
-		return MsgToHireSpec(dto.Hire)
-	case sdktermexp.Apply:
-		return MsgToApplySpec(dto.Apply)
-	case sdktermexp.Release:
-		return MsgToReleaseSpec(dto.Release)
-	case sdktermexp.Detach:
-		return MsgToDetachSpec(dto.Detach)
-	case sdktermexp.Spawn:
-		termRef, err := termsem.MsgToRef(dto.Spawn.ProcTermRef)
-		if err != nil {
-			return nil, err
-		}
-		compRefs, err := compsem.MsgToRefs(dto.Spawn.ProcCompRefs)
-		if err != nil {
-			return nil, err
-		}
-		return termexp.SpawnSpec2{ProcTermRef: termRef, ProcCompRefs: compRefs}, nil
-	default:
-		panic(sdktermexp.ErrUnexpectedExpKind(dto.K))
-	}
-}
 
 func DataFromExpSpec(s termexp.ExpSpec) termexp.ExpSpecDS {
 	switch spec := s.(type) {

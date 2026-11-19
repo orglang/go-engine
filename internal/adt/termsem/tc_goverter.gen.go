@@ -4,54 +4,11 @@
 package termsem
 
 import (
-	termsem "github.com/orglang/go-sdk/adt/termsem"
 	identity "orglang/go-engine/internal/adt/identity"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
 	uniqsym "orglang/go-engine/internal/adt/uniqsym"
 )
 
-func init() {
-	MsgFromRef = func(source SemRef) termsem.SemRef {
-		var termsemSemRef termsem.SemRef
-		termsemSemRef.TermID = identity.ConvertToString(source.TermID)
-		termsemSemRef.TermRN = seqnum.ConvertToInt(source.TermRN)
-		return termsemSemRef
-	}
-	MsgFromRefs = func(source []SemRef) []termsem.SemRef {
-		var termsemSemRefList []termsem.SemRef
-		if source != nil {
-			termsemSemRefList = make([]termsem.SemRef, len(source))
-			for i := 0; i < len(source); i++ {
-				termsemSemRefList[i] = MsgFromRef(source[i])
-			}
-		}
-		return termsemSemRefList
-	}
-	MsgToRef = func(source termsem.SemRef) (SemRef, error) {
-		var termsemSemRef SemRef
-		identityADT, err := identity.ConvertFromString(source.TermID)
-		if err != nil {
-			return termsemSemRef, err
-		}
-		termsemSemRef.TermID = identityADT
-		termsemSemRef.TermRN = seqnum.ConvertFromInt(source.TermRN)
-		return termsemSemRef, nil
-	}
-	MsgToRefs = func(source []termsem.SemRef) ([]SemRef, error) {
-		var termsemSemRefList []SemRef
-		if source != nil {
-			termsemSemRefList = make([]SemRef, len(source))
-			for i := 0; i < len(source); i++ {
-				termsemSemRef, err := MsgToRef(source[i])
-				if err != nil {
-					return nil, err
-				}
-				termsemSemRefList[i] = termsemSemRef
-			}
-		}
-		return termsemSemRefList, nil
-	}
-}
 func init() {
 	DataFromRef = func(source SemRef) SemRefDS {
 		var termsemSemRefDS SemRefDS

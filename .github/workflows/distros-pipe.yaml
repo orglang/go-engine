@@ -44,7 +44,7 @@ jobs:
         uses: jdx/mise-action@v5
         with:
           cache: true
-          cache_key: "{{default}}-distros-pipe-${{ hashFiles('engine/mise*.toml', 'engine/mise*.lock') }}"
+          cache_key: "{{default}}-distros-pipe-${{ hashFiles('mise.toml', 'mise.lock', 'engine/mise*.toml', 'engine/mise*.lock') }}"
           install: true
           cache_save_post: true
 

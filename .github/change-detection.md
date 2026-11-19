@@ -77,7 +77,7 @@ CI persists only `$MISE_CACHE_DIR/task-artifacts/v2` with GitHub Actions Cache. 
 
 ## Experimental Pipe workflows
 
-The `Specs Pipe`, `Sources Pipe`, `Binaries Pipe`, and `Distros Pipe` workflows are an opt-in comparison of cumulative stage execution. They use the same PR path-detection contract and stage admission conditions as the regular workflows, but run a separate mise task chain:
+The `Specs Pipe`, `Sources Pipe`, `Binaries Pipe`, and `Distros Pipe` workflows are an opt-in comparison of cumulative stage execution. They start independently on every matching PR (without the regular workflows' `detect-changes` job or path admission), then let `mise run --affected` select the cumulative task chain:
 
 - `specs:pipe` runs Specs.
 - `sources:pipe` depends on `specs:pipe` and then runs Sources.
@@ -86,7 +86,7 @@ The `Specs Pipe`, `Sources Pipe`, `Binaries Pipe`, and `Distros Pipe` workflows 
 
 The regular `*:gate` tasks and their workflows remain independent and unchanged. Pipe tasks are selected with `mise run --affected`; once a Pipe task is selected, mise expands its dependencies, so upstream stages run as prerequisites even when their own inputs did not change. This deliberately measures the cost and behavior of cumulative execution against the independent-stage baseline.
 
-Pipe workflows are not required checks. Their artifact cache uses a separate GitHub Actions cache namespace from the regular workflows to avoid the two variants warming each other's cache. Compare runs for the same PR revisions and inspect task timings/cache stats before drawing conclusions.
+Pipe workflows are not required checks. Their artifact cache uses a separate GitHub Actions cache namespace from the regular workflows to avoid the two variants warming each other's cache. Since Pipe workflows do not use `detect-changes`, they incur workflow/job startup for every matching PR even when mise ultimately skips the task. Compare runs for the same PR revisions and inspect task timings/cache stats before drawing conclusions.
 
 ## Maintaining the mapping
 

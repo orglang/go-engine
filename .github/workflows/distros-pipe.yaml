@@ -61,14 +61,6 @@ jobs:
         working-directory: engine
         run: mise run deps:install
 
-      - name: Restore experimental mise task artifact cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/mise/task-artifacts/v2
-          key: mise-task-artifacts-pipe-v2-${{ runner.os }}-${{ runner.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-keys: |
-            mise-task-artifacts-pipe-v2-${{ runner.os }}-${{ runner.arch }}-
-
       - name: Setup Buildx
         uses: docker/setup-buildx-action@v4
         with:

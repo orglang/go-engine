@@ -61,11 +61,6 @@ distros = [
   "mise.distros.toml",
   "mise.distros.lock",
 ]
-unit-tests = [
-  "internal/**",
-  "cmd/**",
-]
-
 # Stage gates mirror the downstream impact mapping in .github/change-detection.md.
 # Keep them independent: each CI stage has its own workflow and invokes only its gate.
 # The groups above encode cumulative inputs without making gates depend on one another.
@@ -95,13 +90,7 @@ outputs = []
 [tasks."distros:gate"]
 description = "Run workspace distribution checks when engine inputs change"
 run = "mise run deps:install && mise -E sources exec -- task sources:generate && cd .. && mise -E distros run distros && mise -E distros run //:stack commons"
-sources = [
-  "@group:common",
-  "@group:specs",
-  "@group:sources",
-  "@group:binaries",
-  "@group:distros",
-]
+sources = ["@group:common", "@group:distros"]
 outputs = []
 
 # Experimental cumulative pipelines. Keep the regular stage gates independent.
@@ -128,7 +117,6 @@ sources = [
   "@group:specs",
   "@group:sources",
   "@group:binaries",
-  "@group:go-modules",
 ]
 outputs = []
 
@@ -141,7 +129,6 @@ sources = [
   "@group:specs",
   "@group:sources",
   "@group:binaries",
-  "@group:go-modules",
   "@group:distros",
 ]
 outputs = []

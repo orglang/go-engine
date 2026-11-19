@@ -106,7 +106,7 @@ func (r *echoServerResource) start(ctx context.Context) error {
 		return err
 	}
 
-	serveCtx, cancel := context.WithCancel(context.Background())
+	serveCtx, cancel := context.WithCancel(ctx)
 	ready := make(chan struct{})
 	r.cancel = cancel
 	r.serveDone = make(chan error, 1)
@@ -136,7 +136,7 @@ func (r *echoServerResource) start(ctx context.Context) error {
 		if err != nil {
 			return fmt.Errorf("start Echo server on %s: %w", r.address, err)
 		}
-		return errors.New("Echo server stopped before becoming ready")
+		return errors.New("echo server stopped before becoming ready")
 	case <-ctx.Done():
 		cancel()
 		return ctx.Err()

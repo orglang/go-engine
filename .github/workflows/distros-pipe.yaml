@@ -46,7 +46,7 @@ jobs:
         uses: jdx/mise-action@v5
         with:
           cache: true
-          cache_key: "{{default}}-distros-pipe-${{ hashFiles('mise.toml', 'mise.lock', 'engine/mise*.toml', 'engine/mise*.lock') }}"
+          cache_key: "{{default}}-distros-${{ hashFiles('mise.toml', 'mise.lock', 'engine/mise*.toml', 'engine/mise*.lock') }}"
           install: true
           cache_save_post: true
 
@@ -59,14 +59,7 @@ jobs:
         uses: crazy-max/ghaction-github-runtime@v4
 
       - name: Run workspace Distros gate pipeline
-        working-directory: engine
-        shell: bash
-        run: |
-          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            mise run --affected --affected-committed --affected-base "origin/$GITHUB_BASE_REF" --affected-head HEAD //:distros:gate
-          else
-            mise run //:distros:gate
-          fi
+        run: mise run //:distros:gate
 
       - name: PostgreSQL compose diagnostics
         working-directory: stack

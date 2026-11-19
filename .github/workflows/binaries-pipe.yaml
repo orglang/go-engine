@@ -1,6 +1,7 @@
 name: Binaries Pipe
 
 on:
+  workflow_dispatch:
   pull_request:
     branches: [main]
     types:
@@ -8,8 +9,7 @@ on:
       - ready_for_review
       - synchronize
   merge_group:
-    types:
-      - checks_requested
+    branches: [main]
 
 permissions:
   contents: read

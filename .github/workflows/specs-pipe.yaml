@@ -42,11 +42,11 @@ jobs:
       - name: Install TypeSpec dependencies
         run: mise run deps:install
 
-      - name: Run experimental specs pipe pipeline
+      - name: Run Specs gate pipeline
         shell: bash
         run: |
           if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            mise -E specs run --affected --affected-committed --affected-base "origin/$GITHUB_BASE_REF" --affected-head HEAD specs:pipe
+            mise -E specs run --affected --affected-committed --affected-base "origin/$GITHUB_BASE_REF" --affected-head HEAD specs:gate
           else
-            mise -E specs run specs:pipe
+            mise -E specs run specs:gate
           fi

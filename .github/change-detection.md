@@ -75,6 +75,19 @@ The mise artifact cache is enabled only for `sources:lint` and `tests:unit`. Bot
 
 CI persists only `$MISE_CACHE_DIR/task-artifacts/v2` with GitHub Actions Cache. Each run writes to a unique key and restores from the OS-specific prefix; mise's own task keys decide whether an entry is reusable. GitHub's cache branch scoping keeps pull-request writes separate from the base branch cache.
 
+## Experimental Pipe workflows
+
+The `Specs Pipe`, `Sources Pipe`, `Binaries Pipe`, and `Distros Pipe` workflows are an opt-in comparison of cumulative stage execution. They use the same PR path-detection contract and stage admission conditions as the regular workflows, but run a separate mise task chain:
+
+- `specs:pipe` runs Specs.
+- `sources:pipe` depends on `specs:pipe` and then runs Sources.
+- `binaries:pipe` depends on `sources:pipe` and then runs Binaries.
+- `distros:pipe` depends on `binaries:pipe` and then runs Distros.
+
+The regular `*:gate` tasks and their workflows remain independent and unchanged. Pipe tasks are selected with `mise run --affected`; once a Pipe task is selected, mise expands its dependencies, so upstream stages run as prerequisites even when their own inputs did not change. This deliberately measures the cost and behavior of cumulative execution against the independent-stage baseline.
+
+Pipe workflows are not required checks. Their artifact cache uses a separate GitHub Actions cache namespace from the regular workflows to avoid the two variants warming each other's cache. Compare runs for the same PR revisions and inspect task timings/cache stats before drawing conclusions.
+
 ## Maintaining the mapping
 
 When adding or moving an input path:

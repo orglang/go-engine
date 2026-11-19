@@ -67,6 +67,8 @@ CI keeps the path-based stage gates above. After a stage job starts, its mise ga
 
 The `sources` declared by each gate mirror the downstream impact mapping above. Keep the two layers aligned: #87 decides whether a stage job starts; mise decides whether that stage's work is affected. Do not replace the existing job-level checks with mise gates.
 
+Within `mise.toml`, the gates use named `task_config.input_groups` to compose cumulative stage inputs without repeating path lists. Keep the gates independent: each stage has its own GitHub Actions workflow, and a `depends` chain would execute upstream gates again inside downstream workflows. Use task dependencies for actual task prerequisites, not to encode CI stage ordering.
+
 For pull requests, the gated jobs fetch full Git history and compare `HEAD` with `origin/$GITHUB_BASE_REF`. Merge-group, push, and manual runs execute the stage task unconditionally so they retain full validation.
 
 The mise artifact cache is enabled only for `sources:lint` and `tests:unit`. Both declare `outputs = []`: they do not produce workspace files that later steps need. Do not apply this setting to generation or build tasks unless every required output is declared and can be restored correctly.

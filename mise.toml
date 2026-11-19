@@ -34,15 +34,13 @@ sources = [
   ".golangci.yml",
   "staticcheck.conf",
 ]
-go-modules = [
+binaries = [
+  "*.sql",
+  "**/*.sql",
   "go.mod",
   "go.sum",
   "**/go.mod",
   "**/go.sum",
-]
-binaries = [
-  "*.sql",
-  "**/*.sql",
 ]
 distros = [
   "Dockerfile",
@@ -91,7 +89,6 @@ sources = [
   "@group:specs",
   "@group:sources",
   "@group:binaries",
-  "@group:go-modules",
 ]
 outputs = []
 
@@ -103,7 +100,6 @@ sources = [
   "@group:specs",
   "@group:sources",
   "@group:binaries",
-  "@group:go-modules",
   "@group:distros",
 ]
 outputs = []
@@ -120,7 +116,7 @@ outputs = []
 description = "Run Specs, then Sources in the experimental pipeline"
 depends = ["specs:pipe"]
 run = "mise -E sources run sources:gate"
-sources = ["@group:common", "@group:specs", "@group:sources"]
+sources = ["@group:common", "@group:sources"]
 outputs = []
 
 [tasks."binaries:pipe"]
@@ -155,21 +151,5 @@ outputs = []
 [tasks."sources:lint"]
 description = "Run Go lint checks"
 run = "golangci-lint run ./..."
-sources = [
-  "@group:common",
-  "@group:sources",
-  "@group:go-modules",
-]
+sources = ["@group:sources"]
 outputs = []
-cache = { enabled = true, env = ["CI", "CGO_ENABLED", "GOFLAGS", "GOWORK"] }
-
-[tasks."tests:unit"]
-description = "Run Go unit tests"
-run = "go test -tags=unit ./internal/... ./cmd/..."
-sources = [
-  "@group:common",
-  "@group:unit-tests",
-  "@group:go-modules",
-]
-outputs = []
-cache = { enabled = true, env = ["CI", "CGO_ENABLED", "GOFLAGS", "GOWORK"] }

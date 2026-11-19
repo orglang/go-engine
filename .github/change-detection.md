@@ -11,7 +11,7 @@ There are four public stage groups. Within each group, comments distinguish appl
 | specs | TypeSpec definitions and generated OpenAPI contract | TypeSpec npm manifests | TypeSpec toolchain |
 | sources | Go source code | — | Sources toolchain and lint configuration |
 | binaries | Database bootstrap and migrations | Go module manifests (go.mod, go.sum) | — |
-| distros | Dockerfiles and Compose definitions | — | Distribution-specific toolchain, when defined here |
+| distros | Dockerfiles and Compose definitions | — | — |
 
 Shared orchestration/configuration is an internal catch-all filter, not a public stage group:
 
@@ -58,9 +58,11 @@ All four workflows run for merge-group and workflow_dispatch events. For push ev
 
 ## Mise task pipeline
 
-The mise tasks form one cumulative chain: `specs:gate` → `sources:gate` → `binaries:gate` → `distros:gate`. Each task declares only its own stage inputs. The Specs task also includes `@group:common`, because shared orchestration changes must invalidate the chain from its root. Downstream tasks depend on the preceding task rather than repeating upstream input groups.
+The engine mise tasks form a cumulative chain: `specs:gate` → `sources:gate` → `binaries:gate`. The Specs task also includes `@group:common`, because shared engine orchestration changes must invalidate the chain from its root. Downstream tasks depend on the preceding task rather than repeating upstream input groups.
 
-The Pipe workflows invoke these same `*:gate` tasks with `mise run --affected`; there is no second set of task definitions. For pull requests, they fetch full Git history and compare `HEAD` with `origin/$GITHUB_BASE_REF`. Other events execute the selected gate chain without affected filtering.
+The workspace repository owns `distros:gate`, because distribution builds and stack checks are workspace tasks. It depends on the engine's `//engine:binaries:gate`, then runs workspace `distros` and `stack commons` tasks in sequence. Docker CLI, Buildx, and Compose are declared on the workspace tasks that use them.
+
+The Pipe workflows invoke these same gate tasks with `mise run --affected`; there is no duplicate `*:pipe` task set. The Distros Pipe invokes the workspace-root task from the engine checkout, so affected selection uses the engine PR's Git history. For pull requests, the workflows compare `HEAD` with `origin/$GITHUB_BASE_REF`. Other events execute the selected gate chain without affected filtering.
 
 The regular stage workflows and the Pipe comparison workflows remain separate: the former preserve the existing required-check behavior, while Pipe workflows start independently on matching PRs without `detect-changes` and measure cumulative task execution. Pipe workflows are not required checks.
 

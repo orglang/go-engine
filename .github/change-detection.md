@@ -9,7 +9,7 @@ There are four public stage groups. Within each group, comments distinguish appl
 | Stage | Application inputs | Dependencies | Tooling |
 |---|---|---|---|
 | specs | TypeSpec definitions and generated OpenAPI contract | TypeSpec npm manifests | TypeSpec toolchain |
-| sources | Go source code | — | Sources toolchain |
+| sources | Go source code | — | Sources toolchain and lint configuration |
 | binaries | Database bootstrap and migrations | Go module manifests (go.mod, go.sum) | — |
 | distros | Dockerfiles and Compose definitions | — | Distribution-specific toolchain, when defined here |
 

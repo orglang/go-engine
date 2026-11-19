@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"strconv"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/te"
@@ -21,9 +21,9 @@ import (
 
 // Presenter is the server-rendered HTTP port implemented by the Echo adapter.
 type Presenter interface {
-	PostOne(echo.Context) error
-	GetMany(echo.Context) error
-	GetOne(echo.Context) error
+	PostOne(*echo.Context) error
+	GetMany(*echo.Context) error
+	GetOne(*echo.Context) error
 }
 
 // Adapter
@@ -50,7 +50,7 @@ func cfgEchoPresenter(e *echo.Echo, p *echoPresenter) error {
 	return RegisterPresenterRoutes(e, p)
 }
 
-func (p *echoPresenter) PostOne(c echo.Context) error {
+func (p *echoPresenter) PostOne(c *echo.Context) error {
 	var dto DefSpecVP
 	bindErr := c.Bind(&dto)
 	if bindErr != nil {
@@ -82,7 +82,7 @@ func (p *echoPresenter) PostOne(c echo.Context) error {
 	return c.HTMLBlob(http.StatusOK, html)
 }
 
-func (p *echoPresenter) GetMany(c echo.Context) error {
+func (p *echoPresenter) GetMany(c *echo.Context) error {
 	refs, retrieveErr := p.api.RetreiveRefs()
 	if retrieveErr != nil {
 		return retrieveErr
@@ -95,7 +95,7 @@ func (p *echoPresenter) GetMany(c echo.Context) error {
 	return c.HTMLBlob(http.StatusOK, html)
 }
 
-func (p *echoPresenter) GetOne(c echo.Context) error {
+func (p *echoPresenter) GetOne(c *echo.Context) error {
 	id, convErr := identity.ConvertFromString(c.Param("id"))
 	if convErr != nil {
 		p.log.Error("conversion failed", slog.String("id", c.Param("id")))
@@ -106,7 +106,7 @@ func (p *echoPresenter) GetOne(c echo.Context) error {
 		rn, convErr = strconv.ParseInt(value, 10, 64)
 		if convErr != nil {
 			p.log.Error("invalid revision", slog.String("rn", value))
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid revision").SetInternal(convErr)
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid revision").Wrap(convErr)
 		}
 	}
 	ref := typesem.SemRef{TypeID: id, TypeRN: seqnum.ConvertFromInt(rn)}

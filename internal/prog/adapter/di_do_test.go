@@ -4,7 +4,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/lib/lf"
@@ -27,8 +27,8 @@ func TestPackageProvidesProgramServiceAndController(t *testing.T) {
 		t.Fatalf("register program routes: %v", err)
 	}
 
-	got := make([]string, 0, len(server.Routes()))
-	for _, route := range server.Routes() {
+	got := make([]string, 0, len(server.Router().Routes()))
+	for _, route := range server.Router().Routes() {
 		got = append(got, route.Method+" "+route.Path)
 	}
 	want := []string{"POST " + programRoute}

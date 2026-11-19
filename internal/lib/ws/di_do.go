@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
-	"net/http"
 	"sync"
+	"time"
 
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/app"
@@ -67,34 +67,41 @@ var Package = do.Package(
 func newEcho(logger *slog.Logger) *echo.Echo {
 	server := echo.New()
 	log := logger.With(slog.String("name", "echoServer"))
+	server.Logger = log
 	server.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogMethod:   true,
 		LogURI:      true,
 		LogStatus:   true,
-		LogError:    true,
+		LogLatency:  true,
 		HandleError: true,
-		LogValuesFunc: func(_ echo.Context, values middleware.RequestLoggerValues) error {
-			if values.Error != nil {
-				log.Error("request processing failed",
-					slog.String("method", values.Method),
-					slog.String("uri", values.URI),
-					slog.Int("status", values.Status),
-					slog.String("reason", values.Error.Error()),
-				)
+		LogValuesFunc: func(_ *echo.Context, values middleware.RequestLoggerValues) error {
+			attrs := []any{
+				slog.String("method", values.Method),
+				slog.String("uri", values.URI),
+				slog.Int("status", values.Status),
+				slog.Duration("latency", values.Latency),
+			}
+			if values.Error == nil {
+				log.Info("request completed", attrs...)
+			} else {
+				attrs = append(attrs, slog.String("reason", values.Error.Error()))
+				log.Error("request processing failed", attrs...)
 			}
 			return nil
 		},
 	}))
+	// Recover is inside RequestLogger so returned errors can be observed and logged.
+	server.Use(middleware.Recover())
 	return server
 }
 
 type echoServerResource struct {
-	server  *echo.Echo
-	address string
-
-	mu           sync.Mutex
-	listener     net.Listener
+	server       *echo.Echo
+	address      string
+	cancel       context.CancelFunc
 	serveDone    chan error
+	listenerAddr net.Addr
+
 	shutdownOnce sync.Once
 	shutdownDone chan struct{}
 	shutdownErr  error
@@ -104,44 +111,56 @@ func (r *echoServerResource) start(ctx context.Context) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	listener, err := (&net.ListenConfig{}).Listen(ctx, "tcp", r.address)
-	if err != nil {
-		return fmt.Errorf("listen on %s: %w", r.address, err)
+
+	serveCtx, cancel := context.WithCancel(ctx)
+	ready := make(chan struct{})
+	r.cancel = cancel
+	r.serveDone = make(chan error, 1)
+
+	config := echo.StartConfig{
+		Address:         r.address,
+		HideBanner:      true,
+		HidePort:        true,
+		GracefulTimeout: 10 * time.Second,
+		ListenerAddrFunc: func(addr net.Addr) {
+			r.listenerAddr = addr
+			close(ready)
+		},
 	}
 
-	r.mu.Lock()
-	r.listener = listener
-	r.serveDone = make(chan error, 1)
-	serveDone := r.serveDone
-	r.mu.Unlock()
-
 	go func() {
-		err := r.server.Server.Serve(listener)
-		if errors.Is(err, http.ErrServerClosed) {
-			err = nil
-		}
-		serveDone <- err
-		close(serveDone)
+		err := config.Start(serveCtx, r.server)
+		r.serveDone <- err
+		close(r.serveDone)
 	}()
 
-	return nil
+	select {
+	case <-ready:
+		return nil
+	case err := <-r.serveDone:
+		cancel()
+		if err != nil {
+			return fmt.Errorf("start Echo server on %s: %w", r.address, err)
+		}
+		return errors.New("echo server stopped before becoming ready")
+	case <-ctx.Done():
+		cancel()
+		return ctx.Err()
+	}
 }
 
-// Shutdown gracefully stops Echo and waits for its serving goroutine.
+// Shutdown cancels Echo's serving context, allowing StartConfig to perform
+// graceful HTTP shutdown, and waits for the serving goroutine to finish.
 func (r *echoServerResource) Shutdown(ctx context.Context) error {
 	r.shutdownOnce.Do(func() {
+		if r.cancel != nil {
+			r.cancel()
+		}
 		go func() {
-			err := r.server.Shutdown(ctx)
-			if err != nil {
-				err = errors.Join(err, r.server.Close())
-			}
-
-			r.mu.Lock()
-			serveDone := r.serveDone
-			r.mu.Unlock()
-			if serveDone != nil {
-				if serveErr, ok := <-serveDone; ok {
-					err = errors.Join(err, serveErr)
+			var err error
+			if r.serveDone != nil {
+				if serveErr, ok := <-r.serveDone; ok {
+					err = serveErr
 				}
 			}
 			r.shutdownErr = err

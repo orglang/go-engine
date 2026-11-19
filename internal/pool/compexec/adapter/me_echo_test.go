@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"testing"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 func TestRegisterRoutes(t *testing.T) {
@@ -22,7 +22,7 @@ func TestRegisterRoutes(t *testing.T) {
 		"POST /api/v1/pools/executions/steps":  false,
 		"POST /api/v1/pools/executions/spawns": false,
 	}
-	for _, route := range server.Routes() {
+	for _, route := range server.Router().Routes() {
 		key := route.Method + " " + route.Path
 		if _, ok := want[key]; ok {
 			want[key] = true

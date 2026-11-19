@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
@@ -28,7 +28,7 @@ func newControllerEcho(a termdec.API, l *slog.Logger) *controllerEcho {
 	return &controllerEcho{api: a, log: l.With(name)}
 }
 
-func (h *controllerEcho) GetProcessDeclaration(c echo.Context, id string, params webapi.GetProcessDeclarationParams) error {
+func (h *controllerEcho) GetProcessDeclaration(c *echo.Context, id string, params webapi.GetProcessDeclarationParams) error {
 	termID, err := identity.ConvertFromString(id)
 	if err != nil {
 		h.log.Error("conversion failed", slog.Any("id", id), slog.Any("err", err))
@@ -45,7 +45,7 @@ func (h *controllerEcho) GetProcessDeclaration(c echo.Context, id string, params
 	return c.JSON(http.StatusOK, DecSnapToGenerated(snap))
 }
 
-func (h *controllerEcho) CreateProcessDeclaration(c echo.Context) error {
+func (h *controllerEcho) CreateProcessDeclaration(c *echo.Context) error {
 	var dto webapi.ProcDecSpec
 	if err := c.Bind(&dto); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())

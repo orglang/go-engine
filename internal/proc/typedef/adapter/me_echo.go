@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
@@ -15,8 +15,8 @@ import (
 )
 
 type GeneratedController interface {
-	CreateProcessTypeDefinition(echo.Context) error
-	GetProcessTypeDefinition(echo.Context, string, webapi.GetProcessTypeDefinitionParams) error
+	CreateProcessTypeDefinition(*echo.Context) error
+	GetProcessTypeDefinition(*echo.Context, string, webapi.GetProcessTypeDefinitionParams) error
 }
 
 type controllerEcho struct {
@@ -31,7 +31,7 @@ func newControllerEcho(a typedef.API, l *slog.Logger) *controllerEcho {
 	return &controllerEcho{api: a, log: l.With(name)}
 }
 
-func (h *controllerEcho) CreateProcessTypeDefinition(c echo.Context) error {
+func (h *controllerEcho) CreateProcessTypeDefinition(c *echo.Context) error {
 	var dto webapi.ProcTypeDefSpec
 	if err := c.Bind(&dto); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -50,7 +50,7 @@ func (h *controllerEcho) CreateProcessTypeDefinition(c echo.Context) error {
 	return c.JSON(http.StatusCreated, DefSnapToGenerated(snap).Ref)
 }
 
-func (h *controllerEcho) GetProcessTypeDefinition(c echo.Context, id string, params webapi.GetProcessTypeDefinitionParams) error {
+func (h *controllerEcho) GetProcessTypeDefinition(c *echo.Context, id string, params webapi.GetProcessTypeDefinitionParams) error {
 	typeID, err := identity.ConvertFromString(id)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())

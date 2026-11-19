@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/app"

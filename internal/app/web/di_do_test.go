@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/lib/lf"
@@ -43,17 +43,17 @@ func TestPackageProvidesHTTPAdapters(t *testing.T) {
 
 type testController struct{}
 
-func (testController) Home(echo.Context) error { return nil }
+func (testController) Home(*echo.Context) error { return nil }
 
 func TestRegisterRoutes(t *testing.T) {
 	server := echo.New()
 	RegisterRoutes(server, testController{})
 
-	routes := server.Routes()
+	routes := server.Router().Routes()
 	if len(routes) != 1 {
 		t.Fatalf("expected one route, got %d", len(routes))
 	}
-	if routes[0].Method != echo.GET || routes[0].Path != "/" {
+	if routes[0].Method != "GET" || routes[0].Path != "/" {
 		t.Fatalf("unexpected route: %s %s", routes[0].Method, routes[0].Path)
 	}
 }

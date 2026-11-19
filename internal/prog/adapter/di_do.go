@@ -3,7 +3,7 @@ package adapter
 import (
 	"log/slog"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/samber/do/v2"
 
 	webapi "orglang/go-engine/internal/app/web/api"

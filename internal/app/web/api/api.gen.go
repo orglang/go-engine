@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/oapi-codegen/runtime"
 )
 
@@ -1813,67 +1813,67 @@ func (t *ProcTypeExprSpec) UnmarshalJSON(b []byte) error {
 type ServerInterface interface {
 
 	// (POST /api/v1/pools/declarations)
-	CreatePoolDeclaration(ctx echo.Context) error
+	CreatePoolDeclaration(ctx *echo.Context) error
 
 	// (POST /api/v1/pools/executions)
-	CreatePoolExecution(ctx echo.Context) error
+	CreatePoolExecution(ctx *echo.Context) error
 
 	// (POST /api/v1/pools/executions/spawns)
-	SpawnPoolExecution(ctx echo.Context) error
+	SpawnPoolExecution(ctx *echo.Context) error
 
 	// (POST /api/v1/pools/executions/steps)
-	StepPoolExecution(ctx echo.Context) error
+	StepPoolExecution(ctx *echo.Context) error
 
 	// (POST /api/v1/pools/types)
-	CreatePoolTypeDefinition(ctx echo.Context) error
+	CreatePoolTypeDefinition(ctx *echo.Context) error
 
 	// (GET /api/v1/pools/types/{id})
-	GetPoolTypeDefinition(ctx echo.Context, id string, params GetPoolTypeDefinitionParams) error
+	GetPoolTypeDefinition(ctx *echo.Context, id string, params GetPoolTypeDefinitionParams) error
 
 	// (GET /api/v1/pools/{id}/declaration)
-	GetPoolAssociatedDeclaration(ctx echo.Context, id string, params GetPoolAssociatedDeclarationParams) error
+	GetPoolAssociatedDeclaration(ctx *echo.Context, id string, params GetPoolAssociatedDeclarationParams) error
 
 	// (GET /api/v1/pools/{id}/definition)
-	GetPoolDefinition(ctx echo.Context, id string, params GetPoolDefinitionParams) error
+	GetPoolDefinition(ctx *echo.Context, id string, params GetPoolDefinitionParams) error
 
 	// (PATCH /api/v1/pools/{id}/definition)
-	ExtendPoolDefinition(ctx echo.Context, id string) error
+	ExtendPoolDefinition(ctx *echo.Context, id string) error
 
 	// (GET /api/v1/pools/{id}/executions)
-	ListPoolExecutions(ctx echo.Context, id string) error
+	ListPoolExecutions(ctx *echo.Context, id string) error
 
 	// (POST /api/v1/processes/declarations)
-	CreateProcessDeclaration(ctx echo.Context) error
+	CreateProcessDeclaration(ctx *echo.Context) error
 
 	// (GET /api/v1/processes/declarations/{id})
-	GetProcessDeclaration(ctx echo.Context, id string, params GetProcessDeclarationParams) error
+	GetProcessDeclaration(ctx *echo.Context, id string, params GetProcessDeclarationParams) error
 
 	// (GET /api/v1/processes/executions/{id})
-	GetProcessExecution(ctx echo.Context, id string, params GetProcessExecutionParams) error
+	GetProcessExecution(ctx *echo.Context, id string, params GetProcessExecutionParams) error
 
 	// (POST /api/v1/processes/executions/{id}/steps)
-	StepProcessExecution(ctx echo.Context, id string) error
+	StepProcessExecution(ctx *echo.Context, id string) error
 
 	// (POST /api/v1/processes/types)
-	CreateProcessTypeDefinition(ctx echo.Context) error
+	CreateProcessTypeDefinition(ctx *echo.Context) error
 
 	// (GET /api/v1/processes/types/{id})
-	GetProcessTypeDefinition(ctx echo.Context, id string, params GetProcessTypeDefinitionParams) error
+	GetProcessTypeDefinition(ctx *echo.Context, id string, params GetProcessTypeDefinitionParams) error
 
 	// (GET /api/v1/processes/{id}/declaration)
-	GetProcessAssociatedDeclaration(ctx echo.Context, id string, params GetProcessAssociatedDeclarationParams) error
+	GetProcessAssociatedDeclaration(ctx *echo.Context, id string, params GetProcessAssociatedDeclarationParams) error
 
 	// (GET /api/v1/processes/{id}/definition)
-	GetProcessDefinition(ctx echo.Context, id string, params GetProcessDefinitionParams) error
+	GetProcessDefinition(ctx *echo.Context, id string, params GetProcessDefinitionParams) error
 
 	// (PATCH /api/v1/processes/{id}/definition)
-	ExtendProcessDefinition(ctx echo.Context, id string) error
+	ExtendProcessDefinition(ctx *echo.Context, id string) error
 
 	// (GET /api/v1/processes/{id}/executions)
-	ListProcessExecutions(ctx echo.Context, id string) error
+	ListProcessExecutions(ctx *echo.Context, id string) error
 
 	// (POST /api/v1/programs)
-	CreateProgram(ctx echo.Context) error
+	CreateProgram(ctx *echo.Context) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -1882,7 +1882,7 @@ type ServerInterfaceWrapper struct {
 }
 
 // CreatePoolDeclaration converts echo context to params.
-func (w *ServerInterfaceWrapper) CreatePoolDeclaration(ctx echo.Context) error {
+func (w *ServerInterfaceWrapper) CreatePoolDeclaration(ctx *echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
@@ -1891,7 +1891,7 @@ func (w *ServerInterfaceWrapper) CreatePoolDeclaration(ctx echo.Context) error {
 }
 
 // CreatePoolExecution converts echo context to params.
-func (w *ServerInterfaceWrapper) CreatePoolExecution(ctx echo.Context) error {
+func (w *ServerInterfaceWrapper) CreatePoolExecution(ctx *echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
@@ -1900,7 +1900,7 @@ func (w *ServerInterfaceWrapper) CreatePoolExecution(ctx echo.Context) error {
 }
 
 // SpawnPoolExecution converts echo context to params.
-func (w *ServerInterfaceWrapper) SpawnPoolExecution(ctx echo.Context) error {
+func (w *ServerInterfaceWrapper) SpawnPoolExecution(ctx *echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
@@ -1909,7 +1909,7 @@ func (w *ServerInterfaceWrapper) SpawnPoolExecution(ctx echo.Context) error {
 }
 
 // StepPoolExecution converts echo context to params.
-func (w *ServerInterfaceWrapper) StepPoolExecution(ctx echo.Context) error {
+func (w *ServerInterfaceWrapper) StepPoolExecution(ctx *echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
@@ -1918,7 +1918,7 @@ func (w *ServerInterfaceWrapper) StepPoolExecution(ctx echo.Context) error {
 }
 
 // CreatePoolTypeDefinition converts echo context to params.
-func (w *ServerInterfaceWrapper) CreatePoolTypeDefinition(ctx echo.Context) error {
+func (w *ServerInterfaceWrapper) CreatePoolTypeDefinition(ctx *echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
@@ -1927,7 +1927,7 @@ func (w *ServerInterfaceWrapper) CreatePoolTypeDefinition(ctx echo.Context) erro
 }
 
 // GetPoolTypeDefinition converts echo context to params.
-func (w *ServerInterfaceWrapper) GetPoolTypeDefinition(ctx echo.Context) error {
+func (w *ServerInterfaceWrapper) GetPoolTypeDefinition(ctx *echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -1952,7 +1952,7 @@ func (w *ServerInterfaceWrapper) GetPoolTypeDefinition(ctx echo.Context) error {
 }
 
 // GetPoolAssociatedDeclaration converts echo context to params.
-func (w *ServerInterfaceWrapper) GetPoolAssociatedDeclaration(ctx echo.Context) error {
+func (w *ServerInterfaceWrapper) GetPoolAssociatedDeclaration(ctx *echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -1977,7 +1977,7 @@ func (w *ServerInterfaceWrapper) GetPoolAssociatedDeclaration(ctx echo.Context) 
 }
 
 // GetPoolDefinition converts echo context to params.
-func (w *ServerInterfaceWrapper) GetPoolDefinition(ctx echo.Context) error {
+func (w *ServerInterfaceWrapper) GetPoolDefinition(ctx *echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -2002,7 +2002,7 @@ func (w *ServerInterfaceWrapper) GetPoolDefinition(ctx echo.Context) error {
 }
 
 // ExtendPoolDefinition converts echo context to params.
-func (w *ServerInterfaceWrapper) ExtendPoolDefinition(ctx echo.Context) error {
+func (w *ServerInterfaceWrapper) ExtendPoolDefinition(ctx *echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -2018,7 +2018,7 @@ func (w *ServerInterfaceWrapper) ExtendPoolDefinition(ctx echo.Context) error {
 }
 
 // ListPoolExecutions converts echo context to params.
-func (w *ServerInterfaceWrapper) ListPoolExecutions(ctx echo.Context) error {
+func (w *ServerInterfaceWrapper) ListPoolExecutions(ctx *echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -2034,7 +2034,7 @@ func (w *ServerInterfaceWrapper) ListPoolExecutions(ctx echo.Context) error {
 }
 
 // CreateProcessDeclaration converts echo context to params.
-func (w *ServerInterfaceWrapper) CreateProcessDeclaration(ctx echo.Context) error {
+func (w *ServerInterfaceWrapper) CreateProcessDeclaration(ctx *echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
@@ -2043,7 +2043,7 @@ func (w *ServerInterfaceWrapper) CreateProcessDeclaration(ctx echo.Context) erro
 }
 
 // GetProcessDeclaration converts echo context to params.
-func (w *ServerInterfaceWrapper) GetProcessDeclaration(ctx echo.Context) error {
+func (w *ServerInterfaceWrapper) GetProcessDeclaration(ctx *echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -2068,7 +2068,7 @@ func (w *ServerInterfaceWrapper) GetProcessDeclaration(ctx echo.Context) error {
 }
 
 // GetProcessExecution converts echo context to params.
-func (w *ServerInterfaceWrapper) GetProcessExecution(ctx echo.Context) error {
+func (w *ServerInterfaceWrapper) GetProcessExecution(ctx *echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -2093,7 +2093,7 @@ func (w *ServerInterfaceWrapper) GetProcessExecution(ctx echo.Context) error {
 }
 
 // StepProcessExecution converts echo context to params.
-func (w *ServerInterfaceWrapper) StepProcessExecution(ctx echo.Context) error {
+func (w *ServerInterfaceWrapper) StepProcessExecution(ctx *echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -2109,7 +2109,7 @@ func (w *ServerInterfaceWrapper) StepProcessExecution(ctx echo.Context) error {
 }
 
 // CreateProcessTypeDefinition converts echo context to params.
-func (w *ServerInterfaceWrapper) CreateProcessTypeDefinition(ctx echo.Context) error {
+func (w *ServerInterfaceWrapper) CreateProcessTypeDefinition(ctx *echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
@@ -2118,7 +2118,7 @@ func (w *ServerInterfaceWrapper) CreateProcessTypeDefinition(ctx echo.Context) e
 }
 
 // GetProcessTypeDefinition converts echo context to params.
-func (w *ServerInterfaceWrapper) GetProcessTypeDefinition(ctx echo.Context) error {
+func (w *ServerInterfaceWrapper) GetProcessTypeDefinition(ctx *echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -2143,7 +2143,7 @@ func (w *ServerInterfaceWrapper) GetProcessTypeDefinition(ctx echo.Context) erro
 }
 
 // GetProcessAssociatedDeclaration converts echo context to params.
-func (w *ServerInterfaceWrapper) GetProcessAssociatedDeclaration(ctx echo.Context) error {
+func (w *ServerInterfaceWrapper) GetProcessAssociatedDeclaration(ctx *echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -2168,7 +2168,7 @@ func (w *ServerInterfaceWrapper) GetProcessAssociatedDeclaration(ctx echo.Contex
 }
 
 // GetProcessDefinition converts echo context to params.
-func (w *ServerInterfaceWrapper) GetProcessDefinition(ctx echo.Context) error {
+func (w *ServerInterfaceWrapper) GetProcessDefinition(ctx *echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -2193,7 +2193,7 @@ func (w *ServerInterfaceWrapper) GetProcessDefinition(ctx echo.Context) error {
 }
 
 // ExtendProcessDefinition converts echo context to params.
-func (w *ServerInterfaceWrapper) ExtendProcessDefinition(ctx echo.Context) error {
+func (w *ServerInterfaceWrapper) ExtendProcessDefinition(ctx *echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -2209,7 +2209,7 @@ func (w *ServerInterfaceWrapper) ExtendProcessDefinition(ctx echo.Context) error
 }
 
 // ListProcessExecutions converts echo context to params.
-func (w *ServerInterfaceWrapper) ListProcessExecutions(ctx echo.Context) error {
+func (w *ServerInterfaceWrapper) ListProcessExecutions(ctx *echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -2225,7 +2225,7 @@ func (w *ServerInterfaceWrapper) ListProcessExecutions(ctx echo.Context) error {
 }
 
 // CreateProgram converts echo context to params.
-func (w *ServerInterfaceWrapper) CreateProgram(ctx echo.Context) error {
+func (w *ServerInterfaceWrapper) CreateProgram(ctx *echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
@@ -2237,15 +2237,15 @@ func (w *ServerInterfaceWrapper) CreateProgram(ctx echo.Context) error {
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
 type EchoRouter interface {
-	CONNECT(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
-	DELETE(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
-	GET(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
-	HEAD(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
-	OPTIONS(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
-	PATCH(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
-	POST(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
-	PUT(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
-	TRACE(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
+	CONNECT(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) echo.RouteInfo
+	DELETE(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) echo.RouteInfo
+	GET(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) echo.RouteInfo
+	HEAD(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) echo.RouteInfo
+	OPTIONS(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) echo.RouteInfo
+	PATCH(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) echo.RouteInfo
+	POST(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) echo.RouteInfo
+	PUT(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) echo.RouteInfo
+	TRACE(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) echo.RouteInfo
 }
 
 // RegisterHandlersOptions configures RegisterHandlersWithOptions.

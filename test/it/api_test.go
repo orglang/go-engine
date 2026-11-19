@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 
 	"orglang/go-engine/internal/app/web/api"
 )
@@ -158,7 +158,7 @@ type apiServerStub struct {
 	rn     *int64
 }
 
-func (s *apiServerStub) GetProcessExecution(c echo.Context, id string, params api.GetProcessExecutionParams) error {
+func (s *apiServerStub) GetProcessExecution(c *echo.Context, id string, params api.GetProcessExecutionParams) error {
 	s.called = true
 	s.id = id
 	s.rn = params.Rn
@@ -183,7 +183,7 @@ type apiServerBodyStub struct {
 	body   api.ProcDecSpec
 }
 
-func (s *apiServerBodyStub) CreateProcessDeclaration(c echo.Context) error {
+func (s *apiServerBodyStub) CreateProcessDeclaration(c *echo.Context) error {
 	s.called = true
 	if err := c.Bind(&s.body); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid declaration")
@@ -199,7 +199,7 @@ type apiServerErrorStub struct {
 	api.ServerInterface
 }
 
-func (s *apiServerErrorStub) GetProcessExecution(echo.Context, string, api.GetProcessExecutionParams) error {
+func (s *apiServerErrorStub) GetProcessExecution(*echo.Context, string, api.GetProcessExecutionParams) error {
 	return echo.NewHTTPError(http.StatusUnprocessableEntity, "execution cannot be advanced")
 }
 
@@ -207,6 +207,6 @@ type apiServerNoContentStub struct {
 	api.ServerInterface
 }
 
-func (s *apiServerNoContentStub) StepPoolExecution(c echo.Context) error {
+func (s *apiServerNoContentStub) StepPoolExecution(c *echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/uniqsym"

@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 
 	"orglang/go-engine/internal/adt/compsem"
 	"orglang/go-engine/internal/adt/identity"
@@ -32,7 +32,7 @@ func newControllerEcho(a compexec.API, l *slog.Logger) *controllerEcho {
 	return &controllerEcho{api: a, log: l}
 }
 
-func (h *controllerEcho) GetProcessExecution(c echo.Context, id string, params webapi.GetProcessExecutionParams) error {
+func (h *controllerEcho) GetProcessExecution(c *echo.Context, id string, params webapi.GetProcessExecutionParams) error {
 	compID, err := identity.ConvertFromString(id)
 	if err != nil {
 		h.log.Error("conversion failed", slog.Any("id", id), slog.Any("err", err))

@@ -26,13 +26,14 @@ The CI workflow installs dependencies once per job before running
 ## Generate the Echo HTTP server
 
 The Go HTTP server boundary is generated from the emitted OpenAPI document with
-`oapi-codegen` and its Echo v4 integration. The generator version is pinned in
+`oapi-codegen` and its Echo v5 integration. The generator version is pinned in
 `mise.toml`; its configuration lives in `internal/app/web/api/cfg.yaml`.
 
-The repository currently uses Echo v4 in its application and existing adapters.
-Although `oapi-codegen` also supports Echo v5, switching only the generated
-boundary would make it incompatible with the current Echo runtime. Migrating the
-application and all existing Echo adapters to v5 is a separate, broader change.
+The application and all existing HTTP adapters use Echo v5. The server
+configuration enables `echo5-server`, ensuring the generated `ServerInterface`,
+route registration, and production runtime share the same Echo API. The E2E
+client configuration remains framework-independent and continues to generate
+only the HTTP client and models.
 
 The `task sources:generate` task generates Goverter adapters, the Echo server
 boundary, and the E2E HTTP client from `openapi/openapi.yaml`. The E2E client

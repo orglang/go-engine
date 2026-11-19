@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
@@ -15,7 +15,7 @@ import (
 
 // GeneratedController is the inbound HTTP port for pool term definitions.
 type GeneratedController interface {
-	CreatePoolDeclaration(echo.Context) error
+	CreatePoolDeclaration(*echo.Context) error
 }
 
 type controllerEcho struct {
@@ -30,7 +30,7 @@ func newControllerEcho(a termdef.API, l *slog.Logger) *controllerEcho {
 	return &controllerEcho{api: a, log: l.With(name)}
 }
 
-func (h *controllerEcho) CreatePoolDeclaration(c echo.Context) error {
+func (h *controllerEcho) CreatePoolDeclaration(c *echo.Context) error {
 	var dto webapi.PoolDecSpec
 	if err := c.Bind(&dto); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())

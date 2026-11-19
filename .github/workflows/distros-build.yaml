@@ -68,7 +68,7 @@ jobs:
           cache: true
           cache_key: "{{default}}-distros-${{ hashFiles('mise.toml', 'mise.lock', 'engine/mise*.toml', 'engine/mise*.lock') }}"
           install: true
-          # Defer saving until later environment-specific installs have populated the cache.
+          # Save the cache after the workspace and engine task toolchains have been used.
           cache_save_post: true
 
       # mise pins the Buildx CLI for local use; this action additionally creates and boots

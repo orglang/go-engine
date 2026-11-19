@@ -8,7 +8,8 @@ go = "1.27.0"
 
 [tasks."deps:install"]
 description = "Install TypeSpec dependencies"
-run = "mise -E specs exec -- npm ci --prefix tsp --no-audit --no-fund"
+tools = { node = "26.10.0" }
+run = "npm ci --prefix tsp --no-audit --no-fund"
 sources = ["tsp/package.json", "tsp/package-lock.json"]
 outputs = ["tsp/node_modules"]
 
@@ -48,6 +49,7 @@ binaries = [
 # own stage inputs; dependencies provide the cumulative execution order.
 [tasks."specs:gate"]
 description = "Run Specs in the CI pipeline"
+tools = { node = "26.10.0" }
 depends = ["deps:install"]
 run = "task specs:check"
 sources = ["@group:common", "@group:specs"]
@@ -56,7 +58,12 @@ outputs = []
 [tasks."sources:gate"]
 description = "Run Specs, then Sources in the CI pipeline"
 depends = ["specs:gate"]
-run = "mise -E sources exec -- task sources:check"
+tools = {
+  "go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint" = "v2.15.0",
+  "go:github.com/jmattheis/goverter/cmd/goverter" = "v1.11.1",
+  "go:github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen" = "v2.8.2",
+}
+run = "task sources:check"
 sources = ["@group:sources"]
 outputs = []
 

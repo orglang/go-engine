@@ -16,8 +16,7 @@ run = "mise -E specs exec -- npm ci --prefix tsp --no-audit --no-fund"
 description = "Run specs checks when specs inputs change"
 run = "task specs:check"
 sources = [
-  "tsp/*.tsp",
-  "tsp/**/*.tsp",
+  "tsp/**",
   "openapi/openapi.yaml",
   "tsp/package.json",
   "tsp/package-lock.json",
@@ -34,8 +33,7 @@ sources = [
 description = "Run sources checks when specs or sources inputs change"
 run = "task sources:check"
 sources = [
-  "tsp/*.tsp",
-  "tsp/**/*.tsp",
+  "tsp/**",
   "openapi/openapi.yaml",
   "tsp/package.json",
   "tsp/package-lock.json",
@@ -58,8 +56,7 @@ sources = [
 description = "Run binary checks when specs, sources, or binary inputs change"
 run = "task binaries"
 sources = [
-  "tsp/*.tsp",
-  "tsp/**/*.tsp",
+  "tsp/**",
   "openapi/openapi.yaml",
   "tsp/package.json",
   "tsp/package-lock.json",
@@ -86,8 +83,7 @@ sources = [
 description = "Run workspace distribution checks when engine inputs change"
 run = "mise run deps:install && mise -E sources exec -- task sources:generate && cd .. && mise -E distros run distros && mise -E distros run //:stack commons"
 sources = [
-  "tsp/*.tsp",
-  "tsp/**/*.tsp",
+  "tsp/**",
   "openapi/openapi.yaml",
   "tsp/package.json",
   "tsp/package-lock.json",

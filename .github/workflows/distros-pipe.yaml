@@ -64,7 +64,13 @@ jobs:
 
       - name: Run workspace Distros gate pipeline
         working-directory: engine
-        run: mise run //:distros:gate
+        shell: bash
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            mise run --affected --affected-committed --affected-base "origin/$GITHUB_BASE_REF" --affected-head HEAD //:distros:gate
+          else
+            mise run //:distros:gate
+          fi
 
       - name: PostgreSQL compose diagnostics
         working-directory: stack

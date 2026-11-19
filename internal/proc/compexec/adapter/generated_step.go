@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 
 	"orglang/go-engine/internal/adt/compsem"
 	"orglang/go-engine/internal/adt/identity"
@@ -194,7 +194,7 @@ func generatedProcessExpressionToCore(dto webapi.ProcTermExprSpec) (termexpcore.
 	}
 }
 
-func (h *controllerEcho) StepProcessExecution(c echo.Context, id string) error {
+func (h *controllerEcho) StepProcessExecution(c *echo.Context, id string) error {
 	var dto webapi.StepProcessExecutionJSONRequestBody
 	if err := c.Bind(&dto); err != nil {
 		h.log.Error("binding generated process step failed", "error", err)

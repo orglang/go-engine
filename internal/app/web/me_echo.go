@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 
 	"orglang/go-engine/internal/lib/te"
 
@@ -14,7 +14,7 @@ import (
 
 // Controller is the inbound HTTP port implemented by the Echo adapter.
 type Controller interface {
-	Home(echo.Context) error
+	Home(*echo.Context) error
 }
 
 // RegisterRoutes registers the web application's HTTP routes.
@@ -39,7 +39,7 @@ func cfgEchoController(e *echo.Echo, h *controllerEcho) {
 	RegisterRoutes(e, h)
 }
 
-func (h *controllerEcho) Home(c echo.Context) error {
+func (h *controllerEcho) Home(c *echo.Context) error {
 	refs, err := h.api.RetreiveRefs()
 	if err != nil {
 		return err

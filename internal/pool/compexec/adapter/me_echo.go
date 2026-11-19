@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 
 	"orglang/go-engine/internal/adt/compsem"
 	"orglang/go-engine/internal/adt/identity"
@@ -25,9 +25,9 @@ import (
 
 // Controller is the inbound HTTP port implemented by the Echo adapter.
 type Controller interface {
-	PostSpec(echo.Context) error
-	PostSpec2(echo.Context) error
-	PostSpec3(echo.Context) error
+	PostSpec(*echo.Context) error
+	PostSpec2(*echo.Context) error
+	PostSpec3(*echo.Context) error
 }
 
 // Server-side primary adapter.
@@ -50,7 +50,7 @@ func RegisterRoutes(server *echo.Echo, controller Controller) error {
 	return nil
 }
 
-func (c *controllerEcho) PostSpec(ctx echo.Context) error {
+func (c *controllerEcho) PostSpec(ctx *echo.Context) error {
 	var dto api.AnyExecSpec
 	if err := ctx.Bind(&dto); err != nil {
 		c.log.Error("binding failed", slog.Any("dto", reflect.TypeFor[api.AnyExecSpec]()))
@@ -102,7 +102,7 @@ func poolExecVarToCore(dto api.AnyExecVarSpec) (compvar.VarSpec, error) {
 	return compvar.VarSpec{ChnlPH: connPH, TermQN: termQN}, nil
 }
 
-func (c *controllerEcho) PostSpec2(ctx echo.Context) error {
+func (c *controllerEcho) PostSpec2(ctx *echo.Context) error {
 	var dto api.PoolStepSpec
 	if err := ctx.Bind(&dto); err != nil {
 		c.log.Error("binding failed", slog.Any("dto", reflect.TypeFor[api.PoolStepSpec]()))
@@ -119,7 +119,7 @@ func (c *controllerEcho) PostSpec2(ctx echo.Context) error {
 	return ctx.NoContent(http.StatusNoContent)
 }
 
-func (c *controllerEcho) PostSpec3(ctx echo.Context) error {
+func (c *controllerEcho) PostSpec3(ctx *echo.Context) error {
 	var dto api.PoolStepSpec
 	if err := ctx.Bind(&dto); err != nil {
 		c.log.Error("binding failed", slog.Any("dto", reflect.TypeFor[api.PoolStepSpec]()))

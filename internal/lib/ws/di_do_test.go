@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/app"
@@ -59,7 +59,7 @@ func TestEchoServerResourceStartsAndShutsDown(t *testing.T) {
 		address:      "127.0.0.1:0",
 		shutdownDone: make(chan struct{}),
 	}
-	server.GET("/health", func(c echo.Context) error {
+	server.GET("/health", func(c *echo.Context) error {
 		return c.NoContent(http.StatusNoContent)
 	})
 
@@ -67,7 +67,7 @@ func TestEchoServerResourceStartsAndShutsDown(t *testing.T) {
 		t.Fatalf("start server: %v", err)
 	}
 	resource.mu.Lock()
-	address := resource.listener.Addr().String()
+	address := resource.listenerAddr.String()
 	resource.mu.Unlock()
 
 	client := &http.Client{Timeout: time.Second}

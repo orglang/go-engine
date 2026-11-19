@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
@@ -17,7 +17,7 @@ import (
 )
 
 type GeneratedController interface {
-	CreatePoolTypeDefinition(echo.Context) error
+	CreatePoolTypeDefinition(*echo.Context) error
 }
 
 type controllerEcho struct {
@@ -32,7 +32,7 @@ func newControllerEcho(a typedef.API, l *slog.Logger) *controllerEcho {
 	return &controllerEcho{api: a, log: l.With(name)}
 }
 
-func (h *controllerEcho) CreatePoolTypeDefinition(c echo.Context) error {
+func (h *controllerEcho) CreatePoolTypeDefinition(c *echo.Context) error {
 	var dto webapi.PoolTypeDefSpec
 	if err := c.Bind(&dto); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())

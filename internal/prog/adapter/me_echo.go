@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 
 	webapi "orglang/go-engine/internal/app/web/api"
 	coreprog "orglang/go-engine/internal/prog/core"
@@ -25,7 +25,7 @@ func newControllerEcho(a coreprog.API, l *slog.Logger) *controllerEcho {
 	return &controllerEcho{api: a, log: l.With(name)}
 }
 
-func (h *controllerEcho) CreateProgram(ctx echo.Context) error {
+func (h *controllerEcho) CreateProgram(ctx *echo.Context) error {
 	text, readErr := io.ReadAll(ctx.Request().Body)
 	if readErr != nil {
 		h.log.Error("reading failed", slog.Any("err", readErr))

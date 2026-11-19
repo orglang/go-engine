@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 
 	webapi "orglang/go-engine/internal/app/web/api"
 )
@@ -19,11 +19,11 @@ type generatedRouteFilter struct {
 	webapi.EchoRouter
 }
 
-func (r generatedRouteFilter) CONNECT(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route {
-	return nil
+func (r generatedRouteFilter) CONNECT(string, echo.HandlerFunc, ...echo.MiddlewareFunc) echo.RouteInfo {
+	return echo.RouteInfo{}
 }
-func (r generatedRouteFilter) DELETE(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route {
-	return nil
+func (r generatedRouteFilter) DELETE(string, echo.HandlerFunc, ...echo.MiddlewareFunc) echo.RouteInfo {
+	return echo.RouteInfo{}
 }
 func (r generatedRouteFilter) GET(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
 	if path != processDeclarationRoute+"/:id" {
@@ -31,14 +31,14 @@ func (r generatedRouteFilter) GET(path string, h echo.HandlerFunc, m ...echo.Mid
 	}
 	return r.EchoRouter.GET(path, h, m...)
 }
-func (r generatedRouteFilter) HEAD(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route {
-	return nil
+func (r generatedRouteFilter) HEAD(string, echo.HandlerFunc, ...echo.MiddlewareFunc) echo.RouteInfo {
+	return echo.RouteInfo{}
 }
-func (r generatedRouteFilter) OPTIONS(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route {
-	return nil
+func (r generatedRouteFilter) OPTIONS(string, echo.HandlerFunc, ...echo.MiddlewareFunc) echo.RouteInfo {
+	return echo.RouteInfo{}
 }
-func (r generatedRouteFilter) PATCH(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route {
-	return nil
+func (r generatedRouteFilter) PATCH(string, echo.HandlerFunc, ...echo.MiddlewareFunc) echo.RouteInfo {
+	return echo.RouteInfo{}
 }
 func (r generatedRouteFilter) POST(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
 	if path != processDeclarationRoute {
@@ -46,11 +46,11 @@ func (r generatedRouteFilter) POST(path string, h echo.HandlerFunc, m ...echo.Mi
 	}
 	return r.EchoRouter.POST(path, h, m...)
 }
-func (r generatedRouteFilter) PUT(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route {
-	return nil
+func (r generatedRouteFilter) PUT(string, echo.HandlerFunc, ...echo.MiddlewareFunc) echo.RouteInfo {
+	return echo.RouteInfo{}
 }
-func (r generatedRouteFilter) TRACE(string, echo.HandlerFunc, ...echo.MiddlewareFunc) *echo.Route {
-	return nil
+func (r generatedRouteFilter) TRACE(string, echo.HandlerFunc, ...echo.MiddlewareFunc) echo.RouteInfo {
+	return echo.RouteInfo{}
 }
 
 // RegisterGeneratedRoutes mounts only the migrated generated process
@@ -74,11 +74,11 @@ type generatedServerStub struct {
 	gotRN *int64
 }
 
-func (s *generatedServerStub) CreateProcessDeclaration(c echo.Context) error {
+func (s *generatedServerStub) CreateProcessDeclaration(c *echo.Context) error {
 	return c.NoContent(http.StatusCreated)
 }
 
-func (s *generatedServerStub) GetProcessDeclaration(c echo.Context, id string, params webapi.GetProcessDeclarationParams) error {
+func (s *generatedServerStub) GetProcessDeclaration(c *echo.Context, id string, params webapi.GetProcessDeclarationParams) error {
 	s.gotID = id
 	s.gotRN = params.Rn
 	return c.NoContent(http.StatusOK)

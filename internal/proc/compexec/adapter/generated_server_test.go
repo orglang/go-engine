@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 
 	webapi "orglang/go-engine/internal/app/web/api"
 )
@@ -19,13 +19,13 @@ type generatedServerStub struct {
 	stepID string
 }
 
-func (s *generatedServerStub) GetProcessExecution(_ echo.Context, id string, params webapi.GetProcessExecutionParams) error {
+func (s *generatedServerStub) GetProcessExecution(_ *echo.Context, id string, params webapi.GetProcessExecutionParams) error {
 	s.gotID = id
 	s.gotRN = params.Rn
 	return nil
 }
 
-func (s *generatedServerStub) StepProcessExecution(_ echo.Context, id string) error {
+func (s *generatedServerStub) StepProcessExecution(_ *echo.Context, id string) error {
 	s.stepID = id
 	return nil
 }

@@ -32,7 +32,7 @@ func (r generatedRouteFilter) PATCH(string, echo.HandlerFunc, ...echo.Middleware
 }
 func (r generatedRouteFilter) POST(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) echo.RouteInfo {
 	if path != poolDeclarationsRoute {
-		return nil
+		return echo.RouteInfo{}
 	}
 	return r.EchoRouter.POST(path, h, m...)
 }

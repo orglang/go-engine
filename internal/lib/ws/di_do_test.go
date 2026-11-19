@@ -1,9 +1,13 @@
 package ws
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -49,6 +53,29 @@ func TestPackageProvidesEchoServerAndStopsBeforeStart(t *testing.T) {
 	}
 	if err := application.Stop(context.Background()); err != nil {
 		t.Fatalf("stop application before start: %v", err)
+	}
+}
+
+func TestNewEchoLogsSuccessfulRequests(t *testing.T) {
+	var logs bytes.Buffer
+	logger := slog.New(slog.NewTextHandler(&logs, nil))
+	server := newEcho(logger)
+	server.GET("/health", func(c *echo.Context) error {
+		return c.NoContent(http.StatusNoContent)
+	})
+
+	request := httptest.NewRequest(http.MethodGet, "/health", nil)
+	response := httptest.NewRecorder()
+	server.ServeHTTP(response, request)
+
+	if response.Code != http.StatusNoContent {
+		t.Fatalf("health status = %d, want %d", response.Code, http.StatusNoContent)
+	}
+	output := logs.String()
+	for _, want := range []string{"request completed", "method=GET", "uri=/health", "status=204", "latency="} {
+		if !strings.Contains(output, want) {
+			t.Errorf("request log %q does not contain %q", output, want)
+		}
 	}
 }
 

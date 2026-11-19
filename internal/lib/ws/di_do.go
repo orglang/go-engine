@@ -68,24 +68,30 @@ func newEcho(logger *slog.Logger) *echo.Echo {
 	server := echo.New()
 	log := logger.With(slog.String("name", "echoServer"))
 	server.Logger = log
-	server.Use(middleware.Recover())
 	server.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogMethod:   true,
 		LogURI:      true,
 		LogStatus:   true,
+		LogLatency:  true,
 		HandleError: true,
 		LogValuesFunc: func(_ *echo.Context, values middleware.RequestLoggerValues) error {
-			if values.Error != nil {
-				log.Error("request processing failed",
-					slog.String("method", values.Method),
-					slog.String("uri", values.URI),
-					slog.Int("status", values.Status),
-					slog.String("reason", values.Error.Error()),
-				)
+			attrs := []any{
+				slog.String("method", values.Method),
+				slog.String("uri", values.URI),
+				slog.Int("status", values.Status),
+				slog.Duration("latency", values.Latency),
 			}
+			if values.Error != nil {
+				attrs = append(attrs, slog.String("reason", values.Error.Error()))
+				log.Error("request processing failed", attrs...)
+				return nil
+			}
+			log.Info("request completed", attrs...)
 			return nil
 		},
 	}))
+	// Recover is inside RequestLogger so returned errors can be observed and logged.
+	server.Use(middleware.Recover())
 	return server
 }
 

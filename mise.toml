@@ -84,7 +84,7 @@ sources = [
 
 [tasks."distros:gate"]
 description = "Run workspace distribution checks when engine inputs change"
-run = "cd .. && mise -E distros run distros"
+run = "mise run deps:install && mise -E sources exec -- task sources:generate && cd .. && mise -E distros run distros && mise -E distros run //:stack commons"
 sources = [
   "tsp/*.tsp",
   "tsp/**/*.tsp",

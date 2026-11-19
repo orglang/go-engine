@@ -39,8 +39,6 @@ jobs:
           mise -E specs install --locked
           mise -E sources install --locked
 
-      - name: Install TypeSpec dependencies
-        run: mise run deps:install
 
       - name: Run Binaries gate pipeline
         shell: bash

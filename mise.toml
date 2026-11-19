@@ -61,75 +61,31 @@ distros = [
   "mise.distros.toml",
   "mise.distros.lock",
 ]
-# Stage gates mirror the downstream impact mapping in .github/change-detection.md.
-# Keep them independent: each CI stage has its own workflow and invokes only its gate.
-# The groups above encode cumulative inputs without making gates depend on one another.
+# The gate chain follows the pipeline order. Each task declares only its
+# own stage inputs; dependencies provide the cumulative execution order.
 [tasks."specs:gate"]
-description = "Run specs checks when specs inputs change"
+description = "Run Specs in the CI pipeline"
 run = "task specs:check"
 sources = ["@group:common", "@group:specs"]
 outputs = []
 
 [tasks."sources:gate"]
-description = "Run sources checks when specs or sources inputs change"
+description = "Run Specs, then Sources in the CI pipeline"
+depends = ["specs:gate"]
 run = "task sources:check"
-sources = ["@group:common", "@group:specs", "@group:sources"]
+sources = ["@group:sources"]
 outputs = []
 
 [tasks."binaries:gate"]
-description = "Run binary checks when specs, sources, or binary inputs change"
+description = "Run Specs, Sources, then Binaries in the CI pipeline"
+depends = ["sources:gate"]
 run = "task binaries"
-sources = [
-  "@group:common",
-  "@group:specs",
-  "@group:sources",
-  "@group:binaries",
-]
+sources = ["@group:binaries"]
 outputs = []
 
 [tasks."distros:gate"]
-description = "Run workspace distribution checks when engine inputs change"
+description = "Run Specs, Sources, Binaries, then Distros in the CI pipeline"
+depends = ["binaries:gate"]
 run = "mise run deps:install && mise -E sources exec -- task sources:generate && cd .. && mise -E distros run distros && mise -E distros run //:stack commons"
-sources = [
-  "@group:common",
-  "@group:specs",
-  "@group:sources",
-  "@group:binaries",
-  "@group:distros",
-]
-outputs = []
-
-# Experimental cumulative pipelines. Keep the regular stage gates independent.
-# Each Pipe task runs all upstream stages before its own stage.
-[tasks."specs:pipe"]
-description = "Run the Specs stage in the experimental pipeline"
-run = "mise -E specs run specs:gate"
-sources = ["@group:common", "@group:specs"]
-outputs = []
-
-[tasks."sources:pipe"]
-description = "Run Specs, then Sources in the experimental pipeline"
-depends = ["specs:pipe"]
-run = "mise -E sources run sources:gate"
-sources = ["@group:common", "@group:sources"]
-outputs = []
-
-[tasks."binaries:pipe"]
-description = "Run Specs, Sources, then Binaries in the experimental pipeline"
-depends = ["sources:pipe"]
-run = "mise run binaries:gate"
-sources = ["@group:common", "@group:binaries"]
-outputs = []
-
-[tasks."distros:pipe"]
-description = "Run Specs, Sources, Binaries, then Distros in the experimental pipeline"
-depends = ["binaries:pipe"]
-run = "mise run distros:gate"
-sources = ["@group:common", "@group:distros"]
-outputs = []
-
-[tasks."sources:lint"]
-description = "Run Go lint checks"
-run = "golangci-lint run ./..."
-sources = ["@group:sources"]
+sources = ["@group:distros"]
 outputs = []

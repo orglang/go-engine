@@ -1,5 +1,6 @@
 [settings]
 lockfile = true
+experimental = true
 
 [tools]
 go = "1.27.0"
@@ -8,3 +9,150 @@ go = "1.27.0"
 [tasks."deps:install"]
 description = "Install TypeSpec dependencies"
 run = "mise -E specs exec -- npm ci --prefix tsp --no-audit --no-fund"
+
+# Stage gates mirror the downstream impact mapping in .github/change-detection.md.
+# They are selected with "mise run --affected" inside the CI jobs that #87 already gates.
+[tasks."specs:gate"]
+description = "Run specs checks when specs inputs change"
+run = "task specs:check"
+sources = [
+  "tsp/*.tsp",
+  "tsp/**/*.tsp",
+  "openapi/openapi.yaml",
+  "tsp/package.json",
+  "tsp/package-lock.json",
+  "mise.specs-dev.toml",
+  "mise.specs-dev.lock",
+  ".github/**",
+  "taskfile.yaml",
+  "**/taskfile.yaml",
+  "mise.lock",
+  ".miserc.toml",
+]
+
+[tasks."sources:gate"]
+description = "Run sources checks when specs or sources inputs change"
+run = "task sources:check"
+sources = [
+  "tsp/*.tsp",
+  "tsp/**/*.tsp",
+  "openapi/openapi.yaml",
+  "tsp/package.json",
+  "tsp/package-lock.json",
+  "mise.specs-dev.toml",
+  "mise.specs-dev.lock",
+  "*.go",
+  "**/*.go",
+  "mise.sources-dev.toml",
+  "mise.sources-dev.lock",
+  ".golangci.yml",
+  "staticcheck.conf",
+  ".github/**",
+  "taskfile.yaml",
+  "**/taskfile.yaml",
+  "mise.lock",
+  ".miserc.toml",
+]
+
+[tasks."binaries:gate"]
+description = "Run binary checks when specs, sources, or binary inputs change"
+run = "task binaries"
+sources = [
+  "tsp/*.tsp",
+  "tsp/**/*.tsp",
+  "openapi/openapi.yaml",
+  "tsp/package.json",
+  "tsp/package-lock.json",
+  "mise.specs-dev.toml",
+  "mise.specs-dev.lock",
+  "*.go",
+  "**/*.go",
+  "mise.sources-dev.toml",
+  "mise.sources-dev.lock",
+  "*.sql",
+  "**/*.sql",
+  "go.mod",
+  "go.sum",
+  "**/go.mod",
+  "**/go.sum",
+  ".github/**",
+  "taskfile.yaml",
+  "**/taskfile.yaml",
+  "mise.lock",
+  ".miserc.toml",
+]
+
+[tasks."distros:gate"]
+description = "Run workspace distribution checks when engine inputs change"
+run = "cd .. && mise -E distros run distros"
+sources = [
+  "tsp/*.tsp",
+  "tsp/**/*.tsp",
+  "openapi/openapi.yaml",
+  "tsp/package.json",
+  "tsp/package-lock.json",
+  "mise.specs-dev.toml",
+  "mise.specs-dev.lock",
+  "*.go",
+  "**/*.go",
+  "mise.sources-dev.toml",
+  "mise.sources-dev.lock",
+  "*.sql",
+  "**/*.sql",
+  "go.mod",
+  "go.sum",
+  "**/go.mod",
+  "**/go.sum",
+  "Dockerfile",
+  "Dockerfile.*",
+  "**/Dockerfile",
+  "**/Dockerfile.*",
+  "*.Dockerfile",
+  "**/*.Dockerfile",
+  ".dockerignore",
+  "compose.yaml",
+  "compose.yml",
+  "*.compose.yaml",
+  "*.compose.yml",
+  "**/compose.yaml",
+  "**/compose.yml",
+  "**/*.compose.yaml",
+  "**/*.compose.yml",
+  "mise.distros.toml",
+  "mise.distros.lock",
+  ".github/**",
+  "taskfile.yaml",
+  "**/taskfile.yaml",
+  "mise.lock",
+  ".miserc.toml",
+]
+
+# These checks have no workspace outputs consumed by later tasks, so their
+# successful result and log can be safely stored by mise's artifact cache.
+[tasks."sources:lint"]
+description = "Run Go lint checks"
+run = "golangci-lint run ./..."
+sources = [
+  "*.go",
+  "**/*.go",
+  ".golangci.yml",
+  "staticcheck.conf",
+  "go.mod",
+  "go.sum",
+  "mise.sources-dev.toml",
+  "mise.sources-dev.lock",
+]
+outputs = []
+cache = { enabled = true, env = ["CGO_ENABLED", "GOFLAGS", "GOWORK"] }
+
+[tasks."tests:unit"]
+description = "Run Go unit tests"
+run = "go test -tags=unit ./internal/... ./cmd/..."
+sources = [
+  "internal/**/*.go",
+  "cmd/**/*.go",
+  "go.mod",
+  "go.sum",
+]
+outputs = []
+cache = { enabled = true, env = ["CGO_ENABLED", "GOFLAGS", "GOWORK"] }

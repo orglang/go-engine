@@ -64,7 +64,7 @@ func TestNewEchoLogsSuccessfulRequests(t *testing.T) {
 		return c.NoContent(http.StatusNoContent)
 	})
 
-	request := httptest.NewRequest(http.MethodGet, "/health", nil)
+	request := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/health", nil)
 	response := httptest.NewRecorder()
 	server.ServeHTTP(response, request)
 

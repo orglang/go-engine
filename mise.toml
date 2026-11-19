@@ -108,8 +108,6 @@ sources = [
 ]
 outputs = []
 
-# These checks have no workspace outputs consumed by later tasks, so their
-# successful result and log can be safely stored by mise's artifact cache.
 # Experimental cumulative pipelines. Keep the regular stage gates independent.
 # Each Pipe task runs all upstream stages before its own stage.
 [tasks."specs:pipe"]
@@ -152,6 +150,8 @@ sources = [
 ]
 outputs = []
 
+# These checks have no workspace outputs consumed by later tasks, so their
+# successful result and log can be safely stored by mise's artifact cache.
 [tasks."sources:lint"]
 description = "Run Go lint checks"
 run = "golangci-lint run ./..."

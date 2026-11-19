@@ -1,0 +1,70 @@
+name: Specs Pipe
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types:
+      - opened
+      - ready_for_review
+      - synchronize
+  merge_group:
+    types:
+      - checks_requested
+
+permissions:
+  contents: read
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      specs: ${{ steps.detect.outputs.specs }}
+    steps:
+      - name: Checkout engine
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Detect changed areas
+        id: detect
+        uses: ./.github/actions/change-detection
+
+  specs-pipe:
+    name: Specs Pipe
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.specs == 'true' && !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout engine
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Set up mise
+        uses: jdx/mise-action@v5
+        with:
+          cache: true
+          cache_key: "{{default}}-pipe"
+          install: true
+          cache_save_post: true
+
+      - name: Install specs toolchain
+        run: mise -E specs install --locked
+
+      - name: Install TypeSpec dependencies
+        run: mise run deps:install
+
+      - name: Run experimental specs pipe pipeline
+        shell: bash
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            mise -E specs run --affected --affected-committed --affected-base "origin/$GITHUB_BASE_REF" --affected-head HEAD specs:pipe
+          else
+            mise -E specs run specs:pipe
+          fi

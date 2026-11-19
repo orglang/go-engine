@@ -42,8 +42,9 @@ the server package.
 
 The generated `ServerInterface` and route registration are transport-layer
 artifacts. Implementations belong in Echo adapters; generated files must not
-contain handwritten business logic. This step does not migrate the currently
-registered routes or claim that the normalized contract paths are already served.
+contain handwritten business logic. Echo adapters implement the contract
+operations and convert generated transport DTOs to engine-owned application
+and domain types.
 
 ## Model organization
 
@@ -74,14 +75,11 @@ payload envelope. A request must contain exactly one variant; the `kind`
 value identifies that variant. Variant models are deliberately distinct even
 when their payload fields currently have the same shape.
 
-These models reflect the concepts handled by the respective
-`go-sdk/proc/typeexp`, `go-sdk/proc/termexp`,
-`go-sdk/pool/typeexp`, and `go-sdk/pool/termexp` packages, but are not
-claimed to be wire-compatible with the current SDK DTOs. Several JSON names
-are intentionally normalized in this target contract (for example
-`chnl_ph` → `conn_ph`, `exp_vk` → `expr_ck`, `cont_es` → `cont_expr`,
-and `val_es` → `val_expr`). The server and SDK migration must account for
-these wire-level changes.
+These models describe the engine's process and pool expression variants
+independently of any client implementation. Several JSON names are
+intentionally normalized in the contract (for example `chnl_ph` → `conn_ph`,
+`exp_vk` → `expr_ck`, `cont_es` → `cont_expr`, and `val_es` → `val_expr`).
+HTTP adapters map these generated transport models to engine-owned types.
 
 ## Naming
 

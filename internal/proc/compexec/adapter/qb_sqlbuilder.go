@@ -5,7 +5,6 @@ import (
 
 	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
 	termsemadapter "orglang/go-engine/internal/adt/termsem/adapter"
-
 )
 
 type sqlBuilder struct {

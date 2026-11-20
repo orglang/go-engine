@@ -13,13 +13,13 @@ import (
 
 func init() {
 	DataFromVarRec = func(source termvar.VarRec) (VarRecDS, error) {
-		var termvarVarRecDS VarRecDS
-		termvarVarRecDS.TypeID = identity.ConvertToString(source.TypeRef.TypeID)
-		termvarVarRecDS.ChnlPH = symbol.ConvertToString(source.ChnlPH)
-		termvarVarRecDS.ExpCK = int64(source.ExpCK)
-		return termvarVarRecDS, nil
+		var adapterVarRecDS VarRecDS
+		adapterVarRecDS.TypeID = identity.ConvertToString(source.TypeRef.TypeID)
+		adapterVarRecDS.ChnlPH = symbol.ConvertToString(source.ChnlPH)
+		adapterVarRecDS.ExpCK = int64(source.ExpCK)
+		return adapterVarRecDS, nil
 	}
-	DataToVarRec = func(source termvar.VarRecDS) (termvar.VarRec, error) {
+	DataToVarRec = func(source VarRecDS) (termvar.VarRec, error) {
 		var termvarVarRec termvar.VarRec
 		typesemSemRef, err := dataToTypeRef(source)
 		if err != nil {
@@ -34,7 +34,7 @@ func init() {
 		termvarVarRec.ExpCK = contkey.ADT(source.ExpCK)
 		return termvarVarRec, nil
 	}
-	dataToTypeRef = func(source termvar.VarRecDS) (typesem.SemRef, error) {
+	dataToTypeRef = func(source VarRecDS) (typesem.SemRef, error) {
 		var typesemSemRef typesem.SemRef
 		identityADT, err := identity.ConvertFromString(source.TypeID)
 		if err != nil {

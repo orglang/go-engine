@@ -58,25 +58,25 @@ func init() {
 }
 func init() {
 	DataFromDecRec = func(source core.DefRec) (DefRecDS, error) {
-		var coreDefRecDS DefRecDS
-		coreDefRecDS.TermID = identity.ConvertToString(source.TermRef.TermID)
-		coreDefRecDS.TermRN = int64(source.TermRef.TermRN)
+		var adapterDefRecDS DefRecDS
+		adapterDefRecDS.TermID = identity.ConvertToString(source.TermRef.TermID)
+		adapterDefRecDS.TermRN = int64(source.TermRef.TermRN)
 		termvarVarRecDS, err := termvaradapter.DataFromVarRec(source.LiabVar)
 		if err != nil {
-			return coreDefRecDS, err
+			return adapterDefRecDS, err
 		}
-		coreDefRecDS.LiabVar = termvarVarRecDS
+		adapterDefRecDS.LiabVar = termvarVarRecDS
 		if source.AssetVars != nil {
-			coreDefRecDS.AssetVars = make([]termvaradapter.VarRecDS, len(source.AssetVars))
+			adapterDefRecDS.AssetVars = make([]termvaradapter.VarRecDS, len(source.AssetVars))
 			for i := 0; i < len(source.AssetVars); i++ {
 				termvarVarRecDS2, err := termvaradapter.DataFromVarRec(source.AssetVars[i])
 				if err != nil {
-					return coreDefRecDS, err
+					return adapterDefRecDS, err
 				}
-				coreDefRecDS.AssetVars[i] = termvarVarRecDS2
+				adapterDefRecDS.AssetVars[i] = termvarVarRecDS2
 			}
 		}
-		return coreDefRecDS, nil
+		return adapterDefRecDS, nil
 	}
 	DataToDecRec = func(source DefRecDS) (core.DefRec, error) {
 		var coreDefRec core.DefRec

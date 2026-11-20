@@ -9,12 +9,12 @@ func identityToString(id identity.ADT) string {
 	return identity.ConvertToString(id)
 }
 
-func dataToConnID(dto compconn.ConnSnapDS) (identity.ADT, error) {
+func dataToConnID(dto ConnSnap) (identity.ADT, error) {
 	return identity.ConvertFromString(dto.ConnID)
 }
 
-func DataFromRec(rec compconn.ConnRec) compconn.ConnRecDS {
-	return compconn.ConnRecDS{
+func DataFromRec(rec compconn.ConnRec) ConnRec {
+	return ConnRec{
 		ConnID:         identity.ConvertToString(rec.ConnID),
 		ProviderCompID: identity.ConvertToString(rec.ProviderCompRef.CompID),
 		ProviderCompRN: int64(rec.ProviderCompRef.CompRN),

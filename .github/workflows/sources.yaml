@@ -1,0 +1,43 @@
+name: Sources
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    types:
+      - opened
+      - reopened
+      - converted_to_draft
+      - synchronize
+
+permissions:
+  contents: read
+
+jobs:
+  quality-gate:
+    name: Quality Gate
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == true }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout engine
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Set up mise
+        uses: jdx/mise-action@v5
+        with:
+          cache: true
+          cache_key: "{{default}}-pipe"
+          install: true
+          cache_save_post: true
+
+      - name: Run Sources gate
+        shell: bash
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            mise run --affected --affected-committed --affected-base "origin/$GITHUB_BASE_REF" --affected-head HEAD sources:gate
+          else
+            mise run sources:gate
+          fi

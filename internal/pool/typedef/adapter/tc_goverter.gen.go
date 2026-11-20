@@ -13,30 +13,30 @@ import (
 )
 
 func init() {
-	DataFromDefRec = func(source core.DefRec) (core.DefRecDS, error) {
-		var coreDefRecDS core.DefRecDS
-		coreDefRecDS.TypeID = identity.ConvertToString(source.TypeRef.TypeID)
-		coreDefRecDS.TypeRN = seqnum.ConvertToInt(source.TypeRef.TypeRN)
-		coreDefRecDS.ExpCK = contkey.ConvertToInt(source.ExpCK)
-		return coreDefRecDS, nil
+	DataFromDefRec = func(source core.DefRec) (DefRec, error) {
+		var adapterDefRec DefRec
+		adapterDefRec.TypeID = identity.ConvertToString(source.TypeRef.TypeID)
+		adapterDefRec.TypeRN = seqnum.ConvertToInt(source.TypeRef.TypeRN)
+		adapterDefRec.ExpCK = contkey.ConvertToInt(source.ExpCK)
+		return adapterDefRec, nil
 	}
-	DataFromDefRecs = func(source []core.DefRec) ([]core.DefRecDS, error) {
-		var coreDefRecDSList []core.DefRecDS
+	DataFromDefRecs = func(source []core.DefRec) ([]DefRec, error) {
+		var adapterDefRecList []DefRec
 		if source != nil {
-			coreDefRecDSList = make([]core.DefRecDS, len(source))
+			adapterDefRecList = make([]DefRec, len(source))
 			for i := 0; i < len(source); i++ {
-				coreDefRecDS, err := DataFromDefRec(source[i])
+				adapterDefRec, err := DataFromDefRec(source[i])
 				if err != nil {
 					return nil, err
 				}
-				coreDefRecDSList[i] = coreDefRecDS
+				adapterDefRecList[i] = adapterDefRec
 			}
 		}
-		return coreDefRecDSList, nil
+		return adapterDefRecList, nil
 	}
-	DataToDefRec = func(source core.DefRecDS) (core.DefRec, error) {
+	DataToDefRec = func(source DefRec) (core.DefRec, error) {
 		var coreDefRec core.DefRec
-		typesemSemRef, err := coreDefRecDSToTypesemSemRef(source)
+		typesemSemRef, err := adapterDefRecToTypesemSemRef(source)
 		if err != nil {
 			return coreDefRec, err
 		}
@@ -48,7 +48,7 @@ func init() {
 		coreDefRec.ExpCK = contkeyADT
 		return coreDefRec, nil
 	}
-	DataToDefRecMap = func(source map[uniqsym.ADT]core.DefRecDS) (map[uniqsym.ADT]core.DefRec, error) {
+	DataToDefRecMap = func(source map[uniqsym.ADT]DefRec) (map[uniqsym.ADT]core.DefRec, error) {
 		var mapUniqsymADTCoreDefRec map[uniqsym.ADT]core.DefRec
 		if source != nil {
 			mapUniqsymADTCoreDefRec = make(map[uniqsym.ADT]core.DefRec, len(source))
@@ -62,7 +62,7 @@ func init() {
 		}
 		return mapUniqsymADTCoreDefRec, nil
 	}
-	DataToDefRecs = func(source []core.DefRecDS) ([]core.DefRec, error) {
+	DataToDefRecs = func(source []DefRec) ([]core.DefRec, error) {
 		var coreDefRecList []core.DefRec
 		if source != nil {
 			coreDefRecList = make([]core.DefRec, len(source))
@@ -77,7 +77,7 @@ func init() {
 		return coreDefRecList, nil
 	}
 }
-func coreDefRecDSToTypesemSemRef(source core.DefRecDS) (typesem.SemRef, error) {
+func adapterDefRecToTypesemSemRef(source DefRec) (typesem.SemRef, error) {
 	var typesemSemRef typesem.SemRef
 	identityADT, err := identity.ConvertFromString(source.TypeID)
 	if err != nil {

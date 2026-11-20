@@ -140,6 +140,58 @@ func DataToLinearRec(dto VarRecDS) (compvar.LinearRec, error) {
 	}, nil
 }
 
+func DataFromStructRecs(recs []compvar.StructRec) []VarRecDS {
+	if recs == nil {
+		return nil
+	}
+	dtos := make([]VarRecDS, len(recs))
+	for i, rec := range recs {
+		dtos[i] = DataFromStructRec(rec)
+	}
+	return dtos
+}
+
+func DataFromLinearRecs(recs []compvar.LinearRec) []VarRecDS {
+	if recs == nil {
+		return nil
+	}
+	dtos := make([]VarRecDS, len(recs))
+	for i, rec := range recs {
+		dtos[i] = DataFromLinearRec(rec)
+	}
+	return dtos
+}
+
+func DataToStructRecs(dtos []VarRecDS) ([]compvar.StructRec, error) {
+	if dtos == nil {
+		return nil, nil
+	}
+	recs := make([]compvar.StructRec, len(dtos))
+	for i, dto := range dtos {
+		rec, err := DataToStructRec(dto)
+		if err != nil {
+			return nil, err
+		}
+		recs[i] = rec
+	}
+	return recs, nil
+}
+
+func DataToLinearRecs(dtos []VarRecDS) ([]compvar.LinearRec, error) {
+	if dtos == nil {
+		return nil, nil
+	}
+	recs := make([]compvar.LinearRec, len(dtos))
+	for i, dto := range dtos {
+		rec, err := DataToLinearRec(dto)
+		if err != nil {
+			return nil, err
+		}
+		recs[i] = rec
+	}
+	return recs, nil
+}
+
 func dataToCompRef(dto VarRecDS) (compsem.SemRef, error) {
 	compID, err := identity.ConvertFromNullString(dto.CompID)
 	if err != nil {

@@ -1,21 +1,22 @@
 package adapter
 
 import (
+	"context"
 	"log/slog"
 	"reflect"
 
 	"github.com/alitto/pond/v2"
 
 	compexec "orglang/go-engine/internal/pool/compexec/core"
-	compstep "orglang/go-engine/internal/pool/compstep/core"
 	"orglang/go-engine/internal/lib/wp"
+	compstep "orglang/go-engine/internal/pool/compstep/core"
 )
 
 type pondBroker struct {
-	api  compexec.API
-	pool pond.Pool
+	api     compexec.API
+	pool    pond.Pool
 	taskCtx context.Context
-	log  *slog.Logger
+	log     *slog.Logger
 }
 
 func newPondBroker(pool pond.Pool, taskCtx wp.PondTaskContext, log *slog.Logger) *pondBroker {

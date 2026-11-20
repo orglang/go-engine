@@ -10,11 +10,11 @@ import (
 
 // Package registers the pool connection repository and its private query builder.
 var Package = do.Package(
-	do.Lazy[compconn.QueryBuilder](func(do.Injector) (compconn.QueryBuilder, error) {
+	do.Lazy[QueryBuilder](func(do.Injector) (QueryBuilder, error) {
 		return newSQLBuilder(), nil
 	}),
 	do.Lazy[compconn.Repo](func(i do.Injector) (compconn.Repo, error) {
-		qb, err := do.Invoke[compconn.QueryBuilder](i)
+		qb, err := do.Invoke[QueryBuilder](i)
 		if err != nil {
 			return nil, err
 		}

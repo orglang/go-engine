@@ -71,7 +71,7 @@ func (dao *daoPgx) GetRefsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 			dao.log.Error("query execution failed", qnAttr)
 			return nil, readErr
 		}
-		dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[typesem.SemRefDS])
+		dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[SemRefDS])
 		if scanErr != nil {
 			dao.log.Error("row scanning failed", qnAttr)
 			return nil, scanErr

@@ -36,10 +36,20 @@ var Package = do.Package(
 		return resource.pool, nil
 	}),
 	do.Lazy[*workerPoolResource](func(do.Injector) (*workerPoolResource, error) {
+		taskCtx, cancel := context.WithCancel(context.Background())
 		return &workerPoolResource{
 			pool: newWorkerPool(),
+			taskCtx: taskCtx,
+			cancel: cancel,
 			done: make(chan struct{}),
 		}, nil
+	}),
+	do.Lazy[WorkerPoolTaskContext](func(i do.Injector) (WorkerPoolTaskContext, error) {
+		resource, err := do.Invoke[*workerPoolResource](i)
+		if err != nil {
+			return WorkerPoolTaskContext{}, err
+		}
+		return WorkerPoolTaskContext{Context: resource.taskCtx}, nil
 	}),
 	do.Lazy[*workerpool.WorkerPool](func(i do.Injector) (*workerpool.WorkerPool, error) {
 		resource, err := do.Invoke[*workerPoolResource](i)
@@ -81,8 +91,15 @@ func (r *pondPoolResource) Shutdown(ctx context.Context) error {
 	}
 }
 
+// WorkerPoolTaskContext is canceled when the application begins shutting down.
+type WorkerPoolTaskContext struct {
+	context.Context
+}
+
 type workerPoolResource struct {
 	pool *workerpool.WorkerPool
+	taskCtx context.Context
+	cancel context.CancelFunc
 	once sync.Once
 	done chan struct{}
 }
@@ -90,6 +107,7 @@ type workerPoolResource struct {
 // Shutdown drains accepted worker-pool tasks before returning.
 func (r *workerPoolResource) Shutdown(ctx context.Context) error {
 	r.once.Do(func() {
+		r.cancel()
 		go func() {
 			r.pool.StopWait()
 			close(r.done)

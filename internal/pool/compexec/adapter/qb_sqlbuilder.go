@@ -4,7 +4,7 @@ import (
 	"github.com/huandu/go-sqlbuilder"
 
 	"orglang/go-engine/internal/adt/compsem"
-	"orglang/go-engine/internal/adt/compvar"
+	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
 
 )
 
@@ -22,7 +22,7 @@ func newQueryBuilder() queryBuilder {
 func newSQLBuilder() *sqlBuilder {
 	recBuilder := sqlbuilder.NewStruct(new(ExecRecDS)).For(sqlbuilder.PostgreSQL)
 	snapBuilder := sqlbuilder.NewStruct(new(ExecSnap1DS)).For(sqlbuilder.PostgreSQL)
-	compVarBuilder := sqlbuilder.NewStruct(new(compvar.VarRecDS)).For(sqlbuilder.PostgreSQL)
+	compVarBuilder := sqlbuilder.NewStruct(new(compvaradapter.VarRecDS)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{recBuilder, snapBuilder, compVarBuilder}
 }
 

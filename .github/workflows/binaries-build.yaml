@@ -1,4 +1,4 @@
-name: Binaries
+name: Old Binaries
 
 on:
   pull_request:

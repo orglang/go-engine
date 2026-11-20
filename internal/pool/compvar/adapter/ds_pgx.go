@@ -11,7 +11,7 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 
-	adtcompvar "orglang/go-engine/internal/adt/compvar"
+	adtcompvar "orglang/go-engine/internal/adt/compvar"\n\tcompvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
 
 	compvar "orglang/go-engine/internal/pool/compvar/core"
 )
@@ -34,7 +34,7 @@ func newRepo() compvar.Repo {
 func (dao *daoPgx) AddRecs(ctx context.Context, conn tx.Conn, recs []adtcompvar.VarRec) (err error) {
 	batch := pgx.Batch{}
 	for _, rec := range recs {
-		dto := adtcompvar.DataFromVarRec(rec)
+		dto := compvaradapter.DataFromVarRec(rec)
 		sql, args := dao.qb.InsertRec(getTableName(rec), dto)
 		batch.Queue(sql, args...)
 	}

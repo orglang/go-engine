@@ -3,11 +3,10 @@ package adapter
 import (
 	"testing"
 
-	"orglang/go-engine/internal/adt/typesem"
 )
 
 func TestUpdateRef(t *testing.T) {
 	qb := newSQLBuilder("types", "descs")
-	sql, _ := qb.updateRef(typesem.SemRefDS{})
+	sql, _ := qb.updateRef(SemRefDS{})
 	t.Log(sql)
 }

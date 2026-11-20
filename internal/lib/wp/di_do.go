@@ -13,10 +13,20 @@ import (
 // ownership of their shutdown.
 var Package = do.Package(
 	do.Lazy[*pondPoolResource](func(do.Injector) (*pondPoolResource, error) {
+		taskCtx, cancel := context.WithCancel(context.Background())
 		return &pondPoolResource{
 			pool: newPondPool(),
+			taskCtx: taskCtx,
+			cancel: cancel,
 			done: make(chan struct{}),
 		}, nil
+	}),
+	do.Lazy[PondTaskContext](func(i do.Injector) (PondTaskContext, error) {
+		resource, err := do.Invoke[*pondPoolResource](i)
+		if err != nil {
+			return PondTaskContext{}, err
+		}
+		return PondTaskContext{Context: resource.taskCtx}, nil
 	}),
 	do.Lazy[pond.Pool](func(i do.Injector) (pond.Pool, error) {
 		resource, err := do.Invoke[*pondPoolResource](i)
@@ -40,8 +50,15 @@ var Package = do.Package(
 	}),
 )
 
+// PondTaskContext is canceled when the application begins shutting down.
+type PondTaskContext struct {
+	context.Context
+}
+
 type pondPoolResource struct {
 	pool pond.Pool
+	taskCtx context.Context
+	cancel context.CancelFunc
 	once sync.Once
 	done chan struct{}
 }
@@ -49,6 +66,7 @@ type pondPoolResource struct {
 // Shutdown stops accepting work and waits for all accepted pond tasks.
 func (r *pondPoolResource) Shutdown(ctx context.Context) error {
 	r.once.Do(func() {
+		r.cancel()
 		go func() {
 			r.pool.StopAndWait()
 			close(r.done)

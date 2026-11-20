@@ -89,7 +89,6 @@ func (s *service) Incept(ctx context.Context, termQN uniqsym.ADT) (_ termsem.Sem
 }
 
 func (s *service) Create(ctx context.Context, spec DecSpec) (_ DecSnap, err error) {
-	ctx := context.Background()
 	qnAttr := slog.Any("qn", spec.TermQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	assetQNs := make([]uniqsym.ADT, 0, len(spec.AssetVars)+1)

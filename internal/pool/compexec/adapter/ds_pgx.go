@@ -13,6 +13,7 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 
 	"orglang/go-engine/internal/adt/compsem"
+	compsemadapter "orglang/go-engine/internal/adt/compsem/adapter"
 	"orglang/go-engine/internal/adt/uniqsym"
 
 	compexec "orglang/go-engine/internal/pool/compexec/core"
@@ -52,7 +53,7 @@ func (dao *daoPgx) ModifyRec(context.Context, tx.Conn, compexec.ExecMod) error {
 
 func (dao *daoPgx) GetSnapByRef(ctx context.Context, conn tx.Conn, ref compsem.SemRef) (compexec.ExecSnap2, error) {
 	refAttr := slog.Any("ref", ref)
-	sql, args := dao.qb.SelectRecByRef(compsem.DataFromRef(ref))
+	sql, args := dao.qb.SelectRecByRef(compsemadapter.DataFromRef(ref))
 	rows, execErr := conn.Pgx.Query(ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))

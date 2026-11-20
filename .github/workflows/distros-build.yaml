@@ -79,13 +79,13 @@ jobs:
           version: v0.39.0
 
       # Expose the Actions cache runtime variables to the inline Buildx CLI.
-      - name: Expose GitHub runtime
+      - name: Expose GitHub Actions runtime
         uses: crazy-max/ghaction-github-runtime@v4
 
-      - name: Run Distros gate
+      - name: Run workspace Distros gate
         run: mise run //:distros:gate
 
-      - name: PostgreSQL logs
+      - name: PostgreSQL compose diagnostics
         if: ${{ failure() }}
         working-directory: stack
         run: >-

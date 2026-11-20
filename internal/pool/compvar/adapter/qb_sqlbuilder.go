@@ -3,7 +3,7 @@ package adapter
 import (
 	"github.com/huandu/go-sqlbuilder"
 
-	adtcompvar "orglang/go-engine/internal/adt/compvar"
+	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
 )
 
 type sqlBuilder struct {
@@ -16,10 +16,10 @@ func newQueryBuilder() queryBuilder {
 }
 
 func newSQLBuilder() *sqlBuilder {
-	varBuilder := sqlbuilder.NewStruct(new(adtcompvar.VarRecDS)).For(sqlbuilder.PostgreSQL)
+	varBuilder := sqlbuilder.NewStruct(new(compvaradapter.VarRecDS)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{varBuilder}
 }
 
-func (qb *sqlBuilder) InsertRec(table string, rec adtcompvar.VarRecDS) (string, []any) {
+func (qb *sqlBuilder) InsertRec(table string, rec compvaradapter.VarRecDS) (string, []any) {
 	return qb.varBuilder.InsertInto(table, rec).Build()
 }

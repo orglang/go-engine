@@ -1,4 +1,4 @@
-name: Distros Pipe
+name: Distros
 
 on:
   workflow_dispatch:

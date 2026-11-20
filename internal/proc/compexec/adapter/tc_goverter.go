@@ -8,7 +8,7 @@ import (
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/internal/adt/compvar:Data.*
+// goverter:extend orglang/go-engine/internal/adt/compvar/adapter:Data.*
 var (
 	// goverter:map . CompRef | dataToSemRef
 	DataToExecRec func(ExecRecDS) (compexec.ExecRec, error)

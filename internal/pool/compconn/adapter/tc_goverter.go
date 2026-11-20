@@ -8,7 +8,7 @@ import (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
-// goverter:extend orglang/go-engine/internal/adt/compsem:Data.*
+// goverter:extend orglang/go-engine/internal/adt/compsem/adapter:Data.*
 // goverter:extend orglang/go-engine/internal/pool/connact/adapter:Data.*
 var (
 	// goverter:map ConnID | identityToString

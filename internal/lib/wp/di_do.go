@@ -15,9 +15,9 @@ var Package = do.Package(
 	do.Lazy[*pondPoolResource](func(do.Injector) (*pondPoolResource, error) {
 		taskCtx, cancel := context.WithCancel(context.Background())
 		return &pondPoolResource{
-			pool: newPondPool(),
+			pool:    newPondPool(),
 			taskCtx: taskCtx,
-			cancel: cancel,
+			cancel:  cancel,
 			done: make(chan struct{}),
 		}, nil
 	}),
@@ -38,9 +38,9 @@ var Package = do.Package(
 	do.Lazy[*workerPoolResource](func(do.Injector) (*workerPoolResource, error) {
 		taskCtx, cancel := context.WithCancel(context.Background())
 		return &workerPoolResource{
-			pool: newWorkerPool(),
+			pool:    newWorkerPool(),
 			taskCtx: taskCtx,
-			cancel: cancel,
+			cancel:  cancel,
 			done: make(chan struct{}),
 		}, nil
 	}),
@@ -66,11 +66,11 @@ type PondTaskContext struct {
 }
 
 type pondPoolResource struct {
-	pool pond.Pool
+	pool    pond.Pool
 	taskCtx context.Context
-	cancel context.CancelFunc
-	once sync.Once
-	done chan struct{}
+	cancel  context.CancelFunc
+	once    sync.Once
+	done    chan struct{}
 }
 
 // Shutdown stops accepting work and waits for all accepted pond tasks.
@@ -97,14 +97,14 @@ type WorkerPoolTaskContext struct {
 }
 
 type workerPoolResource struct {
-	pool *workerpool.WorkerPool
+	pool    *workerpool.WorkerPool
 	taskCtx context.Context
-	cancel context.CancelFunc
-	once sync.Once
-	done chan struct{}
+	cancel  context.CancelFunc
+	once    sync.Once
+	done    chan struct{}
 }
 
-// Shutdown drains accepted worker-pool tasks before returning.
+// Shutdown cancels the worker task context and drains accepted tasks before returning.
 func (r *workerPoolResource) Shutdown(ctx context.Context) error {
 	r.once.Do(func() {
 		r.cancel()

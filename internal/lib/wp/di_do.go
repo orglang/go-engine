@@ -30,7 +30,6 @@ var Package = do.Package(
 		}
 		return &pondPoolResource{
 			pool: newPondPool(),
-			taskCtx: resource.ctx,
 			cancel: resource.cancel,
 			done: make(chan struct{}),
 		}, nil
@@ -49,7 +48,6 @@ var Package = do.Package(
 		}
 		return &workerPoolResource{
 			pool: newWorkerPool(),
-			taskCtx: resource.ctx,
 			cancel: resource.cancel,
 			done: make(chan struct{}),
 		}, nil
@@ -69,9 +67,8 @@ type taskContextResource struct {
 }
 
 type pondPoolResource struct {
-	pool    pond.Pool
-	taskCtx context.Context
-	cancel  context.CancelFunc
+	pool   pond.Pool
+	cancel context.CancelFunc
 	once    sync.Once
 	done    chan struct{}
 }
@@ -95,9 +92,8 @@ func (r *pondPoolResource) Shutdown(ctx context.Context) error {
 }
 
 type workerPoolResource struct {
-	pool    *workerpool.WorkerPool
-	taskCtx context.Context
-	cancel  context.CancelFunc
+	pool   *workerpool.WorkerPool
+	cancel context.CancelFunc
 	once    sync.Once
 	done    chan struct{}
 }

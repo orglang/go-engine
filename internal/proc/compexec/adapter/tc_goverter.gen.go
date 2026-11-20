@@ -5,7 +5,8 @@ package adapter
 
 import (
 	compsem "orglang/go-engine/internal/adt/compsem"
-	compvar "orglang/go-engine/internal/adt/compvar"\n\tcompvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
+	compvar "orglang/go-engine/internal/adt/compvar"
+	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
 	identity "orglang/go-engine/internal/adt/identity"
 	core "orglang/go-engine/internal/proc/compexec/core"
 )

@@ -49,7 +49,3 @@ func ErrActRecTypeUnexpected(got ActRec) error {
 func ErrActRecTypeMismatch(got, want ActRec) error {
 	return fmt.Errorf("act rec mismatch: want %T, got %T", want, got)
 }
-
-func ErrActKindUnexpected(got actKind) error {
-	return fmt.Errorf("act kind unexpected: %v", got)
-}

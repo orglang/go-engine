@@ -1,6 +1,7 @@
 package adapter
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/alitto/pond/v2"
@@ -42,11 +43,15 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
+		taskCtx, err := do.Invoke[context.Context](i)
+		if err != nil {
+			return nil, err
+		}
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil {
 			return nil, err
 		}
-		return newPondBroker(pool, logger), nil
+		return newPondBroker(taskCtx, pool, logger), nil
 	}),
 	do.Lazy[compexec.API](func(i do.Injector) (compexec.API, error) {
 		execRepo, err := do.Invoke[compexec.Repo](i)

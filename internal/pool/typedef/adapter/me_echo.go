@@ -45,7 +45,7 @@ func (h *controllerEcho) CreatePoolTypeDefinition(c *echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	ref, err := h.api.Create(typedef.DefSpec{TypeQN: qn, TypeExp: expr})
+	ref, err := h.api.Create(c.Request().Context(), typedef.DefSpec{TypeQN: qn, TypeExp: expr})
 	if err != nil {
 		return err
 	}

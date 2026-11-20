@@ -205,7 +205,7 @@ func (h *controllerEcho) StepProcessExecution(c *echo.Context, id string) error 
 		h.log.Error("converting generated process step failed", "error", err)
 		return err
 	}
-	if err := h.api.Take(spec); err != nil {
+	if err := h.api.Take(c.Request().Context(), spec); err != nil {
 		return err
 	}
 	return c.NoContent(http.StatusOK)

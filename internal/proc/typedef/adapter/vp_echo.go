@@ -69,7 +69,7 @@ func (p *echoPresenter) PostOne(c *echo.Context) error {
 		p.log.Error("conversion failed", slog.Any("dto", dto))
 		return convErr
 	}
-	snap, createErr := p.api.Create(typedef.DefSpec{TypeQN: qn, TypeExp: typeexp.OneSpec{}})
+	snap, createErr := p.api.Create(ctx, typedef.DefSpec{TypeQN: qn, TypeExp: typeexp.OneSpec{}})
 	if createErr != nil {
 		return createErr
 	}
@@ -83,7 +83,7 @@ func (p *echoPresenter) PostOne(c *echo.Context) error {
 }
 
 func (p *echoPresenter) GetMany(c *echo.Context) error {
-	refs, retrieveErr := p.api.RetreiveRefs()
+	refs, retrieveErr := p.api.RetreiveRefs(c.Request().Context())
 	if retrieveErr != nil {
 		return retrieveErr
 	}
@@ -112,7 +112,7 @@ func (p *echoPresenter) GetOne(c *echo.Context) error {
 	ref := typesem.SemRef{TypeID: id, TypeRN: seqnum.ConvertFromInt(rn)}
 	ctx := c.Request().Context()
 	p.log.Log(ctx, lf.LevelTrace, "getting started", slog.Any("ref", ref))
-	snap, retrieveErr := p.api.RetrieveSnap(ref)
+	snap, retrieveErr := p.api.RetrieveSnap(ctx, ref)
 	if retrieveErr != nil {
 		return retrieveErr
 	}

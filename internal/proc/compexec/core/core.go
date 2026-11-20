@@ -30,7 +30,7 @@ import (
 )
 
 type API interface {
-	Take(compstep.StepSpec) error
+	Take(context.Context, compstep.StepSpec) error
 	RetrieveSnap(compsem.SemRef) (ExecSnap, error)
 }
 
@@ -108,10 +108,9 @@ func ErrMissingChnl(want symbol.ADT) error {
 	return fmt.Errorf("channel missing in cfg: %v", want)
 }
 
-func (s *service) Take(spec compstep.StepSpec) (err error) {
+func (s *service) Take(ctx context.Context, spec compstep.StepSpec) (err error) {
 	compAttr := slog.Any("proc", spec.CompRef)
 	s.log.Debug("step taking started", compAttr, slog.Any("exp", spec.ProcExp))
-	ctx := context.Background()
 	// initial values
 	compRef := spec.CompRef
 	expSpec := spec.ProcExp
@@ -160,7 +159,7 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 			return err
 		}
 		// step taking
-		result, err := s.takeWith(procEnv, execSnap, expSpec)
+		result, err := s.takeWith(ctx, procEnv, execSnap, expSpec)
 		if err != nil {
 			s.log.Error("step taking failed", compAttr)
 			return err
@@ -205,6 +204,7 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 }
 
 func (s *service) takeWith(
+	ctx context.Context,
 	procEnv Env,
 	execSnap ExecSnap,
 	exp termexp.ExpSpec,
@@ -212,7 +212,6 @@ func (s *service) takeWith(
 	var execMod ExecMod
 	var execEff ExecEff
 	var connMod compconn.ConnMod
-	ctx := context.Background()
 	var err error
 	compAttr := slog.Any("compRef", execSnap.CompRef)
 	execMod.CompRefs = append(execMod.CompRefs, execSnap.CompRef)

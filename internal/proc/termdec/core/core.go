@@ -18,10 +18,10 @@ import (
 )
 
 type API interface {
-	Incept(uniqsym.ADT) (termsem.SemRef, error)
-	Create(DecSpec) (DecSnap, error)
-	RetrieveSnap(termsem.SemRef) (DecSnap, error)
-	RetreiveRefs() ([]termsem.SemRef, error)
+	Incept(context.Context, uniqsym.ADT) (termsem.SemRef, error)
+	Create(context.Context, DecSpec) (DecSnap, error)
+	RetrieveSnap(context.Context, termsem.SemRef) (DecSnap, error)
+	RetreiveRefs(context.Context) ([]termsem.SemRef, error)
 }
 
 type DecSpec struct {
@@ -69,8 +69,7 @@ func NewService(
 	return &service{termDecRepo, typeDefRepo, typeSemRepo, transactor, log}
 }
 
-func (s *service) Incept(termQN uniqsym.ADT) (_ termsem.SemRef, err error) {
-	ctx := context.Background()
+func (s *service) Incept(ctx context.Context, termQN uniqsym.ADT) (_ termsem.SemRef, err error) {
 	qnAttr := slog.Any("qn", termQN)
 	s.log.Debug("inception started", qnAttr)
 	newDec := DecRec{TermRef: termsem.New(), TermQN: termQN}
@@ -89,8 +88,7 @@ func (s *service) Incept(termQN uniqsym.ADT) (_ termsem.SemRef, err error) {
 	return newDec.TermRef, nil
 }
 
-func (s *service) Create(spec DecSpec) (_ DecSnap, err error) {
-	ctx := context.Background()
+func (s *service) Create(ctx context.Context, spec DecSpec) (_ DecSnap, err error) {
 	qnAttr := slog.Any("qn", spec.TermQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	assetQNs := make([]uniqsym.ADT, 0, len(spec.AssetVars)+1)
@@ -126,8 +124,7 @@ func (s *service) Create(spec DecSpec) (_ DecSnap, err error) {
 	return DecSnap{TermRef: newDec.TermRef, LiabVar: newLiabVar, AssetVars: newAssetVars}, nil
 }
 
-func (s *service) RetrieveSnap(ref termsem.SemRef) (snap DecSnap, err error) {
-	ctx := context.Background()
+func (s *service) RetrieveSnap(ctx context.Context, ref termsem.SemRef) (snap DecSnap, err error) {
 	snap, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DecSnap, error) {
 		return s.termDecRepo.GetSnap(txCtx, conn, ref)
 	})
@@ -138,8 +135,7 @@ func (s *service) RetrieveSnap(ref termsem.SemRef) (snap DecSnap, err error) {
 	return snap, nil
 }
 
-func (s *service) RetreiveRefs() (refs []termsem.SemRef, err error) {
-	ctx := context.Background()
+func (s *service) RetreiveRefs(ctx context.Context) (refs []termsem.SemRef, err error) {
 	refs, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) ([]termsem.SemRef, error) {
 		return s.termDecRepo.GetRefs(txCtx, conn)
 	})

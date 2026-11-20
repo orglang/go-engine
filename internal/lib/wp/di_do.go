@@ -70,7 +70,7 @@ type pondPoolResource struct {
 	pool   pond.Pool
 	cancel context.CancelFunc
 	once   sync.Once
-	done    chan struct{}
+	done   chan struct{}
 }
 
 // Shutdown stops accepting work and waits for all accepted pond tasks.
@@ -94,8 +94,8 @@ func (r *pondPoolResource) Shutdown(ctx context.Context) error {
 type workerPoolResource struct {
 	pool   *workerpool.WorkerPool
 	cancel context.CancelFunc
-	once    sync.Once
-	done    chan struct{}
+	once   sync.Once
+	done   chan struct{}
 }
 
 // Shutdown cancels the worker task context and drains accepted tasks before returning.

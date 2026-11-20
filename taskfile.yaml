@@ -52,6 +52,8 @@ tasks:
       - task: sources:lock
     cmds:
       - test -z "$(git status --porcelain -- mise.sources-dev.lock)"
+      - git status --short -- ':(glob)**/*.gen.go'
+      - git diff -- ':(glob)**/*.gen.go'
       - test -z "$(git status --porcelain -- ':(glob)**/*.gen.go')"
       - golangci-lint fmt --diff
       - golangci-lint run ./...

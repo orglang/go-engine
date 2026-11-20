@@ -1,6 +1,7 @@
 package adapter
 
 import (
+	"fmt"
 	compsemadapter "orglang/go-engine/internal/adt/compsem/adapter"
 	"orglang/go-engine/internal/adt/identity"
 	termexp "orglang/go-engine/internal/pool/termexp/adapter"
@@ -44,6 +45,6 @@ func DataToStepRec(dto ActRec) (connact.ActRec, error) {
 	case SubKind:
 		return DataToSubRec(dto)
 	default:
-		panic(connact.ErrActKindUnexpected(dto.K))
+		panic(fmt.Errorf("act kind unexpected: %v", dto.K))
 	}
 }

@@ -96,7 +96,7 @@ type generatedDecAPIStub struct {
 	spec   termdec.DecSpec
 }
 
-func (s *generatedDecAPIStub) Create(spec termdec.DecSpec) (termdec.DecSnap, error) {
+func (s *generatedDecAPIStub) Create(_ context.Context, spec termdec.DecSpec) (termdec.DecSnap, error) {
 	s.called = true
 	s.spec = spec
 	return termdec.DecSnap{TermRef: termsem.SemRef{TermRN: 11}}, nil

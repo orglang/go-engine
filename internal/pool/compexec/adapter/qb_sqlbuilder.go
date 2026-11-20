@@ -16,7 +16,7 @@ type sqlBuilder struct {
 }
 
 // for compilation purposes
-func newQueryBuilder() compexec.QueryBuilder {
+func newQueryBuilder() queryBuilder {
 	return new(sqlBuilder)
 }
 

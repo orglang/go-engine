@@ -16,3 +16,5 @@ var (
 	DataToRefs   func([]SemRefDS) ([]typesem.SemRef, error)
 	DataToRefMap func(map[uniqsym.ADT]SemRefDS) (map[uniqsym.ADT]typesem.SemRef, error)
 )
+
+// Temporary CI diagnostic marker.

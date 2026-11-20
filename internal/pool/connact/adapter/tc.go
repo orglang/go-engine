@@ -2,6 +2,7 @@ package adapter
 
 import (
 	"orglang/go-engine/internal/adt/compsem"
+	compsemadapter "orglang/go-engine/internal/adt/compsem/adapter"
 	"orglang/go-engine/internal/adt/identity"
 	termexp "orglang/go-engine/internal/pool/termexp/adapter"
 
@@ -11,7 +12,7 @@ import (
 func DataFromStepRec(r connact.ActRec) connact.ActRecDS {
 	switch rec := r.(type) {
 	case connact.PubRec:
-		compRef := compsem.DataFromRef(rec.CompRef)
+		compRef := compsemadapter.DataFromRef(rec.CompRef)
 		return connact.ActRecDS{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),

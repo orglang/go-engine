@@ -29,9 +29,9 @@ var Package = do.Package(
 			return nil, err
 		}
 		return &pondPoolResource{
-			pool: newPondPool(),
+			pool:   newPondPool(),
 			cancel: resource.cancel,
-			done: make(chan struct{}),
+			done:   make(chan struct{}),
 		}, nil
 	}),
 	do.Lazy[pond.Pool](func(i do.Injector) (pond.Pool, error) {
@@ -47,9 +47,9 @@ var Package = do.Package(
 			return nil, err
 		}
 		return &workerPoolResource{
-			pool: newWorkerPool(),
+			pool:   newWorkerPool(),
 			cancel: resource.cancel,
-			done: make(chan struct{}),
+			done:   make(chan struct{}),
 		}, nil
 	}),
 	do.Lazy[*workerpool.WorkerPool](func(i do.Injector) (*workerpool.WorkerPool, error) {
@@ -62,14 +62,14 @@ var Package = do.Package(
 )
 
 type taskContextResource struct {
-	ctx context.Context
+	ctx    context.Context
 	cancel context.CancelFunc
 }
 
 type pondPoolResource struct {
 	pool   pond.Pool
 	cancel context.CancelFunc
-	once    sync.Once
+	once   sync.Once
 	done    chan struct{}
 }
 

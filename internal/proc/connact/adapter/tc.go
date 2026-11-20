@@ -12,36 +12,36 @@ import (
 	termexp "orglang/go-engine/internal/proc/termexp/adapter"
 )
 
-func DataFromStepRec(r connact.ActRec) (connact.ActRecDS, error) {
+func DataFromStepRec(r connact.ActRec) (ActRecDS, error) {
 	switch rec := r.(type) {
 	case connact.PubRec:
 		exp, err := termexp.DataFromExpRec(rec.ValExp)
 		if err != nil {
-			return connact.ActRecDS{}, err
+			return ActRecDS{}, err
 		}
 		compRef := compsemadapter.DataFromRef(rec.CompRef)
-		return connact.ActRecDS{
+		return ActRecDS{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
 			CompID: compRef.CompID,
 			CompRN: compRef.CompRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
-			K:      connact.MsgStep,
+			K:      MsgStep,
 			Exp:    exp,
 		}, nil
 	case connact.SubRec:
 		exp, err := termexp.DataFromExpRec(rec.ContExp)
 		if err != nil {
-			return connact.ActRecDS{}, err
+			return ActRecDS{}, err
 		}
 		compRef := compsemadapter.DataFromRef(rec.CompRef)
-		return connact.ActRecDS{
+		return ActRecDS{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
 			CompID: compRef.CompID,
 			CompRN: compRef.CompRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
-			K:      connact.SvcStep,
+			K:      SvcStep,
 			Exp:    exp,
 		}, nil
 	default:
@@ -49,7 +49,7 @@ func DataFromStepRec(r connact.ActRec) (connact.ActRecDS, error) {
 	}
 }
 
-func DataToStepRec(dto connact.ActRecDS) (connact.ActRec, error) {
+func DataToStepRec(dto ActRecDS) (connact.ActRec, error) {
 	connID, err := identity.ConvertFromString(dto.ConnID)
 	if err != nil {
 		return nil, err
@@ -68,9 +68,9 @@ func DataToStepRec(dto connact.ActRecDS) (connact.ActRec, error) {
 	}
 	compRef := compsem.SemRef{CompID: compID, CompRN: seqnum.ADT(dto.CompRN)}
 	switch dto.K {
-	case connact.MsgStep:
+	case MsgStep:
 		return connact.PubRec{ConnID: connID, ActNr: seqnum.ADT(dto.ActNr), CompRef: compRef, ChnlID: chnlID, ValExp: exp}, nil
-	case connact.SvcStep:
+	case SvcStep:
 		return connact.SubRec{ConnID: connID, ActNr: seqnum.ADT(dto.ActNr), CompRef: compRef, ChnlID: chnlID, ContExp: exp}, nil
 	default:
 		return nil, fmt.Errorf("unexpected Act kind: %v", dto.K)

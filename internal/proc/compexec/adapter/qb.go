@@ -1,7 +1,5 @@
 package adapter
 
-import compexec "orglang/go-engine/internal/proc/compexec/core"
-
 const (
 	implBinds      string = "proc_impl_binds "
 	CompExecs      string = "proc_comp_execs "
@@ -10,5 +8,5 @@ const (
 )
 
 type queryBuilder interface {
-	InsertRec(compexec.ExecRecDS) (string, []any)
+	InsertRec(ExecRecDS) (string, []any)
 }

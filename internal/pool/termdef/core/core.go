@@ -14,7 +14,7 @@ import (
 )
 
 type API interface {
-	Create(DefSpec) (termsem.SemRef, error)
+	Create(context.Context, DefSpec) (termsem.SemRef, error)
 }
 
 // for compilation purposes
@@ -56,8 +56,7 @@ type service struct {
 	log         *slog.Logger
 }
 
-func (s *service) Create(spec DefSpec) (_ termsem.SemRef, err error) {
-	ctx := context.Background()
+func (s *service) Create(ctx context.Context, spec DefSpec) (_ termsem.SemRef, err error) {
 	qnAttr := slog.Any("qn", spec.TermQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	assetQNs := make([]uniqsym.ADT, 0, len(spec.AssetVars)+1)

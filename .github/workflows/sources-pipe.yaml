@@ -1,18 +1,14 @@
 name: Sources Pipe
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
   pull_request:
     branches: [main]
     types:
       - opened
-      - ready_for_review
+      - reopened
+      - converted_to_draft
       - synchronize
-  merge_group:
-    types:
-      - checks_requested
 
 permissions:
   contents: read
@@ -20,6 +16,7 @@ permissions:
 jobs:
   sources:
     name: Sources
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == true }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout engine

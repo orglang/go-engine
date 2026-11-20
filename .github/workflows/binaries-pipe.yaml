@@ -14,8 +14,8 @@ permissions:
   contents: read
 
 jobs:
-  binaries:
-    name: Quality Gate (quality-gate)
+  quality-gate:
+    name: Quality Gate
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     runs-on: ubuntu-latest
     steps:

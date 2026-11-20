@@ -9,8 +9,8 @@ import (
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
-// goverter:extend orglang/go-engine/internal/adt/compvar:Convert.*
-// goverter:extend orglang/go-engine/internal/adt/compvar:Data.*
+// goverter:extend orglang/go-engine/internal/adt/compvar/adapter:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/compvar/adapter:Data.*
 // goverter:extend DataToExecSnap1
 var (
 	// goverter:map . CompRef

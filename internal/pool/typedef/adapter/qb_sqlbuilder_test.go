@@ -3,7 +3,6 @@ package adapter
 import (
 	"slices"
 	"testing"
-
 )
 
 func TestInsertRec(t *testing.T) {

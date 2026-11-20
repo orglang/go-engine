@@ -7,19 +7,21 @@ import (
 
 	"github.com/gammazero/workerpool"
 
+	"orglang/go-engine/internal/lib/wp"
 	compexec "orglang/go-engine/internal/pool/compexec/core"
 	compstep "orglang/go-engine/internal/pool/compstep/core"
 )
 
 type workerPoolBroker struct {
 	api  compexec.API
-	pool *workerpool.WorkerPool
-	log  *slog.Logger
+	pool    *workerpool.WorkerPool
+	taskCtx context.Context
+	log     *slog.Logger
 }
 
-func newWorkerPoolBroker(pool *workerpool.WorkerPool, log *slog.Logger) *workerPoolBroker {
+func newWorkerPoolBroker(pool *workerpool.WorkerPool, taskCtx wp.WorkerPoolTaskContext, log *slog.Logger) *workerPoolBroker {
 	name := slog.String("name", reflect.TypeFor[workerPoolBroker]().Name())
-	return &workerPoolBroker{nil, pool, log.With(name)}
+	return &workerPoolBroker{nil, pool, taskCtx, log.With(name)}
 }
 
 func cfgWorkerPoolBroker(broker compexec.Broker, api compexec.API) {
@@ -38,7 +40,7 @@ func (b *workerPoolBroker) Subscribe(api compexec.API) {
 // SendSpec starts work owned by the worker pool, not by the originating HTTP request.
 func (b *workerPoolBroker) SendSpec(spec compstep.StepSpec) error {
 	b.pool.Submit(func() {
-		apiErr := b.api.Take(context.Background(), spec)
+		apiErr := b.api.Take(b.taskCtx, spec)
 		if apiErr != nil {
 			b.log.Error("consumption failed", slog.Any("ref", spec.CompRef), slog.Any("reason", apiErr))
 			return

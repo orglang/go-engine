@@ -1,4 +1,4 @@
-name: Distros
+name: Old Distros
 
 on:
   pull_request:

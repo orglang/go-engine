@@ -4,10 +4,10 @@
 package adapter
 
 import (
-	termvar "orglang/go-engine/internal/adt/termvar"
 	contkey "orglang/go-engine/internal/adt/contkey"
 	identity "orglang/go-engine/internal/adt/identity"
 	symbol "orglang/go-engine/internal/adt/symbol"
+	termvar "orglang/go-engine/internal/adt/termvar"
 	typesem "orglang/go-engine/internal/adt/typesem"
 )
 

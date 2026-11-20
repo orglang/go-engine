@@ -1,6 +1,6 @@
 package adapter
 
-import "orglang/go-engine/internal/adt/compsem"
+import compsemadapter "orglang/go-engine/internal/adt/compsem/adapter"
 
 const (
 	implBinds      string = "pool_impl_binds "
@@ -11,6 +11,6 @@ const (
 
 type queryBuilder interface {
 	InsertRec(ExecRecDS) (string, []any)
-	SelectRecByRef(compsem.SemRefDS) (string, []any)
+	SelectRecByRef(compsemadapter.SemRefDS) (string, []any)
 	SelectSnapByQN(string) (string, []any)
 }

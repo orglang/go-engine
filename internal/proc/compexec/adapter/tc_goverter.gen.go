@@ -6,7 +6,6 @@ package adapter
 import (
 	compsem "orglang/go-engine/internal/adt/compsem"
 	compvar "orglang/go-engine/internal/adt/compvar"
-	adapter "orglang/go-engine/internal/adt/compvar/adapter"
 	identity "orglang/go-engine/internal/adt/identity"
 	core "orglang/go-engine/internal/proc/compexec/core"
 )
@@ -38,10 +37,4 @@ func init() {
 		compsemSemRef.CompID = identityADT
 		return compsemSemRef, nil
 	}
-}
-func compsemSemRefToCompsemSemRefDS(source compsem.SemRef) compsem.SemRefDS {
-	var compsemSemRefDS compsem.SemRefDS
-	compsemSemRefDS.CompID = identity.ConvertToString(source.CompID)
-	compsemSemRefDS.CompRN = int64(source.CompRN)
-	return compsemSemRefDS
 }

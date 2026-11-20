@@ -12,21 +12,21 @@ import (
 )
 
 func init() {
-	DataFromMod = func(source core.ConnMod) core.ConnModDS {
-		var coreConnModDS core.ConnModDS
+	DataFromMod = func(source core.ConnMod) ConnMod {
+		var coreConnModDS ConnMod
 		coreConnModDS.ConnID = identityToString(source.ConnID)
 		coreConnModDS.OffsetNr = seqnum.ConvertOptionToNullInt(source.OffsetNr)
 		coreConnModDS.ProviderCompID = identity.ConvertToString(source.ProviderCompID)
 		coreConnModDS.ProviderCompRN = seqnum.ConvertToInt(source.ProviderCompRN)
 		return coreConnModDS
 	}
-	DataFromQry = func(source core.ConnQry) core.ConnQryDS {
-		var coreConnQryDS core.ConnQryDS
+	DataFromQry = func(source core.ConnQry) ConnQry {
+		var coreConnQryDS ConnQry
 		coreConnQryDS.ConnID = identityToString(source.ConnID)
 		coreConnQryDS.ChnlID = identity.ConvertOptionToNullString(source.ChnlID)
 		return coreConnQryDS
 	}
-	DataToSnap = func(source core.ConnSnapDS) (core.ConnSnap, error) {
+	DataToSnap = func(source ConnSnap) (core.ConnSnap, error) {
 		var coreConnSnap core.ConnSnap
 		identityADT, err := dataToConnID(source)
 		if err != nil {

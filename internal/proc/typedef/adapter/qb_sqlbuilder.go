@@ -2,7 +2,6 @@ package adapter
 
 import (
 	"github.com/huandu/go-sqlbuilder"
-
 )
 
 type sqlBuilder struct {

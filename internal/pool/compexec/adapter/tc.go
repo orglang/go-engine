@@ -2,7 +2,8 @@ package adapter
 
 import (
 	"orglang/go-engine/internal/adt/compsem"
-	"orglang/go-engine/internal/adt/compvar"\n\tcompvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
+	"orglang/go-engine/internal/adt/compvar"
+	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
 
 	compexec "orglang/go-engine/internal/pool/compexec/core"
 )

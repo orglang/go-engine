@@ -12,20 +12,20 @@ import (
 
 func init() {
 	DataFromRef = func(source typesem.SemRef) SemRefDS {
-		var typesemSemRefDS SemRefDS
-		typesemSemRefDS.TypeID = identity.ConvertToString(source.TypeID)
-		typesemSemRefDS.TypeRN = seqnum.ConvertToInt(source.TypeRN)
-		return typesemSemRefDS
+		var adapterSemRefDS SemRefDS
+		adapterSemRefDS.TypeID = identity.ConvertToString(source.TypeID)
+		adapterSemRefDS.TypeRN = seqnum.ConvertToInt(source.TypeRN)
+		return adapterSemRefDS
 	}
 	DataFromRefs = func(source []typesem.SemRef) ([]SemRefDS, error) {
-		var typesemSemRefDSList []SemRefDS
+		var adapterSemRefDSList []SemRefDS
 		if source != nil {
-			typesemSemRefDSList = make([]SemRefDS, len(source))
+			adapterSemRefDSList = make([]SemRefDS, len(source))
 			for i := 0; i < len(source); i++ {
-				typesemSemRefDSList[i] = DataFromRef(source[i])
+				adapterSemRefDSList[i] = DataFromRef(source[i])
 			}
 		}
-		return typesemSemRefDSList, nil
+		return adapterSemRefDSList, nil
 	}
 	DataToRef = func(source SemRefDS) (typesem.SemRef, error) {
 		var typesemSemRef typesem.SemRef

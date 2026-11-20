@@ -15,11 +15,11 @@ import (
 )
 
 type daoPgx struct {
-	qb  termdef.QueryBuilder
+	qb  queryBuilder
 	log *slog.Logger
 }
 
-func NewDaoPgx(qb termdef.QueryBuilder, log *slog.Logger) termdef.Repo {
+func NewDaoPgx(qb queryBuilder, log *slog.Logger) termdef.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }
@@ -53,7 +53,7 @@ func (dao *daoPgx) GetRecByQN(ctx context.Context, conn tx.Conn, qn uniqsym.ADT)
 		dao.log.Error("query execution failed", qnAttr)
 		return termdef.DefRec{}, execErr
 	}
-	dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[termdef.DefRecDS])
+	dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRecDS])
 	if scanErr != nil {
 		dao.log.Error("rows scanning failed", qnAttr)
 		return termdef.DefRec{}, scanErr

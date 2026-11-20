@@ -7,7 +7,6 @@ import (
 
 	"github.com/gammazero/workerpool"
 
-	"orglang/go-engine/internal/lib/wp"
 	compexec "orglang/go-engine/internal/pool/compexec/core"
 	compstep "orglang/go-engine/internal/pool/compstep/core"
 )
@@ -19,7 +18,7 @@ type workerPoolBroker struct {
 	log     *slog.Logger
 }
 
-func newWorkerPoolBroker(pool *workerpool.WorkerPool, taskCtx wp.WorkerPoolTaskContext, log *slog.Logger) *workerPoolBroker {
+func newWorkerPoolBroker(pool *workerpool.WorkerPool, taskCtx context.Context, log *slog.Logger) *workerPoolBroker {
 	name := slog.String("name", reflect.TypeFor[workerPoolBroker]().Name())
 	return &workerPoolBroker{nil, pool, taskCtx, log.With(name)}
 }

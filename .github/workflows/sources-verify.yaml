@@ -20,28 +20,9 @@ permissions:
   contents: read
 
 jobs:
-  detect-changes:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: read
-    outputs:
-      specs: ${{ steps.detect.outputs.specs }}
-      sources: ${{ steps.detect.outputs.sources }}
-    steps:
-      - name: Checkout engine
-        uses: actions/checkout@v7
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-
-      - name: Detect changed areas
-        id: detect
-        uses: ./.github/actions/change-detection
-
   sources-gate:
     name: Sources Gate
-    needs: detect-changes
-    if: ${{ (needs.detect-changes.outputs.specs == 'true' || needs.detect-changes.outputs.sources == 'true') && !github.event.pull_request.draft }}
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     runs-on: ubuntu-latest
     permissions:
       contents: read

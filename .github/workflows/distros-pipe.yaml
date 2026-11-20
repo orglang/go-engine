@@ -13,8 +13,8 @@ permissions:
   contents: read
 
 jobs:
-  distros:
-    name: Quality Gate (quality-gate)
+  quality-gate:
+    name: Quality Gate
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:

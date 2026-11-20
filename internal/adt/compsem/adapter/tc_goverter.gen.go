@@ -4,10 +4,10 @@
 package adapter
 
 import (
+	compsem "orglang/go-engine/internal/adt/compsem"
 	identity "orglang/go-engine/internal/adt/identity"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
 	uniqsym "orglang/go-engine/internal/adt/uniqsym"
-	compsem "orglang/go-engine/internal/adt/compsem"
 )
 
 func init() {

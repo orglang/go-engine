@@ -1,6 +1,6 @@
 package adapter
 
-import termexp "orglang/go-engine/internal/pool/termexp/adapter"
+import termexp "orglang/go-engine/internal/pool/termexp/core"
 
 type ActRec struct {
 	ConnID string         `db:"conn_id"`

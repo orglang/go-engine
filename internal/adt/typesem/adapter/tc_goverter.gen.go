@@ -12,57 +12,57 @@ import (
 
 func init() {
 	DataFromRef = func(source typesem.SemRef) SemRefDS {
-		var dto SemRefDS
-		dto.TypeID = identity.ConvertToString(source.TypeID)
-		dto.TypeRN = seqnum.ConvertToInt(source.TypeRN)
-		return dto
+		var typesemSemRefDS SemRefDS
+		typesemSemRefDS.TypeID = identity.ConvertToString(source.TypeID)
+		typesemSemRefDS.TypeRN = seqnum.ConvertToInt(source.TypeRN)
+		return typesemSemRefDS
 	}
 	DataFromRefs = func(source []typesem.SemRef) ([]SemRefDS, error) {
-		var dtos []SemRefDS
+		var typesemSemRefDSList []SemRefDS
 		if source != nil {
-			dtos = make([]SemRefDS, len(source))
+			typesemSemRefDSList = make([]SemRefDS, len(source))
 			for i := 0; i < len(source); i++ {
-				dtos[i] = DataFromRef(source[i])
+				typesemSemRefDSList[i] = DataFromRef(source[i])
 			}
 		}
-		return dtos, nil
+		return typesemSemRefDSList, nil
 	}
 	DataToRef = func(source SemRefDS) (typesem.SemRef, error) {
-		var ref typesem.SemRef
-		id, err := identity.ConvertFromString(source.TypeID)
+		var typesemSemRef typesem.SemRef
+		identityADT, err := identity.ConvertFromString(source.TypeID)
 		if err != nil {
-			return ref, err
+			return typesemSemRef, err
 		}
-		ref.TypeID = id
-		ref.TypeRN = seqnum.ConvertFromInt(source.TypeRN)
-		return ref, nil
+		typesemSemRef.TypeID = identityADT
+		typesemSemRef.TypeRN = seqnum.ConvertFromInt(source.TypeRN)
+		return typesemSemRef, nil
 	}
 	DataToRefMap = func(source map[uniqsym.ADT]SemRefDS) (map[uniqsym.ADT]typesem.SemRef, error) {
-		var refs map[uniqsym.ADT]typesem.SemRef
+		var mapUniqsymADTTypesemSemRef map[uniqsym.ADT]typesem.SemRef
 		if source != nil {
-			refs = make(map[uniqsym.ADT]typesem.SemRef, len(source))
+			mapUniqsymADTTypesemSemRef = make(map[uniqsym.ADT]typesem.SemRef, len(source))
 			for key, value := range source {
-				ref, err := DataToRef(value)
+				typesemSemRef, err := DataToRef(value)
 				if err != nil {
 					return nil, err
 				}
-				refs[key] = ref
+				mapUniqsymADTTypesemSemRef[key] = typesemSemRef
 			}
 		}
-		return refs, nil
+		return mapUniqsymADTTypesemSemRef, nil
 	}
 	DataToRefs = func(source []SemRefDS) ([]typesem.SemRef, error) {
-		var refs []typesem.SemRef
+		var typesemSemRefList []typesem.SemRef
 		if source != nil {
-			refs = make([]typesem.SemRef, len(source))
+			typesemSemRefList = make([]typesem.SemRef, len(source))
 			for i := 0; i < len(source); i++ {
-				ref, err := DataToRef(source[i])
+				typesemSemRef, err := DataToRef(source[i])
 				if err != nil {
 					return nil, err
 				}
-				refs[i] = ref
+				typesemSemRefList[i] = typesemSemRef
 			}
 		}
-		return refs, nil
+		return typesemSemRefList, nil
 	}
 }

@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	termvaradapter "orglang/go-engine/internal/adt/termvar/adapter"
-
 )
 
 func TestInsertRec(t *testing.T) {

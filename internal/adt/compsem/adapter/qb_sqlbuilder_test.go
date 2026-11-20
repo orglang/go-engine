@@ -2,7 +2,6 @@ package adapter
 
 import (
 	"testing"
-
 )
 
 func TestUpdateRef(t *testing.T) {

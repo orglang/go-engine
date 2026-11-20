@@ -1,10 +1,6 @@
 package adapter
 
-import (
-	"github.com/huandu/go-sqlbuilder"
-
-	"orglang/go-engine/internal/adt/typesem"
-)
+import "github.com/huandu/go-sqlbuilder"
 
 type sqlBuilder struct {
 	typeTable  string

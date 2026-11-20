@@ -1,6 +1,7 @@
 package adapter
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/alitto/pond/v2"
@@ -11,7 +12,6 @@ import (
 	"orglang/go-engine/internal/adt/implsem"
 	implsemadapter "orglang/go-engine/internal/adt/implsem/adapter"
 	"orglang/go-engine/internal/lib/tx"
-	"orglang/go-engine/internal/lib/wp"
 	compconn "orglang/go-engine/internal/pool/compconn/core"
 	compexec "orglang/go-engine/internal/pool/compexec/core"
 	compvar "orglang/go-engine/internal/pool/compvar/core"
@@ -43,7 +43,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		taskCtx, err := do.Invoke[wp.PondTaskContext](i)
+		taskCtx, err := do.Invoke[context.Context](i)
 		if err != nil {
 			return nil, err
 		}

@@ -7,8 +7,8 @@ import (
 
 	"github.com/alitto/pond/v2"
 
-	compexec "orglang/go-engine/internal/pool/compexec/core"
 	"orglang/go-engine/internal/lib/wp"
+	compexec "orglang/go-engine/internal/pool/compexec/core"
 	compstep "orglang/go-engine/internal/pool/compstep/core"
 )
 

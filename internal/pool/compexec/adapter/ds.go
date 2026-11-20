@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	"orglang/go-engine/internal/adt/compsem"
+	compsemadapter "orglang/go-engine/internal/adt/compsem/adapter"
 	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
 )
 
@@ -12,7 +12,7 @@ type ExecRecDS struct {
 }
 
 type ExecSnap1DS struct {
-	CompRef   compsem.SemRefDS         `db:"sem"`
+	CompRef   compsemadapter.SemRefDS         `db:"sem"`
 	LiabMode  int16                    `db:"exec.liab_mode"`
 	StructVar *compvaradapter.VarRecDS `db:"struct_var"`
 	LinearVar *compvaradapter.VarRecDS `db:"linear_var"`

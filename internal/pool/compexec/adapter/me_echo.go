@@ -61,7 +61,7 @@ func (c *controllerEcho) PostSpec(ctx *echo.Context) error {
 		c.log.Error("conversion failed", slog.Any("dto", dto), slog.Any("error", err))
 		return err
 	}
-	ref, err := c.api.Run(spec)
+	ref, err := c.api.Run(ctx.Request().Context(), spec)
 	if err != nil {
 		return err
 	}
@@ -113,7 +113,7 @@ func (c *controllerEcho) PostSpec2(ctx *echo.Context) error {
 		c.log.Error("conversion failed", slog.Any("dto", dto), slog.Any("error", err))
 		return err
 	}
-	if err = c.api.Take(spec); err != nil {
+	if err = c.api.Take(ctx.Request().Context(), spec); err != nil {
 		return err
 	}
 	return ctx.NoContent(http.StatusNoContent)
@@ -130,7 +130,7 @@ func (c *controllerEcho) PostSpec3(ctx *echo.Context) error {
 		c.log.Error("conversion failed", slog.Any("dto", dto), slog.Any("error", err))
 		return err
 	}
-	ref, err := c.api.Spawn(spec)
+	ref, err := c.api.Spawn(ctx.Request().Context(), spec)
 	if err != nil {
 		return err
 	}

@@ -21,7 +21,7 @@ import (
 
 // Adapter
 type daoPgx struct {
-	qb  compexec.QueryBuilder
+	qb  queryBuilder
 	log *slog.Logger
 }
 
@@ -30,7 +30,7 @@ func newRepo() compexec.Repo {
 	return new(daoPgx)
 }
 
-func newDaoPgx(qb compexec.QueryBuilder, log *slog.Logger) *daoPgx {
+func newDaoPgx(qb queryBuilder, log *slog.Logger) *daoPgx {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }

@@ -24,19 +24,16 @@ var Package = do.Package(
 		return resource.ctx, nil
 	}),
 	do.Lazy[*pondPoolResource](func(i do.Injector) (*pondPoolResource, error) {
-		pool, err := do.Invoke[pond.Pool](i)
-		if err != nil {
-			return nil, err
-		}
-		taskCtx, err := do.Invoke[context.Context](i)
-		if err != nil {
-			return nil, err
-		}
 		resource, err := do.Invoke[*taskContextResource](i)
 		if err != nil {
 			return nil, err
 		}
-		return &pondPoolResource{pool: pool, taskCtx: taskCtx, cancel: resource.cancel, done: make(chan struct{})}, nil
+		return &pondPoolResource{
+			pool: newPondPool(),
+			taskCtx: resource.ctx,
+			cancel: resource.cancel,
+			done: make(chan struct{}),
+		}, nil
 	}),
 	do.Lazy[pond.Pool](func(i do.Injector) (pond.Pool, error) {
 		resource, err := do.Invoke[*pondPoolResource](i)
@@ -46,19 +43,16 @@ var Package = do.Package(
 		return resource.pool, nil
 	}),
 	do.Lazy[*workerPoolResource](func(i do.Injector) (*workerPoolResource, error) {
-		pool, err := do.Invoke[*workerpool.WorkerPool](i)
-		if err != nil {
-			return nil, err
-		}
-		taskCtx, err := do.Invoke[context.Context](i)
-		if err != nil {
-			return nil, err
-		}
 		resource, err := do.Invoke[*taskContextResource](i)
 		if err != nil {
 			return nil, err
 		}
-		return &workerPoolResource{pool: pool, taskCtx: taskCtx, cancel: resource.cancel, done: make(chan struct{})}, nil
+		return &workerPoolResource{
+			pool: newWorkerPool(),
+			taskCtx: resource.ctx,
+			cancel: resource.cancel,
+			done: make(chan struct{}),
+		}, nil
 	}),
 	do.Lazy[*workerpool.WorkerPool](func(i do.Injector) (*workerpool.WorkerPool, error) {
 		resource, err := do.Invoke[*workerPoolResource](i)

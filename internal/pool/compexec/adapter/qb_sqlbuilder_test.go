@@ -6,13 +6,12 @@ import (
 
 	"orglang/go-engine/internal/adt/compsem"
 
-	compexec "orglang/go-engine/internal/pool/compexec/core"
 )
 
 func TestInsertRec(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
-	gotSQL, gotArgs := qb.InsertRec(compexec.ExecRecDS{})
+	gotSQL, gotArgs := qb.InsertRec(ExecRecDS{})
 	wantSQL := "INSERT INTO pool_comp_execs  (comp_id, comp_rn, liab_mode) VALUES ($1, $2, $3)"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)

@@ -12,10 +12,17 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 
 	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/termsem"
 
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
+
+type decRootRefDS struct {
+	DescID string `db:"desc_id"`
+	Rev    int64  `db:"rev"`
+	Title  string `db:"title"`
+}
 
 type daoPgx struct {
 	qb  termdec.QueryBuilder
@@ -122,12 +129,20 @@ func (dao *daoPgx) GetRefs(ctx context.Context, conn tx.Conn) ([]termsem.SemRef,
 		return nil, err
 	}
 	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[termsem.SemRefDS])
+	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[decRootRefDS])
 	if err != nil {
 		dao.log.Error("rows scanning failed")
 		return nil, err
 	}
-	return termsem.DataToRefs(dtos)
+	refs := make([]termsem.SemRef, len(dtos))
+	for i, dto := range dtos {
+		id, convErr := identity.ConvertFromString(dto.DescID)
+		if convErr != nil {
+			return nil, convErr
+		}
+		refs[i] = termsem.SemRef{TermID: id, TermRN: seqnum.ConvertFromInt(dto.Rev)}
+	}
+	return refs, nil
 }
 
 const (

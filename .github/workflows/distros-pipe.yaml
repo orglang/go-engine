@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   distros:
-    name: Distros
+    name: Quality Gate (quality-gate)
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:

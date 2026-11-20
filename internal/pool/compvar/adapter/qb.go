@@ -1,5 +1,7 @@
 package adapter
 
+import adtcompvar "orglang/go-engine/internal/adt/compvar"
+
 type queryBuilder interface {
 	InsertRec(string, adtcompvar.VarRecDS) (string, []any)
 }

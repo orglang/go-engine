@@ -11,7 +11,8 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 
-	adtcompvar "orglang/go-engine/internal/adt/compvar"\n\tcompvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
+	adtcompvar "orglang/go-engine/internal/adt/compvar"
+	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
 
 	compvar "orglang/go-engine/internal/pool/compvar/core"
 )

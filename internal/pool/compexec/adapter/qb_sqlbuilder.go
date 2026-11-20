@@ -3,7 +3,7 @@ package adapter
 import (
 	"github.com/huandu/go-sqlbuilder"
 
-	"orglang/go-engine/internal/adt/compsem"
+	compsemadapter "orglang/go-engine/internal/adt/compsem/adapter"
 	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
 )
 
@@ -29,7 +29,7 @@ func (qb *sqlBuilder) InsertRec(rec ExecRecDS) (string, []any) {
 	return qb.recBuilder.InsertInto(compExecs, rec).Build()
 }
 
-func (qb *sqlBuilder) SelectRecByRef(ref compsem.SemRefDS) (string, []any) {
+func (qb *sqlBuilder) SelectRecByRef(ref compsemadapter.SemRefDS) (string, []any) {
 	exec := qb.recBuilder.SelectFrom(compExecs + "exec")
 	structVar := qb.compVarBuilder.SelectFrom(poolStructVars + "var")
 	linearVar := qb.compVarBuilder.SelectFrom(poolLinearVars + "var")

@@ -25,11 +25,11 @@ type decRootRefDS struct {
 }
 
 type daoPgx struct {
-	qb  termdec.QueryBuilder
+	qb  queryBuilder
 	log *slog.Logger
 }
 
-func NewDaoPgx(qb termdec.QueryBuilder, log *slog.Logger) termdec.Repo {
+func NewDaoPgx(qb queryBuilder, log *slog.Logger) termdec.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }
@@ -63,7 +63,7 @@ func (dao *daoPgx) GetSnap(ctx context.Context, conn tx.Conn, ref termsem.SemRef
 		return termdec.DecSnap{}, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[termdec.DecSnapDS])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecSnapDS])
 	if err != nil {
 		dao.log.Error("row scanning failed", refAttr)
 		return termdec.DecSnap{}, err
@@ -99,13 +99,13 @@ func (dao *daoPgx) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	var dtos []termdec.DecRecDS
+	var dtos []DecRecDS
 	for _, rid := range ids {
 		rows, err := br.Query()
 		if err != nil {
 			dao.log.Error("query execution failed", slog.Any("id", rid), slog.String("q", selectByRef))
 		}
-		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[termdec.DecRecDS])
+		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecRecDS])
 		if err != nil {
 			dao.log.Error("row scanning failed", slog.Any("id", rid))
 		}

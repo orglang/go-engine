@@ -8,7 +8,7 @@ import (
 	symbol "orglang/go-engine/internal/adt/symbol"
 	termsem "orglang/go-engine/internal/adt/termsem"
 	termvar "orglang/go-engine/internal/adt/termvar"
-	termvaradapter "orglang/go-engine/internal/adt/termvar/adapter"
+	adapter "orglang/go-engine/internal/adt/termvar/adapter"
 	uniqsym "orglang/go-engine/internal/adt/uniqsym"
 	api "orglang/go-engine/internal/app/web/api"
 	core "orglang/go-engine/internal/pool/termdef/core"
@@ -61,19 +61,19 @@ func init() {
 		var adapterDefRecDS DefRecDS
 		adapterDefRecDS.TermID = identity.ConvertToString(source.TermRef.TermID)
 		adapterDefRecDS.TermRN = int64(source.TermRef.TermRN)
-		termvarVarRecDS, err := termvaradapter.DataFromVarRec(source.LiabVar)
+		adapterVarRecDS, err := adapter.DataFromVarRec(source.LiabVar)
 		if err != nil {
 			return adapterDefRecDS, err
 		}
-		adapterDefRecDS.LiabVar = termvarVarRecDS
+		adapterDefRecDS.LiabVar = adapterVarRecDS
 		if source.AssetVars != nil {
-			adapterDefRecDS.AssetVars = make([]termvaradapter.VarRecDS, len(source.AssetVars))
+			adapterDefRecDS.AssetVars = make([]adapter.VarRecDS, len(source.AssetVars))
 			for i := 0; i < len(source.AssetVars); i++ {
-				termvarVarRecDS2, err := termvaradapter.DataFromVarRec(source.AssetVars[i])
+				adapterVarRecDS2, err := adapter.DataFromVarRec(source.AssetVars[i])
 				if err != nil {
 					return adapterDefRecDS, err
 				}
-				adapterDefRecDS.AssetVars[i] = termvarVarRecDS2
+				adapterDefRecDS.AssetVars[i] = adapterVarRecDS2
 			}
 		}
 		return adapterDefRecDS, nil
@@ -85,7 +85,7 @@ func init() {
 			return coreDefRec, err
 		}
 		coreDefRec.TermRef = termsemSemRef
-		termvarVarRec, err := termvaradapter.DataToVarRec(source.LiabVar)
+		termvarVarRec, err := adapter.DataToVarRec(source.LiabVar)
 		if err != nil {
 			return coreDefRec, err
 		}
@@ -93,7 +93,7 @@ func init() {
 		if source.AssetVars != nil {
 			coreDefRec.AssetVars = make([]termvar.VarRec, len(source.AssetVars))
 			for i := 0; i < len(source.AssetVars); i++ {
-				termvarVarRec2, err := termvaradapter.DataToVarRec(source.AssetVars[i])
+				termvarVarRec2, err := adapter.DataToVarRec(source.AssetVars[i])
 				if err != nil {
 					return coreDefRec, err
 				}

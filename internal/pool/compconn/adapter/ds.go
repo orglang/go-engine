@@ -30,10 +30,10 @@ type ConnQry struct {
 }
 
 type ConnSnap struct {
-	ConnID         string                    `db:"conn_id"`
-	ProviderCompID string                    `db:"provider_comp_id"`
-	ProviderCompRN int64                     `db:"provider_comp_rn"`
-	OffsetNr       int64                     `db:"offset_nr"`
-	ActNr          int64                     `db:"act_nr"`
+	ConnID         string                  `db:"conn_id"`
+	ProviderCompID string                  `db:"provider_comp_id"`
+	ProviderCompRN int64                   `db:"provider_comp_rn"`
+	OffsetNr       int64                   `db:"offset_nr"`
+	ActNr          int64                   `db:"act_nr"`
 	Acts           []connactadapter.ActRec `db:"acts"`
 }

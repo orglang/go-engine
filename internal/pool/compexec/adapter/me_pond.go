@@ -18,7 +18,7 @@ type pondBroker struct {
 	log     *slog.Logger
 }
 
-func newPondBroker(pool pond.Pool, taskCtx context.Context, log *slog.Logger) *pondBroker {
+func newPondBroker(taskCtx context.Context, pool pond.Pool, log *slog.Logger) *pondBroker {
 	name := slog.String("name", reflect.TypeFor[pondBroker]().Name())
 	return &pondBroker{nil, pool, taskCtx, log.With(name)}
 }

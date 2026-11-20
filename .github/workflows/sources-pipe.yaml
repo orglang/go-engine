@@ -1,4 +1,4 @@
-name: Sources Pipe
+name: Sources
 
 on:
   workflow_dispatch:

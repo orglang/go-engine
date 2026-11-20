@@ -3,7 +3,6 @@ package adapter
 import (
 	"reflect"
 	"testing"
-
 )
 
 func TestInsertRec(t *testing.T) {

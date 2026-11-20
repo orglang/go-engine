@@ -33,7 +33,7 @@ jobs:
           install: true
           cache_save_post: true
 
-      - name: Run Sources gate pipeline
+      - name: Run Sources gate
         shell: bash
         run: |
           if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then

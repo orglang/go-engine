@@ -16,7 +16,7 @@ type sqlBuilder struct {
 }
 
 // for compilation purposes
-func newQueryBuilder() compexec.QueryBuilder {
+func newQueryBuilder() queryBuilder {
 	return new(sqlBuilder)
 }
 
@@ -28,5 +28,5 @@ func newSQLBuilder() *sqlBuilder {
 }
 
 func (qb *sqlBuilder) InsertRec(rec compexec.ExecRecDS) (string, []any) {
-	return qb.execBuilder.InsertInto(compexec.CompExecs, rec).Build()
+	return qb.execBuilder.InsertInto(CompExecs, rec).Build()
 }

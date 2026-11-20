@@ -1,13 +1,9 @@
 package adapter
 
-import (
-	"testing"
-
-	"orglang/go-engine/internal/adt/implsem"
-)
+import "testing"
 
 func TestInsertRec(t *testing.T) {
 	qb := newSQLBuilder("foo")
-	sql, _ := qb.insertRec(implsem.SemRecDS{})
+	sql, _ := qb.insertRec(semRecDS{})
 	t.Log(sql)
 }

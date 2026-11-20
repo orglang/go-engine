@@ -12,7 +12,7 @@ type ExecRecDS struct {
 }
 
 type ExecSnap1DS struct {
-	CompRef   compsemadapter.SemRefDS         `db:"sem"`
+	CompRef   compsemadapter.SemRefDS  `db:"sem"`
 	LiabMode  int16                    `db:"exec.liab_mode"`
 	StructVar *compvaradapter.VarRecDS `db:"struct_var"`
 	LinearVar *compvaradapter.VarRecDS `db:"linear_var"`

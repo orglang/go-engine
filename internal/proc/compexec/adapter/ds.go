@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	"orglang/go-engine/internal/adt/compsem"
+	compsemadapter "orglang/go-engine/internal/adt/compsem/adapter"
 	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
 )
 
@@ -12,6 +12,6 @@ type ExecRecDS struct {
 }
 
 type ExecModDS struct {
-	CompRefs   []compsem.SemRefDS
+	CompRefs   []compsemadapter.SemRefDS
 	LinearVars []compvaradapter.VarRecDS
 }

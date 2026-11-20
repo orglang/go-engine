@@ -40,7 +40,7 @@ func cfgEchoController(e *echo.Echo, h *controllerEcho) {
 }
 
 func (h *controllerEcho) Home(c *echo.Context) error {
-	refs, err := h.api.RetreiveRefs()
+	refs, err := h.api.RetreiveRefs(c.Request().Context())
 	if err != nil {
 		return err
 	}

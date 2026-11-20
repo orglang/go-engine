@@ -1,6 +1,7 @@
 package adapter
 
 import (
+	"context"
 	"log/slog"
 	"reflect"
 
@@ -34,9 +35,10 @@ func (b *pondBroker) Subscribe(api compexec.API) {
 	b.api = api
 }
 
+// SendSpec starts work owned by the worker pool, not by the originating HTTP request.
 func (b *pondBroker) SendSpec(spec compstep.StepSpec) error {
 	return b.pool.Go(func() {
-		apiErr := b.api.Take(spec)
+		apiErr := b.api.Take(context.Background(), spec)
 		if apiErr != nil {
 			b.log.Error("consumption failed", slog.Any("ref", spec.CompRef), slog.Any("reason", apiErr))
 			return

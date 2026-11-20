@@ -13,7 +13,7 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 
 	"orglang/go-engine/internal/adt/compsem"
-	"orglang/go-engine/internal/adt/compvar"
+	"orglang/go-engine/internal/adt/compvar"\n\tcompvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
 	"orglang/go-engine/internal/adt/seqnum"
 
 	compexec "orglang/go-engine/internal/proc/compexec/core"
@@ -56,12 +56,12 @@ func (dao *daoPgx) GetSnapByRef(ctx context.Context, conn tx.Conn, ref compsem.S
 		return compexec.ExecSnap{}, err
 	}
 	defer chnlRows.Close()
-	chnlDtos, err := pgx.CollectRows(chnlRows, pgx.RowToStructByName[compvar.VarRecDS])
+	chnlDtos, err := pgx.CollectRows(chnlRows, pgx.RowToStructByName[compvaradapter.VarRecDS])
 	if err != nil {
 		dao.log.Error("row scanning failed", refAttr, slog.Any("t", reflect.TypeOf(chnlDtos)))
 		return compexec.ExecSnap{}, err
 	}
-	chnls, err := compvar.DataToLinearRecs(chnlDtos)
+	chnls, err := compvaradapter.DataToLinearRecs(chnlDtos)
 	if err != nil {
 		dao.log.Error("model conversion failed", refAttr)
 		return compexec.ExecSnap{}, err

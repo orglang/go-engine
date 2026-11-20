@@ -1,5 +1,9 @@
 package adapter
 
+type queryBuilder interface {
+	InsertRec(string, adtcompvar.VarRecDS) (string, []any)
+}
+
 const (
 	poolVars       string = "pool_comp_vars"
 	poolStructVars string = "pool_struct_vars"

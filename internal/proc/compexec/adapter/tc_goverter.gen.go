@@ -19,17 +19,6 @@ func init() {
 		adapterExecRecDS.LiabMode = int16(source.LiabMode)
 		return adapterExecRecDS
 	}
-	DataFromMod = func(source core.ExecMod) (ExecModDS, error) {
-		var adapterExecModDS ExecModDS
-		if source.CompRefs != nil {
-			adapterExecModDS.CompRefs = make([]compsem.SemRefDS, len(source.CompRefs))
-			for i := 0; i < len(source.CompRefs); i++ {
-				adapterExecModDS.CompRefs[i] = compsemSemRefToCompsemSemRefDS(source.CompRefs[i])
-			}
-		}
-		adapterExecModDS.LinearVars = adapter.DataFromLinearRecs(source.LinearVars)
-		return adapterExecModDS, nil
-	}
 	DataToExecRec = func(source ExecRecDS) (core.ExecRec, error) {
 		var coreExecRec core.ExecRec
 		compsemSemRef, err := dataToSemRef(source)

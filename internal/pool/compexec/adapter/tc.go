@@ -2,6 +2,7 @@ package adapter
 
 import (
 	"orglang/go-engine/internal/adt/compsem"
+	compsemadapter "orglang/go-engine/internal/adt/compsem/adapter"
 	"orglang/go-engine/internal/adt/compvar"
 	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
 
@@ -9,7 +10,7 @@ import (
 )
 
 func DataToExecSnap1(dto ExecSnap1DS) (compexec.ExecSnap1, error) {
-	ref, err := compsem.DataToRef(dto.CompRef)
+	ref, err := compsemadapter.DataToRef(dto.CompRef)
 	if err != nil {
 		return compexec.ExecSnap1{}, err
 	}

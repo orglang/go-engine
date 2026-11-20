@@ -12,10 +12,10 @@ import (
 // goverter:extend orglang/go-engine/internal/pool/connact/adapter:Data.*
 var (
 	// goverter:map ConnID | identityToString
-	DataFromQry func(compconn.ConnQry) compconn.ConnQryDS
+	DataFromQry func(compconn.ConnQry) ConnQry
 	// goverter:map ConnID | identityToString
 	// goverter:ignore ActNr
-	DataFromMod func(compconn.ConnMod) compconn.ConnModDS
+	DataFromMod func(compconn.ConnMod) ConnMod
 	// goverter:map . ConnID | dataToConnID
-	DataToSnap func(compconn.ConnSnapDS) (compconn.ConnSnap, error)
+	DataToSnap func(ConnSnap) (compconn.ConnSnap, error)
 )

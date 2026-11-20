@@ -45,7 +45,7 @@ jobs:
       - name: Checkout workspace
         uses: actions/checkout@v7
         with:
-          ref: ci/distros-gate-task
+          ref: main
           repository: orglang/go-workspace
 
       - name: Checkout engine
@@ -66,10 +66,27 @@ jobs:
         uses: jdx/mise-action@v5
         with:
           cache: true
-          cache_key: "{{default}}-distros-${{ hashFiles('mise.toml', 'mise.lock', 'engine/mise*.toml', 'engine/mise*.lock') }}"
+          cache_key: "{{default}}-distros-${{ hashFiles('engine/mise*.toml', 'engine/mise*.lock') }}"
           install: true
-          # Save the cache after the workspace and engine task toolchains have been used.
+          # Defer saving until later environment-specific installs have populated the cache.
           cache_save_post: true
+
+      - name: Install distribution toolchain
+        run: mise -E distros install --locked
+
+      - name: Install engine toolchains
+        working-directory: engine
+        run: |
+          mise -E specs install --locked
+          mise -E sources install --locked
+
+      - name: Install TypeSpec dependencies
+        working-directory: engine
+        run: mise run deps:install
+
+      - name: Generate engine sources
+        working-directory: engine
+        run: mise -E sources exec -- task sources:generate
 
       # mise pins the Buildx CLI for local use; this action additionally creates and boots
       # the docker-container builder required by CI (including its BuildKit lifecycle).
@@ -82,8 +99,12 @@ jobs:
       - name: Expose GitHub Actions runtime
         uses: crazy-max/ghaction-github-runtime@v4
 
-      - name: Run workspace Distros gate
-        run: mise run //:distros:gate
+      - name: Build distribution artifacts
+        run: mise -E distros run distros
+
+      - name: Check common stack services
+        working-directory: engine
+        run: mise -E distros run //:stack commons
 
       - name: PostgreSQL compose diagnostics
         if: ${{ failure() }}

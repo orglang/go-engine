@@ -18,21 +18,21 @@ var (
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/contkey:Convert.*
-// goverter:extend orglang/go-engine/internal/adt/termvar:Data.*
+// goverter:extend orglang/go-engine/internal/adt/termvar/adapter:Data.*
 var (
 	// goverter:map . TermRef
 	// goverter:ignore TermQN
-	DataToDecRec func(termdec.DecRecDS) (termdec.DecRec, error)
+	DataToDecRec func(DecRecDS) (termdec.DecRec, error)
 	// goverter:autoMap TermRef
-	DataFromDecRec  func(termdec.DecRec) (termdec.DecRecDS, error)
-	DataToDecRecs   func([]termdec.DecRecDS) ([]termdec.DecRec, error)
-	DataFromDecRecs func([]termdec.DecRec) ([]termdec.DecRecDS, error)
+	DataFromDecRec  func(termdec.DecRec) (DecRecDS, error)
+	DataToDecRecs   func([]DecRecDS) ([]termdec.DecRec, error)
+	DataFromDecRecs func([]termdec.DecRec) ([]DecRecDS, error)
 	// goverter:map . TermRef
-	DataToDecSnap func(termdec.DecSnapDS) (termdec.DecSnap, error)
+	DataToDecSnap func(DecSnapDS) (termdec.DecSnap, error)
 	// goverter:autoMap TermRef
-	DataFromDecSnap  func(termdec.DecSnap) (termdec.DecSnapDS, error)
-	DataToDecSnaps   func([]termdec.DecSnapDS) ([]termdec.DecSnap, error)
-	DataFromDecSnaps func([]termdec.DecSnap) ([]termdec.DecSnapDS, error)
+	DataFromDecSnap  func(termdec.DecSnap) (DecSnapDS, error)
+	DataToDecSnaps   func([]DecSnapDS) ([]termdec.DecSnap, error)
+	DataFromDecSnaps func([]termdec.DecSnap) ([]DecSnapDS, error)
 )
 
 // goverter:variables

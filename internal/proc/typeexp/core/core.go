@@ -243,9 +243,6 @@ func errConcurrentModification(got seqnum.ADT, want seqnum.ADT) error {
 	return fmt.Errorf("entity concurrent modification: want revision %v, got revision %v", want, got)
 }
 
-func errOptimisticUpdate(got seqnum.ADT) error {
-	return fmt.Errorf("entity concurrent modification: got revision %v", got)
-}
 
 func CheckRef(got, want contkey.ADT) error {
 	if got != want {

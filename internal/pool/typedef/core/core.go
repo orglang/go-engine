@@ -9,7 +9,6 @@ import (
 
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/descsem"
-	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/typesem"
 	"orglang/go-engine/internal/adt/uniqsym"
 
@@ -86,9 +85,6 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ typesem.SemRef, e
 	return newDef.TypeRef, nil
 }
 
-func errOptimisticUpdate(got seqnum.ADT) error {
-	return fmt.Errorf("entity concurrent modification: got revision %v", got)
-}
 
 func ErrMissingInEnv(want contkey.ADT) error {
 	return fmt.Errorf("exp missing in env: %v", want)

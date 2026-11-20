@@ -13,6 +13,7 @@ import (
 
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/typesem"
+	typesemadapter "orglang/go-engine/internal/adt/typesem/adapter"
 	"orglang/go-engine/internal/adt/uniqsym"
 
 	typedef "orglang/go-engine/internal/pool/typedef/core"
@@ -79,13 +80,13 @@ func (dao *daoPgx) SelectRefs(ctx context.Context, conn tx.Conn) ([]typesem.SemR
 		return nil, err
 	}
 	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[typesem.SemRefDS])
+	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[typesemadapter.SemRefDS])
 	if err != nil {
 		dao.log.Error("rows scanning failed")
 		return nil, err
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("dtos", dtos))
-	return typesem.DataToRefs(dtos)
+	return typesemadapter.DataToRefs(dtos)
 }
 
 func (dao *daoPgx) SelectRecByRef(ctx context.Context, conn tx.Conn, ref typesem.SemRef) (typedef.DefRec, error) {

@@ -12,21 +12,31 @@ import (
 // Package registers worker pools and gives the application container explicit
 // ownership of their shutdown.
 var Package = do.Package(
-	do.Lazy[*pondPoolResource](func(do.Injector) (*pondPoolResource, error) {
+	do.Lazy[*taskContextResource](func(do.Injector) (*taskContextResource, error) {
 		taskCtx, cancel := context.WithCancel(context.Background())
-		return &pondPoolResource{
-			pool:    newPondPool(),
-			taskCtx: taskCtx,
-			cancel:  cancel,
-			done: make(chan struct{}),
-		}, nil
+		return &taskContextResource{ctx: taskCtx, cancel: cancel}, nil
 	}),
-	do.Lazy[PondTaskContext](func(i do.Injector) (PondTaskContext, error) {
-		resource, err := do.Invoke[*pondPoolResource](i)
+	do.Lazy[context.Context](func(i do.Injector) (context.Context, error) {
+		resource, err := do.Invoke[*taskContextResource](i)
 		if err != nil {
-			return PondTaskContext{}, err
+			return nil, err
 		}
-		return PondTaskContext{Context: resource.taskCtx}, nil
+		return resource.ctx, nil
+	}),
+	do.Lazy[*pondPoolResource](func(i do.Injector) (*pondPoolResource, error) {
+		pool, err := do.Invoke[pond.Pool](i)
+		if err != nil {
+			return nil, err
+		}
+		taskCtx, err := do.Invoke[context.Context](i)
+		if err != nil {
+			return nil, err
+		}
+		resource, err := do.Invoke[*taskContextResource](i)
+		if err != nil {
+			return nil, err
+		}
+		return &pondPoolResource{pool: pool, taskCtx: taskCtx, cancel: resource.cancel, done: make(chan struct{})}, nil
 	}),
 	do.Lazy[pond.Pool](func(i do.Injector) (pond.Pool, error) {
 		resource, err := do.Invoke[*pondPoolResource](i)
@@ -35,21 +45,20 @@ var Package = do.Package(
 		}
 		return resource.pool, nil
 	}),
-	do.Lazy[*workerPoolResource](func(do.Injector) (*workerPoolResource, error) {
-		taskCtx, cancel := context.WithCancel(context.Background())
-		return &workerPoolResource{
-			pool:    newWorkerPool(),
-			taskCtx: taskCtx,
-			cancel:  cancel,
-			done: make(chan struct{}),
-		}, nil
-	}),
-	do.Lazy[WorkerPoolTaskContext](func(i do.Injector) (WorkerPoolTaskContext, error) {
-		resource, err := do.Invoke[*workerPoolResource](i)
+	do.Lazy[*workerPoolResource](func(i do.Injector) (*workerPoolResource, error) {
+		pool, err := do.Invoke[*workerpool.WorkerPool](i)
 		if err != nil {
-			return WorkerPoolTaskContext{}, err
+			return nil, err
 		}
-		return WorkerPoolTaskContext{Context: resource.taskCtx}, nil
+		taskCtx, err := do.Invoke[context.Context](i)
+		if err != nil {
+			return nil, err
+		}
+		resource, err := do.Invoke[*taskContextResource](i)
+		if err != nil {
+			return nil, err
+		}
+		return &workerPoolResource{pool: pool, taskCtx: taskCtx, cancel: resource.cancel, done: make(chan struct{})}, nil
 	}),
 	do.Lazy[*workerpool.WorkerPool](func(i do.Injector) (*workerpool.WorkerPool, error) {
 		resource, err := do.Invoke[*workerPoolResource](i)
@@ -60,9 +69,9 @@ var Package = do.Package(
 	}),
 )
 
-// PondTaskContext is canceled when the application begins shutting down.
-type PondTaskContext struct {
-	context.Context
+type taskContextResource struct {
+	ctx context.Context
+	cancel context.CancelFunc
 }
 
 type pondPoolResource struct {
@@ -89,11 +98,6 @@ func (r *pondPoolResource) Shutdown(ctx context.Context) error {
 	case <-ctx.Done():
 		return ctx.Err()
 	}
-}
-
-// WorkerPoolTaskContext is canceled when the application begins shutting down.
-type WorkerPoolTaskContext struct {
-	context.Context
 }
 
 type workerPoolResource struct {

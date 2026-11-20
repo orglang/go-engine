@@ -30,9 +30,9 @@ import (
 )
 
 type API interface {
-	Run(ExecSpec) (compsem.SemRef, error) // aka Create
-	Take(compstep.StepSpec) error
-	Spawn(compstep.StepSpec) (compsem.SemRef, error)
+	Run(context.Context, ExecSpec) (compsem.SemRef, error) // aka Create
+	Take(context.Context, compstep.StepSpec) error
+	Spawn(context.Context, compstep.StepSpec) (compsem.SemRef, error)
 }
 
 type Broker interface {
@@ -128,8 +128,7 @@ func NewService(deps ServiceDeps) API {
 	}
 }
 
-func (s *service) Run(spec ExecSpec) (_ compsem.SemRef, err error) {
-	ctx := context.Background()
+func (s *service) Run(ctx context.Context, spec ExecSpec) (_ compsem.SemRef, err error) {
 	specAttr := slog.Any("spec", spec)
 	s.log.Debug("creation started", specAttr)
 	var termDec termdef.DefRec
@@ -237,8 +236,7 @@ func (s *service) Run(spec ExecSpec) (_ compsem.SemRef, err error) {
 	return newExec.CompRef, nil
 }
 
-func (s *service) Spawn(spec compstep.StepSpec) (_ compsem.SemRef, err error) {
-	ctx := context.Background()
+func (s *service) Spawn(ctx context.Context, spec compstep.StepSpec) (_ compsem.SemRef, err error) {
 	refAttr := slog.Any("ref", spec.CompRef)
 	s.log.Debug("proc spawning started", refAttr, slog.Any("exp", spec.PoolExp))
 	newExec := proccompexec.ExecRec{CompRef: compsem.New(), LiabMode: compvar.LinearMode}
@@ -253,16 +251,15 @@ func (s *service) Spawn(spec compstep.StepSpec) (_ compsem.SemRef, err error) {
 	return newExec.CompRef, nil
 }
 
-func (s *service) Take(spec compstep.StepSpec) (err error) {
-	ctx := context.Background()
+func (s *service) Take(ctx context.Context, spec compstep.StepSpec) (err error) {
 	refAttr := slog.Any("ref", spec.CompRef)
 	s.log.Debug("step taking started", refAttr, slog.Any("exp", spec.PoolExp))
-	execSnap, retErr := s.retrieveSnap(spec.CompRef)
+	execSnap, retErr := s.retrieveSnap(ctx, spec.CompRef)
 	if retErr != nil {
 		s.log.Error("step taking failed", refAttr)
 		return retErr
 	}
-	execMod, execEff, connMod, takeErr := s.takeStep(execSnap, spec.PoolExp)
+	execMod, execEff, connMod, takeErr := s.takeStep(ctx, execSnap, spec.PoolExp)
 	if takeErr != nil {
 		s.log.Error("step taking failed", refAttr)
 		return takeErr
@@ -328,6 +325,7 @@ func (s *service) Take(spec compstep.StepSpec) (err error) {
 }
 
 func (s *service) takeStep(
+	ctx context.Context,
 	execSnap ExecSnap3,
 	exp termexp.ExpSpec,
 ) (
@@ -336,7 +334,6 @@ func (s *service) takeStep(
 	connMod compconn.ConnMod,
 	err error,
 ) {
-	ctx := context.Background()
 	compAttr := slog.Any("compRef", execSnap.CompRef)
 	switch termExp := exp.(type) {
 	case termexp.AcceptSpec:
@@ -869,8 +866,7 @@ func (s *service) takeStep(
 	}
 }
 
-func (s *service) retrieveSnap(ref compsem.SemRef) (_ ExecSnap3, err error) {
-	ctx := context.Background()
+func (s *service) retrieveSnap(ctx context.Context, ref compsem.SemRef) (_ ExecSnap3, err error) {
 	var execSnap ExecSnap2
 	getErr1 := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		execSnap, err = s.compExecRepo.GetSnapByRef(txCtx, conn, ref)

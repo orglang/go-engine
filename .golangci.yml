@@ -34,7 +34,6 @@ linters:
             - "**/core/**/*.go"
             - "**/domain/**/*.go"
             - "!**/*_test.go"
-            - "!**/tc_goverter.go"
           deny:
             - pkg: orglang/go-engine/internal/lib/db/adapter
               desc: Core/domain code must depend on a port, not an adapter.
@@ -93,7 +92,6 @@ linters:
             - "**/adt/*/core/**/*.go"
             - "**/adt/*/domain/**/*.go"
             - "!**/*_test.go"
-            - "!**/tc_goverter.go"
           deny:
             - pkg: orglang/go-engine/internal/adt/compsem/adapter
               desc: Domain types must not depend on concrete adapters.

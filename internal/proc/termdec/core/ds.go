@@ -15,4 +15,3 @@ type Repo interface {
 	GetRecs(context.Context, tx.Conn, []identity.ADT) ([]DecRec, error)
 	SelectEnv(context.Context, tx.Conn, []identity.ADT) (map[identity.ADT]DecRec, error)
 }
-

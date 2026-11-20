@@ -13,7 +13,7 @@ import (
 )
 
 type workerPoolBroker struct {
-	api  compexec.API
+	api     compexec.API
 	pool    *workerpool.WorkerPool
 	taskCtx context.Context
 	log     *slog.Logger

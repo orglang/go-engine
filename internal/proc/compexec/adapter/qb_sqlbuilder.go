@@ -4,7 +4,7 @@ import (
 	"github.com/huandu/go-sqlbuilder"
 
 	"orglang/go-engine/internal/adt/compvar"
-	"orglang/go-engine/internal/adt/termsem"
+	termsemadapter "orglang/go-engine/internal/adt/termsem/adapter"
 
 	compexec "orglang/go-engine/internal/proc/compexec/core"
 )
@@ -21,7 +21,7 @@ func newQueryBuilder() compexec.QueryBuilder {
 }
 
 func newSQLBuilder() *sqlBuilder {
-	semBuilder := sqlbuilder.NewStruct(new(termsem.SemRefDS)).For(sqlbuilder.PostgreSQL)
+	semBuilder := sqlbuilder.NewStruct(new(termsemadapter.SemRefDS)).For(sqlbuilder.PostgreSQL)
 	execBuilder := sqlbuilder.NewStruct(new(compexec.ExecRecDS)).For(sqlbuilder.PostgreSQL)
 	varBuilder := sqlbuilder.NewStruct(new(compvar.VarRecDS)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{semBuilder, execBuilder, varBuilder}

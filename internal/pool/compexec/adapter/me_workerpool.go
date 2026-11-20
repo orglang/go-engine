@@ -18,7 +18,7 @@ type workerPoolBroker struct {
 	log     *slog.Logger
 }
 
-func newWorkerPoolBroker(pool *workerpool.WorkerPool, taskCtx context.Context, log *slog.Logger) *workerPoolBroker {
+func newWorkerPoolBroker(taskCtx context.Context, pool *workerpool.WorkerPool, log *slog.Logger) *workerPoolBroker {
 	name := slog.String("name", reflect.TypeFor[workerPoolBroker]().Name())
 	return &workerPoolBroker{nil, pool, taskCtx, log.With(name)}
 }

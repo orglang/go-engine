@@ -3,7 +3,6 @@ package adapter
 import (
 	"github.com/huandu/go-sqlbuilder"
 
-	compconn "orglang/go-engine/internal/pool/compconn/core"
 	connactadapter "orglang/go-engine/internal/pool/connact/adapter"
 )
 

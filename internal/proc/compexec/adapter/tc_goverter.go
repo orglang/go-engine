@@ -11,10 +11,10 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/compvar:Data.*
 var (
 	// goverter:map . CompRef | dataToSemRef
-	DataToExecRec func(compexec.ExecRecDS) (compexec.ExecRec, error)
+	DataToExecRec func(ExecRecDS) (compexec.ExecRec, error)
 	// goverter:autoMap CompRef
-	DataFromExecRec func(compexec.ExecRec) compexec.ExecRecDS
-	DataFromMod     func(compexec.ExecMod) (compexec.ExecModDS, error)
+	DataFromExecRec func(compexec.ExecRec) ExecRecDS
+	DataFromMod     func(compexec.ExecMod) (ExecModDS, error)
 	// goverter:ignore CompRN
-	dataToSemRef func(compexec.ExecRecDS) (compsem.SemRef, error)
+	dataToSemRef func(ExecRecDS) (compsem.SemRef, error)
 )

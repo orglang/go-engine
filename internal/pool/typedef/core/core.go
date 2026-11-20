@@ -85,7 +85,6 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ typesem.SemRef, e
 	return newDef.TypeRef, nil
 }
 
-
 func ErrMissingInEnv(want contkey.ADT) error {
 	return fmt.Errorf("exp missing in env: %v", want)
 }

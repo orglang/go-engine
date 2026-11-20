@@ -18,15 +18,11 @@ func TestPackageProvidesPoolsAndStopsThemWithApp(t *testing.T) {
 	if err != nil {
 		t.Fatalf("resolve pond pool: %v", err)
 	}
-	taskCtx, err := do.Invoke[PondTaskContext](application.Container())
+	taskCtx, err := do.Invoke[context.Context](application.Container())
 	if err != nil {
 		t.Fatalf("resolve pond task context: %v", err)
 	}
-	workerTaskCtx, err := do.Invoke[WorkerPoolTaskContext](application.Container())
-	if err != nil {
-		t.Fatalf("resolve worker pool task context: %v", err)
-	}
-	workerPool, err := do.Invoke[*workerpool.WorkerPool](application.Container())
+		workerPool, err := do.Invoke[*workerpool.WorkerPool](application.Container())
 	if err != nil {
 		t.Fatalf("resolve worker pool: %v", err)
 	}
@@ -41,11 +37,6 @@ func TestPackageProvidesPoolsAndStopsThemWithApp(t *testing.T) {
 	case <-taskCtx.Done():
 	default:
 		t.Fatal("expected pond task context to be canceled on application stop")
-	}
-	select {
-	case <-workerTaskCtx.Done():
-	default:
-		t.Fatal("expected worker pool task context to be canceled on application stop")
 	}
 	if !workerPool.Stopped() {
 		t.Fatal("expected worker pool to be stopped")

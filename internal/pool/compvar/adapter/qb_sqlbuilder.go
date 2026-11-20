@@ -4,8 +4,6 @@ import (
 	"github.com/huandu/go-sqlbuilder"
 
 	adtcompvar "orglang/go-engine/internal/adt/compvar"
-
-	compvar "orglang/go-engine/internal/pool/compvar/core"
 )
 
 type sqlBuilder struct {
@@ -13,7 +11,7 @@ type sqlBuilder struct {
 }
 
 // for compilation purposes
-func newQueryBuilder() compvar.QueryBuilder {
+func newQueryBuilder() queryBuilder {
 	return new(sqlBuilder)
 }
 

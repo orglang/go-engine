@@ -7,7 +7,6 @@ import (
 
 	"github.com/alitto/pond/v2"
 
-	"orglang/go-engine/internal/lib/wp"
 	compexec "orglang/go-engine/internal/pool/compexec/core"
 	compstep "orglang/go-engine/internal/pool/compstep/core"
 )
@@ -19,7 +18,7 @@ type pondBroker struct {
 	log     *slog.Logger
 }
 
-func newPondBroker(pool pond.Pool, taskCtx wp.PondTaskContext, log *slog.Logger) *pondBroker {
+func newPondBroker(pool pond.Pool, taskCtx context.Context, log *slog.Logger) *pondBroker {
 	name := slog.String("name", reflect.TypeFor[pondBroker]().Name())
 	return &pondBroker{nil, pool, taskCtx, log.With(name)}
 }

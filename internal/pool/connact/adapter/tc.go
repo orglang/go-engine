@@ -1,7 +1,6 @@
 package adapter
 
 import (
-	"orglang/go-engine/internal/adt/compsem"
 	compsemadapter "orglang/go-engine/internal/adt/compsem/adapter"
 	"orglang/go-engine/internal/adt/identity"
 	termexp "orglang/go-engine/internal/pool/termexp/adapter"

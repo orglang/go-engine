@@ -53,13 +53,13 @@ jobs:
         with:
           version: v0.39.0
 
-      - name: Expose GitHub Actions runtime
+      - name: Expose GitHub runtime
         uses: crazy-max/ghaction-github-runtime@v4
 
-      - name: Run workspace Distros gate pipeline
+      - name: Run Distros gate
         run: mise run //:distros:gate
 
-      - name: PostgreSQL compose diagnostics
+      - name: PostgreSQL logs
         if: ${{ failure() }}
         working-directory: stack
         run: >-

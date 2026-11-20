@@ -33,7 +33,7 @@ jobs:
           install: true
           cache_save_post: true
 
-      - name: Run Binaries gate pipeline
+      - name: Run Binaries gate
         shell: bash
         run: |
           if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then

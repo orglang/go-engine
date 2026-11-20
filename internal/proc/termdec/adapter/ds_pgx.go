@@ -12,17 +12,24 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 
 	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/termsem"
 
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
+type decRootRefDS struct {
+	DescID string `db:"desc_id"`
+	Rev    int64  `db:"rev"`
+	Title  string `db:"title"`
+}
+
 type daoPgx struct {
-	qb  termdec.QueryBuilder
+	qb  queryBuilder
 	log *slog.Logger
 }
 
-func NewDaoPgx(qb termdec.QueryBuilder, log *slog.Logger) termdec.Repo {
+func NewDaoPgx(qb queryBuilder, log *slog.Logger) termdec.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }
@@ -56,7 +63,7 @@ func (dao *daoPgx) GetSnap(ctx context.Context, conn tx.Conn, ref termsem.SemRef
 		return termdec.DecSnap{}, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[termdec.DecSnapDS])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecSnapDS])
 	if err != nil {
 		dao.log.Error("row scanning failed", refAttr)
 		return termdec.DecSnap{}, err
@@ -92,13 +99,13 @@ func (dao *daoPgx) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	var dtos []termdec.DecRecDS
+	var dtos []DecRecDS
 	for _, rid := range ids {
 		rows, err := br.Query()
 		if err != nil {
 			dao.log.Error("query execution failed", slog.Any("id", rid), slog.String("q", selectByRef))
 		}
-		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[termdec.DecRecDS])
+		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecRecDS])
 		if err != nil {
 			dao.log.Error("row scanning failed", slog.Any("id", rid))
 		}
@@ -122,12 +129,20 @@ func (dao *daoPgx) GetRefs(ctx context.Context, conn tx.Conn) ([]termsem.SemRef,
 		return nil, err
 	}
 	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[termsem.SemRefDS])
+	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[decRootRefDS])
 	if err != nil {
 		dao.log.Error("rows scanning failed")
 		return nil, err
 	}
-	return termsem.DataToRefs(dtos)
+	refs := make([]termsem.SemRef, len(dtos))
+	for i, dto := range dtos {
+		id, convErr := identity.ConvertFromString(dto.DescID)
+		if convErr != nil {
+			return nil, convErr
+		}
+		refs[i] = termsem.SemRef{TermID: id, TermRN: seqnum.ConvertFromInt(dto.Rev)}
+	}
+	return refs, nil
 }
 
 const (

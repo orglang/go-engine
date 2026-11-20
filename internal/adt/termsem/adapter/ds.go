@@ -1,4 +1,4 @@
-package termsem
+package adapter
 
 type SemRefDS struct {
 	TermID string `db:"term_id"`

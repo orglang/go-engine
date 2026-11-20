@@ -12,16 +12,17 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 
 	adtcompvar "orglang/go-engine/internal/adt/compvar"
+	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
 
 	compvar "orglang/go-engine/internal/pool/compvar/core"
 )
 
 type daoPgx struct {
-	qb  compvar.QueryBuilder
+	qb  queryBuilder
 	log *slog.Logger
 }
 
-func NewDaoPgx(qb compvar.QueryBuilder, log *slog.Logger) compvar.Repo {
+func NewDaoPgx(qb queryBuilder, log *slog.Logger) compvar.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }
@@ -34,7 +35,7 @@ func newRepo() compvar.Repo {
 func (dao *daoPgx) AddRecs(ctx context.Context, conn tx.Conn, recs []adtcompvar.VarRec) (err error) {
 	batch := pgx.Batch{}
 	for _, rec := range recs {
-		dto := adtcompvar.DataFromVarRec(rec)
+		dto := compvaradapter.DataFromVarRec(rec)
 		sql, args := dao.qb.InsertRec(getTableName(rec), dto)
 		batch.Queue(sql, args...)
 	}

@@ -11,25 +11,14 @@ import (
 )
 
 func init() {
-	DataFromExecRec = func(source core.ExecRec) core.ExecRecDS {
-		var coreExecRecDS core.ExecRecDS
-		coreExecRecDS.CompID = identity.ConvertToString(source.CompRef.CompID)
-		coreExecRecDS.CompRN = int64(source.CompRef.CompRN)
-		coreExecRecDS.LiabMode = int16(source.LiabMode)
-		return coreExecRecDS
+	DataFromExecRec = func(source core.ExecRec) ExecRecDS {
+		var adapterExecRecDS ExecRecDS
+		adapterExecRecDS.CompID = identity.ConvertToString(source.CompRef.CompID)
+		adapterExecRecDS.CompRN = int64(source.CompRef.CompRN)
+		adapterExecRecDS.LiabMode = int16(source.LiabMode)
+		return adapterExecRecDS
 	}
-	DataFromMod = func(source core.ExecMod) (core.ExecModDS, error) {
-		var coreExecModDS core.ExecModDS
-		if source.CompRefs != nil {
-			coreExecModDS.CompRefs = make([]compsem.SemRefDS, len(source.CompRefs))
-			for i := 0; i < len(source.CompRefs); i++ {
-				coreExecModDS.CompRefs[i] = compsemSemRefToCompsemSemRefDS(source.CompRefs[i])
-			}
-		}
-		coreExecModDS.LinearVars = compvar.DataFromLinearRecs(source.LinearVars)
-		return coreExecModDS, nil
-	}
-	DataToExecRec = func(source core.ExecRecDS) (core.ExecRec, error) {
+	DataToExecRec = func(source ExecRecDS) (core.ExecRec, error) {
 		var coreExecRec core.ExecRec
 		compsemSemRef, err := dataToSemRef(source)
 		if err != nil {
@@ -39,7 +28,7 @@ func init() {
 		coreExecRec.LiabMode = compvar.Mode(source.LiabMode)
 		return coreExecRec, nil
 	}
-	dataToSemRef = func(source core.ExecRecDS) (compsem.SemRef, error) {
+	dataToSemRef = func(source ExecRecDS) (compsem.SemRef, error) {
 		var compsemSemRef compsem.SemRef
 		identityADT, err := identity.ConvertFromString(source.CompID)
 		if err != nil {
@@ -48,10 +37,4 @@ func init() {
 		compsemSemRef.CompID = identityADT
 		return compsemSemRef, nil
 	}
-}
-func compsemSemRefToCompsemSemRefDS(source compsem.SemRef) compsem.SemRefDS {
-	var compsemSemRefDS compsem.SemRefDS
-	compsemSemRefDS.CompID = identity.ConvertToString(source.CompID)
-	compsemSemRefDS.CompRN = int64(source.CompRN)
-	return compsemSemRefDS
 }

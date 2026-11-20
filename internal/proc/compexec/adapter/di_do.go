@@ -15,11 +15,11 @@ import (
 
 // Package registers the process computation-execution repository, service, and HTTP controller.
 var Package = do.Package(
-	do.Lazy[core.QueryBuilder](func(do.Injector) (core.QueryBuilder, error) {
+	do.Lazy[queryBuilder](func(do.Injector) (queryBuilder, error) {
 		return newSQLBuilder(), nil
 	}),
 	do.Lazy[core.Repo](func(i do.Injector) (core.Repo, error) {
-		qb, err := do.Invoke[core.QueryBuilder](i)
+		qb, err := do.Invoke[queryBuilder](i)
 		if err != nil {
 			return nil, err
 		}

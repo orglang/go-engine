@@ -5,13 +5,13 @@ import (
 	"slices"
 	"testing"
 
-	"orglang/go-engine/internal/adt/compvar"
+	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
 )
 
 func TestInsert(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
-	rec := compvar.VarRecDS{
+	rec := compvaradapter.VarRecDS{
 		CompID: sql.NullString{String: "comp-id-1", Valid: true},
 		CompRN: sql.NullInt64{Int64: 7, Valid: true},
 		ConnID: sql.NullString{String: "conn-id-1", Valid: true},

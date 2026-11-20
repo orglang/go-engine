@@ -28,11 +28,7 @@ func newRepo() implsem.Repo {
 
 func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec implsem.SemRec) error {
 	recAttr := slog.Any("rec", rec)
-	dto, convErr := implsem.DataFromRec(rec)
-	if convErr != nil {
-		dao.log.Error("model conversion failed", recAttr)
-		return convErr
-	}
+	dto := dataFromRec(rec)
 	sql, args := dao.qb.insertRec(dto)
 	_, execErr := conn.Pgx.Exec(ctx, sql, args...)
 	if execErr != nil {

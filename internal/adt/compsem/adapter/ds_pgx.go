@@ -29,7 +29,7 @@ func newRepo() compsem.Repo {
 }
 
 func (dao *daoPgx) TouchRef(ctx context.Context, conn tx.Conn, ref compsem.SemRef) error {
-	dto := compsem.DataFromRef(ref)
+	dto := DataFromRef(ref)
 	refAttr := slog.Any("ref", ref)
 	sql, args := dao.qb.updateRef(dto)
 	ct, execErr := conn.Pgx.Exec(ctx, sql, args...)

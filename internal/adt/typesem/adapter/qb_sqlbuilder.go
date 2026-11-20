@@ -1,10 +1,6 @@
 package adapter
 
-import (
-	"github.com/huandu/go-sqlbuilder"
-
-	"orglang/go-engine/internal/adt/typesem"
-)
+import "github.com/huandu/go-sqlbuilder"
 
 type sqlBuilder struct {
 	typeTable  string
@@ -18,11 +14,11 @@ func newQueryBuilder() queryBuilder {
 }
 
 func newSQLBuilder(typeTable, descTable string) *sqlBuilder {
-	refBuilder := sqlbuilder.NewStruct(new(typesem.SemRefDS)).For(sqlbuilder.PostgreSQL)
+	refBuilder := sqlbuilder.NewStruct(new(SemRefDS)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{typeTable, descTable, refBuilder}
 }
 
-func (qb *sqlBuilder) updateRef(ref typesem.SemRefDS) (string, []any) {
+func (qb *sqlBuilder) updateRef(ref SemRefDS) (string, []any) {
 	sem := sqlbuilder.PostgreSQL.NewUpdateBuilder()
 	sem.Update(qb.typeTable)
 	sem.Set("comp_rn = comp_rn + 1")

@@ -1,4 +1,4 @@
-package termvar
+package adapter
 
 import (
 	"encoding/json"

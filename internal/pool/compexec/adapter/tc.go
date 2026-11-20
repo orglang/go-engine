@@ -1,27 +1,28 @@
 package adapter
 
 import (
-	"orglang/go-engine/internal/adt/compsem"
+	compsemadapter "orglang/go-engine/internal/adt/compsem/adapter"
 	"orglang/go-engine/internal/adt/compvar"
+	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
 
 	compexec "orglang/go-engine/internal/pool/compexec/core"
 )
 
-func DataToExecSnap1(dto compexec.ExecSnap1DS) (compexec.ExecSnap1, error) {
-	ref, err := compsem.DataToRef(dto.CompRef)
+func DataToExecSnap1(dto ExecSnap1DS) (compexec.ExecSnap1, error) {
+	ref, err := compsemadapter.DataToRef(dto.CompRef)
 	if err != nil {
 		return compexec.ExecSnap1{}, err
 	}
 	mode := compvar.Mode(dto.LiabMode)
 	switch mode {
 	case compvar.StructMode:
-		rec, err := compvar.DataToStructRec(*dto.StructVar)
+		rec, err := compvaradapter.DataToStructRec(*dto.StructVar)
 		if err != nil {
 			return compexec.ExecSnap1{}, err
 		}
 		return compexec.ExecSnap1{CompRef: ref, LiabVar: rec}, nil
 	case compvar.LinearMode:
-		rec, err := compvar.DataToLinearRec(*dto.LinearVar)
+		rec, err := compvaradapter.DataToLinearRec(*dto.LinearVar)
 		if err != nil {
 			return compexec.ExecSnap1{}, err
 		}

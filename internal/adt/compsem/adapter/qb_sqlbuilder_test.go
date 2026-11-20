@@ -2,12 +2,10 @@ package adapter
 
 import (
 	"testing"
-
-	"orglang/go-engine/internal/adt/compsem"
 )
 
 func TestUpdateRef(t *testing.T) {
 	qb := newSQLBuilder("foo")
-	sql, _ := qb.updateRef(compsem.SemRefDS{})
+	sql, _ := qb.updateRef(SemRefDS{})
 	t.Log(sql)
 }

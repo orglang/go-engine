@@ -13,17 +13,18 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 
 	"orglang/go-engine/internal/adt/compsem"
+	compsemadapter "orglang/go-engine/internal/adt/compsem/adapter"
 	"orglang/go-engine/internal/adt/uniqsym"
 
 	compexec "orglang/go-engine/internal/pool/compexec/core"
 )
 
 type daoPgx struct {
-	qb  compexec.QueryBuilder
+	qb  queryBuilder
 	log *slog.Logger
 }
 
-func NewDaoPgx(qb compexec.QueryBuilder, log *slog.Logger) compexec.Repo {
+func NewDaoPgx(qb queryBuilder, log *slog.Logger) compexec.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }
@@ -52,14 +53,14 @@ func (dao *daoPgx) ModifyRec(context.Context, tx.Conn, compexec.ExecMod) error {
 
 func (dao *daoPgx) GetSnapByRef(ctx context.Context, conn tx.Conn, ref compsem.SemRef) (compexec.ExecSnap2, error) {
 	refAttr := slog.Any("ref", ref)
-	sql, args := dao.qb.SelectRecByRef(compsem.DataFromRef(ref))
+	sql, args := dao.qb.SelectRecByRef(compsemadapter.DataFromRef(ref))
 	rows, execErr := conn.Pgx.Query(ctx, sql, args...)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
 		return compexec.ExecSnap2{}, execErr
 	}
 	defer rows.Close()
-	dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[compexec.ExecSnap2DS])
+	dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[ExecSnap2DS])
 	if scanErr != nil {
 		dao.log.Error("rows scanning failed", refAttr, slog.Any("dto", dto))
 		return compexec.ExecSnap2{}, scanErr
@@ -87,7 +88,7 @@ func (dao *daoPgx) GetSnapMapByQNs(ctx context.Context, conn tx.Conn, termQNs []
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	dtos := make(map[uniqsym.ADT]compexec.ExecSnap1DS, len(termQNs))
+	dtos := make(map[uniqsym.ADT]ExecSnap1DS, len(termQNs))
 	for _, termQN := range termQNs {
 		qnAttr := slog.Any("qn", termQN)
 		rows, readErr := br.Query()
@@ -95,7 +96,7 @@ func (dao *daoPgx) GetSnapMapByQNs(ctx context.Context, conn tx.Conn, termQNs []
 			dao.log.Error("query execution failed", qnAttr)
 			return nil, readErr
 		}
-		var dto compexec.ExecSnap1DS
+		var dto ExecSnap1DS
 		scanErr := pgxscan.ScanOne(dto, rows)
 		if scanErr != nil {
 			dao.log.Error("row scanning failed", qnAttr)

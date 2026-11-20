@@ -14,6 +14,7 @@ import (
 
 	"orglang/go-engine/internal/adt/compsem"
 	"orglang/go-engine/internal/adt/compvar"
+	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
 	"orglang/go-engine/internal/adt/seqnum"
 
 	compexec "orglang/go-engine/internal/proc/compexec/core"
@@ -21,7 +22,7 @@ import (
 
 // Adapter
 type daoPgx struct {
-	qb  compexec.QueryBuilder
+	qb  queryBuilder
 	log *slog.Logger
 }
 
@@ -30,7 +31,7 @@ func newRepo() compexec.Repo {
 	return new(daoPgx)
 }
 
-func newDaoPgx(qb compexec.QueryBuilder, log *slog.Logger) *daoPgx {
+func newDaoPgx(qb queryBuilder, log *slog.Logger) *daoPgx {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }
@@ -56,12 +57,12 @@ func (dao *daoPgx) GetSnapByRef(ctx context.Context, conn tx.Conn, ref compsem.S
 		return compexec.ExecSnap{}, err
 	}
 	defer chnlRows.Close()
-	chnlDtos, err := pgx.CollectRows(chnlRows, pgx.RowToStructByName[compvar.VarRecDS])
+	chnlDtos, err := pgx.CollectRows(chnlRows, pgx.RowToStructByName[compvaradapter.VarRecDS])
 	if err != nil {
 		dao.log.Error("row scanning failed", refAttr, slog.Any("t", reflect.TypeOf(chnlDtos)))
 		return compexec.ExecSnap{}, err
 	}
-	chnls, err := compvar.DataToLinearRecs(chnlDtos)
+	chnls, err := compvaradapter.DataToLinearRecs(chnlDtos)
 	if err != nil {
 		dao.log.Error("model conversion failed", refAttr)
 		return compexec.ExecSnap{}, err

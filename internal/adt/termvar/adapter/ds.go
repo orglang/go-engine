@@ -1,4 +1,4 @@
-package termvar
+package adapter
 
 type VarRecDS struct {
 	TypeID string `json:"id"`

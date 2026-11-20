@@ -1,4 +1,4 @@
-package core
+package adapter
 
 const (
 	implBinds      string = "proc_impl_binds "
@@ -7,6 +7,6 @@ const (
 	procLinearVars string = "proc_linear_vars "
 )
 
-type QueryBuilder interface {
+type queryBuilder interface {
 	InsertRec(ExecRecDS) (string, []any)
 }

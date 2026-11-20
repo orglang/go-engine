@@ -33,7 +33,7 @@ func newRepo() typesem.Repo {
 }
 
 func (dao *daoPgx) TouchRef(ctx context.Context, conn tx.Conn, ref typesem.SemRef) error {
-	dto := typesem.DataFromRef(ref)
+	dto := DataFromRef(ref)
 	refAttr := slog.Any("ref", ref)
 	sql, args := dao.qb.updateRef(dto)
 	ct, execErr := conn.Pgx.Exec(ctx, sql, args...)
@@ -63,7 +63,7 @@ func (dao *daoPgx) GetRefsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	dtos := make(map[uniqsym.ADT]typesem.SemRefDS, len(typeQNs))
+	dtos := make(map[uniqsym.ADT]SemRefDS, len(typeQNs))
 	for _, typeQN := range typeQNs {
 		qnAttr := slog.Any("qn", typeQN)
 		rows, readErr := br.Query()
@@ -71,7 +71,7 @@ func (dao *daoPgx) GetRefsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 			dao.log.Error("query execution failed", qnAttr)
 			return nil, readErr
 		}
-		dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[typesem.SemRefDS])
+		dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[SemRefDS])
 		if scanErr != nil {
 			dao.log.Error("row scanning failed", qnAttr)
 			return nil, scanErr
@@ -79,7 +79,7 @@ func (dao *daoPgx) GetRefsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 		dtos[typeQN] = dto
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("dtos", dtos))
-	return typesem.DataToRefMap(dtos)
+	return DataToRefMap(dtos)
 }
 
 func errConcurrentModification(got typesem.SemRef) error {

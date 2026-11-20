@@ -10,11 +10,11 @@ import (
 
 // Package registers the pool component-variable repository and its private query builder.
 var Package = do.Package(
-	do.Lazy[compvar.QueryBuilder](func(do.Injector) (compvar.QueryBuilder, error) {
+	do.Lazy[queryBuilder](func(do.Injector) (queryBuilder, error) {
 		return newSQLBuilder(), nil
 	}),
 	do.Lazy[compvar.Repo](func(i do.Injector) (compvar.Repo, error) {
-		qb, err := do.Invoke[compvar.QueryBuilder](i)
+		qb, err := do.Invoke[queryBuilder](i)
 		if err != nil {
 			return nil, err
 		}

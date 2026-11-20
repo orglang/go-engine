@@ -1,8 +1,6 @@
-package compvar
+package adapter
 
-import (
-	"database/sql"
-)
+import "database/sql"
 
 type VarRecDS struct {
 	CompID sql.NullString `db:"comp_id"`

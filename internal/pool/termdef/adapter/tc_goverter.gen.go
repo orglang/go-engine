@@ -8,6 +8,7 @@ import (
 	symbol "orglang/go-engine/internal/adt/symbol"
 	termsem "orglang/go-engine/internal/adt/termsem"
 	termvar "orglang/go-engine/internal/adt/termvar"
+	adapter "orglang/go-engine/internal/adt/termvar/adapter"
 	uniqsym "orglang/go-engine/internal/adt/uniqsym"
 	api "orglang/go-engine/internal/app/web/api"
 	core "orglang/go-engine/internal/pool/termdef/core"
@@ -56,35 +57,35 @@ func init() {
 	}
 }
 func init() {
-	DataFromDecRec = func(source core.DefRec) (core.DefRecDS, error) {
-		var coreDefRecDS core.DefRecDS
-		coreDefRecDS.TermID = identity.ConvertToString(source.TermRef.TermID)
-		coreDefRecDS.TermRN = int64(source.TermRef.TermRN)
-		termvarVarRecDS, err := termvar.DataFromVarRec(source.LiabVar)
+	DataFromDecRec = func(source core.DefRec) (DefRecDS, error) {
+		var adapterDefRecDS DefRecDS
+		adapterDefRecDS.TermID = identity.ConvertToString(source.TermRef.TermID)
+		adapterDefRecDS.TermRN = int64(source.TermRef.TermRN)
+		adapterVarRecDS, err := adapter.DataFromVarRec(source.LiabVar)
 		if err != nil {
-			return coreDefRecDS, err
+			return adapterDefRecDS, err
 		}
-		coreDefRecDS.LiabVar = termvarVarRecDS
+		adapterDefRecDS.LiabVar = adapterVarRecDS
 		if source.AssetVars != nil {
-			coreDefRecDS.AssetVars = make([]termvar.VarRecDS, len(source.AssetVars))
+			adapterDefRecDS.AssetVars = make([]adapter.VarRecDS, len(source.AssetVars))
 			for i := 0; i < len(source.AssetVars); i++ {
-				termvarVarRecDS2, err := termvar.DataFromVarRec(source.AssetVars[i])
+				adapterVarRecDS2, err := adapter.DataFromVarRec(source.AssetVars[i])
 				if err != nil {
-					return coreDefRecDS, err
+					return adapterDefRecDS, err
 				}
-				coreDefRecDS.AssetVars[i] = termvarVarRecDS2
+				adapterDefRecDS.AssetVars[i] = adapterVarRecDS2
 			}
 		}
-		return coreDefRecDS, nil
+		return adapterDefRecDS, nil
 	}
-	DataToDecRec = func(source core.DefRecDS) (core.DefRec, error) {
+	DataToDecRec = func(source DefRecDS) (core.DefRec, error) {
 		var coreDefRec core.DefRec
 		termsemSemRef, err := dataToTermRef(source)
 		if err != nil {
 			return coreDefRec, err
 		}
 		coreDefRec.TermRef = termsemSemRef
-		termvarVarRec, err := termvar.DataToVarRec(source.LiabVar)
+		termvarVarRec, err := adapter.DataToVarRec(source.LiabVar)
 		if err != nil {
 			return coreDefRec, err
 		}
@@ -92,7 +93,7 @@ func init() {
 		if source.AssetVars != nil {
 			coreDefRec.AssetVars = make([]termvar.VarRec, len(source.AssetVars))
 			for i := 0; i < len(source.AssetVars); i++ {
-				termvarVarRec2, err := termvar.DataToVarRec(source.AssetVars[i])
+				termvarVarRec2, err := adapter.DataToVarRec(source.AssetVars[i])
 				if err != nil {
 					return coreDefRec, err
 				}
@@ -101,7 +102,7 @@ func init() {
 		}
 		return coreDefRec, nil
 	}
-	dataToTermRef = func(source core.DefRecDS) (termsem.SemRef, error) {
+	dataToTermRef = func(source DefRecDS) (termsem.SemRef, error) {
 		var termsemSemRef termsem.SemRef
 		identityADT, err := identity.ConvertFromString(source.TermID)
 		if err != nil {

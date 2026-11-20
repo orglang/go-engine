@@ -1,25 +1,24 @@
 package adapter
 
-import (
-	"github.com/huandu/go-sqlbuilder"
+import "github.com/huandu/go-sqlbuilder"
 
-	termdec "orglang/go-engine/internal/proc/termdec/core"
-)
+type queryBuilder interface {
+	InsertRec(DecRecDS) (string, []any)
+}
 
 type sqlBuilder struct {
 	decBuilder *sqlbuilder.Struct
 }
 
-// for compilation purposes
-func newQueryBuilder() termdec.QueryBuilder {
+func newQueryBuilder() queryBuilder {
 	return new(sqlBuilder)
 }
 
 func newSQLBuilder() *sqlBuilder {
-	decBuilder := sqlbuilder.NewStruct(new(termdec.DecRecDS)).For(sqlbuilder.PostgreSQL)
+	decBuilder := sqlbuilder.NewStruct(new(DecRecDS)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{decBuilder}
 }
 
-func (qb *sqlBuilder) InsertRec(rec termdec.DecRecDS) (string, []any) {
+func (qb *sqlBuilder) InsertRec(rec DecRecDS) (string, []any) {
 	return qb.decBuilder.InsertInto(termDecs, rec).Build()
 }

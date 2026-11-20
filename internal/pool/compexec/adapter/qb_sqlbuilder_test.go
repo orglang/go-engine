@@ -4,15 +4,13 @@ import (
 	"slices"
 	"testing"
 
-	"orglang/go-engine/internal/adt/compsem"
-
-	compexec "orglang/go-engine/internal/pool/compexec/core"
+	compsemadapter "orglang/go-engine/internal/adt/compsem/adapter"
 )
 
 func TestInsertRec(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
-	gotSQL, gotArgs := qb.InsertRec(compexec.ExecRecDS{})
+	gotSQL, gotArgs := qb.InsertRec(ExecRecDS{})
 	wantSQL := "INSERT INTO pool_comp_execs  (comp_id, comp_rn, liab_mode) VALUES ($1, $2, $3)"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)
@@ -26,7 +24,7 @@ func TestInsertRec(t *testing.T) {
 func TestSelectRecByRef(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
-	gotSQL, gotArgs := qb.SelectRecByRef(compsem.SemRefDS{})
+	gotSQL, gotArgs := qb.SelectRecByRef(compsemadapter.SemRefDS{})
 	wantSQL := "WITH struct_vars AS (SELECT var.comp_id, var.comp_rn, var.conn_id, var.chnl_id, " +
 		"var.chnl_ph, var.exp_ck, var.side FROM pool_struct_vars var WHERE comp_id = $1), " +
 		"linear_vars AS (SELECT var.comp_id, var.comp_rn, var.conn_id, var.chnl_id, " +

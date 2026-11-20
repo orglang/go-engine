@@ -24,11 +24,11 @@ import (
 // inbound controller. Broker subscription and route registration are explicit
 // composition steps.
 var Package = do.Package(
-	do.Lazy[compexec.QueryBuilder](func(do.Injector) (compexec.QueryBuilder, error) {
+	do.Lazy[queryBuilder](func(do.Injector) (queryBuilder, error) {
 		return newSQLBuilder(), nil
 	}),
 	do.Lazy[compexec.Repo](func(i do.Injector) (compexec.Repo, error) {
-		qb, err := do.Invoke[compexec.QueryBuilder](i)
+		qb, err := do.Invoke[queryBuilder](i)
 		if err != nil {
 			return nil, err
 		}

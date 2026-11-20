@@ -20,6 +20,8 @@ sources:
   # tool: source generators, linters, and their toolchain
   - 'mise.sources-dev.toml'
   - 'mise.sources-dev.lock'
+  - '.golangci.yml'
+  - 'staticcheck.conf'
 
 binaries:
   # app: database bootstrap and migration inputs
@@ -48,9 +50,6 @@ distros:
   - '**/compose.yml'
   - '**/*.compose.yaml'
   - '**/*.compose.yml'
-  # tool: distribution-specific toolchain, when defined in this repository
-  - 'mise.distros.toml'
-  - 'mise.distros.lock'
 
 # Internal catch-all filter: changes here invalidate every public stage output.
 any:

@@ -11,6 +11,7 @@ import (
 	"orglang/go-engine/internal/adt/implsem"
 	implsemadapter "orglang/go-engine/internal/adt/implsem/adapter"
 	"orglang/go-engine/internal/lib/tx"
+	"orglang/go-engine/internal/lib/wp"
 	compconn "orglang/go-engine/internal/pool/compconn/core"
 	compexec "orglang/go-engine/internal/pool/compexec/core"
 	compvar "orglang/go-engine/internal/pool/compvar/core"
@@ -42,11 +43,15 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
+		taskCtx, err := do.Invoke[wp.PondTaskContext](i)
+		if err != nil {
+			return nil, err
+		}
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil {
 			return nil, err
 		}
-		return newPondBroker(pool, logger), nil
+		return newPondBroker(pool, taskCtx, logger), nil
 	}),
 	do.Lazy[compexec.API](func(i do.Injector) (compexec.API, error) {
 		execRepo, err := do.Invoke[compexec.Repo](i)

@@ -9,7 +9,6 @@ import (
 
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/termsem"
-	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/tx"
 )
@@ -78,4 +77,3 @@ func (contextTransactor) ImplicitTx(ctx context.Context, fn func(context.Context
 
 var _ Repo = (*contextRepo)(nil)
 var _ tx.Transactor = contextTransactor{}
-var _ = termvar.VarRec{}

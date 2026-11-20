@@ -8,28 +8,28 @@ import (
 	connact "orglang/go-engine/internal/pool/connact/core"
 )
 
-func DataFromStepRec(r connact.ActRec) connact.ActRecDS {
+func DataFromStepRec(r connact.ActRec) ActRec {
 	switch rec := r.(type) {
 	case connact.PubRec:
 		compRef := compsemadapter.DataFromRef(rec.CompRef)
-		return connact.ActRecDS{
+		return ActRec{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
 			CompID: compRef.CompID,
 			CompRN: compRef.CompRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
-			K:      connact.PubKind,
+			K:      PubKind,
 			Exp:    termexp.DataFromExpRec(rec.ValExp),
 		}
 	case connact.SubRec:
 		compRef := compsemadapter.DataFromRef(rec.CompRef)
-		return connact.ActRecDS{
+		return ActRec{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
 			CompID: compRef.CompID,
 			CompRN: compRef.CompRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
-			K:      connact.SubKind,
+			K:      SubKind,
 			Exp:    termexp.DataFromExpRec(rec.ContExp),
 		}
 	default:
@@ -37,11 +37,11 @@ func DataFromStepRec(r connact.ActRec) connact.ActRecDS {
 	}
 }
 
-func DataToStepRec(dto connact.ActRecDS) (connact.ActRec, error) {
+func DataToStepRec(dto ActRec) (connact.ActRec, error) {
 	switch dto.K {
-	case connact.PubKind:
+	case PubKind:
 		return DataToPubRec(dto)
-	case connact.SubKind:
+	case SubKind:
 		return DataToSubRec(dto)
 	default:
 		panic(connact.ErrActKindUnexpected(dto.K))

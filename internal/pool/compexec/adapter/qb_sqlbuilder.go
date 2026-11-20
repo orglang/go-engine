@@ -6,7 +6,6 @@ import (
 	"orglang/go-engine/internal/adt/compsem"
 	"orglang/go-engine/internal/adt/compvar"
 
-	compexec "orglang/go-engine/internal/pool/compexec/core"
 )
 
 type sqlBuilder struct {
@@ -21,13 +20,13 @@ func newQueryBuilder() queryBuilder {
 }
 
 func newSQLBuilder() *sqlBuilder {
-	recBuilder := sqlbuilder.NewStruct(new(compexec.ExecRecDS)).For(sqlbuilder.PostgreSQL)
-	snapBuilder := sqlbuilder.NewStruct(new(compexec.ExecSnap1DS)).For(sqlbuilder.PostgreSQL)
+	recBuilder := sqlbuilder.NewStruct(new(ExecRecDS)).For(sqlbuilder.PostgreSQL)
+	snapBuilder := sqlbuilder.NewStruct(new(ExecSnap1DS)).For(sqlbuilder.PostgreSQL)
 	compVarBuilder := sqlbuilder.NewStruct(new(compvar.VarRecDS)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{recBuilder, snapBuilder, compVarBuilder}
 }
 
-func (qb *sqlBuilder) InsertRec(rec compexec.ExecRecDS) (string, []any) {
+func (qb *sqlBuilder) InsertRec(rec ExecRecDS) (string, []any) {
 	return qb.recBuilder.InsertInto(compExecs, rec).Build()
 }
 

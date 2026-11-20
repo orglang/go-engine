@@ -15,6 +15,8 @@ import (
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
+type requestContextKey struct{}
+
 func TestCreateProcessDeclarationHandler(t *testing.T) {
 	t.Run("creates a declaration and returns its identity", func(t *testing.T) {
 		decAPI := &generatedDecAPIStub{}
@@ -27,7 +29,8 @@ func TestCreateProcessDeclarationHandler(t *testing.T) {
 			"liab_var": {"conn_ph": "liability", "type_qn": "example.Liability"},
 			"term_qn": "example.Process"
 		}`
-		req := httptest.NewRequestWithContext(context.Background(), http.MethodPost,
+		requestCtx := context.WithValue(context.Background(), requestContextKey{}, "request-context")
+		req := httptest.NewRequestWithContext(requestCtx, http.MethodPost,
 			"/api/v1/processes/declarations", strings.NewReader(body))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
@@ -38,6 +41,9 @@ func TestCreateProcessDeclarationHandler(t *testing.T) {
 		}
 		if !decAPI.called {
 			t.Fatal("declaration API was not called")
+		}
+		if got := decAPI.ctx.Value(requestContextKey{}); got != "request-context" {
+			t.Fatalf("API did not receive request context: got %v", got)
 		}
 		if got := uniqsym.ConvertToString(decAPI.spec.TermQN); got != "example.Process" {
 			t.Errorf("unexpected term qn: got %q", got)
@@ -94,10 +100,12 @@ type generatedDecAPIStub struct {
 	termdec.API
 	called bool
 	spec   termdec.DecSpec
+	ctx    context.Context
 }
 
-func (s *generatedDecAPIStub) Create(_ context.Context, spec termdec.DecSpec) (termdec.DecSnap, error) {
+func (s *generatedDecAPIStub) Create(ctx context.Context, spec termdec.DecSpec) (termdec.DecSnap, error) {
 	s.called = true
 	s.spec = spec
+	s.ctx = ctx
 	return termdec.DecSnap{TermRef: termsem.SemRef{TermRN: 11}}, nil
 }

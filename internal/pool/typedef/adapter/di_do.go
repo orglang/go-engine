@@ -12,11 +12,11 @@ import (
 )
 
 var Package = do.Package(
-	do.Lazy[core.QueryBuilder](func(do.Injector) (core.QueryBuilder, error) {
+	do.Lazy[QueryBuilder](func(do.Injector) (QueryBuilder, error) {
 		return newSQLBuilder(), nil
 	}),
 	do.Lazy[core.Repo](func(i do.Injector) (core.Repo, error) {
-		qb, err := do.Invoke[core.QueryBuilder](i)
+		qb, err := do.Invoke[QueryBuilder](i)
 		if err != nil {
 			return nil, err
 		}

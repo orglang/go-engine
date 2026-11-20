@@ -34,7 +34,7 @@ func DataFromStepRec(r connact.ActRec) (connact.ActRecDS, error) {
 		if err != nil {
 			return connact.ActRecDS{}, err
 		}
-		compRef := compsem.DataFromRef(rec.CompRef)
+		compRef := compsemadapter.DataFromRef(rec.CompRef)
 		return connact.ActRecDS{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),

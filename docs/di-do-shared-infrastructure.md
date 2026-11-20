@@ -7,7 +7,7 @@ The `samber/do/v2` migration starts by exposing infrastructure registrations as 
 - `internal/lib/lf.Package` lazily provides the shared `*slog.Logger`.
 - `internal/lib/kv.Package` lazily provides the `kv.Loader` port. It resolves the logger from the same injector and returns reference-configuration read errors to the caller instead of panicking.
 - `internal/lib/db.Package` lazily provides PostgreSQL storage configuration and the `tx.Transactor`. Pool readiness is registered with `app.Lifecycle`, while pool closure is owned by a `samber/do` shutdown resource.
-- `internal/lib/wp.Package` lazily provides both worker-pool implementations and registers shutdown resources. Application shutdown stops accepting work and waits for accepted tasks to drain, subject to the caller's shutdown context.
+- `internal/lib/wp.Package` lazily provides both worker-pool implementations and registers shutdown resources. Application shutdown cancels the shared task context, stops accepting work, and waits for accepted tasks to finish, subject to the caller's shutdown context.
 - `internal/lib/ws.Package` lazily provides the Echo server. Its lifecycle hook binds the TCP listener synchronously during startup, reports bind failures to `App.Start`, and gracefully shuts down the server.
 
 A minimal composition is:

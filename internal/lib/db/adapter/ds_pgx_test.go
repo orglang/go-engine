@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -17,10 +18,12 @@ type testPgxPool struct {
 	tx         pgx.Tx
 	beginErr   error
 	beginCalls int
+	beginCtx   context.Context
 }
 
-func (p *testPgxPool) Begin(context.Context) (pgx.Tx, error) {
+func (p *testPgxPool) Begin(ctx context.Context) (pgx.Tx, error) {
 	p.beginCalls++
+	p.beginCtx = ctx
 	return p.tx, p.beginErr
 }
 
@@ -34,11 +37,13 @@ type testPgxTx struct {
 	rollbackErr        error
 	commitCalls        int
 	rollbackCalls      int
+	commitCtx          context.Context
 	rollbackContextErr error
 }
 
-func (t *testPgxTx) Commit(context.Context) error {
+func (t *testPgxTx) Commit(ctx context.Context) error {
 	t.commitCalls++
+	t.commitCtx = ctx
 	return t.commitErr
 }
 
@@ -133,6 +138,34 @@ func TestTransactorPgxExplicitTx(t *testing.T) {
 		}
 		if pgxTx.rollbackCalls != 1 {
 			t.Fatalf("Rollback called %d times, want 1", pgxTx.rollbackCalls)
+		}
+	})
+
+	t.Run("caller deadline reaches begin callback and commit", func(t *testing.T) {
+		deadline := time.Now().Add(time.Minute)
+		ctx, cancel := context.WithDeadline(context.Background(), deadline)
+		defer cancel()
+
+		pgxTx := &testPgxTx{rollbackErr: pgx.ErrTxClosed}
+		pool := &testPgxPool{tx: pgxTx}
+		err := (&transactorPgx{pool: pool}).ExplicitTx(ctx, func(callbackCtx context.Context, _ tx.Conn) error {
+			got, ok := callbackCtx.Deadline()
+			if !ok || !got.Equal(deadline) {
+				t.Fatalf("callback deadline = %v, %v; want %v", got, ok, deadline)
+			}
+			return nil
+		})
+		if err != nil {
+			t.Fatalf("ExplicitTx returned unexpected error: %v", err)
+		}
+		for name, gotCtx := range map[string]context.Context{
+			"Begin":  pool.beginCtx,
+			"Commit": pgxTx.commitCtx,
+		} {
+			got, ok := gotCtx.Deadline()
+			if !ok || !got.Equal(deadline) {
+				t.Errorf("%s deadline = %v, %v; want %v", name, got, ok, deadline)
+			}
 		}
 	})
 

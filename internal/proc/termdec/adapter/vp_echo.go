@@ -68,7 +68,7 @@ func (p *echoPresenter) PostSpec(c *echo.Context) error {
 		p.log.Error("conversion failed", slog.Any("dto", dto))
 		return convErr
 	}
-	ref, inceptionErr := p.api.Incept(qn)
+	ref, inceptionErr := p.api.Incept(ctx, qn)
 	if inceptionErr != nil {
 		return inceptionErr
 	}
@@ -82,7 +82,7 @@ func (p *echoPresenter) PostSpec(c *echo.Context) error {
 }
 
 func (p *echoPresenter) GetRefs(c *echo.Context) error {
-	refs, retrieveErr := p.api.RetreiveRefs()
+	refs, retrieveErr := p.api.RetreiveRefs(c.Request().Context())
 	if retrieveErr != nil {
 		return retrieveErr
 	}
@@ -111,7 +111,7 @@ func (p *echoPresenter) GetSnap(c *echo.Context) error {
 	ref := termsem.SemRef{TermID: id, TermRN: seqnum.ConvertFromInt(rn)}
 	ctx := c.Request().Context()
 	p.log.Log(ctx, lf.LevelTrace, "getting started", slog.Any("ref", ref))
-	snap, retrieveErr := p.api.RetrieveSnap(ref)
+	snap, retrieveErr := p.api.RetrieveSnap(ctx, ref)
 	if retrieveErr != nil {
 		return retrieveErr
 	}

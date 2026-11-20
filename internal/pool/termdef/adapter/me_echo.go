@@ -39,7 +39,7 @@ func (h *controllerEcho) CreatePoolDeclaration(c *echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	ref, err := h.api.Create(spec)
+	ref, err := h.api.Create(c.Request().Context(), spec)
 	if err != nil {
 		return err
 	}

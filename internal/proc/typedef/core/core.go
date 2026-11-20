@@ -19,11 +19,11 @@ import (
 )
 
 type API interface {
-	Create(DefSpec) (DefSnap, error)
-	Modify(DefSnap) (DefSnap, error)
-	RetrieveSnap(typesem.SemRef) (DefSnap, error)
-	retrieveSnap(DefRec) (DefSnap, error)
-	RetreiveRefs() ([]typesem.SemRef, error)
+	Create(context.Context, DefSpec) (DefSnap, error)
+	Modify(context.Context, DefSnap) (DefSnap, error)
+	RetrieveSnap(context.Context, typesem.SemRef) (DefSnap, error)
+	retrieveSnap(context.Context, DefRec) (DefSnap, error)
+	RetreiveRefs(context.Context) ([]typesem.SemRef, error)
 }
 
 type DefSpec struct {
@@ -70,8 +70,7 @@ func NewService(
 	return &service{typeDefRepo, typeExpRepo, descSemRepo, transactor, log}
 }
 
-func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
-	ctx := context.Background()
+func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err error) {
 	qnAttr := slog.Any("qn", spec.TypeQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	newExp, err := typeexp.ConvertSpecToRec(spec.TypeExp)
@@ -102,8 +101,7 @@ func (s *service) Create(spec DefSpec) (_ DefSnap, err error) {
 	}, nil
 }
 
-func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
-	ctx := context.Background()
+func (s *service) Modify(ctx context.Context, snap DefSnap) (_ DefSnap, err error) {
 	refAttr := slog.Any("defRef", snap.TypeRef)
 	s.log.Debug("modification started", refAttr)
 	rec, err := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DefRec, error) {
@@ -118,7 +116,7 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 		return DefSnap{}, errConcurrentModification(snap.TypeRef.TypeRN, rec.TypeRef.TypeRN)
 	}
 	snap.TypeRef.TypeRN = seqnum.Next(snap.TypeRef.TypeRN)
-	curSnap, err := s.retrieveSnap(rec)
+	curSnap, err := s.retrieveSnap(ctx, rec)
 	if err != nil {
 		s.log.Error("modification failed", refAttr)
 		return DefSnap{}, err
@@ -152,8 +150,7 @@ func (s *service) Modify(snap DefSnap) (_ DefSnap, err error) {
 	return snap, nil
 }
 
-func (s *service) RetrieveSnap(ref typesem.SemRef) (_ DefSnap, err error) {
-	ctx := context.Background()
+func (s *service) RetrieveSnap(ctx context.Context, ref typesem.SemRef) (_ DefSnap, err error) {
 	rec, getErr := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DefRec, error) {
 		return s.typeDefRepo.GetRecByRef(txCtx, conn, ref)
 	})
@@ -161,11 +158,10 @@ func (s *service) RetrieveSnap(ref typesem.SemRef) (_ DefSnap, err error) {
 		s.log.Error("retrieval failed", slog.Any("ref", ref))
 		return DefSnap{}, getErr
 	}
-	return s.retrieveSnap(rec)
+	return s.retrieveSnap(ctx, rec)
 }
 
-func (s *service) retrieveSnap(rec DefRec) (_ DefSnap, err error) { // revive:disable-line:confusing-naming
-	ctx := context.Background()
+func (s *service) retrieveSnap(ctx context.Context, rec DefRec) (_ DefSnap, err error) { // revive:disable-line:confusing-naming
 	expRec, err := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (typeexp.ExpRec, error) {
 		return s.typeExpRepo.SelectRecByCK(txCtx, conn, rec.ExpCK)
 	})
@@ -179,8 +175,7 @@ func (s *service) retrieveSnap(rec DefRec) (_ DefSnap, err error) { // revive:di
 	}, nil
 }
 
-func (s *service) RetreiveRefs() (refs []typesem.SemRef, err error) {
-	ctx := context.Background()
+func (s *service) RetreiveRefs(ctx context.Context) (refs []typesem.SemRef, err error) {
 	refs, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) ([]typesem.SemRef, error) {
 		return s.typeDefRepo.GetRefs(txCtx, conn)
 	})

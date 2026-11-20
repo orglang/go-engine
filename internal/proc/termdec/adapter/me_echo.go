@@ -38,7 +38,7 @@ func (h *controllerEcho) GetProcessDeclaration(c *echo.Context, id string, param
 	if params.Rn != nil {
 		ref.TermRN = seqnum.ConvertFromInt(*params.Rn)
 	}
-	snap, err := h.api.RetrieveSnap(ref)
+	snap, err := h.api.RetrieveSnap(c.Request().Context(), ref)
 	if err != nil {
 		return err
 	}
@@ -56,7 +56,7 @@ func (h *controllerEcho) CreateProcessDeclaration(c *echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	snap, err := h.api.Create(spec)
+	snap, err := h.api.Create(c.Request().Context(), spec)
 	if err != nil {
 		return err
 	}

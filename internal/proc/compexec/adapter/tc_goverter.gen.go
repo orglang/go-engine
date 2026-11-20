@@ -5,7 +5,7 @@ package adapter
 
 import (
 	compsem "orglang/go-engine/internal/adt/compsem"
-	compvar "orglang/go-engine/internal/adt/compvar"
+	compvar "orglang/go-engine/internal/adt/compvar"\n\tcompvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
 	identity "orglang/go-engine/internal/adt/identity"
 	core "orglang/go-engine/internal/proc/compexec/core"
 )
@@ -26,7 +26,7 @@ func init() {
 				coreExecModDS.CompRefs[i] = compsemSemRefToCompsemSemRefDS(source.CompRefs[i])
 			}
 		}
-		coreExecModDS.LinearVars = compvar.DataFromLinearRecs(source.LinearVars)
+		coreExecModDS.LinearVars = compvaradapter.DataFromLinearRecs(source.LinearVars)
 		return coreExecModDS, nil
 	}
 	DataToExecRec = func(source ExecRecDS) (core.ExecRec, error) {

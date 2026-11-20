@@ -51,7 +51,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return newPondBroker(pool, taskCtx, logger), nil
+		return newPondBroker(taskCtx, pool, logger), nil
 	}),
 	do.Lazy[compexec.API](func(i do.Injector) (compexec.API, error) {
 		execRepo, err := do.Invoke[compexec.Repo](i)

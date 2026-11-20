@@ -6,29 +6,29 @@ package adapter
 import (
 	compsem "orglang/go-engine/internal/adt/compsem"
 	compvar "orglang/go-engine/internal/adt/compvar"
-	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
+	adapter "orglang/go-engine/internal/adt/compvar/adapter"
 	identity "orglang/go-engine/internal/adt/identity"
 	core "orglang/go-engine/internal/proc/compexec/core"
 )
 
 func init() {
 	DataFromExecRec = func(source core.ExecRec) ExecRecDS {
-		var coreExecRecDS ExecRecDS
-		coreExecRecDS.CompID = identity.ConvertToString(source.CompRef.CompID)
-		coreExecRecDS.CompRN = int64(source.CompRef.CompRN)
-		coreExecRecDS.LiabMode = int16(source.LiabMode)
-		return coreExecRecDS
+		var adapterExecRecDS ExecRecDS
+		adapterExecRecDS.CompID = identity.ConvertToString(source.CompRef.CompID)
+		adapterExecRecDS.CompRN = int64(source.CompRef.CompRN)
+		adapterExecRecDS.LiabMode = int16(source.LiabMode)
+		return adapterExecRecDS
 	}
 	DataFromMod = func(source core.ExecMod) (ExecModDS, error) {
-		var coreExecModDS ExecModDS
+		var adapterExecModDS ExecModDS
 		if source.CompRefs != nil {
-			coreExecModDS.CompRefs = make([]compsem.SemRefDS, len(source.CompRefs))
+			adapterExecModDS.CompRefs = make([]compsem.SemRefDS, len(source.CompRefs))
 			for i := 0; i < len(source.CompRefs); i++ {
-				coreExecModDS.CompRefs[i] = compsemSemRefToCompsemSemRefDS(source.CompRefs[i])
+				adapterExecModDS.CompRefs[i] = compsemSemRefToCompsemSemRefDS(source.CompRefs[i])
 			}
 		}
-		coreExecModDS.LinearVars = compvaradapter.DataFromLinearRecs(source.LinearVars)
-		return coreExecModDS, nil
+		adapterExecModDS.LinearVars = adapter.DataFromLinearRecs(source.LinearVars)
+		return adapterExecModDS, nil
 	}
 	DataToExecRec = func(source ExecRecDS) (core.ExecRec, error) {
 		var coreExecRec core.ExecRec

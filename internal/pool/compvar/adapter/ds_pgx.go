@@ -17,11 +17,11 @@ import (
 )
 
 type daoPgx struct {
-	qb  compvar.QueryBuilder
+	qb  queryBuilder
 	log *slog.Logger
 }
 
-func NewDaoPgx(qb compvar.QueryBuilder, log *slog.Logger) compvar.Repo {
+func NewDaoPgx(qb queryBuilder, log *slog.Logger) compvar.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }

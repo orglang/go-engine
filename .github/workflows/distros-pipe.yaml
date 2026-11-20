@@ -2,6 +2,8 @@ name: Distros Pipe
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * *'
   merge_group:
     branches: [main]
     types:

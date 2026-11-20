@@ -17,7 +17,7 @@ import (
 )
 
 type API interface {
-	Create(DefSpec) (typesem.SemRef, error)
+	Create(context.Context, DefSpec) (typesem.SemRef, error)
 }
 
 type DefSpec struct {
@@ -58,8 +58,7 @@ func NewService(
 	return &service{typeDefRepo, typeExpRepo, descSemRepo, transactor, log}
 }
 
-func (s *service) Create(spec DefSpec) (_ typesem.SemRef, err error) {
-	ctx := context.Background()
+func (s *service) Create(ctx context.Context, spec DefSpec) (_ typesem.SemRef, err error) {
 	qnAttr := slog.Any("qn", spec.TypeQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	newExp, convErr := typeexp.ConvertSpecToRec(spec.TypeExp)

@@ -19,7 +19,7 @@ func newQueryBuilder() queryBuilder {
 }
 
 func newSQLBuilder() *sqlBuilder {
-	semBuilder := sqlbuilder.NewStruct(new(termsemadapter.SemRefDS)).For(sqlbuilder.PostgreSQL)
+	semBuilder := sqlbuilder.NewStruct(new(termsemadapter.SemRef)).For(sqlbuilder.PostgreSQL)
 	execBuilder := sqlbuilder.NewStruct(new(ExecRecDS)).For(sqlbuilder.PostgreSQL)
 	varBuilder := sqlbuilder.NewStruct(new(compvaradapter.VarRecDS)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{semBuilder, execBuilder, varBuilder}

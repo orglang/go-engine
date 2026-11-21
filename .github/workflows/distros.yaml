@@ -38,7 +38,7 @@ jobs:
       - name: Checkout engine
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           repository: orglang/go-engine
           path: engine
           fetch-depth: 0

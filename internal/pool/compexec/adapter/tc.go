@@ -8,7 +8,7 @@ import (
 	compexec "orglang/go-engine/internal/pool/compexec/core"
 )
 
-func DataToExecSnap1(dto ExecSnap1DS) (compexec.ExecSnap1, error) {
+func DataToExecSnap1(dto ExecSnap1) (compexec.ExecSnap1, error) {
 	ref, err := compsemadapter.DataToRef(dto.CompRef)
 	if err != nil {
 		return compexec.ExecSnap1{}, err

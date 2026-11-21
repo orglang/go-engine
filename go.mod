@@ -2,7 +2,10 @@ module orglang/go-engine
 
 go 1.27.0
 
+tool entgo.io/ent/cmd/ent
+
 require (
+	entgo.io/ent v0.14.6
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/alecthomas/participle/v2 v2.1.4
 	github.com/alitto/pond/v2 v2.7.3

@@ -73,6 +73,7 @@ tasks:
       # Generate the E2E client first: Goverter loads ./... and needs this package
       # to exist even on a clean checkout.
       - oapi-codegen -config internal/lib/e2e/api/cfg.yaml openapi/openapi.yaml
+      # Build in the project module: Ent's standalone install graph has an old x/tools for Go 1.27.
       - mise run tools:ent:install
       - ent generate --target internal/pool/ent ./internal/pool/ent/schema
       - goverter gen -global 'skipCopySameType' ./...

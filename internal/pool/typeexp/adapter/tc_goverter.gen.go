@@ -7,24 +7,24 @@ import core "orglang/go-engine/internal/pool/typeexp/core"
 
 func init() {
 	DataFromExpRecs = func(source []core.ExpRec) []ExpRec {
-		var coreExpRecDSList []ExpRec
+		var adapterExpRecList []ExpRec
 		if source != nil {
-			coreExpRecDSList = make([]ExpRec, len(source))
+			adapterExpRecList = make([]ExpRec, len(source))
 			for i := 0; i < len(source); i++ {
-				coreExpRecDSList[i] = dataFromExpRec(source[i])
+				adapterExpRecList[i] = dataFromExpRec(source[i])
 			}
 		}
-		return coreExpRecDSList
+		return adapterExpRecList
 	}
 	DataFromExpRefs = func(source []core.ExpRef) []ExpRef {
-		var coreExpRefDSList []ExpRef
+		var adapterExpRefList []ExpRef
 		if source != nil {
-			coreExpRefDSList = make([]ExpRef, len(source))
+			adapterExpRefList = make([]ExpRef, len(source))
 			for i := 0; i < len(source); i++ {
-				coreExpRefDSList[i] = dataFromExpRef(source[i])
+				adapterExpRefList[i] = dataFromExpRef(source[i])
 			}
 		}
-		return coreExpRefDSList
+		return adapterExpRefList
 	}
 	DataToExpRecs = func(source []ExpRec) ([]core.ExpRec, error) {
 		var coreExpRecList []core.ExpRec

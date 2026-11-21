@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"orglang/go-engine/internal/adt/termvar/adapter"
+	"orglang/go-engine/internal/proc/ent/compexec"
 	"orglang/go-engine/internal/proc/ent/predicate"
 	"orglang/go-engine/internal/proc/ent/termdec"
 	"orglang/go-engine/internal/proc/ent/typedef"
@@ -25,9 +26,465 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeTermDec = "TermDec"
-	TypeTypeDef = "TypeDef"
+	TypeCompExec = "CompExec"
+	TypeTermDec  = "TermDec"
+	TypeTypeDef  = "TypeDef"
 )
+
+// CompExecMutation represents an operation that mutates the CompExec nodes in the graph.
+type CompExecMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *string
+	comp_rn       *int64
+	addcomp_rn    *int64
+	liab_mode     *int16
+	addliab_mode  *int16
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*CompExec, error)
+	predicates    []predicate.CompExec
+}
+
+var _ ent.Mutation = (*CompExecMutation)(nil)
+
+// compexecOption allows management of the mutation configuration using functional options.
+type compexecOption func(*CompExecMutation)
+
+// newCompExecMutation creates new mutation for the CompExec entity.
+func newCompExecMutation(c config, op Op, opts ...compexecOption) *CompExecMutation {
+	m := &CompExecMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeCompExec,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withCompExecID sets the ID field of the mutation.
+func withCompExecID(id string) compexecOption {
+	return func(m *CompExecMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *CompExec
+		)
+		m.oldValue = func(ctx context.Context) (*CompExec, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().CompExec.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withCompExec sets the old CompExec of the mutation.
+func withCompExec(node *CompExec) compexecOption {
+	return func(m *CompExecMutation) {
+		m.oldValue = func(context.Context) (*CompExec, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m CompExecMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m CompExecMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of CompExec entities.
+func (m *CompExecMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *CompExecMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *CompExecMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().CompExec.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCompRn sets the "comp_rn" field.
+func (m *CompExecMutation) SetCompRn(i int64) {
+	m.comp_rn = &i
+	m.addcomp_rn = nil
+}
+
+// CompRn returns the value of the "comp_rn" field in the mutation.
+func (m *CompExecMutation) CompRn() (r int64, exists bool) {
+	v := m.comp_rn
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCompRn returns the old "comp_rn" field's value of the CompExec entity.
+// If the CompExec object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CompExecMutation) OldCompRn(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCompRn is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCompRn requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCompRn: %w", err)
+	}
+	return oldValue.CompRn, nil
+}
+
+// AddCompRn adds i to the "comp_rn" field.
+func (m *CompExecMutation) AddCompRn(i int64) {
+	if m.addcomp_rn != nil {
+		*m.addcomp_rn += i
+	} else {
+		m.addcomp_rn = &i
+	}
+}
+
+// AddedCompRn returns the value that was added to the "comp_rn" field in this mutation.
+func (m *CompExecMutation) AddedCompRn() (r int64, exists bool) {
+	v := m.addcomp_rn
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCompRn resets all changes to the "comp_rn" field.
+func (m *CompExecMutation) ResetCompRn() {
+	m.comp_rn = nil
+	m.addcomp_rn = nil
+}
+
+// SetLiabMode sets the "liab_mode" field.
+func (m *CompExecMutation) SetLiabMode(i int16) {
+	m.liab_mode = &i
+	m.addliab_mode = nil
+}
+
+// LiabMode returns the value of the "liab_mode" field in the mutation.
+func (m *CompExecMutation) LiabMode() (r int16, exists bool) {
+	v := m.liab_mode
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLiabMode returns the old "liab_mode" field's value of the CompExec entity.
+// If the CompExec object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CompExecMutation) OldLiabMode(ctx context.Context) (v int16, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLiabMode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLiabMode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLiabMode: %w", err)
+	}
+	return oldValue.LiabMode, nil
+}
+
+// AddLiabMode adds i to the "liab_mode" field.
+func (m *CompExecMutation) AddLiabMode(i int16) {
+	if m.addliab_mode != nil {
+		*m.addliab_mode += i
+	} else {
+		m.addliab_mode = &i
+	}
+}
+
+// AddedLiabMode returns the value that was added to the "liab_mode" field in this mutation.
+func (m *CompExecMutation) AddedLiabMode() (r int16, exists bool) {
+	v := m.addliab_mode
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetLiabMode resets all changes to the "liab_mode" field.
+func (m *CompExecMutation) ResetLiabMode() {
+	m.liab_mode = nil
+	m.addliab_mode = nil
+}
+
+// Where appends a list predicates to the CompExecMutation builder.
+func (m *CompExecMutation) Where(ps ...predicate.CompExec) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the CompExecMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *CompExecMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.CompExec, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *CompExecMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *CompExecMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (CompExec).
+func (m *CompExecMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *CompExecMutation) Fields() []string {
+	fields := make([]string, 0, 2)
+	if m.comp_rn != nil {
+		fields = append(fields, compexec.FieldCompRn)
+	}
+	if m.liab_mode != nil {
+		fields = append(fields, compexec.FieldLiabMode)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *CompExecMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case compexec.FieldCompRn:
+		return m.CompRn()
+	case compexec.FieldLiabMode:
+		return m.LiabMode()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *CompExecMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case compexec.FieldCompRn:
+		return m.OldCompRn(ctx)
+	case compexec.FieldLiabMode:
+		return m.OldLiabMode(ctx)
+	}
+	return nil, fmt.Errorf("unknown CompExec field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *CompExecMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case compexec.FieldCompRn:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCompRn(v)
+		return nil
+	case compexec.FieldLiabMode:
+		v, ok := value.(int16)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLiabMode(v)
+		return nil
+	}
+	return fmt.Errorf("unknown CompExec field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *CompExecMutation) AddedFields() []string {
+	var fields []string
+	if m.addcomp_rn != nil {
+		fields = append(fields, compexec.FieldCompRn)
+	}
+	if m.addliab_mode != nil {
+		fields = append(fields, compexec.FieldLiabMode)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *CompExecMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case compexec.FieldCompRn:
+		return m.AddedCompRn()
+	case compexec.FieldLiabMode:
+		return m.AddedLiabMode()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *CompExecMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case compexec.FieldCompRn:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCompRn(v)
+		return nil
+	case compexec.FieldLiabMode:
+		v, ok := value.(int16)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddLiabMode(v)
+		return nil
+	}
+	return fmt.Errorf("unknown CompExec numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *CompExecMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *CompExecMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *CompExecMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown CompExec nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *CompExecMutation) ResetField(name string) error {
+	switch name {
+	case compexec.FieldCompRn:
+		m.ResetCompRn()
+		return nil
+	case compexec.FieldLiabMode:
+		m.ResetLiabMode()
+		return nil
+	}
+	return fmt.Errorf("unknown CompExec field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *CompExecMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *CompExecMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *CompExecMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *CompExecMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *CompExecMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *CompExecMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *CompExecMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown CompExec unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *CompExecMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown CompExec edge %s", name)
+}
 
 // TermDecMutation represents an operation that mutates the TermDec nodes in the graph.
 type TermDecMutation struct {

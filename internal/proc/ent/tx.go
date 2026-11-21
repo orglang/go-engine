@@ -12,6 +12,8 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// CompExec is the client for interacting with the CompExec builders.
+	CompExec *CompExecClient
 	// TermDec is the client for interacting with the TermDec builders.
 	TermDec *TermDecClient
 	// TypeDef is the client for interacting with the TypeDef builders.
@@ -147,6 +149,7 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.CompExec = NewCompExecClient(tx.config)
 	tx.TermDec = NewTermDecClient(tx.config)
 	tx.TypeDef = NewTypeDefClient(tx.config)
 }
@@ -158,7 +161,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: TermDec.QueryXXX(), the query will be executed
+// applies a query, for example: CompExec.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

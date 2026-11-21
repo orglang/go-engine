@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"orglang/go-engine/internal/proc/ent/compexec"
 	"orglang/go-engine/internal/proc/ent/termdec"
 	"orglang/go-engine/internal/proc/ent/typedef"
 	"reflect"
@@ -74,8 +75,9 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			termdec.Table: termdec.ValidColumn,
-			typedef.Table: typedef.ValidColumn,
+			compexec.Table: compexec.ValidColumn,
+			termdec.Table:  termdec.ValidColumn,
+			typedef.Table:  typedef.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

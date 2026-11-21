@@ -2,7 +2,6 @@ package adapter
 
 import (
 	"context"
-	"errors"
 	"log/slog"
 	"reflect"
 
@@ -82,5 +81,3 @@ func (dao *daoEnt) GetRecByQN(ctx context.Context, conn tx.Conn, qn uniqsym.ADT)
 	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", qnAttr)
 	return rec, nil
 }
-
-var _ = errors.Join

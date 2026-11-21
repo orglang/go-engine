@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	DataToCompRef = func(source core.ActRecDS) (compsem.SemRef, error) {
+	DataToCompRef = func(source ActRec) (compsem.SemRef, error) {
 		var compsemSemRef compsem.SemRef
 		identityADT, err := identity.ConvertFromString(source.CompID)
 		if err != nil {
@@ -22,7 +22,7 @@ func init() {
 		compsemSemRef.CompRN = seqnum.ConvertFromInt(source.CompRN)
 		return compsemSemRef, nil
 	}
-	DataToPubRec = func(source core.ActRecDS) (core.PubRec, error) {
+	DataToPubRec = func(source ActRec) (core.PubRec, error) {
 		var corePubRec core.PubRec
 		identityADT, err := identity.ConvertFromString(source.ConnID)
 		if err != nil {
@@ -47,7 +47,7 @@ func init() {
 		corePubRec.ValExp = coreExpRec
 		return corePubRec, nil
 	}
-	DataToSubRec = func(source core.ActRecDS) (core.SubRec, error) {
+	DataToSubRec = func(source ActRec) (core.SubRec, error) {
 		var coreSubRec core.SubRec
 		identityADT, err := identity.ConvertFromString(source.ConnID)
 		if err != nil {

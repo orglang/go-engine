@@ -12,11 +12,11 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/internal/pool/termexp/adapter:Data.*
 var (
-	DataToCompRef func(connact.ActRecDS) (compsem.SemRef, error)
+	DataToCompRef func(ActRec) (compsem.SemRef, error)
 	// goverter:map . CompRef
 	// goverter:map Exp ValExp
-	DataToPubRec func(connact.ActRecDS) (connact.PubRec, error)
+	DataToPubRec func(ActRec) (connact.PubRec, error)
 	// goverter:map . CompRef
 	// goverter:map Exp ContExp
-	DataToSubRec func(connact.ActRecDS) (connact.SubRec, error)
+	DataToSubRec func(ActRec) (connact.SubRec, error)
 )

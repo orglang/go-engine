@@ -12,21 +12,21 @@ import (
 )
 
 func init() {
-	DataFromMod = func(source core.ConnMod) core.ConnModDS {
-		var coreConnModDS core.ConnModDS
-		coreConnModDS.ConnID = identityToString(source.ConnID)
-		coreConnModDS.OffsetNr = seqnum.ConvertOptionToNullInt(source.OffsetNr)
-		coreConnModDS.ProviderCompID = identity.ConvertToString(source.ProviderCompID)
-		coreConnModDS.ProviderCompRN = seqnum.ConvertToInt(source.ProviderCompRN)
-		return coreConnModDS
+	DataFromMod = func(source core.ConnMod) ConnMod {
+		var adapterConnMod ConnMod
+		adapterConnMod.ConnID = identityToString(source.ConnID)
+		adapterConnMod.OffsetNr = seqnum.ConvertOptionToNullInt(source.OffsetNr)
+		adapterConnMod.ProviderCompID = identity.ConvertToString(source.ProviderCompID)
+		adapterConnMod.ProviderCompRN = seqnum.ConvertToInt(source.ProviderCompRN)
+		return adapterConnMod
 	}
-	DataFromQry = func(source core.ConnQry) core.ConnQryDS {
-		var coreConnQryDS core.ConnQryDS
-		coreConnQryDS.ConnID = identityToString(source.ConnID)
-		coreConnQryDS.ChnlID = identity.ConvertOptionToNullString(source.ChnlID)
-		return coreConnQryDS
+	DataFromQry = func(source core.ConnQry) ConnQry {
+		var adapterConnQry ConnQry
+		adapterConnQry.ConnID = identityToString(source.ConnID)
+		adapterConnQry.ChnlID = identity.ConvertOptionToNullString(source.ChnlID)
+		return adapterConnQry
 	}
-	DataToSnap = func(source core.ConnSnapDS) (core.ConnSnap, error) {
+	DataToSnap = func(source ConnSnap) (core.ConnSnap, error) {
 		var coreConnSnap core.ConnSnap
 		identityADT, err := dataToConnID(source)
 		if err != nil {

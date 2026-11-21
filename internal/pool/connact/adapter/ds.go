@@ -1,8 +1,8 @@
-package core
+package adapter
 
 import termexp "orglang/go-engine/internal/pool/termexp/core"
 
-type ActRecDS struct {
+type ActRec struct {
 	ConnID string           `db:"conn_id"`
 	ActNr  int64            `db:"act_nr"`
 	CompID string           `db:"comp_id"`

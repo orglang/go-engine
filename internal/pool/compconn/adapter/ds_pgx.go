@@ -18,11 +18,11 @@ import (
 )
 
 type daoPgx struct {
-	qb  compconn.QueryBuilder
+	qb  QueryBuilder
 	log *slog.Logger
 }
 
-func NewDaoPgx(qb compconn.QueryBuilder, log *slog.Logger) compconn.Repo {
+func NewDaoPgx(qb QueryBuilder, log *slog.Logger) compconn.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }
@@ -87,7 +87,7 @@ func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry compconn.
 		return compconn.ConnSnap{}, err
 	}
 	defer rows.Close()
-	snapDTO, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[compconn.ConnSnapDS])
+	snapDTO, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[ConnSnap])
 	if err != nil {
 		dao.log.Error("Connection snapshot scan failed", refAttr)
 		return compconn.ConnSnap{}, err

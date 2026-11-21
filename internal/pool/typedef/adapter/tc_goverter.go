@@ -14,10 +14,10 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/contkey:Convert.*
 var (
 	// goverter:map . TypeRef
-	DataToDefRec    func(typedef.DefRecDS) (typedef.DefRec, error)
-	DataToDefRecs   func([]typedef.DefRecDS) ([]typedef.DefRec, error)
-	DataToDefRecMap func(map[uniqsym.ADT]typedef.DefRecDS) (map[uniqsym.ADT]typedef.DefRec, error)
+	DataToDefRec    func(DefRec) (typedef.DefRec, error)
+	DataToDefRecs   func([]DefRec) ([]typedef.DefRec, error)
+	DataToDefRecMap func(map[uniqsym.ADT]DefRec) (map[uniqsym.ADT]typedef.DefRec, error)
 	// goverter:autoMap TypeRef
-	DataFromDefRec  func(typedef.DefRec) (typedef.DefRecDS, error)
-	DataFromDefRecs func([]typedef.DefRec) ([]typedef.DefRecDS, error)
+	DataFromDefRec  func(typedef.DefRec) (DefRec, error)
+	DataFromDefRecs func([]typedef.DefRec) ([]DefRec, error)
 )

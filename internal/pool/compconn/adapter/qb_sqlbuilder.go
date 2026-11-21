@@ -3,8 +3,7 @@ package adapter
 import (
 	"github.com/huandu/go-sqlbuilder"
 
-	compconn "orglang/go-engine/internal/pool/compconn/core"
-	connact "orglang/go-engine/internal/pool/connact/core"
+	connactadapter "orglang/go-engine/internal/pool/connact/adapter"
 )
 
 type sqlBuilder struct {
@@ -13,25 +12,25 @@ type sqlBuilder struct {
 }
 
 // for compilation purposes
-func newQueryBuilder() compconn.QueryBuilder {
+func newQueryBuilder() QueryBuilder {
 	return new(sqlBuilder)
 }
 
 func newSQLBuilder() *sqlBuilder {
-	connBuilder := sqlbuilder.NewStruct(new(compconn.ConnRecDS)).For(sqlbuilder.PostgreSQL)
-	actBuilder := sqlbuilder.NewStruct(new(connact.ActRecDS)).For(sqlbuilder.PostgreSQL)
+	connBuilder := sqlbuilder.NewStruct(new(ConnRec)).For(sqlbuilder.PostgreSQL)
+	actBuilder := sqlbuilder.NewStruct(new(connactadapter.ActRec)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{connBuilder, actBuilder}
 }
 
-func (qb *sqlBuilder) InsertRec(rec compconn.ConnRecDS) (string, []any) {
+func (qb *sqlBuilder) InsertRec(rec ConnRec) (string, []any) {
 	return qb.connBuilder.InsertInto(compConns, rec).Build()
 }
 
-func (qb *sqlBuilder) InsertActRec(rec connact.ActRecDS) (string, []any) {
+func (qb *sqlBuilder) InsertActRec(rec connactadapter.ActRec) (string, []any) {
 	return qb.actBuilder.InsertInto(connActs, rec).Build()
 }
 
-func (qb *sqlBuilder) UpdateRec(mod compconn.ConnModDS) (string, []any) {
+func (qb *sqlBuilder) UpdateRec(mod ConnMod) (string, []any) {
 	conn := qb.connBuilder.Update(compConns, mod)
 	assignments := make([]string, 0, 2)
 	if mod.OffsetNr.Valid {
@@ -47,7 +46,7 @@ func (qb *sqlBuilder) UpdateRec(mod compconn.ConnModDS) (string, []any) {
 	return conn.Build()
 }
 
-func (qb *sqlBuilder) SelectSnap(qry compconn.ConnQryDS) (string, []any) {
+func (qb *sqlBuilder) SelectSnap(qry ConnQry) (string, []any) {
 	conn := sqlbuilder.PostgreSQL.NewSelectBuilder().Select("conn.conn_id", "conn.provider_comp_id", "exec.comp_rn AS provider_comp_rn", "conn.offset_nr", "conn.act_nr").From(compConns+"conn").Join("pool_comp_execs exec", "exec.comp_id = conn.provider_comp_id")
 	act := qb.actBuilder.SelectFrom(connActs + "act")
 	act.Where(act.Equal("conn_id", qry.ConnID))

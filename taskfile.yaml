@@ -38,18 +38,10 @@ tasks:
       - task: tests:unit
 
   binaries:build:
-    desc: Build the distributable binary and record its provenance
+    desc: Build the distributable binary
     cmds:
       - mkdir -p dist
       - CGO_ENABLED=0 go build -o dist/go-engine ./cmd/engine
-      - |
-        source_sha="$(git rev-parse HEAD)"
-        spec_sha="$(git log -1 --format=%H -- tsp openapi/openapi.yaml)"
-        binary_sha="$(sha256sum dist/go-engine | cut -d' ' -f1)"
-        test -n "$source_sha"
-        test -n "$spec_sha"
-        printf '{"schema_version":1,"source_sha":"%s","spec_sha":"%s","binary_sha256":"%s"}\n' \
-          "$source_sha" "$spec_sha" "$binary_sha" > dist/go-engine.provenance.json
 
   binaries:integration-test:
     desc: Run integration tests after the distributable binary is built

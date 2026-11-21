@@ -13,8 +13,6 @@ run = "npm ci --prefix tsp --no-audit --no-fund"
 sources = ["tsp/package.json", "tsp/package-lock.json"]
 outputs = ["tsp/node_modules"]
 
-# Reusable source groups keep stage-owned input paths in one place.
-# Stage gates compose these groups to reflect the downstream impact mapping.
 [task_config.input_groups]
 common = [
   ".github/**",
@@ -45,33 +43,70 @@ binaries = [
   "**/go.mod",
   "**/go.sum",
 ]
-# The gate chain follows the pipeline order. Each task declares only its
-# own stage inputs; dependencies provide the cumulative execution order.
+
 [tasks."specs:gate"]
-description = "Run Specs in the CI pipeline"
+description = "Check generated Specs and their inputs"
 tools = { node = "26.10.0" }
 depends = ["deps:install"]
-run = "task specs:check"
+run = "task specs:gate"
 sources = ["@group:common", "@group:specs"]
 outputs = []
 
+[tasks."specs:lint"]
+description = "Lint Specs without modifying files"
+tools = { node = "26.10.0" }
+depends = ["deps:install"]
+run = "task specs:lint"
+sources = ["@group:specs"]
+outputs = []
+
+[tasks."specs:analyze"]
+description = "Analyze Specs without emitting generated outputs"
+tools = { node = "26.10.0" }
+depends = ["deps:install"]
+run = "task specs:analyze"
+sources = ["@group:specs"]
+outputs = []
 
 [tasks."sources:gate"]
-description = "Run Specs, then Sources in the CI pipeline"
+description = "Verify generated Sources and lockfiles"
 depends = ["specs:gate"]
 tools = {
   "go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint" = "v2.15.0",
   "go:github.com/jmattheis/goverter/cmd/goverter" = "v1.11.1",
   "go:github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen" = "v2.8.2",
 }
-run = "task sources:check"
+run = "task sources:gate"
+sources = ["@group:sources"]
+outputs = []
+
+[tasks."sources:lint"]
+description = "Lint Sources without modifying files"
+depends = ["specs:gate"]
+tools = {
+  "go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint" = "v2.15.0",
+  "go:github.com/jmattheis/goverter/cmd/goverter" = "v1.11.1",
+  "go:github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen" = "v2.8.2",
+}
+run = "task sources:lint"
+sources = ["@group:sources"]
+outputs = []
+
+[tasks."sources:analyze"]
+description = "Run static and architecture analysis on Sources"
+depends = ["specs:gate"]
+tools = {
+  "go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint" = "v2.15.0",
+  "go:github.com/jmattheis/goverter/cmd/goverter" = "v1.11.1",
+  "go:github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen" = "v2.8.2",
+}
+run = "task sources:analyze"
 sources = ["@group:sources"]
 outputs = []
 
 [tasks."binaries:gate"]
-description = "Run Specs, Sources, then Binaries in the CI pipeline"
+description = "Run Specs, Sources, then Binaries delivery checks"
 depends = ["sources:gate"]
-run = "task binaries"
+run = "task binaries:gate"
 sources = ["@group:binaries"]
 outputs = []
-

@@ -19,7 +19,7 @@ type ExpRef struct {
 
 type ExpRec struct {
 	ExpCK	int64
-	States []State 
+	States []State
 }
 
 type State struct {

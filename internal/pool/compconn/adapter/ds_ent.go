@@ -138,8 +138,8 @@ func (dao *daoEnt) GetSnapByQry(ctx context.Context, conn tx.Conn, qry compconn.
 
 const (
 	insertActRec = `INSERT INTO pool_conn_acts
-    (conn_id, act_nr, comp_id, comp_rn, chnl_id, kind, exp)
-    VALUES ($1, $2, $3, $4, $5, $6, $7)`
+(conn_id, act_nr, comp_id, comp_rn, chnl_id, kind, exp)
+VALUES ($1, $2, $3, $4, $5, $6, $7)`
 
 	selectSnap = `WITH acts AS (
     SELECT act.conn_id, act.act_nr, act.comp_id, act.comp_rn, act.chnl_id, act.kind, act.exp

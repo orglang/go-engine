@@ -61,10 +61,12 @@ func (dao *daoPgx) GetRefsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 	if len(typeQNs) == 0 {
 		return make(map[uniqsym.ADT]typesem.SemRef), nil
 	}
-	const query = `SELECT t.type_id, t.type_rn
+	const query = `
+SELECT t.type_id, t.type_rn
 FROM %s AS t
 JOIN %s AS d ON d.desc_id = t.type_id
-WHERE d.desc_qn = $1`
+WHERE d.desc_qn = $1
+`
 	sql := fmt.Sprintf(query, dao.typeTable, dao.descTable)
 	batch := pgx.Batch{}
 	for _, typeQN := range typeQNs {

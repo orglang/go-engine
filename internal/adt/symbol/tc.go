@@ -1,9 +1,6 @@
 package symbol
 
-import (
-	"database/sql"
-	"fmt"
-)
+import "fmt"
 
 func ConvertFromString(str string) (ADT, error) {
 	if str == "" {
@@ -14,15 +11,4 @@ func ConvertFromString(str string) (ADT, error) {
 
 func ConvertToString(adt ADT) string {
 	return string(adt)
-}
-
-func ConvertFromNullString(str sql.NullString) (ADT, error) {
-	if str.Valid {
-		return ADT(str.String), nil
-	}
-	return Zero, nil
-}
-
-func ConvertToNullString(adt ADT) sql.NullString {
-	return sql.NullString{String: string(adt), Valid: true}
 }

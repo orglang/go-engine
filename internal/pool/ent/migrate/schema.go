@@ -9,6 +9,19 @@ import (
 )
 
 var (
+	// PoolTermDecsColumns holds the columns for the "pool_term_decs" table.
+	PoolTermDecsColumns = []*schema.Column{
+		{Name: "term_id", Type: field.TypeString},
+		{Name: "term_rn", Type: field.TypeInt64},
+		{Name: "liab_var", Type: field.TypeJSON},
+		{Name: "asset_vars", Type: field.TypeJSON},
+	}
+	// PoolTermDecsTable holds the schema information for the "pool_term_decs" table.
+	PoolTermDecsTable = &schema.Table{
+		Name:       "pool_term_decs",
+		Columns:    PoolTermDecsColumns,
+		PrimaryKey: []*schema.Column{PoolTermDecsColumns[0]},
+	}
 	// PoolTypeDefsColumns holds the columns for the "pool_type_defs" table.
 	PoolTypeDefsColumns = []*schema.Column{
 		{Name: "type_id", Type: field.TypeString},
@@ -23,11 +36,15 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		PoolTermDecsTable,
 		PoolTypeDefsTable,
 	}
 )
 
 func init() {
+	PoolTermDecsTable.Annotation = &entsql.Annotation{
+		Table: "pool_term_decs",
+	}
 	PoolTypeDefsTable.Annotation = &entsql.Annotation{
 		Table: "pool_type_defs",
 	}

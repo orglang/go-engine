@@ -8,6 +8,18 @@ import (
 	"orglang/go-engine/internal/proc/ent"
 )
 
+// The CompExecFunc type is an adapter to allow the use of ordinary
+// function as CompExec mutator.
+type CompExecFunc func(context.Context, *ent.CompExecMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CompExecFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.CompExecMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CompExecMutation", m)
+}
+
 // The TermDecFunc type is an adapter to allow the use of ordinary
 // function as TermDec mutator.
 type TermDecFunc func(context.Context, *ent.TermDecMutation) (ent.Value, error)

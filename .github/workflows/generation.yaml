@@ -43,7 +43,7 @@ jobs:
         run: task specs:generate
 
       - name: Generate sources
-        run: mise -E sources exec -- task sources:generate
+        run: mise run sources:generate
 
       - name: Commit sources
         run: |

@@ -11,6 +11,7 @@ import (
 
 	"orglang/go-engine/internal/proc/ent/migrate"
 
+	"orglang/go-engine/internal/proc/ent/compexec"
 	"orglang/go-engine/internal/proc/ent/termdec"
 	"orglang/go-engine/internal/proc/ent/typedef"
 
@@ -24,6 +25,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// CompExec is the client for interacting with the CompExec builders.
+	CompExec *CompExecClient
 	// TermDec is the client for interacting with the TermDec builders.
 	TermDec *TermDecClient
 	// TypeDef is the client for interacting with the TypeDef builders.
@@ -39,6 +42,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.CompExec = NewCompExecClient(c.config)
 	c.TermDec = NewTermDecClient(c.config)
 	c.TypeDef = NewTypeDefClient(c.config)
 }
@@ -131,10 +135,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:     ctx,
-		config:  cfg,
-		TermDec: NewTermDecClient(cfg),
-		TypeDef: NewTypeDefClient(cfg),
+		ctx:      ctx,
+		config:   cfg,
+		CompExec: NewCompExecClient(cfg),
+		TermDec:  NewTermDecClient(cfg),
+		TypeDef:  NewTypeDefClient(cfg),
 	}, nil
 }
 
@@ -152,17 +157,18 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:     ctx,
-		config:  cfg,
-		TermDec: NewTermDecClient(cfg),
-		TypeDef: NewTypeDefClient(cfg),
+		ctx:      ctx,
+		config:   cfg,
+		CompExec: NewCompExecClient(cfg),
+		TermDec:  NewTermDecClient(cfg),
+		TypeDef:  NewTypeDefClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		TermDec.
+//		CompExec.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -184,6 +190,7 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
+	c.CompExec.Use(hooks...)
 	c.TermDec.Use(hooks...)
 	c.TypeDef.Use(hooks...)
 }
@@ -191,6 +198,7 @@ func (c *Client) Use(hooks ...Hook) {
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
+	c.CompExec.Intercept(interceptors...)
 	c.TermDec.Intercept(interceptors...)
 	c.TypeDef.Intercept(interceptors...)
 }
@@ -198,12 +206,147 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *CompExecMutation:
+		return c.CompExec.mutate(ctx, m)
 	case *TermDecMutation:
 		return c.TermDec.mutate(ctx, m)
 	case *TypeDefMutation:
 		return c.TypeDef.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
+	}
+}
+
+// CompExecClient is a client for the CompExec schema.
+type CompExecClient struct {
+	config
+}
+
+// NewCompExecClient returns a client for the CompExec from the given config.
+func NewCompExecClient(c config) *CompExecClient {
+	return &CompExecClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `compexec.Hooks(f(g(h())))`.
+func (c *CompExecClient) Use(hooks ...Hook) {
+	c.hooks.CompExec = append(c.hooks.CompExec, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `compexec.Intercept(f(g(h())))`.
+func (c *CompExecClient) Intercept(interceptors ...Interceptor) {
+	c.inters.CompExec = append(c.inters.CompExec, interceptors...)
+}
+
+// Create returns a builder for creating a CompExec entity.
+func (c *CompExecClient) Create() *CompExecCreate {
+	mutation := newCompExecMutation(c.config, OpCreate)
+	return &CompExecCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of CompExec entities.
+func (c *CompExecClient) CreateBulk(builders ...*CompExecCreate) *CompExecCreateBulk {
+	return &CompExecCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *CompExecClient) MapCreateBulk(slice any, setFunc func(*CompExecCreate, int)) *CompExecCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &CompExecCreateBulk{err: fmt.Errorf("calling to CompExecClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*CompExecCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &CompExecCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for CompExec.
+func (c *CompExecClient) Update() *CompExecUpdate {
+	mutation := newCompExecMutation(c.config, OpUpdate)
+	return &CompExecUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *CompExecClient) UpdateOne(_m *CompExec) *CompExecUpdateOne {
+	mutation := newCompExecMutation(c.config, OpUpdateOne, withCompExec(_m))
+	return &CompExecUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *CompExecClient) UpdateOneID(id string) *CompExecUpdateOne {
+	mutation := newCompExecMutation(c.config, OpUpdateOne, withCompExecID(id))
+	return &CompExecUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for CompExec.
+func (c *CompExecClient) Delete() *CompExecDelete {
+	mutation := newCompExecMutation(c.config, OpDelete)
+	return &CompExecDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *CompExecClient) DeleteOne(_m *CompExec) *CompExecDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *CompExecClient) DeleteOneID(id string) *CompExecDeleteOne {
+	builder := c.Delete().Where(compexec.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &CompExecDeleteOne{builder}
+}
+
+// Query returns a query builder for CompExec.
+func (c *CompExecClient) Query() *CompExecQuery {
+	return &CompExecQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeCompExec},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a CompExec entity by its id.
+func (c *CompExecClient) Get(ctx context.Context, id string) (*CompExec, error) {
+	return c.Query().Where(compexec.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *CompExecClient) GetX(ctx context.Context, id string) *CompExec {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *CompExecClient) Hooks() []Hook {
+	return c.hooks.CompExec
+}
+
+// Interceptors returns the client interceptors.
+func (c *CompExecClient) Interceptors() []Interceptor {
+	return c.inters.CompExec
+}
+
+func (c *CompExecClient) mutate(ctx context.Context, m *CompExecMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&CompExecCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&CompExecUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&CompExecUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&CompExecDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown CompExec mutation op: %q", m.Op())
 	}
 }
 
@@ -476,9 +619,9 @@ func (c *TypeDefClient) mutate(ctx context.Context, m *TypeDefMutation) (Value, 
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		TermDec, TypeDef []ent.Hook
+		CompExec, TermDec, TypeDef []ent.Hook
 	}
 	inters struct {
-		TermDec, TypeDef []ent.Interceptor
+		CompExec, TermDec, TypeDef []ent.Interceptor
 	}
 )

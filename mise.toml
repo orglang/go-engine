@@ -45,6 +45,16 @@ binaries = [
   "**/go.mod",
   "**/go.sum",
 ]
+
+# Keep generator tools available whenever source generation is invoked directly.
+[tasks."sources:generate"]
+description = "Generate source artifacts"
+tools = {
+  "go:github.com/jmattheis/goverter/cmd/goverter" = "v1.11.1",
+  "go:github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen" = "v2.8.2",
+}
+run = "task sources:generate"
+
 # The gate chain follows the pipeline order. Each task declares only its
 # own stage inputs; dependencies provide the cumulative execution order.
 [tasks."specs:gate"]
@@ -54,7 +64,6 @@ depends = ["deps:install"]
 run = "task specs:check"
 sources = ["@group:common", "@group:specs"]
 outputs = []
-
 
 [tasks."sources:gate"]
 description = "Run Specs, then Sources in the CI pipeline"
@@ -74,4 +83,3 @@ depends = ["sources:gate"]
 run = "task binaries"
 sources = ["@group:binaries"]
 outputs = []
-

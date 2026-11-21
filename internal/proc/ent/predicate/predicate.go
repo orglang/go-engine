@@ -6,6 +6,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// CompExec is the predicate function for compexec builders.
+type CompExec func(*sql.Selector)
+
 // TermDec is the predicate function for termdec builders.
 type TermDec func(*sql.Selector)
 

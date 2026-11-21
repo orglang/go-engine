@@ -8,6 +8,7 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 	compconn "orglang/go-engine/internal/proc/compconn/core"
 	"orglang/go-engine/internal/proc/compexec/core"
+	"orglang/go-engine/internal/proc/ent"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 	typeexp "orglang/go-engine/internal/proc/typeexp/core"
@@ -15,11 +16,8 @@ import (
 
 // Package registers the process computation-execution repository, service, and HTTP controller.
 var Package = do.Package(
-	do.Lazy[queryBuilder](func(do.Injector) (queryBuilder, error) {
-		return newSQLBuilder(), nil
-	}),
 	do.Lazy[core.Repo](func(i do.Injector) (core.Repo, error) {
-		qb, err := do.Invoke[queryBuilder](i)
+		client, err := do.Invoke[*ent.Client](i)
 		if err != nil {
 			return nil, err
 		}
@@ -27,7 +25,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return newDaoPgx(qb, logger), nil
+		return newDaoEnt(client, logger), nil
 	}),
 	do.Lazy[core.API](func(i do.Injector) (core.API, error) {
 		execRepo, err := do.Invoke[core.Repo](i)

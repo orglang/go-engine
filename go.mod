@@ -13,7 +13,6 @@ require (
 	github.com/georgysavva/scany/v2 v2.1.4
 	github.com/go-ozzo/ozzo-validation/v4 v4.5.0
 	github.com/google/go-cmp v0.7.0
-	github.com/huandu/go-sqlbuilder v1.40.2
 	github.com/jackc/pgx/v5 v5.12.0
 	github.com/labstack/echo/v5 v5.4.6
 	github.com/oapi-codegen/runtime v1.9.0
@@ -60,7 +59,6 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/hcl/v2 v2.18.1 // indirect
-	github.com/huandu/go-clone v1.7.3 // indirect
 	github.com/huandu/xstrings v1.5.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect

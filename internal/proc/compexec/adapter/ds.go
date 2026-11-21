@@ -12,6 +12,6 @@ type ExecRecDS struct {
 }
 
 type ExecModDS struct {
-	CompRefs   []compsemadapter.SemRefDS
+	CompRefs   []compsemadapter.SemRef
 	LinearVars []compvaradapter.VarRecDS
 }

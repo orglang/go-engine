@@ -16,12 +16,6 @@ import (
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 )
 
-type DefRecDS struct {
-	TypeID string `db:"type_id"`
-	TypeRN int64  `db:"type_rn"`
-	ExpCK  int64  `db:"exp_ck"`
-}
-
 type daoEnt struct {
 	client *ent.Client
 	log    *slog.Logger
@@ -36,7 +30,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec)
 	refAttr := slog.Any("ref", rec.TypeRef)
 	dao.log.Log(ctx, lf.LevelTrace, "addition started", refAttr)
 
-	dto, err := DataFromDefRecEnt(rec)
+	dto, err := DataFromDefRec(rec)
 	if err != nil {
 		dao.log.Error("model conversion failed", refAttr)
 		return err
@@ -70,18 +64,18 @@ func (dao *daoEnt) GetRecsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 	}
 	br := conn.Pgx.SendBatch(ctx, &batch)
 	defer func() { err = errors.Join(err, br.Close()) }()
-	dtos := make(map[uniqsym.ADT]DefRecDS, len(typeQNs))
+	dtos := make(map[uniqsym.ADT]DefRec, len(typeQNs))
 	for _, qn := range typeQNs {
 		rows, readErr := br.Query()
 		if readErr != nil {
 			return nil, readErr
 		}
-		dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRecDS])
+		dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRec])
 		if scanErr != nil {
 			return nil, scanErr
 		}
 		dtos[qn] = dto
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("dtos", dtos))
-	return DataToDefRecMapEnt(dtos)
+	return DataToDefRecMap(dtos)
 }

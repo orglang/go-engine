@@ -95,8 +95,14 @@ tasks:
       - test -f openapi/openapi.yaml
       - test -z "$(git status --porcelain -- openapi/openapi.yaml)"
 
+  specs:lock:
+    desc: Refresh TypeSpec toolchain and npm dependency lockfiles
+    cmds:
+      - mise -E specs lock
+      - npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund
+
   specs:verify:
-    desc: Verify TypeSpec before publishing
+    desc: Verify TypeSpec compilation, dependency locks, and generated OpenAPI
     cmds:
       - task: specs:check
 

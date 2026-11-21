@@ -40,6 +40,13 @@ jobs:
       - name: Run Specs gate
         run: mise run specs:gate
 
+      - name: Show remaining TypeSpec formatting change
+        if: failure()
+        working-directory: tsp
+        run: |
+          npx tsp format "**/*.tsp"
+          git diff -- .
+
       - name: Run Specs lint
         run: mise run specs:lint
 

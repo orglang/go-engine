@@ -43,7 +43,7 @@ jobs:
       - name: Upload binary artifact
         uses: actions/upload-artifact@v6
         with:
-          name: go-engine-${{ github.sha }}
+          name: go-engine-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             dist/go-engine
             dist/go-engine.provenance.json

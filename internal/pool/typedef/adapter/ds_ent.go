@@ -54,10 +54,12 @@ func (dao *daoEnt) GetRecsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 	if len(typeQNs) == 0 {
 		return map[uniqsym.ADT]typedef.DefRec{}, nil
 	}
-	const query = `SELECT td.type_id, td.type_rn, td.exp_ck
+	const query = `
+SELECT td.type_id, td.type_rn, td.exp_ck
 FROM pool_type_defs td
 JOIN pool_desc_binds db ON db.desc_id = td.type_id
-WHERE db.desc_qn = $1`
+WHERE db.desc_qn = $1
+`
 	batch := pgx.Batch{}
 	for _, qn := range typeQNs {
 		batch.Queue(query, uniqsym.ConvertToString(qn))

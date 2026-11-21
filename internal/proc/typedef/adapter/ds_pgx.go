@@ -212,30 +212,33 @@ func (dao *daoEnt) GetRecsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 
 const (
 	selectRecByQN = `
-		select
-			td.desc_id,
-			td.exp_ck,
-			de.desc_rn
-		from proc_type_defs td
-		left join desc_sems de
-			on de.desc_id = td.desc_id
-		left join desc_binds db
-			on db.desc_id = td.desc_id
-		where db.desc_qn = $1`
+SELECT
+    td.desc_id,
+    td.exp_ck,
+    de.desc_rn
+FROM proc_type_defs td
+LEFT JOIN desc_sems de
+    ON de.desc_id = td.desc_id
+LEFT JOIN desc_binds db
+    ON db.desc_id = td.desc_id
+WHERE db.desc_qn = $1
+`
 
 	selectRecByID = `
-		select
-			td.desc_id,
-			td.exp_ck,
-			de.desc_rn
-		from proc_type_defs td
-		left join desc_sems de
-			on de.desc_id = td.desc_id
-		where td.desc_id = $1`
+SELECT
+    td.desc_id,
+    td.exp_ck,
+    de.desc_rn
+FROM proc_type_defs td
+LEFT JOIN desc_sems de
+    ON de.desc_id = td.desc_id
+WHERE td.desc_id = $1
+`
 
 	selectRefs = `
-		select
-			desc_id,
-			def_rn
-		from proc_type_defs`
+SELECT
+    desc_id,
+    def_rn
+FROM proc_type_defs
+`
 )

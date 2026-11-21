@@ -73,9 +73,9 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod core.ConnMod
 		}
 		dto.ActNr = int64(mod.ProviderCompRN) + 1
 		const insertAct = `
-			INSERT INTO proc_conn_acts (conn_id, act_nr, comp_id, comp_rn, chnl_id, kind, exp)
-			VALUES ($1, $2, $3, $4, $5, $6, $7)
-		`
+INSERT INTO proc_conn_acts (conn_id, act_nr, comp_id, comp_rn, chnl_id, kind, exp)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+`
 		_, err = conn.Pgx.Exec(ctx, insertAct, dto.ConnID, dto.ActNr, dto.CompID, dto.CompRN, dto.ChnlID, dto.K, dto.Exp)
 		if err != nil {
 			dao.log.Error("Act insertion failed", slog.Any("act", act))
@@ -88,29 +88,29 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod core.ConnMod
 func (dao *daoEnt) GetSnapByQry(ctx context.Context, conn tx.Conn, qry core.ConnQry) (core.ConnSnap, error) {
 	connID := identity.ConvertToString(qry.ConnID)
 	query := `
-		WITH acts AS (
-			SELECT act.*
-			FROM proc_conn_acts act
-			WHERE act.conn_id = $1
-	`
+WITH acts AS (
+    SELECT act.*
+    FROM proc_conn_acts act
+    WHERE act.conn_id = $1
+`
 	args := []any{connID}
 	if qry.ChnlID != nil && !qry.ChnlID.IsEmpty() {
 		query += " AND act.chnl_id = $2"
 		args = append(args, identity.ConvertToString(qry.ChnlID.Get()))
 	}
 	query += `
-		)
-		SELECT
-			conn.conn_id,
-			exec.comp_id AS provider_comp_id,
-			exec.comp_rn AS provider_comp_rn,
-			conn.offset_nr,
-			conn.act_nr,
-			(SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM acts t WHERE t.act_nr > conn.offset_nr) AS acts
-		FROM proc_comp_conns conn
-		JOIN proc_comp_execs exec ON exec.comp_id = conn.provider_comp_id
-		WHERE conn.conn_id = $1
-	`
+)
+SELECT
+    conn.conn_id,
+    exec.comp_id AS provider_comp_id,
+    exec.comp_rn AS provider_comp_rn,
+    conn.offset_nr,
+    conn.act_nr,
+    (SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM acts t WHERE t.act_nr > conn.offset_nr) AS acts
+FROM proc_comp_conns conn
+JOIN proc_comp_execs exec ON exec.comp_id = conn.provider_comp_id
+WHERE conn.conn_id = $1
+`
 	rows, err := conn.Pgx.Query(ctx, query, args...)
 	if err != nil {
 		dao.log.Error("Connection snapshot query failed", slog.Any("conn_id", qry.ConnID))

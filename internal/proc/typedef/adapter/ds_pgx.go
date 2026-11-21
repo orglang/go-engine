@@ -58,7 +58,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec)
 	return nil
 }
 
-func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec) error {
+func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec) error {
 	idAttr := slog.Any("typeID", rec.TypeRef.TypeID)
 	dao.log.Log(ctx, lf.LevelTrace, "modification started", idAttr)
 	dto, err := DataFromDefRec(rec)
@@ -83,7 +83,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, rec typedef.DefR
 	return nil
 }
 
-func (dao *daoPgx) GetRefs(ctx context.Context, conn tx.Conn) ([]typesem.SemRef, error) {
+func (dao *daoEnt) GetRefs(ctx context.Context, conn tx.Conn) ([]typesem.SemRef, error) {
 	rows, err := conn.Pgx.Query(ctx, selectRefs)
 	if err != nil {
 		dao.log.Error("query execution failed")
@@ -99,7 +99,7 @@ func (dao *daoPgx) GetRefs(ctx context.Context, conn tx.Conn) ([]typesem.SemRef,
 	return typesemadapter.DataToRefs(dtos)
 }
 
-func (dao *daoPgx) GetRecByRef(ctx context.Context, conn tx.Conn, ref typesem.SemRef) (typedef.DefRec, error) {
+func (dao *daoEnt) GetRecByRef(ctx context.Context, conn tx.Conn, ref typesem.SemRef) (typedef.DefRec, error) {
 	refAttr := slog.Any("ref", ref)
 	rows, err := conn.Pgx.Query(ctx, selectRecByID, ref.TypeID.String())
 	if err != nil {
@@ -116,7 +116,7 @@ func (dao *daoPgx) GetRecByRef(ctx context.Context, conn tx.Conn, ref typesem.Se
 	return DataToDefRec(dto)
 }
 
-func (dao *daoPgx) GetRecByQN(ctx context.Context, conn tx.Conn, typeQN uniqsym.ADT) (typedef.DefRec, error) {
+func (dao *daoEnt) GetRecByQN(ctx context.Context, conn tx.Conn, typeQN uniqsym.ADT) (typedef.DefRec, error) {
 	qnAttr := slog.Any("typeQN", typeQN)
 	rows, err := conn.Pgx.Query(ctx, selectRecByQN, uniqsym.ConvertToString(typeQN))
 	if err != nil {
@@ -133,7 +133,7 @@ func (dao *daoPgx) GetRecByQN(ctx context.Context, conn tx.Conn, typeQN uniqsym.
 	return DataToDefRec(dto)
 }
 
-func (dao *daoPgx) GetRecsByRefs(ctx context.Context, conn tx.Conn, refs []typesem.SemRef) (_ []typedef.DefRec, err error) {
+func (dao *daoEnt) GetRecsByRefs(ctx context.Context, conn tx.Conn, refs []typesem.SemRef) (_ []typedef.DefRec, err error) {
 	if len(refs) == 0 {
 		return []typedef.DefRec{}, nil
 	}
@@ -167,7 +167,7 @@ func (dao *daoPgx) GetRecsByRefs(ctx context.Context, conn tx.Conn, refs []types
 	return DataToDefRecs(dtos)
 }
 
-func (dao *daoPgx) SelectEnv(ctx context.Context, conn tx.Conn, typeQNs []uniqsym.ADT) (map[uniqsym.ADT]typedef.DefRec, error) {
+func (dao *daoEnt) SelectEnv(ctx context.Context, conn tx.Conn, typeQNs []uniqsym.ADT) (map[uniqsym.ADT]typedef.DefRec, error) {
 	recs, err := dao.GetRecsByQNs(ctx, conn, typeQNs)
 	if err != nil {
 		return nil, err
@@ -179,7 +179,7 @@ func (dao *daoPgx) SelectEnv(ctx context.Context, conn tx.Conn, typeQNs []uniqsy
 	return env, nil
 }
 
-func (dao *daoPgx) GetRecsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uniqsym.ADT) (_ []typedef.DefRec, err error) {
+func (dao *daoEnt) GetRecsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uniqsym.ADT) (_ []typedef.DefRec, err error) {
 	if len(typeQNs) == 0 {
 		return []typedef.DefRec{}, nil
 	}

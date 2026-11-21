@@ -9,16 +9,15 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/internal/lib/entpgx"
-	"orglang/go-engine/internal/lib/lf"
-	"orglang/go-engine/internal/lib/tx"
-	"orglang/go-engine/internal/proc/ent"
-	compexec "orglang/go-engine/internal/proc/compexec/core"
-
 	"orglang/go-engine/internal/adt/compsem"
 	"orglang/go-engine/internal/adt/compvar"
 	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
 	"orglang/go-engine/internal/adt/seqnum"
+	"orglang/go-engine/internal/lib/entpgx"
+	"orglang/go-engine/internal/lib/lf"
+	"orglang/go-engine/internal/lib/tx"
+	compexec "orglang/go-engine/internal/proc/compexec/core"
+	"orglang/go-engine/internal/proc/ent"
 )
 
 // Adapter

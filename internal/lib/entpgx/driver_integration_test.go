@@ -2,30 +2,20 @@ package entpgx
 
 import (
 	"context"
-	"os"
 	"testing"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 
+	"orglang/go-engine/internal/lib/pgxtest"
 	"orglang/go-engine/internal/pool/ent"
 )
 
 func TestIntegrationEntPGXUsesCallbackTransaction(t *testing.T) {
-	dsn := os.Getenv("ENTPGX_TEST_DATABASE_URL")
-	if dsn == "" {
-		t.Skip("ENTPGX_TEST_DATABASE_URL is not set")
-	}
+	pool := pgxtest.NewPostgresPool(t)
 
 	ctx, cancel := context.WithTimeout(t.Context(), 15*time.Second)
 	defer cancel()
 	cleanupCtx := context.WithoutCancel(ctx)
-
-	pool, err := pgxpool.New(ctx, dsn)
-	if err != nil {
-		t.Fatalf("open PostgreSQL pool: %v", err)
-	}
-	t.Cleanup(pool.Close)
 
 	for _, test := range []struct {
 		name    string

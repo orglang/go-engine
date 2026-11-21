@@ -116,8 +116,8 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod compexec.Exe
 	execReq := pgx.Batch{}
 	for _, dto := range dto.CompRefs {
 		args := pgx.NamedArgs{
-			"impl_id": dto.CompID,
-			"impl_rn": dto.CompRN,
+			"comp_id": dto.CompID,
+			"comp_rn": dto.CompRN,
 		}
 		execReq.Queue(updateExec, args)
 	}
@@ -152,9 +152,9 @@ const (
 
 	updateExec = `
 		update proc_comp_execs
-		set impl_rn = @impl_rn + 1
-		where impl_id = @impl_id
-			and impl_rn = @impl_rn`
+		set comp_rn = @comp_rn + 1
+		where comp_id = @comp_id
+			and comp_rn = @comp_rn`
 
 	selectChnls = `
 		with bnds as not materialized (

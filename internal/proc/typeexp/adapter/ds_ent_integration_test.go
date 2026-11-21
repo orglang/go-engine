@@ -2,6 +2,7 @@ package adapter
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"reflect"
 	"testing"
@@ -78,7 +79,10 @@ func TestIntegrationProcTypeExpAddRecIsIdempotent(t *testing.T) {
 		}
 		defer rows.Close()
 		if !rows.Next() {
-			return rows.Err()
+			if err := rows.Err(); err != nil {
+				return err
+			}
+			return errors.New("count query returned no rows")
 		}
 		var count int
 		if err := rows.Scan(&count); err != nil {
@@ -88,7 +92,6 @@ func TestIntegrationProcTypeExpAddRecIsIdempotent(t *testing.T) {
 			t.Errorf("stored state count = %d, want 3 after duplicate insert", count)
 		}
 		return rows.Err()
-		return nil
 	})
 	if err != nil {
 		t.Fatalf("verify persisted type expression: %v", err)

@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"orglang/go-engine/internal/proc/ent/compconn"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 )
@@ -17,6 +19,7 @@ type CompConnCreate struct {
 	config
 	mutation *CompConnMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetProviderCompID sets the "provider_comp_id" field.
@@ -154,6 +157,7 @@ func (_c *CompConnCreate) createSpec() (*CompConn, *sqlgraph.CreateSpec) {
 		_node = &CompConn{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(compconn.Table, sqlgraph.NewFieldSpec(compconn.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -185,11 +189,381 @@ func (_c *CompConnCreate) createSpec() (*CompConn, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.CompConn.Create().
+//		SetProviderCompID(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.CompConnUpsert) {
+//			SetProviderCompID(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *CompConnCreate) OnConflict(opts ...sql.ConflictOption) *CompConnUpsertOne {
+	_c.conflict = opts
+	return &CompConnUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.CompConn.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *CompConnCreate) OnConflictColumns(columns ...string) *CompConnUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &CompConnUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// CompConnUpsertOne is the builder for "upsert"-ing
+	//  one CompConn node.
+	CompConnUpsertOne struct {
+		create *CompConnCreate
+	}
+
+	// CompConnUpsert is the "OnConflict" setter.
+	CompConnUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetProviderCompID sets the "provider_comp_id" field.
+func (u *CompConnUpsert) SetProviderCompID(v string) *CompConnUpsert {
+	u.Set(compconn.FieldProviderCompID, v)
+	return u
+}
+
+// UpdateProviderCompID sets the "provider_comp_id" field to the value that was provided on create.
+func (u *CompConnUpsert) UpdateProviderCompID() *CompConnUpsert {
+	u.SetExcluded(compconn.FieldProviderCompID)
+	return u
+}
+
+// SetProviderCompRn sets the "provider_comp_rn" field.
+func (u *CompConnUpsert) SetProviderCompRn(v int64) *CompConnUpsert {
+	u.Set(compconn.FieldProviderCompRn, v)
+	return u
+}
+
+// UpdateProviderCompRn sets the "provider_comp_rn" field to the value that was provided on create.
+func (u *CompConnUpsert) UpdateProviderCompRn() *CompConnUpsert {
+	u.SetExcluded(compconn.FieldProviderCompRn)
+	return u
+}
+
+// AddProviderCompRn adds v to the "provider_comp_rn" field.
+func (u *CompConnUpsert) AddProviderCompRn(v int64) *CompConnUpsert {
+	u.Add(compconn.FieldProviderCompRn, v)
+	return u
+}
+
+// SetClientCompID sets the "client_comp_id" field.
+func (u *CompConnUpsert) SetClientCompID(v string) *CompConnUpsert {
+	u.Set(compconn.FieldClientCompID, v)
+	return u
+}
+
+// UpdateClientCompID sets the "client_comp_id" field to the value that was provided on create.
+func (u *CompConnUpsert) UpdateClientCompID() *CompConnUpsert {
+	u.SetExcluded(compconn.FieldClientCompID)
+	return u
+}
+
+// SetClientCompRn sets the "client_comp_rn" field.
+func (u *CompConnUpsert) SetClientCompRn(v int64) *CompConnUpsert {
+	u.Set(compconn.FieldClientCompRn, v)
+	return u
+}
+
+// UpdateClientCompRn sets the "client_comp_rn" field to the value that was provided on create.
+func (u *CompConnUpsert) UpdateClientCompRn() *CompConnUpsert {
+	u.SetExcluded(compconn.FieldClientCompRn)
+	return u
+}
+
+// AddClientCompRn adds v to the "client_comp_rn" field.
+func (u *CompConnUpsert) AddClientCompRn(v int64) *CompConnUpsert {
+	u.Add(compconn.FieldClientCompRn, v)
+	return u
+}
+
+// SetOffsetNr sets the "offset_nr" field.
+func (u *CompConnUpsert) SetOffsetNr(v int64) *CompConnUpsert {
+	u.Set(compconn.FieldOffsetNr, v)
+	return u
+}
+
+// UpdateOffsetNr sets the "offset_nr" field to the value that was provided on create.
+func (u *CompConnUpsert) UpdateOffsetNr() *CompConnUpsert {
+	u.SetExcluded(compconn.FieldOffsetNr)
+	return u
+}
+
+// AddOffsetNr adds v to the "offset_nr" field.
+func (u *CompConnUpsert) AddOffsetNr(v int64) *CompConnUpsert {
+	u.Add(compconn.FieldOffsetNr, v)
+	return u
+}
+
+// ClearOffsetNr clears the value of the "offset_nr" field.
+func (u *CompConnUpsert) ClearOffsetNr() *CompConnUpsert {
+	u.SetNull(compconn.FieldOffsetNr)
+	return u
+}
+
+// SetActNr sets the "act_nr" field.
+func (u *CompConnUpsert) SetActNr(v int64) *CompConnUpsert {
+	u.Set(compconn.FieldActNr, v)
+	return u
+}
+
+// UpdateActNr sets the "act_nr" field to the value that was provided on create.
+func (u *CompConnUpsert) UpdateActNr() *CompConnUpsert {
+	u.SetExcluded(compconn.FieldActNr)
+	return u
+}
+
+// AddActNr adds v to the "act_nr" field.
+func (u *CompConnUpsert) AddActNr(v int64) *CompConnUpsert {
+	u.Add(compconn.FieldActNr, v)
+	return u
+}
+
+// ClearActNr clears the value of the "act_nr" field.
+func (u *CompConnUpsert) ClearActNr() *CompConnUpsert {
+	u.SetNull(compconn.FieldActNr)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.CompConn.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(compconn.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *CompConnUpsertOne) UpdateNewValues() *CompConnUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(compconn.FieldID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.CompConn.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *CompConnUpsertOne) Ignore() *CompConnUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *CompConnUpsertOne) DoNothing() *CompConnUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the CompConnCreate.OnConflict
+// documentation for more info.
+func (u *CompConnUpsertOne) Update(set func(*CompConnUpsert)) *CompConnUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&CompConnUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetProviderCompID sets the "provider_comp_id" field.
+func (u *CompConnUpsertOne) SetProviderCompID(v string) *CompConnUpsertOne {
+	return u.Update(func(s *CompConnUpsert) {
+		s.SetProviderCompID(v)
+	})
+}
+
+// UpdateProviderCompID sets the "provider_comp_id" field to the value that was provided on create.
+func (u *CompConnUpsertOne) UpdateProviderCompID() *CompConnUpsertOne {
+	return u.Update(func(s *CompConnUpsert) {
+		s.UpdateProviderCompID()
+	})
+}
+
+// SetProviderCompRn sets the "provider_comp_rn" field.
+func (u *CompConnUpsertOne) SetProviderCompRn(v int64) *CompConnUpsertOne {
+	return u.Update(func(s *CompConnUpsert) {
+		s.SetProviderCompRn(v)
+	})
+}
+
+// AddProviderCompRn adds v to the "provider_comp_rn" field.
+func (u *CompConnUpsertOne) AddProviderCompRn(v int64) *CompConnUpsertOne {
+	return u.Update(func(s *CompConnUpsert) {
+		s.AddProviderCompRn(v)
+	})
+}
+
+// UpdateProviderCompRn sets the "provider_comp_rn" field to the value that was provided on create.
+func (u *CompConnUpsertOne) UpdateProviderCompRn() *CompConnUpsertOne {
+	return u.Update(func(s *CompConnUpsert) {
+		s.UpdateProviderCompRn()
+	})
+}
+
+// SetClientCompID sets the "client_comp_id" field.
+func (u *CompConnUpsertOne) SetClientCompID(v string) *CompConnUpsertOne {
+	return u.Update(func(s *CompConnUpsert) {
+		s.SetClientCompID(v)
+	})
+}
+
+// UpdateClientCompID sets the "client_comp_id" field to the value that was provided on create.
+func (u *CompConnUpsertOne) UpdateClientCompID() *CompConnUpsertOne {
+	return u.Update(func(s *CompConnUpsert) {
+		s.UpdateClientCompID()
+	})
+}
+
+// SetClientCompRn sets the "client_comp_rn" field.
+func (u *CompConnUpsertOne) SetClientCompRn(v int64) *CompConnUpsertOne {
+	return u.Update(func(s *CompConnUpsert) {
+		s.SetClientCompRn(v)
+	})
+}
+
+// AddClientCompRn adds v to the "client_comp_rn" field.
+func (u *CompConnUpsertOne) AddClientCompRn(v int64) *CompConnUpsertOne {
+	return u.Update(func(s *CompConnUpsert) {
+		s.AddClientCompRn(v)
+	})
+}
+
+// UpdateClientCompRn sets the "client_comp_rn" field to the value that was provided on create.
+func (u *CompConnUpsertOne) UpdateClientCompRn() *CompConnUpsertOne {
+	return u.Update(func(s *CompConnUpsert) {
+		s.UpdateClientCompRn()
+	})
+}
+
+// SetOffsetNr sets the "offset_nr" field.
+func (u *CompConnUpsertOne) SetOffsetNr(v int64) *CompConnUpsertOne {
+	return u.Update(func(s *CompConnUpsert) {
+		s.SetOffsetNr(v)
+	})
+}
+
+// AddOffsetNr adds v to the "offset_nr" field.
+func (u *CompConnUpsertOne) AddOffsetNr(v int64) *CompConnUpsertOne {
+	return u.Update(func(s *CompConnUpsert) {
+		s.AddOffsetNr(v)
+	})
+}
+
+// UpdateOffsetNr sets the "offset_nr" field to the value that was provided on create.
+func (u *CompConnUpsertOne) UpdateOffsetNr() *CompConnUpsertOne {
+	return u.Update(func(s *CompConnUpsert) {
+		s.UpdateOffsetNr()
+	})
+}
+
+// ClearOffsetNr clears the value of the "offset_nr" field.
+func (u *CompConnUpsertOne) ClearOffsetNr() *CompConnUpsertOne {
+	return u.Update(func(s *CompConnUpsert) {
+		s.ClearOffsetNr()
+	})
+}
+
+// SetActNr sets the "act_nr" field.
+func (u *CompConnUpsertOne) SetActNr(v int64) *CompConnUpsertOne {
+	return u.Update(func(s *CompConnUpsert) {
+		s.SetActNr(v)
+	})
+}
+
+// AddActNr adds v to the "act_nr" field.
+func (u *CompConnUpsertOne) AddActNr(v int64) *CompConnUpsertOne {
+	return u.Update(func(s *CompConnUpsert) {
+		s.AddActNr(v)
+	})
+}
+
+// UpdateActNr sets the "act_nr" field to the value that was provided on create.
+func (u *CompConnUpsertOne) UpdateActNr() *CompConnUpsertOne {
+	return u.Update(func(s *CompConnUpsert) {
+		s.UpdateActNr()
+	})
+}
+
+// ClearActNr clears the value of the "act_nr" field.
+func (u *CompConnUpsertOne) ClearActNr() *CompConnUpsertOne {
+	return u.Update(func(s *CompConnUpsert) {
+		s.ClearActNr()
+	})
+}
+
+// Exec executes the query.
+func (u *CompConnUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for CompConnCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *CompConnUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *CompConnUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: CompConnUpsertOne.ID is not supported by MySQL driver. Use CompConnUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *CompConnUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // CompConnCreateBulk is the builder for creating many CompConn entities in bulk.
 type CompConnCreateBulk struct {
 	config
 	err      error
 	builders []*CompConnCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the CompConn entities in the database.
@@ -218,6 +592,7 @@ func (_c *CompConnCreateBulk) Save(ctx context.Context) ([]*CompConn, error) {
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -264,6 +639,246 @@ func (_c *CompConnCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *CompConnCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.CompConn.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.CompConnUpsert) {
+//			SetProviderCompID(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *CompConnCreateBulk) OnConflict(opts ...sql.ConflictOption) *CompConnUpsertBulk {
+	_c.conflict = opts
+	return &CompConnUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.CompConn.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *CompConnCreateBulk) OnConflictColumns(columns ...string) *CompConnUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &CompConnUpsertBulk{
+		create: _c,
+	}
+}
+
+// CompConnUpsertBulk is the builder for "upsert"-ing
+// a bulk of CompConn nodes.
+type CompConnUpsertBulk struct {
+	create *CompConnCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.CompConn.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(compconn.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *CompConnUpsertBulk) UpdateNewValues() *CompConnUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(compconn.FieldID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.CompConn.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *CompConnUpsertBulk) Ignore() *CompConnUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *CompConnUpsertBulk) DoNothing() *CompConnUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the CompConnCreateBulk.OnConflict
+// documentation for more info.
+func (u *CompConnUpsertBulk) Update(set func(*CompConnUpsert)) *CompConnUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&CompConnUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetProviderCompID sets the "provider_comp_id" field.
+func (u *CompConnUpsertBulk) SetProviderCompID(v string) *CompConnUpsertBulk {
+	return u.Update(func(s *CompConnUpsert) {
+		s.SetProviderCompID(v)
+	})
+}
+
+// UpdateProviderCompID sets the "provider_comp_id" field to the value that was provided on create.
+func (u *CompConnUpsertBulk) UpdateProviderCompID() *CompConnUpsertBulk {
+	return u.Update(func(s *CompConnUpsert) {
+		s.UpdateProviderCompID()
+	})
+}
+
+// SetProviderCompRn sets the "provider_comp_rn" field.
+func (u *CompConnUpsertBulk) SetProviderCompRn(v int64) *CompConnUpsertBulk {
+	return u.Update(func(s *CompConnUpsert) {
+		s.SetProviderCompRn(v)
+	})
+}
+
+// AddProviderCompRn adds v to the "provider_comp_rn" field.
+func (u *CompConnUpsertBulk) AddProviderCompRn(v int64) *CompConnUpsertBulk {
+	return u.Update(func(s *CompConnUpsert) {
+		s.AddProviderCompRn(v)
+	})
+}
+
+// UpdateProviderCompRn sets the "provider_comp_rn" field to the value that was provided on create.
+func (u *CompConnUpsertBulk) UpdateProviderCompRn() *CompConnUpsertBulk {
+	return u.Update(func(s *CompConnUpsert) {
+		s.UpdateProviderCompRn()
+	})
+}
+
+// SetClientCompID sets the "client_comp_id" field.
+func (u *CompConnUpsertBulk) SetClientCompID(v string) *CompConnUpsertBulk {
+	return u.Update(func(s *CompConnUpsert) {
+		s.SetClientCompID(v)
+	})
+}
+
+// UpdateClientCompID sets the "client_comp_id" field to the value that was provided on create.
+func (u *CompConnUpsertBulk) UpdateClientCompID() *CompConnUpsertBulk {
+	return u.Update(func(s *CompConnUpsert) {
+		s.UpdateClientCompID()
+	})
+}
+
+// SetClientCompRn sets the "client_comp_rn" field.
+func (u *CompConnUpsertBulk) SetClientCompRn(v int64) *CompConnUpsertBulk {
+	return u.Update(func(s *CompConnUpsert) {
+		s.SetClientCompRn(v)
+	})
+}
+
+// AddClientCompRn adds v to the "client_comp_rn" field.
+func (u *CompConnUpsertBulk) AddClientCompRn(v int64) *CompConnUpsertBulk {
+	return u.Update(func(s *CompConnUpsert) {
+		s.AddClientCompRn(v)
+	})
+}
+
+// UpdateClientCompRn sets the "client_comp_rn" field to the value that was provided on create.
+func (u *CompConnUpsertBulk) UpdateClientCompRn() *CompConnUpsertBulk {
+	return u.Update(func(s *CompConnUpsert) {
+		s.UpdateClientCompRn()
+	})
+}
+
+// SetOffsetNr sets the "offset_nr" field.
+func (u *CompConnUpsertBulk) SetOffsetNr(v int64) *CompConnUpsertBulk {
+	return u.Update(func(s *CompConnUpsert) {
+		s.SetOffsetNr(v)
+	})
+}
+
+// AddOffsetNr adds v to the "offset_nr" field.
+func (u *CompConnUpsertBulk) AddOffsetNr(v int64) *CompConnUpsertBulk {
+	return u.Update(func(s *CompConnUpsert) {
+		s.AddOffsetNr(v)
+	})
+}
+
+// UpdateOffsetNr sets the "offset_nr" field to the value that was provided on create.
+func (u *CompConnUpsertBulk) UpdateOffsetNr() *CompConnUpsertBulk {
+	return u.Update(func(s *CompConnUpsert) {
+		s.UpdateOffsetNr()
+	})
+}
+
+// ClearOffsetNr clears the value of the "offset_nr" field.
+func (u *CompConnUpsertBulk) ClearOffsetNr() *CompConnUpsertBulk {
+	return u.Update(func(s *CompConnUpsert) {
+		s.ClearOffsetNr()
+	})
+}
+
+// SetActNr sets the "act_nr" field.
+func (u *CompConnUpsertBulk) SetActNr(v int64) *CompConnUpsertBulk {
+	return u.Update(func(s *CompConnUpsert) {
+		s.SetActNr(v)
+	})
+}
+
+// AddActNr adds v to the "act_nr" field.
+func (u *CompConnUpsertBulk) AddActNr(v int64) *CompConnUpsertBulk {
+	return u.Update(func(s *CompConnUpsert) {
+		s.AddActNr(v)
+	})
+}
+
+// UpdateActNr sets the "act_nr" field to the value that was provided on create.
+func (u *CompConnUpsertBulk) UpdateActNr() *CompConnUpsertBulk {
+	return u.Update(func(s *CompConnUpsert) {
+		s.UpdateActNr()
+	})
+}
+
+// ClearActNr clears the value of the "act_nr" field.
+func (u *CompConnUpsertBulk) ClearActNr() *CompConnUpsertBulk {
+	return u.Update(func(s *CompConnUpsert) {
+		s.ClearActNr()
+	})
+}
+
+// Exec executes the query.
+func (u *CompConnUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the CompConnCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for CompConnCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *CompConnUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

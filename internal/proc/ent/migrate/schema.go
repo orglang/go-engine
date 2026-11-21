@@ -62,12 +62,26 @@ var (
 		Columns:    ProcTypeDefsColumns,
 		PrimaryKey: []*schema.Column{ProcTypeDefsColumns[0]},
 	}
+	// ProcTypeExpsColumns holds the columns for the "proc_type_exps" table.
+	ProcTypeExpsColumns = []*schema.Column{
+		{Name: "exp_ck", Type: field.TypeInt64, Increment: true},
+		{Name: "sup_exp_ck", Type: field.TypeInt64},
+		{Name: "kind", Type: field.TypeInt16},
+		{Name: "spec", Type: field.TypeJSON, Nullable: true},
+	}
+	// ProcTypeExpsTable holds the schema information for the "proc_type_exps" table.
+	ProcTypeExpsTable = &schema.Table{
+		Name:       "proc_type_exps",
+		Columns:    ProcTypeExpsColumns,
+		PrimaryKey: []*schema.Column{ProcTypeExpsColumns[0]},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		ProcCompConnsTable,
 		ProcCompExecsTable,
 		ProcTermDecsTable,
 		ProcTypeDefsTable,
+		ProcTypeExpsTable,
 	}
 )
 
@@ -83,5 +97,8 @@ func init() {
 	}
 	ProcTypeDefsTable.Annotation = &entsql.Annotation{
 		Table: "proc_type_defs",
+	}
+	ProcTypeExpsTable.Annotation = &entsql.Annotation{
+		Table: "proc_type_exps",
 	}
 }

@@ -8,6 +8,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 
@@ -15,6 +16,7 @@ import (
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/termsem"
 
+	"orglang/go-engine/internal/proc/ent"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
@@ -24,32 +26,36 @@ type decRootRef struct {
 	Title  string `db:"title"`
 }
 
-type daoPgx struct {
-	qb  queryBuilder
-	log *slog.Logger
+type daoEnt struct {
+	client *ent.Client
+	log    *slog.Logger
 }
 
-func NewDaoPgx(qb queryBuilder, log *slog.Logger) termdec.Repo {
-	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
-	return &daoPgx{qb, log.With(name)}
+func NewDaoEnt(client *ent.Client, log *slog.Logger) termdec.Repo {
+	name := slog.String("name", reflect.TypeFor[daoEnt]().Name())
+	return &daoEnt{client: client, log: log.With(name)}
 }
 
 // for compilation purposes
 func newRepo() termdec.Repo {
-	return new(daoPgx)
+	return new(daoEnt)
 }
 
-func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec termdec.DecRec) error {
+func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdec.DecRec) error {
 	refAttr := slog.Any("ref", rec.TermRef)
 	dto, err := DataFromDecRec(rec)
 	if err != nil {
 		dao.log.Error("model conversion failed", refAttr)
 		return err
 	}
-	sql, args := dao.qb.InsertRec(dto)
-	_, err = conn.Pgx.Exec(ctx, sql, args...)
+	_, err = dao.client.TermDec.Create().
+		SetID(dto.TermID).
+		SetTermRn(dto.TermRN).
+		SetLiabVar(dto.LiabVar).
+		SetAssetVars(dto.AssetVars).
+		Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
-		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
+		dao.log.Error("query execution failed", refAttr)
 		return err
 	}
 	return nil

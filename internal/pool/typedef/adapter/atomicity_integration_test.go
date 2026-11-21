@@ -11,10 +11,10 @@ import (
 	dbadapter "orglang/go-engine/internal/lib/db/adapter"
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/pool/ent"
-	"orglang/go-engine/internal/testutil/pgxtest"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 	typeexpadapter "orglang/go-engine/internal/pool/typeexp/adapter"
 	typeexp "orglang/go-engine/internal/pool/typeexp/core"
+	"orglang/go-engine/internal/testutil/pgxtest"
 )
 
 type integrationTypeExpQueryBuilder struct{}

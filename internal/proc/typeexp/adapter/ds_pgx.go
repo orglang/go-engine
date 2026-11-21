@@ -18,11 +18,11 @@ import (
 
 // Adapter
 type daoPgx struct {
-	qb  typeexp.QueryBuilder
+	qb  QueryBuilder
 	log *slog.Logger
 }
 
-func NewDaoPgx(qb typeexp.QueryBuilder, log *slog.Logger) typeexp.Repo {
+func NewDaoPgx(qb QueryBuilder, log *slog.Logger) typeexp.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }
@@ -62,7 +62,7 @@ func (dao *daoPgx) SelectRecByCK(ctx context.Context, conn tx.Conn, expCK contke
 		return nil, queryErr
 	}
 	defer rows.Close()
-	dtos, scanErr := pgx.CollectRows(rows, pgx.RowToStructByName[typeexp.StateDS])
+	dtos, scanErr := pgx.CollectRows(rows, pgx.RowToStructByName[State])
 	if scanErr != nil {
 		dao.log.Error("row scanning failed", ckAttr)
 		return nil, scanErr
@@ -72,7 +72,7 @@ func (dao *daoPgx) SelectRecByCK(ctx context.Context, conn tx.Conn, expCK contke
 		return nil, errors.New("no rows selected")
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "entity selection succeed", slog.Any("dtos", dtos))
-	states := make(map[int64]typeexp.StateDS, len(dtos))
+	states := make(map[int64]State, len(dtos))
 	for _, dto := range dtos {
 		states[dto.ExpCK] = dto
 	}
@@ -107,7 +107,7 @@ func (dao *daoPgx) SelectRecsByCKs(ctx context.Context, conn tx.Conn, expCKs []c
 		if err != nil {
 			dao.log.Error("query execution failed", ckAttr)
 		}
-		dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[typeexp.StateDS])
+		dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[State])
 		if err != nil {
 			dao.log.Error("rows scanning failed", ckAttr)
 		}
@@ -115,7 +115,7 @@ func (dao *daoPgx) SelectRecsByCKs(ctx context.Context, conn tx.Conn, expCKs []c
 			dao.log.Error("entity selection failed", ckAttr)
 			return nil, typeexp.ErrDoesNotExist(expCK)
 		}
-		rec, err := dataToExpRec(typeexp.ExpRecDS{ExpCK: contkey.ConvertToInt(expCK), States: dtos})
+		rec, err := dataToExpRec(ExpRec{ExpCK: contkey.ConvertToInt(expCK), States: dtos})
 		if err != nil {
 			dao.log.Error("model conversion failed", ckAttr)
 			return nil, err

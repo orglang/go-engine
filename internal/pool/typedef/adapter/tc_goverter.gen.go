@@ -87,3 +87,50 @@ func adapterDefRecToTypesemSemRef(source DefRec) (typesem.SemRef, error) {
 	typesemSemRef.TypeRN = seqnum.ConvertFromInt(source.TypeRN)
 	return typesemSemRef, nil
 }
+func init() {
+	DataFromDefRecEnt = func(source core.DefRec) (DefRecDS, error) {
+		var adapterDefRecDS DefRecDS
+		adapterDefRecDS.TypeID = identity.ConvertToString(source.TypeRef.TypeID)
+		adapterDefRecDS.TypeRN = seqnum.ConvertToInt(source.TypeRef.TypeRN)
+		adapterDefRecDS.ExpCK = contkey.ConvertToInt(source.ExpCK)
+		return adapterDefRecDS, nil
+	}
+	DataToDefRecEnt = func(source DefRecDS) (core.DefRec, error) {
+		var coreDefRec core.DefRec
+		typesemSemRef, err := adapterDefRecDSToTypesemSemRef(source)
+		if err != nil {
+			return coreDefRec, err
+		}
+		coreDefRec.TypeRef = typesemSemRef
+		contkeyADT, err := contkey.ConvertFromInt(source.ExpCK)
+		if err != nil {
+			return coreDefRec, err
+		}
+		coreDefRec.ExpCK = contkeyADT
+		return coreDefRec, nil
+	}
+	DataToDefRecMapEnt = func(source map[uniqsym.ADT]DefRecDS) (map[uniqsym.ADT]core.DefRec, error) {
+		var mapUniqsymADTCoreDefRec map[uniqsym.ADT]core.DefRec
+		if source != nil {
+			mapUniqsymADTCoreDefRec = make(map[uniqsym.ADT]core.DefRec, len(source))
+			for key, value := range source {
+				coreDefRec, err := DataToDefRecEnt(value)
+				if err != nil {
+					return nil, err
+				}
+				mapUniqsymADTCoreDefRec[key] = coreDefRec
+			}
+		}
+		return mapUniqsymADTCoreDefRec, nil
+	}
+}
+func adapterDefRecDSToTypesemSemRef(source DefRecDS) (typesem.SemRef, error) {
+	var typesemSemRef typesem.SemRef
+	identityADT, err := identity.ConvertFromString(source.TypeID)
+	if err != nil {
+		return typesemSemRef, err
+	}
+	typesemSemRef.TypeID = identityADT
+	typesemSemRef.TypeRN = seqnum.ConvertFromInt(source.TypeRN)
+	return typesemSemRef, nil
+}

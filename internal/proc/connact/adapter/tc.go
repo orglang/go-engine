@@ -12,15 +12,15 @@ import (
 	termexp "orglang/go-engine/internal/proc/termexp/adapter"
 )
 
-func DataFromStepRec(r connact.ActRec) (ActRecDS, error) {
+func DataFromStepRec(r connact.ActRec) (ActRec, error) {
 	switch rec := r.(type) {
 	case connact.PubRec:
 		exp, err := termexp.DataFromExpRec(rec.ValExp)
 		if err != nil {
-			return ActRecDS{}, err
+			return ActRec{}, err
 		}
 		compRef := compsemadapter.DataFromRef(rec.CompRef)
-		return ActRecDS{
+		return ActRec{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
 			CompID: compRef.CompID,
@@ -32,10 +32,10 @@ func DataFromStepRec(r connact.ActRec) (ActRecDS, error) {
 	case connact.SubRec:
 		exp, err := termexp.DataFromExpRec(rec.ContExp)
 		if err != nil {
-			return ActRecDS{}, err
+			return ActRec{}, err
 		}
 		compRef := compsemadapter.DataFromRef(rec.CompRef)
-		return ActRecDS{
+		return ActRec{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
 			CompID: compRef.CompID,
@@ -49,7 +49,7 @@ func DataFromStepRec(r connact.ActRec) (ActRecDS, error) {
 	}
 }
 
-func DataToStepRec(dto ActRecDS) (connact.ActRec, error) {
+func DataToStepRec(dto ActRec) (connact.ActRec, error) {
 	connID, err := identity.ConvertFromString(dto.ConnID)
 	if err != nil {
 		return nil, err

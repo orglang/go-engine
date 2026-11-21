@@ -9,47 +9,51 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
+	"orglang/go-engine/internal/proc/ent"
+	compexec "orglang/go-engine/internal/proc/compexec/core"
 
 	"orglang/go-engine/internal/adt/compsem"
 	"orglang/go-engine/internal/adt/compvar"
 	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
 	"orglang/go-engine/internal/adt/seqnum"
-
-	compexec "orglang/go-engine/internal/proc/compexec/core"
 )
 
 // Adapter
-type daoPgx struct {
-	qb  queryBuilder
-	log *slog.Logger
+type daoEnt struct {
+	client *ent.Client
+	log    *slog.Logger
 }
 
 // for compilation purposes
 func newRepo() compexec.Repo {
-	return new(daoPgx)
+	return new(daoEnt)
 }
 
-func newDaoPgx(qb queryBuilder, log *slog.Logger) *daoPgx {
-	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
-	return &daoPgx{qb, log.With(name)}
+func newDaoEnt(client *ent.Client, log *slog.Logger) *daoEnt {
+	name := slog.String("name", reflect.TypeFor[daoEnt]().Name())
+	return &daoEnt{client: client, log: log.With(name)}
 }
 
-func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec compexec.ExecRec) error {
+func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec compexec.ExecRec) error {
 	dto := DataFromExecRec(rec)
 	refAttr := slog.Any("ref", rec.CompRef)
-	sql, args := dao.qb.InsertRec(dto)
-	_, execErr := conn.Pgx.Exec(ctx, sql, args...)
-	if execErr != nil {
-		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
-		return execErr
+	_, err := dao.client.CompExec.Create().
+		SetID(dto.CompID).
+		SetCompRn(dto.CompRN).
+		SetLiabMode(dto.LiabMode).
+		Save(entpgx.WithConn(ctx, conn.Pgx))
+	if err != nil {
+		dao.log.Error("query execution failed", refAttr)
+		return err
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "insertion succeed", slog.Any("dto", dto))
 	return nil
 }
 
-func (dao *daoPgx) GetSnapByRef(ctx context.Context, conn tx.Conn, ref compsem.SemRef) (compexec.ExecSnap, error) {
+func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref compsem.SemRef) (compexec.ExecSnap, error) {
 	refAttr := slog.Any("ref", ref)
 	chnlRows, err := conn.Pgx.Query(ctx, selectChnls, ref.CompID.String())
 	if err != nil {
@@ -73,7 +77,7 @@ func (dao *daoPgx) GetSnapByRef(ctx context.Context, conn tx.Conn, ref compsem.S
 	}, nil
 }
 
-func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod compexec.ExecMod) (err error) {
+func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod compexec.ExecMod) (err error) {
 	if len(mod.CompRefs) == 0 {
 		panic("empty locks")
 	}

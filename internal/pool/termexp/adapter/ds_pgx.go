@@ -3,8 +3,7 @@ package adapter
 import (
 	"log/slog"
 	"reflect"
-
-	)
+)
 
 // Adapter
 type daoPgx struct {

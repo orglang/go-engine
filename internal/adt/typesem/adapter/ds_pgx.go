@@ -41,7 +41,9 @@ func newRepo() typesem.Repo {
 func (dao *daoPgx) TouchRef(ctx context.Context, conn tx.Conn, ref typesem.SemRef) error {
 	dto := DataFromRef(ref)
 	refAttr := slog.Any("ref", ref)
-	const query = `UPDATE %s SET type_rn = type_rn + 1 WHERE type_id = $1 AND type_rn = $2`
+	const query = `
+UPDATE %s SET type_rn = type_rn + 1 WHERE type_id = $1 AND type_rn = $2
+`
 	sql := fmt.Sprintf(query, dao.typeTable)
 	ct, execErr := conn.Pgx.Exec(ctx, sql, dto.TypeID, dto.TypeRN)
 	if execErr != nil {
@@ -61,10 +63,12 @@ func (dao *daoPgx) GetRefsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 	if len(typeQNs) == 0 {
 		return make(map[uniqsym.ADT]typesem.SemRef), nil
 	}
-	const query = `SELECT t.type_id, t.type_rn
-		FROM %s AS t
-		JOIN %s AS d ON d.desc_id = t.type_id
-		WHERE d.desc_qn = $1`
+	const query = `
+SELECT t.type_id, t.type_rn
+FROM %s AS t
+JOIN %s AS d ON d.desc_id = t.type_id
+WHERE d.desc_qn = $1
+`
 	sql := fmt.Sprintf(query, dao.typeTable, dao.descTable)
 	batch := pgx.Batch{}
 	for _, typeQN := range typeQNs {

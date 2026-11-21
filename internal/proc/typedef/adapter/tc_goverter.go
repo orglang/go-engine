@@ -20,9 +20,9 @@ var (
 // goverter:extend orglang/go-engine/internal/proc/typeexp/adapter:Data.*
 var (
 	// goverter:map . TypeRef
-	DataToDefRec  func(DefRecDS) (typedef.DefRec, error)
-	DataToDefRecs func([]DefRecDS) ([]typedef.DefRec, error)
+	DataToDefRec  func(DefRec) (typedef.DefRec, error)
+	DataToDefRecs func([]DefRec) ([]typedef.DefRec, error)
 	// goverter:autoMap TypeRef
-	DataFromDefRec  func(typedef.DefRec) (DefRecDS, error)
-	DataFromDefRecs func([]typedef.DefRec) ([]DefRecDS, error)
+	DataFromDefRec  func(typedef.DefRec) (DefRec, error)
+	DataFromDefRecs func([]typedef.DefRec) ([]DefRec, error)
 )

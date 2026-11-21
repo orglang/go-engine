@@ -80,7 +80,7 @@ func (dao *daoPgx) SelectRefs(ctx context.Context, conn tx.Conn) ([]typesem.SemR
 		return nil, err
 	}
 	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[typesemadapter.SemRefDS])
+	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[typesemadapter.SemRef])
 	if err != nil {
 		dao.log.Error("rows scanning failed")
 		return nil, err

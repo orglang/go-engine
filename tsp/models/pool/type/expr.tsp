@@ -16,11 +16,28 @@ union ExprSpec {
 }
 
 model OneSpec {}
-model LinkSpec { link: OrgLang.Any.Type.LinkSpec; }
-model PlusSpec { proc_qns: string[]; cont_expr: ExprSpec; }
-model WithSpec { proc_qns: string[]; cont_expr: ExprSpec; }
-model TensorSpec { val_expr: ExprSpec; cont_expr: ExprSpec; }
-model LolliSpec { val_expr: ExprSpec; cont_expr: ExprSpec; }
-model UpSpec { cont_expr: ExprSpec; }
-model DownSpec { cont_expr: ExprSpec; }
-
+model LinkSpec {
+  link: OrgLang.Any.Type.LinkSpec;
+}
+model PlusSpec {
+  proc_qns: string[];
+  cont_expr: ExprSpec;
+}
+model WithSpec {
+  proc_qns: string[];
+  cont_expr: ExprSpec;
+}
+model TensorSpec {
+  val_expr: ExprSpec;
+  cont_expr: ExprSpec;
+}
+model LolliSpec {
+  val_expr: ExprSpec;
+  cont_expr: ExprSpec;
+}
+model UpSpec {
+  cont_expr: ExprSpec;
+}
+model DownSpec {
+  cont_expr: ExprSpec;
+}

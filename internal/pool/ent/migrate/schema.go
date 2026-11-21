@@ -62,12 +62,26 @@ var (
 		Columns:    PoolTypeDefsColumns,
 		PrimaryKey: []*schema.Column{PoolTypeDefsColumns[0]},
 	}
+	// PoolTypeExpsColumns holds the columns for the "pool_type_exps" table.
+	PoolTypeExpsColumns = []*schema.Column{
+		{Name: "exp_ck", Type: field.TypeInt64, Increment: true},
+		{Name: "sup_exp_ck", Type: field.TypeInt64},
+		{Name: "kind", Type: field.TypeInt16},
+		{Name: "spec", Type: field.TypeJSON, Nullable: true},
+	}
+	// PoolTypeExpsTable holds the schema information for the "pool_type_exps" table.
+	PoolTypeExpsTable = &schema.Table{
+		Name:       "pool_type_exps",
+		Columns:    PoolTypeExpsColumns,
+		PrimaryKey: []*schema.Column{PoolTypeExpsColumns[0]},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		PoolCompConnsTable,
 		PoolCompExecsTable,
 		PoolTermDecsTable,
 		PoolTypeDefsTable,
+		PoolTypeExpsTable,
 	}
 )
 
@@ -83,5 +97,8 @@ func init() {
 	}
 	PoolTypeDefsTable.Annotation = &entsql.Annotation{
 		Table: "pool_type_defs",
+	}
+	PoolTypeExpsTable.Annotation = &entsql.Annotation{
+		Table: "pool_type_exps",
 	}
 }

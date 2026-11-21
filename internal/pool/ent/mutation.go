@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"orglang/go-engine/internal/adt/termvar/adapter"
@@ -12,6 +13,7 @@ import (
 	"orglang/go-engine/internal/pool/ent/predicate"
 	"orglang/go-engine/internal/pool/ent/termdef"
 	"orglang/go-engine/internal/pool/ent/typedef"
+	"orglang/go-engine/internal/pool/ent/typeexp"
 	"sync"
 
 	"entgo.io/ent"
@@ -31,6 +33,7 @@ const (
 	TypeCompExec = "CompExec"
 	TypeTermDef  = "TermDef"
 	TypeTypeDef  = "TypeDef"
+	TypeTypeExp  = "TypeExp"
 )
 
 // CompConnMutation represents an operation that mutates the CompConn nodes in the graph.
@@ -2213,4 +2216,552 @@ func (m *TypeDefMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *TypeDefMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown TypeDef edge %s", name)
+}
+
+// TypeExpMutation represents an operation that mutates the TypeExp nodes in the graph.
+type TypeExpMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *int64
+	sup_exp_ck    *int64
+	addsup_exp_ck *int64
+	kind          *int16
+	addkind       *int16
+	spec          *jsontext.Value
+	appendspec    jsontext.Value
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*TypeExp, error)
+	predicates    []predicate.TypeExp
+}
+
+var _ ent.Mutation = (*TypeExpMutation)(nil)
+
+// typeexpOption allows management of the mutation configuration using functional options.
+type typeexpOption func(*TypeExpMutation)
+
+// newTypeExpMutation creates new mutation for the TypeExp entity.
+func newTypeExpMutation(c config, op Op, opts ...typeexpOption) *TypeExpMutation {
+	m := &TypeExpMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeTypeExp,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withTypeExpID sets the ID field of the mutation.
+func withTypeExpID(id int64) typeexpOption {
+	return func(m *TypeExpMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *TypeExp
+		)
+		m.oldValue = func(ctx context.Context) (*TypeExp, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().TypeExp.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withTypeExp sets the old TypeExp of the mutation.
+func withTypeExp(node *TypeExp) typeexpOption {
+	return func(m *TypeExpMutation) {
+		m.oldValue = func(context.Context) (*TypeExp, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m TypeExpMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m TypeExpMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of TypeExp entities.
+func (m *TypeExpMutation) SetID(id int64) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *TypeExpMutation) ID() (id int64, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *TypeExpMutation) IDs(ctx context.Context) ([]int64, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int64{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().TypeExp.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetSupExpCk sets the "sup_exp_ck" field.
+func (m *TypeExpMutation) SetSupExpCk(i int64) {
+	m.sup_exp_ck = &i
+	m.addsup_exp_ck = nil
+}
+
+// SupExpCk returns the value of the "sup_exp_ck" field in the mutation.
+func (m *TypeExpMutation) SupExpCk() (r int64, exists bool) {
+	v := m.sup_exp_ck
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSupExpCk returns the old "sup_exp_ck" field's value of the TypeExp entity.
+// If the TypeExp object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TypeExpMutation) OldSupExpCk(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSupExpCk is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSupExpCk requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSupExpCk: %w", err)
+	}
+	return oldValue.SupExpCk, nil
+}
+
+// AddSupExpCk adds i to the "sup_exp_ck" field.
+func (m *TypeExpMutation) AddSupExpCk(i int64) {
+	if m.addsup_exp_ck != nil {
+		*m.addsup_exp_ck += i
+	} else {
+		m.addsup_exp_ck = &i
+	}
+}
+
+// AddedSupExpCk returns the value that was added to the "sup_exp_ck" field in this mutation.
+func (m *TypeExpMutation) AddedSupExpCk() (r int64, exists bool) {
+	v := m.addsup_exp_ck
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSupExpCk resets all changes to the "sup_exp_ck" field.
+func (m *TypeExpMutation) ResetSupExpCk() {
+	m.sup_exp_ck = nil
+	m.addsup_exp_ck = nil
+}
+
+// SetKind sets the "kind" field.
+func (m *TypeExpMutation) SetKind(i int16) {
+	m.kind = &i
+	m.addkind = nil
+}
+
+// Kind returns the value of the "kind" field in the mutation.
+func (m *TypeExpMutation) Kind() (r int16, exists bool) {
+	v := m.kind
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldKind returns the old "kind" field's value of the TypeExp entity.
+// If the TypeExp object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TypeExpMutation) OldKind(ctx context.Context) (v int16, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldKind is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldKind requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldKind: %w", err)
+	}
+	return oldValue.Kind, nil
+}
+
+// AddKind adds i to the "kind" field.
+func (m *TypeExpMutation) AddKind(i int16) {
+	if m.addkind != nil {
+		*m.addkind += i
+	} else {
+		m.addkind = &i
+	}
+}
+
+// AddedKind returns the value that was added to the "kind" field in this mutation.
+func (m *TypeExpMutation) AddedKind() (r int16, exists bool) {
+	v := m.addkind
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetKind resets all changes to the "kind" field.
+func (m *TypeExpMutation) ResetKind() {
+	m.kind = nil
+	m.addkind = nil
+}
+
+// SetSpec sets the "spec" field.
+func (m *TypeExpMutation) SetSpec(j jsontext.Value) {
+	m.spec = &j
+	m.appendspec = nil
+}
+
+// Spec returns the value of the "spec" field in the mutation.
+func (m *TypeExpMutation) Spec() (r jsontext.Value, exists bool) {
+	v := m.spec
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSpec returns the old "spec" field's value of the TypeExp entity.
+// If the TypeExp object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TypeExpMutation) OldSpec(ctx context.Context) (v jsontext.Value, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSpec is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSpec requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSpec: %w", err)
+	}
+	return oldValue.Spec, nil
+}
+
+// AppendSpec adds j to the "spec" field.
+func (m *TypeExpMutation) AppendSpec(j jsontext.Value) {
+	m.appendspec = append(m.appendspec, j...)
+}
+
+// AppendedSpec returns the list of values that were appended to the "spec" field in this mutation.
+func (m *TypeExpMutation) AppendedSpec() (jsontext.Value, bool) {
+	if len(m.appendspec) == 0 {
+		return nil, false
+	}
+	return m.appendspec, true
+}
+
+// ClearSpec clears the value of the "spec" field.
+func (m *TypeExpMutation) ClearSpec() {
+	m.spec = nil
+	m.appendspec = nil
+	m.clearedFields[typeexp.FieldSpec] = struct{}{}
+}
+
+// SpecCleared returns if the "spec" field was cleared in this mutation.
+func (m *TypeExpMutation) SpecCleared() bool {
+	_, ok := m.clearedFields[typeexp.FieldSpec]
+	return ok
+}
+
+// ResetSpec resets all changes to the "spec" field.
+func (m *TypeExpMutation) ResetSpec() {
+	m.spec = nil
+	m.appendspec = nil
+	delete(m.clearedFields, typeexp.FieldSpec)
+}
+
+// Where appends a list predicates to the TypeExpMutation builder.
+func (m *TypeExpMutation) Where(ps ...predicate.TypeExp) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the TypeExpMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *TypeExpMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.TypeExp, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *TypeExpMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *TypeExpMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (TypeExp).
+func (m *TypeExpMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *TypeExpMutation) Fields() []string {
+	fields := make([]string, 0, 3)
+	if m.sup_exp_ck != nil {
+		fields = append(fields, typeexp.FieldSupExpCk)
+	}
+	if m.kind != nil {
+		fields = append(fields, typeexp.FieldKind)
+	}
+	if m.spec != nil {
+		fields = append(fields, typeexp.FieldSpec)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *TypeExpMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case typeexp.FieldSupExpCk:
+		return m.SupExpCk()
+	case typeexp.FieldKind:
+		return m.Kind()
+	case typeexp.FieldSpec:
+		return m.Spec()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *TypeExpMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case typeexp.FieldSupExpCk:
+		return m.OldSupExpCk(ctx)
+	case typeexp.FieldKind:
+		return m.OldKind(ctx)
+	case typeexp.FieldSpec:
+		return m.OldSpec(ctx)
+	}
+	return nil, fmt.Errorf("unknown TypeExp field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *TypeExpMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case typeexp.FieldSupExpCk:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSupExpCk(v)
+		return nil
+	case typeexp.FieldKind:
+		v, ok := value.(int16)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetKind(v)
+		return nil
+	case typeexp.FieldSpec:
+		v, ok := value.(jsontext.Value)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSpec(v)
+		return nil
+	}
+	return fmt.Errorf("unknown TypeExp field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *TypeExpMutation) AddedFields() []string {
+	var fields []string
+	if m.addsup_exp_ck != nil {
+		fields = append(fields, typeexp.FieldSupExpCk)
+	}
+	if m.addkind != nil {
+		fields = append(fields, typeexp.FieldKind)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *TypeExpMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case typeexp.FieldSupExpCk:
+		return m.AddedSupExpCk()
+	case typeexp.FieldKind:
+		return m.AddedKind()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *TypeExpMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case typeexp.FieldSupExpCk:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSupExpCk(v)
+		return nil
+	case typeexp.FieldKind:
+		v, ok := value.(int16)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddKind(v)
+		return nil
+	}
+	return fmt.Errorf("unknown TypeExp numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *TypeExpMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(typeexp.FieldSpec) {
+		fields = append(fields, typeexp.FieldSpec)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *TypeExpMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *TypeExpMutation) ClearField(name string) error {
+	switch name {
+	case typeexp.FieldSpec:
+		m.ClearSpec()
+		return nil
+	}
+	return fmt.Errorf("unknown TypeExp nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *TypeExpMutation) ResetField(name string) error {
+	switch name {
+	case typeexp.FieldSupExpCk:
+		m.ResetSupExpCk()
+		return nil
+	case typeexp.FieldKind:
+		m.ResetKind()
+		return nil
+	case typeexp.FieldSpec:
+		m.ResetSpec()
+		return nil
+	}
+	return fmt.Errorf("unknown TypeExp field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *TypeExpMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *TypeExpMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *TypeExpMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *TypeExpMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *TypeExpMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *TypeExpMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *TypeExpMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown TypeExp unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *TypeExpMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown TypeExp edge %s", name)
 }

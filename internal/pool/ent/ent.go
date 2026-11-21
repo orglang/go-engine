@@ -10,6 +10,7 @@ import (
 	"orglang/go-engine/internal/pool/ent/compexec"
 	"orglang/go-engine/internal/pool/ent/termdef"
 	"orglang/go-engine/internal/pool/ent/typedef"
+	"orglang/go-engine/internal/pool/ent/typeexp"
 	"reflect"
 	"sync"
 
@@ -80,6 +81,7 @@ func checkColumn(t, c string) error {
 			compexec.Table: compexec.ValidColumn,
 			termdef.Table:  termdef.ValidColumn,
 			typedef.Table:  typedef.ValidColumn,
+			typeexp.Table:  typeexp.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

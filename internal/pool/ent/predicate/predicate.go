@@ -17,3 +17,6 @@ type TermDef func(*sql.Selector)
 
 // TypeDef is the predicate function for typedef builders.
 type TypeDef func(*sql.Selector)
+
+// TypeExp is the predicate function for typeexp builders.
+type TypeExp func(*sql.Selector)

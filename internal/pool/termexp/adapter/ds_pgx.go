@@ -10,7 +10,7 @@ type daoPgx struct {
 	log *slog.Logger
 }
 
-func NewDaoPgx(l *slog.Logger) *daoPgx {
+func NewDaoPgx(l *slog.Logger) any {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{l.With(name)}
 }

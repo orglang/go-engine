@@ -12,7 +12,12 @@ version = "1.11.1"
 backend = "go:github.com/jmattheis/goverter/cmd/goverter"
 specifiers = ["v1.11.1"]
 
-[[tools."go:entgo.io/ent/cmd/ent"]]\nversion = "0.14.6"\nbackend = "go:entgo.io/ent/cmd/ent"\nspecifiers = ["v0.14.6"]\n\n[[tools."go:github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen"]]
+[[tools."go:entgo.io/ent/cmd/ent"]]
+version = "0.14.6"
+backend = "go:entgo.io/ent/cmd/ent"
+specifiers = ["v0.14.6"]
+
+[[tools."go:github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen"]]
 version = "2.8.2"
 backend = "go:github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen"
 specifiers = ["v2.8.2"]

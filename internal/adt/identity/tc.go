@@ -1,11 +1,6 @@
 package identity
 
-import (
-	"database/sql"
-	"orglang/go-engine/internal/adt/option"
-
-	"github.com/rs/xid"
-)
+import "github.com/rs/xid"
 
 func ConvertFromString(s string) (ADT, error) {
 	id, err := xid.FromString(s)
@@ -25,11 +20,4 @@ func ConvertPtrToStringPtr(id *ADT) *string {
 	}
 	s := xid.ID(*id).String()
 	return &s
-}
-
-func ConvertOptionToNullString(id option.ADT[ADT]) sql.Null[string] {
-	if id.IsEmpty() {
-		return sql.Null[string]{}
-	}
-	return sql.Null[string]{V: ConvertToString(id.Get()), Valid: true}
 }

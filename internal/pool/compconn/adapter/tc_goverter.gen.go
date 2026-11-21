@@ -5,7 +5,9 @@ package adapter
 
 import (
 	identity "orglang/go-engine/internal/adt/identity"
+	identityadapter "orglang/go-engine/internal/adt/identity/adapter"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
+	seqnumadapter "orglang/go-engine/internal/adt/seqnum/adapter"
 	core "orglang/go-engine/internal/pool/compconn/core"
 	adapter "orglang/go-engine/internal/pool/connact/adapter"
 	core1 "orglang/go-engine/internal/pool/connact/core"
@@ -15,7 +17,7 @@ func init() {
 	DataFromMod = func(source core.ConnMod) ConnMod {
 		var adapterConnMod ConnMod
 		adapterConnMod.ConnID = identityToString(source.ConnID)
-		adapterConnMod.OffsetNr = seqnum.ConvertOptionToNullInt(source.OffsetNr)
+		adapterConnMod.OffsetNr = seqnumadapter.ConvertOptionToNullInt(source.OffsetNr)
 		adapterConnMod.ProviderCompID = identity.ConvertToString(source.ProviderCompID)
 		adapterConnMod.ProviderCompRN = seqnum.ConvertToInt(source.ProviderCompRN)
 		return adapterConnMod
@@ -23,7 +25,7 @@ func init() {
 	DataFromQry = func(source core.ConnQry) ConnQry {
 		var adapterConnQry ConnQry
 		adapterConnQry.ConnID = identityToString(source.ConnID)
-		adapterConnQry.ChnlID = identity.ConvertOptionToNullString(source.ChnlID)
+		adapterConnQry.ChnlID = identityadapter.ConvertOptionToNullString(source.ChnlID)
 		return adapterConnQry
 	}
 	DataToSnap = func(source ConnSnap) (core.ConnSnap, error) {

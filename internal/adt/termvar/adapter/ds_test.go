@@ -5,12 +5,12 @@ import (
 	"testing"
 )
 
-func TestVarRecDSKeepsLegacyContentKeyJSONName(t *testing.T) {
+func TestVarRecKeepsLegacyContentKeyJSONName(t *testing.T) {
 	const payload = `{"id":"type-1","ph":"channel-1","vk":42}`
 
-	var rec VarRecDS
+	var rec VarRec
 	if err := json.Unmarshal([]byte(payload), &rec); err != nil {
-		t.Fatalf("unmarshal VarRecDS: %v", err)
+		t.Fatalf("unmarshal VarRec: %v", err)
 	}
 	if rec.ExpCK != 42 {
 		t.Fatalf("ExpCK = %d, want 42", rec.ExpCK)
@@ -18,7 +18,7 @@ func TestVarRecDSKeepsLegacyContentKeyJSONName(t *testing.T) {
 
 	got, err := json.Marshal(rec)
 	if err != nil {
-		t.Fatalf("marshal VarRecDS: %v", err)
+		t.Fatalf("marshal VarRec: %v", err)
 	}
 	if string(got) != payload {
 		t.Fatalf("JSON = %s, want %s", got, payload)

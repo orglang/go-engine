@@ -52,7 +52,7 @@ tasks:
       - task: sources:lock
     cmds:
       - test -z "$(git status --porcelain -- mise.sources-dev.lock)"
-      - test -z "$(git status --porcelain -- ':(glob)**/*.gen.go')"
+      - test -z "$(git status --porcelain -- ':(glob)**/*.gen.go' ':(glob)**/ent/**')"
       - golangci-lint fmt --diff
       - golangci-lint run ./...
 
@@ -95,24 +95,19 @@ tasks:
       - test -f openapi/openapi.yaml
       - test -z "$(git status --porcelain -- openapi/openapi.yaml)"
 
-  specs:lock:
-    desc: Refresh specs toolchain and npm dependency lockfiles
-    cmds:
-      - mise -E specs lock
-      - npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund
-
   specs:verify:
     desc: Verify specs before publishing
     cmds:
       - task: specs:check
 
   hooks:install:
+    aliases: [hooks]
     desc: Configure this repository to use versioned Git hooks
-    cmds:
-      - git config core.hooksPath .githooks
+    cmd: git config core.hooksPath .githooks
 
   process:
     aliases: [proc]
+    desc: Run specified process in foreground
     desc: Run specified process in foreground
     cmds:
       - task: engine:process

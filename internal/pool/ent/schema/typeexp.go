@@ -9,7 +9,7 @@ import (
 
 // ExpSpec is the JSON payload stored for a pool type-expression state.
 type ExpSpec struct {
-	Link string    `json:"link,omitempty"`
+	Link   string    `json:"link,omitempty"`
 	Tensor *ExpProd  `json:"tensor,omitempty"`
 	Lolli  *ExpProd  `json:"lolli,omitempty"`
 	Plus   *ExpSum   `json:"plus,omitempty"`

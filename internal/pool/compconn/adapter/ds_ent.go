@@ -137,14 +137,11 @@ func (dao *daoEnt) GetSnapByQry(ctx context.Context, conn tx.Conn, qry compconn.
 }
 
 const (
-	insertActRec = `
-INSERT INTO pool_conn_acts
-(conn_id, act_nr, comp_id, comp_rn, chnl_id, kind, exp)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-`
+	insertActRec = `INSERT INTO pool_conn_acts
+    (conn_id, act_nr, comp_id, comp_rn, chnl_id, kind, exp)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)`
 
-	selectSnap = `
-WITH acts AS (
+	selectSnap = `WITH acts AS (
     SELECT act.conn_id, act.act_nr, act.comp_id, act.comp_rn, act.chnl_id, act.kind, act.exp
     FROM pool_conn_acts act WHERE act.conn_id = $1
 )
@@ -153,11 +150,9 @@ SELECT conn.conn_id, conn.provider_comp_id, exec.comp_rn AS provider_comp_rn,
     (SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM acts t WHERE t.act_nr > conn.offset_nr) AS acts
 FROM pool_comp_conns conn
 JOIN pool_comp_execs exec ON exec.comp_id = conn.provider_comp_id
-WHERE conn.conn_id = $1
-`
+WHERE conn.conn_id = $1`
 
-	selectSnapByChannel = `
-WITH acts AS (
+	selectSnapByChannel = `WITH acts AS (
     SELECT act.conn_id, act.act_nr, act.comp_id, act.comp_rn, act.chnl_id, act.kind, act.exp
     FROM pool_conn_acts act WHERE act.conn_id = $1 AND act.chnl_id = $2
 )
@@ -166,6 +161,5 @@ SELECT conn.conn_id, conn.provider_comp_id, exec.comp_rn AS provider_comp_rn,
     (SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM acts t WHERE t.act_nr > conn.offset_nr) AS acts
 FROM pool_comp_conns conn
 JOIN pool_comp_execs exec ON exec.comp_id = conn.provider_comp_id
-WHERE conn.conn_id = $1
-`
+WHERE conn.conn_id = $1`
 )

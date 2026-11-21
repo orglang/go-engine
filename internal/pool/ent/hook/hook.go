@@ -8,6 +8,18 @@ import (
 	"orglang/go-engine/internal/pool/ent"
 )
 
+// The TermDefFunc type is an adapter to allow the use of ordinary
+// function as TermDef mutator.
+type TermDefFunc func(context.Context, *ent.TermDefMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TermDefFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TermDefMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TermDefMutation", m)
+}
+
 // The TypeDefFunc type is an adapter to allow the use of ordinary
 // function as TypeDef mutator.
 type TypeDefFunc func(context.Context, *ent.TypeDefMutation) (ent.Value, error)

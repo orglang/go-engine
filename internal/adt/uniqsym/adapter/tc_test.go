@@ -8,7 +8,8 @@ import (
 )
 
 func TestConvertFromNullString(t *testing.T) {
-	if got, err := ConvertFromNullString(sql.NullString{}); err != nil || !got.IsEmpty() {
+	var empty uniqsym.ADT
+	if got, err := ConvertFromNullString(sql.NullString{}); err != nil || !got.Equal(empty) {
 		t.Fatalf("got (%v, %v), want empty, nil", got, err)
 	}
 	if _, err := ConvertFromNullString(sql.NullString{String: "bad value", Valid: true}); err != nil {

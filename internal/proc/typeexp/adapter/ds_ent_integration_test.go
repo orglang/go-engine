@@ -91,6 +91,7 @@ func TestIntegrationProcTypeExpAddRecIsIdempotent(t *testing.T) {
 		if count != 3 {
 			t.Errorf("stored state count = %d, want 3 after duplicate insert", count)
 		}
+		rows.Close()
 		return rows.Err()
 	})
 	if err != nil {

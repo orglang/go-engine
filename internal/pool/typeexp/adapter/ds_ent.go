@@ -163,4 +163,5 @@ WITH RECURSIVE exp_tree AS (
     FROM pool_type_exps sub, exp_tree sup
     WHERE sub.sup_exp_ck = sup.exp_ck
 )
-SELECT * FROM exp_tree`
+SELECT * FROM exp_tree
+`

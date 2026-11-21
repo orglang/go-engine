@@ -55,6 +55,7 @@ run = "task specs:check"
 sources = ["@group:common", "@group:specs"]
 outputs = []
 
+
 [tasks."sources:gate"]
 description = "Run Specs, then Sources in the CI pipeline"
 depends = ["specs:gate"]

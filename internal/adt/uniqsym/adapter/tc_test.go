@@ -9,13 +9,13 @@ import (
 
 func TestConvertFromNullString(t *testing.T) {
 	var empty uniqsym.ADT
-	if got, err := ConvertFromNullString(sql.NullString{}); err != nil || !got.Equal(empty) {
+	if got, err := ConvertFromNullString(sql.NullString{}); err != nil || got != empty {
 		t.Fatalf("got (%v, %v), want empty, nil", got, err)
 	}
 	if _, err := ConvertFromNullString(sql.NullString{String: "bad value", Valid: true}); err != nil {
 		t.Fatalf("unexpected constructor validation: %v", err)
 	}
-	if got, err := ConvertFromNullString(sql.NullString{String: "a.b", Valid: true}); err != nil || !got.Equal(mustUniqsym(t, "a.b")) {
+	if got, err := ConvertFromNullString(sql.NullString{String: "a.b", Valid: true}); err != nil || got != mustUniqsym(t, "a.b") {
 		t.Fatalf("got (%v, %v), want a.b, nil", got, err)
 	}
 }

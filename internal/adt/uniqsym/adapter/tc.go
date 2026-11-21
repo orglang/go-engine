@@ -8,13 +8,15 @@ import (
 
 func ConvertFromNullString(str sql.NullString) (uniqsym.ADT, error) {
 	if !str.Valid {
-		return uniqsym.Empty(), nil
+		var empty uniqsym.ADT
+		return empty, nil
 	}
 	return uniqsym.ConvertFromString(str.String)
 }
 
 func ConvertToNullString(adt uniqsym.ADT) sql.NullString {
-	if adt.IsEmpty() {
+	var empty uniqsym.ADT
+	if adt.Equal(empty) {
 		return sql.NullString{}
 	}
 	return sql.NullString{String: uniqsym.ConvertToString(adt), Valid: true}

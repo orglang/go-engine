@@ -57,7 +57,7 @@ func (dao *daoPgx) GetSnapByRef(ctx context.Context, conn tx.Conn, ref compsem.S
 		return compexec.ExecSnap{}, err
 	}
 	defer chnlRows.Close()
-	chnlDtos, err := pgx.CollectRows(chnlRows, pgx.RowToStructByName[compvaradapter.VarRecDS])
+	chnlDtos, err := pgx.CollectRows(chnlRows, pgx.RowToStructByName[compvaradapter.VarRec])
 	if err != nil {
 		dao.log.Error("row scanning failed", refAttr, slog.Any("t", reflect.TypeOf(chnlDtos)))
 		return compexec.ExecSnap{}, err

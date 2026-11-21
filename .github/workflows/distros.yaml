@@ -43,6 +43,14 @@ jobs:
           path: engine
           fetch-depth: 0
 
+      - name: Checkout SDK workspace dependency
+        uses: actions/checkout@v7
+        with:
+          repository: orglang/go-sdk
+          ref: 0f23c22842876df05fa3146a03b57c2434235561
+          path: sdk
+          fetch-depth: 0
+
       - name: Set up mise
         uses: jdx/mise-action@v5
         with:

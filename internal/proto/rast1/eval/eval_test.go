@@ -21,7 +21,7 @@ const (
 
 var (
 	// exps
-	closeX = a.Close{x}
+	closeX = a.Close{X: x}
 
 	// values
 	closeV = Close{}
@@ -35,20 +35,20 @@ func TestEvalSucc(t *testing.T) {
 		z        a.Channel
 		expected Value
 	}{
-		"Id1":    {Eta{y: closeV}, a.Id{x, y}, x, closeV},
-		"Id2":    {Eta{y: closeV}, a.Id{x, y}, z, closeV},
-		"Lab1":   {Eta{}, a.Lab{x, k, nil}, x, Lab{k, nil}},
-		"Lab2":   {Eta{x: CloCase{Eta{}, a.Branches{k: nil}, z}}, a.Lab{x, k, nil}, z, nil},
-		"Case1":  {Eta{}, a.Case{x, a.Branches{k: nil}}, x, CloCase{Eta{}, a.Branches{k: nil}, x}},
-		"Case2":  {Eta{x: Lab{k, nil}}, a.Case{x, a.Branches{k: nil}}, z, nil},
-		"Send1":  {Eta{y: nil}, a.Send{x, y, nil}, x, Send{nil, nil}},
-		"Send2":  {Eta{x: CloRecv{Eta{}, ChanExp{x, nil}, z}}, a.Send{x, y, nil}, z, nil},
-		"Recv1":  {Eta{}, a.Recv{x, y, nil}, x, CloRecv{Eta{}, ChanExp{y, nil}, x}},
-		"Recv2":  {Eta{x: Send{nil, nil}}, a.Recv{x, y, nil}, z, nil},
+		"Id1":    {Eta{y: closeV}, a.Id{X: x, Y: y}, x, closeV},
+		"Id2":    {Eta{y: closeV}, a.Id{X: x, Y: y}, z, closeV},
+		"Lab1":   {Eta{}, a.Lab{X: x, K: k, P: nil}, x, Lab{k, nil}},
+		"Lab2":   {Eta{x: CloCase{Eta{}, a.Branches{k: nil}, z}}, a.Lab{X: x, K: k, P: nil}, z, nil},
+		"Case1":  {Eta{}, a.Case{X: x, Branches: a.Branches{k: nil}}, x, CloCase{Eta{}, a.Branches{k: nil}, x}},
+		"Case2":  {Eta{x: Lab{k, nil}}, a.Case{X: x, Branches: a.Branches{k: nil}}, z, nil},
+		"Send1":  {Eta{y: nil}, a.Send{X: x, Y: y, P: nil}, x, Send{nil, nil}},
+		"Send2":  {Eta{x: CloRecv{Eta{}, ChanExp{x, nil}, z}}, a.Send{X: x, Y: y, P: nil}, z, nil},
+		"Recv1":  {Eta{}, a.Recv{X: x, Y: y, P: nil}, x, CloRecv{Eta{}, ChanExp{y, nil}, x}},
+		"Recv2":  {Eta{x: Send{nil, nil}}, a.Recv{X: x, Y: y, P: nil}, z, nil},
 		"Close1": {Eta{}, closeX, x, closeV},
 		"Close2": {Eta{}, closeX, z, closeV},
-		"Wait1":  {Eta{x: closeV}, a.Wait{x, nil}, x, nil},
-		"Wait2":  {Eta{x: closeV}, a.Wait{x, nil}, z, nil},
+		"Wait1":  {Eta{x: closeV}, a.Wait{X: x, P: nil}, x, nil},
+		"Wait2":  {Eta{x: closeV}, a.Wait{X: x, P: nil}, z, nil},
 	}
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
@@ -71,7 +71,7 @@ func TestEvalErr(t *testing.T) {
 		exp      a.Exp
 		expected error
 	}{
-		"Wait": {Eta{}, a.Wait{x, nil}, ErrUnexpectedWait},
+		"Wait": {Eta{}, a.Wait{X: x, P: nil}, ErrUnexpectedWait},
 	}
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {

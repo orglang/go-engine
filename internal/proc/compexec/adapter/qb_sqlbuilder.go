@@ -20,11 +20,11 @@ func newQueryBuilder() queryBuilder {
 
 func newSQLBuilder() *sqlBuilder {
 	semBuilder := sqlbuilder.NewStruct(new(termsemadapter.SemRef)).For(sqlbuilder.PostgreSQL)
-	execBuilder := sqlbuilder.NewStruct(new(ExecRecDS)).For(sqlbuilder.PostgreSQL)
-	varBuilder := sqlbuilder.NewStruct(new(compvaradapter.VarRecDS)).For(sqlbuilder.PostgreSQL)
+	execBuilder := sqlbuilder.NewStruct(new(ExecRec)).For(sqlbuilder.PostgreSQL)
+	varBuilder := sqlbuilder.NewStruct(new(compvaradapter.VarRec)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{semBuilder, execBuilder, varBuilder}
 }
 
-func (qb *sqlBuilder) InsertRec(rec ExecRecDS) (string, []any) {
+func (qb *sqlBuilder) InsertRec(rec ExecRec) (string, []any) {
 	return qb.execBuilder.InsertInto(CompExecs, rec).Build()
 }

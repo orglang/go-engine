@@ -6,27 +6,27 @@ package adapter
 import core "orglang/go-engine/internal/proc/typeexp/core"
 
 func init() {
-	DataFromExpRecs = func(source []core.ExpRec) []core.ExpRecDS {
-		var coreExpRecDSList []core.ExpRecDS
+	DataFromExpRecs = func(source []core.ExpRec) []ExpRec {
+		var adapterExpRecList []ExpRec
 		if source != nil {
-			coreExpRecDSList = make([]core.ExpRecDS, len(source))
+			adapterExpRecList = make([]ExpRec, len(source))
 			for i := 0; i < len(source); i++ {
-				coreExpRecDSList[i] = dataFromExpRec(source[i])
+				adapterExpRecList[i] = dataFromExpRec(source[i])
 			}
 		}
-		return coreExpRecDSList
+		return adapterExpRecList
 	}
-	DataFromExpRefs = func(source []core.ExpRef) []core.ExpRefDS {
-		var coreExpRefDSList []core.ExpRefDS
+	DataFromExpRefs = func(source []core.ExpRef) []ExpRef {
+		var adapterExpRefList []ExpRef
 		if source != nil {
-			coreExpRefDSList = make([]core.ExpRefDS, len(source))
+			adapterExpRefList = make([]ExpRef, len(source))
 			for i := 0; i < len(source); i++ {
-				coreExpRefDSList[i] = dataFromExpRef(source[i])
+				adapterExpRefList[i] = dataFromExpRef(source[i])
 			}
 		}
-		return coreExpRefDSList
+		return adapterExpRefList
 	}
-	DataToExpRecs = func(source []core.ExpRecDS) ([]core.ExpRec, error) {
+	DataToExpRecs = func(source []ExpRec) ([]core.ExpRec, error) {
 		var coreExpRecList []core.ExpRec
 		if source != nil {
 			coreExpRecList = make([]core.ExpRec, len(source))
@@ -40,7 +40,7 @@ func init() {
 		}
 		return coreExpRecList, nil
 	}
-	DataToExpRefs = func(source []core.ExpRefDS) ([]core.ExpRef, error) {
+	DataToExpRefs = func(source []ExpRef) ([]core.ExpRef, error) {
 		var coreExpRefList []core.ExpRef
 		if source != nil {
 			coreExpRefList = make([]core.ExpRef, len(source))

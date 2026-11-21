@@ -6,16 +6,16 @@ package adapter
 import core "orglang/go-engine/internal/proc/termexp/core"
 
 func init() {
-	DataFromExpRecs = func(source []core.ExpRec) ([]core.ExpRecDS, error) {
+	DataFromExpRecs = func(source []core.ExpRec) ([]ExpRec, error) {
 		return DataFromExpRecs(source)
 	}
-	DataFromExpSpecs = func(source []core.ExpSpec) ([]core.ExpSpecDS, error) {
+	DataFromExpSpecs = func(source []core.ExpSpec) ([]ExpSpec, error) {
 		return DataFromExpSpecs(source)
 	}
-	DataToExpRecs = func(source []core.ExpRecDS) ([]core.ExpRec, error) {
+	DataToExpRecs = func(source []ExpRec) ([]core.ExpRec, error) {
 		return DataToExpRecs(source)
 	}
-	DataToExpSpecs = func(source []core.ExpSpecDS) ([]core.ExpSpec, error) {
+	DataToExpSpecs = func(source []ExpSpec) ([]core.ExpSpec, error) {
 		return DataToExpSpecs(source)
 	}
 }

@@ -10,7 +10,7 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 	dbadapter "orglang/go-engine/internal/lib/db/adapter"
 	"orglang/go-engine/internal/lib/entpgx"
-	"orglang/go-engine/internal/lib/pgxtest"
+	"orglang/go-engine/internal/testutil/pgxtest"
 	"orglang/go-engine/internal/pool/ent"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 	typeexpadapter "orglang/go-engine/internal/pool/typeexp/adapter"

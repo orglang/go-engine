@@ -18,7 +18,7 @@ type ExpRef struct {
 }
 
 type ExpRec struct {
-	ExpCK int64
+	ExpCK  int64
 	States []State
 }
 

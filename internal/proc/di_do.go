@@ -9,8 +9,10 @@ import (
 	"orglang/go-engine/internal/adt/typesem"
 	typesemadapter "orglang/go-engine/internal/adt/typesem/adapter"
 	webapi "orglang/go-engine/internal/app/web/api"
+	"orglang/go-engine/internal/lib/entpgx"
 	compconn "orglang/go-engine/internal/proc/compconn/adapter"
 	compexec "orglang/go-engine/internal/proc/compexec/adapter"
+	"orglang/go-engine/internal/proc/ent"
 	termdec "orglang/go-engine/internal/proc/termdec/adapter"
 	termdef "orglang/go-engine/internal/proc/termdef/adapter"
 	typedef "orglang/go-engine/internal/proc/typedef/adapter"
@@ -21,6 +23,9 @@ import (
 // persistence adapters and services currently used by production process
 // endpoints. Incomplete and unused areas such as termexp remain unwired.
 var Package = do.Package(
+	do.Lazy[*ent.Client](func(do.Injector) (*ent.Client, error) {
+		return ent.NewClient(ent.Driver(entpgx.New())), nil
+	}),
 	compconn.Package,
 	compexec.Package,
 	termdec.Package,

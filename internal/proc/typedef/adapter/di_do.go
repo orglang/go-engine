@@ -7,25 +7,23 @@ import (
 
 	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
 	"orglang/go-engine/internal/lib/tx"
+	"orglang/go-engine/internal/proc/ent"
 	"orglang/go-engine/internal/proc/typedef/core"
 	typeexp "orglang/go-engine/internal/proc/typeexp/core"
 )
 
 // Package registers process type-definition persistence, service, and HTTP adapters.
 var Package = do.Package(
-	do.Lazy[QueryBuilder](func(do.Injector) (QueryBuilder, error) {
-		return newSQLBuilder(), nil
-	}),
 	do.Lazy[core.Repo](func(i do.Injector) (core.Repo, error) {
-		builder, err := do.Invoke[QueryBuilder](i)
-		if err != nil {
-			return nil, err
-		}
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil {
 			return nil, err
 		}
-		return NewDaoPgx(builder, logger), nil
+		client, err := do.Invoke[*ent.Client](i)
+		if err != nil {
+			return nil, err
+		}
+		return NewDaoEnt(client, logger), nil
 	}),
 	do.Lazy[core.DescSemRepo](func(i do.Injector) (core.DescSemRepo, error) {
 		logger, err := do.Invoke[*slog.Logger](i)

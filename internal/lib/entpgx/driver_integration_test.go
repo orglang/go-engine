@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"orglang/go-engine/internal/testutil/pgxtest"
 	"orglang/go-engine/internal/pool/ent"
+	"orglang/go-engine/internal/testutil/pgxtest"
 )
 
 func TestIntegrationEntPGXUsesCallbackTransaction(t *testing.T) {

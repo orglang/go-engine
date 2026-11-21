@@ -4,76 +4,76 @@ import (
 	termexp "orglang/go-engine/internal/pool/termexp/core"
 )
 
-func DataFromExpSpec(s termexp.ExpSpec) termexp.ExpSpecDS {
+func DataFromExpSpec(s termexp.ExpSpec) ExpSpec {
 	switch spec := s.(type) {
 	case termexp.AcquireSpec:
-		return termexp.ExpSpecDS{K: termexp.AcquireKind, Acquire: DataFromAcquireSpec(spec)}
+		return ExpSpec{K: AcquireKind, Acquire: DataFromAcquireSpec(spec)}
 	case termexp.AcceptSpec:
-		return termexp.ExpSpecDS{K: termexp.AcceptKind, Accept: DataFromAcceptSpec(spec)}
+		return ExpSpec{K: AcceptKind, Accept: DataFromAcceptSpec(spec)}
 	case termexp.HireSpec:
-		return termexp.ExpSpecDS{K: termexp.HireKind, Hire: DataFromHireSpec(spec)}
+		return ExpSpec{K: HireKind, Hire: DataFromHireSpec(spec)}
 	case termexp.ApplySpec:
-		return termexp.ExpSpecDS{K: termexp.ApplyKind, Hire: DataFromApplySpec(spec)}
+		return ExpSpec{K: ApplyKind, Hire: DataFromApplySpec(spec)}
 	case termexp.ReleaseSpec:
-		return termexp.ExpSpecDS{K: termexp.ReleaseKind, Release: DataFromReleaseSpec(spec)}
+		return ExpSpec{K: ReleaseKind, Release: DataFromReleaseSpec(spec)}
 	case termexp.DetachSpec:
-		return termexp.ExpSpecDS{K: termexp.DetachKind, Detach: DataFromDetachSpec(spec)}
+		return ExpSpec{K: DetachKind, Detach: DataFromDetachSpec(spec)}
 	default:
 		panic(termexp.ErrSpecTypeUnexpected(s))
 	}
 }
 
-func DataToExpSpec(dto termexp.ExpSpecDS) (termexp.ExpSpec, error) {
+func DataToExpSpec(dto ExpSpec) (termexp.ExpSpec, error) {
 	switch dto.K {
-	case termexp.AcquireKind:
+	case AcquireKind:
 		return DataToAcquireSpec(dto.Acquire)
-	case termexp.AcceptKind:
+	case AcceptKind:
 		return DataToAcceptSpec(dto.Accept)
-	case termexp.HireKind:
+	case HireKind:
 		return DataToHireSpec(dto.Hire)
-	case termexp.ApplyKind:
+	case ApplyKind:
 		return DataToApplySpec(dto.Apply)
-	case termexp.ReleaseKind:
+	case ReleaseKind:
 		return DataToReleaseSpec(dto.Release)
-	case termexp.DetachKind:
+	case DetachKind:
 		return DataToDetachSpec(dto.Detach)
 	default:
-		panic(termexp.ErrExpKindUnexpected(dto.K))
+		panic(fmt.Errorf("exp kind unexpected: %v", dto.K))
 	}
 }
 
-func DataFromExpRec(r termexp.ExpRec) termexp.ExpRecDS {
+func DataFromExpRec(r termexp.ExpRec) ExpRec {
 	switch rec := r.(type) {
 	case termexp.AcquireRec:
-		return termexp.ExpRecDS{K: termexp.AcquireKind, Acquire: DataFromAcquireRec(rec)}
+		return ExpRec{K: AcquireKind, Acquire: DataFromAcquireRec(rec)}
 	case termexp.AcceptRec:
-		return termexp.ExpRecDS{K: termexp.AcceptKind, Accept: DataFromAcceptRec(rec)}
+		return ExpRec{K: AcceptKind, Accept: DataFromAcceptRec(rec)}
 	case termexp.HireRec:
-		return termexp.ExpRecDS{K: termexp.HireKind, Hire: DataFromHireRec(rec)}
+		return ExpRec{K: HireKind, Hire: DataFromHireRec(rec)}
 	case termexp.ApplyRec:
-		return termexp.ExpRecDS{K: termexp.ApplyKind, Apply: DataFromApplyRec(rec)}
+		return ExpRec{K: ApplyKind, Apply: DataFromApplyRec(rec)}
 	case termexp.ReleaseRec:
-		return termexp.ExpRecDS{K: termexp.ReleaseKind, Release: DataFromReleaseRec(rec)}
+		return ExpRec{K: ReleaseKind, Release: DataFromReleaseRec(rec)}
 	case termexp.DetachRec:
-		return termexp.ExpRecDS{K: termexp.DetachKind, Detach: DataFromDetachRec(rec)}
+		return ExpRec{K: DetachKind, Detach: DataFromDetachRec(rec)}
 	default:
 		panic(termexp.ErrRecTypeUnexpected(r))
 	}
 }
 
-func DataToExpRec(dto termexp.ExpRecDS) (termexp.ExpRec, error) {
+func DataToExpRec(dto ExpRec) (termexp.ExpRec, error) {
 	switch dto.K {
-	case termexp.AcquireKind:
+	case AcquireKind:
 		return DataToAcquireRec(dto.Acquire)
-	case termexp.AcceptKind:
+	case AcceptKind:
 		return DataToAcceptRec(dto.Accept)
-	case termexp.HireKind:
+	case HireKind:
 		return DataToHireRec(dto.Hire)
-	case termexp.ApplyKind:
+	case ApplyKind:
 		return DataToApplyRec(dto.Apply)
-	case termexp.ReleaseKind:
+	case ReleaseKind:
 		return DataToReleaseRec(dto.Release)
-	case termexp.DetachKind:
+	case DetachKind:
 		return DataToDetachRec(dto.Detach)
 	default:
 		panic(termexp.ErrExpKindUnexpected(dto.K))

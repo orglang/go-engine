@@ -11,7 +11,7 @@ import (
 func TestInsert(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
-	rec := compvaradapter.VarRecDS{
+	rec := compvaradapter.VarRec{
 		CompID: sql.NullString{String: "comp-id-1", Valid: true},
 		CompRN: sql.NullInt64{Int64: 7, Valid: true},
 		ConnID: sql.NullString{String: "conn-id-1", Valid: true},

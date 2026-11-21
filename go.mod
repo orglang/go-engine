@@ -5,12 +5,34 @@ go 1.27.0
 tool entgo.io/ent/cmd/ent
 
 require (
+	entgo.io/ent v0.14.6
+	github.com/Masterminds/sprig/v3 v3.3.0
+	github.com/alecthomas/participle/v2 v2.1.4
+	github.com/alitto/pond/v2 v2.7.3
+	github.com/gammazero/workerpool v1.3.0
+	github.com/georgysavva/scany/v2 v2.1.4
+	github.com/go-ozzo/ozzo-validation/v4 v4.5.0
+	github.com/google/go-cmp v0.7.0
+	github.com/huandu/go-sqlbuilder v1.40.2
+	github.com/jackc/pgx/v5 v5.12.0
+	github.com/labstack/echo/v5 v5.4.6
+	github.com/oapi-codegen/runtime v1.9.0
+	github.com/rs/xid v1.6.0
+	github.com/samber/do/v2 v2.1.0
+	github.com/spf13/viper v1.21.0
+	github.com/testcontainers/testcontainers-go v0.40.0
+)
+
+require (
 	ariga.io/atlas v0.36.2-0.20250730182955-2c6300d0a3e1 // indirect
 	dario.cat/mergo v1.0.2 // indirect
+	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
+	github.com/Masterminds/goutils v1.1.1 // indirect
+	github.com/Masterminds/semver/v3 v3.4.0 // indirect
+	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
-	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/clipperhouse/displaywidth v0.6.2 // indirect
@@ -47,12 +69,9 @@ require (
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/magiconair/properties v1.8.10 // indirect
-	github.com/Masterminds/goutils v1.1.1 // indirect
-	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.19 // indirect
-	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect

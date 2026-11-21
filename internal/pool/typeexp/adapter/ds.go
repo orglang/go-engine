@@ -32,13 +32,13 @@ type State struct {
 }
 
 type ExpSpec struct {
-	Link   string  `json:"link,omitempty"`
-	Tensor *Prod   `json:"tensor,omitempty"`
-	Lolli  *Prod   `json:"lolli,omitempty"`
-	Plus   *Sum    `json:"plus,omitempty"`
-	With   *Sum    `json:"with,omitempty"`
-	Up     *Shift  `json:"up,omitempty"`
-	Down   *Shift  `json:"down,omitempty"`
+	Link   string `json:"link,omitempty"`
+	Tensor *Prod  `json:"tensor,omitempty"`
+	Lolli  *Prod  `json:"lolli,omitempty"`
+	Plus   *Sum   `json:"plus,omitempty"`
+	With   *Sum   `json:"with,omitempty"`
+	Up     *Shift `json:"up,omitempty"`
+	Down   *Shift `json:"down,omitempty"`
 }
 
 type Prod struct {

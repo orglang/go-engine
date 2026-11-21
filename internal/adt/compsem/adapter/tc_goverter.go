@@ -10,9 +10,9 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
 var (
-	DataFromRef  func(compsem.SemRef) SemRefDS
-	DataFromRefs func([]compsem.SemRef) ([]SemRefDS, error)
-	DataToRef    func(SemRefDS) (compsem.SemRef, error)
-	DataToRefs   func([]SemRefDS) ([]compsem.SemRef, error)
-	DataToRefMap func(map[uniqsym.ADT]SemRefDS) (map[uniqsym.ADT]compsem.SemRef, error)
+	DataFromRef  func(compsem.SemRef) SemRef
+	DataFromRefs func([]compsem.SemRef) ([]SemRef, error)
+	DataToRef    func(SemRef) (compsem.SemRef, error)
+	DataToRefs   func([]SemRef) ([]compsem.SemRef, error)
+	DataToRefMap func(map[uniqsym.ADT]SemRef) (map[uniqsym.ADT]compsem.SemRef, error)
 )

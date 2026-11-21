@@ -155,7 +155,10 @@ func (dao *daoPgx) GetRecMap(ctx context.Context, conn tx.Conn, expCKs map[symbo
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("recs", recs))
 	return recs, err
-}\n\nconst (\n\tinsertRec     = `INSERT INTO pool_type_exps (exp_ck, sup_exp_ck, kind, spec) VALUES ($1, $2, $3, $4)`
+}
+
+const (
+	insertRec     = `INSERT INTO pool_type_exps (exp_ck, sup_exp_ck, kind, spec) VALUES ($1, $2, $3, $4)`
 	selectRecByCK = `
 		WITH RECURSIVE exp_tree AS (
 			SELECT top.*

@@ -1,6 +1,8 @@
 package adapter
 
 import (
+	"fmt"
+
 	termexp "orglang/go-engine/internal/pool/termexp/core"
 )
 

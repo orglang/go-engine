@@ -1,6 +1,6 @@
-package core
+package adapter
 
 type QueryBuilder interface {
-	InsertRec(DefRecDS) (string, []any)
+	InsertRec(DefRec) (string, []any)
 	SelectRecByQN() string
 }

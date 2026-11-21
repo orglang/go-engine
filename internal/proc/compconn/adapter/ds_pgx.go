@@ -112,7 +112,7 @@ func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry compconn.
 		return compconn.ConnSnap{}, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[compconn.ConnSnapDS])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[ConnSnap])
 	if errors.Is(err, pgx.ErrNoRows) {
 		return compconn.ConnSnap{ConnID: qry.ConnID}, nil
 	}

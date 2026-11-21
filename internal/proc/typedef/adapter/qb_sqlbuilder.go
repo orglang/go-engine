@@ -2,8 +2,6 @@ package adapter
 
 import (
 	"github.com/huandu/go-sqlbuilder"
-
-	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
 type sqlBuilder struct {
@@ -11,16 +9,16 @@ type sqlBuilder struct {
 }
 
 // for compilation purposes
-func newQueryBuilder() typedef.QueryBuilder {
+func newQueryBuilder() QueryBuilder {
 	return new(sqlBuilder)
 }
 
 func newSQLBuilder() *sqlBuilder {
-	defBuilder := sqlbuilder.NewStruct(new(typedef.DefRecDS)).For(sqlbuilder.PostgreSQL)
+	defBuilder := sqlbuilder.NewStruct(new(DefRec)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{defBuilder}
 }
 
-func (qb *sqlBuilder) InsertRec(rec typedef.DefRecDS) (string, []any) {
+func (qb *sqlBuilder) InsertRec(rec DefRec) (string, []any) {
 	return qb.defBuilder.InsertInto(typeDefs, rec).Build()
 }
 

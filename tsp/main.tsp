@@ -99,10 +99,7 @@ op listProcessExecutions(@path id: string): Ok<Any.CompRef[]>;
 /** Get a process execution; omit rn to select the latest available revision. */
 @get
 @route("/processes/executions/{id}")
-op getProcessExecution(
-  @path id: string,
-  @query rn?: int64,
-): Ok<Proc.CompSnap>;
+op getProcessExecution(@path id: string, @query rn?: int64): Ok<Proc.CompSnap>;
 
 /** Apply one step to a process execution. */
 @post

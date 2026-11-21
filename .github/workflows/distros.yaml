@@ -3,7 +3,9 @@ name: Distros
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 2 * * *'
+    # GitHub Actions evaluates cron schedules in UTC; avoid the top-of-hour
+    # scheduling peak by running daily at 03:42 UTC.
+    - cron: '42 3 * * *'
   merge_group:
     branches: [main]
     types:

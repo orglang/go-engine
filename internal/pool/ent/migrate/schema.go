@@ -9,6 +9,22 @@ import (
 )
 
 var (
+	// PoolCompConnsColumns holds the columns for the "pool_comp_conns" table.
+	PoolCompConnsColumns = []*schema.Column{
+		{Name: "conn_id", Type: field.TypeString, Unique: true},
+		{Name: "provider_comp_id", Type: field.TypeString},
+		{Name: "provider_comp_rn", Type: field.TypeInt64},
+		{Name: "client_comp_id", Type: field.TypeString},
+		{Name: "client_comp_rn", Type: field.TypeInt64},
+		{Name: "offset_nr", Type: field.TypeInt64, Nullable: true},
+		{Name: "act_nr", Type: field.TypeInt64, Nullable: true},
+	}
+	// PoolCompConnsTable holds the schema information for the "pool_comp_conns" table.
+	PoolCompConnsTable = &schema.Table{
+		Name:       "pool_comp_conns",
+		Columns:    PoolCompConnsColumns,
+		PrimaryKey: []*schema.Column{PoolCompConnsColumns[0]},
+	}
 	// PoolTermDecsColumns holds the columns for the "pool_term_decs" table.
 	PoolTermDecsColumns = []*schema.Column{
 		{Name: "term_id", Type: field.TypeString},
@@ -36,12 +52,16 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		PoolCompConnsTable,
 		PoolTermDecsTable,
 		PoolTypeDefsTable,
 	}
 )
 
 func init() {
+	PoolCompConnsTable.Annotation = &entsql.Annotation{
+		Table: "pool_comp_conns",
+	}
 	PoolTermDecsTable.Annotation = &entsql.Annotation{
 		Table: "pool_term_decs",
 	}

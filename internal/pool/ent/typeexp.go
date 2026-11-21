@@ -4,8 +4,8 @@ package ent
 
 import (
 	"encoding/json"
-	"encoding/json/jsontext"
 	"fmt"
+	"orglang/go-engine/internal/pool/ent/schema"
 	"orglang/go-engine/internal/pool/ent/typeexp"
 	"strings"
 
@@ -23,7 +23,7 @@ type TypeExp struct {
 	// Kind holds the value of the "kind" field.
 	Kind int16 `json:"kind,omitempty"`
 	// Spec holds the value of the "spec" field.
-	Spec         jsontext.Value `json:"spec,omitempty"`
+	Spec         schema.ExpSpec `json:"spec,omitempty"`
 	selectValues sql.SelectValues
 }
 

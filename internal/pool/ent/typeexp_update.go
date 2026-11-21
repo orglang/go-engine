@@ -4,15 +4,14 @@ package ent
 
 import (
 	"context"
-	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"orglang/go-engine/internal/pool/ent/predicate"
+	"orglang/go-engine/internal/pool/ent/schema"
 	"orglang/go-engine/internal/pool/ent/typeexp"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 )
 
@@ -72,14 +71,16 @@ func (_u *TypeExpUpdate) AddKind(v int16) *TypeExpUpdate {
 }
 
 // SetSpec sets the "spec" field.
-func (_u *TypeExpUpdate) SetSpec(v jsontext.Value) *TypeExpUpdate {
+func (_u *TypeExpUpdate) SetSpec(v schema.ExpSpec) *TypeExpUpdate {
 	_u.mutation.SetSpec(v)
 	return _u
 }
 
-// AppendSpec appends value to the "spec" field.
-func (_u *TypeExpUpdate) AppendSpec(v jsontext.Value) *TypeExpUpdate {
-	_u.mutation.AppendSpec(v)
+// SetNillableSpec sets the "spec" field if the given value is not nil.
+func (_u *TypeExpUpdate) SetNillableSpec(v *schema.ExpSpec) *TypeExpUpdate {
+	if v != nil {
+		_u.SetSpec(*v)
+	}
 	return _u
 }
 
@@ -144,11 +145,6 @@ func (_u *TypeExpUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Spec(); ok {
 		_spec.SetField(typeexp.FieldSpec, field.TypeJSON, value)
-	}
-	if value, ok := _u.mutation.AppendedSpec(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, typeexp.FieldSpec, value)
-		})
 	}
 	if _u.mutation.SpecCleared() {
 		_spec.ClearField(typeexp.FieldSpec, field.TypeJSON)
@@ -216,14 +212,16 @@ func (_u *TypeExpUpdateOne) AddKind(v int16) *TypeExpUpdateOne {
 }
 
 // SetSpec sets the "spec" field.
-func (_u *TypeExpUpdateOne) SetSpec(v jsontext.Value) *TypeExpUpdateOne {
+func (_u *TypeExpUpdateOne) SetSpec(v schema.ExpSpec) *TypeExpUpdateOne {
 	_u.mutation.SetSpec(v)
 	return _u
 }
 
-// AppendSpec appends value to the "spec" field.
-func (_u *TypeExpUpdateOne) AppendSpec(v jsontext.Value) *TypeExpUpdateOne {
-	_u.mutation.AppendSpec(v)
+// SetNillableSpec sets the "spec" field if the given value is not nil.
+func (_u *TypeExpUpdateOne) SetNillableSpec(v *schema.ExpSpec) *TypeExpUpdateOne {
+	if v != nil {
+		_u.SetSpec(*v)
+	}
 	return _u
 }
 
@@ -318,11 +316,6 @@ func (_u *TypeExpUpdateOne) sqlSave(ctx context.Context) (_node *TypeExp, err er
 	}
 	if value, ok := _u.mutation.Spec(); ok {
 		_spec.SetField(typeexp.FieldSpec, field.TypeJSON, value)
-	}
-	if value, ok := _u.mutation.AppendedSpec(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, typeexp.FieldSpec, value)
-		})
 	}
 	if _u.mutation.SpecCleared() {
 		_spec.ClearField(typeexp.FieldSpec, field.TypeJSON)

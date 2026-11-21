@@ -4,13 +4,13 @@ package ent
 
 import (
 	"context"
-	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"orglang/go-engine/internal/adt/termvar/adapter"
 	"orglang/go-engine/internal/pool/ent/compconn"
 	"orglang/go-engine/internal/pool/ent/compexec"
 	"orglang/go-engine/internal/pool/ent/predicate"
+	"orglang/go-engine/internal/pool/ent/schema"
 	"orglang/go-engine/internal/pool/ent/termdef"
 	"orglang/go-engine/internal/pool/ent/typedef"
 	"orglang/go-engine/internal/pool/ent/typeexp"
@@ -2228,8 +2228,7 @@ type TypeExpMutation struct {
 	addsup_exp_ck *int64
 	kind          *int16
 	addkind       *int16
-	spec          *jsontext.Value
-	appendspec    jsontext.Value
+	spec          *schema.ExpSpec
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*TypeExp, error)
@@ -2453,13 +2452,12 @@ func (m *TypeExpMutation) ResetKind() {
 }
 
 // SetSpec sets the "spec" field.
-func (m *TypeExpMutation) SetSpec(j jsontext.Value) {
-	m.spec = &j
-	m.appendspec = nil
+func (m *TypeExpMutation) SetSpec(ss schema.ExpSpec) {
+	m.spec = &ss
 }
 
 // Spec returns the value of the "spec" field in the mutation.
-func (m *TypeExpMutation) Spec() (r jsontext.Value, exists bool) {
+func (m *TypeExpMutation) Spec() (r schema.ExpSpec, exists bool) {
 	v := m.spec
 	if v == nil {
 		return
@@ -2470,7 +2468,7 @@ func (m *TypeExpMutation) Spec() (r jsontext.Value, exists bool) {
 // OldSpec returns the old "spec" field's value of the TypeExp entity.
 // If the TypeExp object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TypeExpMutation) OldSpec(ctx context.Context) (v jsontext.Value, err error) {
+func (m *TypeExpMutation) OldSpec(ctx context.Context) (v schema.ExpSpec, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldSpec is only allowed on UpdateOne operations")
 	}
@@ -2484,23 +2482,9 @@ func (m *TypeExpMutation) OldSpec(ctx context.Context) (v jsontext.Value, err er
 	return oldValue.Spec, nil
 }
 
-// AppendSpec adds j to the "spec" field.
-func (m *TypeExpMutation) AppendSpec(j jsontext.Value) {
-	m.appendspec = append(m.appendspec, j...)
-}
-
-// AppendedSpec returns the list of values that were appended to the "spec" field in this mutation.
-func (m *TypeExpMutation) AppendedSpec() (jsontext.Value, bool) {
-	if len(m.appendspec) == 0 {
-		return nil, false
-	}
-	return m.appendspec, true
-}
-
 // ClearSpec clears the value of the "spec" field.
 func (m *TypeExpMutation) ClearSpec() {
 	m.spec = nil
-	m.appendspec = nil
 	m.clearedFields[typeexp.FieldSpec] = struct{}{}
 }
 
@@ -2513,7 +2497,6 @@ func (m *TypeExpMutation) SpecCleared() bool {
 // ResetSpec resets all changes to the "spec" field.
 func (m *TypeExpMutation) ResetSpec() {
 	m.spec = nil
-	m.appendspec = nil
 	delete(m.clearedFields, typeexp.FieldSpec)
 }
 
@@ -2614,7 +2597,7 @@ func (m *TypeExpMutation) SetField(name string, value ent.Value) error {
 		m.SetKind(v)
 		return nil
 	case typeexp.FieldSpec:
-		v, ok := value.(jsontext.Value)
+		v, ok := value.(schema.ExpSpec)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

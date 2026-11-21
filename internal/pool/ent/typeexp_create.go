@@ -4,9 +4,9 @@ package ent
 
 import (
 	"context"
-	"encoding/json/jsontext"
 	"errors"
 	"fmt"
+	"orglang/go-engine/internal/pool/ent/schema"
 	"orglang/go-engine/internal/pool/ent/typeexp"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -33,8 +33,16 @@ func (_c *TypeExpCreate) SetKind(v int16) *TypeExpCreate {
 }
 
 // SetSpec sets the "spec" field.
-func (_c *TypeExpCreate) SetSpec(v jsontext.Value) *TypeExpCreate {
+func (_c *TypeExpCreate) SetSpec(v schema.ExpSpec) *TypeExpCreate {
 	_c.mutation.SetSpec(v)
+	return _c
+}
+
+// SetNillableSpec sets the "spec" field if the given value is not nil.
+func (_c *TypeExpCreate) SetNillableSpec(v *schema.ExpSpec) *TypeExpCreate {
+	if v != nil {
+		_c.SetSpec(*v)
+	}
 	return _c
 }
 

@@ -7,12 +7,12 @@ import (
 	"testing"
 	"time"
 
+	"orglang/go-engine/internal/adt/contkey"
 	dbadapter "orglang/go-engine/internal/lib/db/adapter"
 	"orglang/go-engine/internal/lib/entpgx"
+	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/ent"
 	typeexp "orglang/go-engine/internal/proc/typeexp/core"
-	"orglang/go-engine/internal/adt/contkey"
-	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/testutil/pgxtest"
 )
 

@@ -3,16 +3,15 @@ package adapter
 import (
 	"context"
 	"log/slog"
-	"os"
 	"testing"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 
 	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
 	"orglang/go-engine/internal/adt/uniqsym"
 	dbadapter "orglang/go-engine/internal/lib/db/adapter"
 	"orglang/go-engine/internal/lib/entpgx"
+	"orglang/go-engine/internal/lib/pgxtest"
 	"orglang/go-engine/internal/pool/ent"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 	typeexpadapter "orglang/go-engine/internal/pool/typeexp/adapter"
@@ -31,24 +30,10 @@ func (integrationTypeExpQueryBuilder) SelectRecByCK() string {
 }
 
 func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
-	dsn := os.Getenv("ENTPGX_TEST_DATABASE_URL")
-	if dsn == "" {
-		t.Skip("ENTPGX_TEST_DATABASE_URL is not set")
-	}
+	pool := pgxtest.NewPostgresPool(t)
 
 	ctx, cancel := context.WithTimeout(t.Context(), 20*time.Second)
 	defer cancel()
-
-	config, err := pgxpool.ParseConfig(dsn)
-	if err != nil {
-		t.Fatalf("parse PostgreSQL config: %v", err)
-	}
-	config.MaxConns = 1
-	pool, err := pgxpool.NewWithConfig(ctx, config)
-	if err != nil {
-		t.Fatalf("open PostgreSQL pool: %v", err)
-	}
-	t.Cleanup(pool.Close)
 
 	conn, err := pool.Acquire(ctx)
 	if err != nil {
@@ -130,24 +115,10 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 }
 
 func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
-	dsn := os.Getenv("ENTPGX_TEST_DATABASE_URL")
-	if dsn == "" {
-		t.Skip("ENTPGX_TEST_DATABASE_URL is not set")
-	}
+	pool := pgxtest.NewPostgresPool(t)
 
 	ctx, cancel := context.WithTimeout(t.Context(), 20*time.Second)
 	defer cancel()
-
-	config, err := pgxpool.ParseConfig(dsn)
-	if err != nil {
-		t.Fatalf("parse PostgreSQL config: %v", err)
-	}
-	config.MaxConns = 1
-	pool, err := pgxpool.NewWithConfig(ctx, config)
-	if err != nil {
-		t.Fatalf("open PostgreSQL pool: %v", err)
-	}
-	t.Cleanup(pool.Close)
 
 	conn, err := pool.Acquire(ctx)
 	if err != nil {

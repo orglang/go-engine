@@ -1,26 +1,22 @@
 package adapter
 
-import (
-	"github.com/huandu/go-sqlbuilder"
-
-	typeexp "orglang/go-engine/internal/pool/typeexp/core"
-)
+import "github.com/huandu/go-sqlbuilder"
 
 type sqlBuilder struct {
 	stateBuilder *sqlbuilder.Struct
 }
 
 // for compilation purposes
-func newQueryBuilder() typeexp.QueryBuilder {
+func newQueryBuilder() QueryBuilder {
 	return new(sqlBuilder)
 }
 
 func newSQLBuilder() *sqlBuilder {
-	stateBuilder := sqlbuilder.NewStruct(new(typeexp.StateDS)).For(sqlbuilder.PostgreSQL)
+	stateBuilder := sqlbuilder.NewStruct(new(State)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{stateBuilder}
 }
 
-func (qb *sqlBuilder) InsertRec(rec typeexp.StateDS) (string, []any) {
+func (qb *sqlBuilder) InsertRec(rec State) (string, []any) {
 	return qb.stateBuilder.InsertInto(xactExps, rec).
 		SQL("ON CONFLICT (exp_ck) DO NOTHING").
 		Build()

@@ -12,31 +12,31 @@ import (
 // goverter:extend DataFromExpSpec
 // goverter:extend DataToExpSpec
 var (
-	DataFromAcquireSpec func(termexp.AcquireSpec) *termexp.GrantSpecDS
-	DataFromAcceptSpec  func(termexp.AcceptSpec) *termexp.GrantSpecDS
-	DataFromHireSpec    func(termexp.HireSpec) *termexp.CoopSpecDS
-	DataFromApplySpec   func(termexp.ApplySpec) *termexp.CoopSpecDS
-	DataFromReleaseSpec func(termexp.ReleaseSpec) *termexp.RevokeSpecDS
-	DataFromDetachSpec  func(termexp.DetachSpec) *termexp.RevokeSpecDS
+	DataFromAcquireSpec func(termexp.AcquireSpec) *GrantSpec
+	DataFromAcceptSpec  func(termexp.AcceptSpec) *GrantSpec
+	DataFromHireSpec    func(termexp.HireSpec) *CoopSpec
+	DataFromApplySpec   func(termexp.ApplySpec) *CoopSpec
+	DataFromReleaseSpec func(termexp.ReleaseSpec) *RevokeSpec
+	DataFromDetachSpec  func(termexp.DetachSpec) *RevokeSpec
 
-	DataToAcquireSpec func(*termexp.GrantSpecDS) (termexp.AcquireSpec, error)
-	DataToAcceptSpec  func(*termexp.GrantSpecDS) (termexp.AcceptSpec, error)
-	DataToHireSpec    func(*termexp.CoopSpecDS) (termexp.HireSpec, error)
-	DataToApplySpec   func(*termexp.CoopSpecDS) (termexp.ApplySpec, error)
-	DataToReleaseSpec func(*termexp.RevokeSpecDS) (termexp.ReleaseSpec, error)
-	DataToDetachSpec  func(*termexp.RevokeSpecDS) (termexp.DetachSpec, error)
+	DataToAcquireSpec func(*GrantSpec) (termexp.AcquireSpec, error)
+	DataToAcceptSpec  func(*GrantSpec) (termexp.AcceptSpec, error)
+	DataToHireSpec    func(*CoopSpec) (termexp.HireSpec, error)
+	DataToApplySpec   func(*CoopSpec) (termexp.ApplySpec, error)
+	DataToReleaseSpec func(*RevokeSpec) (termexp.ReleaseSpec, error)
+	DataToDetachSpec  func(*RevokeSpec) (termexp.DetachSpec, error)
 
-	DataFromAcquireRec func(termexp.AcquireRec) *termexp.GrantRecDS
-	DataFromAcceptRec  func(termexp.AcceptRec) *termexp.GrantRecDS
-	DataFromHireRec    func(termexp.HireRec) *termexp.CoopRecDS
-	DataFromApplyRec   func(termexp.ApplyRec) *termexp.CoopRecDS
-	DataFromReleaseRec func(termexp.ReleaseRec) *termexp.RevokeRecDS
-	DataFromDetachRec  func(termexp.DetachRec) *termexp.RevokeRecDS
+	DataFromAcquireRec func(termexp.AcquireRec) *GrantRec
+	DataFromAcceptRec  func(termexp.AcceptRec) *GrantRec
+	DataFromHireRec    func(termexp.HireRec) *CoopRec
+	DataFromApplyRec   func(termexp.ApplyRec) *CoopRec
+	DataFromReleaseRec func(termexp.ReleaseRec) *RevokeRec
+	DataFromDetachRec  func(termexp.DetachRec) *RevokeRec
 
-	DataToAcquireRec func(*termexp.GrantRecDS) (termexp.AcquireRec, error)
-	DataToAcceptRec  func(*termexp.GrantRecDS) (termexp.AcceptRec, error)
-	DataToHireRec    func(*termexp.CoopRecDS) (termexp.HireRec, error)
-	DataToApplyRec   func(*termexp.CoopRecDS) (termexp.ApplyRec, error)
-	DataToReleaseRec func(*termexp.RevokeRecDS) (termexp.ReleaseRec, error)
-	DataToDetachRec  func(*termexp.RevokeRecDS) (termexp.DetachRec, error)
+	DataToAcquireRec func(*GrantRec) (termexp.AcquireRec, error)
+	DataToAcceptRec  func(*GrantRec) (termexp.AcceptRec, error)
+	DataToHireRec    func(*CoopRec) (termexp.HireRec, error)
+	DataToApplyRec   func(*CoopRec) (termexp.ApplyRec, error)
+	DataToReleaseRec func(*RevokeRec) (termexp.ReleaseRec, error)
+	DataToDetachRec  func(*RevokeRec) (termexp.DetachRec, error)
 )

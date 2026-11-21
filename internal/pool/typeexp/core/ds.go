@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+
 	"orglang/go-engine/internal/lib/tx"
 
 	"orglang/go-engine/internal/adt/contkey"
@@ -14,59 +15,4 @@ type Repo interface {
 	GetRecByCK(context.Context, tx.Conn, contkey.ADT) (ExpRec, error)
 	GetRecsByCKs(context.Context, tx.Conn, []contkey.ADT) ([]ExpRec, error)
 	GetRecMap(context.Context, tx.Conn, map[symbol.ADT]contkey.ADT) (map[symbol.ADT]ExpRec, error)
-}
-
-type ExpKind int16
-
-const (
-	UnkKind ExpKind = iota
-	OneKind
-	LinkKind
-	TensorKind
-	LolliKind
-	PlusKind
-	WithKind
-	UpKind
-	DownKind
-)
-
-type ExpRefDS struct {
-	ExpCK int64   `db:"exp_ck" json:"exp_ck"`
-	K     ExpKind `db:"kind" json:"kind"`
-}
-
-type ExpRecDS struct {
-	ExpCK  int64
-	States []StateDS
-}
-
-type StateDS struct {
-	ExpCK    int64     `db:"exp_ck"`
-	SupExpCK int64     `db:"sup_exp_ck"`
-	K        ExpKind   `db:"kind"`
-	Spec     ExpSpecDS `db:"spec" fieldopt:"noexpand"`
-}
-
-type ExpSpecDS struct {
-	Link   string   `json:"link,omitempty"`
-	Tensor *ProdDS  `json:"tensor,omitempty"`
-	Lolli  *ProdDS  `json:"lolli,omitempty"`
-	Plus   *SumDS   `json:"plus,omitempty"`
-	With   *SumDS   `json:"with,omitempty"`
-	Up     *ShiftDS `json:"up,omitempty"`
-	Down   *ShiftDS `json:"down,omitempty"`
-}
-
-type ProdDS struct {
-	ValExpCK  int64 `json:"on"`
-	ContExpCK int64 `json:"to"`
-}
-
-type SumDS struct {
-	ProcQNs   []string `json:"on"`
-	ContExpCK int64    `json:"to"`
-}
-
-type ShiftDS struct {
-	ContExpCK int64 `json:"to"`
 }

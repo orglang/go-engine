@@ -10,6 +10,19 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 )
 
+// ExpKind identifies the kind of a persisted pool term expression.
+type ExpKind int
+
+const (
+	UnkKind ExpKind = iota
+	AcquireKind
+	AcceptKind
+	HireKind
+	ApplyKind
+	ReleaseKind
+	DetachKind
+)
+
 type ExpSpec interface {
 	spec()
 }

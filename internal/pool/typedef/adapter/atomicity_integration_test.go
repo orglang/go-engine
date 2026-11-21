@@ -168,7 +168,7 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 	if err != nil {
 		t.Fatalf("create type qualified name: %v", err)
 	}
-	ref, err := service.Create(typedef.DefSpec{
+	ref, err := service.Create(ctx, typedef.DefSpec{
 		TypeQN:  typeQN,
 		TypeExp: typeexp.OneSpec{},
 	})

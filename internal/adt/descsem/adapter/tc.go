@@ -6,8 +6,8 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 )
 
-func dataFromRec(rec descsem.SemRec) semRecDS {
-	return semRecDS{
+func dataFromRec(rec descsem.SemRec) semRec {
+	return semRec{
 		DescQN: uniqsym.ConvertToString(rec.DescQN),
 		DescID: identity.ConvertToString(rec.DescID),
 		Kind:   int16(rec.Kind),

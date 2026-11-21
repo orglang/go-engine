@@ -35,8 +35,8 @@ type State struct {
 
 // Keep the adapter DTO aligned with the JSON type used by the Ent schema.
 type (
-	ExpSpec  = enttypeschema.ExpSpec
-	Prod     = enttypeschema.ExpProd
-	Sum      = enttypeschema.ExpSum
-	Shift    = enttypeschema.ExpShift
+	ExpSpec = enttypeschema.ExpSpec
+	Prod    = enttypeschema.ExpProd
+	Sum     = enttypeschema.ExpSum
+	Shift   = enttypeschema.ExpShift
 )

@@ -128,7 +128,8 @@ func (dao *daoEnt) GetRefs(ctx context.Context, conn tx.Conn) ([]termsem.SemRef,
 	query := `
 SELECT
     desc_id, rev, title
-FROM dec_roots`
+FROM dec_roots
+`
 	rows, err := conn.Pgx.Query(ctx, query)
 	if err != nil {
 		dao.log.Error("query execution failed")
@@ -161,5 +162,6 @@ SELECT
 FROM proc_term_decs pd
 LEFT JOIN desc_sems ds
     ON ds.desc_id = pd.desc_id
-WHERE pd.desc_id = $1`
+WHERE pd.desc_id = $1
+`
 )

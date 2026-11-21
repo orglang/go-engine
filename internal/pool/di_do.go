@@ -8,16 +8,21 @@ import (
 
 	"orglang/go-engine/internal/adt/descsem"
 	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
+	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/wp"
 	compconn "orglang/go-engine/internal/pool/compconn/adapter"
 	compexec "orglang/go-engine/internal/pool/compexec/adapter"
 	compvar "orglang/go-engine/internal/pool/compvar/adapter"
+	"orglang/go-engine/internal/pool/ent"
 	termdef "orglang/go-engine/internal/pool/termdef/adapter"
 	typedef "orglang/go-engine/internal/pool/typedef/adapter"
 	typeexp "orglang/go-engine/internal/pool/typeexp/adapter"
 )
 
 var Package = do.Package(
+	do.Lazy[*ent.Client](func(do.Injector) (*ent.Client, error) {
+		return ent.NewClient(ent.Driver(entpgx.New())), nil
+	}),
 	wp.Package,
 	compconn.Package,
 	compvar.Package,

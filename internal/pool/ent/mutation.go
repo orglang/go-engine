@@ -6,7 +6,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"orglang/go-engine/internal/adt/termvar/adapter"
 	"orglang/go-engine/internal/pool/ent/predicate"
+	"orglang/go-engine/internal/pool/ent/termdef"
 	"orglang/go-engine/internal/pool/ent/typedef"
 	"sync"
 
@@ -23,8 +25,501 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
+	TypeTermDef = "TermDef"
 	TypeTypeDef = "TypeDef"
 )
+
+// TermDefMutation represents an operation that mutates the TermDef nodes in the graph.
+type TermDefMutation struct {
+	config
+	op               Op
+	typ              string
+	id               *string
+	term_rn          *int64
+	addterm_rn       *int64
+	liab_var         *adapter.VarRec
+	asset_vars       *[]adapter.VarRec
+	appendasset_vars []adapter.VarRec
+	clearedFields    map[string]struct{}
+	done             bool
+	oldValue         func(context.Context) (*TermDef, error)
+	predicates       []predicate.TermDef
+}
+
+var _ ent.Mutation = (*TermDefMutation)(nil)
+
+// termdefOption allows management of the mutation configuration using functional options.
+type termdefOption func(*TermDefMutation)
+
+// newTermDefMutation creates new mutation for the TermDef entity.
+func newTermDefMutation(c config, op Op, opts ...termdefOption) *TermDefMutation {
+	m := &TermDefMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeTermDef,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withTermDefID sets the ID field of the mutation.
+func withTermDefID(id string) termdefOption {
+	return func(m *TermDefMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *TermDef
+		)
+		m.oldValue = func(ctx context.Context) (*TermDef, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().TermDef.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withTermDef sets the old TermDef of the mutation.
+func withTermDef(node *TermDef) termdefOption {
+	return func(m *TermDefMutation) {
+		m.oldValue = func(context.Context) (*TermDef, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m TermDefMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m TermDefMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of TermDef entities.
+func (m *TermDefMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *TermDefMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *TermDefMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().TermDef.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetTermRn sets the "term_rn" field.
+func (m *TermDefMutation) SetTermRn(i int64) {
+	m.term_rn = &i
+	m.addterm_rn = nil
+}
+
+// TermRn returns the value of the "term_rn" field in the mutation.
+func (m *TermDefMutation) TermRn() (r int64, exists bool) {
+	v := m.term_rn
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTermRn returns the old "term_rn" field's value of the TermDef entity.
+// If the TermDef object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TermDefMutation) OldTermRn(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTermRn is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTermRn requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTermRn: %w", err)
+	}
+	return oldValue.TermRn, nil
+}
+
+// AddTermRn adds i to the "term_rn" field.
+func (m *TermDefMutation) AddTermRn(i int64) {
+	if m.addterm_rn != nil {
+		*m.addterm_rn += i
+	} else {
+		m.addterm_rn = &i
+	}
+}
+
+// AddedTermRn returns the value that was added to the "term_rn" field in this mutation.
+func (m *TermDefMutation) AddedTermRn() (r int64, exists bool) {
+	v := m.addterm_rn
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetTermRn resets all changes to the "term_rn" field.
+func (m *TermDefMutation) ResetTermRn() {
+	m.term_rn = nil
+	m.addterm_rn = nil
+}
+
+// SetLiabVar sets the "liab_var" field.
+func (m *TermDefMutation) SetLiabVar(ar adapter.VarRec) {
+	m.liab_var = &ar
+}
+
+// LiabVar returns the value of the "liab_var" field in the mutation.
+func (m *TermDefMutation) LiabVar() (r adapter.VarRec, exists bool) {
+	v := m.liab_var
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLiabVar returns the old "liab_var" field's value of the TermDef entity.
+// If the TermDef object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TermDefMutation) OldLiabVar(ctx context.Context) (v adapter.VarRec, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLiabVar is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLiabVar requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLiabVar: %w", err)
+	}
+	return oldValue.LiabVar, nil
+}
+
+// ResetLiabVar resets all changes to the "liab_var" field.
+func (m *TermDefMutation) ResetLiabVar() {
+	m.liab_var = nil
+}
+
+// SetAssetVars sets the "asset_vars" field.
+func (m *TermDefMutation) SetAssetVars(ar []adapter.VarRec) {
+	m.asset_vars = &ar
+	m.appendasset_vars = nil
+}
+
+// AssetVars returns the value of the "asset_vars" field in the mutation.
+func (m *TermDefMutation) AssetVars() (r []adapter.VarRec, exists bool) {
+	v := m.asset_vars
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAssetVars returns the old "asset_vars" field's value of the TermDef entity.
+// If the TermDef object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TermDefMutation) OldAssetVars(ctx context.Context) (v []adapter.VarRec, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAssetVars is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAssetVars requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAssetVars: %w", err)
+	}
+	return oldValue.AssetVars, nil
+}
+
+// AppendAssetVars adds ar to the "asset_vars" field.
+func (m *TermDefMutation) AppendAssetVars(ar []adapter.VarRec) {
+	m.appendasset_vars = append(m.appendasset_vars, ar...)
+}
+
+// AppendedAssetVars returns the list of values that were appended to the "asset_vars" field in this mutation.
+func (m *TermDefMutation) AppendedAssetVars() ([]adapter.VarRec, bool) {
+	if len(m.appendasset_vars) == 0 {
+		return nil, false
+	}
+	return m.appendasset_vars, true
+}
+
+// ResetAssetVars resets all changes to the "asset_vars" field.
+func (m *TermDefMutation) ResetAssetVars() {
+	m.asset_vars = nil
+	m.appendasset_vars = nil
+}
+
+// Where appends a list predicates to the TermDefMutation builder.
+func (m *TermDefMutation) Where(ps ...predicate.TermDef) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the TermDefMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *TermDefMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.TermDef, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *TermDefMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *TermDefMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (TermDef).
+func (m *TermDefMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *TermDefMutation) Fields() []string {
+	fields := make([]string, 0, 3)
+	if m.term_rn != nil {
+		fields = append(fields, termdef.FieldTermRn)
+	}
+	if m.liab_var != nil {
+		fields = append(fields, termdef.FieldLiabVar)
+	}
+	if m.asset_vars != nil {
+		fields = append(fields, termdef.FieldAssetVars)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *TermDefMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case termdef.FieldTermRn:
+		return m.TermRn()
+	case termdef.FieldLiabVar:
+		return m.LiabVar()
+	case termdef.FieldAssetVars:
+		return m.AssetVars()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *TermDefMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case termdef.FieldTermRn:
+		return m.OldTermRn(ctx)
+	case termdef.FieldLiabVar:
+		return m.OldLiabVar(ctx)
+	case termdef.FieldAssetVars:
+		return m.OldAssetVars(ctx)
+	}
+	return nil, fmt.Errorf("unknown TermDef field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *TermDefMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case termdef.FieldTermRn:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTermRn(v)
+		return nil
+	case termdef.FieldLiabVar:
+		v, ok := value.(adapter.VarRec)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLiabVar(v)
+		return nil
+	case termdef.FieldAssetVars:
+		v, ok := value.([]adapter.VarRec)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAssetVars(v)
+		return nil
+	}
+	return fmt.Errorf("unknown TermDef field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *TermDefMutation) AddedFields() []string {
+	var fields []string
+	if m.addterm_rn != nil {
+		fields = append(fields, termdef.FieldTermRn)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *TermDefMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case termdef.FieldTermRn:
+		return m.AddedTermRn()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *TermDefMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case termdef.FieldTermRn:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTermRn(v)
+		return nil
+	}
+	return fmt.Errorf("unknown TermDef numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *TermDefMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *TermDefMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *TermDefMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown TermDef nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *TermDefMutation) ResetField(name string) error {
+	switch name {
+	case termdef.FieldTermRn:
+		m.ResetTermRn()
+		return nil
+	case termdef.FieldLiabVar:
+		m.ResetLiabVar()
+		return nil
+	case termdef.FieldAssetVars:
+		m.ResetAssetVars()
+		return nil
+	}
+	return fmt.Errorf("unknown TermDef field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *TermDefMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *TermDefMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *TermDefMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *TermDefMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *TermDefMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *TermDefMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *TermDefMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown TermDef unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *TermDefMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown TermDef edge %s", name)
+}
 
 // TypeDefMutation represents an operation that mutates the TypeDef nodes in the graph.
 type TypeDefMutation struct {

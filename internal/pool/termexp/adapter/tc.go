@@ -15,7 +15,7 @@ func DataFromExpSpec(s termexp.ExpSpec) ExpSpec {
 	case termexp.HireSpec:
 		return ExpSpec{K: HireKind, Hire: DataFromHireSpec(spec)}
 	case termexp.ApplySpec:
-		return ExpSpec{K: ApplyKind, Hire: DataFromApplySpec(spec)}
+		return ExpSpec{K: ApplyKind, Apply: DataFromApplySpec(spec)}
 	case termexp.ReleaseSpec:
 		return ExpSpec{K: ReleaseKind, Release: DataFromReleaseSpec(spec)}
 	case termexp.DetachSpec:
@@ -78,6 +78,6 @@ func DataToExpRec(dto ExpRec) (termexp.ExpRec, error) {
 	case DetachKind:
 		return DataToDetachRec(dto.Detach)
 	default:
-		panic(termexp.ErrExpKindUnexpected(dto.K))
+		panic(fmt.Errorf("exp kind unexpected: %v", dto.K))
 	}
 }

@@ -28,7 +28,12 @@ func NewPostgresPool(t *testing.T) *pgxpool.Pool {
 				"POSTGRES_PASSWORD": "postgres",
 				"POSTGRES_DB":       "entpgx_test",
 			},
-			WaitingFor: wait.ForListeningPort("5432/tcp").WithStartupTimeout(time.Minute),
+			// The official image starts a temporary server during initialization.
+			// Wait for the second ready message so clients only connect after the
+			// final server is accepting connections.
+			WaitingFor: wait.ForLog("database system is ready to accept connections").
+				WithOccurrence(2).
+				WithStartupTimeout(time.Minute),
 		},
 		Started: true,
 	})

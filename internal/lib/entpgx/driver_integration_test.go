@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"orglang/go-engine/internal/lib/pgxtest"
+	"orglang/go-engine/internal/testutil/pgxtest"
 	"orglang/go-engine/internal/pool/ent"
 )
 

@@ -53,7 +53,7 @@ func (dao *daoPgx) GetRecByQN(ctx context.Context, conn tx.Conn, qn uniqsym.ADT)
 		dao.log.Error("query execution failed", qnAttr)
 		return termdef.DefRec{}, execErr
 	}
-	dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRecDS])
+	dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRec])
 	if scanErr != nil {
 		dao.log.Error("rows scanning failed", qnAttr)
 		return termdef.DefRec{}, scanErr

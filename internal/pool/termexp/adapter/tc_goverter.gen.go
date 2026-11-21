@@ -11,76 +11,76 @@ import (
 
 func init() {
 	DataFromAcceptRec = func(source core.AcceptRec) *GrantRec {
-		var coreGrantRecDS GrantRec
-		coreGrantRecDS.ContChnlPH = string(source.ContChnlPH)
-		coreGrantRecDS.ContExp = DataFromExpSpec(source.ContExp)
-		return &coreGrantRecDS
+		var adapterGrantRec GrantRec
+		adapterGrantRec.ContChnlPH = string(source.ContChnlPH)
+		adapterGrantRec.ContExp = DataFromExpSpec(source.ContExp)
+		return &adapterGrantRec
 	}
 	DataFromAcceptSpec = func(source core.AcceptSpec) *GrantSpec {
-		var coreGrantSpecDS GrantSpec
-		coreGrantSpecDS.ConnChnlPH = string(source.ConnChnlPH)
-		coreGrantSpecDS.ContExp = DataFromExpSpec(source.ContExp)
-		return &coreGrantSpecDS
+		var adapterGrantSpec GrantSpec
+		adapterGrantSpec.ConnChnlPH = string(source.ConnChnlPH)
+		adapterGrantSpec.ContExp = DataFromExpSpec(source.ContExp)
+		return &adapterGrantSpec
 	}
 	DataFromAcquireRec = func(source core.AcquireRec) *GrantRec {
-		var coreGrantRecDS GrantRec
-		coreGrantRecDS.ContChnlPH = string(source.ContChnlPH)
-		coreGrantRecDS.ContExp = DataFromExpSpec(source.ContExp)
-		return &coreGrantRecDS
+		var adapterGrantRec GrantRec
+		adapterGrantRec.ContChnlPH = string(source.ContChnlPH)
+		adapterGrantRec.ContExp = DataFromExpSpec(source.ContExp)
+		return &adapterGrantRec
 	}
 	DataFromAcquireSpec = func(source core.AcquireSpec) *GrantSpec {
-		var coreGrantSpecDS GrantSpec
-		coreGrantSpecDS.ConnChnlPH = string(source.ConnChnlPH)
-		coreGrantSpecDS.ContExp = DataFromExpSpec(source.ContExp)
-		return &coreGrantSpecDS
+		var adapterGrantSpec GrantSpec
+		adapterGrantSpec.ConnChnlPH = string(source.ConnChnlPH)
+		adapterGrantSpec.ContExp = DataFromExpSpec(source.ContExp)
+		return &adapterGrantSpec
 	}
 	DataFromApplyRec = func(source core.ApplyRec) *CoopRec {
-		var coreCoopRecDS CoopRec
-		coreCoopRecDS.ContChnlPH = string(source.ContChnlPH)
-		coreCoopRecDS.ProcTermQN = uniqsym.ConvertToString(source.ProcTermQN)
-		coreCoopRecDS.ContExp = DataFromExpSpec(source.ContExp)
-		return &coreCoopRecDS
+		var adapterCoopRec CoopRec
+		adapterCoopRec.ContChnlPH = string(source.ContChnlPH)
+		adapterCoopRec.ProcTermQN = uniqsym.ConvertToString(source.ProcTermQN)
+		adapterCoopRec.ContExp = DataFromExpSpec(source.ContExp)
+		return &adapterCoopRec
 	}
 	DataFromApplySpec = func(source core.ApplySpec) *CoopSpec {
-		var coreCoopSpecDS CoopSpec
-		coreCoopSpecDS.ConnChnlPH = string(source.ConnChnlPH)
-		coreCoopSpecDS.ProcTermQN = uniqsym.ConvertToString(source.ProcTermQN)
-		coreCoopSpecDS.ContExp = DataFromExpSpec(source.ContExp)
-		return &coreCoopSpecDS
+		var adapterCoopSpec CoopSpec
+		adapterCoopSpec.ConnChnlPH = string(source.ConnChnlPH)
+		adapterCoopSpec.ProcTermQN = uniqsym.ConvertToString(source.ProcTermQN)
+		adapterCoopSpec.ContExp = DataFromExpSpec(source.ContExp)
+		return &adapterCoopSpec
 	}
 	DataFromDetachRec = func(source core.DetachRec) *RevokeRec {
-		var coreRevokeRecDS RevokeRec
-		coreRevokeRecDS.ContChnlPH = string(source.ContChnlPH)
-		return &coreRevokeRecDS
+		var adapterRevokeRec RevokeRec
+		adapterRevokeRec.ContChnlPH = string(source.ContChnlPH)
+		return &adapterRevokeRec
 	}
 	DataFromDetachSpec = func(source core.DetachSpec) *RevokeSpec {
-		var coreRevokeSpecDS RevokeSpec
-		coreRevokeSpecDS.ConnChnlPH = string(source.ConnChnlPH)
-		return &coreRevokeSpecDS
+		var adapterRevokeSpec RevokeSpec
+		adapterRevokeSpec.ConnChnlPH = string(source.ConnChnlPH)
+		return &adapterRevokeSpec
 	}
 	DataFromHireRec = func(source core.HireRec) *CoopRec {
-		var coreCoopRecDS CoopRec
-		coreCoopRecDS.ContChnlPH = string(source.ContChnlPH)
-		coreCoopRecDS.ProcTermQN = uniqsym.ConvertToString(source.ProcTermQN)
-		coreCoopRecDS.ContExp = DataFromExpSpec(source.ContExp)
-		return &coreCoopRecDS
+		var adapterCoopRec CoopRec
+		adapterCoopRec.ContChnlPH = string(source.ContChnlPH)
+		adapterCoopRec.ProcTermQN = uniqsym.ConvertToString(source.ProcTermQN)
+		adapterCoopRec.ContExp = DataFromExpSpec(source.ContExp)
+		return &adapterCoopRec
 	}
 	DataFromHireSpec = func(source core.HireSpec) *CoopSpec {
-		var coreCoopSpecDS CoopSpec
-		coreCoopSpecDS.ConnChnlPH = string(source.ConnChnlPH)
-		coreCoopSpecDS.ProcTermQN = uniqsym.ConvertToString(source.ProcTermQN)
-		coreCoopSpecDS.ContExp = DataFromExpSpec(source.ContExp)
-		return &coreCoopSpecDS
+		var adapterCoopSpec CoopSpec
+		adapterCoopSpec.ConnChnlPH = string(source.ConnChnlPH)
+		adapterCoopSpec.ProcTermQN = uniqsym.ConvertToString(source.ProcTermQN)
+		adapterCoopSpec.ContExp = DataFromExpSpec(source.ContExp)
+		return &adapterCoopSpec
 	}
 	DataFromReleaseRec = func(source core.ReleaseRec) *RevokeRec {
-		var coreRevokeRecDS RevokeRec
-		coreRevokeRecDS.ContChnlPH = string(source.ContChnlPH)
-		return &coreRevokeRecDS
+		var adapterRevokeRec RevokeRec
+		adapterRevokeRec.ContChnlPH = string(source.ContChnlPH)
+		return &adapterRevokeRec
 	}
 	DataFromReleaseSpec = func(source core.ReleaseSpec) *RevokeSpec {
-		var coreRevokeSpecDS RevokeSpec
-		coreRevokeSpecDS.ConnChnlPH = string(source.ConnChnlPH)
-		return &coreRevokeSpecDS
+		var adapterRevokeSpec RevokeSpec
+		adapterRevokeSpec.ConnChnlPH = string(source.ConnChnlPH)
+		return &adapterRevokeSpec
 	}
 	DataToAcceptRec = func(source *GrantRec) (core.AcceptRec, error) {
 		var coreAcceptRec core.AcceptRec

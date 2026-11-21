@@ -59,4 +59,3 @@ func TestConvertFromStringDoesNotValidateQualifiedSymbolSyntax(t *testing.T) {
 		})
 	}
 }
-

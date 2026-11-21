@@ -8,6 +8,18 @@ import (
 	"orglang/go-engine/internal/pool/ent"
 )
 
+// The CompConnFunc type is an adapter to allow the use of ordinary
+// function as CompConn mutator.
+type CompConnFunc func(context.Context, *ent.CompConnMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CompConnFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.CompConnMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CompConnMutation", m)
+}
+
 // The TermDefFunc type is an adapter to allow the use of ordinary
 // function as TermDef mutator.
 type TermDefFunc func(context.Context, *ent.TermDefMutation) (ent.Value, error)

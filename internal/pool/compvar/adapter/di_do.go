@@ -8,20 +8,13 @@ import (
 	compvar "orglang/go-engine/internal/pool/compvar/core"
 )
 
-// Package registers the pool component-variable repository and its private query builder.
+// Package registers the pool component-variable repository.
 var Package = do.Package(
-	do.Lazy[queryBuilder](func(do.Injector) (queryBuilder, error) {
-		return newSQLBuilder(), nil
-	}),
 	do.Lazy[compvar.Repo](func(i do.Injector) (compvar.Repo, error) {
-		qb, err := do.Invoke[queryBuilder](i)
-		if err != nil {
-			return nil, err
-		}
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil {
 			return nil, err
 		}
-		return NewDaoPgx(qb, logger), nil
+		return NewDaoPgx(logger), nil
 	}),
 )

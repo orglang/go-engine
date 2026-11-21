@@ -15,7 +15,7 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/compconn/core"
-	"orglang/go-engine/internal/proc/connact/adapter"
+	connactadapter "orglang/go-engine/internal/proc/connact/adapter"
 	connact "orglang/go-engine/internal/proc/connact/core"
 	"orglang/go-engine/internal/proc/ent"
 	entcompconn "orglang/go-engine/internal/proc/ent/compconn"
@@ -67,7 +67,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod core.ConnMod
 	}
 
 	for _, act := range mod.Acts {
-		dto, err := adapter.DataFromStepRec(act)
+		dto, err := connactadapter.DataFromStepRec(act)
 		if err != nil {
 			return err
 		}
@@ -139,7 +139,7 @@ func (dao *daoEnt) GetSnapByQry(ctx context.Context, conn tx.Conn, qry core.Conn
 		Acts: make([]connact.ActRec, 0, len(dto.Acts)),
 	}
 	for _, actDTO := range dto.Acts {
-		act, err := adapter.DataToStepRec(actDTO)
+		act, err := connactadapter.DataToStepRec(actDTO)
 		if err != nil {
 			return core.ConnSnap{}, err
 		}

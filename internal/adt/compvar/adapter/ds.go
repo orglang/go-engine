@@ -2,7 +2,7 @@ package adapter
 
 import "database/sql"
 
-type VarRecDS struct {
+type VarRec struct {
 	CompID sql.NullString `db:"comp_id"`
 	CompRN sql.NullInt64  `db:"comp_rn"`
 	ConnID sql.NullString `db:"conn_id"`

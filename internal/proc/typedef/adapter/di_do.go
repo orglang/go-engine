@@ -14,8 +14,8 @@ import (
 
 // Package registers process type-definition persistence, service, and HTTP adapters.
 var Package = do.Package(
-		do.Lazy[core.Repo](func(i do.Injector) (core.Repo, error) {
-				logger, err := do.Invoke[*slog.Logger](i)
+	do.Lazy[core.Repo](func(i do.Injector) (core.Repo, error) {
+		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil {
 			return nil, err
 		}

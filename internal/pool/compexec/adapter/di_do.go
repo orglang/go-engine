@@ -126,14 +126,14 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return compsemadapter.NewDaoPgx(compExecs)(logger), nil
+		return compsemadapter.NewDaoPgx("pool_comp_execs")(logger), nil
 	}),
 	do.Lazy[implsem.Repo](func(i do.Injector) (implsem.Repo, error) {
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil {
 			return nil, err
 		}
-		return implsemadapter.NewDaoPgx(implBinds)(logger), nil
+		return implsemadapter.NewDaoPgx("pool_impl_binds")(logger), nil
 	}),
 )
 

@@ -221,7 +221,8 @@ LEFT JOIN desc_sems de
     ON de.desc_id = td.desc_id
 LEFT JOIN desc_binds db
     ON db.desc_id = td.desc_id
-WHERE db.desc_qn = $1`
+WHERE db.desc_qn = $1
+`
 
 	selectRecByID = `
 SELECT
@@ -231,11 +232,13 @@ SELECT
 FROM proc_type_defs td
 LEFT JOIN desc_sems de
     ON de.desc_id = td.desc_id
-WHERE td.desc_id = $1`
+WHERE td.desc_id = $1
+`
 
 	selectRefs = `
 SELECT
     desc_id,
     def_rn
-FROM proc_type_defs`
+FROM proc_type_defs
+`
 )

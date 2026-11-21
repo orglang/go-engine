@@ -2,7 +2,6 @@ package adapter
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"log/slog"
 	"reflect"
@@ -40,16 +39,11 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typeexp.ExpRec,
 	dto := dataFromExpRec(rec)
 	txCtx := entpgx.WithConn(ctx, conn.Pgx)
 	for _, st := range dto.States {
-		spec, err := json.Marshal(st.Spec)
-		if err != nil {
-			dao.log.Error("spec serialization failed", ckAttr)
-			return err
-		}
-		_, err = dao.client.TypeExp.Create().
+		_, err := dao.client.TypeExp.Create().
 			SetID(st.ExpCK).
 			SetSupExpCk(st.SupExpCK).
 			SetKind(int16(st.K)).
-			SetSpec(spec).
+			SetSpec(st.Spec).
 			Save(txCtx)
 		if err != nil {
 			dao.log.Error("query execution failed", ckAttr, slog.Int64("exp_ck", st.ExpCK))

@@ -40,13 +40,13 @@ type ExpRec struct {
 type ExpKind = termexp.ExpKind
 
 const (
-	UnkKind = termexp.UnkKind
+	UnkKind     = termexp.UnkKind
 	AcquireKind = termexp.AcquireKind
-	AcceptKind = termexp.AcceptKind
-	HireKind = termexp.HireKind
-	ApplyKind = termexp.ApplyKind
+	AcceptKind  = termexp.AcceptKind
+	HireKind    = termexp.HireKind
+	ApplyKind   = termexp.ApplyKind
 	ReleaseKind = termexp.ReleaseKind
-	DetachKind = termexp.DetachKind
+	DetachKind  = termexp.DetachKind
 )
 
 type GrantRec struct {

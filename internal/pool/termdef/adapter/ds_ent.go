@@ -57,10 +57,12 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdef.DefRec)
 
 func (dao *daoEnt) GetRecByQN(ctx context.Context, conn tx.Conn, qn uniqsym.ADT) (termdef.DefRec, error) {
 	qnAttr := slog.Any("qn", qn)
-	const query = `SELECT def.term_id, def.term_rn, def.liab_var, def.asset_vars
-		FROM pool_term_decs def
-		JOIN pool_desc_binds bind ON bind.desc_id = def.term_id
-		WHERE bind.desc_qn = $1`
+	const query = `
+SELECT def.term_id, def.term_rn, def.liab_var, def.asset_vars
+FROM pool_term_decs def
+JOIN pool_desc_binds bind ON bind.desc_id = def.term_id
+WHERE bind.desc_qn = $1
+`
 	rows, err := conn.Pgx.Query(ctx, query, uniqsym.ConvertToString(qn))
 	if err != nil {
 		dao.log.Error("query execution failed", qnAttr)

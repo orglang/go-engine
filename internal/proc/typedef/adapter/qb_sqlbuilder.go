@@ -14,11 +14,11 @@ func newQueryBuilder() QueryBuilder {
 }
 
 func newSQLBuilder() *sqlBuilder {
-	defBuilder := sqlbuilder.NewStruct(new(DefRecDS)).For(sqlbuilder.PostgreSQL)
+	defBuilder := sqlbuilder.NewStruct(new(DefRec)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{defBuilder}
 }
 
-func (qb *sqlBuilder) InsertRec(rec DefRecDS) (string, []any) {
+func (qb *sqlBuilder) InsertRec(rec DefRec) (string, []any) {
 	return qb.defBuilder.InsertInto(typeDefs, rec).Build()
 }
 

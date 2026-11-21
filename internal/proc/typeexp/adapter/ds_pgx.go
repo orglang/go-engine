@@ -18,13 +18,12 @@ import (
 
 // Adapter
 type daoPgx struct {
-	qb  QueryBuilder
 	log *slog.Logger
 }
 
-func NewDaoPgx(qb QueryBuilder, log *slog.Logger) typeexp.Repo {
+func NewDaoPgx(log *slog.Logger) typeexp.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
-	return &daoPgx{qb, log.With(name)}
+	return &daoPgx{log.With(name)}
 }
 
 // for compilation purposes
@@ -37,8 +36,7 @@ func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec typeexp.ExpRec)
 	dto := dataFromExpRec(rec)
 	batch := pgx.Batch{}
 	for _, st := range dto.States {
-		sql, args := dao.qb.InsertRec(st)
-		batch.Queue(sql, args...)
+		batch.Queue(insertRec, st.ExpCK, st.SupExpCK, st.K, st.Spec)
 	}
 	br := conn.Pgx.SendBatch(ctx, &batch)
 	defer func() {
@@ -128,22 +126,19 @@ func (dao *daoPgx) SelectRecsByCKs(ctx context.Context, conn tx.Conn, expCKs []c
 
 const (
 	insertRec = `
-		insert into proc_type_exps (
-			exp_ck, sup_exp_ck, desc_id, desc_rn, kind, spec
-		) values (
-			@exp_ck, @sup_exp_ck, @desc_id, @desc_rn, @kind, @spec
-		)
-		on conflict (exp_ck) do nothing`
+		INSERT INTO proc_type_exps (exp_ck, sup_exp_ck, kind, spec)
+		VALUES ($1, $2, $3, $4)
+		ON CONFLICT (exp_ck) DO NOTHING`
 
 	selectByID = `
-		with recursive exp_tree AS (
-			select top.*
-			from proc_type_exps top
-			where exp_ck = $1
-			union all
-			select sub.*
-			from proc_type_exps sub, exp_tree sup
-			where sub.sup_exp_ck = sup.exp_ck
+		WITH RECURSIVE exp_tree AS (
+			SELECT top.*
+			FROM proc_type_exps top
+			WHERE top.exp_ck = $1
+			UNION ALL
+			SELECT sub.*
+			FROM proc_type_exps sub, exp_tree sup
+			WHERE sub.sup_exp_ck = sup.exp_ck
 		)
-		select * from exp_tree`
+		SELECT * FROM exp_tree`
 )

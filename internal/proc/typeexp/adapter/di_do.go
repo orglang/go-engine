@@ -10,11 +10,11 @@ import (
 
 // Package registers process type-expression persistence.
 var Package = do.Package(
-	do.Lazy[core.QueryBuilder](func(do.Injector) (core.QueryBuilder, error) {
+	do.Lazy[QueryBuilder](func(do.Injector) (QueryBuilder, error) {
 		return newSQLBuilder(), nil
 	}),
 	do.Lazy[core.Repo](func(i do.Injector) (core.Repo, error) {
-		builder, err := do.Invoke[core.QueryBuilder](i)
+		builder, err := do.Invoke[QueryBuilder](i)
 		if err != nil {
 			return nil, err
 		}

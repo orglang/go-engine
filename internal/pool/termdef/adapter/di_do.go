@@ -6,18 +6,19 @@ import (
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/adt/descsem"
+	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/tx"
+	"orglang/go-engine/internal/pool/ent"
 	"orglang/go-engine/internal/pool/termdef/core"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 )
 
-// Package registers the term-definition service, persistence, and HTTP adapter.
 var Package = do.Package(
-	do.Lazy[queryBuilder](func(do.Injector) (queryBuilder, error) {
-		return newSQLBuilder(), nil
+	do.Lazy[*ent.Client](func(do.Injector) (*ent.Client, error) {
+		return ent.NewClient(ent.Driver(entpgx.New())), nil
 	}),
 	do.Lazy[core.Repo](func(i do.Injector) (core.Repo, error) {
-		qb, err := do.Invoke[queryBuilder](i)
+		client, err := do.Invoke[*ent.Client](i)
 		if err != nil {
 			return nil, err
 		}
@@ -25,7 +26,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return NewDaoPgx(qb, logger), nil
+		return NewDaoEnt(client, logger), nil
 	}),
 	do.Lazy[core.API](func(i do.Injector) (core.API, error) {
 		repo, err := do.Invoke[core.Repo](i)

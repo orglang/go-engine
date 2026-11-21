@@ -1,5 +1,7 @@
 package adapter
 
+import termexp "orglang/go-engine/internal/pool/termexp/core"
+
 type ExpSpec struct {
 	K       ExpKind     `json:"k"`
 	Acquire *GrantSpec  `json:"acquire,omitempty"`
@@ -35,16 +37,16 @@ type ExpRec struct {
 	Detach  *RevokeRec `json:"detach,omitempty"`
 }
 
-type ExpKind int
+type ExpKind = termexp.ExpKind
 
 const (
-	UnkKind ExpKind = iota
-	AcquireKind
-	AcceptKind
-	HireKind
-	ApplyKind
-	ReleaseKind
-	DetachKind
+	UnkKind = termexp.UnkKind
+	AcquireKind = termexp.AcquireKind
+	AcceptKind = termexp.AcceptKind
+	HireKind = termexp.HireKind
+	ApplyKind = termexp.ApplyKind
+	ReleaseKind = termexp.ReleaseKind
+	DetachKind = termexp.DetachKind
 )
 
 type GrantRec struct {

@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: orglang/go-workspace
-          ref: 9a204789a174904230fa5f0a748714bc127e22d0
+          ref: 8f08248034339b96a00cb6bde8321db1c4f06d16
           fetch-depth: 0
 
       - name: Checkout engine

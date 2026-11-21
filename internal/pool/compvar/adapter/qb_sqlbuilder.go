@@ -16,10 +16,10 @@ func newQueryBuilder() queryBuilder {
 }
 
 func newSQLBuilder() *sqlBuilder {
-	varBuilder := sqlbuilder.NewStruct(new(compvaradapter.VarRecDS)).For(sqlbuilder.PostgreSQL)
+	varBuilder := sqlbuilder.NewStruct(new(compvaradapter.VarRec)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{varBuilder}
 }
 
-func (qb *sqlBuilder) InsertRec(table string, rec compvaradapter.VarRecDS) (string, []any) {
+func (qb *sqlBuilder) InsertRec(table string, rec compvaradapter.VarRec) (string, []any) {
 	return qb.varBuilder.InsertInto(table, rec).Build()
 }

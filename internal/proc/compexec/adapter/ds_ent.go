@@ -143,43 +143,40 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod compexec.Exe
 
 const (
 	insertBind = `
-        INSERT INTO proc_binds (
-    impl_id, chnl_ph, chnl_id, state_id, impl_rn
-) VALUES (
-    @impl_id, @chnl_ph, @chnl_id, @state_id, @impl_rn
-)
-`
+    INSERT INTO proc_binds (
+        impl_id, chnl_ph, chnl_id, state_id, impl_rn
+    ) VALUES (
+        @impl_id, @chnl_ph, @chnl_id, @state_id, @impl_rn
+    )`
 
 	updateExec = `
-        UPDATE proc_comp_execs
-SET comp_rn = @comp_rn + 1
-WHERE comp_id = @comp_id
-    AND comp_rn = @comp_rn
-`
+    UPDATE proc_comp_execs
+    SET comp_rn = @comp_rn + 1
+    WHERE comp_id = @comp_id
+        AND comp_rn = @comp_rn`
 
 	selectChnls = `
-        WITH bnds AS NOT MATERIALIZED (
-    SELECT DISTINCT ON (chnl_ph)
-        *
-    FROM proc_bnds
-    WHERE proc_id = 'proc1'
-    ORDER BY chnl_ph, abs(rev) DESC
-), liabs AS NOT MATERIALIZED (
-    SELECT DISTINCT ON (proc_id)
-        *
-    FROM pool_liabs
-    WHERE proc_id = 'proc1'
-    ORDER BY proc_id, abs(rev) DESC
-)
-SELECT
-    bnd.*,
-    prvd.desc_id
-FROM bnds bnd
-LEFT JOIN liabs liab
-    ON liab.proc_id = bnd.proc_id
-LEFT JOIN pool_comp_execs prvd
-    ON prvd.desc_id = liab.desc_id
-`
+    WITH bnds AS NOT MATERIALIZED (
+        SELECT DISTINCT ON (chnl_ph)
+            *
+        FROM proc_bnds
+        WHERE proc_id = 'proc1'
+        ORDER BY chnl_ph, abs(rev) DESC
+    ), liabs AS NOT MATERIALIZED (
+        SELECT DISTINCT ON (proc_id)
+            *
+        FROM pool_liabs
+        WHERE proc_id = 'proc1'
+        ORDER BY proc_id, abs(rev) DESC
+    )
+    SELECT
+        bnd.*,
+        prvd.desc_id
+    FROM bnds bnd
+    LEFT JOIN liabs liab
+        ON liab.proc_id = bnd.proc_id
+    LEFT JOIN pool_comp_execs prvd
+        ON prvd.desc_id = liab.desc_id`
 )
 
 func errOptimisticUpdate(got seqnum.ADT) error {

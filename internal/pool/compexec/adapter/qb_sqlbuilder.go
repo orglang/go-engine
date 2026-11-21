@@ -19,17 +19,17 @@ func newQueryBuilder() queryBuilder {
 }
 
 func newSQLBuilder() *sqlBuilder {
-	recBuilder := sqlbuilder.NewStruct(new(ExecRecDS)).For(sqlbuilder.PostgreSQL)
-	snapBuilder := sqlbuilder.NewStruct(new(ExecSnap1DS)).For(sqlbuilder.PostgreSQL)
-	compVarBuilder := sqlbuilder.NewStruct(new(compvaradapter.VarRecDS)).For(sqlbuilder.PostgreSQL)
+	recBuilder := sqlbuilder.NewStruct(new(ExecRec)).For(sqlbuilder.PostgreSQL)
+	snapBuilder := sqlbuilder.NewStruct(new(ExecSnap1)).For(sqlbuilder.PostgreSQL)
+	compVarBuilder := sqlbuilder.NewStruct(new(compvaradapter.VarRec)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{recBuilder, snapBuilder, compVarBuilder}
 }
 
-func (qb *sqlBuilder) InsertRec(rec ExecRecDS) (string, []any) {
+func (qb *sqlBuilder) InsertRec(rec ExecRec) (string, []any) {
 	return qb.recBuilder.InsertInto(compExecs, rec).Build()
 }
 
-func (qb *sqlBuilder) SelectRecByRef(ref compsemadapter.SemRefDS) (string, []any) {
+func (qb *sqlBuilder) SelectRecByRef(ref compsemadapter.SemRef) (string, []any) {
 	exec := qb.recBuilder.SelectFrom(compExecs + "exec")
 	structVar := qb.compVarBuilder.SelectFrom(poolStructVars + "var")
 	linearVar := qb.compVarBuilder.SelectFrom(poolLinearVars + "var")

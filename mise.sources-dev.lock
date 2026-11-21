@@ -2,11 +2,6 @@
 
 lockfile_version = 4
 
-[[tools."go:entgo.io/ent/cmd/ent"]]
-version = "0.14.6"
-backend = "go:entgo.io/ent/cmd/ent"
-specifiers = ["v0.14.6"]
-
 [[tools."go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint"]]
 version = "2.15.0"
 backend = "go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint"

@@ -7,6 +7,8 @@ import (
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/adt/typesem"
+	"orglang/go-engine/internal/lib/entpgx"
+	"orglang/go-engine/internal/proc/ent"
 	typesemadapter "orglang/go-engine/internal/adt/typesem/adapter"
 	webapi "orglang/go-engine/internal/app/web/api"
 	compconn "orglang/go-engine/internal/proc/compconn/adapter"
@@ -21,6 +23,9 @@ import (
 // persistence adapters and services currently used by production process
 // endpoints. Incomplete and unused areas such as termexp remain unwired.
 var Package = do.Package(
+	do.Lazy[*ent.Client](func(do.Injector) (*ent.Client, error) {
+		return ent.NewClient(ent.Driver(entpgx.New())), nil
+	}),
 	compconn.Package,
 	compexec.Package,
 	termdec.Package,

@@ -63,7 +63,7 @@ func (dao *daoPgx) GetSnap(ctx context.Context, conn tx.Conn, ref termsem.SemRef
 		return termdec.DecSnap{}, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecSnapDS])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecSnap])
 	if err != nil {
 		dao.log.Error("row scanning failed", refAttr)
 		return termdec.DecSnap{}, err
@@ -99,13 +99,13 @@ func (dao *daoPgx) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	var dtos []DecRecDS
+	var dtos []DecRec
 	for _, rid := range ids {
 		rows, err := br.Query()
 		if err != nil {
 			dao.log.Error("query execution failed", slog.Any("id", rid), slog.String("q", selectByRef))
 		}
-		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecRecDS])
+		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecRec])
 		if err != nil {
 			dao.log.Error("row scanning failed", slog.Any("id", rid))
 		}

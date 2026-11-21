@@ -18,7 +18,7 @@ import (
 	termdef "orglang/go-engine/internal/pool/termdef/core"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 	typeexp "orglang/go-engine/internal/pool/typeexp/core"
-	proc "orglang/go-engine/internal/proc"
+	"orglang/go-engine/internal/proc"
 )
 
 type testTransactor struct{}

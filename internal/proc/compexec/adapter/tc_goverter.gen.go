@@ -11,14 +11,14 @@ import (
 )
 
 func init() {
-	DataFromExecRec = func(source core.ExecRec) ExecRecDS {
-		var adapterExecRecDS ExecRecDS
-		adapterExecRecDS.CompID = identity.ConvertToString(source.CompRef.CompID)
-		adapterExecRecDS.CompRN = int64(source.CompRef.CompRN)
-		adapterExecRecDS.LiabMode = int16(source.LiabMode)
-		return adapterExecRecDS
+	DataFromExecRec = func(source core.ExecRec) ExecRec {
+		var adapterExecRec ExecRec
+		adapterExecRec.CompID = identity.ConvertToString(source.CompRef.CompID)
+		adapterExecRec.CompRN = int64(source.CompRef.CompRN)
+		adapterExecRec.LiabMode = int16(source.LiabMode)
+		return adapterExecRec
 	}
-	DataToExecRec = func(source ExecRecDS) (core.ExecRec, error) {
+	DataToExecRec = func(source ExecRec) (core.ExecRec, error) {
 		var coreExecRec core.ExecRec
 		compsemSemRef, err := dataToSemRef(source)
 		if err != nil {
@@ -28,7 +28,7 @@ func init() {
 		coreExecRec.LiabMode = compvar.Mode(source.LiabMode)
 		return coreExecRec, nil
 	}
-	dataToSemRef = func(source ExecRecDS) (compsem.SemRef, error) {
+	dataToSemRef = func(source ExecRec) (compsem.SemRef, error) {
 		var compsemSemRef compsem.SemRef
 		identityADT, err := identity.ConvertFromString(source.CompID)
 		if err != nil {

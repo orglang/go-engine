@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-
 	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
 	"orglang/go-engine/internal/adt/uniqsym"
 	dbadapter "orglang/go-engine/internal/lib/db/adapter"

@@ -20,13 +20,12 @@ import (
 
 // Adapter
 type daoPgx struct {
-	qb  QueryBuilder
 	log *slog.Logger
 }
 
-func NewDaoPgx(qb QueryBuilder, log *slog.Logger) typeexp.Repo {
+func NewDaoPgx(log *slog.Logger) typeexp.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
-	return &daoPgx{qb, log.With(name)}
+	return &daoPgx{log.With(name)}
 }
 
 // for compilation purposes
@@ -39,8 +38,7 @@ func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec typeexp.ExpRec,
 	dto := dataFromExpRec(rec)
 	batch := pgx.Batch{}
 	for _, st := range dto.States {
-		sql, args := dao.qb.InsertRec(st)
-		batch.Queue(sql, args...)
+		batch.Queue(insertRec, st.ExpCK, st.SupExpCK, st.K, st.Spec)
 	}
 	br := conn.Pgx.SendBatch(ctx, &batch)
 	defer func() {
@@ -58,7 +56,7 @@ func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec typeexp.ExpRec,
 
 func (dao *daoPgx) GetRecByCK(ctx context.Context, conn tx.Conn, expCK contkey.ADT) (typeexp.ExpRec, error) {
 	ckAttr := slog.Any("ck", expCK)
-	sql := dao.qb.SelectRecByCK()
+	sql := selectRecByCK
 	rows, err := conn.Pgx.Query(ctx, sql, contkey.ConvertToInt(expCK))
 	if err != nil {
 		dao.log.Error("query execution failed", ckAttr, slog.String("sql", sql))
@@ -158,3 +156,19 @@ func (dao *daoPgx) GetRecMap(ctx context.Context, conn tx.Conn, expCKs map[symbo
 	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("recs", recs))
 	return recs, err
 }
+
+
+const (
+	insertRec = `INSERT INTO pool_type_exps (exp_ck, sup_exp_ck, kind, spec) VALUES ($1, $2, $3, $4)`
+	selectRecByCK = `
+		WITH RECURSIVE exp_tree AS (
+			SELECT top.*
+			FROM pool_type_exps top
+			WHERE top.exp_ck = $1
+			UNION ALL
+			SELECT sub.*
+			FROM pool_type_exps sub, exp_tree sup
+			WHERE sub.sup_exp_ck = sup.exp_ck
+		)
+		SELECT * FROM exp_tree`
+)

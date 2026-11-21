@@ -82,7 +82,7 @@ func (dao *daoPgx) GetRecByCK(ctx context.Context, conn tx.Conn, expCK contkey.A
 
 func (dao *daoPgx) GetRecsByCKs(ctx context.Context, conn tx.Conn, expCKs []contkey.ADT) (_ []typeexp.ExpRec, err error) {
 	batch := pgx.Batch{}
-	sql := dao.qb.SelectRecByCK()
+	sql := selectRecByCK
 	for _, expCK := range expCKs {
 		batch.Queue(sql, contkey.ConvertToInt(expCK))
 	}
@@ -120,7 +120,7 @@ func (dao *daoPgx) GetRecsByCKs(ctx context.Context, conn tx.Conn, expCKs []cont
 
 func (dao *daoPgx) GetRecMap(ctx context.Context, conn tx.Conn, expCKs map[symbol.ADT]contkey.ADT) (_ map[symbol.ADT]typeexp.ExpRec, err error) {
 	batch := pgx.Batch{}
-	sql := dao.qb.SelectRecByCK()
+	sql := selectRecByCK
 	for _, expCK := range expCKs {
 		batch.Queue(sql, contkey.ConvertToInt(expCK))
 	}

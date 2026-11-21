@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"reflect"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 
@@ -16,14 +17,19 @@ import (
 )
 
 type daoPgx struct {
-	qb  queryBuilder
-	log *slog.Logger
+	typeTable string
+	descTable string
+	log       *slog.Logger
 }
 
 func NewDaoPgx(typeTable, descTable string) func(log *slog.Logger) *daoPgx {
 	return func(log *slog.Logger) *daoPgx {
 		name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
-		return &daoPgx{newSQLBuilder(typeTable, descTable), log.With(name)}
+		return &daoPgx{
+			typeTable: strings.TrimSpace(typeTable),
+			descTable: strings.TrimSpace(descTable),
+			log:       log.With(name),
+		}
 	}
 }
 
@@ -35,8 +41,9 @@ func newRepo() typesem.Repo {
 func (dao *daoPgx) TouchRef(ctx context.Context, conn tx.Conn, ref typesem.SemRef) error {
 	dto := DataFromRef(ref)
 	refAttr := slog.Any("ref", ref)
-	sql, args := dao.qb.updateRef(dto)
-	ct, execErr := conn.Pgx.Exec(ctx, sql, args...)
+	const query = `UPDATE %s SET type_rn = type_rn + 1 WHERE type_id = $1 AND type_rn = $2`
+	sql := fmt.Sprintf(query, dao.typeTable)
+	ct, execErr := conn.Pgx.Exec(ctx, sql, dto.TypeID, dto.TypeRN)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
 		return execErr
@@ -54,9 +61,13 @@ func (dao *daoPgx) GetRefsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 	if len(typeQNs) == 0 {
 		return make(map[uniqsym.ADT]typesem.SemRef), nil
 	}
+	const query = `SELECT t.type_id, t.type_rn
+		FROM %s AS t
+		JOIN %s AS d ON d.desc_id = t.type_id
+		WHERE d.desc_qn = $1`
+	sql := fmt.Sprintf(query, dao.typeTable, dao.descTable)
 	batch := pgx.Batch{}
 	for _, typeQN := range typeQNs {
-		sql := dao.qb.selectRefByQN()
 		batch.Queue(sql, uniqsym.ConvertToString(typeQN))
 	}
 	br := conn.Pgx.SendBatch(ctx, &batch)

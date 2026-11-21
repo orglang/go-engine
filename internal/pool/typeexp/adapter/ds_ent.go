@@ -154,13 +154,14 @@ func (dao *daoEnt) GetRecMap(ctx context.Context, conn tx.Conn, expCKs map[symbo
 }
 
 const selectRecByCK = `
-	WITH RECURSIVE exp_tree AS (
-		SELECT top.*
-		FROM pool_type_exps top
-		WHERE top.exp_ck = $1
-		UNION ALL
-		SELECT sub.*
-		FROM pool_type_exps sub, exp_tree sup
-		WHERE sub.sup_exp_ck = sup.exp_ck
-	)
-	SELECT * FROM exp_tree`
+    WITH RECURSIVE exp_tree AS (
+    SELECT top.*
+    FROM pool_type_exps top
+    WHERE top.exp_ck = $1
+    UNION ALL
+    SELECT sub.*
+    FROM pool_type_exps sub, exp_tree sup
+    WHERE sub.sup_exp_ck = sup.exp_ck
+)
+SELECT * FROM exp_tree
+`

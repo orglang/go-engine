@@ -10,7 +10,7 @@ const (
 )
 
 type queryBuilder interface {
-	InsertRec(ExecRecDS) (string, []any)
-	SelectRecByRef(compsemadapter.SemRefDS) (string, []any)
+	InsertRec(ExecRec) (string, []any)
+	SelectRecByRef(compsemadapter.SemRef) (string, []any)
 	SelectSnapByQN(string) (string, []any)
 }

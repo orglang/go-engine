@@ -14,14 +14,14 @@ import (
 // goverter:extend DataToExecSnap1
 var (
 	// goverter:map . CompRef
-	DataToExecRec func(ExecRecDS) (compexec.ExecRec, error)
+	DataToExecRec func(ExecRec) (compexec.ExecRec, error)
 	// goverter:autoMap CompRef
-	DataFromExecRec func(compexec.ExecRec) ExecRecDS
+	DataFromExecRec func(compexec.ExecRec) ExecRec
 	// goverter:map . CompRef
-	DataToExecSnap2 func(ExecSnap2DS) (compexec.ExecSnap2, error)
+	DataToExecSnap2 func(ExecSnap2) (compexec.ExecSnap2, error)
 	// goverter:autoMap CompRef
-	DataFromExecSnap2 func(compexec.ExecSnap2) ExecSnap2DS
+	DataFromExecSnap2 func(compexec.ExecSnap2) ExecSnap2
 
-	DataToRefMap  func(map[uniqsym.ADT]ExecSnap2DS) (map[uniqsym.ADT]compexec.ExecSnap2, error)
-	DataToSnapMap func(map[uniqsym.ADT]ExecSnap1DS) (map[uniqsym.ADT]compexec.ExecSnap1, error)
+	DataToRefMap  func(map[uniqsym.ADT]ExecSnap2) (map[uniqsym.ADT]compexec.ExecSnap2, error)
+	DataToSnapMap func(map[uniqsym.ADT]ExecSnap1) (map[uniqsym.ADT]compexec.ExecSnap1, error)
 )

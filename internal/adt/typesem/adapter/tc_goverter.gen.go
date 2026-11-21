@@ -11,23 +11,23 @@ import (
 )
 
 func init() {
-	DataFromRef = func(source typesem.SemRef) SemRefDS {
-		var adapterSemRefDS SemRefDS
-		adapterSemRefDS.TypeID = identity.ConvertToString(source.TypeID)
-		adapterSemRefDS.TypeRN = seqnum.ConvertToInt(source.TypeRN)
-		return adapterSemRefDS
+	DataFromRef = func(source typesem.SemRef) SemRef {
+		var adapterSemRef SemRef
+		adapterSemRef.TypeID = identity.ConvertToString(source.TypeID)
+		adapterSemRef.TypeRN = seqnum.ConvertToInt(source.TypeRN)
+		return adapterSemRef
 	}
-	DataFromRefs = func(source []typesem.SemRef) ([]SemRefDS, error) {
-		var adapterSemRefDSList []SemRefDS
+	DataFromRefs = func(source []typesem.SemRef) ([]SemRef, error) {
+		var adapterSemRefList []SemRef
 		if source != nil {
-			adapterSemRefDSList = make([]SemRefDS, len(source))
+			adapterSemRefList = make([]SemRef, len(source))
 			for i := 0; i < len(source); i++ {
-				adapterSemRefDSList[i] = DataFromRef(source[i])
+				adapterSemRefList[i] = DataFromRef(source[i])
 			}
 		}
-		return adapterSemRefDSList, nil
+		return adapterSemRefList, nil
 	}
-	DataToRef = func(source SemRefDS) (typesem.SemRef, error) {
+	DataToRef = func(source SemRef) (typesem.SemRef, error) {
 		var typesemSemRef typesem.SemRef
 		identityADT, err := identity.ConvertFromString(source.TypeID)
 		if err != nil {
@@ -37,7 +37,7 @@ func init() {
 		typesemSemRef.TypeRN = seqnum.ConvertFromInt(source.TypeRN)
 		return typesemSemRef, nil
 	}
-	DataToRefMap = func(source map[uniqsym.ADT]SemRefDS) (map[uniqsym.ADT]typesem.SemRef, error) {
+	DataToRefMap = func(source map[uniqsym.ADT]SemRef) (map[uniqsym.ADT]typesem.SemRef, error) {
 		var mapUniqsymADTTypesemSemRef map[uniqsym.ADT]typesem.SemRef
 		if source != nil {
 			mapUniqsymADTTypesemSemRef = make(map[uniqsym.ADT]typesem.SemRef, len(source))
@@ -51,7 +51,7 @@ func init() {
 		}
 		return mapUniqsymADTTypesemSemRef, nil
 	}
-	DataToRefs = func(source []SemRefDS) ([]typesem.SemRef, error) {
+	DataToRefs = func(source []SemRef) ([]typesem.SemRef, error) {
 		var typesemSemRefList []typesem.SemRef
 		if source != nil {
 			typesemSemRefList = make([]typesem.SemRef, len(source))

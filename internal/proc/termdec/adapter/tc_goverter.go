@@ -22,17 +22,17 @@ var (
 var (
 	// goverter:map . TermRef
 	// goverter:ignore TermQN
-	DataToDecRec func(DecRecDS) (termdec.DecRec, error)
+	DataToDecRec func(DecRec) (termdec.DecRec, error)
 	// goverter:autoMap TermRef
-	DataFromDecRec  func(termdec.DecRec) (DecRecDS, error)
-	DataToDecRecs   func([]DecRecDS) ([]termdec.DecRec, error)
-	DataFromDecRecs func([]termdec.DecRec) ([]DecRecDS, error)
+	DataFromDecRec  func(termdec.DecRec) (DecRec, error)
+	DataToDecRecs   func([]DecRec) ([]termdec.DecRec, error)
+	DataFromDecRecs func([]termdec.DecRec) ([]DecRec, error)
 	// goverter:map . TermRef
-	DataToDecSnap func(DecSnapDS) (termdec.DecSnap, error)
+	DataToDecSnap func(DecSnap) (termdec.DecSnap, error)
 	// goverter:autoMap TermRef
-	DataFromDecSnap  func(termdec.DecSnap) (DecSnapDS, error)
-	DataToDecSnaps   func([]DecSnapDS) ([]termdec.DecSnap, error)
-	DataFromDecSnaps func([]termdec.DecSnap) ([]DecSnapDS, error)
+	DataFromDecSnap  func(termdec.DecSnap) (DecSnap, error)
+	DataToDecSnaps   func([]DecSnap) ([]termdec.DecSnap, error)
+	DataFromDecSnaps func([]termdec.DecSnap) ([]DecSnap, error)
 )
 
 // goverter:variables

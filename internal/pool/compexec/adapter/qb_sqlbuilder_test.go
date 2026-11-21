@@ -10,7 +10,7 @@ import (
 func TestInsertRec(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
-	gotSQL, gotArgs := qb.InsertRec(ExecRecDS{})
+	gotSQL, gotArgs := qb.InsertRec(ExecRec{})
 	wantSQL := "INSERT INTO pool_comp_execs  (comp_id, comp_rn, liab_mode) VALUES ($1, $2, $3)"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)
@@ -24,7 +24,7 @@ func TestInsertRec(t *testing.T) {
 func TestSelectRecByRef(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
-	gotSQL, gotArgs := qb.SelectRecByRef(compsemadapter.SemRefDS{})
+	gotSQL, gotArgs := qb.SelectRecByRef(compsemadapter.SemRef{})
 	wantSQL := "WITH struct_vars AS (SELECT var.comp_id, var.comp_rn, var.conn_id, var.chnl_id, " +
 		"var.chnl_ph, var.exp_ck, var.side FROM pool_struct_vars var WHERE comp_id = $1), " +
 		"linear_vars AS (SELECT var.comp_id, var.comp_rn, var.conn_id, var.chnl_id, " +

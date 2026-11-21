@@ -11,9 +11,9 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/symbol:Convert.*
 var (
 	// goverter:autoMap TypeRef
-	DataFromVarRec func(termvar.VarRec) (VarRecDS, error)
+	DataFromVarRec func(termvar.VarRec) (VarRec, error)
 	// goverter:map . TypeRef | dataToTypeRef
-	DataToVarRec func(VarRecDS) (termvar.VarRec, error)
+	DataToVarRec func(VarRec) (termvar.VarRec, error)
 	// goverter:ignore TypeRN
-	dataToTypeRef func(VarRecDS) (typesem.SemRef, error)
+	dataToTypeRef func(VarRec) (typesem.SemRef, error)
 )

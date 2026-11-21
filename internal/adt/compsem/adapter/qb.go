@@ -1,5 +1,5 @@
 package adapter
 
 type queryBuilder interface {
-	updateRef(SemRefDS) (string, []any)
+	updateRef(SemRef) (string, []any)
 }

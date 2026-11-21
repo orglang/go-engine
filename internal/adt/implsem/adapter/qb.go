@@ -1,5 +1,5 @@
 package adapter
 
 type queryBuilder interface {
-	insertRec(semRecDS) (string, []any)
+	insertRec(semRec) (string, []any)
 }

@@ -57,28 +57,28 @@ func init() {
 	}
 }
 func init() {
-	DataFromDecRec = func(source core.DefRec) (DefRecDS, error) {
-		var adapterDefRecDS DefRecDS
-		adapterDefRecDS.TermID = identity.ConvertToString(source.TermRef.TermID)
-		adapterDefRecDS.TermRN = int64(source.TermRef.TermRN)
-		adapterVarRecDS, err := adapter.DataFromVarRec(source.LiabVar)
+	DataFromDecRec = func(source core.DefRec) (DefRec, error) {
+		var adapterDefRec DefRec
+		adapterDefRec.TermID = identity.ConvertToString(source.TermRef.TermID)
+		adapterDefRec.TermRN = int64(source.TermRef.TermRN)
+		adapterVarRec, err := adapter.DataFromVarRec(source.LiabVar)
 		if err != nil {
-			return adapterDefRecDS, err
+			return adapterDefRec, err
 		}
-		adapterDefRecDS.LiabVar = adapterVarRecDS
+		adapterDefRec.LiabVar = adapterVarRec
 		if source.AssetVars != nil {
-			adapterDefRecDS.AssetVars = make([]adapter.VarRecDS, len(source.AssetVars))
+			adapterDefRec.AssetVars = make([]adapter.VarRec, len(source.AssetVars))
 			for i := 0; i < len(source.AssetVars); i++ {
-				adapterVarRecDS2, err := adapter.DataFromVarRec(source.AssetVars[i])
+				adapterVarRec2, err := adapter.DataFromVarRec(source.AssetVars[i])
 				if err != nil {
-					return adapterDefRecDS, err
+					return adapterDefRec, err
 				}
-				adapterDefRecDS.AssetVars[i] = adapterVarRecDS2
+				adapterDefRec.AssetVars[i] = adapterVarRec2
 			}
 		}
-		return adapterDefRecDS, nil
+		return adapterDefRec, nil
 	}
-	DataToDecRec = func(source DefRecDS) (core.DefRec, error) {
+	DataToDecRec = func(source DefRec) (core.DefRec, error) {
 		var coreDefRec core.DefRec
 		termsemSemRef, err := dataToTermRef(source)
 		if err != nil {
@@ -102,7 +102,7 @@ func init() {
 		}
 		return coreDefRec, nil
 	}
-	dataToTermRef = func(source DefRecDS) (termsem.SemRef, error) {
+	dataToTermRef = func(source DefRec) (termsem.SemRef, error) {
 		var termsemSemRef termsem.SemRef
 		identityADT, err := identity.ConvertFromString(source.TermID)
 		if err != nil {

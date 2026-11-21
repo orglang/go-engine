@@ -8,5 +8,5 @@ const (
 )
 
 type queryBuilder interface {
-	InsertRec(ExecRecDS) (string, []any)
+	InsertRec(ExecRec) (string, []any)
 }

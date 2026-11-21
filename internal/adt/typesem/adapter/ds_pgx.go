@@ -63,7 +63,7 @@ func (dao *daoPgx) GetRefsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	dtos := make(map[uniqsym.ADT]SemRefDS, len(typeQNs))
+	dtos := make(map[uniqsym.ADT]SemRef, len(typeQNs))
 	for _, typeQN := range typeQNs {
 		qnAttr := slog.Any("qn", typeQN)
 		rows, readErr := br.Query()
@@ -71,7 +71,7 @@ func (dao *daoPgx) GetRefsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 			dao.log.Error("query execution failed", qnAttr)
 			return nil, readErr
 		}
-		dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[SemRefDS])
+		dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[SemRef])
 		if scanErr != nil {
 			dao.log.Error("row scanning failed", qnAttr)
 			return nil, scanErr

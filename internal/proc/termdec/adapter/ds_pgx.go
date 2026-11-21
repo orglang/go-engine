@@ -18,7 +18,7 @@ import (
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
-type decRootRefDS struct {
+type decRootRef struct {
 	DescID string `db:"desc_id"`
 	Rev    int64  `db:"rev"`
 	Title  string `db:"title"`
@@ -63,7 +63,7 @@ func (dao *daoPgx) GetSnap(ctx context.Context, conn tx.Conn, ref termsem.SemRef
 		return termdec.DecSnap{}, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecSnapDS])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecSnap])
 	if err != nil {
 		dao.log.Error("row scanning failed", refAttr)
 		return termdec.DecSnap{}, err
@@ -99,13 +99,13 @@ func (dao *daoPgx) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	var dtos []DecRecDS
+	var dtos []DecRec
 	for _, rid := range ids {
 		rows, err := br.Query()
 		if err != nil {
 			dao.log.Error("query execution failed", slog.Any("id", rid), slog.String("q", selectByRef))
 		}
-		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecRecDS])
+		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecRec])
 		if err != nil {
 			dao.log.Error("row scanning failed", slog.Any("id", rid))
 		}
@@ -129,7 +129,7 @@ func (dao *daoPgx) GetRefs(ctx context.Context, conn tx.Conn) ([]termsem.SemRef,
 		return nil, err
 	}
 	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[decRootRefDS])
+	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[decRootRef])
 	if err != nil {
 		dao.log.Error("rows scanning failed")
 		return nil, err

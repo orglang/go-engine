@@ -11,23 +11,23 @@ import (
 )
 
 func init() {
-	DataFromRef = func(source compsem.SemRef) SemRefDS {
-		var adapterSemRefDS SemRefDS
-		adapterSemRefDS.CompID = identity.ConvertToString(source.CompID)
-		adapterSemRefDS.CompRN = seqnum.ConvertToInt(source.CompRN)
-		return adapterSemRefDS
+	DataFromRef = func(source compsem.SemRef) SemRef {
+		var adapterSemRef SemRef
+		adapterSemRef.CompID = identity.ConvertToString(source.CompID)
+		adapterSemRef.CompRN = seqnum.ConvertToInt(source.CompRN)
+		return adapterSemRef
 	}
-	DataFromRefs = func(source []compsem.SemRef) ([]SemRefDS, error) {
-		var adapterSemRefDSList []SemRefDS
+	DataFromRefs = func(source []compsem.SemRef) ([]SemRef, error) {
+		var adapterSemRefList []SemRef
 		if source != nil {
-			adapterSemRefDSList = make([]SemRefDS, len(source))
+			adapterSemRefList = make([]SemRef, len(source))
 			for i := 0; i < len(source); i++ {
-				adapterSemRefDSList[i] = DataFromRef(source[i])
+				adapterSemRefList[i] = DataFromRef(source[i])
 			}
 		}
-		return adapterSemRefDSList, nil
+		return adapterSemRefList, nil
 	}
-	DataToRef = func(source SemRefDS) (compsem.SemRef, error) {
+	DataToRef = func(source SemRef) (compsem.SemRef, error) {
 		var compsemSemRef compsem.SemRef
 		identityADT, err := identity.ConvertFromString(source.CompID)
 		if err != nil {
@@ -37,7 +37,7 @@ func init() {
 		compsemSemRef.CompRN = seqnum.ConvertFromInt(source.CompRN)
 		return compsemSemRef, nil
 	}
-	DataToRefMap = func(source map[uniqsym.ADT]SemRefDS) (map[uniqsym.ADT]compsem.SemRef, error) {
+	DataToRefMap = func(source map[uniqsym.ADT]SemRef) (map[uniqsym.ADT]compsem.SemRef, error) {
 		var mapUniqsymADTCompsemSemRef map[uniqsym.ADT]compsem.SemRef
 		if source != nil {
 			mapUniqsymADTCompsemSemRef = make(map[uniqsym.ADT]compsem.SemRef, len(source))
@@ -51,7 +51,7 @@ func init() {
 		}
 		return mapUniqsymADTCompsemSemRef, nil
 	}
-	DataToRefs = func(source []SemRefDS) ([]compsem.SemRef, error) {
+	DataToRefs = func(source []SemRef) ([]compsem.SemRef, error) {
 		var compsemSemRefList []compsem.SemRef
 		if source != nil {
 			compsemSemRefList = make([]compsem.SemRef, len(source))

@@ -11,23 +11,23 @@ import (
 )
 
 func init() {
-	DataFromRef = func(source termsem.SemRef) SemRefDS {
-		var adapterSemRefDS SemRefDS
-		adapterSemRefDS.TermID = identity.ConvertToString(source.TermID)
-		adapterSemRefDS.TermRN = seqnum.ConvertToInt(source.TermRN)
-		return adapterSemRefDS
+	DataFromRef = func(source termsem.SemRef) SemRef {
+		var adapterSemRef SemRef
+		adapterSemRef.TermID = identity.ConvertToString(source.TermID)
+		adapterSemRef.TermRN = seqnum.ConvertToInt(source.TermRN)
+		return adapterSemRef
 	}
-	DataFromRefs = func(source []termsem.SemRef) ([]SemRefDS, error) {
-		var adapterSemRefDSList []SemRefDS
+	DataFromRefs = func(source []termsem.SemRef) ([]SemRef, error) {
+		var adapterSemRefList []SemRef
 		if source != nil {
-			adapterSemRefDSList = make([]SemRefDS, len(source))
+			adapterSemRefList = make([]SemRef, len(source))
 			for i := 0; i < len(source); i++ {
-				adapterSemRefDSList[i] = DataFromRef(source[i])
+				adapterSemRefList[i] = DataFromRef(source[i])
 			}
 		}
-		return adapterSemRefDSList, nil
+		return adapterSemRefList, nil
 	}
-	DataToRef = func(source SemRefDS) (termsem.SemRef, error) {
+	DataToRef = func(source SemRef) (termsem.SemRef, error) {
 		var termsemSemRef termsem.SemRef
 		identityADT, err := identity.ConvertFromString(source.TermID)
 		if err != nil {
@@ -37,7 +37,7 @@ func init() {
 		termsemSemRef.TermRN = seqnum.ConvertFromInt(source.TermRN)
 		return termsemSemRef, nil
 	}
-	DataToRefMap = func(source map[uniqsym.ADT]SemRefDS) (map[uniqsym.ADT]termsem.SemRef, error) {
+	DataToRefMap = func(source map[uniqsym.ADT]SemRef) (map[uniqsym.ADT]termsem.SemRef, error) {
 		var mapUniqsymADTTermsemSemRef map[uniqsym.ADT]termsem.SemRef
 		if source != nil {
 			mapUniqsymADTTermsemSemRef = make(map[uniqsym.ADT]termsem.SemRef, len(source))
@@ -51,7 +51,7 @@ func init() {
 		}
 		return mapUniqsymADTTermsemSemRef, nil
 	}
-	DataToRefs = func(source []SemRefDS) ([]termsem.SemRef, error) {
+	DataToRefs = func(source []SemRef) ([]termsem.SemRef, error) {
 		var termsemSemRefList []termsem.SemRef
 		if source != nil {
 			termsemSemRefList = make([]termsem.SemRef, len(source))

@@ -10,12 +10,12 @@ import (
 func TestInsertRec(t *testing.T) {
 	t.Parallel()
 	qb := newSQLBuilder()
-	gotSQL, gotArgs := qb.InsertRec(DefRecDS{})
+	gotSQL, gotArgs := qb.InsertRec(DefRec{})
 	wantSQL := "INSERT INTO pool_term_decs  (term_id, term_rn, liab_var, asset_vars) VALUES ($1, $2, $3, $4)"
 	if gotSQL != wantSQL {
 		t.Errorf("got sql %q, want %q", gotSQL, wantSQL)
 	}
-	wantArgs := []any{"", int64(0), termvaradapter.VarRecDS{}, []termvaradapter.VarRecDS(nil)}
+	wantArgs := []any{"", int64(0), termvaradapter.VarRec{}, []termvaradapter.VarRec(nil)}
 	if !reflect.DeepEqual(gotArgs, wantArgs) {
 		t.Errorf("got args %v, want %v", gotArgs, wantArgs)
 	}

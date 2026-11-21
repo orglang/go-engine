@@ -5,23 +5,23 @@ import (
 	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
 )
 
-type ExecRecDS struct {
+type ExecRec struct {
 	CompID   string `db:"comp_id"`
 	CompRN   int64  `db:"comp_rn"`
 	LiabMode int16  `db:"liab_mode"`
 }
 
-type ExecSnap1DS struct {
-	CompRef   compsemadapter.SemRefDS  `db:"sem"`
-	LiabMode  int16                    `db:"exec.liab_mode"`
-	StructVar *compvaradapter.VarRecDS `db:"struct_var"`
-	LinearVar *compvaradapter.VarRecDS `db:"linear_var"`
+type ExecSnap1 struct {
+	CompRef   compsemadapter.SemRef  `db:"sem"`
+	LiabMode  int16                  `db:"exec.liab_mode"`
+	StructVar *compvaradapter.VarRec `db:"struct_var"`
+	LinearVar *compvaradapter.VarRec `db:"linear_var"`
 }
 
-type ExecSnap2DS struct {
-	CompID     string                    `db:"comp_id"`
-	CompRN     int64                     `db:"comp_rn"`
-	LiabMode   int16                     `db:"liab_mode"`
-	StructVars []compvaradapter.VarRecDS `db:"struct_vars"`
-	LinearVars []compvaradapter.VarRecDS `db:"linear_vars"`
+type ExecSnap2 struct {
+	CompID     string                  `db:"comp_id"`
+	CompRN     int64                   `db:"comp_rn"`
+	LiabMode   int16                   `db:"liab_mode"`
+	StructVars []compvaradapter.VarRec `db:"struct_vars"`
+	LinearVars []compvaradapter.VarRec `db:"linear_vars"`
 }

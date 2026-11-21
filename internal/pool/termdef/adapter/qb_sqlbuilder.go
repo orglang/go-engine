@@ -3,7 +3,7 @@ package adapter
 import "github.com/huandu/go-sqlbuilder"
 
 type queryBuilder interface {
-	InsertRec(DefRecDS) (string, []any)
+	InsertRec(DefRec) (string, []any)
 	SelectRecByQN(string) (string, []any)
 }
 
@@ -16,11 +16,11 @@ func newQueryBuilder() queryBuilder {
 }
 
 func newSQLBuilder() *sqlBuilder {
-	defBuilder := sqlbuilder.NewStruct(new(DefRecDS)).For(sqlbuilder.PostgreSQL)
+	defBuilder := sqlbuilder.NewStruct(new(DefRec)).For(sqlbuilder.PostgreSQL)
 	return &sqlBuilder{defBuilder}
 }
 
-func (qb *sqlBuilder) InsertRec(rec DefRecDS) (string, []any) {
+func (qb *sqlBuilder) InsertRec(rec DefRec) (string, []any) {
 	return qb.defBuilder.InsertInto(termDefs, rec).Build()
 }
 

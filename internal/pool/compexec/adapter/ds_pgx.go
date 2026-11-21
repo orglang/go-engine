@@ -60,7 +60,7 @@ func (dao *daoPgx) GetSnapByRef(ctx context.Context, conn tx.Conn, ref compsem.S
 		return compexec.ExecSnap2{}, execErr
 	}
 	defer rows.Close()
-	dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[ExecSnap2DS])
+	dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[ExecSnap2])
 	if scanErr != nil {
 		dao.log.Error("rows scanning failed", refAttr, slog.Any("dto", dto))
 		return compexec.ExecSnap2{}, scanErr
@@ -88,7 +88,7 @@ func (dao *daoPgx) GetSnapMapByQNs(ctx context.Context, conn tx.Conn, termQNs []
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	dtos := make(map[uniqsym.ADT]ExecSnap1DS, len(termQNs))
+	dtos := make(map[uniqsym.ADT]ExecSnap1, len(termQNs))
 	for _, termQN := range termQNs {
 		qnAttr := slog.Any("qn", termQN)
 		rows, readErr := br.Query()
@@ -96,7 +96,7 @@ func (dao *daoPgx) GetSnapMapByQNs(ctx context.Context, conn tx.Conn, termQNs []
 			dao.log.Error("query execution failed", qnAttr)
 			return nil, readErr
 		}
-		var dto ExecSnap1DS
+		var dto ExecSnap1
 		scanErr := pgxscan.ScanOne(dto, rows)
 		if scanErr != nil {
 			dao.log.Error("row scanning failed", qnAttr)

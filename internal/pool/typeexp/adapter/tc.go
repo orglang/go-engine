@@ -9,57 +9,57 @@ import (
 	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 )
 
-func dataFromExpRef(ref typeexp.ExpRef) typeexp.ExpRefDS {
+func dataFromExpRef(ref typeexp.ExpRef) ExpRef {
 	if ref == nil {
 		panic("can't be nil")
 	}
 	expCK := contkey.ConvertToInt(ref.Key())
 	switch ref.(type) {
 	case typeexp.OneRef, typeexp.OneRec:
-		return typeexp.ExpRefDS{K: typeexp.OneKind, ExpCK: expCK}
+		return ExpRef{K: OneKind, ExpCK: expCK}
 	case typeexp.LinkRef, typeexp.LinkRec:
-		return typeexp.ExpRefDS{K: typeexp.LinkKind, ExpCK: expCK}
+		return ExpRef{K: LinkKind, ExpCK: expCK}
 	case typeexp.PlusRef, typeexp.PlusRec:
-		return typeexp.ExpRefDS{K: typeexp.PlusKind, ExpCK: expCK}
+		return ExpRef{K: PlusKind, ExpCK: expCK}
 	case typeexp.WithRef, typeexp.WithRec:
-		return typeexp.ExpRefDS{K: typeexp.WithKind, ExpCK: expCK}
+		return ExpRef{K: WithKind, ExpCK: expCK}
 	default:
 		panic(typeexp.ErrRefTypeUnexpected(ref))
 	}
 }
 
-func dataToExpRef(dto typeexp.ExpRefDS) (typeexp.ExpRef, error) {
+func dataToExpRef(dto ExpRef) (typeexp.ExpRef, error) {
 	expCK, err := contkey.ConvertFromInt(dto.ExpCK)
 	if err != nil {
 		return nil, err
 	}
 	switch dto.K {
-	case typeexp.OneKind:
+	case OneKind:
 		return typeexp.OneRef{ExpCK: expCK}, nil
-	case typeexp.LinkKind:
+	case LinkKind:
 		return typeexp.LinkRef{ExpCK: expCK}, nil
-	case typeexp.PlusKind:
+	case PlusKind:
 		return typeexp.PlusRef{ExpCK: expCK}, nil
-	case typeexp.WithKind:
+	case WithKind:
 		return typeexp.WithRef{ExpCK: expCK}, nil
 	default:
 		panic(errExpKindUnexpected(dto.K))
 	}
 }
 
-func dataToExpRec(dto typeexp.ExpRecDS) (typeexp.ExpRec, error) {
-	states := make(map[int64]typeexp.StateDS, len(dto.States))
+func dataToExpRec(dto ExpRec) (typeexp.ExpRec, error) {
+	states := make(map[int64]State, len(dto.States))
 	for _, dto := range dto.States {
 		states[dto.ExpCK] = dto
 	}
 	return statesToExpRec(states, states[dto.ExpCK])
 }
 
-func dataFromExpRec(rec typeexp.ExpRec) typeexp.ExpRecDS {
+func dataFromExpRec(rec typeexp.ExpRec) ExpRec {
 	if rec == nil {
 		panic("can't be nil")
 	}
-	dto := &typeexp.ExpRecDS{
+	dto := &ExpRec{
 		ExpCK:  contkey.ConvertToInt(rec.Key()),
 		States: nil,
 	}
@@ -67,21 +67,21 @@ func dataFromExpRec(rec typeexp.ExpRec) typeexp.ExpRecDS {
 	return *dto
 }
 
-func statesToExpRec(states map[int64]typeexp.StateDS, st typeexp.StateDS) (typeexp.ExpRec, error) {
+func statesToExpRec(states map[int64]State, st State) (typeexp.ExpRec, error) {
 	expCK, err := contkey.ConvertFromInt(st.ExpCK)
 	if err != nil {
 		return nil, err
 	}
 	switch st.K {
-	case typeexp.OneKind:
+	case OneKind:
 		return typeexp.OneRec{ExpCK: expCK}, nil
-	case typeexp.LinkKind:
+	case LinkKind:
 		xactQN, err := uniqsym.ConvertFromString(st.Spec.Link)
 		if err != nil {
 			return nil, err
 		}
 		return typeexp.LinkRec{ExpCK: expCK, TypeQN: xactQN}, nil
-	case typeexp.PlusKind:
+	case PlusKind:
 		procQNs, err := uniqsym.ConvertFromStrings(st.Spec.Plus.ProcQNs)
 		if err != nil {
 			return nil, err
@@ -91,7 +91,7 @@ func statesToExpRec(states map[int64]typeexp.StateDS, st typeexp.StateDS) (typee
 			return nil, err
 		}
 		return typeexp.PlusRec{ExpCK: expCK, ProcQNs: procQNs, ContExp: contExp}, nil
-	case typeexp.WithKind:
+	case WithKind:
 		procQNs, err := uniqsym.ConvertFromStrings(st.Spec.With.ProcQNs)
 		if err != nil {
 			return nil, err
@@ -101,13 +101,13 @@ func statesToExpRec(states map[int64]typeexp.StateDS, st typeexp.StateDS) (typee
 			return nil, err
 		}
 		return typeexp.WithRec{ExpCK: expCK, ProcQNs: procQNs, ContExp: contExp}, nil
-	case typeexp.UpKind:
+	case UpKind:
 		contExp, err := statesToExpRec(states, states[st.Spec.Up.ContExpCK])
 		if err != nil {
 			return nil, err
 		}
 		return typeexp.UpRec{ExpCK: expCK, ContExp: contExp}, nil
-	case typeexp.DownKind:
+	case DownKind:
 		contExp, err := statesToExpRec(states, states[st.Spec.Down.ContExpCK])
 		if err != nil {
 			return nil, err
@@ -118,30 +118,30 @@ func statesToExpRec(states map[int64]typeexp.StateDS, st typeexp.StateDS) (typee
 	}
 }
 
-func statesFromExpRec(supExpCK int64, r typeexp.ExpRec, dto *typeexp.ExpRecDS) int64 {
+func statesFromExpRec(supExpCK int64, r typeexp.ExpRec, dto *ExpRec) int64 {
 	expCK := contkey.ConvertToInt(r.Key())
 	switch rec := r.(type) {
 	case typeexp.OneRec:
-		st := typeexp.StateDS{ExpCK: expCK, K: typeexp.OneKind, SupExpCK: supExpCK}
+		st := State{ExpCK: expCK, K: OneKind, SupExpCK: supExpCK}
 		dto.States = append(dto.States, st)
 		return expCK
 	case typeexp.LinkRec:
-		st := typeexp.StateDS{
+		st := State{
 			ExpCK:    expCK,
-			K:        typeexp.LinkKind,
+			K:        LinkKind,
 			SupExpCK: supExpCK,
-			Spec: typeexp.ExpSpecDS{
+			Spec: ExpSpec{
 				Link: uniqsym.ConvertToString(rec.TypeQN),
 			},
 		}
 		dto.States = append(dto.States, st)
 		return expCK
 	case typeexp.PlusRec:
-		st := typeexp.StateDS{
+		st := State{
 			ExpCK:    expCK,
-			K:        typeexp.PlusKind,
+			K:        PlusKind,
 			SupExpCK: supExpCK,
-			Spec: typeexp.ExpSpecDS{Plus: &typeexp.SumDS{
+			Spec: ExpSpec{Plus: &Sum{
 				ProcQNs:   uniqsym.ConvertToStrings(rec.ProcQNs),
 				ContExpCK: statesFromExpRec(expCK, rec.ContExp, dto),
 			}},
@@ -149,11 +149,11 @@ func statesFromExpRec(supExpCK int64, r typeexp.ExpRec, dto *typeexp.ExpRecDS) i
 		dto.States = append(dto.States, st)
 		return expCK
 	case typeexp.WithRec:
-		st := typeexp.StateDS{
+		st := State{
 			ExpCK:    expCK,
-			K:        typeexp.WithKind,
+			K:        WithKind,
 			SupExpCK: supExpCK,
-			Spec: typeexp.ExpSpecDS{With: &typeexp.SumDS{
+			Spec: ExpSpec{With: &Sum{
 				ProcQNs:   uniqsym.ConvertToStrings(rec.ProcQNs),
 				ContExpCK: statesFromExpRec(expCK, rec.ContExp, dto),
 			}},
@@ -161,22 +161,22 @@ func statesFromExpRec(supExpCK int64, r typeexp.ExpRec, dto *typeexp.ExpRecDS) i
 		dto.States = append(dto.States, st)
 		return expCK
 	case typeexp.UpRec:
-		st := typeexp.StateDS{
+		st := State{
 			ExpCK:    expCK,
-			K:        typeexp.UpKind,
+			K:        UpKind,
 			SupExpCK: supExpCK,
-			Spec: typeexp.ExpSpecDS{Up: &typeexp.ShiftDS{
+			Spec: ExpSpec{Up: &Shift{
 				ContExpCK: statesFromExpRec(expCK, rec.ContExp, dto),
 			}},
 		}
 		dto.States = append(dto.States, st)
 		return expCK
 	case typeexp.DownRec:
-		st := typeexp.StateDS{
+		st := State{
 			ExpCK:    expCK,
-			K:        typeexp.DownKind,
+			K:        DownKind,
 			SupExpCK: supExpCK,
-			Spec: typeexp.ExpSpecDS{Down: &typeexp.ShiftDS{
+			Spec: ExpSpec{Down: &Shift{
 				ContExpCK: statesFromExpRec(expCK, rec.ContExp, dto),
 			}},
 		}
@@ -187,6 +187,6 @@ func statesFromExpRec(supExpCK int64, r typeexp.ExpRec, dto *typeexp.ExpRecDS) i
 	}
 }
 
-func errExpKindUnexpected(k typeexp.ExpKind) error {
+func errExpKindUnexpected(k ExpKind) error {
 	return fmt.Errorf("exp kind unexpected: %v", k)
 }

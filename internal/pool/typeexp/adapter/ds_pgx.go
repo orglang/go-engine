@@ -20,11 +20,11 @@ import (
 
 // Adapter
 type daoPgx struct {
-	qb  typeexp.QueryBuilder
+	qb  QueryBuilder
 	log *slog.Logger
 }
 
-func NewDaoPgx(qb typeexp.QueryBuilder, log *slog.Logger) typeexp.Repo {
+func NewDaoPgx(qb QueryBuilder, log *slog.Logger) typeexp.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{qb, log.With(name)}
 }
@@ -65,7 +65,7 @@ func (dao *daoPgx) GetRecByCK(ctx context.Context, conn tx.Conn, expCK contkey.A
 		return nil, err
 	}
 	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[typeexp.StateDS])
+	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[State])
 	if err != nil {
 		dao.log.Error("rows scanning failed", ckAttr)
 		return nil, err
@@ -75,7 +75,7 @@ func (dao *daoPgx) GetRecByCK(ctx context.Context, conn tx.Conn, expCK contkey.A
 		return nil, errors.New("no rows selected")
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "selection succeed", slog.Any("dtos", dtos))
-	states := make(map[int64]typeexp.StateDS, len(dtos))
+	states := make(map[int64]State, len(dtos))
 	for _, dto := range dtos {
 		states[dto.ExpCK] = dto
 	}
@@ -100,7 +100,7 @@ func (dao *daoPgx) GetRecsByCKs(ctx context.Context, conn tx.Conn, expCKs []cont
 			dao.log.Error("query execution failed", ckAttr, slog.String("sql", sql))
 			return nil, readErr
 		}
-		dtos, scanErr := pgx.CollectRows(rows, pgx.RowToStructByName[typeexp.StateDS])
+		dtos, scanErr := pgx.CollectRows(rows, pgx.RowToStructByName[State])
 		if scanErr != nil {
 			dao.log.Error("rows scanning failed", ckAttr)
 			return nil, scanErr
@@ -109,7 +109,7 @@ func (dao *daoPgx) GetRecsByCKs(ctx context.Context, conn tx.Conn, expCKs []cont
 			dao.log.Error("selection failed", ckAttr)
 			return nil, typeexp.ErrDoesNotExist(expCK)
 		}
-		rec, convErr := dataToExpRec(typeexp.ExpRecDS{ExpCK: contkey.ConvertToInt(expCK), States: dtos})
+		rec, convErr := dataToExpRec(ExpRec{ExpCK: contkey.ConvertToInt(expCK), States: dtos})
 		if convErr != nil {
 			dao.log.Error("model conversion failed", ckAttr)
 			return nil, convErr
@@ -138,7 +138,7 @@ func (dao *daoPgx) GetRecMap(ctx context.Context, conn tx.Conn, expCKs map[symbo
 			dao.log.Error("query execution failed", ckAttr, slog.String("sql", sql))
 			return nil, readErr
 		}
-		dtos, scanErr := pgx.CollectRows(rows, pgx.RowToStructByName[typeexp.StateDS])
+		dtos, scanErr := pgx.CollectRows(rows, pgx.RowToStructByName[State])
 		if scanErr != nil {
 			dao.log.Error("rows scanning failed", ckAttr)
 			return nil, scanErr
@@ -148,7 +148,7 @@ func (dao *daoPgx) GetRecMap(ctx context.Context, conn tx.Conn, expCKs map[symbo
 			dao.log.Error("selection failed", ckAttr)
 			return nil, typeexp.ErrDoesNotExist(expCK)
 		}
-		rec, convErr := dataToExpRec(typeexp.ExpRecDS{ExpCK: contkey.ConvertToInt(expCK), States: dtos})
+		rec, convErr := dataToExpRec(ExpRec{ExpCK: contkey.ConvertToInt(expCK), States: dtos})
 		if convErr != nil {
 			dao.log.Error("model conversion failed", ckAttr)
 			return nil, convErr

@@ -19,7 +19,7 @@ import (
 
 type integrationTypeExpQueryBuilder struct{}
 
-func (integrationTypeExpQueryBuilder) InsertRec(st typeexp.StateDS) (string, []any) {
+func (integrationTypeExpQueryBuilder) InsertRec(st typeexpadapter.State) (string, []any) {
 	return "INSERT INTO pool_type_exps (exp_ck, sup_exp_ck, kind, spec) VALUES ($1, $2, $3, $4)",
 		[]any{st.ExpCK, st.SupExpCK, st.K, []byte("{}")}
 }
@@ -88,7 +88,7 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 	if err != nil {
 		t.Fatalf("create type qualified name: %v", err)
 	}
-	_, err = service.Create(typedef.DefSpec{
+	_, err = service.Create(ctx, typedef.DefSpec{
 		TypeQN:  typeQN,
 		TypeExp: typeexp.OneSpec{},
 	})

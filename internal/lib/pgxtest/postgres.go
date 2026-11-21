@@ -64,18 +64,11 @@ func NewPostgresPool(t *testing.T) *pgxpool.Pool {
 	if err != nil {
 		t.Fatalf("open PostgreSQL pool: %v", err)
 	}
-	if err := pool.Ping(ctx); err != nil {
+		if err := pool.Ping(ctx); err != nil {
 		pool.Close()
 		t.Fatalf("ping PostgreSQL container: %v", err)
 	}
 
-	t.Cleanup(func() {
-		cleanupCtx, cleanupCancel := context.WithTimeout(context.Background(), time.Minute)
-		defer cleanupCancel()
-		if err := container.Terminate(cleanupCtx); err != nil {
-			t.Errorf("terminate PostgreSQL container: %v", err)
-		}
-	})
 	t.Cleanup(pool.Close)
 
 	return pool

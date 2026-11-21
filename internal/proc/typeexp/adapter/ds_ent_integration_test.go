@@ -72,13 +72,22 @@ func TestIntegrationProcTypeExpAddRecIsIdempotent(t *testing.T) {
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("SelectRecByCK() = %#v, want %#v", got, want)
 		}
+		rows, err := conn.Pgx.Query(txCtx, "SELECT count(*) FROM proc_type_exps")
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		if !rows.Next() {
+			return rows.Err()
+		}
 		var count int
-		if err := conn.Pgx.QueryRow(txCtx, "SELECT count(*) FROM proc_type_exps").Scan(&count); err != nil {
+		if err := rows.Scan(&count); err != nil {
 			return err
 		}
 		if count != 3 {
 			t.Errorf("stored state count = %d, want 3 after duplicate insert", count)
 		}
+		return rows.Err()
 		return nil
 	})
 	if err != nil {

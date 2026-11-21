@@ -1,6 +1,6 @@
 package adapter
 
-import termexp "orglang/go-engine/internal/pool/termexp/core"
+import termexp "orglang/go-engine/internal/pool/termexp/adapter"
 
 type ActRec struct {
 	ConnID string           `db:"conn_id"`
@@ -9,7 +9,7 @@ type ActRec struct {
 	CompRN int64            `db:"comp_rn"`
 	ChnlID string           `db:"chnl_id"`
 	K      actKind          `db:"kind"`
-	Exp    termexp.ExpRecDS `db:"exp" fieldopt:"noexpand"`
+	Exp    termexp.ExpRec `db:"exp" fieldopt:"noexpand"`
 }
 
 type actKind int16

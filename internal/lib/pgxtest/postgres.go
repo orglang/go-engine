@@ -36,6 +36,14 @@ func NewPostgresPool(t *testing.T) *pgxpool.Pool {
 		t.Fatalf("start PostgreSQL container: %v", err)
 	}
 
+	t.Cleanup(func() {
+		cleanupCtx, cleanupCancel := context.WithTimeout(context.Background(), time.Minute)
+		defer cleanupCancel()
+		if err := container.Terminate(cleanupCtx); err != nil {
+			t.Errorf("terminate PostgreSQL container: %v", err)
+		}
+	})
+
 	host, err := container.Host(ctx)
 	if err != nil {
 		t.Fatalf("get PostgreSQL container host: %v", err)

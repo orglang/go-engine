@@ -126,9 +126,10 @@ func (dao *daoEnt) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT
 
 func (dao *daoEnt) GetRefs(ctx context.Context, conn tx.Conn) ([]termsem.SemRef, error) {
 	query := `
-		select
-			desc_id, rev, title
-		from dec_roots`
+        SELECT
+    desc_id, rev, title
+FROM dec_roots
+`
 	rows, err := conn.Pgx.Query(ctx, query)
 	if err != nil {
 		dao.log.Error("query execution failed")
@@ -153,13 +154,14 @@ func (dao *daoEnt) GetRefs(ctx context.Context, conn tx.Conn) ([]termsem.SemRef,
 
 const (
 	selectByRef = `
-		select
-			pd.desc_id,
-			ds.desc_rn,
-			pd.liab_var,
-			pd.asset_vars
-		from proc_term_decs pd
-		left join desc_sems ds
-			on ds.desc_id = pd.desc_id
-		where pd.desc_id = $1`
+        SELECT
+    pd.desc_id,
+    ds.desc_rn,
+    pd.liab_var,
+    pd.asset_vars
+FROM proc_term_decs pd
+LEFT JOIN desc_sems ds
+    ON ds.desc_id = pd.desc_id
+WHERE pd.desc_id = $1
+`
 )

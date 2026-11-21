@@ -61,7 +61,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdec.DecRec)
 	return nil
 }
 
-func (dao *daoPgx) GetSnap(ctx context.Context, conn tx.Conn, ref termsem.SemRef) (termdec.DecSnap, error) {
+func (dao *daoEnt) GetSnap(ctx context.Context, conn tx.Conn, ref termsem.SemRef) (termdec.DecSnap, error) {
 	refAttr := slog.Any("ref", ref)
 	rows, err := conn.Pgx.Query(ctx, selectByRef, ref.TermID.String())
 	if err != nil {
@@ -78,7 +78,7 @@ func (dao *daoPgx) GetSnap(ctx context.Context, conn tx.Conn, ref termsem.SemRef
 	return DataToDecSnap(dto)
 }
 
-func (dao *daoPgx) SelectEnv(ctx context.Context, conn tx.Conn, ids []identity.ADT) (map[identity.ADT]termdec.DecRec, error) {
+func (dao *daoEnt) SelectEnv(ctx context.Context, conn tx.Conn, ids []identity.ADT) (map[identity.ADT]termdec.DecRec, error) {
 	decs, err := dao.GetRecs(ctx, conn, ids)
 	if err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ func (dao *daoPgx) SelectEnv(ctx context.Context, conn tx.Conn, ids []identity.A
 	return env, nil
 }
 
-func (dao *daoPgx) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT) (_ []termdec.DecRec, err error) {
+func (dao *daoEnt) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT) (_ []termdec.DecRec, err error) {
 	if len(ids) == 0 {
 		return []termdec.DecRec{}, nil
 	}
@@ -124,7 +124,7 @@ func (dao *daoPgx) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT
 	return DataToDecRecs(dtos)
 }
 
-func (dao *daoPgx) GetRefs(ctx context.Context, conn tx.Conn) ([]termsem.SemRef, error) {
+func (dao *daoEnt) GetRefs(ctx context.Context, conn tx.Conn) ([]termsem.SemRef, error) {
 	query := `
 		select
 			desc_id, rev, title

@@ -62,14 +62,13 @@ func NewPostgresPool(t *testing.T) *pgxpool.Pool {
 	}
 
 	t.Cleanup(func() {
-		pool.Close()
-
 		cleanupCtx, cleanupCancel := context.WithTimeout(context.Background(), time.Minute)
 		defer cleanupCancel()
 		if err := container.Terminate(cleanupCtx); err != nil {
 			t.Errorf("terminate PostgreSQL container: %v", err)
 		}
 	})
+	t.Cleanup(pool.Close)
 
 	return pool
 }

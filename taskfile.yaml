@@ -127,8 +127,9 @@ tasks:
       - npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund
 
   specs:prepare:
-    desc: Generate specifications and refresh their lockfiles
+    desc: Format TypeSpec, generate OpenAPI, and refresh specification lockfiles
     cmds:
+      - cd tsp && npx tsp format "**/*.tsp"
       - task: specs:generate
       - task: specs:lock
 
@@ -141,7 +142,7 @@ tasks:
       - test -z "$(git status --porcelain -- mise.specs-dev.lock tsp/package-lock.json)"
       - test -f openapi/openapi.yaml
       - test -z "$(git status --porcelain -- openapi/openapi.yaml)"
-      - cd tsp && npx tsp format --check
+      - cd tsp && npx tsp format --check "**/*.tsp"
 
   specs:gate:
     desc: Check specification formatting, generated outputs, and lockfiles
@@ -149,16 +150,17 @@ tasks:
       - task: specs:check
 
   specs:lint:
-    desc: Lint TypeSpec formatting without modifying files
+    desc: Check TypeSpec formatting and compiler lint diagnostics without modifying files
     dir: tsp
     cmds:
-      - npx tsp format --check
+      - npx tsp format --check "**/*.tsp"
+      - npx tsp compile . --no-emit --warn-as-error
 
   specs:analyze:
-    desc: Analyze the TypeSpec specification without emitting artifacts
+    desc: Analyze HTTP API semantics without emitting artifacts
     dir: tsp
     cmds:
-      - npx tsp compile . --no-emit
+      - npx tsp compile . --no-emit --warn-as-error --linter-ruleset @typespec/http/all
 
   specs:verify:
     desc: Verify specifications before committing the prepared artifact

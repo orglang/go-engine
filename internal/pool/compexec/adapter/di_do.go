@@ -12,6 +12,7 @@ import (
 	"orglang/go-engine/internal/adt/implsem"
 	implsemadapter "orglang/go-engine/internal/adt/implsem/adapter"
 	"orglang/go-engine/internal/lib/tx"
+	"orglang/go-engine/internal/pool/ent"
 	compconn "orglang/go-engine/internal/pool/compconn/core"
 	compexec "orglang/go-engine/internal/pool/compexec/core"
 	compvar "orglang/go-engine/internal/pool/compvar/core"
@@ -24,11 +25,8 @@ import (
 // inbound controller. Broker subscription and route registration are explicit
 // composition steps.
 var Package = do.Package(
-	do.Lazy[queryBuilder](func(do.Injector) (queryBuilder, error) {
-		return newSQLBuilder(), nil
-	}),
 	do.Lazy[compexec.Repo](func(i do.Injector) (compexec.Repo, error) {
-		qb, err := do.Invoke[queryBuilder](i)
+		client, err := do.Invoke[*ent.Client](i)
 		if err != nil {
 			return nil, err
 		}
@@ -36,7 +34,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return NewDaoPgx(qb, logger), nil
+		return NewDaoEnt(client, logger), nil
 	}),
 	do.Lazy[compexec.Broker](func(i do.Injector) (compexec.Broker, error) {
 		pool, err := do.Invoke[pond.Pool](i)

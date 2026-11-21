@@ -16,7 +16,7 @@ func ConvertFromNullString(str sql.NullString) (uniqsym.ADT, error) {
 
 func ConvertToNullString(adt uniqsym.ADT) sql.NullString {
 	var empty uniqsym.ADT
-	if adt.Equal(empty) {
+	if adt == empty {
 		return sql.NullString{}
 	}
 	return sql.NullString{String: uniqsym.ConvertToString(adt), Valid: true}

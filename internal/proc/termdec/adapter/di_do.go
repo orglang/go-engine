@@ -8,25 +8,23 @@ import (
 	"orglang/go-engine/internal/adt/typesem"
 	webapi "orglang/go-engine/internal/app/web/api"
 	"orglang/go-engine/internal/lib/tx"
+	"orglang/go-engine/internal/proc/ent"
 	"orglang/go-engine/internal/proc/termdec/core"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
 // Package registers process term-declaration persistence, service, and HTTP adapters.
 var Package = do.Package(
-	do.Lazy[queryBuilder](func(do.Injector) (queryBuilder, error) {
-		return newSQLBuilder(), nil
-	}),
 	do.Lazy[core.Repo](func(i do.Injector) (core.Repo, error) {
-		builder, err := do.Invoke[queryBuilder](i)
-		if err != nil {
-			return nil, err
-		}
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil {
 			return nil, err
 		}
-		return NewDaoPgx(builder, logger), nil
+		client, err := do.Invoke[*ent.Client](i)
+		if err != nil {
+			return nil, err
+		}
+		return NewDaoEnt(client, logger), nil
 	}),
 	do.Lazy[core.API](func(i do.Injector) (core.API, error) {
 		termDecRepo, err := do.Invoke[core.Repo](i)

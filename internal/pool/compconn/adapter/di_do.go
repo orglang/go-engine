@@ -5,8 +5,8 @@ import (
 
 	"github.com/samber/do/v2"
 
-	"orglang/go-engine/internal/pool/ent"
 	compconn "orglang/go-engine/internal/pool/compconn/core"
+	"orglang/go-engine/internal/pool/ent"
 )
 
 // Package registers the pool connection repository.

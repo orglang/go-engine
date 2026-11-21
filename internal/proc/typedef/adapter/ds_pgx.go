@@ -67,7 +67,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, rec typedef.DefR
 		return err
 	}
 	affected, err := dao.client.TypeDef.Update().
-		Where(typedefent.TypeID(dto.TypeID), typedefent.TypeRn(dto.TypeRN-1)).
+		Where(typedefent.ID(dto.TypeID), typedefent.TypeRn(dto.TypeRN-1)).
 		SetTypeRn(dto.TypeRN).
 		SetExpCk(dto.ExpCK).
 		Save(entpgx.WithConn(ctx, conn.Pgx))

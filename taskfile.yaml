@@ -14,15 +14,12 @@ vars:
 
 tasks:
   binaries:
-    desc: Check Go dependencies, run tests, and build application binaries
+    desc: Check, test, build, and integration-test application binaries
     cmds:
-      - task: binaries:check
-      - task: tests:unit
-      - task: binaries:test
-      - task: binaries:build
+      - task: binaries:gate
 
   binaries:check:
-    desc: Check Go module and toolchain lockfiles
+    desc: Check Go dependencies and toolchain lockfiles
     deps:
       - task: binaries:lock
     cmds:
@@ -35,18 +32,40 @@ tasks:
       - GOWORK=off go mod tidy
       - mise lock
 
-  binaries:test:
-    desc: Run integration tests required for binary delivery
+  binaries:unit-test:
+    desc: Run unit tests before building the binary
+    cmds:
+      - task: tests:unit
+
+  binaries:build:
+    desc: Build the distributable binary and record its provenance
+    cmds:
+      - mkdir -p dist
+      - go build -o dist/go-engine ./cmd/engine
+      - |
+        source_sha="$(git rev-parse HEAD)"
+        spec_sha="$(git log -1 --format=%H -- tsp openapi/openapi.yaml)"
+        binary_sha="$(sha256sum dist/go-engine | cut -d' ' -f1)"
+        test -n "$source_sha"
+        test -n "$spec_sha"
+        printf '{"schema_version":1,"source_sha":"%s","spec_sha":"%s","binary_sha256":"%s"}\n' \
+          "$source_sha" "$spec_sha" "$binary_sha" > dist/go-engine.provenance.json
+
+  binaries:integration-test:
+    desc: Run integration tests after the distributable binary is built
     cmds:
       - task: tests:it
 
-  binaries:build:
-    desc: Build application binaries
+  binaries:gate:
+    desc: Run unit tests, build the binary, then run integration tests
     cmds:
-      - task: engine:binary
+      - task: binaries:check
+      - task: binaries:unit-test
+      - task: binaries:build
+      - task: binaries:integration-test
 
   sources:check:
-    desc: Verify generated sources, tool locks, and linters
+    desc: Verify generated sources, tool locks, and formatting
     deps:
       - task: sources:generate
       - task: sources:lock
@@ -54,7 +73,6 @@ tasks:
       - test -z "$(git status --porcelain -- mise.sources-dev.lock)"
       - test -z "$(git status --porcelain -- ':(glob)**/*.gen.go')"
       - golangci-lint fmt --diff
-      - golangci-lint run ./...
 
   sources:lock:
     desc: Refresh source toolchain lockfiles
@@ -62,9 +80,10 @@ tasks:
       - mise -E sources lock
 
   sources:prepare:
-    desc: Generate source artifacts and format handwritten Go code
+    desc: Generate sources, refresh lockfiles, and format handwritten Go code
     cmds:
       - task: sources:generate
+      - task: sources:lock
       - golangci-lint fmt
 
   sources:generate:
@@ -79,14 +98,42 @@ tasks:
       - goverter gen -global 'skipCopySameType' ./...
       - oapi-codegen -config internal/app/web/api/cfg.yaml openapi/openapi.yaml
 
+  sources:gate:
+    desc: Verify generated source and lockfile freshness
+    cmds:
+      - task: sources:check
+
+  sources:lint:
+    desc: Run Go linting without modifying source files
+    cmds:
+      - golangci-lint run ./...
+
+  sources:analyze:
+    desc: Run static and architecture analysis
+    cmds:
+      - go vet ./...
+      - golangci-lint run --enable-only depguard ./...
+
   specs:generate:
     desc: Generate OpenAPI from TypeSpec
     dir: tsp
     cmds:
       - npm run build
 
+  specs:lock:
+    desc: Refresh TypeSpec toolchain and npm dependency lockfiles
+    cmds:
+      - mise -E specs lock
+      - npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund
+
+  specs:prepare:
+    desc: Generate specifications and refresh their lockfiles
+    cmds:
+      - task: specs:generate
+      - task: specs:lock
+
   specs:check:
-    desc: Check TypeSpec compilation, dependency locks, and generated OpenAPI
+    desc: Verify TypeSpec outputs and dependency lockfiles are current
     deps:
       - task: specs:generate
       - task: specs:lock
@@ -94,17 +141,29 @@ tasks:
       - test -z "$(git status --porcelain -- mise.specs-dev.lock tsp/package-lock.json)"
       - test -f openapi/openapi.yaml
       - test -z "$(git status --porcelain -- openapi/openapi.yaml)"
+      - cd tsp && npx tsp format --check
 
-  specs:lock:
-    desc: Refresh specs toolchain and npm dependency lockfiles
-    cmds:
-      - mise -E specs lock
-      - npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund
-
-  specs:verify:
-    desc: Verify specs before publishing
+  specs:gate:
+    desc: Check specification formatting, generated outputs, and lockfiles
     cmds:
       - task: specs:check
+
+  specs:lint:
+    desc: Lint TypeSpec formatting without modifying files
+    dir: tsp
+    cmds:
+      - npx tsp format --check
+
+  specs:analyze:
+    desc: Analyze the TypeSpec specification without emitting artifacts
+    dir: tsp
+    cmds:
+      - npx tsp compile . --no-emit
+
+  specs:verify:
+    desc: Verify specifications before committing the prepared artifact
+    cmds:
+      - task: specs:gate
 
   hooks:install:
     desc: Configure this repository to use versioned Git hooks

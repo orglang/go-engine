@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"reflect"
+	"strings"
 
 	"orglang/go-engine/internal/adt/compsem"
 	"orglang/go-engine/internal/lib/lf"
@@ -12,14 +13,14 @@ import (
 )
 
 type daoPgx struct {
-	qb  queryBuilder
-	log *slog.Logger
+	tableName string
+	log       *slog.Logger
 }
 
 func NewDaoPgx(table string) func(log *slog.Logger) *daoPgx {
 	return func(log *slog.Logger) *daoPgx {
 		name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
-		return &daoPgx{newSQLBuilder(table), log.With(name)}
+		return &daoPgx{tableName: strings.TrimSpace(table), log: log.With(name)}
 	}
 }
 
@@ -31,8 +32,9 @@ func newRepo() compsem.Repo {
 func (dao *daoPgx) TouchRef(ctx context.Context, conn tx.Conn, ref compsem.SemRef) error {
 	dto := DataFromRef(ref)
 	refAttr := slog.Any("ref", ref)
-	sql, args := dao.qb.updateRef(dto)
-	ct, execErr := conn.Pgx.Exec(ctx, sql, args...)
+	const query = `UPDATE %s SET comp_rn = comp_rn + 1 WHERE comp_id = $1 AND comp_rn = $2`
+	sql := fmt.Sprintf(query, dao.tableName)
+	ct, execErr := conn.Pgx.Exec(ctx, sql, dto.CompID, dto.CompRN)
 	if execErr != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
 		return execErr

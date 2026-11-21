@@ -8,53 +8,53 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/internal/lib/lf"
-	"orglang/go-engine/internal/lib/tx"
-
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/typesem"
-
+	"orglang/go-engine/internal/lib/entpgx"
+	"orglang/go-engine/internal/lib/lf"
+	"orglang/go-engine/internal/lib/tx"
+	"orglang/go-engine/internal/pool/ent"
 	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 )
 
-// Adapter
-type daoPgx struct {
-	log *slog.Logger
+type daoEnt struct {
+	client *ent.Client
+	log    *slog.Logger
 }
 
-func NewDaoPgx(log *slog.Logger) typeexp.Repo {
-	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
-	return &daoPgx{log.With(name)}
+func NewDaoEnt(client *ent.Client, log *slog.Logger) typeexp.Repo {
+	name := slog.String("name", reflect.TypeFor[daoEnt]().Name())
+	return &daoEnt{client: client, log: log.With(name)}
 }
 
 // for compilation purposes
 func newRepo() typeexp.Repo {
-	return new(daoPgx)
+	return new(daoEnt)
 }
 
-func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec typeexp.ExpRec, ref typesem.SemRef) (err error) {
+func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typeexp.ExpRec, _ typesem.SemRef) error {
 	ckAttr := slog.Any("ck", rec.Key())
+	dao.log.Log(ctx, lf.LevelTrace, "insertion started", ckAttr)
 	dto := dataFromExpRec(rec)
-	batch := pgx.Batch{}
+	txCtx := entpgx.WithConn(ctx, conn.Pgx)
 	for _, st := range dto.States {
-		batch.Queue(insertRec, st.ExpCK, st.SupExpCK, st.K, st.Spec)
-	}
-	br := conn.Pgx.SendBatch(ctx, &batch)
-	defer func() {
-		err = errors.Join(err, br.Close())
-	}()
-	for range dto.States {
-		_, readErr := br.Exec()
-		if readErr != nil {
-			dao.log.Error("query execution failed", ckAttr)
-			return readErr
+		_, err := dao.client.TypeExp.Create().
+			SetID(st.ExpCK).
+			SetSupExpCk(st.SupExpCK).
+			SetKind(int16(st.K)).
+			SetSpec(st.Spec).
+			Save(txCtx)
+		if err != nil {
+			dao.log.Error("query execution failed", ckAttr, slog.Int64("exp_ck", st.ExpCK))
+			return err
 		}
 	}
+	dao.log.Log(ctx, lf.LevelTrace, "insertion succeed", ckAttr)
 	return nil
 }
 
-func (dao *daoPgx) GetRecByCK(ctx context.Context, conn tx.Conn, expCK contkey.ADT) (typeexp.ExpRec, error) {
+func (dao *daoEnt) GetRecByCK(ctx context.Context, conn tx.Conn, expCK contkey.ADT) (typeexp.ExpRec, error) {
 	ckAttr := slog.Any("ck", expCK)
 	sql := selectRecByCK
 	rows, err := conn.Pgx.Query(ctx, sql, contkey.ConvertToInt(expCK))
@@ -80,16 +80,14 @@ func (dao *daoPgx) GetRecByCK(ctx context.Context, conn tx.Conn, expCK contkey.A
 	return statesToExpRec(states, states[contkey.ConvertToInt(expCK)])
 }
 
-func (dao *daoPgx) GetRecsByCKs(ctx context.Context, conn tx.Conn, expCKs []contkey.ADT) (_ []typeexp.ExpRec, err error) {
+func (dao *daoEnt) GetRecsByCKs(ctx context.Context, conn tx.Conn, expCKs []contkey.ADT) (_ []typeexp.ExpRec, err error) {
 	batch := pgx.Batch{}
 	sql := selectRecByCK
 	for _, expCK := range expCKs {
 		batch.Queue(sql, contkey.ConvertToInt(expCK))
 	}
 	br := conn.Pgx.SendBatch(ctx, &batch)
-	defer func() {
-		err = errors.Join(err, br.Close())
-	}()
+	defer func() { err = errors.Join(err, br.Close()) }()
 	recs := make([]typeexp.ExpRec, 0, len(expCKs))
 	for _, expCK := range expCKs {
 		ckAttr := slog.Any("ck", expCK)
@@ -118,16 +116,14 @@ func (dao *daoPgx) GetRecsByCKs(ctx context.Context, conn tx.Conn, expCKs []cont
 	return recs, err
 }
 
-func (dao *daoPgx) GetRecMap(ctx context.Context, conn tx.Conn, expCKs map[symbol.ADT]contkey.ADT) (_ map[symbol.ADT]typeexp.ExpRec, err error) {
+func (dao *daoEnt) GetRecMap(ctx context.Context, conn tx.Conn, expCKs map[symbol.ADT]contkey.ADT) (_ map[symbol.ADT]typeexp.ExpRec, err error) {
 	batch := pgx.Batch{}
 	sql := selectRecByCK
 	for _, expCK := range expCKs {
 		batch.Queue(sql, contkey.ConvertToInt(expCK))
 	}
 	br := conn.Pgx.SendBatch(ctx, &batch)
-	defer func() {
-		err = errors.Join(err, br.Close())
-	}()
+	defer func() { err = errors.Join(err, br.Close()) }()
 	recs := make(map[symbol.ADT]typeexp.ExpRec, len(expCKs))
 	for expPH, expCK := range expCKs {
 		ckAttr := slog.Any("ck", expCK)
@@ -157,17 +153,14 @@ func (dao *daoPgx) GetRecMap(ctx context.Context, conn tx.Conn, expCKs map[symbo
 	return recs, err
 }
 
-const (
-	insertRec     = `INSERT INTO pool_type_exps (exp_ck, sup_exp_ck, kind, spec) VALUES ($1, $2, $3, $4)`
-	selectRecByCK = `
-		WITH RECURSIVE exp_tree AS (
-			SELECT top.*
-			FROM pool_type_exps top
-			WHERE top.exp_ck = $1
-			UNION ALL
-			SELECT sub.*
-			FROM pool_type_exps sub, exp_tree sup
-			WHERE sub.sup_exp_ck = sup.exp_ck
-		)
-		SELECT * FROM exp_tree`
-)
+const selectRecByCK = `
+	WITH RECURSIVE exp_tree AS (
+		SELECT top.*
+		FROM pool_type_exps top
+		WHERE top.exp_ck = $1
+		UNION ALL
+		SELECT sub.*
+		FROM pool_type_exps sub, exp_tree sup
+		WHERE sub.sup_exp_ck = sup.exp_ck
+	)
+	SELECT * FROM exp_tree`

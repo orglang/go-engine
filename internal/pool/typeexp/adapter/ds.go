@@ -1,5 +1,7 @@
 package adapter
 
+import enttypeschema "orglang/go-engine/internal/pool/ent/schema"
+
 type ExpKind int
 
 const (
@@ -31,26 +33,10 @@ type State struct {
 	Spec     ExpSpec `db:"spec" fieldopt:"noexpand"`
 }
 
-type ExpSpec struct {
-	Link   string `json:"link,omitempty"`
-	Tensor *Prod  `json:"tensor,omitempty"`
-	Lolli  *Prod  `json:"lolli,omitempty"`
-	Plus   *Sum   `json:"plus,omitempty"`
-	With   *Sum   `json:"with,omitempty"`
-	Up     *Shift `json:"up,omitempty"`
-	Down   *Shift `json:"down,omitempty"`
-}
-
-type Prod struct {
-	ValExpCK  int64 `json:"on"`
-	ContExpCK int64 `json:"to"`
-}
-
-type Sum struct {
-	ProcQNs   []string `json:"on"`
-	ContExpCK int64    `json:"to"`
-}
-
-type Shift struct {
-	ContExpCK int64 `json:"to"`
-}
+// Keep the adapter DTO aligned with the JSON type used by the Ent schema.
+type (
+	ExpSpec = enttypeschema.ExpSpec
+	Prod    = enttypeschema.ExpProd
+	Sum     = enttypeschema.ExpSum
+	Shift   = enttypeschema.ExpShift
+)

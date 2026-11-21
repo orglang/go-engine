@@ -9,6 +9,22 @@ import (
 )
 
 var (
+	// ProcCompConnsColumns holds the columns for the "proc_comp_conns" table.
+	ProcCompConnsColumns = []*schema.Column{
+		{Name: "conn_id", Type: field.TypeString, Unique: true},
+		{Name: "provider_comp_id", Type: field.TypeString},
+		{Name: "provider_comp_rn", Type: field.TypeInt64},
+		{Name: "client_comp_id", Type: field.TypeString},
+		{Name: "client_comp_rn", Type: field.TypeInt64},
+		{Name: "offset_nr", Type: field.TypeInt64, Nullable: true},
+		{Name: "act_nr", Type: field.TypeInt64, Nullable: true},
+	}
+	// ProcCompConnsTable holds the schema information for the "proc_comp_conns" table.
+	ProcCompConnsTable = &schema.Table{
+		Name:       "proc_comp_conns",
+		Columns:    ProcCompConnsColumns,
+		PrimaryKey: []*schema.Column{ProcCompConnsColumns[0]},
+	}
 	// ProcCompExecsColumns holds the columns for the "proc_comp_execs" table.
 	ProcCompExecsColumns = []*schema.Column{
 		{Name: "comp_id", Type: field.TypeString, Unique: true},
@@ -48,6 +64,7 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		ProcCompConnsTable,
 		ProcCompExecsTable,
 		ProcTermDecsTable,
 		ProcTypeDefsTable,
@@ -55,6 +72,9 @@ var (
 )
 
 func init() {
+	ProcCompConnsTable.Annotation = &entsql.Annotation{
+		Table: "proc_comp_conns",
+	}
 	ProcCompExecsTable.Annotation = &entsql.Annotation{
 		Table: "proc_comp_execs",
 	}

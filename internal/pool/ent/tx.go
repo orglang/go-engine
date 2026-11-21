@@ -20,6 +20,8 @@ type Tx struct {
 	TermDef *TermDefClient
 	// TypeDef is the client for interacting with the TypeDef builders.
 	TypeDef *TypeDefClient
+	// TypeExp is the client for interacting with the TypeExp builders.
+	TypeExp *TypeExpClient
 
 	// lazily loaded.
 	client     *Client
@@ -155,6 +157,7 @@ func (tx *Tx) init() {
 	tx.CompExec = NewCompExecClient(tx.config)
 	tx.TermDef = NewTermDefClient(tx.config)
 	tx.TypeDef = NewTypeDefClient(tx.config)
+	tx.TypeExp = NewTypeExpClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

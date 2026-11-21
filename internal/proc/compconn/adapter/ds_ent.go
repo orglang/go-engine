@@ -11,52 +11,57 @@ import (
 
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
+	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
-
-	compconn "orglang/go-engine/internal/proc/compconn/core"
+	"orglang/go-engine/internal/proc/compconn/core"
 	connactadapter "orglang/go-engine/internal/proc/connact/adapter"
 	connact "orglang/go-engine/internal/proc/connact/core"
+	"orglang/go-engine/internal/proc/ent"
+	entcompconn "orglang/go-engine/internal/proc/ent/compconn"
 )
 
-type daoPgx struct {
-	log *slog.Logger
+type daoEnt struct {
+	client *ent.Client
+	log    *slog.Logger
 }
 
-func NewDaoPgx(log *slog.Logger) compconn.Repo {
-	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
-	return &daoPgx{log: log.With(name)}
+func NewDaoEnt(client *ent.Client, log *slog.Logger) core.Repo {
+	name := slog.String("name", reflect.TypeFor[daoEnt]().Name())
+	return &daoEnt{client: client, log: log.With(name)}
 }
 
 // for compilation purposes
-func newRepo() compconn.Repo { return new(daoPgx) }
+func newRepo() core.Repo { return new(daoEnt) }
 
-func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod compconn.ConnMod) error {
-	var offsetNr any
+func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod core.ConnMod) error {
+	refAttr := slog.Any("conn_id", mod.ConnID)
+	var offsetNr *int64
 	if mod.OffsetNr != nil && !mod.OffsetNr.IsEmpty() {
-		offsetNr = int64(mod.OffsetNr.Get())
+		value := int64(mod.OffsetNr.Get())
+		offsetNr = &value
 	}
-
-	var actNr any
+	var actNr *int64
 	if len(mod.Acts) > 0 {
-		// The provider CAS advances comp_rn exactly once for this operation.
-		// Mirror that revision as the Act number, as on the Pool side.
-		actNr = int64(mod.ProviderCompRN) + 1
+		value := int64(mod.ProviderCompRN) + 1
+		actNr = &value
 	}
 
 	if offsetNr != nil || actNr != nil {
-		const updateConn = `
-			UPDATE proc_comp_conns
-			SET offset_nr = COALESCE($1, offset_nr),
-			    act_nr = COALESCE($2, act_nr)
-			WHERE conn_id = $3
-		`
-		tag, err := conn.Pgx.Exec(ctx, updateConn, offsetNr, actNr, identity.ConvertToString(mod.ConnID))
+		update := dao.client.CompConn.Update().
+			Where(entcompconn.IDEQ(identity.ConvertToString(mod.ConnID)))
+		if offsetNr != nil {
+			update.SetOffsetNr(*offsetNr)
+		}
+		if actNr != nil {
+			update.SetActNr(*actNr)
+		}
+		affected, err := update.Save(entpgx.WithConn(ctx, conn.Pgx))
 		if err != nil {
-			dao.log.Error("Connection update failed", slog.Any("conn_id", mod.ConnID))
+			dao.log.Error("Connection update failed", refAttr)
 			return err
 		}
-		if tag.RowsAffected() == 0 {
+		if affected == 0 {
 			return fmt.Errorf("process connection missing: %v", mod.ConnID)
 		}
 	}
@@ -80,7 +85,7 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, mod compconn.Con
 	return nil
 }
 
-func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry compconn.ConnQry) (compconn.ConnSnap, error) {
+func (dao *daoEnt) GetSnapByQry(ctx context.Context, conn tx.Conn, qry core.ConnQry) (core.ConnSnap, error) {
 	connID := identity.ConvertToString(qry.ConnID)
 	query := `
 		WITH acts AS (
@@ -109,30 +114,34 @@ func (dao *daoPgx) GetSnapByQry(ctx context.Context, conn tx.Conn, qry compconn.
 	rows, err := conn.Pgx.Query(ctx, query, args...)
 	if err != nil {
 		dao.log.Error("Connection snapshot query failed", slog.Any("conn_id", qry.ConnID))
-		return compconn.ConnSnap{}, err
+		return core.ConnSnap{}, err
 	}
 	defer rows.Close()
 	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[ConnSnap])
 	if errors.Is(err, pgx.ErrNoRows) {
-		return compconn.ConnSnap{ConnID: qry.ConnID}, nil
+		return core.ConnSnap{ConnID: qry.ConnID}, nil
 	}
 	if err != nil {
 		dao.log.Error("Connection snapshot scan failed", slog.Any("conn_id", qry.ConnID))
-		return compconn.ConnSnap{}, err
+		return core.ConnSnap{}, err
 	}
 	parsedConnID, err := identity.ConvertFromString(dto.ConnID)
 	if err != nil {
-		return compconn.ConnSnap{}, err
+		return core.ConnSnap{}, err
 	}
 	providerCompID, err := identity.ConvertFromString(dto.ProviderCompID)
 	if err != nil {
-		return compconn.ConnSnap{}, err
+		return core.ConnSnap{}, err
 	}
-	snap := compconn.ConnSnap{ConnID: parsedConnID, ProviderCompID: providerCompID, ProviderCompRN: seqnum.ADT(dto.ProviderCompRN), OffsetNr: seqnum.ADT(dto.OffsetNr), Acts: make([]connact.ActRec, 0, len(dto.Acts))}
+	snap := core.ConnSnap{
+		ConnID: parsedConnID, ProviderCompID: providerCompID,
+		ProviderCompRN: seqnum.ADT(dto.ProviderCompRN), OffsetNr: seqnum.ADT(dto.OffsetNr),
+		Acts: make([]connact.ActRec, 0, len(dto.Acts)),
+	}
 	for _, actDTO := range dto.Acts {
 		act, err := connactadapter.DataToStepRec(actDTO)
 		if err != nil {
-			return compconn.ConnSnap{}, err
+			return core.ConnSnap{}, err
 		}
 		snap.Acts = append(snap.Acts, act)
 	}

@@ -6,6 +6,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// CompConn is the predicate function for compconn builders.
+type CompConn func(*sql.Selector)
+
 // CompExec is the predicate function for compexec builders.
 type CompExec func(*sql.Selector)
 

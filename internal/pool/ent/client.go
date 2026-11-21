@@ -15,6 +15,7 @@ import (
 	"orglang/go-engine/internal/pool/ent/compexec"
 	"orglang/go-engine/internal/pool/ent/termdef"
 	"orglang/go-engine/internal/pool/ent/typedef"
+	"orglang/go-engine/internal/pool/ent/typeexp"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
@@ -34,6 +35,8 @@ type Client struct {
 	TermDef *TermDefClient
 	// TypeDef is the client for interacting with the TypeDef builders.
 	TypeDef *TypeDefClient
+	// TypeExp is the client for interacting with the TypeExp builders.
+	TypeExp *TypeExpClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -49,6 +52,7 @@ func (c *Client) init() {
 	c.CompExec = NewCompExecClient(c.config)
 	c.TermDef = NewTermDefClient(c.config)
 	c.TypeDef = NewTypeDefClient(c.config)
+	c.TypeExp = NewTypeExpClient(c.config)
 }
 
 type (
@@ -145,6 +149,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		CompExec: NewCompExecClient(cfg),
 		TermDef:  NewTermDefClient(cfg),
 		TypeDef:  NewTypeDefClient(cfg),
+		TypeExp:  NewTypeExpClient(cfg),
 	}, nil
 }
 
@@ -168,6 +173,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		CompExec: NewCompExecClient(cfg),
 		TermDef:  NewTermDefClient(cfg),
 		TypeDef:  NewTypeDefClient(cfg),
+		TypeExp:  NewTypeExpClient(cfg),
 	}, nil
 }
 
@@ -200,6 +206,7 @@ func (c *Client) Use(hooks ...Hook) {
 	c.CompExec.Use(hooks...)
 	c.TermDef.Use(hooks...)
 	c.TypeDef.Use(hooks...)
+	c.TypeExp.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
@@ -209,6 +216,7 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.CompExec.Intercept(interceptors...)
 	c.TermDef.Intercept(interceptors...)
 	c.TypeDef.Intercept(interceptors...)
+	c.TypeExp.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
@@ -222,6 +230,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.TermDef.mutate(ctx, m)
 	case *TypeDefMutation:
 		return c.TypeDef.mutate(ctx, m)
+	case *TypeExpMutation:
+		return c.TypeExp.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
@@ -759,12 +769,145 @@ func (c *TypeDefClient) mutate(ctx context.Context, m *TypeDefMutation) (Value, 
 	}
 }
 
+// TypeExpClient is a client for the TypeExp schema.
+type TypeExpClient struct {
+	config
+}
+
+// NewTypeExpClient returns a client for the TypeExp from the given config.
+func NewTypeExpClient(c config) *TypeExpClient {
+	return &TypeExpClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `typeexp.Hooks(f(g(h())))`.
+func (c *TypeExpClient) Use(hooks ...Hook) {
+	c.hooks.TypeExp = append(c.hooks.TypeExp, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `typeexp.Intercept(f(g(h())))`.
+func (c *TypeExpClient) Intercept(interceptors ...Interceptor) {
+	c.inters.TypeExp = append(c.inters.TypeExp, interceptors...)
+}
+
+// Create returns a builder for creating a TypeExp entity.
+func (c *TypeExpClient) Create() *TypeExpCreate {
+	mutation := newTypeExpMutation(c.config, OpCreate)
+	return &TypeExpCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of TypeExp entities.
+func (c *TypeExpClient) CreateBulk(builders ...*TypeExpCreate) *TypeExpCreateBulk {
+	return &TypeExpCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *TypeExpClient) MapCreateBulk(slice any, setFunc func(*TypeExpCreate, int)) *TypeExpCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &TypeExpCreateBulk{err: fmt.Errorf("calling to TypeExpClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*TypeExpCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &TypeExpCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for TypeExp.
+func (c *TypeExpClient) Update() *TypeExpUpdate {
+	mutation := newTypeExpMutation(c.config, OpUpdate)
+	return &TypeExpUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *TypeExpClient) UpdateOne(_m *TypeExp) *TypeExpUpdateOne {
+	mutation := newTypeExpMutation(c.config, OpUpdateOne, withTypeExp(_m))
+	return &TypeExpUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *TypeExpClient) UpdateOneID(id int64) *TypeExpUpdateOne {
+	mutation := newTypeExpMutation(c.config, OpUpdateOne, withTypeExpID(id))
+	return &TypeExpUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for TypeExp.
+func (c *TypeExpClient) Delete() *TypeExpDelete {
+	mutation := newTypeExpMutation(c.config, OpDelete)
+	return &TypeExpDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *TypeExpClient) DeleteOne(_m *TypeExp) *TypeExpDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *TypeExpClient) DeleteOneID(id int64) *TypeExpDeleteOne {
+	builder := c.Delete().Where(typeexp.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &TypeExpDeleteOne{builder}
+}
+
+// Query returns a query builder for TypeExp.
+func (c *TypeExpClient) Query() *TypeExpQuery {
+	return &TypeExpQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeTypeExp},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a TypeExp entity by its id.
+func (c *TypeExpClient) Get(ctx context.Context, id int64) (*TypeExp, error) {
+	return c.Query().Where(typeexp.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *TypeExpClient) GetX(ctx context.Context, id int64) *TypeExp {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *TypeExpClient) Hooks() []Hook {
+	return c.hooks.TypeExp
+}
+
+// Interceptors returns the client interceptors.
+func (c *TypeExpClient) Interceptors() []Interceptor {
+	return c.inters.TypeExp
+}
+
+func (c *TypeExpClient) mutate(ctx context.Context, m *TypeExpMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&TypeExpCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&TypeExpUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&TypeExpUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&TypeExpDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown TypeExp mutation op: %q", m.Op())
+	}
+}
+
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		CompConn, CompExec, TermDef, TypeDef []ent.Hook
+		CompConn, CompExec, TermDef, TypeDef, TypeExp []ent.Hook
 	}
 	inters struct {
-		CompConn, CompExec, TermDef, TypeDef []ent.Interceptor
+		CompConn, CompExec, TermDef, TypeDef, TypeExp []ent.Interceptor
 	}
 )

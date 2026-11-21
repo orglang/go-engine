@@ -1,9 +1,6 @@
 package adapter
 
-import (
-	"github.com/huandu/go-sqlbuilder"
-
-)
+import "github.com/huandu/go-sqlbuilder"
 
 type sqlBuilder struct {
 	stateBuilder *sqlbuilder.Struct

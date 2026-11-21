@@ -5,7 +5,6 @@ import (
 
 	"github.com/samber/do/v2"
 
-	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/ent"
 	compconn "orglang/go-engine/internal/proc/compconn/core"

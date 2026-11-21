@@ -7,10 +7,10 @@ import (
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/adt/typesem"
-	"orglang/go-engine/internal/lib/entpgx"
-	"orglang/go-engine/internal/proc/ent"
 	typesemadapter "orglang/go-engine/internal/adt/typesem/adapter"
 	webapi "orglang/go-engine/internal/app/web/api"
+	"orglang/go-engine/internal/lib/entpgx"
+	"orglang/go-engine/internal/proc/ent"
 	compconn "orglang/go-engine/internal/proc/compconn/adapter"
 	compexec "orglang/go-engine/internal/proc/compexec/adapter"
 	termdec "orglang/go-engine/internal/proc/termdec/adapter"

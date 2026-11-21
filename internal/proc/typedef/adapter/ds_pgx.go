@@ -8,6 +8,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 
@@ -16,25 +17,27 @@ import (
 	typesemadapter "orglang/go-engine/internal/adt/typesem/adapter"
 	"orglang/go-engine/internal/adt/uniqsym"
 
+	"orglang/go-engine/internal/proc/ent"
+	typedefent "orglang/go-engine/internal/proc/ent/typedef"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
-type daoPgx struct {
-	qb  QueryBuilder
-	log *slog.Logger
+type daoEnt struct {
+	client *ent.Client
+	log    *slog.Logger
 }
 
-func NewDaoPgx(qb QueryBuilder, log *slog.Logger) typedef.Repo {
-	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
-	return &daoPgx{qb, log.With(name)}
+func NewDaoEnt(client *ent.Client, log *slog.Logger) typedef.Repo {
+	name := slog.String("name", reflect.TypeFor[daoEnt]().Name())
+	return &daoEnt{client: client, log: log.With(name)}
 }
 
 // for compilation purposes
 func newRepo() typedef.Repo {
-	return new(daoPgx)
+	return new(daoEnt)
 }
 
-func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec) error {
+func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec) error {
 	idAttr := slog.Any("typeID", rec.TypeRef.TypeID)
 	dao.log.Log(ctx, lf.LevelTrace, "addition started", idAttr)
 	dto, err := DataFromDefRec(rec)
@@ -42,10 +45,13 @@ func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec)
 		dao.log.Error("model conversion failed", idAttr)
 		return err
 	}
-	sql, args := dao.qb.InsertRec(dto)
-	_, err = conn.Pgx.Exec(ctx, sql, args...)
+	_, err = dao.client.TypeDef.Create().
+		SetID(dto.TypeID).
+		SetTypeRn(dto.TypeRN).
+		SetExpCk(dto.ExpCK).
+		Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
-		dao.log.Error("query execution failed", idAttr, slog.String("sql", sql))
+		dao.log.Error("query execution failed", idAttr)
 		return err
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "addition succeed", idAttr)
@@ -60,16 +66,16 @@ func (dao *daoPgx) ModifyRec(ctx context.Context, conn tx.Conn, rec typedef.DefR
 		dao.log.Error("model conversion failed", idAttr)
 		return err
 	}
-	args := pgx.NamedArgs{
-		"desc_id": dto.TypeID,
-		"exp_ck":  dto.ExpCK,
-	}
-	ct, err := conn.Pgx.Exec(ctx, updateRec, args)
+	affected, err := dao.client.TypeDef.Update().
+		Where(typedefent.TypeID(dto.TypeID), typedefent.TypeRn(dto.TypeRN-1)).
+		SetTypeRn(dto.TypeRN).
+		SetExpCk(dto.ExpCK).
+		Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
 		dao.log.Error("query execution failed", idAttr)
 		return err
 	}
-	if ct.RowsAffected() == 0 {
+	if affected == 0 {
 		dao.log.Error("entity update failed", idAttr)
 		return typedef.ErrOptimisticUpdate(rec.TypeRef.TypeRN - 1)
 	}
@@ -205,13 +211,6 @@ func (dao *daoPgx) GetRecsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 }
 
 const (
-	updateRec = `
-		update proc_type_defs
-		set def_rn = @def_rn,
-			exp_ck = @exp_ck
-		where desc_id = @desc_id
-			and def_rn = @def_rn - 1`
-
 	selectRecByQN = `
 		select
 			td.desc_id,

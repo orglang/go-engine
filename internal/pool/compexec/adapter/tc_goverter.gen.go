@@ -14,25 +14,25 @@ import (
 )
 
 func init() {
-	DataFromExecRec = func(source core.ExecRec) ExecRecDS {
-		var adapterExecRecDS ExecRecDS
-		adapterExecRecDS.CompID = identity.ConvertToString(source.CompRef.CompID)
-		adapterExecRecDS.CompRN = int64(source.CompRef.CompRN)
-		adapterExecRecDS.LiabMode = int16(source.LiabMode)
-		return adapterExecRecDS
+	DataFromExecRec = func(source core.ExecRec) ExecRec {
+		var adapterExecRec ExecRec
+		adapterExecRec.CompID = identity.ConvertToString(source.CompRef.CompID)
+		adapterExecRec.CompRN = int64(source.CompRef.CompRN)
+		adapterExecRec.LiabMode = int16(source.LiabMode)
+		return adapterExecRec
 	}
-	DataFromExecSnap2 = func(source core.ExecSnap2) ExecSnap2DS {
-		var adapterExecSnap2DS ExecSnap2DS
-		adapterExecSnap2DS.CompID = identity.ConvertToString(source.CompRef.CompID)
-		adapterExecSnap2DS.CompRN = int64(source.CompRef.CompRN)
-		adapterExecSnap2DS.LiabMode = int16(source.LiabMode)
-		adapterExecSnap2DS.StructVars = adapter.DataFromStructRecs(source.StructVars)
-		adapterExecSnap2DS.LinearVars = adapter.DataFromLinearRecs(source.LinearVars)
-		return adapterExecSnap2DS
+	DataFromExecSnap2 = func(source core.ExecSnap2) ExecSnap2 {
+		var adapterExecSnap2 ExecSnap2
+		adapterExecSnap2.CompID = identity.ConvertToString(source.CompRef.CompID)
+		adapterExecSnap2.CompRN = int64(source.CompRef.CompRN)
+		adapterExecSnap2.LiabMode = int16(source.LiabMode)
+		adapterExecSnap2.StructVars = adapter.DataFromStructRecs(source.StructVars)
+		adapterExecSnap2.LinearVars = adapter.DataFromLinearRecs(source.LinearVars)
+		return adapterExecSnap2
 	}
-	DataToExecRec = func(source ExecRecDS) (core.ExecRec, error) {
+	DataToExecRec = func(source ExecRec) (core.ExecRec, error) {
 		var coreExecRec core.ExecRec
-		compsemSemRef, err := adapterExecRecDSToCompsemSemRef(source)
+		compsemSemRef, err := adapterExecRecToCompsemSemRef(source)
 		if err != nil {
 			return coreExecRec, err
 		}
@@ -40,9 +40,9 @@ func init() {
 		coreExecRec.LiabMode = compvar.Mode(source.LiabMode)
 		return coreExecRec, nil
 	}
-	DataToExecSnap2 = func(source ExecSnap2DS) (core.ExecSnap2, error) {
+	DataToExecSnap2 = func(source ExecSnap2) (core.ExecSnap2, error) {
 		var coreExecSnap2 core.ExecSnap2
-		compsemSemRef, err := adapterExecSnap2DSToCompsemSemRef(source)
+		compsemSemRef, err := adapterExecSnap2ToCompsemSemRef(source)
 		if err != nil {
 			return coreExecSnap2, err
 		}
@@ -60,7 +60,7 @@ func init() {
 		coreExecSnap2.LinearVars = compvarLinearRecList
 		return coreExecSnap2, nil
 	}
-	DataToRefMap = func(source map[uniqsym.ADT]ExecSnap2DS) (map[uniqsym.ADT]core.ExecSnap2, error) {
+	DataToRefMap = func(source map[uniqsym.ADT]ExecSnap2) (map[uniqsym.ADT]core.ExecSnap2, error) {
 		var mapUniqsymADTCoreExecSnap2 map[uniqsym.ADT]core.ExecSnap2
 		if source != nil {
 			mapUniqsymADTCoreExecSnap2 = make(map[uniqsym.ADT]core.ExecSnap2, len(source))
@@ -74,7 +74,7 @@ func init() {
 		}
 		return mapUniqsymADTCoreExecSnap2, nil
 	}
-	DataToSnapMap = func(source map[uniqsym.ADT]ExecSnap1DS) (map[uniqsym.ADT]core.ExecSnap1, error) {
+	DataToSnapMap = func(source map[uniqsym.ADT]ExecSnap1) (map[uniqsym.ADT]core.ExecSnap1, error) {
 		var mapUniqsymADTCoreExecSnap1 map[uniqsym.ADT]core.ExecSnap1
 		if source != nil {
 			mapUniqsymADTCoreExecSnap1 = make(map[uniqsym.ADT]core.ExecSnap1, len(source))
@@ -89,7 +89,7 @@ func init() {
 		return mapUniqsymADTCoreExecSnap1, nil
 	}
 }
-func adapterExecRecDSToCompsemSemRef(source ExecRecDS) (compsem.SemRef, error) {
+func adapterExecRecToCompsemSemRef(source ExecRec) (compsem.SemRef, error) {
 	var compsemSemRef compsem.SemRef
 	identityADT, err := identity.ConvertFromString(source.CompID)
 	if err != nil {
@@ -99,7 +99,7 @@ func adapterExecRecDSToCompsemSemRef(source ExecRecDS) (compsem.SemRef, error) {
 	compsemSemRef.CompRN = seqnum.ADT(source.CompRN)
 	return compsemSemRef, nil
 }
-func adapterExecSnap2DSToCompsemSemRef(source ExecSnap2DS) (compsem.SemRef, error) {
+func adapterExecSnap2ToCompsemSemRef(source ExecSnap2) (compsem.SemRef, error) {
 	var compsemSemRef compsem.SemRef
 	identityADT, err := identity.ConvertFromString(source.CompID)
 	if err != nil {

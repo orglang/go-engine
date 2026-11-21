@@ -55,9 +55,6 @@ run = "task specs:check"
 sources = ["@group:common", "@group:specs"]
 outputs = []
 
-[tasks."tools:ent:install"]
-description = "Install Ent CLI with the project's pinned Go module dependencies"
-run = "go install entgo.io/ent/cmd/ent"
 
 [tasks."sources:gate"]
 description = "Run Specs, then Sources in the CI pipeline"

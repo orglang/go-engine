@@ -5,9 +5,11 @@ package adapter
 
 import (
 	identity "orglang/go-engine/internal/adt/identity"
+	adapter1 "orglang/go-engine/internal/adt/identity/adapter"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
+	adapter "orglang/go-engine/internal/adt/seqnum/adapter"
 	core "orglang/go-engine/internal/pool/compconn/core"
-	adapter "orglang/go-engine/internal/pool/connact/adapter"
+	adapter2 "orglang/go-engine/internal/pool/connact/adapter"
 	core1 "orglang/go-engine/internal/pool/connact/core"
 )
 
@@ -15,7 +17,7 @@ func init() {
 	DataFromMod = func(source core.ConnMod) ConnMod {
 		var adapterConnMod ConnMod
 		adapterConnMod.ConnID = identityToString(source.ConnID)
-		adapterConnMod.OffsetNr = seqnum.ConvertOptionToNullInt(source.OffsetNr)
+		adapterConnMod.OffsetNr = adapter.ConvertOptionToNullInt(source.OffsetNr)
 		adapterConnMod.ProviderCompID = identity.ConvertToString(source.ProviderCompID)
 		adapterConnMod.ProviderCompRN = seqnum.ConvertToInt(source.ProviderCompRN)
 		return adapterConnMod
@@ -23,7 +25,7 @@ func init() {
 	DataFromQry = func(source core.ConnQry) ConnQry {
 		var adapterConnQry ConnQry
 		adapterConnQry.ConnID = identityToString(source.ConnID)
-		adapterConnQry.ChnlID = identity.ConvertOptionToNullString(source.ChnlID)
+		adapterConnQry.ChnlID = adapter1.ConvertOptionToNullString(source.ChnlID)
 		return adapterConnQry
 	}
 	DataToSnap = func(source ConnSnap) (core.ConnSnap, error) {
@@ -43,7 +45,7 @@ func init() {
 		if source.Acts != nil {
 			coreConnSnap.Acts = make([]core1.ActRec, len(source.Acts))
 			for i := 0; i < len(source.Acts); i++ {
-				coreActRec, err := adapter.DataToStepRec(source.Acts[i])
+				coreActRec, err := adapter2.DataToStepRec(source.Acts[i])
 				if err != nil {
 					return coreConnSnap, err
 				}

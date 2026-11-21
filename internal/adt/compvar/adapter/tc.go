@@ -5,10 +5,11 @@ import (
 
 	"orglang/go-engine/internal/adt/compsem"
 	"orglang/go-engine/internal/adt/compvar"
-	"orglang/go-engine/internal/adt/contkey"
-	"orglang/go-engine/internal/adt/identity"
-	"orglang/go-engine/internal/adt/seqnum"
+	contkeyadapter "orglang/go-engine/internal/adt/contkey/adapter"
+	identityadapter "orglang/go-engine/internal/adt/identity/adapter"
+	seqnumadapter "orglang/go-engine/internal/adt/seqnum/adapter"
 	"orglang/go-engine/internal/adt/symbol"
+	symboladapter "orglang/go-engine/internal/adt/symbol/adapter"
 )
 
 func DataFromVarRec(rec compvar.VarRec) VarRecDS {
@@ -24,24 +25,24 @@ func DataFromVarRec(rec compvar.VarRec) VarRecDS {
 
 func DataFromStructRec(rec compvar.StructRec) VarRecDS {
 	return VarRecDS{
-		CompID: identity.ConvertToNullString(rec.CompRef.CompID),
-		CompRN: seqnum.ConvertToNullInt(rec.CompRef.CompRN),
-		ConnID: identity.ConvertToNullString(rec.ConnID),
-		ChnlID: identity.ConvertToNullString(rec.ChnlID),
-		ChnlPH: symbol.ConvertToNullString(rec.ChnlPH),
-		ExpCK:  contkey.ConvertToNullInt(rec.ExpCK),
+		CompID: identityadapter.ConvertToNullString(rec.CompRef.CompID),
+		CompRN: seqnumadapter.ConvertToNullInt(rec.CompRef.CompRN),
+		ConnID: identityadapter.ConvertToNullString(rec.ConnID),
+		ChnlID: identityadapter.ConvertToNullString(rec.ChnlID),
+		ChnlPH: symboladapter.ConvertToNullString(rec.ChnlPH),
+		ExpCK:  contkeyadapter.ConvertToNullInt(rec.ExpCK),
 		ChnlBS: ConvertSideToNullInt(rec.ChnlBS),
 	}
 }
 
 func DataFromLinearRec(rec compvar.LinearRec) VarRecDS {
 	return VarRecDS{
-		CompID: identity.ConvertToNullString(rec.CompRef.CompID),
-		CompRN: seqnum.ConvertToNullInt(rec.CompRef.CompRN),
-		ConnID: identity.ConvertToNullString(rec.ConnID),
-		ChnlID: identity.ConvertToNullString(rec.ChnlID),
-		ChnlPH: symbol.ConvertToNullString(rec.ChnlPH),
-		ExpCK:  contkey.ConvertToNullInt(rec.ExpCK),
+		CompID: identityadapter.ConvertToNullString(rec.CompRef.CompID),
+		CompRN: seqnumadapter.ConvertToNullInt(rec.CompRef.CompRN),
+		ConnID: identityadapter.ConvertToNullString(rec.ConnID),
+		ChnlID: identityadapter.ConvertToNullString(rec.ChnlID),
+		ChnlPH: symboladapter.ConvertToNullString(rec.ChnlPH),
+		ExpCK:  contkeyadapter.ConvertToNullInt(rec.ExpCK),
 		ChnlBS: ConvertSideToNullInt(rec.ChnlBS),
 	}
 }
@@ -91,15 +92,15 @@ func DataToStructRec(dto VarRecDS) (compvar.StructRec, error) {
 	if err != nil {
 		return compvar.StructRec{}, err
 	}
-	connID, err := identity.ConvertFromNullString(dto.ConnID)
+	connID, err := identityadapter.ConvertFromNullString(dto.ConnID)
 	if err != nil {
 		return compvar.StructRec{}, err
 	}
-	chnlID, err := identity.ConvertFromNullString(dto.ChnlID)
+	chnlID, err := identityadapter.ConvertFromNullString(dto.ChnlID)
 	if err != nil {
 		return compvar.StructRec{}, err
 	}
-	chnlPH, err := symbol.ConvertFromNullString(dto.ChnlPH)
+	chnlPH, err := symboladapter.ConvertFromNullString(dto.ChnlPH)
 	if err != nil {
 		return compvar.StructRec{}, err
 	}
@@ -109,7 +110,7 @@ func DataToStructRec(dto VarRecDS) (compvar.StructRec, error) {
 		ChnlID:  chnlID,
 		ChnlPH:  chnlPH,
 		ChnlBS:  ConvertSideFromNullInt(dto.ChnlBS),
-		ExpCK:   contkey.ConvertFromNullInt(dto.ExpCK),
+		ExpCK:   contkeyadapter.ConvertFromNullInt(dto.ExpCK),
 	}, nil
 }
 
@@ -118,15 +119,15 @@ func DataToLinearRec(dto VarRecDS) (compvar.LinearRec, error) {
 	if err != nil {
 		return compvar.LinearRec{}, err
 	}
-	connID, err := identity.ConvertFromNullString(dto.ConnID)
+	connID, err := identityadapter.ConvertFromNullString(dto.ConnID)
 	if err != nil {
 		return compvar.LinearRec{}, err
 	}
-	chnlID, err := identity.ConvertFromNullString(dto.ChnlID)
+	chnlID, err := identityadapter.ConvertFromNullString(dto.ChnlID)
 	if err != nil {
 		return compvar.LinearRec{}, err
 	}
-	chnlPH, err := symbol.ConvertFromNullString(dto.ChnlPH)
+	chnlPH, err := symboladapter.ConvertFromNullString(dto.ChnlPH)
 	if err != nil {
 		return compvar.LinearRec{}, err
 	}
@@ -136,7 +137,7 @@ func DataToLinearRec(dto VarRecDS) (compvar.LinearRec, error) {
 		ChnlID:  chnlID,
 		ChnlPH:  chnlPH,
 		ChnlBS:  ConvertSideFromNullInt(dto.ChnlBS),
-		ExpCK:   contkey.ConvertFromNullInt(dto.ExpCK),
+		ExpCK:   contkeyadapter.ConvertFromNullInt(dto.ExpCK),
 	}, nil
 }
 
@@ -193,13 +194,13 @@ func DataToLinearRecs(dtos []VarRecDS) ([]compvar.LinearRec, error) {
 }
 
 func dataToCompRef(dto VarRecDS) (compsem.SemRef, error) {
-	compID, err := identity.ConvertFromNullString(dto.CompID)
+	compID, err := identityadapter.ConvertFromNullString(dto.CompID)
 	if err != nil {
 		return compsem.SemRef{}, err
 	}
 	return compsem.SemRef{
 		CompID: compID,
-		CompRN: seqnum.ConvertFromNullInt(dto.CompRN),
+		CompRN: seqnumadapter.ConvertFromNullInt(dto.CompRN),
 	}, nil
 }
 

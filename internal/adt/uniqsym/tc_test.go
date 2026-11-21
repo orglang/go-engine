@@ -1,7 +1,6 @@
 package uniqsym
 
 import (
-	"database/sql"
 	"strings"
 	"testing"
 )
@@ -58,17 +57,5 @@ func TestConvertFromStringDoesNotValidateQualifiedSymbolSyntax(t *testing.T) {
 				t.Fatalf("unexpected constructor validation: %v", err)
 			}
 		})
-	}
-}
-
-func TestConvertFromNullString(t *testing.T) {
-	if got, err := ConvertFromNullString(sql.NullString{}); err != nil || got != empty {
-		t.Fatalf("got (%v, %v), want (empty, nil)", got, err)
-	}
-	if _, err := ConvertFromNullString(sql.NullString{String: "bad value", Valid: true}); err != nil {
-		t.Fatalf("unexpected constructor validation: %v", err)
-	}
-	if _, err := ConvertFromNullString(sql.NullString{String: "a.b", Valid: true}); err != nil {
-		t.Fatalf("unexpected error: %v", err)
 	}
 }

@@ -13,9 +13,6 @@ import (
 )
 
 var Package = do.Package(
-	do.Lazy[QueryBuilder](func(do.Injector) (QueryBuilder, error) {
-		return newSQLBuilder(), nil
-	}),
 	do.Lazy[core.Repo](func(i do.Injector) (core.Repo, error) {
 		client, err := do.Invoke[*ent.Client](i)
 		if err != nil {

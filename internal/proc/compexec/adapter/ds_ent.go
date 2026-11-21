@@ -147,13 +147,15 @@ INSERT INTO proc_binds (
     impl_id, chnl_ph, chnl_id, state_id, impl_rn
 ) VALUES (
     @impl_id, @chnl_ph, @chnl_id, @state_id, @impl_rn
-)`
+)
+`
 
 	updateExec = `
 UPDATE proc_comp_execs
 SET comp_rn = @comp_rn + 1
 WHERE comp_id = @comp_id
-    AND comp_rn = @comp_rn`
+    AND comp_rn = @comp_rn
+`
 
 	selectChnls = `
 WITH bnds AS NOT MATERIALIZED (
@@ -176,7 +178,8 @@ FROM bnds bnd
 LEFT JOIN liabs liab
     ON liab.proc_id = bnd.proc_id
 LEFT JOIN pool_comp_execs prvd
-    ON prvd.desc_id = liab.desc_id`
+    ON prvd.desc_id = liab.desc_id
+`
 )
 
 func errOptimisticUpdate(got seqnum.ADT) error {

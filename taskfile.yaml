@@ -73,8 +73,8 @@ tasks:
       # Generate the E2E client first: Goverter loads ./... and needs this package
       # to exist even on a clean checkout.
       - oapi-codegen -config internal/lib/e2e/api/cfg.yaml openapi/openapi.yaml
-      - goverter gen -global 'skipCopySameType' ./...
       - go tool ent generate --target internal/pool/ent ./internal/pool/ent/schema
+      - goverter gen -global 'skipCopySameType' ./...
       - oapi-codegen -config internal/app/web/api/cfg.yaml openapi/openapi.yaml
 
   specs:generate:

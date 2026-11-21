@@ -101,7 +101,7 @@ func (dao *daoPgx) GetRecByRef(ctx context.Context, conn tx.Conn, ref typesem.Se
 		return typedef.DefRec{}, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRecDS])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRec])
 	if err != nil {
 		dao.log.Error("row scanning failed", refAttr)
 		return typedef.DefRec{}, err
@@ -118,7 +118,7 @@ func (dao *daoPgx) GetRecByQN(ctx context.Context, conn tx.Conn, typeQN uniqsym.
 		return typedef.DefRec{}, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRecDS])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRec])
 	if err != nil {
 		dao.log.Error("row scanning failed", qnAttr)
 		return typedef.DefRec{}, err
@@ -142,13 +142,13 @@ func (dao *daoPgx) GetRecsByRefs(ctx context.Context, conn tx.Conn, refs []types
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	var dtos []DefRecDS
+	var dtos []DefRec
 	for _, defRef := range refs {
 		rows, err := br.Query()
 		if err != nil {
 			dao.log.Error("query execution failed", slog.Any("defRef", defRef), slog.String("q", selectRecByID))
 		}
-		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRecDS])
+		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRec])
 		if err != nil {
 			dao.log.Error("row scanning failed", slog.Any("defRef", defRef))
 		}
@@ -185,13 +185,13 @@ func (dao *daoPgx) GetRecsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	var dtos []DefRecDS
+	var dtos []DefRec
 	for _, typeQN := range typeQNs {
 		rows, err := br.Query()
 		if err != nil {
 			dao.log.Error("query execution failed", slog.Any("typeQN", typeQN), slog.String("q", selectRecByQN))
 		}
-		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRecDS])
+		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRec])
 		if err != nil {
 			dao.log.Error("row scanning failed", slog.Any("typeQN", typeQN))
 		}

@@ -41,7 +41,7 @@ tasks:
     desc: Build the distributable binary and record its provenance
     cmds:
       - mkdir -p dist
-      - go build -o dist/go-engine ./cmd/engine
+      - CGO_ENABLED=0 go build -o dist/go-engine ./cmd/engine
       - |
         source_sha="$(git rev-parse HEAD)"
         spec_sha="$(git log -1 --format=%H -- tsp openapi/openapi.yaml)"

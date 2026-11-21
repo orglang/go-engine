@@ -12,7 +12,7 @@ import (
 	symboladapter "orglang/go-engine/internal/adt/symbol/adapter"
 )
 
-func DataFromVarRec(rec compvar.VarRec) VarRecDS {
+func DataFromVarRec(rec compvar.VarRec) VarRec {
 	switch value := rec.(type) {
 	case compvar.StructRec:
 		return DataFromStructRec(value)
@@ -23,8 +23,8 @@ func DataFromVarRec(rec compvar.VarRec) VarRecDS {
 	}
 }
 
-func DataFromStructRec(rec compvar.StructRec) VarRecDS {
-	return VarRecDS{
+func DataFromStructRec(rec compvar.StructRec) VarRec {
+	return VarRec{
 		CompID: identityadapter.ConvertToNullString(rec.CompRef.CompID),
 		CompRN: seqnumadapter.ConvertToNullInt(rec.CompRef.CompRN),
 		ConnID: identityadapter.ConvertToNullString(rec.ConnID),
@@ -35,8 +35,8 @@ func DataFromStructRec(rec compvar.StructRec) VarRecDS {
 	}
 }
 
-func DataFromLinearRec(rec compvar.LinearRec) VarRecDS {
-	return VarRecDS{
+func DataFromLinearRec(rec compvar.LinearRec) VarRec {
+	return VarRec{
 		CompID: identityadapter.ConvertToNullString(rec.CompRef.CompID),
 		CompRN: seqnumadapter.ConvertToNullInt(rec.CompRef.CompRN),
 		ConnID: identityadapter.ConvertToNullString(rec.ConnID),
@@ -47,15 +47,15 @@ func DataFromLinearRec(rec compvar.LinearRec) VarRecDS {
 	}
 }
 
-func DataFromStructMap(recMap map[symbol.ADT]compvar.StructRec) []VarRecDS {
-	dtos := make([]VarRecDS, 0, len(recMap))
+func DataFromStructMap(recMap map[symbol.ADT]compvar.StructRec) []VarRec {
+	dtos := make([]VarRec, 0, len(recMap))
 	for _, rec := range recMap {
 		dtos = append(dtos, DataFromStructRec(rec))
 	}
 	return dtos
 }
 
-func DataToStructMap(dtos []VarRecDS) (map[symbol.ADT]compvar.StructRec, error) {
+func DataToStructMap(dtos []VarRec) (map[symbol.ADT]compvar.StructRec, error) {
 	recMap := make(map[symbol.ADT]compvar.StructRec, len(dtos))
 	for _, dto := range dtos {
 		rec, err := DataToStructRec(dto)
@@ -67,15 +67,15 @@ func DataToStructMap(dtos []VarRecDS) (map[symbol.ADT]compvar.StructRec, error) 
 	return recMap, nil
 }
 
-func DataFromLinearMap(recMap map[symbol.ADT]compvar.LinearRec) []VarRecDS {
-	dtos := make([]VarRecDS, 0, len(recMap))
+func DataFromLinearMap(recMap map[symbol.ADT]compvar.LinearRec) []VarRec {
+	dtos := make([]VarRec, 0, len(recMap))
 	for _, rec := range recMap {
 		dtos = append(dtos, DataFromLinearRec(rec))
 	}
 	return dtos
 }
 
-func DataToLinearMap(dtos []VarRecDS) (map[symbol.ADT]compvar.LinearRec, error) {
+func DataToLinearMap(dtos []VarRec) (map[symbol.ADT]compvar.LinearRec, error) {
 	recMap := make(map[symbol.ADT]compvar.LinearRec, len(dtos))
 	for _, dto := range dtos {
 		rec, err := DataToLinearRec(dto)
@@ -87,7 +87,7 @@ func DataToLinearMap(dtos []VarRecDS) (map[symbol.ADT]compvar.LinearRec, error) 
 	return recMap, nil
 }
 
-func DataToStructRec(dto VarRecDS) (compvar.StructRec, error) {
+func DataToStructRec(dto VarRec) (compvar.StructRec, error) {
 	ref, err := dataToCompRef(dto)
 	if err != nil {
 		return compvar.StructRec{}, err
@@ -114,7 +114,7 @@ func DataToStructRec(dto VarRecDS) (compvar.StructRec, error) {
 	}, nil
 }
 
-func DataToLinearRec(dto VarRecDS) (compvar.LinearRec, error) {
+func DataToLinearRec(dto VarRec) (compvar.LinearRec, error) {
 	ref, err := dataToCompRef(dto)
 	if err != nil {
 		return compvar.LinearRec{}, err
@@ -141,29 +141,29 @@ func DataToLinearRec(dto VarRecDS) (compvar.LinearRec, error) {
 	}, nil
 }
 
-func DataFromStructRecs(recs []compvar.StructRec) []VarRecDS {
+func DataFromStructRecs(recs []compvar.StructRec) []VarRec {
 	if recs == nil {
 		return nil
 	}
-	dtos := make([]VarRecDS, len(recs))
+	dtos := make([]VarRec, len(recs))
 	for i, rec := range recs {
 		dtos[i] = DataFromStructRec(rec)
 	}
 	return dtos
 }
 
-func DataFromLinearRecs(recs []compvar.LinearRec) []VarRecDS {
+func DataFromLinearRecs(recs []compvar.LinearRec) []VarRec {
 	if recs == nil {
 		return nil
 	}
-	dtos := make([]VarRecDS, len(recs))
+	dtos := make([]VarRec, len(recs))
 	for i, rec := range recs {
 		dtos[i] = DataFromLinearRec(rec)
 	}
 	return dtos
 }
 
-func DataToStructRecs(dtos []VarRecDS) ([]compvar.StructRec, error) {
+func DataToStructRecs(dtos []VarRec) ([]compvar.StructRec, error) {
 	if dtos == nil {
 		return nil, nil
 	}
@@ -178,7 +178,7 @@ func DataToStructRecs(dtos []VarRecDS) ([]compvar.StructRec, error) {
 	return recs, nil
 }
 
-func DataToLinearRecs(dtos []VarRecDS) ([]compvar.LinearRec, error) {
+func DataToLinearRecs(dtos []VarRec) ([]compvar.LinearRec, error) {
 	if dtos == nil {
 		return nil, nil
 	}
@@ -193,7 +193,7 @@ func DataToLinearRecs(dtos []VarRecDS) ([]compvar.LinearRec, error) {
 	return recs, nil
 }
 
-func dataToCompRef(dto VarRecDS) (compsem.SemRef, error) {
+func dataToCompRef(dto VarRec) (compsem.SemRef, error) {
 	compID, err := identityadapter.ConvertFromNullString(dto.CompID)
 	if err != nil {
 		return compsem.SemRef{}, err

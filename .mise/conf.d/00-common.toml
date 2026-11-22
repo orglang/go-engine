@@ -2,6 +2,4 @@
 common = [
   ".github/**",
   "mise.toml",
-  "mise.lock",
-  ".miserc.toml",
 ]

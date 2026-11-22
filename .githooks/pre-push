@@ -1,3 +1,4 @@
 #!/bin/sh
 set -e
+mise run sources:gate
 mise run binaries:unit-test

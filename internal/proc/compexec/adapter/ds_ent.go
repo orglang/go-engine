@@ -125,17 +125,15 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod compexec.Exe
 		err = errors.Join(err, execRes.Close())
 	}()
 	for _, dto := range dto.CompRefs {
-		ct, err := execRes.Exec()
-		if err != nil {
+		ct, execErr := execRes.Exec()
+		if execErr != nil {
 			dao.log.Error("execution failed", slog.Any("dto", dto))
+			return execErr
 		}
 		if ct.RowsAffected() == 0 {
-			dao.log.Error("update failed")
+			dao.log.Error("update failed", slog.Any("dto", dto))
 			return errOptimisticUpdate(seqnum.ADT(dto.CompRN))
 		}
-	}
-	if err != nil {
-		return err
 	}
 	dao.log.Debug("update succeed")
 	return nil

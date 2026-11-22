@@ -74,7 +74,7 @@ func (dao *daoEnt) GetSnap(ctx context.Context, conn tx.Conn, ref termsem.SemRef
 		dao.log.Error("row scanning failed", refAttr)
 		return termdec.DecSnap{}, err
 	}
-	dao.log.Log(ctx, lf.LevelTrace, "entitiy selection succeed", slog.Any("dto", dto))
+	dao.log.Log(ctx, lf.LevelTrace, "entity selection succeed", slog.Any("dto", dto))
 	return DataToDecSnap(dto)
 }
 
@@ -105,20 +105,21 @@ func (dao *daoEnt) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	var dtos []DecRec
+
+	dtos := make([]DecRec, 0, len(ids))
 	for _, rid := range ids {
-		rows, err := br.Query()
-		if err != nil {
-			dao.log.Error("query execution failed", slog.Any("id", rid), slog.String("q", selectByRef))
+		idAttr := slog.Any("id", rid)
+		rows, queryErr := br.Query()
+		if queryErr != nil {
+			dao.log.Error("query execution failed", idAttr, slog.String("q", selectByRef))
+			return nil, queryErr
 		}
-		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecRec])
-		if err != nil {
-			dao.log.Error("row scanning failed", slog.Any("id", rid))
+		dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecRec])
+		if scanErr != nil {
+			dao.log.Error("row scanning failed", idAttr)
+			return nil, scanErr
 		}
 		dtos = append(dtos, dto)
-	}
-	if err != nil {
-		return nil, err
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "selection succeed", slog.Any("dtos", dtos))
 	return DataToDecRecs(dtos)
@@ -152,8 +153,7 @@ FROM dec_roots
 	return refs, nil
 }
 
-const (
-	selectByRef = `
+const selectByRef = `
 SELECT
     pd.desc_id,
     ds.desc_rn,
@@ -164,4 +164,3 @@ LEFT JOIN desc_sems ds
     ON ds.desc_id = pd.desc_id
 WHERE pd.desc_id = $1
 `
-)

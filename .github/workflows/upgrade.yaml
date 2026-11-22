@@ -1,0 +1,65 @@
+name: Upgrade
+
+on:
+  schedule:
+    - cron: "0 9 * * 1" # Every Monday at 9:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: upgrade
+  cancel-in-progress: false
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up mise
+        uses: jdx/mise-action@v5
+        with:
+          auto_update: true
+          install: false
+
+      - name: Upgrade mise tools
+        run: mise upgrade --bump
+
+      - name: Refresh dependency lockfiles
+        run: |
+          task specs:lock
+          task sources:lock
+          task binaries:lock
+
+      - name: Install dependencies
+        run: mise run deps:install
+
+      - name: Generate specs
+        run: task specs:generate
+
+      - name: Generate sources
+        run: mise run sources:generate
+
+      - name: Run quality gates
+        run: mise run binaries:gate
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "chore: update mise tools"
+          title: "chore: update mise tools"
+          body: |
+            Automated mise toolchain upgrade.
+
+            - Upgrade configured tools across the common, specs, and sources configurations.
+            - Refresh dependency lockfiles and generated artifacts.
+            - Run the full binaries quality gate.
+          branch: chore/update-mise-tools
+          delete-branch: true

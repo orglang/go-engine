@@ -57,11 +57,13 @@ run = "task sources:generate"
 
 [tasks."specs:lint"]
 description = "Lint TypeSpec without modifying files"
+depends = ["deps:install"]
 tools = { node = "26.10.0" }
 run = "task specs:lint"
 
 [tasks."specs:analyze"]
 description = "Analyze the TypeSpec project"
+depends = ["deps:install"]
 tools = { node = "26.10.0" }
 run = "task specs:analyze"
 

@@ -81,7 +81,11 @@ run = "task sources:analyze"
 description = "Run Specs in the CI pipeline"
 tools = { node = "26.10.0" }
 depends = ["deps:install"]
-run = "task specs:gate"
+run = [
+  "task specs:gate",
+  "task specs:lint",
+  "task specs:analyze",
+]
 sources = ["@group:common", "@group:specs"]
 outputs = []
 
@@ -93,7 +97,11 @@ tools = {
   "go:github.com/jmattheis/goverter/cmd/goverter" = "v1.11.1",
   "go:github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen" = "v2.8.2",
 }
-run = "task sources:gate"
+run = [
+  "task sources:gate",
+  "task sources:lint",
+  "task sources:analyze",
+]
 sources = ["@group:sources"]
 outputs = []
 

@@ -1,0 +1,5 @@
+[task_config.input_groups]
+specs = [
+  "tsp/**",
+  "openapi/openapi.yaml",
+]

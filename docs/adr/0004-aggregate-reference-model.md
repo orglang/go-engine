@@ -1,12 +1,12 @@
 # ADR-0004: Модель корней агрегатов и semantic references
 
-- **Статус:** Proposed (целевой Description aggregate и reference contracts; открытые предметные решения перечислены в §23)
+- **Статус:** Proposed (целевая доменная модель согласована; реализация в `go-engine` продолжается, persistence/migration design отложены)
 - **Дата:** 2026-11-22
 - **Связано:** go-workspace#128, go-engine#188, go-workspace#122
 
 ## Цель
 
-Зафиксировать фактическую модель агрегатов в `proc` и `pool`, отделить её от ADT и подготовить обоснованные решения о reference-контрактах и persistence roots. Этот документ задаёт целевую предметную модель. Публичные контракты и схема БД могут быть изменены для её реализации; конкретные изменения определяются после согласования §23 и migration plan. Предварительные варианты и вопросы в §7, §12–15 являются историей исследования; целевое предложение и открытые решения находятся в §19–24.
+Зафиксировать фактическую модель агрегатов в `proc` и `pool`, отделить её от ADT и подготовить обоснованные решения о reference-контрактах и persistence roots. Этот документ задаёт целевую предметную модель. Публичные контракты и схема БД могут быть изменены для её реализации; реализация опирается на согласованные ниже доменные решения и существующие Go-контракты `go-engine`; persistence и migration design отложены до появления практической необходимости. Предварительные варианты и вопросы в §7, §12–15 являются историей исследования; целевое предложение и открытые решения находятся в §19–24.
 
 ## 1. Оси модели
 
@@ -473,7 +473,7 @@ Computation (aggregate root)
 - Изменение Connection выполняется через owning Provider Computation и защищается expected Provider Computation revision. Отдельная Connection revision для OCC не вводится.
 - Client Computation revision увеличивается только если та же операция меняет её собственный Execution state. Само изменение Connection не увеличивает revision клиентского агрегата.
 - Provider/Client endpoint references адресуют Computation aggregates, а не Description.
-- CompRef адресует Computation aggregate. Execution и Connection имеют собственные entity identities/keys в пределах определённых для них контрактов; конкретная cardinality и необходимость отдельного ExecutionID должны быть уточнены в §23.
+- CompRef адресует Computation aggregate. ComputationID одновременно идентифицирует Computation и её единственную сущность Execution; отдельный ExecutionID не вводится. Connection имеет собственную identity.
 - Изменение нескольких Computations требует явной транзакционной стратегии и набора expected revisions. Нельзя считать, что ссылка на оба endpoint автоматически означает атомарное владение обоими агрегатами.
 
 Таким образом, Computation aggregate имеет одну revision consistency boundary, охватывающую принадлежащие ему Execution и Connection entities. Для Connection, принадлежащей Provider Computation, именно Provider root revision является concurrency token даже когда операцию инициирует Client endpoint.
@@ -574,31 +574,33 @@ Term declaration/definition ports остаются раздельными там
 
 Физическая реализация может использовать отдельные root/entity tables либо иной storage design, если constraints и транзакции обеспечивают те же инварианты. Наличие единой таблицы само по себе не является целью. Нельзя выбирать DDL до выбора точных lifecycle/cardinality правил и mapping всех durable references.
 
-## 23. Открытые предметные решения перед утверждением модели
+## 23. Зафиксированные предметные решения
 
-1. **QN rename/retirement:** подтверждаем ли mutable QN и уникальность только среди active Description; нужен ли alias/history?
-2. **Term facets:** могут ли declaration и definition сосуществовать у одного Term, или это взаимоисключающие lifecycle states? Может ли Term существовать до definition?
-3. **Term payload:** какие части данных принадлежат declaration, какие definition, какие общие TermState?
-4. **TypeExp retention:** обязаны ли все durable ExpCK pins сохраняться бессрочно, либо допустим управляемый retention?
-5. **Description revision:** должны ли все metadata изменения (включая rename/lifecycle) увеличивать ту же revision, или нужна отдельная metadata revision?
-6. **Execution identity/cardinality — решено:** одна Computation содержит ровно один Execution; ComputationID является его идентификатором. Отдельный ExecutionID и несколько Execution/retries под одной Computation не вводятся. Повторный запуск трактуется как изменение состояния этого Execution.
-7. **Reference durability:** для каждого поля Type/Term/Comp refs в Execution variables, Connection endpoints, Acts и Spawn определить identity association vs pinned state vs command precondition. Полный Spawn use case ещё не подтверждён аудитом: SpawnSpec2 доказывает только входную передачу revision-bearing refs.
-8. **Cross-aggregate atomicity:** какие команды могут атомарно менять несколько Computations и каков набор expected revisions/lock ordering?
-9. **Deletion:** допускается ли физическое удаление Description/Term/Type/Computation и какие durable references блокируют его?
+Основные доменные решения для Description и Computation согласованы:
 
-## 24. План перехода (не часть target model)
+1. **QN и retirement:** QN изменяем и уникален в пределах bounded context. Rename атомарен и увеличивает DescRN. Aliases и история имён не входят в базовую модель. Retire сохраняет Description identity, данные и прежний QN; QN остаётся зарезервированным и освобождается только после физического Delete.
+2. **Term facets:** Term создаётся сразу с обязательной Declaration. Пустой Term и отдельная draft/Incept-фаза не входят в базовую модель. Definition необязательна и добавляется отдельной командой.
+3. **Declaration mutability:** Declaration immutable после создания.
+4. **Definition mutability:** Definition допускает только additive-изменения. Замена и редактирование существующих частей не входят в базовую модель.
+5. **Term lifecycle:** Declaration и Definition принадлежат одной Term entity и одному Description aggregate; эти правила одинаковы в `proc` и `pool`.
+6. **Description revision:** все атомарные команды, меняющие наблюдаемое состояние Description, увеличивают общий DescRN ровно один раз, включая Type expression/ExpCK, Term facets, QN rename и retirement.
+7. **TypeExp retention:** текущие expression states сохраняются, пока на них существуют действующие ссылки или зависимости; полная история Type revisions не вводится.
+8. **Execution identity/cardinality:** одна Computation содержит ровно один Execution; ComputationID служит его identity. Отдельный ExecutionID, несколько Execution и история retries не вводятся.
+9. **Computation references:** Connection принадлежит Provider Computation; Client является внешним endpoint. Connection mutations используют expected Provider Computation revision. Остальные durable reference semantics применяются согласно классификации §27.5; детали незавершённого Spawn use case не требуют проектировать persistence заранее.
+10. **Deletion:** Retire — обычная lifecycle-операция. Физический Delete не входит в обычный lifecycle и допустим только при отсутствии зависимостей, нарушающих referential integrity. Удаление Type или Term отдельно от Description запрещено.
 
-План миграции будет уточнён после утверждения §19–23:
+Эти решения достаточны для продолжения работы над core/domain contracts. Детали persistence, миграций и cross-aggregate transaction strategy не являются предварительными блокерами текущего этапа.
 
-1. Зафиксировать предметные решения и полную карту durable references.
-2. Спроектировать target logical schema и constraints без наследования текущих имён/таблиц.
-3. Спроектировать migration/backfill: объединение Type/Term identity space внутри каждого контекста, перенос QN/kind, root revision, specialized states и pinned ExpCK references; определить обработку конфликтов ID/QN и неконсистентных записей.
-4. Спроектировать новый набор core ports/use cases и context-specific adapters, не сохраняя старые Go types ради совместимости.
-5. Перестроить inbound/outbound API contracts по целевой модели; совместимость со старым публичным API не является требованием этой задачи.
-6. Перенести persistence, добавить invariant tests, CAS/concurrency tests, resolver/kind tests и migration verification tests.
-7. Удалить старые adapters/contracts после перехода всех consumers.
 
-До отдельного согласования target model и migration plan Go code и DDL остаются неизменными.
+## 24. Границы следующего этапа
+
+Следующий этап issue #128 — реализация согласованной модели в `go-engine` с опорой на уже существующие Go-контракты и архитектурные границы репозитория.
+
+- Проверить существующие core types, ports, use cases и adapters и определить минимальный вертикальный срез, который можно привести к согласованной модели.
+- Не создавать параллельный набор Go-контрактов, если подходящие контракты уже существуют; менять их только там, где это необходимо для соблюдения согласованных инвариантов.
+- Добавить тесты доменных инвариантов и optimistic concurrency для выбранного среза.
+- Не менять SDK.
+- Не проектировать и не менять SQL schema/migrations на этом этапе. Persistence redesign, backfill и migration verification отложены до отдельной необходимости.
 
 
 ## 25. Уточнение модели Computation относительно ADR-0002
@@ -765,15 +767,10 @@ Process `termdef` не является реализованной второй 
 - **Declaration** — контракт каналов и типов Term (Liab/Asset variables и связанные Type references);
 - **Definition** — поведенческое выражение Term и его контекстно-специфичный expression payload.
 
-Declaration и Definition не являются разными видами Description и не требуют разных Term identities. Изменение любого facet, если оно меняет наблюдаемое состояние Term, увеличивает общую Description revision один раз за команду. Формат и операции facets могут различаться между `proc` и `pool`; единый root не требует единого expression payload.
+Declaration и Definition не являются разными видами Description и не требуют разных Term identities. Declaration неизменяема после создания; Definition допускает только additive-изменения. Изменение Definition, если оно меняет наблюдаемое состояние Term, увеличивает общую Description revision один раз за команду. Формат и операции facets могут различаться между `proc` и `pool`; единый root не требует единого expression payload.
 
-Это рекомендация целевой модели, а не решение о полноте Term state. Открытыми остаются:
-1. Может ли Term существовать только с Declaration, только с Definition или с обоими facets; какие из них обязательны при создании?
-2. Может ли Declaration быть изменена после создания или она immutable после первоначального определения?
-3. Сохраняется ли аддитивная семантика Definition из TypeSpec или целевая модель допускает замену/редактирование выражения?
-4. Нужен ли отдельный draft/inception state; если да, это должно быть явное состояние того же Term root с операцией продолжения того же ID, а не создание новой identity через второй Create.
+Это согласованное целевое поведение. Term создаётся сразу с Declaration; Declaration immutable. Definition необязательна и может быть добавлена/расширена только аддитивно. Текущий Incept не переносится как самостоятельная фаза lifecycle и не создаёт пустой Term.
 
-До решения этих вопросов не следует переносить текущий Incept как самостоятельный aggregate type или трактовать proc/termdef как готовую реализацию.
 
 ## 29. Аудит QN lifecycle и Description registry
 
@@ -797,11 +794,11 @@ QN — context-local qualified name и lookup key, но не identity. В target
 Рекомендуемая политика:
 - QN mutable через явную RenameDescription command;
 - rename выполняется атомарно с проверкой уникальности в пределах bounded context и увеличивает общую Description revision;
-- uniqueness относится к активным Description roots;
+- QN уникален среди всех Description, которые не были физически удалены; retirement не освобождает имя;
 - alias/history не вводить в базовую модель без подтверждённого use case; если позже потребуется стабильное разрешение старых имён, это отдельная сущность/политика, а не неявная часть identity;
-- retirement должен освобождать QN только при явно определённой политике ссылочной целостности и повторного использования имени. До решения deletion/retention нельзя автоматически приравнивать retirement к физическому удалению binding.
+- Retire сохраняет binding и резервирует прежний QN; повторное использование возможно только после физического Delete Description при отсутствии зависимостей, нарушающих referential integrity.
 
-Это проектная рекомендация. Пользовательское решение по rename, alias/history, retirement и повторному использованию QN ещё не зафиксировано. Целевая схема должна обеспечивать уникальность и атомарность на уровне одного Description aggregate, но конкретная стратегия хранения retired names зависит от согласованной политики.
+Это согласованная политика; она не требует отдельного alias/history registry и не приравнивает retirement к физическому удалению.
 
 ## 30. Уточнение identity Description и унификация Term lifecycle между контекстами
 
@@ -838,20 +835,22 @@ DescID не обязан присутствовать в каждой внешн
 Базовая целевая композиция Term Description:
 - один Description aggregate root с DescID, QN, Term kind и общей revision;
 - одна принадлежащая ему Term entity с отдельным TermID;
-- обязательная Declaration facet, создаваемая вместе с Term;
-- необязательная Definition facet, создаваемая отдельной командой;
+- обязательная Declaration facet, создаваемая вместе с Term и immutable после создания;
+- необязательная Definition facet, создаваемая отдельной командой и допускающая только additive-изменения;
 - Declaration и Definition являются частями одного TermState, а не отдельными агрегатами.
 
-### 30.3. Открытые решения lifecycle
+### 30.3. Зафиксированные решения lifecycle
 
 Зафиксированы следующие lifecycle decisions:
 1. Term создаётся сразу с Declaration; создание пустого Term без Declaration не входит в базовую модель.
 2. Definition необязательна при создании и может быть добавлена отдельной командой.
-3. Declaration и Definition принадлежат одной Term entity и одному Description aggregate; изменения увеличивают общую Description revision.
-4. Семантика изменения Definition (только additive или также replace/edit) и mutability Declaration остаются открытыми; выбранные правила должны быть одинаковыми в proc и pool.
-5. Отдельный draft/inception state не вводится в базовую модель. Если появится подтверждённая потребность, он должен быть состоянием той же пары DescID/TermID, а не новой identity.
+3. Declaration immutable после создания.
+4. Definition допускает только additive-изменения; replace/edit существующих частей не поддерживается.
+5. Declaration и Definition принадлежат одной Term entity и одному Description aggregate; любые наблюдаемые изменения Definition увеличивают общую Description revision ровно один раз на атомарную команду.
+6. Отдельный draft/inception state не вводится. Если появится подтверждённая потребность, он должен быть состоянием той же пары DescID/TermID, а не новой identity.
 
 Incept не переносится как самостоятельная фаза lifecycle. Целевые операции и гарантии должны быть симметричны в обоих контекстах. Пакетная структура реализации остаётся за рамками этого решения.
+
 
 ## 31. Целевые решения по Type expression и QN
 
@@ -872,7 +871,7 @@ QN — человеко-понятный внешний идентификато
 
 QN изменяем: переименование не создаёт новый Description и не меняет identity его сущностей. В базовую модель не входят aliases и история прежних QN; их можно добавить при появлении конкретного требования к разрешению старых имён или обратной совместимости конфигураций.
 
-Уникальность QN и атомарность переименования должны обеспечиваться в пределах соответствующего bounded context. Конкретные правила retirement и повторного использования QN остаются отдельным решением и не выводятся автоматически из возможности rename.
+Уникальность QN и атомарность переименования должны обеспечиваться в пределах соответствующего bounded context. Retire не освобождает QN: повторное использование имени возможно только после физического Delete Description при отсутствии блокирующих зависимостей.
 
 ### 31.3. Граница архитектурного решения
 
@@ -916,4 +915,4 @@ QN изменяем: переименование не создаёт новый
 
 Retire является наблюдаемым изменением состояния Description и выполняется как атомарная мутация с увеличением `DescRN` ровно один раз согласно §33. Правила чтения retired Description, снятия с retirement и конкретный механизм проверки зависимостей перед физическим Delete относятся к последующим lifecycle и persistence contracts.
 
-Retirement не означает автоматически, что прежний QN освобождается для повторного использования. Политика повторного использования QN после retirement остаётся отдельным решением; до её определения нельзя считать имя свободным только на основании retired state.
+Retirement не освобождает прежний QN для повторного использования. Имя остаётся зарезервированным вместе с Description identity и данными; оно может быть использовано повторно только после физического Delete Description, допустимого при отсутствии зависимостей, нарушающих referential integrity.

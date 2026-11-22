@@ -1,13 +1,5 @@
-["sources:lock"]
-description = "Refresh source toolchain lockfiles"
-run = "mise -E sources lock"
-
 ["sources:generate"]
 description = "Generate source artifacts"
-tools = {
-  "go:github.com/jmattheis/goverter/cmd/goverter" = "v1.11.1",
-  "go:github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen" = "v2.8.2",
-}
 run = [
   # Generate the E2E client first: Goverter loads ./... and needs this package
   # to exist even on a clean checkout.
@@ -20,12 +12,10 @@ run = [
 
 ["sources:lint"]
 description = "Run Go linting without static analysis or architecture checks"
-tools = { "go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint" = "v2.15.0" }
 run = "golangci-lint run --disable staticcheck --disable depguard ./..."
 
 ["sources:analyze"]
 description = "Run Go static and architecture analysis"
-tools = { "go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint" = "v2.15.0" }
 run = [
   "go vet ./...",
   "golangci-lint run --enable-only staticcheck,depguard ./...",
@@ -33,20 +23,16 @@ run = [
 
 ["sources:prepare"]
 description = "Generate source artifacts and format handwritten Go code"
-tools = { "go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint" = "v2.15.0" }
 run = [
   { task = "sources:generate" },
   "golangci-lint fmt",
 ]
 
 ["sources:gate"]
-description = "Verify generated sources, tool locks, formatting, lint, and analysis"
-tools = { "go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint" = "v2.15.0" }
+description = "Verify generated sources, formatting, lint, and analysis"
 depends = ["specs:gate"]
 run = [
-  { task = "sources:lock" },
   { task = "sources:prepare" },
-  'test -z "$(git status --porcelain -- mise.sources-dev.lock)"',
   "test -z \"$(git status --porcelain -- ':(glob)**/*.gen.go' ':(glob)**/ent/**')\"",
   "golangci-lint fmt --diff",
   { task = "sources:lint" },

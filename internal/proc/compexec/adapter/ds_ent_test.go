@@ -12,6 +12,7 @@ import (
 
 	"orglang/go-engine/internal/adt/compsem"
 	"orglang/go-engine/internal/lib/tx"
+	compexec "orglang/go-engine/internal/proc/compexec/core"
 )
 
 type batchExecErrorPgx struct {

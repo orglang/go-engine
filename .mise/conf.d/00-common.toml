@@ -1,0 +1,7 @@
+[task_config.input_groups]
+common = [
+  ".github/**",
+  "mise.toml",
+  "mise.lock",
+  ".miserc.toml",
+]

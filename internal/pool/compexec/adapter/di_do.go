@@ -122,15 +122,11 @@ var Package = do.Package(
 		return newControllerEcho(api, logger), nil
 	}),
 	do.Lazy[compsem.Repo](func(i do.Injector) (compsem.Repo, error) {
-		client, err := do.Invoke[*ent.Client](i)
-		if err != nil {
-			return nil, err
-		}
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil {
 			return nil, err
 		}
-		return compsemadapter.NewDaoEnt(client, logger), nil
+		return compsemadapter.NewDaoPgx("pool_comp_execs")(logger), nil
 	}),
 	do.Lazy[implsem.Repo](func(i do.Injector) (implsem.Repo, error) {
 		logger, err := do.Invoke[*slog.Logger](i)

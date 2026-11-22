@@ -13,6 +13,86 @@ vars:
   PSV: shell # shell, docker
 
 tasks:
+  binaries:check:
+    desc: Check Go module and toolchain lockfiles
+    deps:
+      - task: binaries:lock
+    cmds:
+      - git status --short -- go.mod go.sum mise.lock
+      - test -z "$(git status --porcelain -- go.mod go.sum mise.lock)"
+
+  binaries:lock:
+    desc: Refresh Go module and root toolchain lockfiles
+    cmds:
+      - GOWORK=off go mod tidy
+      - mise lock
+
+  binaries:test:
+    desc: Run integration tests required for binary delivery
+    cmds:
+      - task: tests:it
+
+  binaries:build:
+    desc: Build application binaries
+    cmds:
+      - task: engine:binary
+
+  sources:gate:
+    desc: Verify generated sources, tool locks, and linters
+    cmds:
+      - task: sources:lock
+      - task: sources:generate
+      - test -z "$(git status --porcelain -- mise.sources-dev.lock)"
+      - test -z "$(git status --porcelain -- ':(glob)**/*.gen.go' ':(glob)**/ent/**')"
+      - golangci-lint fmt --diff
+      - golangci-lint run --disable staticcheck --disable depguard ./...
+
+  sources:lock:
+    desc: Refresh source toolchain lockfiles
+    cmds:
+      - mise -E sources lock
+
+  sources:prepare:
+    desc: Generate source artifacts and format handwritten Go code
+    cmds:
+      - task: sources:generate
+      - golangci-lint fmt
+
+  sources:generate:
+    desc: Generate source artifacts
+    cmds:
+      # Generate the E2E client first: Goverter loads ./... and needs this package
+      # to exist even on a clean checkout.
+      - oapi-codegen -config internal/lib/e2e/api/cfg.yaml openapi/openapi.yaml
+      # TODO: Move Ent CLI to mise's Go backend once its standalone dependency graph
+      # uses x/tools compatible with Go 1.27 export data; verify installation and generation in CI.
+      - go tool ent generate --target internal/pool/ent ./internal/pool/ent/schema
+      - go tool ent generate --feature sql/upsert --target internal/proc/ent ./internal/proc/ent/schema
+      - goverter gen -global 'skipCopySameType' ./...
+      - oapi-codegen -config internal/app/web/api/cfg.yaml openapi/openapi.yaml
+
+  specs:generate:
+    desc: Generate OpenAPI from TypeSpec
+    dir: tsp
+    cmds:
+      - npm run build
+
+  specs:gate:
+    desc: Check TypeSpec compilation, dependency locks, and generated OpenAPI
+    deps:
+      - task: specs:generate
+      - task: specs:lock
+    cmds:
+      - test -z "$(git status --porcelain -- mise.specs-dev.lock tsp/package-lock.json)"
+      - test -f openapi/openapi.yaml
+      - test -z "$(git status --porcelain -- openapi/openapi.yaml)"
+
+  specs:lock:
+    desc: Refresh TypeSpec toolchain and npm dependency lockfiles
+    cmds:
+      - mise -E specs lock
+      - npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund
+
   hooks:install:
     desc: Configure this repository to use versioned Git hooks
     cmds:
@@ -29,13 +109,10 @@ tasks:
     desc: Start specified container in background
     cmd: container started
 
-  tests:e2e:
-    desc: Compatibility entry point for workspace E2E orchestration
-    cmds:
-      - mise run tests:e2e
-
   processes:
     aliases: [procs]
     desc: Run and interrupt all processes
     cmds:
       - task: engine:process
+
+

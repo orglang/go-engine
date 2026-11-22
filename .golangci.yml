@@ -103,8 +103,6 @@ linters:
               desc: Domain types must not depend on concrete adapters.
             - pkg: github.com/jackc/pgx
               desc: Keep database drivers outside the domain.
-            - pkg: github.com/huandu/go-sqlbuilder
-              desc: Keep SQL construction in persistence adapters.
     revive:
       enable-all-rules: true
       rules:

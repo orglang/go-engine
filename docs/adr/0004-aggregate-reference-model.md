@@ -562,14 +562,20 @@ Term declaration/definition ports остаются раздельными там
 2. уникальность QN внутри контекста;
 3. однозначное соответствие kind специализированному state;
 4. невозможность TypeState для Term root и TermState для Type root;
-5. атомарную запись root, QN, kind, revision и initial specialized state;
-6. атомарное увеличение root revision вместе с изменением owned state;
+5. атомарную запись Description root, QN, kind, revision и initial specialized state;
+6. атомарное увеличение Description revision вместе с изменением owned Type/Term state;
 7. проверку expected revision в том же атомарном write, что и mutation;
 8. referential integrity для ID + ExpCK pins и retention expression state;
 9. отсутствие FK/lookup через границы proc и pool;
-10. независимые identity/revision spaces Computation и Description;\n11. Computation root revision защищает изменения принадлежащих ему Execution и Connection;\n12. каждая Connection имеет одного aggregate owner (Provider Computation), а Client является внешним endpoint;\n13. Act stream принадлежит Connection и упорядочивается в рамках Connection, но не вводит отдельную aggregate revision.
+10. независимые identity/revision spaces Computation и Description;
+11. Computation root revision защищает изменения принадлежащих ему Execution и Connection;
+12. каждая Connection имеет одного aggregate owner (Provider Computation), а Client является внешним endpoint;
+13. Act stream принадлежит Connection и упорядочивается в рамках Connection, но не вводит отдельную aggregate revision;
+14. переменные/channel bindings принадлежат Execution; их изменение выполняется в consistency boundary Computation;
+15. создание/изменение Connection и принадлежащих ей Acts атомарно с CAS owning Provider Computation root;
+16. изменение Connection не увеличивает Client Computation revision, если собственный Execution state клиента не меняется.
 
-Физическая реализация может использовать одну root table с отдельными Type/Term state tables либо иной storage design, если constraints и транзакции обеспечивают те же инварианты. Наличие единой таблицы само по себе не является целью. Нельзя выбирать DDL до выбора точных lifecycle/cardinality правил и mapping всех durable references.
+Физическая реализация может использовать отдельные root/entity tables либо иной storage design, если constraints и транзакции обеспечивают те же инварианты. Наличие единой таблицы само по себе не является целью. Нельзя выбирать DDL до выбора точных lifecycle/cardinality правил и mapping всех durable references.
 
 ## 23. Открытые предметные решения перед утверждением модели
 
@@ -578,9 +584,10 @@ Term declaration/definition ports остаются раздельными там
 3. **Term payload:** какие части данных принадлежат declaration, какие definition, какие общие TermState?
 4. **TypeExp retention:** обязаны ли все durable ExpCK pins сохраняться бессрочно, либо допустим управляемый retention?
 5. **Description revision:** должны ли все metadata изменения (включая rename/lifecycle) увеличивать ту же revision, или нужна отдельная metadata revision?
-6. **Reference durability:** для каждого поля Type/Term/Comp refs в variables, connections, actions и Spawn определить identity association vs pinned state vs command precondition. Полный Spawn use case ещё не подтверждён аудитом: SpawnSpec2 доказывает только входную передачу revision-bearing refs.
-7. **Cross-aggregate atomicity:** какие команды могут атомарно менять несколько Computations и каков набор expected revisions/lock ordering?
-8. **Deletion:** допускается ли физическое удаление Description/Term/Type, и какие durable references блокируют его?
+6. **Execution identity/cardinality:** является ли Execution ровно одной сущностью на Computation или Computation допускает несколько Execution (например, повторные запуски); нужен ли отдельный ExecutionID или ключом служит ComputationID?
+7. **Reference durability:** для каждого поля Type/Term/Comp refs в Execution variables, Connection endpoints, Acts и Spawn определить identity association vs pinned state vs command precondition. Полный Spawn use case ещё не подтверждён аудитом: SpawnSpec2 доказывает только входную передачу revision-bearing refs.
+8. **Cross-aggregate atomicity:** какие команды могут атомарно менять несколько Computations и каков набор expected revisions/lock ordering?
+9. **Deletion:** допускается ли физическое удаление Description/Term/Type/Computation и какие durable references блокируют его?
 
 ## 24. План перехода (не часть target model)
 

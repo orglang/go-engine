@@ -197,8 +197,7 @@ Type и Term следует рассматривать не обязательн
 
 ### 14.4. Уточнение текущих несоответствий
 
-- Отсутствующие revision-операции в \`termsem\` и непоследовательная проверка RN в \`proc/termdec\` трактуются как незавершённость реализации, а не как доказательство иной семантики Type и Term.
-- Запросы к \`dec_roots\` и \`desc_sems\` в \`proc/termdec\` считаются устаревшими. Их не следует трактовать как свидетельство существования внешней/неучтённой схемы без новых данных.
+- Отсутствующие revision-операции в \`termsem\` и непоследовательная проверка RN в \`proc/termdec\` трактуются как незавершённость реализации, а не как доказательство иной семантики Type и Term.- Запросы к \`dec_roots\` и \`desc_sems\` в \`proc/termdec\` считаются устаревшими. Их не следует трактовать как свидетельство существования внешней/неучтённой схемы без новых данных.
 - Текущий факт, что \`RetrieveSnap\` фильтрует только по \`TermID\`, остаётся наблюдением о реализации; целевой контракт должен быть определён явно через exact RN или nil RN semantics.
 
 ### 14.5. Следующие вопросы аудита
@@ -397,7 +396,6 @@ Description
 7. Retirement сохраняет identity и прежний QN, поэтому имя нельзя случайно переназначить другому Description. Физическое удаление не является частью обычного lifecycle и допускается только при отсутствии зависимостей, нарушающих referential integrity.
 
 DescID идентифицирует Description aggregate root и не переиспользуется как identity принадлежащей ему доменной сущности. TypeID и TermID — отдельные identity соответствующих сущностей первого уровня. Type и Term сохраняют разные доменные контракты; kind неизменяем и определяет, какая сущность принадлежит Description.
-
 ### 19.3. QN — отдельное имя, не identity
 
 QN является уникальным именем Description в пространстве конкретного контекста. Он используется для discovery/resolution и не встраивается в durable identity reference.
@@ -597,8 +595,7 @@ Term declaration/definition ports остаются раздельными там
 Следующий этап issue #128 — реализация согласованной модели в `go-engine` с опорой на уже существующие Go-контракты и архитектурные границы репозитория.
 
 - Проверить существующие core types, ports, use cases и adapters и определить минимальный вертикальный срез, который можно привести к согласованной модели.
-- Не создавать параллельный набор Go-контрактов, если подходящие контракты уже существуют; менять их только там, где это необходимо для соблюдения согласованных инвариантов.
-- Добавить тесты доменных инвариантов и optimistic concurrency для выбранного среза.
+- Не создавать параллельный набор Go-контрактов, если подходящие контракты уже существуют; менять их только там, где это необходимо для соблюдения согласованных инвариантов.- Добавить тесты доменных инвариантов и optimistic concurrency для выбранного среза.
 - Не менять SDK.
 - Не проектировать и не менять SQL schema/migrations на этом этапе. Persistence redesign, backfill и migration verification отложены до отдельной необходимости.
 
@@ -797,7 +794,6 @@ QN — context-local qualified name и lookup key, но не identity. В target
 - QN уникален среди всех Description, которые не были физически удалены; retirement не освобождает имя;
 - aliases и историю QN не вводить в базовую модель;
 - Retire сохраняет binding и резервирует прежний QN; повторное использование возможно только после физического Delete Description при отсутствии зависимостей, нарушающих referential integrity.
-
 Это согласованная политика; она не требует отдельного alias/history registry и не приравнивает retirement к физическому удалению.
 
 ## 30. Уточнение identity Description и унификация Term lifecycle между контекстами
@@ -953,7 +949,7 @@ The consistency guarantee applies to implementing Terms, not to every Term that 
 The Client relationship expresses use of a Type contract, not implementation of that contract:
 
 - A Term may use zero or more Types in the Client role.
-- Each Client use refers to a specific revision of the Type. A later change to the Type does not silently update an existing Client reference.
+- Each Client use refers to a specific state of the Type. A later change to the Type does not silently update an existing Client reference; the identifier used to pin that state remains open (see §36).
 - A Type may be used as Client by multiple Terms.
 - The same Type may be both Provider and Client for the same Term; these remain distinct relationships with distinct semantics.
 - A Term may have multiple Client uses of the same Type. Whether those uses may pin different revisions remains undecided.
@@ -967,7 +963,41 @@ A change to a Type does not have to preserve compatibility with Terms that use a
 The Description revision rules in §33 remain in force:
 - For a shared Type-and-Term Description, DescRN versions the observable state of the Provider Type and all Terms implementing it.
 - A mutation of any of those entities, or one atomic command changing several of them, increments DescRN exactly once.
-- A Client reference to a Type in another Description pins that Type's revision; it does not merge the two Description roots or change the referenced Description's revision.
+- A Client reference to a Type in another Description pins a specific state of that Type; it does not merge the two Description roots or change the referenced Description's revision.
 - Provider and Client relationships are separate domain relationships and must not be collapsed into one generic Type reference.
 
 The rule for repeated Client uses of the same Type with different pinned revisions is intentionally left open pending a domain requirement.
+
+## 36. Further clarification on Provider consistency and Client state pinning
+
+This section records additional domain decisions and explicitly leaves unresolved details open. It refines the Client wording in §35.3–35.4 without changing the aggregate boundaries or the shared Description revision model.
+
+### 36.1. Provider Type changes are validated against the final composition
+
+- The validity condition for changing a Provider Type is the final consistency of every Term implementing it against the resulting Provider contract.
+- The nature or magnitude of the Provider Type change does not introduce a separate compatibility requirement. Backward compatibility between the previous and resulting Provider Type states is not required.
+- A single atomic command may change the Provider Type and any number of its implementing Terms together.
+- Invariants are evaluated against the resulting Description composition, not against intermediate states produced while applying the command.
+- If the command changes observable Description state, the shared DescRN is incremented exactly once, regardless of how many owned entities it changes.
+
+### 36.2. Client references pin Type state, not Description revision
+
+- A Client relationship refers to a specific state of a Type. It is not a reference to the whole Description revision (DescRN).
+- This applies when the Client Type belongs to another Description and when it belongs to the same Description as the Term.
+- A Term may use its own Provider Type in the Client role. Provider implementation and Client use remain distinct relationships even when they refer to the same Type entity.
+- The Client relationship must identify a specific Type state, but the state identifier is not yet decided. ExpCK is a candidate; it is not confirmed to cover the full Type contract because it remains open whether other Type properties participate in that contract.
+- A later change to the Type does not silently retarget an existing Client reference to the new state.
+
+### 36.3. Open Client state lifecycle details
+
+The following are intentionally deferred and are not decided by this ADR update:
+
+- whether a Client reference may continue to target a non-current Type state and the precise retention rules for that state;
+- how a Term explicitly updates its Client reference to a newer Type state;
+- whether multiple Client uses of the same Type may pin different states.
+
+These details do not alter the established rule that a Client reference identifies a particular Type state rather than the containing Description revision.
+
+### 36.4. Description composition constraint
+
+A Description cannot exist without a Type. A Type-only Description is valid and may exist before any Terms are created. A Description containing Terms must also contain exactly one Provider Type, which those Terms implement; a Term-only Description is invalid. This restates the composition invariant in §35.1 as an explicit minimum-content rule.

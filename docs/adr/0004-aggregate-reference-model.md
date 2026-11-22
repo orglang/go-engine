@@ -447,14 +447,40 @@ Term — один вид сущности первого уровня Descriptio
 
 Точная cardinality и lifecycle facets (одна декларация/одно определение, несколько версий, допустимость неполного Term) остаются открытым предметным вопросом. Незавершённость proc.termdef не является основанием исключать его из target model.
 
-### 19.7. Computation остаётся отдельным aggregate
+### 19.7. Computation aggregate: Execution и Connection
 
-Computation имеет собственную identity и revision в каждом контексте. Description может быть целью ссылки из Computation state, но не включает Computation в свой aggregate boundary.
+Computation — самостоятельный aggregate root в каждом bounded context, отличный от Description. Внутри Computation находятся две сущности первого уровня: **Execution** и **Connection**.
 
-- CompRef адресует Computation, не Description.
-- Изменения Computation и её owned Connections/Actions защищаются Computation revision и контекстными CAS/use cases.
-- Provider/Client endpoint refs указывают на Computation identities; владение Connection остаётся за Provider Computation согласно правилам контекста.
-- Изменение нескольких Computations требует явной транзакционной стратегии и набора expected revisions.
+~~~text
+Computation (aggregate root)
+  identity: ComputationID
+  revision: ComputationRevision
+
+  entities:
+    Execution
+      execution state
+      variables / channel bindings
+    Connection
+      connection identity
+      provider endpoint
+      client endpoint
+      offset / interaction state
+      acts (Connection-owned ordered records)
+~~~
+
+Это целевая ownership model; схема не требует, чтобы физическая БД повторяла такое дерево таблицами или FK один-к-одному.
+
+- Execution и Connection — разные entity types первого уровня Computation. Connection не является вложенной частью Execution.
+- Execution содержит состояние выполнения Computation и принадлежащие ему переменные/channel bindings. Изменения этого состояния выполняются через Computation root и защищаются его revision.
+- Connection имеет собственную identity и связывает Provider и Client Computations. Для одной Connection aggregate owner — Provider Computation; Client Computation является внешним endpoint и не становится вторым владельцем этой Connection.
+- Acts — упорядоченные записи взаимодействия, принадлежащие Connection; они не являются самостоятельными first-level entities Computation и не образуют отдельный aggregate root.
+- Изменение Connection выполняется через owning Provider Computation и защищается expected Provider Computation revision. Отдельная Connection revision для OCC не вводится.
+- Client Computation revision увеличивается только если та же операция меняет её собственный Execution state. Само изменение Connection не увеличивает revision клиентского агрегата.
+- Provider/Client endpoint references адресуют Computation aggregates, а не Description.
+- CompRef адресует Computation aggregate. Execution и Connection имеют собственные entity identities/keys в пределах определённых для них контрактов; конкретная cardinality и необходимость отдельного ExecutionID должны быть уточнены в §23.
+- Изменение нескольких Computations требует явной транзакционной стратегии и набора expected revisions. Нельзя считать, что ссылка на оба endpoint автоматически означает атомарное владение обоими агрегатами.
+
+Таким образом, Computation aggregate имеет одну revision consistency boundary, охватывающую принадлежащие ему Execution и Connection entities. Для Connection, принадлежащей Provider Computation, именно Provider root revision является concurrency token даже когда операцию инициирует Client endpoint.
 
 ## 20. Целевые контракты ссылок
 
@@ -541,7 +567,7 @@ Term declaration/definition ports остаются раздельными там
 7. проверку expected revision в том же атомарном write, что и mutation;
 8. referential integrity для ID + ExpCK pins и retention expression state;
 9. отсутствие FK/lookup через границы proc и pool;
-10. независимые identity/revision spaces Computation и Description.
+10. независимые identity/revision spaces Computation и Description;\n11. Computation root revision защищает изменения принадлежащих ему Execution и Connection;\n12. каждая Connection имеет одного aggregate owner (Provider Computation), а Client является внешним endpoint;\n13. Act stream принадлежит Connection и упорядочивается в рамках Connection, но не вводит отдельную aggregate revision.
 
 Физическая реализация может использовать одну root table с отдельными Type/Term state tables либо иной storage design, если constraints и транзакции обеспечивают те же инварианты. Наличие единой таблицы само по себе не является целью. Нельзя выбирать DDL до выбора точных lifecycle/cardinality правил и mapping всех durable references.
 
@@ -569,3 +595,17 @@ Term declaration/definition ports остаются раздельными там
 7. Удалить старые adapters/contracts после перехода всех consumers.
 
 До отдельного согласования target model и migration plan Go code и DDL остаются неизменными.
+
+
+## 25. Уточнение модели Computation относительно ADR-0002
+
+ADR-0002 фиксирует важные правила Connection lifecycle и optimistic concurrency, но использует формулировку «Connection — вложенная сущность агрегата Provider Computation». Для целевой модели issue #128 эта формулировка уточняется:
+
+- Computation остаётся aggregate root.
+- Execution и Connection — разные сущности первого уровня внутри Computation aggregate.
+- Connection не вложена в Execution; её aggregate owner — Provider Computation.
+- Acts принадлежат Connection как её упорядоченное внутреннее состояние.
+- Правило ADR-0002 о CAS по Provider Computation revision сохраняется: это root-level concurrency control, а не собственная revision Connection.
+- Client endpoint не становится владельцем Connection; client root revision меняется только при изменении собственного Execution state.
+
+Иными словами, «сущность первого уровня Computation» описывает место Connection в доменной модели, а «Provider Computation владеет Connection» определяет конкретный aggregate owner для каждой Connection. Эти утверждения совместимы.

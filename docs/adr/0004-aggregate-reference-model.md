@@ -732,3 +732,78 @@ Target contract должен развести:
 Это решение соответствует наблюдаемой текущей форме core/storage contracts и не требует вводить дополнительную identity без подтверждённой предметной потребности.
 
 Этот аудит завершает первичную карту известных Computation reference sites, но не заменяет полный поиск по всем persistence schemas и inbound/outbound API contracts перед миграцией.
+
+## 28. Аудит Term: declaration и definition
+
+### 28.1. Что фактически представляют текущие данные
+
+В Process core `termdec.DecRec/DecSnap` содержат TermRef и два набора channel variables: `LiabVar` и `AssetVars`. Каждый variable содержит TypeRef и channel placeholder. Это декларационная/интерфейсная часть Term: какие каналы предоставляет или ожидает процесс и как они типизированы.
+
+В TypeSpec отдельно описаны:
+- `Proc.DecSpec/DecSnap` и `Pool.DecSpec/DecSnap` для декларационных данных;
+- `Proc.Term.ExprSpec` и `Pool.Term.ExprSpec` для выражения определения;
+- GET и PATCH `/processes/{id}/definition` и `/pools/{id}/definition` для чтения и аддитивного расширения определения.
+
+README TypeSpec описывает PATCH как атомарное аддитивное расширение: существующие expression parts нельзя удалить или заменить, успешное расширение создаёт новую Term revision. Это контрактная модель TypeSpec; сам по себе он не доказывает полноту текущего runtime implementation.
+
+Pool `termdef.DefRec` содержит те же `LiabVar` и `AssetVars`, что Process `termdec.DecRec`. Его `Create` разрешает Type QNs, создаёт TermRef и сохраняет declaration payload. Отдельного definition payload в этой записи нет.
+
+### 28.2. Incept и незавершённый proc/termdef
+
+Process `termdec.Incept` создаёт новую запись с TermRef и QN, но без LiabVar/AssetVars. Это не переход существующего Term в Definition: последующий `termdec.Create` создаёт новую identity и новую запись, а не модифицирует результат Incept.
+
+Incept используется server-rendered presenter-ом `POST /ssr/decs`. В просмотренном core API отсутствует операция, которая дополняет именно ранее созданную Incept-запись declaration payload-ом. Более того, текущий Process `termdec` adapter сохраняет Term ID/revision и variable payload, но не сохраняет TermQN в `proc_desc_binds`; converter явно игнорирует TermQN. Отдельные SQL запросы adapter-а к `dec_roots` и `desc_sems` не соответствуют таблицам initial migration и не подтверждают работающий root lifecycle.
+
+Process `termdef` не является реализованной второй фазой:
+- Create и Retrieve в core возвращают пустые результаты;
+- persistence adapter — заглушка;
+- пакет не образует работающий definition lifecycle;
+- в DI wiring он присутствует, но не подключён как полноценная операция публичного Term API.
+
+Следовательно, current code не доказывает модель lifecycle «Declaration затем Definition». Incept — отдельный незавершённый путь создания пустой записи, а не надёжное основание для целевой state machine.
+
+### 28.3. Целевая рекомендация
+
+Внутри каждого контекста один Term Description root должен владеть разными, семантически типизированными facets:
+- **Declaration** — контракт каналов и типов Term (Liab/Asset variables и связанные Type references);
+- **Definition** — поведенческое выражение Term и его контекстно-специфичный expression payload.
+
+Declaration и Definition не являются разными видами Description и не требуют разных Term identities. Изменение любого facet, если оно меняет наблюдаемое состояние Term, увеличивает общую Description revision один раз за команду. Формат и операции facets могут различаться между `proc` и `pool`; единый root не требует единого expression payload.
+
+Это рекомендация целевой модели, а не решение о полноте Term state. Открытыми остаются:
+1. Может ли Term существовать только с Declaration, только с Definition или с обоими facets; какие из них обязательны при создании?
+2. Может ли Declaration быть изменена после создания или она immutable после первоначального определения?
+3. Сохраняется ли аддитивная семантика Definition из TypeSpec или целевая модель допускает замену/редактирование выражения?
+4. Нужен ли отдельный draft/inception state; если да, это должно быть явное состояние того же Term root с операцией продолжения того же ID, а не создание новой identity через второй Create.
+
+До решения этих вопросов не следует переносить текущий Incept как самостоятельный aggregate type или трактовать proc/termdef как готовую реализацию.
+
+## 29. Аудит QN lifecycle и Description registry
+
+### 29.1. Наблюдаемое хранение и lookup
+
+В initial PostgreSQL migration `proc_desc_binds` и `pool_desc_binds` имеют одинаковую форму:
+- `desc_qn ltree UNIQUE`;
+- `desc_id varchar`;
+- `kind smallint`.
+
+Для QN создаётся GiST index. В этих таблицах нет revision, lifecycle/status, alias/history, FK на Type/Term root или constraint, проверяющего соответствие `kind` фактическому типу root. Уникальность QN действует на всю таблицу; отдельного понятия active/inactive в текущей схеме нет.
+
+Текущий `descsem.Repo` предоставляет только `AddRec`. Adapter выполняет INSERT; операций lookup, rename, retire, delete или истории имён в этом port нет. Type repositories выполняют QN lookup через join с context-specific `desc_binds`. Pool Term repository также разрешает Term по QN через join. Process Term path не имеет согласованной рабочей записи в `proc_desc_binds`: Incept и Create сохраняют Term record, но не добавляют descriptor binding.
+
+В TypeSpec нет операций rename/retire Description. В просмотренных core, adapters, DI wiring и initial migration не обнаружен завершённый QN rename/retirement lifecycle. Это означает отсутствие текущего контракта, а не запрет на такие операции в target model.
+
+### 29.2. Следствия для target model
+
+QN — context-local qualified name и lookup key, но не identity. В target Description root владеет текущим QN, а Type/Term kind остаётся неизменяемым. Resolver должен разрешать QN внутри соответствующего context и возвращать typed Type/Term reference; изменение QN не должно менять DescriptionID.
+
+Рекомендуемая политика:
+- QN mutable через явную RenameDescription command;
+- rename выполняется атомарно с проверкой уникальности в пределах bounded context и увеличивает общую Description revision;
+- uniqueness относится к активным Description roots;
+- alias/history не вводить в базовую модель без подтверждённого use case; если позже потребуется стабильное разрешение старых имён, это отдельная сущность/политика, а не неявная часть identity;
+- retirement должен освобождать QN только при явно определённой политике ссылочной целостности и повторного использования имени. До решения deletion/retention нельзя автоматически приравнивать retirement к физическому удалению binding.
+
+Это проектная рекомендация. Пользовательское решение по rename, alias/history, retirement и повторному использованию QN ещё не зафиксировано. Целевая схема должна обеспечивать уникальность и атомарность на уровне одного Description aggregate, но конкретная стратегия хранения retired names зависит от согласованной политики.
+
+

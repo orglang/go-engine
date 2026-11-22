@@ -198,7 +198,6 @@ Type и Term следует рассматривать не обязательн
 ### 14.4. Уточнение текущих несоответствий
 
 - Отсутствующие revision-операции в \`termsem\` и непоследовательная проверка RN в \`proc/termdec\` трактуются как незавершённость реализации, а не как доказательство иной семантики Type и Term.- Запросы к \`dec_roots\` и \`desc_sems\` в \`proc/termdec\` считаются устаревшими. Их не следует трактовать как свидетельство существования внешней/неучтённой схемы без новых данных.- Текущий факт, что \`RetrieveSnap\` фильтрует только по \`TermID\`, остаётся наблюдением о реализации; целевой контракт должен быть определён явно через exact RN или nil RN semantics.
-
 ### 14.5. Следующие вопросы аудита
 
 1. Определить границу и состав общего \`descsem\` aggregate: Type, Term, descriptor/QN bindings, их revision и lifecycle.
@@ -397,7 +396,6 @@ Description
 DescID идентифицирует Description aggregate root и не переиспользуется как identity принадлежащей ему доменной сущности. TypeID и TermID — отдельные identity соответствующих сущностей первого уровня. Type и Term сохраняют разные доменные контракты; kind неизменяем и определяет, какая сущность принадлежит Description.
 ### 19.3. QN — отдельное имя, не identity
 QN является уникальным именем Description в пространстве конкретного контекста. Он используется для discovery/resolution и не встраивается в durable identity reference.
-
 - Переименование QN не меняет DescID.
 - Сохранённые ссылки продолжают указывать на тот же Description после переименования.
 - QN lookup возвращает типизированную ссылку (ID + текущая revision) и kind.
@@ -598,7 +596,6 @@ Term declaration/definition ports остаются раздельными там
 - Не проектировать и не менять SQL schema/migrations на этом этапе. Persistence redesign, backfill и migration verification отложены до отдельной необходимости.
 
 ## 25. Уточнение модели Computation относительно ADR-0002
-
 ADR-0002 фиксирует важные правила Connection lifecycle и optimistic concurrency, но использует формулировку «Connection — вложенная сущность агрегата Provider Computation». Для целевой модели issue #128 эта формулировка уточняется:
 
 - Computation остаётся aggregate root.
@@ -797,7 +794,6 @@ QN — context-local qualified name и lookup key, но не identity. В target
 Это уточнение конкретизирует и заменяет те формулировки §19–21 и §28.3, в которых Description identity и Type/Term identity могли быть прочитаны как один и тот же идентификатор.
 
 ### 30.1. Две identity на разных уровнях
-
 В целевой модели необходимо различать:
 - **DescID** — identity Description aggregate root в конкретном bounded context;
 - **TermID** — identity принадлежащей ему доменной сущности Term.
@@ -993,6 +989,7 @@ The following are intentionally deferred and are not decided by this ADR update:
 - whether multiple Client uses of the same Type may pin different states.
 
 These details do not alter the established rule that a Client reference identifies a particular Type state rather than the containing Description revision.
+
 ### 36.4. Description composition constraint
 
 A Description cannot exist without a Type. A Type-only Description is valid and may exist before any Terms are created. A Description containing Terms must also contain exactly one Provider Type, which those Terms implement; a Term-only Description is invalid. This restates the composition invariant in §35.1 as an explicit minimum-content rule.

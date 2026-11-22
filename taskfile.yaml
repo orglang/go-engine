@@ -32,6 +32,12 @@ tasks:
     cmds:
       - task: engine:binary
 
+  # TODO: Remove after go-workspace updates stack to invoke the Mise E2E task directly.
+  tests:e2e:
+    desc: Temporary compatibility alias for the workspace stack E2E step
+    cmds:
+      - go test -run=TestIntegration ./internal/... ./cmd/... ./test/it/...
+
   sources:gate:
     desc: Verify generated sources, tool locks, formatting, lint, and analysis
     cmds:

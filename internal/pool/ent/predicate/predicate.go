@@ -12,6 +12,9 @@ type CompConn func(*sql.Selector)
 // CompExec is the predicate function for compexec builders.
 type CompExec func(*sql.Selector)
 
+// DescRoot is the predicate function for descroot builders.
+type DescRoot func(*sql.Selector)
+
 // TermDef is the predicate function for termdef builders.
 type TermDef func(*sql.Selector)
 

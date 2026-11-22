@@ -9,6 +9,7 @@ import (
 	"orglang/go-engine/internal/adt/termvar/adapter"
 	"orglang/go-engine/internal/pool/ent/compconn"
 	"orglang/go-engine/internal/pool/ent/compexec"
+	"orglang/go-engine/internal/pool/ent/descroot"
 	"orglang/go-engine/internal/pool/ent/predicate"
 	"orglang/go-engine/internal/pool/ent/schema"
 	"orglang/go-engine/internal/pool/ent/termdef"
@@ -31,6 +32,7 @@ const (
 	// Node types.
 	TypeCompConn = "CompConn"
 	TypeCompExec = "CompExec"
+	TypeDescRoot = "DescRoot"
 	TypeTermDef  = "TermDef"
 	TypeTypeDef  = "TypeDef"
 	TypeTypeExp  = "TypeExp"
@@ -1269,6 +1271,374 @@ func (m *CompExecMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *CompExecMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown CompExec edge %s", name)
+}
+
+// DescRootMutation represents an operation that mutates the DescRoot nodes in the graph.
+type DescRootMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *string
+	desc_rn       *int64
+	adddesc_rn    *int64
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*DescRoot, error)
+	predicates    []predicate.DescRoot
+}
+
+var _ ent.Mutation = (*DescRootMutation)(nil)
+
+// descrootOption allows management of the mutation configuration using functional options.
+type descrootOption func(*DescRootMutation)
+
+// newDescRootMutation creates new mutation for the DescRoot entity.
+func newDescRootMutation(c config, op Op, opts ...descrootOption) *DescRootMutation {
+	m := &DescRootMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeDescRoot,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withDescRootID sets the ID field of the mutation.
+func withDescRootID(id string) descrootOption {
+	return func(m *DescRootMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *DescRoot
+		)
+		m.oldValue = func(ctx context.Context) (*DescRoot, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().DescRoot.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withDescRoot sets the old DescRoot of the mutation.
+func withDescRoot(node *DescRoot) descrootOption {
+	return func(m *DescRootMutation) {
+		m.oldValue = func(context.Context) (*DescRoot, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m DescRootMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m DescRootMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of DescRoot entities.
+func (m *DescRootMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *DescRootMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *DescRootMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().DescRoot.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetDescRn sets the "desc_rn" field.
+func (m *DescRootMutation) SetDescRn(i int64) {
+	m.desc_rn = &i
+	m.adddesc_rn = nil
+}
+
+// DescRn returns the value of the "desc_rn" field in the mutation.
+func (m *DescRootMutation) DescRn() (r int64, exists bool) {
+	v := m.desc_rn
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescRn returns the old "desc_rn" field's value of the DescRoot entity.
+// If the DescRoot object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DescRootMutation) OldDescRn(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescRn is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescRn requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescRn: %w", err)
+	}
+	return oldValue.DescRn, nil
+}
+
+// AddDescRn adds i to the "desc_rn" field.
+func (m *DescRootMutation) AddDescRn(i int64) {
+	if m.adddesc_rn != nil {
+		*m.adddesc_rn += i
+	} else {
+		m.adddesc_rn = &i
+	}
+}
+
+// AddedDescRn returns the value that was added to the "desc_rn" field in this mutation.
+func (m *DescRootMutation) AddedDescRn() (r int64, exists bool) {
+	v := m.adddesc_rn
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDescRn resets all changes to the "desc_rn" field.
+func (m *DescRootMutation) ResetDescRn() {
+	m.desc_rn = nil
+	m.adddesc_rn = nil
+}
+
+// Where appends a list predicates to the DescRootMutation builder.
+func (m *DescRootMutation) Where(ps ...predicate.DescRoot) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the DescRootMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *DescRootMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.DescRoot, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *DescRootMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *DescRootMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (DescRoot).
+func (m *DescRootMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *DescRootMutation) Fields() []string {
+	fields := make([]string, 0, 1)
+	if m.desc_rn != nil {
+		fields = append(fields, descroot.FieldDescRn)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *DescRootMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case descroot.FieldDescRn:
+		return m.DescRn()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *DescRootMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case descroot.FieldDescRn:
+		return m.OldDescRn(ctx)
+	}
+	return nil, fmt.Errorf("unknown DescRoot field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DescRootMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case descroot.FieldDescRn:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescRn(v)
+		return nil
+	}
+	return fmt.Errorf("unknown DescRoot field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *DescRootMutation) AddedFields() []string {
+	var fields []string
+	if m.adddesc_rn != nil {
+		fields = append(fields, descroot.FieldDescRn)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *DescRootMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case descroot.FieldDescRn:
+		return m.AddedDescRn()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DescRootMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case descroot.FieldDescRn:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDescRn(v)
+		return nil
+	}
+	return fmt.Errorf("unknown DescRoot numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *DescRootMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *DescRootMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *DescRootMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown DescRoot nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *DescRootMutation) ResetField(name string) error {
+	switch name {
+	case descroot.FieldDescRn:
+		m.ResetDescRn()
+		return nil
+	}
+	return fmt.Errorf("unknown DescRoot field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *DescRootMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *DescRootMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *DescRootMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *DescRootMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *DescRootMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *DescRootMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *DescRootMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown DescRoot unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *DescRootMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown DescRoot edge %s", name)
 }
 
 // TermDefMutation represents an operation that mutates the TermDef nodes in the graph.

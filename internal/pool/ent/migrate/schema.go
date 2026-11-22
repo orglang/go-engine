@@ -37,6 +37,17 @@ var (
 		Columns:    PoolCompExecsColumns,
 		PrimaryKey: []*schema.Column{PoolCompExecsColumns[0]},
 	}
+	// PoolDescRootsColumns holds the columns for the "pool_desc_roots" table.
+	PoolDescRootsColumns = []*schema.Column{
+		{Name: "desc_id", Type: field.TypeString, Unique: true},
+		{Name: "desc_rn", Type: field.TypeInt64},
+	}
+	// PoolDescRootsTable holds the schema information for the "pool_desc_roots" table.
+	PoolDescRootsTable = &schema.Table{
+		Name:       "pool_desc_roots",
+		Columns:    PoolDescRootsColumns,
+		PrimaryKey: []*schema.Column{PoolDescRootsColumns[0]},
+	}
 	// PoolTermDecsColumns holds the columns for the "pool_term_decs" table.
 	PoolTermDecsColumns = []*schema.Column{
 		{Name: "term_id", Type: field.TypeString},
@@ -79,6 +90,7 @@ var (
 	Tables = []*schema.Table{
 		PoolCompConnsTable,
 		PoolCompExecsTable,
+		PoolDescRootsTable,
 		PoolTermDecsTable,
 		PoolTypeDefsTable,
 		PoolTypeExpsTable,
@@ -91,6 +103,9 @@ func init() {
 	}
 	PoolCompExecsTable.Annotation = &entsql.Annotation{
 		Table: "pool_comp_execs",
+	}
+	PoolDescRootsTable.Annotation = &entsql.Annotation{
+		Table: "pool_desc_roots",
 	}
 	PoolTermDecsTable.Annotation = &entsql.Annotation{
 		Table: "pool_term_decs",

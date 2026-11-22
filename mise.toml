@@ -230,7 +230,7 @@ run = { task = "engine:process" }
 [tasks."container"]
 alias = "cnt"
 description = "Start the selected container"
-run = "echo container started"
+run = "container started"
 
 [tasks."processes"]
 alias = "procs"

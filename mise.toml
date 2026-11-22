@@ -4,7 +4,6 @@ experimental = true
 
 [tools]
 go = "1.27.0"
-"go:github.com/go-task/task/v3/cmd/task" = "v3.54.0"
 
 [tasks."deps:install"]
 description = "Install TypeSpec dependencies"
@@ -18,9 +17,10 @@ outputs = ["tsp/node_modules"]
 [task_config.input_groups]
 common = [
   ".github/**",
-  "taskfile.yaml",
-  "**/taskfile.yaml",
+  "mise.toml",
   "mise.lock",
+  "mise.*.toml",
+  "mise.*.lock",
   ".miserc.toml",
 ]
 specs = [
@@ -46,70 +46,144 @@ binaries = [
   "**/go.sum",
 ]
 
-# Keep generator tools available whenever source generation is invoked directly.
+[tasks."specs:lock"]
+description = "Refresh TypeSpec toolchain and npm dependency lockfiles"
+tools = { node = "26.10.0" }
+run = [
+  "mise -E specs lock",
+  "npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund",
+]
+
+[tasks."specs:generate"]
+description = "Generate OpenAPI from TypeSpec"
+tools = { node = "26.10.0" }
+run = "npm run build --prefix tsp"
+
+[tasks."specs:lint"]
+description = "Lint TypeSpec without modifying files"
+tools = { node = "26.10.0" }
+run = 'npm exec --prefix tsp -- tsp format --check "**/*.tsp"'
+
+[tasks."specs:analyze"]
+description = "Analyze and compile the TypeSpec project without emitting artifacts"
+tools = { node = "26.10.0" }
+run = "npm exec --prefix tsp -- tsp compile . --no-emit"
+
+[tasks."specs:prepare"]
+description = "Refresh TypeSpec dependencies and locks, then generate OpenAPI"
+run = [
+  { task = "specs:lock" },
+  { task = "deps:install" },
+  { task = "specs:generate" },
+]
+
+[tasks."specs:gate"]
+description = "Check TypeSpec formatting, compilation, dependency locks, and generated OpenAPI"
+tools = { node = "26.10.0" }
+run = [
+  { task = "deps:install" },
+  { task = "specs:lock" },
+  { task = "specs:generate" },
+  'test -z "$(git status --porcelain -- mise.specs-dev.lock tsp/package-lock.json)"',
+  "test -f openapi/openapi.yaml",
+  'test -z "$(git status --porcelain -- openapi/openapi.yaml)"',
+  { task = "specs:lint" },
+  { task = "specs:analyze" },
+]
+sources = ["@group:common", "@group:specs"]
+outputs = []
+
+[tasks."sources:lock"]
+description = "Refresh source toolchain lockfiles"
+run = "mise -E sources lock"
+
 [tasks."sources:generate"]
 description = "Generate source artifacts"
 tools = {
   "go:github.com/jmattheis/goverter/cmd/goverter" = "v1.11.1",
   "go:github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen" = "v2.8.2",
 }
-run = "task sources:generate"
-
-[tasks."specs:lint"]
-description = "Lint TypeSpec without modifying files"
-depends = ["deps:install"]
-tools = { node = "26.10.0" }
-run = "task specs:lint"
-
-[tasks."specs:analyze"]
-description = "Analyze the TypeSpec project"
-depends = ["deps:install"]
-tools = { node = "26.10.0" }
-run = "task specs:analyze"
+run = [
+  # Generate the E2E client first: Goverter loads ./... and needs this package
+  # to exist even on a clean checkout.
+  "oapi-codegen -config internal/lib/e2e/api/cfg.yaml openapi/openapi.yaml",
+  # Keep Ent CLI as a Go tool: its current standalone dependency graph is not
+  # compatible with mise's Go backend under Go 1.27.
+  "go tool ent generate --target internal/pool/ent ./internal/pool/ent/schema",
+  "go tool ent generate --feature sql/upsert --target internal/proc/ent ./internal/proc/ent/schema",
+  "goverter gen -global 'skipCopySameType' ./...",
+  "oapi-codegen -config internal/app/web/api/cfg.yaml openapi/openapi.yaml",
+]
 
 [tasks."sources:lint"]
-description = "Lint Go sources without static or architecture analysis"
+description = "Run Go linting without static analysis or architecture checks"
 tools = { "go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint" = "v2.15.0" }
-run = "task sources:lint"
+run = "golangci-lint run --disable staticcheck --disable depguard ./..."
 
 [tasks."sources:analyze"]
 description = "Run Go static and architecture analysis"
 tools = { "go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint" = "v2.15.0" }
-run = "task sources:analyze"
+run = [
+  "go vet ./...",
+  "golangci-lint run --enable-only staticcheck,depguard ./...",
+]
 
-# The gate chain follows the pipeline order. Each task declares only its
-# own stage inputs; dependencies provide the cumulative execution order.
-[tasks."specs:gate"]
-description = "Run Specs in the CI pipeline"
-tools = { node = "26.10.0" }
-depends = ["deps:install"]
-run = "task specs:gate"
-sources = ["@group:common", "@group:specs"]
-outputs = []
+[tasks."sources:prepare"]
+description = "Generate source artifacts and format handwritten Go code"
+tools = { "go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint" = "v2.15.0", "go:github.com/jmattheis/goverter/cmd/goverter" = "v1.11.1", "go:github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen" = "v2.8.2" }
+run = [
+  { task = "sources:generate" },
+  "golangci-lint fmt",
+]
 
 [tasks."sources:gate"]
-description = "Run Specs, then Sources in the CI pipeline"
-depends = ["specs:gate"]
+description = "Verify generated sources, tool locks, formatting, lint, and analysis"
 tools = {
   "go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint" = "v2.15.0",
   "go:github.com/jmattheis/goverter/cmd/goverter" = "v1.11.1",
   "go:github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen" = "v2.8.2",
 }
-run = "task sources:gate"
+run = [
+  { task = "specs:gate" },
+  { task = "sources:lock" },
+  { task = "sources:generate" },
+  'test -z "$(git status --porcelain -- mise.sources-dev.lock)"',
+  "test -z \"$(git status --porcelain -- ':(glob)**/*.gen.go' ':(glob)**/ent/**')\"",
+  "golangci-lint fmt --diff",
+  { task = "sources:lint" },
+  { task = "sources:analyze" },
+]
 sources = ["@group:sources"]
 outputs = []
 
-[tasks."binaries:gate"]
-description = "Run Specs, Sources, then Binaries in the CI pipeline"
-depends = ["sources:gate"]
+[tasks."binaries:lock"]
+description = "Refresh Go module and root toolchain lockfiles"
 run = [
-  "task binaries:check",
-  { task = "binaries:unit-test" },
-  "task binaries:build",
-  { task = "binaries:integration-test" },
+  "GOWORK=off go mod tidy",
+  "mise lock",
 ]
-sources = ["@group:binaries"]
-outputs = []
+
+[tasks."binaries:check"]
+description = "Check Go module and toolchain lockfiles"
+run = [
+  { task = "binaries:lock" },
+  "git status --short -- go.mod go.sum mise.lock",
+  'test -z "$(git status --porcelain -- go.mod go.sum mise.lock)"',
+]
+
+[tasks."engine:binary"]
+description = "Build the Engine binary"
+alias = "engine:bin"
+run = "go build -o engine ./cmd/engine"
+
+[tasks."engine:process"]
+description = "Run the Engine application"
+alias = "engine:proc"
+run = "go run ./cmd/engine"
+
+[tasks."binaries:build"]
+description = "Build application binaries"
+run = { task = "engine:binary" }
 
 [tasks."binaries:unit-test"]
 description = "Run unit tests"
@@ -118,3 +192,43 @@ run = "go test -tags=unit ./internal/... ./cmd/..."
 [tasks."binaries:integration-test"]
 description = "Run integration tests"
 run = "go test -run=TestIntegration ./internal/... ./cmd/... ./test/it/..."
+
+[tasks."binaries:gate"]
+description = "Run Specs, Sources, then Binaries in the CI pipeline"
+run = [
+  { task = "sources:gate" },
+  { task = "binaries:check" },
+  { task = "binaries:unit-test" },
+  { task = "binaries:build" },
+  { task = "binaries:integration-test" },
+]
+sources = ["@group:binaries"]
+outputs = []
+
+[tasks."tests:e2e"]
+description = "Run end-to-end tests"
+run = "go test -failfast ./test/..."
+
+[tasks."hooks:install"]
+description = "Configure this repository to use versioned Git hooks"
+run = "git config core.hooksPath .githooks"
+
+[tasks."db:process"]
+description = "Start the PostgreSQL container in the background"
+dir = "db"
+run = "docker compose --file postgres/compose.yaml up --remove-orphans --pull missing --quiet-pull --detach"
+
+[tasks."process"]
+alias = "proc"
+description = "Run the Engine process in the foreground"
+run = { task = "engine:process" }
+
+[tasks."container"]
+alias = "cnt"
+description = "Start the selected container"
+run = "echo container started"
+
+[tasks."processes"]
+alias = "procs"
+description = "Run and interrupt all processes"
+run = { task = "engine:process" }

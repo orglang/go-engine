@@ -78,6 +78,13 @@ tasks:
       - goverter gen -global 'skipCopySameType' ./...
       - oapi-codegen -config internal/app/web/api/cfg.yaml openapi/openapi.yaml
 
+  specs:prepare:
+    desc: Refresh TypeSpec dependencies and locks, then generate OpenAPI
+    cmds:
+      - task: specs:lock
+      - npm ci --prefix tsp --no-audit --no-fund
+      - task: specs:generate
+
   specs:generate:
     desc: Generate OpenAPI from TypeSpec
     dir: tsp

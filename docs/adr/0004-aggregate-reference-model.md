@@ -654,3 +654,79 @@ ADR-0002 уже задаёт правило: Connection имеет одного 
 4. Нельзя переносить входные RN в постоянное хранилище только потому, что они присутствуют в inbound DTO.
 5. Spawn semantics и reference durability должны быть согласованы с ownership и CAS rules Computation из §19.7 и §20.
 
+
+
+## 27. Аудит Execution и durable Computation references
+
+### 27.1. Execution identity и cardinality в текущем коде
+
+В обоих контекстах текущая persistence-модель фактически связывает одну execution-запись с Computation identity:
+
+- `proc/compexec.ExecRec` содержит только `CompRef` и `LiabMode`; отдельного ExecutionID в core record нет.
+- `pool/compexec.ExecRec` имеет ту же форму. `Run` создаёт новый `CompRef`, затем атомарно записывает computation execution row и начальные variables.
+- Оба Ent adapters создают запись `*_comp_execs` с `comp_id`, `comp_rn`, `liab_mode`; отдельный ключ Execution в рассмотренных core/adapter contracts не обнаружен.
+- Variables/channel bindings адресуются через Computation ID и revision, а не через самостоятельный ExecutionID.
+
+Следовательно, **текущая реализация моделирует один Execution на Computation identity** (или, осторожнее, один execution-state record на Computation root). Она не демонстрирует поддержку нескольких независимых Execution/retries под одним Computation. Это факт текущего кода, но не решение для target model: §23.6 остаётся открытым, пока не определены lifecycle, retry semantics и необходимость сохранять несколько запусков.
+
+### 27.2. Variables и channel bindings
+
+Общий ADT `compvar` задаёт `StructRec` и `LinearRec` с полями `CompRef`, `ConnID`, `ChnlID`, `ChnlPH`, `ChnlBS`, `ExpCK`. Обе разновидности представляют состояние канала Computation; `ExpCK` указывает на expression state типа канала.
+
+В Pool execution snapshot загружает struct/linear variables по `comp_id`; в Process execution snapshot загружает linear variables для Computation. Process mutation формирует набор затронутых `CompRef` и CAS-обновляет соответствующие `proc_comp_execs` перед записью bindings. Pool mutation аналогично собирает affected Computation refs, CAS-ит root revisions и затем записывает variable state.
+
+Текущая модель тем самым привязывает variable/channel state к Computation execution state и защищает её через Computation revision. Но само наличие `CompRef` в каждой записи не доказывает, что RN целевого Computation должен быть частью долговременной association: в target следует отдельно решить, является ли поле ссылкой на владельца (тогда достаточно owner identity), либо исторической provenance/expected-current token.
+
+### 27.3. Connection endpoints
+
+В Pool `ConnRec` содержит Provider и Client `CompRef` (оба с ID + RN). Ent adapter сохраняет обе пары в `pool_comp_conns`. При чтении Connection snapshot запрос получает актуальный Provider RN через join с `pool_comp_execs`; сохранённый endpoint RN не используется как immutable historical snapshot в этом read path.
+
+В Process Connection adapter сохраняет Connection state и при чтении получает Provider ID + актуальный Provider RN через join с `proc_comp_execs`. В просмотренном Process core contract `ConnMod/ConnSnap` содержит Provider ID + RN; отдельный Client endpoint ref в этих структурах не представлен.
+
+Вывод для target model:
+
+- Provider и Client — endpoint associations на Computation identities.
+- Provider — единственный aggregate owner Connection; его expected-current revision используется для CAS изменения Connection.
+- Client endpoint не становится co-owner и его RN не должен автоматически превращаться в CAS precondition для каждой Connection mutation.
+- Если требуется зафиксировать историческое состояние endpoint на момент создания Connection, это отдельная snapshot/provenance семантика, которую текущий read path не подтверждает.
+
+### 27.4. Acts: participant reference и ordering
+
+Оба контекста хранят Act records с `conn_id`, `act_nr`, `comp_id`, `comp_rn`, `chnl_id`, kind и expression payload. Adapter присваивает Act номер, равный следующей Provider Computation revision (`ProviderCompRN + 1)); чтение Connection упорядочивает записи по `act_nr` и выбирает записи после `offset_nr`.
+
+В core Act record `CompRef` указывает на Computation, чьё действие/продолжение представлено записью. Поэтому `comp_id + comp_rn` в Act сейчас выглядит как participant/provenance stamp, а не как ссылка-владелец Act и не как доказательство, что историческую revision Computation можно восстановить. Текущая модель не предоставляет historical Computation snapshots.
+
+Target contract должен развести:
+- Connection ownership and ordering: `ConnectionID + ActOrder` внутри Provider Computation aggregate;
+- participant identity: Computation ID, если достаточно знать участника;
+- historical provenance: отдельный immutable event/snapshot identifier, если необходимо доказать состояние участника на момент Act;
+- CAS: expected Provider Computation revision на команду append/update, не durable RN участника.
+
+Не следует сохранять Act participant RN как будто оно гарантирует возможность исторического чтения, пока не введена versioned Computation history.
+
+### 27.5. Сводная классификация текущих полей и целевых решений
+
+| Поле / место | Что подтверждает current code | Предварительный target meaning |
+|---|---|---|
+| Variable `CompRef` | Computation, чьё variable/channel state записывается | Owner identity; RN — только command precondition, если явно требуется |
+| Variable `ExpCK` | Конкретное TypeExp state канала | Pinned child-state reference к Type Description + ExpCK |
+| Connection Provider ref | Owner Connection; Provider RN используется для root CAS | Provider Computation identity + expected-current RN на mutation |
+| Connection Client ref | Второй endpoint; не owner Connection | Client Computation identity; RN не CAS-ить автоматически |
+| Act `CompRef` | Computation participant, связанный с Act | Participant identity; историческую provenance моделировать отдельно при необходимости |
+| Act `CompRN` | Revision stamp, записанный при создании Act | Не считать historical snapshot reference без versioned Computation storage |
+| Spawn `ProcTermRef` | Передаётся в не завершённом inbound flow | Term Description identity + отдельно определённая command revision policy |
+| Spawn `ProcCompRefs` | Передаются в не завершённом inbound flow | Для каждого определить identity association или expected-current precondition; не сохранять RN автоматически |
+
+Эта таблица разделяет наблюдаемую текущую форму данных и target semantics. Последняя колонка — проектная рекомендация, а не утверждение о существующем поведении.
+
+### 27.6. Последствия для Execution design
+
+До выбора cardinality нужно ответить на три разных вопроса, не смешивая их:
+
+1. **Identity:** ComputationID одновременно является ExecutionID (один execution-state record) или Execution получает собственный ID?
+2. **Cardinality:** Computation допускает один текущий Execution, несколько одновременных Execution или историю последовательных запусков?
+3. **Lifecycle/history:** повторный запуск мутирует существующий Execution, создаёт новый Execution под тем же Computation, либо создаёт новую Computation identity?
+
+Если требуется несколько Execution под одним Computation, variables/channel bindings должны ссылаться на Execution identity, а Computation root revision должна защищать их изменения и коллекцию/выбор активного Execution. Если сохраняется один Execution, отдельный ExecutionID может не давать достаточной ценности; тогда ComputationID остаётся естественным ключом Execution entity. Ни один вариант пока не утверждается.
+
+Этот аудит завершает первичную карту известных Computation reference sites, но не заменяет полный поиск по всем persistence schemas и inbound/outbound API contracts перед миграцией.

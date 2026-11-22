@@ -32,15 +32,14 @@ jobs:
 
       - name: Lock dependencies
         run: |
-          task specs:lock
-          task sources:lock
-          task binaries:lock
+          mise run specs:lock
+          mise run binaries:lock
 
       - name: Install dependencies
         run: mise run deps:install
 
       - name: Generate specs
-        run: task specs:generate
+        run: mise run specs:generate
 
       - name: Generate sources
         run: mise run sources:generate

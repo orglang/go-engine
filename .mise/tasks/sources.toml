@@ -38,5 +38,12 @@ run = [
   { task = "sources:lint" },
   { task = "sources:analyze" },
 ]
-sources = ["@group:common", "@group:sources"]
+sources = [
+  "@group:common",
+  "*.go",
+  "**/*.go",
+  ".golangci.yml",
+  "staticcheck.conf",
+  ".mise/conf.d/sources.toml",
+]
 outputs = []

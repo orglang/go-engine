@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/comproot"
 	compexec "orglang/go-engine/internal/proc/compexec/core"
 )
 
@@ -15,5 +15,5 @@ var (
 	// goverter:autoMap CompRef
 	DataFromExecRec func(compexec.ExecRec) ExecRec
 	// goverter:ignore CompRN
-	dataToSemRef func(ExecRec) (compsem.SemRef, error)
+	dataToSemRef func(ExecRec) (comproot.SemRef, error)
 )

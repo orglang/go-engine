@@ -42,10 +42,10 @@ run = [
 ["sources:gate"]
 description = "Verify generated sources, tool locks, formatting, lint, and analysis"
 tools = { "go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint" = "v2.15.0" }
-depends = ["specs:gate", "sources:prepare"]
+depends = ["specs:gate"]
 run = [
   { task = "sources:lock" },
-  { task = "sources:generate" },
+  { task = "sources:prepare" },
   'test -z "$(git status --porcelain -- mise.sources-dev.lock)"',
   "test -z \"$(git status --porcelain -- ':(glob)**/*.gen.go' ':(glob)**/ent/**')\"",
   "golangci-lint fmt --diff",

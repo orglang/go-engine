@@ -39,7 +39,7 @@
 
 ## 4. Различия контрактов и поведения
 
-- `typesem.Repo` предоставляет `TouchRef` и `GetRefsByQNs`; type reference участвует в lookup по QName и optimistic revision flow в Process Type.
+- `typesem.Repo` предоставляет `TouchRef` и `GetRefsByQNs`; type reference участвует в lookup по QN и optimistic revision flow в Process Type.
 - `compsem.Repo` предоставляет `TouchRef`; computation revision участвует в исполнении и синхронизации состояний.
 - `termsem` сейчас содержит value type и конструктор, но не аналогичный semantic repository port.
 - `proc/typedef` реализует Create/Modify/Retrieve и optimistic revision check.
@@ -57,7 +57,7 @@
 - Computation variable tables содержат `comp_id` и `comp_rn`; PostgreSQL inheritance используется для struct/linear variable tables.
 - Connection tables содержат явные provider/client computation references (ID + revision); connection action tables содержат computation ID + revision.
 - Type expressions хранятся отдельно и адресуются через `exp_ck`; их принадлежность и lifecycle нужно классифицировать как часть aggregate state либо как отдельную shared immutable сущность.
-- Descriptor binding tables (`proc_desc_binds`, `pool_desc_binds`) связывают QName с ID и kind; необходимо отдельно решить, являются ли они частью aggregate consistency boundary или отдельным индексом/registry.
+- Descriptor binding tables (`proc_desc_binds`, `pool_desc_binds`) связывают QN с ID и kind; необходимо отдельно решить, являются ли они частью aggregate consistency boundary или отдельным индексом/registry.
 
 В initial migration нет отдельных root tables поверх type/term/computation tables: эти таблицы сами содержат ID и revision. Это предварительно поддерживает модель «specialized root table is the aggregate root», но не доказывает, что все lifecycle и referential-integrity требования удовлетворены.
 
@@ -71,7 +71,7 @@
 ## 7. Решения, ожидающие завершения аудита
 
 1. Терминология: оставить `SemRef`, перейти к `TypeRef`/`TermRef`/`CompRef` или использовать `AggRef` с типизированными обёртками.
-2. Состав reference: ID и revision; роль QName (вероятно, не часть идентичности); инварианты revision для каждого вида.
+2. Состав reference: ID и revision; роль QN (вероятно, не часть идентичности); инварианты revision для каждого вида.
 3. Root model: оставить существующие специализированные root tables или ввести отдельную root table только при доказанной необходимости для целостности/lifecycle.
 4. Таблицы aggregate state: для каждой зависимой таблицы подтвердить прямую ссылку на root Ref или обосновать исключение.
 5. `typesem` и `termsem`: объединять только если общими являются не только поля, но и бизнес-инварианты/операции.
@@ -124,10 +124,10 @@ ADR-0002 фиксирует, что Pool Connection и Process Connection — н
 
 При этом обнаружены реальные семантические различия:
 
-- Type references разрешаются по QName через `typesem.Repo.GetRefsByQNs`; этот port также предоставляет `TouchRef`. `proc/termdec` использует его, чтобы разрешить типы liability/asset variables.
-- Term references сейчас не имеют аналогичного semantic repository port. Term QName разрешается контекстными `termdef`/`termdec` repositories и descriptor bindings.
+- Type references разрешаются по QN через `typesem.Repo.GetRefsByQNs`; этот port также предоставляет `TouchRef`. `proc/termdec` использует его, чтобы разрешить типы liability/asset variables.
+- Term references сейчас не имеют аналогичного semantic repository port. Term QN разрешается контекстными `termdef`/`termdec` repositories и descriptor bindings.
 - `termvar.VarRec.TypeRef` всегда ссылается на Type, тогда как `pool/termexp.SpawnSpec2.ProcTermRef` ссылается на Process Term. В этих местах вид ссылки — часть предметного смысла поля.
-- Descriptor binding (`descsem`) различает `TypeKind` и `TermKind`, то есть реестр QName уже хранит явный discriminator вида сущности.
+- Descriptor binding (`descsem`) различает `TypeKind` и `TermKind`, то есть реестр QN уже хранит явный discriminator вида сущности.
 - Публичный TypeSpec API в настоящее время экспортирует `Any.TypeRef` и `Any.TermRef` отдельно. Внутреннее объединение не должно автоматически менять wire contract.
 
 ### Варианты модели
@@ -139,7 +139,7 @@ ADR-0002 фиксирует, что Pool Connection и Process Connection — н
 
 ### Предварительная рекомендация
 
-Исследовать вариант 1 как основной: общий низкоуровневый value representation для Type и Term, но сохранять семантические границы в названиях полей, repository ports и use cases. Не объединять `typesem.Repo` и операции поиска по QName с term repositories. Не менять TypeSpec `Any.TypeRef`/`Any.TermRef` в рамках этой задачи, пока не доказана необходимость wire-level изменения.
+Исследовать вариант 1 как основной: общий низкоуровневый value representation для Type и Term, но сохранять семантические границы в названиях полей, repository ports и use cases. Не объединять `typesem.Repo` и операции поиска по QN с term repositories. Не менять TypeSpec `Any.TypeRef`/`Any.TermRef` в рамках этой задачи, пока не доказана необходимость wire-level изменения.
 
 До реализации проверить: (а) уникальность identity между Type и Term внутри одного persistence context; (б) все сериализационные и generated conversion paths; (в) правила revision/CAS для Term roots и Type roots; (г) возможность случайно передать общий Ref в repository неправильного вида; (д) не требует ли автономная ссылка kind для корректной маршрутизации. Если хотя бы один из этих контрактов требует статической гарантии вида, оставить TypeRef/TermRef как distinct named wrappers поверх общей пары.
 
@@ -203,7 +203,7 @@ Type и Term следует рассматривать не обязательн
 
 ### 14.5. Следующие вопросы аудита
 
-1. Определить границу и состав общего \`descsem\` aggregate: Type, Term, descriptor/QName bindings, их revision и lifecycle.
+1. Определить границу и состав общего \`descsem\` aggregate: Type, Term, descriptor/QN bindings, их revision и lifecycle.
 2. Определить, является ли один \`descsem\` root общим для всего \`proc\`/\`pool\` контекста или каждый контекст имеет собственный root и собственную identity space.
 3. Сопоставить ссылки и foreign keys во всех Type/Term consumers с новой aggregate boundary; установить, какие ссылки должны нести RN, а какие могут запрашивать latest.
 4. Определить durable reference contract отдельно от read selector contract и выбрать Go representation для optional RN.
@@ -212,7 +212,7 @@ Type и Term следует рассматривать не обязательн
 
 ## 15. Аудит существующего descsem (фактическая реализация)
 
-Проверка исходников показывает, что internal/adt/descsem уже существует. Однако текущий descsem пока **не является полноценным aggregate root для Type и Term**. Это минимальный descriptor/QName binding registry:
+Проверка исходников показывает, что internal/adt/descsem уже существует. Однако текущий descsem пока **не является полноценным aggregate root для Type и Term**. Это минимальный descriptor/QN binding registry:
 
 - descsem.SemRec содержит только DescQN, DescID и Kind.
 - Kind различает TypeKind и TermKind.
@@ -235,34 +235,34 @@ Type и Term следует рассматривать не обязательн
 
 У proc/termdec DI wiring также не получает descsem.Repo, а его текущий adapter содержит старые запросы к dec_roots/desc_sems. По принятому в обсуждении уточнению эти SQL-запросы считаются устаревшими; не следует выводить из них дополнительную схему. При этом отсутствие descriptor binding на текущем process term path — реальный пробел относительно Pool Term и Type paths, который нужно закрыть в целевой модели.
 
-### 15.2. QName resolution сейчас распределён по потребителям
+### 15.2. QN resolution сейчас распределён по потребителям
 
-- Process Type lookup по QName идёт через proc_desc_binds с последующим чтением proc_type_defs.
-- Pool Type lookup по QName идёт через pool_desc_binds с последующим чтением pool_type_defs.
-- Pool Term lookup по QName идёт через pool_desc_binds с последующим чтением pool_term_decs.
+- Process Type lookup по QN идёт через proc_desc_binds с последующим чтением proc_type_defs.
+- Pool Type lookup по QN идёт через pool_desc_binds с последующим чтением pool_type_defs.
+- Pool Term lookup по QN идёт через pool_desc_binds с последующим чтением pool_term_decs.
 - Process Term lookup в текущем proc/termdec adapter опирается на устаревшие SQL fragments и не является надёжным образцом целевого контракта.
 - typesem.Repo.GetRefsByQNs — не общий descriptor resolver: он жёстко соединяет proc_desc_binds с proc_type_defs и возвращает только Type refs.
 
-Иными словами, descsem пока пишет QName/kind binding, но чтение и проверка kind/сущности реализованы в контекстных специализированных repositories. Это создаёт дублирование lookup logic и не обеспечивает единую ссылочную целостность.
+Иными словами, descsem пока пишет QN/kind binding, но чтение и проверка kind/сущности реализованы в контекстных специализированных repositories. Это создаёт дублирование lookup logic и не обеспечивает единую ссылочную целостность.
 
 ### 15.3. Архитектурная гипотеза для целевой модели
 
-Исследовать эволюцию descsem в общий aggregate root внутри каждого bounded context (proc и pool), который владеет descriptor identity, QName, kind и RN. Type и Term в таком случае остаются разными сущностями/вариантами первого уровня одного агрегата; специализированные данные Type (включая TypeExp) и Term хранятся как kind-specific state, принадлежащий этому root.
+Исследовать эволюцию descsem в общий aggregate root внутри каждого bounded context (proc и pool), который владеет descriptor identity, QN, kind и RN. Type и Term в таком случае остаются разными сущностями/вариантами первого уровня одного агрегата; специализированные данные Type (включая TypeExp) и Term хранятся как kind-specific state, принадлежащий этому root.
 
 Это пока гипотеза, а не принятое решение. Необходимо сравнить как минимум две формы:
 
-1. **Единый descriptor root + специализированное состояние.** Один descsem root на descriptor ID, содержащий QName, kind и RN; type/term-specific tables являются state/parts этого root и используют общий ID/RN.
-2. **Общий descriptor registry над самостоятельными Type/Term roots.** descsem централизует QName и kind, но Type/Term сохраняют собственные root identities/revisions и consistency boundaries.
+1. **Единый descriptor root + специализированное состояние.** Один descsem root на descriptor ID, содержащий QN, kind и RN; type/term-specific tables являются state/parts этого root и используют общий ID/RN.
+2. **Общий descriptor registry над самостоятельными Type/Term roots.** descsem централизует QN и kind, но Type/Term сохраняют собственные root identities/revisions и consistency boundaries.
 
 Первая форма соответствует сильному прочтению идеи «две сущности первого уровня одного агрегата» и может устранить дублирование identity/revision semantics. Вторая — более эволюционный вариант, но сама по себе не объединяет aggregate boundary и не гарантирует атомарность cross-kind invariants.
 
 ### 15.4. Существенные вопросы до выбора схемы
 
 1. Должен ли descsem root существовать отдельно в каждом контексте, как сейчас (proc_desc_binds и pool_desc_binds), или одна descriptor identity должна быть общей между proc и pool? Текущая схема подтверждает только контекстное владение.
-2. Является ли QName частью identity root или изменяемым unique name/binding, который можно переименовать независимо от ID?
+2. Является ли QN частью identity root или изменяемым unique name/binding, который можно переименовать независимо от ID?
 3. Должен ли RN жить в descriptor root и версионировать изменения Type/Term state совместно?
 4. Как моделировать TypeExp: часть Type variant state под тем же root RN или отдельный immutable/versioned child resource?
-5. Как обеспечить, чтобы kind соответствовал ровно одному специализированному состоянию и чтобы QName разрешался в согласованный ID/RN?
+5. Как обеспечить, чтобы kind соответствовал ровно одному специализированному состоянию и чтобы QN разрешался в согласованный ID/RN?
 6. Должны ли Process Term Declaration (termdec) и Process Term Definition (termdef) быть двумя use cases одной Term-сущности/варианта, либо это разные роли/сущности внутри descriptor aggregate?
 7. Как мигрировать текущие таблицы и wire refs, не ломая публичные Any.TypeRef и Any.TermRef?
 
@@ -295,7 +295,7 @@ Type и Term следует рассматривать не обязательн
 
 В обсуждении issue #128 подтверждены следующие решения:
 
-1. Использовать термин **QN** (*qualified name*) вместо `QName` во всём ADR и последующей документации.
+1. Использовать термин **QN** (*qualified name*) вместо `QN` во всём ADR и последующей документации.
 2. Единый `descsem` aggregate существует **внутри каждого bounded context**. Следовательно, `proc` и `pool` владеют независимыми descriptor identity spaces, QN namespaces, kind и RN. Общая identity space между контекстами не предполагается.
 3. Type и Term остаются различными сущностями первого уровня одного `descsem` aggregate в каждом контексте.
 
@@ -345,3 +345,227 @@ Type и Term следует рассматривать не обязательн
 4. На основании этой карты определить root-level revision policy, затем предложить schema migration и compatibility strategy для существующих TypeRef/TermRef wire DTO.
 
 До выполнения этих шагов код и DDL не менять.
+
+## 19. Целевая модель: description aggregate
+
+Этот раздел описывает целевую предметную модель независимо от текущих Go packages и SQL tables. Предыдущие разделы фиксируют current state; при конфликте целевое предложение ниже является проектной моделью. Реализация и DDL не начинаются до согласования открытых решений в §23.
+
+### 19.1. Границы и владение
+
+В каждом bounded context существует собственный descsem aggregate, далее **Description**:
+
+- proc.Description принадлежит только контексту proc;
+- pool.Description принадлежит только контексту pool;
+- у контекстов независимые пространства identity, QN, kind и revision;
+- одинаковые ID в разных контекстах не обозначают один объект;
+- proc-ссылка никогда не разрешается через pool repository, и наоборот.
+
+Description — aggregate root и consistency boundary. Он владеет descriptor identity, QN, kind, root revision и специализированным состоянием ровно одной сущности первого уровня: Type либо Term. Computation остаётся отдельным видом агрегата.
+
+Это не общий aggregate между proc и pool и не общий application service. Каждый контекст имеет собственные use cases, ports, транзакции и persistence adapter.
+
+### 19.2. Состав Description
+
+Концептуальная модель:
+
+~~~text
+Description
+  identity: DescriptionID
+  qn: QN
+  kind: Type | Term
+  revision: DescriptionRevision
+  lifecycle: active | retired
+
+  state:
+    TypeState
+      type-specific attributes
+      currentTypeExp: ExpCK
+    | TermState
+      term-specific attributes
+      declaration/definition facets
+~~~
+
+Инварианты:
+
+1. Description имеет ровно один identity и ровно один текущий kind.
+2. Kind выбирается при создании и неизменяем на протяжении жизни Description. Преобразование Type в Term (или наоборот) — не mutation существующего объекта, а создание нового Description с новой identity.
+3. Для одного Description существует ровно одно соответствующее specialized state: TypeState для Type либо TermState для Term. Состояние другого kind отсутствует.
+4. Type и Term — разные сущности первого уровня и разные типизированные операции/ссылки. Общее владение root не превращает их в один доменный тип и не разрешает взаимозаменять Type и Term.
+5. Все изменения Description и его owned state, влияющие на наблюдаемое состояние агрегата, проходят через root и увеличивают одну общую revision.
+6. QN уникален в пределах своего bounded context среди активных Description. QN — имя/способ поиска, но не identity. Переименование не меняет identity, однако является mutation Description и увеличивает revision.
+7. Retirement должен сохранять невозможность случайно переиспользовать identity. Освобождение QN после retirement — отдельная политика; физическое удаление не является частью базовой модели.
+
+В этой модели DescriptionID — единая identity space Type и Term внутри контекста. Типизированные TypeRef и TermRef могут быть разными номинальными контрактами над этой identity, но обе ссылки указывают на один root identity format. Kind проверяется при разрешении ссылки и является неизменяемым свойством root.
+
+### 19.3. QN — отдельное имя, не identity
+
+QN является уникальным именем Description в пространстве конкретного контекста. Он используется для discovery/resolution и не встраивается в durable identity reference.
+
+- Переименование QN не меняет DescriptionID.
+- Сохранённые ссылки продолжают указывать на тот же Description после переименования.
+- QN lookup возвращает типизированную ссылку (ID + текущая revision) и kind.
+- Уникальность QN обеспечивается атомарно на уровне контекста.
+- Разрешение QN и чтение состояния должны быть согласованы в одной транзакционной точке.
+- Alias/history для старых QN не вводится автоматически: если понадобится, это отдельная сущность и политика.
+
+### 19.4. Root revision
+
+DescriptionRevision — монотонная версия текущего состояния aggregate root. Она общая для Type и Term, а не отдельная для каждого прежнего Type/Term storage object.
+
+- Создание задаёт начальную ненулевую revision.
+- Каждая успешная mutation Description или owned Type/Term state увеличивает revision ровно один раз за транзакцию.
+- CAS принимает expected revision и атомарно изменяет root только при совпадении.
+- Изменение QN, TypeState, TermState, активного ExpCK или owned child state увеличивает root revision.
+- Чтение по identity без проверки revision допускается как отдельный latest-read use case.
+- Историческое чтение по старой revision не подразумевается; для него нужна отдельная history/versioned storage.
+
+Revision защищает согласованность Description aggregate, но не заменяет revision других агрегатов. Изменение Computation не увеличивает Description revision и наоборот.
+
+### 19.5. TypeExp как адресуемое дочернее состояние
+
+TypeExp — специализированное дочернее состояние Type, не отдельный Description и не самостоятельная Type identity.
+
+- TypeState содержит ссылку на текущий ExpCK.
+- ExpCK идентифицирует конкретный expression state независимо от текущей Description revision.
+- Создание нового TypeExp создаёт новый ExpCK; переключение TypeState на него увеличивает Description revision.
+- Если другой объект сохраняет пару (DescriptionID, ExpCK), он закрепляет конкретное expression state и не обязан закреплять root revision.
+- Старые expression states, на которые существуют durable pins, должны оставаться доступными. Удаление возможно только после гарантированного отсутствия ссылок либо по явной retention policy.
+- Формат и схема TypeExp могут различаться между proc и pool; общий Description root не требует унифицировать payload или expression semantics.
+
+Root revision отвечает за актуальность целого Description, ExpCK — за адресацию конкретного дочернего expression state.
+
+### 19.6. Term declaration и Term definition
+
+Term — один вид сущности первого уровня Description. termdec и termdef следует рассматривать как контекстные роли/операции над Term, а не как основания создавать второй независимый descriptor identity space.
+
+- proc.termdec и будущий proc.termdef работают с Term Description в proc;
+- pool.termdef работает с Term Description в pool;
+- declaration и definition могут иметь разные команды, права, входные спецификации и state facets;
+- если declaration и definition могут сосуществовать для одной Term identity, они моделируются как разные facets одного TermState;
+- если они взаимоисключающие состояния, переход между ними — явная Term mutation под root revision, а не смена kind;
+- ни один вариант не создаёт новый QN/identity namespace и не превращает Term в Type.
+
+Точная cardinality и lifecycle facets (одна декларация/одно определение, несколько версий, допустимость неполного Term) остаются открытым предметным вопросом. Незавершённость proc.termdef не является основанием исключать его из target model.
+
+### 19.7. Computation остаётся отдельным aggregate
+
+Computation имеет собственную identity и revision в каждом контексте. Description может быть целью ссылки из Computation state, но не включает Computation в свой aggregate boundary.
+
+- CompRef адресует Computation, не Description.
+- Изменения Computation и её owned Connections/Actions защищаются Computation revision и контекстными CAS/use cases.
+- Provider/Client endpoint refs указывают на Computation identities; владение Connection остаётся за Provider Computation согласно правилам контекста.
+- Изменение нескольких Computations требует явной транзакционной стратегии и набора expected revisions.
+
+## 20. Целевые контракты ссылок
+
+Ссылка должна описывать, что адресуется и какую гарантию ожидает операция. Любое поле ID+RN не следует трактовать как один и тот же контракт.
+
+### 20.1. Типизированные identity references
+
+На уровне предметного контракта используются разные семейства:
+
+- proc.TypeRef, proc.TermRef, proc.CompRef;
+- pool.TypeRef, pool.TermRef, pool.CompRef.
+
+Физическая форма может быть общей (ID + revision), но типы номинально различны: ссылка одного контекста не принимается repository другого контекста, а TypeRef не принимается как TermRef. Низкоуровневый общий value representation допустим внутри реализации, но не должен стирать типовую границу на портах/use cases.
+
+TypeRef и TermRef адресуют Description root с обязательной проверкой kind. CompRef адресует отдельный Computation aggregate. Внешний контракт не диктует внутреннюю форму: старые публичные DTO не являются ограничением этой целевой модели и могут быть заменены вместе с API.
+
+### 20.2. Семантические режимы
+
+| Семантика | Данные | Гарантия |
+|---|---|---|
+| Identity reference | ID | Указывает на ту же сущность независимо от текущей revision |
+| Latest selector | ID + ZeroRevision либо отдельный latest-query | Прочитать актуальное состояние; не является durable snapshot |
+| Expected-current reference | ID + nonzero expected revision | Операция разрешена только если текущая revision совпадает |
+| Pinned child-state reference | ID + ExpCK | Указывает на конкретное дочернее состояние, не на всю root revision |
+| Historical revision reference | ID + revision | Не поддерживается базовой моделью; требует versioned history |
+
+Zero revision допустима только для query/selector semantics. Сохраняемая durable ссылка не должна использовать ZeroRevision как обещание конкретного состояния. Если долговременная связь означает «тот же объект», она хранит identity. Если она означает «именно это состояние», она хранит отдельный pin на immutable/versioned child state или требует versioned aggregate history.
+
+Expected-current reference — не историческая ссылка. Она выражает предусловие CAS/command, а не запрос к старому snapshot.
+
+### 20.3. Правила разрешения ссылок
+
+Typed resolver выполняет проверки:
+
+1. Scope: искать только в repository соответствующего bounded context.
+2. Existence: root identity существует и доступна.
+3. Kind: TypeRef разрешается только в Type Description, TermRef — только в Term Description.
+4. Revision policy: latest read игнорирует expected revision только если use case явно выбрал latest semantics; command с expected revision проверяет exact equality.
+5. Child pin: ExpCK принадлежит указанному Type Description и существует.
+6. Lifecycle: retired/deleted state не разрешается обычными active-use cases.
+
+Нельзя молча трактовать ненулевую неправильную revision как latest, а нулевую — как подтверждение текущего состояния.
+
+### 20.4. Durable associations и проверка revision
+
+Каждое сохраняемое поле ссылки классифицируется по смыслу:
+
+- **Identity association** — сохраняется только ID; изменение revision цели не инвалидирует связь.
+- **Pinned child association** — сохраняются ID + child key (например, ExpCK); гарантируется доступность именно child state.
+- **Version-checked command input** — ID + expected revision передаются команде, но не обязательно сохраняются.
+- **Snapshot association** — ID + immutable snapshot/version identity; требует явной versioned model.
+- **Latest lookup** — QN или ID используется для чтения актуального состояния, без обещания неизменности после чтения.
+
+Persisted reference не должна автоматически CAS-проверяться при каждом чтении. Проверка нужна только если доменный контракт связи требует именно эту гарантию. Наличие RN во входном API также не доказывает, что его следует сохранять в durable state.
+
+## 21. Target ports и use-case boundaries
+
+Порты принадлежат core соответствующего bounded context. descsem определяет операции над Description aggregate, но не становится универсальным CRUD repository для всех доменных сущностей.
+
+Концептуальные операции Description:
+
+- CreateType / CreateTerm: создать root, QN, kind и соответствующее specialized state атомарно;
+- ResolveTypeByQN / ResolveTermByQN: получить типизированную ссылку и согласованное состояние по QN;
+- GetType / GetTerm: latest read по identity;
+- ModifyType / ModifyTerm: command с expected revision, одна root mutation и одна новая revision;
+- RenameDescription: изменить QN с проверкой уникальности и expected revision;
+- RetireDescription: завершить жизненный цикл по явной политике;
+- Type-specific operations управляют TypeExp и ExpCK через Type aggregate boundary.
+
+Это логические use cases, а не требование реализовать один интерфейс со всеми методами. Разные операции могут быть разнесены по capability packages. Инварианты: root owns consistency, context owns ports, adapters implement them, transaction boundary covers root plus specialized state.
+
+Term declaration/definition ports остаются раздельными там, где различаются команды или семантика, но используют общий Term identity/root contract. Computation ports остаются отдельными.
+
+## 22. Persistence и транзакционные инварианты целевой модели
+
+Целевая схема не обязана повторять текущую форму таблиц. Она должна обеспечивать:
+
+1. единый Description identity space Type + Term внутри каждого контекста;
+2. уникальность QN внутри контекста;
+3. однозначное соответствие kind специализированному state;
+4. невозможность TypeState для Term root и TermState для Type root;
+5. атомарную запись root, QN, kind, revision и initial specialized state;
+6. атомарное увеличение root revision вместе с изменением owned state;
+7. проверку expected revision в том же атомарном write, что и mutation;
+8. referential integrity для ID + ExpCK pins и retention expression state;
+9. отсутствие FK/lookup через границы proc и pool;
+10. независимые identity/revision spaces Computation и Description.
+
+Физическая реализация может использовать одну root table с отдельными Type/Term state tables либо иной storage design, если constraints и транзакции обеспечивают те же инварианты. Наличие единой таблицы само по себе не является целью. Нельзя выбирать DDL до выбора точных lifecycle/cardinality правил и mapping всех durable references.
+
+## 23. Открытые предметные решения перед утверждением модели
+
+1. **QN rename/retirement:** подтверждаем ли mutable QN и уникальность только среди active Description; нужен ли alias/history?
+2. **Term facets:** могут ли declaration и definition сосуществовать у одного Term, или это взаимоисключающие lifecycle states? Может ли Term существовать до definition?
+3. **Term payload:** какие части данных принадлежат declaration, какие definition, какие общие TermState?
+4. **TypeExp retention:** обязаны ли все durable ExpCK pins сохраняться бессрочно, либо допустим управляемый retention?
+5. **Description revision:** должны ли все metadata изменения (включая rename/lifecycle) увеличивать ту же revision, или нужна отдельная metadata revision?
+6. **Reference durability:** для каждого поля Type/Term/Comp refs в variables, connections, actions и Spawn определить identity association vs pinned state vs command precondition. Полный Spawn use case ещё не подтверждён аудитом: SpawnSpec2 доказывает только входную передачу revision-bearing refs.
+7. **Cross-aggregate atomicity:** какие команды могут атомарно менять несколько Computations и каков набор expected revisions/lock ordering?
+8. **Deletion:** допускается ли физическое удаление Description/Term/Type, и какие durable references блокируют его?
+
+## 24. План перехода (не часть target model)
+
+План миграции будет уточнён после утверждения §19–23:
+
+1. Зафиксировать предметные решения и полную карту durable references.
+2. Спроектировать target logical schema и constraints без наследования текущих имён/таблиц.
+3. Спроектировать migration/backfill: объединение Type/Term identity space внутри каждого контекста, перенос QN/kind, root revision, specialized states и pinned ExpCK references; определить обработку конфликтов ID/QN и неконсистентных записей.
+4. Спроектировать новый набор core ports/use cases и context-specific adapters, не сохраняя старые Go types ради совместимости.
+5. Перестроить inbound/outbound API contracts по целевой модели; совместимость со старым публичным API не является требованием этой задачи.
+6. Перенести persistence, добавить invariant tests, CAS/concurrency tests, resolver/kind tests и migration verification tests.
+7. Удалить старые adapters/contracts после перехода всех consumers.
+
+До отдельного согласования target model и migration plan Go code и DDL остаются неизменными.

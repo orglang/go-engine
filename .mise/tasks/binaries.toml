@@ -30,5 +30,14 @@ run = [
   { task = "binaries:build" },
   { task = "binaries:integration-test" },
 ]
-sources = ["@group:common", "@group:binaries"]
+sources = [
+  "@group:common",
+  "*.sql",
+  "**/*.sql",
+  "go.mod",
+  "go.sum",
+  "**/go.mod",
+  "**/go.sum",
+  ".mise/conf.d/binaries.toml",
+]
 outputs = []

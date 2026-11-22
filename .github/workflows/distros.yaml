@@ -12,13 +12,6 @@ on:
     # GitHub Actions evaluates cron schedules in UTC; avoid the top-of-hour
     # scheduling peak by running daily at 03:42 UTC.
     - cron: '42 1 * * *'
-  pull_request:
-    branches: [main]
-    types:
-      - opened
-      - reopened
-      - ready_for_review
-      - synchronize
   merge_group:
     branches: [main]
     types:
@@ -30,7 +23,6 @@ permissions:
 jobs:
   quality-gate:
     name: Quality Gate
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
@@ -38,16 +30,23 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: orglang/go-workspace
-          ref: ${{ github.event.inputs.workspace_ref || 'c6d6db3a400a04913e09754d05faa0c5a6b4229e' }}
+          ref: ${{ github.event.inputs.workspace_ref || 'main' }}
           fetch-depth: 0
 
       - name: Checkout engine
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.sha }}
           repository: orglang/go-engine
           path: engine
           fetch-depth: 0
+
+      - name: Checkout SDK
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          repository: orglang/go-sdk
+          path: sdk
 
       - name: Set up mise
         uses: jdx/mise-action@v5

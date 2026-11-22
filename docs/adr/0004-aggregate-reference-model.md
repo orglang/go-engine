@@ -197,8 +197,7 @@ Type и Term следует рассматривать не обязательн
 
 ### 14.4. Уточнение текущих несоответствий
 
-- Отсутствующие revision-операции в \`termsem\` и непоследовательная проверка RN в \`proc/termdec\` трактуются как незавершённость реализации, а не как доказательство иной семантики Type и Term.- Запросы к \`dec_roots\` и \`desc_sems\` в \`proc/termdec\` считаются устаревшими. Их не следует трактовать как свидетельство существования внешней/неучтённой схемы без новых данных.
-- Текущий факт, что \`RetrieveSnap\` фильтрует только по \`TermID\`, остаётся наблюдением о реализации; целевой контракт должен быть определён явно через exact RN или nil RN semantics.
+- Отсутствующие revision-операции в \`termsem\` и непоследовательная проверка RN в \`proc/termdec\` трактуются как незавершённость реализации, а не как доказательство иной семантики Type и Term.- Запросы к \`dec_roots\` и \`desc_sems\` в \`proc/termdec\` считаются устаревшими. Их не следует трактовать как свидетельство существования внешней/неучтённой схемы без новых данных.- Текущий факт, что \`RetrieveSnap\` фильтрует только по \`TermID\`, остаётся наблюдением о реализации; целевой контракт должен быть определён явно через exact RN или nil RN semantics.
 
 ### 14.5. Следующие вопросы аудита
 
@@ -397,7 +396,6 @@ Description
 
 DescID идентифицирует Description aggregate root и не переиспользуется как identity принадлежащей ему доменной сущности. TypeID и TermID — отдельные identity соответствующих сущностей первого уровня. Type и Term сохраняют разные доменные контракты; kind неизменяем и определяет, какая сущность принадлежит Description.
 ### 19.3. QN — отдельное имя, не identity
-
 QN является уникальным именем Description в пространстве конкретного контекста. Он используется для discovery/resolution и не встраивается в durable identity reference.
 
 - Переименование QN не меняет DescID.
@@ -599,7 +597,6 @@ Term declaration/definition ports остаются раздельными там
 - Не менять SDK.
 - Не проектировать и не менять SQL schema/migrations на этом этапе. Persistence redesign, backfill и migration verification отложены до отдельной необходимости.
 
-
 ## 25. Уточнение модели Computation относительно ADR-0002
 
 ADR-0002 фиксирует важные правила Connection lifecycle и optimistic concurrency, но использует формулировку «Connection — вложенная сущность агрегата Provider Computation». Для целевой модели issue #128 эта формулировка уточняется:
@@ -797,7 +794,6 @@ QN — context-local qualified name и lookup key, но не identity. В target
 Это согласованная политика; она не требует отдельного alias/history registry и не приравнивает retirement к физическому удалению.
 
 ## 30. Уточнение identity Description и унификация Term lifecycle между контекстами
-
 Это уточнение конкретизирует и заменяет те формулировки §19–21 и §28.3, в которых Description identity и Type/Term identity могли быть прочитаны как один и тот же идентификатор.
 
 ### 30.1. Две identity на разных уровнях
@@ -952,11 +948,11 @@ The Client relationship expresses use of a Type contract, not implementation of 
 - Each Client use refers to a specific state of the Type. A later change to the Type does not silently update an existing Client reference; the identifier used to pin that state remains open (see §36).
 - A Type may be used as Client by multiple Terms.
 - The same Type may be both Provider and Client for the same Term; these remain distinct relationships with distinct semantics.
-- A Term may have multiple Client uses of the same Type. Whether those uses may pin different revisions remains undecided.
+- A Term may have multiple Client uses of the same Type. Whether those uses may pin different Type states remains undecided.
 - Client references may target a Type in another Description root, provided both are in the same bounded context.
 - Cross-bounded-context Type references are not allowed.
 
-A change to a Type does not have to preserve compatibility with Terms that use an earlier revision in the Client role. Those Client references continue to identify the revision they pinned. Client references do not make the referenced Type part of the Term's Description and do not transfer ownership.
+A change to a Type does not have to preserve compatibility with Terms that use an earlier revision in the Client role. Those Client references continue to identify the Type state they pinned. Client references do not make the referenced Type part of the Term's Description and do not transfer ownership.
 
 ### 35.4. Revision and aggregate boundaries
 
@@ -966,7 +962,7 @@ The Description revision rules in §33 remain in force:
 - A Client reference to a Type in another Description pins a specific state of that Type; it does not merge the two Description roots or change the referenced Description's revision.
 - Provider and Client relationships are separate domain relationships and must not be collapsed into one generic Type reference.
 
-The rule for repeated Client uses of the same Type with different pinned revisions is intentionally left open pending a domain requirement.
+The rule for repeated Client uses of the same Type with different pinned states is intentionally left open pending a domain requirement.
 
 ## 36. Further clarification on Provider consistency and Client state pinning
 
@@ -997,7 +993,6 @@ The following are intentionally deferred and are not decided by this ADR update:
 - whether multiple Client uses of the same Type may pin different states.
 
 These details do not alter the established rule that a Client reference identifies a particular Type state rather than the containing Description revision.
-
 ### 36.4. Description composition constraint
 
 A Description cannot exist without a Type. A Type-only Description is valid and may exist before any Terms are created. A Description containing Terms must also contain exactly one Provider Type, which those Terms implement; a Term-only Description is invalid. This restates the composition invariant in §35.1 as an explicit minimum-content rule.

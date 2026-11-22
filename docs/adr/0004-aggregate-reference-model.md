@@ -370,7 +370,7 @@ Description — aggregate root и consistency boundary. Он владеет desc
 
 ~~~text
 Description
-  identity: DescD
+  identity: DescID
   qn: QN
   kind: Type | Term
   entityID: TypeID | TermID
@@ -396,13 +396,13 @@ Description
 6. QN уникален в пределах своего bounded context среди активных Description. QN — имя/способ поиска, но не identity. Переименование не меняет identity, однако является mutation Description и увеличивает revision.
 7. Retirement должен сохранять невозможность случайно переиспользовать identity. Освобождение QN после retirement — отдельная политика; физическое удаление не является частью базовой модели.
 
-DescD идентифицирует Description aggregate root и не переиспользуется как identity принадлежащей ему доменной сущности. TypeID и TermID — отдельные identity соответствующих сущностей первого уровня. Type и Term сохраняют разные доменные контракты; kind неизменяем и определяет, какая сущность принадлежит Description.
+DescID идентифицирует Description aggregate root и не переиспользуется как identity принадлежащей ему доменной сущности. TypeID и TermID — отдельные identity соответствующих сущностей первого уровня. Type и Term сохраняют разные доменные контракты; kind неизменяем и определяет, какая сущность принадлежит Description.
 
 ### 19.3. QN — отдельное имя, не identity
 
 QN является уникальным именем Description в пространстве конкретного контекста. Он используется для discovery/resolution и не встраивается в durable identity reference.
 
-- Переименование QN не меняет DescD.
+- Переименование QN не меняет DescID.
 - Сохранённые ссылки продолжают указывать на тот же Description после переименования.
 - QN lookup возвращает типизированную ссылку (ID + текущая revision) и kind.
 - Уникальность QN обеспечивается атомарно на уровне контекста.
@@ -429,7 +429,7 @@ TypeExp — специализированное дочернее состоян
 - TypeState содержит ссылку на текущий ExpCK.
 - ExpCK идентифицирует конкретный expression state независимо от текущей Description revision.
 - Создание нового TypeExp создаёт новый ExpCK; переключение TypeState на него увеличивает Description revision.
-- Если другой объект сохраняет пару (DescD, ExpCK), он закрепляет конкретное expression state и не обязан закреплять root revision.
+- Если другой объект сохраняет пару (DescID, ExpCK), он закрепляет конкретное expression state и не обязан закреплять root revision.
 - Старые expression states, на которые существуют durable pins, должны оставаться доступными. Удаление возможно только после гарантированного отсутствия ссылок либо по явной retention policy.
 - Формат и схема TypeExp могут различаться между proc и pool; общий Description root не требует унифицировать payload или expression semantics.
 
@@ -490,7 +490,7 @@ Computation (aggregate root)
 - pool.TypeRef и pool.CompRef;
 - Term адресуется непосредственно через TermID в соответствующем bounded context.
 
-Контекстная граница задаётся repository/use case, а не отдельным TermRef wrapper. TermID идентифицирует Term entity; DescD идентифицирует владеющий Description root. Эти идентификаторы не взаимозаменяемы. Revision не является частью identity TermID: expected revision передаётся отдельно как предусловие команды, а latest-read выбирается явной семантикой запроса.
+Контекстная граница задаётся repository/use case, а не отдельным TermRef wrapper. TermID идентифицирует Term entity; DescID идентифицирует владеющий Description root. Эти идентификаторы не взаимозаменяемы. Revision не является частью identity TermID: expected revision передаётся отдельно как предусловие команды, а latest-read выбирается явной семантикой запроса.
 
 TypeRef адресует Type по TypeID и разрешается через соответствующий Type Description. CompRef адресует отдельный Computation aggregate. Старые публичные DTO не являются ограничением этой целевой модели и могут быть заменены вместе с API.
 
@@ -792,7 +792,7 @@ Declaration и Definition не являются разными видами Desc
 
 ### 29.2. Следствия для target model
 
-QN — context-local qualified name и lookup key, но не identity. В target Description root владеет текущим QN, а Type/Term kind остаётся неизменяемым. Resolver должен разрешать QN внутри соответствующего context и возвращать typed Type/Term reference; изменение QN не должно менять DescD.
+QN — context-local qualified name и lookup key, но не identity. В target Description root владеет текущим QN, а Type/Term kind остаётся неизменяемым. Resolver должен разрешать QN внутри соответствующего context и возвращать typed Type/Term reference; изменение QN не должно менять DescID.
 
 Рекомендуемая политика:
 - QN mutable через явную RenameDescription command;
@@ -810,16 +810,16 @@ QN — context-local qualified name и lookup key, но не identity. В target
 ### 30.1. Две identity на разных уровнях
 
 В целевой модели необходимо различать:
-- **DescD** — identity Description aggregate root в конкретном bounded context;
+- **DescID** — identity Description aggregate root в конкретном bounded context;
 - **TermID** — identity принадлежащей ему доменной сущности Term.
 
-DescD и TermID — разные идентификаторы с разными назначениями. Description root владеет Term entity, но не переиспользует его ID. Descriptor registry связывает QN и kind с DescD; Term resolver связывает TermID с соответствующим Description root и проверяет, что его kind — Term.
+DescID и TermID — разные идентификаторы с разными назначениями. Description root владеет Term entity, но не переиспользует его ID. Descriptor registry связывает QN и kind с DescID; Term resolver связывает TermID с соответствующим Description root и проверяет, что его kind — Term.
 
-Term адресуется непосредственно по TermID. Отдельный TermRef wrapper не вводится: он не добавляет необходимой семантики поверх TermID. Revision также не является частью TermID и передаётся отдельно там, где команда требует optimistic concurrency. При разрешении TermID система однозначно находит владеющий DescD в пределах текущего context, затем применяет правила kind и lifecycle. Это отображение обеспечивается инвариантами и атомарностью persistence, а не совпадением значений ID.
+Term адресуется непосредственно по TermID. Отдельный TermRef wrapper не вводится: он не добавляет необходимой семантики поверх TermID. Revision также не является частью TermID и передаётся отдельно там, где команда требует optimistic concurrency. При разрешении TermID система однозначно находит владеющий DescID в пределах текущего context, затем применяет правила kind и lifecycle. Это отображение обеспечивается инвариантами и атомарностью persistence, а не совпадением значений ID.
 
-Аналогичное разделение identity следует применять к Type: TypeID идентифицирует Type entity, DescD — владеющий Description root. Сохранение отдельного TypeRef пока остаётся частью типизированного Type-контракта. Для Computation отдельной Description identity нет: Computation остаётся самостоятельным aggregate root с ComputationID.
+Аналогичное разделение identity следует применять к Type: TypeID идентифицирует Type entity, DescID — владеющий Description root. Сохранение отдельного TypeRef пока остаётся частью типизированного Type-контракта. Для Computation отдельной Description identity нет: Computation остаётся самостоятельным aggregate root с ComputationID.
 
-DescD не обязан присутствовать в каждой внешней ссылке, если resolver способен надёжно разрешить TypeID/TermID в root. Если конкретному внутреннему use case нужен root identity, он использует DescD непосредственно, не подменяя им identity доменной сущности.
+DescID не обязан присутствовать в каждой внешней ссылке, если resolver способен надёжно разрешить TypeID/TermID в root. Если конкретному внутреннему use case нужен root identity, он использует DescID непосредственно, не подменяя им identity доменной сущности.
 
 ### 30.2. Единый Term lifecycle в proc и pool
 
@@ -836,7 +836,7 @@ DescD не обязан присутствовать в каждой внешн�
 Контекстно-специфичными могут оставаться expression payload, структуры channel variables, вычислительная семантика и persistence adapters. Это не должно приводить к различному смыслу операций или к разным lifecycle state machines.
 
 Базовая целевая композиция Term Description:
-- один Description aggregate root с DescD, QN, Term kind и общей revision;
+- один Description aggregate root с DescID, QN, Term kind и общей revision;
 - одна принадлежащая ему Term entity с отдельным TermID;
 - обязательная Declaration facet, создаваемая вместе с Term;
 - необязательная Definition facet, создаваемая отдельной командой;
@@ -849,7 +849,7 @@ DescD не обязан присутствовать в каждой внешн�
 2. Definition необязательна при создании и может быть добавлена отдельной командой.
 3. Declaration и Definition принадлежат одной Term entity и одному Description aggregate; изменения увеличивают общую Description revision.
 4. Семантика изменения Definition (только additive или также replace/edit) и mutability Declaration остаются открытыми; выбранные правила должны быть одинаковыми в proc и pool.
-5. Отдельный draft/inception state не вводится в базовую модель. Если появится подтверждённая потребность, он должен быть состоянием той же пары DescD/TermID, а не новой identity.
+5. Отдельный draft/inception state не вводится в базовую модель. Если появится подтверждённая потребность, он должен быть состоянием той же пары DescID/TermID, а не новой identity.
 
 Incept не переносится как самостоятельная фаза lifecycle. Целевые операции и гарантии должны быть симметричны в обоих контекстах. Пакетная структура реализации остаётся за рамками этого решения.
 

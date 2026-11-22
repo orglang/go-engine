@@ -806,4 +806,52 @@ QN — context-local qualified name и lookup key, но не identity. В target
 
 Это проектная рекомендация. Пользовательское решение по rename, alias/history, retirement и повторному использованию QN ещё не зафиксировано. Целевая схема должна обеспечивать уникальность и атомарность на уровне одного Description aggregate, но конкретная стратегия хранения retired names зависит от согласованной политики.
 
+## 30. Уточнение identity Description и унификация Term lifecycle между контекстами
+
+Это уточнение конкретизирует и заменяет те формулировки §19–21 и §28.3, в которых Description identity и Type/Term identity могли быть прочитаны как один и тот же идентификатор.
+
+### 30.1. Две identity на разных уровнях
+
+В целевой модели необходимо различать:
+- **DescriptionID** — identity Description aggregate root, принадлежащая descsem в конкретном bounded context;
+- **TermID** — identity доменной сущности Term, принадлежащая Term model.
+
+DescriptionID и TermID — разные идентификаторы с разными назначениями. Description root владеет Term entity, но не переиспользует его ID. Descriptor registry связывает QN и kind с DescriptionID; Term resolver связывает TermID с соответствующим Description root и проверяет, что его kind — Term.
+
+TermRef адресует Term по TermID, а не по DescriptionID. Revision в такой ссылке относится к revision содержащего Term Description aggregate; она не превращает TermID в DescriptionID. При разрешении ссылки система должна выполнить однозначное отображение TermID → DescriptionID в пределах текущего context, затем применить правила kind, lifecycle и revision. Это отображение должно быть обеспечено инвариантами и атомарностью persistence, а не предполагаться из совпадения значений ID.
+
+Аналогичное разделение следует применять к Type: TypeID идентифицирует Type entity, DescriptionID — владеющий Description root. TypeRef адресует TypeID, а resolver связывает его с Type Description. Для Computation отдельной Description identity нет: Computation остаётся самостоятельным aggregate root с ComputationID.
+
+Таким образом, TypeRef/TermRef остаются типизированными semantic references. Внутренний DescriptionID не обязан присутствовать в каждой внешней ссылке, если resolver способен надёжно разрешить semantic ID в root. Если конкретному внутреннему use case нужен root identity, для него существует отдельный DescriptionRef/DescriptionID, не подменяющий TypeRef/TermRef.
+
+### 30.2. Единый Term lifecycle в proc и pool
+
+Целевое поведение Term должно быть одинаковым в proc и pool. Текущая асимметрия (proc/termdec с Incept/Create и pool/termdef с Create) — недостаток/историческое состояние реализации, а не целевое различие предметной модели.
+
+Оба контекста должны предоставлять один и тот же набор семантических операций и одинаковые гарантии:
+- создание Term и его Declaration;
+- получение Term и его текущего состояния;
+- создание Definition, если её ещё нет;
+- расширение/изменение Definition согласно общей согласованной политике;
+- одинаковая optimistic concurrency policy через revision содержащего Description aggregate;
+- одинаковые правила QN resolution, typed references, lifecycle и ошибок.
+
+Контекстно-специфичными могут оставаться expression payload, структуры channel variables, вычислительная семантика и persistence adapters. Это не должно приводить к различному смыслу операций или к разным lifecycle state machines.
+
+Базовая целевая композиция Term Description:
+- один Description aggregate root с DescriptionID, QN, Term kind и общей revision;
+- одна принадлежащая ему Term entity с отдельным TermID;
+- Declaration facet с контрактом каналов и Type references;
+- Definition facet с контекстно-специфичным expression state.
+
+### 30.3. Открытые решения lifecycle
+
+Единый lifecycle и раздельные identity зафиксированы как требования target model. Следующие детали пока остаются открытыми:
+1. Declaration обязательна при создании Term или допускается создание пустого draft Term?
+2. Definition необязательна до отдельной команды CreateDefinition; допустимо ли создавать Term без Definition?
+3. Declaration после создания immutable или допускает изменение с увеличением общей Description revision?
+4. Definition только аддитивно расширяется (как заявлено в текущем TypeSpec) или может заменяться/редактироваться? Выбранная политика должна быть одинаковой в proc и pool.
+5. Нужен ли отдельный draft state. Если да, он является состоянием того же Description/Term pair; продолжение draft не создаёт новые DescriptionID или TermID.
+
+Пока эти детали не согласованы, Incept нельзя считать утверждённой отдельной фазой lifecycle. Реализация должна иметь симметричные контракты в обоих контекстах и не закреплять разницу, возникшую из-за неполноты текущих adapters.
 

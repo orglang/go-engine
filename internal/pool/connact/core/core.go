@@ -3,7 +3,7 @@ package core
 import (
 	"fmt"
 
-	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/comproot"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	termexp "orglang/go-engine/internal/pool/termexp/core"
@@ -20,7 +20,7 @@ type ActRec interface {
 type PubRec struct {
 	ConnID  identity.ADT
 	ActNr   seqnum.ADT
-	CompRef compsem.SemRef
+	CompRef comproot.SemRef
 	ChnlID  identity.ADT
 	ValExp  termexp.ExpRec
 }
@@ -33,7 +33,7 @@ func (r PubRec) GetActNr() seqnum.ADT    { return r.ActNr }
 type SubRec struct {
 	ConnID  identity.ADT
 	ActNr   seqnum.ADT
-	CompRef compsem.SemRef
+	CompRef comproot.SemRef
 	ChnlID  identity.ADT
 	ContExp termexp.ExpRec
 }

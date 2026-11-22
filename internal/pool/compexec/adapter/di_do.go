@@ -7,7 +7,7 @@ import (
 	"github.com/alitto/pond/v2"
 	"github.com/samber/do/v2"
 
-	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/comproot"
 	"orglang/go-engine/internal/adt/implsem"
 	implsemadapter "orglang/go-engine/internal/adt/implsem/adapter"
 	"orglang/go-engine/internal/lib/tx"
@@ -83,7 +83,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		compRepo, err := do.Invoke[compsem.Repo](i)
+		compRepo, err := do.Invoke[comproot.Repo](i)
 		if err != nil {
 			return nil, err
 		}
@@ -120,7 +120,7 @@ var Package = do.Package(
 		}
 		return newControllerEcho(api, logger), nil
 	}),
-	do.Lazy[compsem.Repo](func(i do.Injector) (compsem.Repo, error) {
+	do.Lazy[comproot.Repo](func(i do.Injector) (comproot.Repo, error) {
 		client, err := do.Invoke[*ent.Client](i)
 		if err != nil {
 			return nil, err

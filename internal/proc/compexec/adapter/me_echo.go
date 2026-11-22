@@ -6,7 +6,7 @@ import (
 
 	"github.com/labstack/echo/v5"
 
-	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/comproot"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	webapi "orglang/go-engine/internal/app/web/api"
@@ -38,7 +38,7 @@ func (h *controllerEcho) GetProcessExecution(c *echo.Context, id string, params 
 		h.log.Error("conversion failed", slog.Any("id", id), slog.Any("err", err))
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	ref := compsem.SemRef{CompID: compID}
+	ref := comproot.SemRef{CompID: compID}
 	if params.Rn != nil {
 		ref.CompRN = seqnum.ConvertFromInt(*params.Rn)
 	}

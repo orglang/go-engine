@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/comproot"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/uniqsym"
@@ -142,7 +142,7 @@ type SpawnSpec2 struct {
 	// ссылка на описание порождаемого процесса
 	ProcTermRef termsem.SemRef
 	// ссылки на воплощения потребляемых процессов
-	ProcCompRefs []compsem.SemRef
+	ProcCompRefs []comproot.SemRef
 }
 
 func (s SpawnSpec2) spec() {}

@@ -9,8 +9,8 @@ import (
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/internal/adt/compsem"
-	compsemadapter "orglang/go-engine/internal/adt/compsem/adapter"
+	"orglang/go-engine/internal/adt/comproot"
+	compsemadapter "orglang/go-engine/internal/adt/comproot/adapter"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/lf"
@@ -53,7 +53,7 @@ func (dao *daoEnt) ModifyRec(context.Context, tx.Conn, compexec.ExecMod) error {
 	panic("unimplemented")
 }
 
-func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref compsem.SemRef) (compexec.ExecSnap2, error) {
+func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref comproot.SemRef) (compexec.ExecSnap2, error) {
 	refAttr := slog.Any("ref", ref)
 	rows, err := conn.Pgx.Query(ctx, selectSnapByRef,
 		compsemadapter.DataFromRef(ref).CompID,

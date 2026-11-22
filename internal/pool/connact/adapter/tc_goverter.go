@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/comproot"
 
 	connact "orglang/go-engine/internal/pool/connact/core"
 )
@@ -12,7 +12,7 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/internal/pool/termexp/adapter:Data.*
 var (
-	DataToCompRef func(ActRec) (compsem.SemRef, error)
+	DataToCompRef func(ActRec) (comproot.SemRef, error)
 	// goverter:map . CompRef
 	// goverter:map Exp ValExp
 	DataToPubRec func(ActRec) (connact.PubRec, error)

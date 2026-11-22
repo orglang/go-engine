@@ -10,7 +10,7 @@ import (
 
 	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/comproot"
 	"orglang/go-engine/internal/adt/compvar"
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
@@ -31,16 +31,16 @@ import (
 
 type API interface {
 	Take(context.Context, compstep.StepSpec) error
-	RetrieveSnap(compsem.SemRef) (ExecSnap, error)
+	RetrieveSnap(comproot.SemRef) (ExecSnap, error)
 }
 
 type ExecRec struct {
-	CompRef  compsem.SemRef
+	CompRef  comproot.SemRef
 	LiabMode compvar.Mode
 }
 
 type ExecMod struct {
-	CompRefs   []compsem.SemRef
+	CompRefs   []comproot.SemRef
 	LinearVars []compvar.LinearRec
 }
 
@@ -56,7 +56,7 @@ type takeResult struct {
 
 // aka Configuration
 type ExecSnap struct {
-	CompRef    compsem.SemRef
+	CompRef    comproot.SemRef
 	LinearVars map[symbol.ADT]compvar.LinearRec
 }
 
@@ -100,7 +100,7 @@ func NewService(
 	}
 }
 
-func (s *service) RetrieveSnap(ref compsem.SemRef) (_ ExecSnap, err error) {
+func (s *service) RetrieveSnap(ref comproot.SemRef) (_ ExecSnap, err error) {
 	return ExecSnap{}, nil
 }
 
@@ -165,7 +165,7 @@ func (s *service) Take(ctx context.Context, spec compstep.StepSpec) (err error) 
 			return err
 		}
 		if len(result.Connection.Acts) > 0 || (result.Connection.OffsetNr != nil && !result.Connection.OffsetNr.IsEmpty()) {
-			providerRef := compsem.SemRef{CompID: result.Connection.ProviderCompID, CompRN: result.Connection.ProviderCompRN}
+			providerRef := comproot.SemRef{CompID: result.Connection.ProviderCompID, CompRN: result.Connection.ProviderCompRN}
 			if providerRef.CompID == execSnap.CompRef.CompID {
 				if providerRef.CompRN != execSnap.CompRef.CompRN {
 					return fmt.Errorf("provider computation snapshot changed: expected revision %v, got %v", providerRef.CompRN, execSnap.CompRef.CompRN)

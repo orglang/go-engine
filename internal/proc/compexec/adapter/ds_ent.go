@@ -9,7 +9,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/comproot"
 	"orglang/go-engine/internal/adt/compvar"
 	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
 	"orglang/go-engine/internal/adt/seqnum"
@@ -52,7 +52,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec compexec.ExecRe
 	return nil
 }
 
-func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref compsem.SemRef) (compexec.ExecSnap, error) {
+func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref comproot.SemRef) (compexec.ExecSnap, error) {
 	refAttr := slog.Any("ref", ref)
 	chnlRows, err := conn.Pgx.Query(ctx, selectChnls, ref.CompID.String())
 	if err != nil {

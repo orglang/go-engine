@@ -6,7 +6,7 @@ import (
 
 	"github.com/labstack/echo/v5"
 
-	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/comproot"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
@@ -25,7 +25,7 @@ func generatedStepToCore(id string, dto webapi.ProcStepSpec) (compstepcore.StepS
 		return compstepcore.StepSpec{}, err
 	}
 	return compstepcore.StepSpec{
-		CompRef: compsem.SemRef{CompID: compID},
+		CompRef: comproot.SemRef{CompID: compID},
 		ProcExp: expr,
 	}, nil
 }

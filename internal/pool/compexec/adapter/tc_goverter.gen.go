@@ -4,7 +4,7 @@
 package adapter
 
 import (
-	compsem "orglang/go-engine/internal/adt/compsem"
+	comproot "orglang/go-engine/internal/adt/comproot"
 	compvar "orglang/go-engine/internal/adt/compvar"
 	adapter "orglang/go-engine/internal/adt/compvar/adapter"
 	identity "orglang/go-engine/internal/adt/identity"
@@ -32,21 +32,21 @@ func init() {
 	}
 	DataToExecRec = func(source ExecRec) (core.ExecRec, error) {
 		var coreExecRec core.ExecRec
-		compsemSemRef, err := adapterExecRecToCompsemSemRef(source)
+		comprootSemRef, err := adapterExecRecToComprootSemRef(source)
 		if err != nil {
 			return coreExecRec, err
 		}
-		coreExecRec.CompRef = compsemSemRef
+		coreExecRec.CompRef = comprootSemRef
 		coreExecRec.LiabMode = compvar.Mode(source.LiabMode)
 		return coreExecRec, nil
 	}
 	DataToExecSnap2 = func(source ExecSnap2) (core.ExecSnap2, error) {
 		var coreExecSnap2 core.ExecSnap2
-		compsemSemRef, err := adapterExecSnap2ToCompsemSemRef(source)
+		comprootSemRef, err := adapterExecSnap2ToComprootSemRef(source)
 		if err != nil {
 			return coreExecSnap2, err
 		}
-		coreExecSnap2.CompRef = compsemSemRef
+		coreExecSnap2.CompRef = comprootSemRef
 		coreExecSnap2.LiabMode = compvar.Mode(source.LiabMode)
 		compvarStructRecList, err := adapter.DataToStructRecs(source.StructVars)
 		if err != nil {
@@ -89,23 +89,23 @@ func init() {
 		return mapUniqsymADTCoreExecSnap1, nil
 	}
 }
-func adapterExecRecToCompsemSemRef(source ExecRec) (compsem.SemRef, error) {
-	var compsemSemRef compsem.SemRef
+func adapterExecRecToComprootSemRef(source ExecRec) (comproot.SemRef, error) {
+	var comprootSemRef comproot.SemRef
 	identityADT, err := identity.ConvertFromString(source.CompID)
 	if err != nil {
-		return compsemSemRef, err
+		return comprootSemRef, err
 	}
-	compsemSemRef.CompID = identityADT
-	compsemSemRef.CompRN = seqnum.ADT(source.CompRN)
-	return compsemSemRef, nil
+	comprootSemRef.CompID = identityADT
+	comprootSemRef.CompRN = seqnum.ADT(source.CompRN)
+	return comprootSemRef, nil
 }
-func adapterExecSnap2ToCompsemSemRef(source ExecSnap2) (compsem.SemRef, error) {
-	var compsemSemRef compsem.SemRef
+func adapterExecSnap2ToComprootSemRef(source ExecSnap2) (comproot.SemRef, error) {
+	var comprootSemRef comproot.SemRef
 	identityADT, err := identity.ConvertFromString(source.CompID)
 	if err != nil {
-		return compsemSemRef, err
+		return comprootSemRef, err
 	}
-	compsemSemRef.CompID = identityADT
-	compsemSemRef.CompRN = seqnum.ADT(source.CompRN)
-	return compsemSemRef, nil
+	comprootSemRef.CompID = identityADT
+	comprootSemRef.CompRN = seqnum.ADT(source.CompRN)
+	return comprootSemRef, nil
 }

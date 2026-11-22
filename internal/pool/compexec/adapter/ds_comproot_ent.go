@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"reflect"
 
-	"orglang/go-engine/internal/adt/compsem"
-	compsemadapter "orglang/go-engine/internal/adt/compsem/adapter"
+	"orglang/go-engine/internal/adt/comproot"
+	comprootadapter "orglang/go-engine/internal/adt/comproot/adapter"
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
@@ -20,13 +20,13 @@ type compSemDaoEnt struct {
 	log    *slog.Logger
 }
 
-func NewCompSemDaoEnt(client *ent.Client, log *slog.Logger) compsem.Repo {
+func NewCompSemDaoEnt(client *ent.Client, log *slog.Logger) comproot.Repo {
 	name := slog.String("name", reflect.TypeFor[compSemDaoEnt]().Name())
 	return &compSemDaoEnt{client: client, log: log.With(name)}
 }
 
-func (dao *compSemDaoEnt) TouchRef(ctx context.Context, conn tx.Conn, ref compsem.SemRef) error {
-	dto := compsemadapter.DataFromRef(ref)
+func (dao *compSemDaoEnt) TouchRef(ctx context.Context, conn tx.Conn, ref comproot.SemRef) error {
+	dto := comprootadapter.DataFromRef(ref)
 	refAttr := slog.Any("ref", ref)
 	updated, err := dao.client.CompExec.Update().
 		AddCompRn(1).

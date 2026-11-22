@@ -6,7 +6,7 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
 
-	"orglang/go-engine/internal/adt/compsem/adapter/entschema"
+	"orglang/go-engine/internal/adt/comproot/adapter/entschema"
 )
 
 // CompExec describes a persisted process computation execution.
@@ -17,7 +17,7 @@ type CompExec struct {
 // Mixin of the CompExec.
 func (CompExec) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		entschema.CompSemMixin{},
+		entschema.CompRootMixin{},
 	}
 }
 

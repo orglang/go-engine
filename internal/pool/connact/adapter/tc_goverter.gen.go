@@ -4,7 +4,7 @@
 package adapter
 
 import (
-	compsem "orglang/go-engine/internal/adt/compsem"
+	comproot "orglang/go-engine/internal/adt/comproot"
 	identity "orglang/go-engine/internal/adt/identity"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
 	core "orglang/go-engine/internal/pool/connact/core"
@@ -12,15 +12,15 @@ import (
 )
 
 func init() {
-	DataToCompRef = func(source ActRec) (compsem.SemRef, error) {
-		var compsemSemRef compsem.SemRef
+	DataToCompRef = func(source ActRec) (comproot.SemRef, error) {
+		var comprootSemRef comproot.SemRef
 		identityADT, err := identity.ConvertFromString(source.CompID)
 		if err != nil {
-			return compsemSemRef, err
+			return comprootSemRef, err
 		}
-		compsemSemRef.CompID = identityADT
-		compsemSemRef.CompRN = seqnum.ConvertFromInt(source.CompRN)
-		return compsemSemRef, nil
+		comprootSemRef.CompID = identityADT
+		comprootSemRef.CompRN = seqnum.ConvertFromInt(source.CompRN)
+		return comprootSemRef, nil
 	}
 	DataToPubRec = func(source ActRec) (core.PubRec, error) {
 		var corePubRec core.PubRec
@@ -30,11 +30,11 @@ func init() {
 		}
 		corePubRec.ConnID = identityADT
 		corePubRec.ActNr = seqnum.ConvertFromInt(source.ActNr)
-		compsemSemRef, err := DataToCompRef(source)
+		comprootSemRef, err := DataToCompRef(source)
 		if err != nil {
 			return corePubRec, err
 		}
-		corePubRec.CompRef = compsemSemRef
+		corePubRec.CompRef = comprootSemRef
 		identityADT2, err := identity.ConvertFromString(source.ChnlID)
 		if err != nil {
 			return corePubRec, err
@@ -55,11 +55,11 @@ func init() {
 		}
 		coreSubRec.ConnID = identityADT
 		coreSubRec.ActNr = seqnum.ConvertFromInt(source.ActNr)
-		compsemSemRef, err := DataToCompRef(source)
+		comprootSemRef, err := DataToCompRef(source)
 		if err != nil {
 			return coreSubRec, err
 		}
-		coreSubRec.CompRef = compsemSemRef
+		coreSubRec.CompRef = comprootSemRef
 		identityADT2, err := identity.ConvertFromString(source.ChnlID)
 		if err != nil {
 			return coreSubRec, err

@@ -10,7 +10,7 @@ import (
 
 	"github.com/labstack/echo/v5"
 
-	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/comproot"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/symbol"
@@ -149,15 +149,15 @@ func poolStepSpecToCore(dto api.PoolStepSpec) (compstep.StepSpec, error) {
 	return compstep.StepSpec{CompRef: ref, PoolExp: exp}, nil
 }
 
-func compRefFromAPI(dto api.AnyCompRef) (compsem.SemRef, error) {
+func compRefFromAPI(dto api.AnyCompRef) (comproot.SemRef, error) {
 	id, err := identity.ConvertFromString(dto.CompId)
 	if err != nil {
-		return compsem.SemRef{}, err
+		return comproot.SemRef{}, err
 	}
-	return compsem.SemRef{CompID: id, CompRN: seqnum.ConvertFromInt(dto.CompRn)}, nil
+	return comproot.SemRef{CompID: id, CompRN: seqnum.ConvertFromInt(dto.CompRn)}, nil
 }
 
-func compRefToAPI(ref compsem.SemRef) api.AnyCompRef {
+func compRefToAPI(ref comproot.SemRef) api.AnyCompRef {
 	return api.AnyCompRef{
 		CompId: identity.ConvertToString(ref.CompID),
 		CompRn: seqnum.ConvertToInt(ref.CompRN),
@@ -308,7 +308,7 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (termexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		compRefs := make([]compsem.SemRef, len(value.ProcIrs))
+		compRefs := make([]comproot.SemRef, len(value.ProcIrs))
 		for i, item := range value.ProcIrs {
 			compRefs[i], err = compRefFromAPI(item)
 			if err != nil {

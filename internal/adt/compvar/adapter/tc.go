@@ -3,7 +3,7 @@ package adapter
 import (
 	"database/sql"
 
-	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/comproot"
 	"orglang/go-engine/internal/adt/compvar"
 	contkeyadapter "orglang/go-engine/internal/adt/contkey/adapter"
 	identityadapter "orglang/go-engine/internal/adt/identity/adapter"
@@ -193,12 +193,12 @@ func DataToLinearRecs(dtos []VarRec) ([]compvar.LinearRec, error) {
 	return recs, nil
 }
 
-func dataToCompRef(dto VarRec) (compsem.SemRef, error) {
+func dataToCompRef(dto VarRec) (comproot.SemRef, error) {
 	compID, err := identityadapter.ConvertFromNullString(dto.CompID)
 	if err != nil {
-		return compsem.SemRef{}, err
+		return comproot.SemRef{}, err
 	}
-	return compsem.SemRef{
+	return comproot.SemRef{
 		CompID: compID,
 		CompRN: seqnumadapter.ConvertFromNullInt(dto.CompRN),
 	}, nil

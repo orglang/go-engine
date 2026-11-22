@@ -1,4 +1,4 @@
-package compsem
+package comproot
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 )
 
+// Repo is the persistence port for Computation aggregate revision tracking.
 type Repo interface {
 	TouchRef(context.Context, tx.Conn, SemRef) error
 }

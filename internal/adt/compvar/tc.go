@@ -1,19 +1,19 @@
 package compvar
 
 import (
-	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/comproot"
 	"orglang/go-engine/internal/adt/symbol"
 )
 
-func ConvertRecToRef(rec LinearRec) compsem.SemRef {
+func ConvertRecToRef(rec LinearRec) comproot.SemRef {
 	return rec.CompRef
 }
 
-func ConvertRecsToRefs(recs []LinearRec) []compsem.SemRef {
+func ConvertRecsToRefs(recs []LinearRec) []comproot.SemRef {
 	if recs == nil {
 		return nil
 	}
-	refs := make([]compsem.SemRef, len(recs))
+	refs := make([]comproot.SemRef, len(recs))
 	for i, rec := range recs {
 		refs[i] = ConvertRecToRef(rec)
 	}

@@ -10,7 +10,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 
-	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/comproot"
 	"orglang/go-engine/internal/lib/tx"
 	compexec "orglang/go-engine/internal/proc/compexec/core"
 )
@@ -66,7 +66,7 @@ func TestModifyRecReturnsBatchExecError(t *testing.T) {
 	conn := tx.Conn{Pgx: batchExecErrorPgx{batch: batch}}
 
 	err := dao.ModifyRec(context.Background(), conn, compexec.ExecMod{
-		CompRefs: []compsem.SemRef{compsem.New()},
+		CompRefs: []comproot.SemRef{comproot.New()},
 	})
 	if !errors.Is(err, execErr) {
 		t.Fatalf("ModifyRec() error = %v, want %v", err, execErr)

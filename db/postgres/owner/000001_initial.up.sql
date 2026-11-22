@@ -1,5 +1,10 @@
 CREATE EXTENSION IF NOT EXISTS ltree;
 
+CREATE TABLE pool_desc_roots (
+    desc_id varchar UNIQUE,
+    desc_rn bigint
+);
+
 CREATE TABLE pool_desc_binds (
     desc_qn ltree UNIQUE,
     desc_id varchar,
@@ -76,6 +81,11 @@ CREATE TABLE pool_conn_acts (
     chnl_id varchar,
     kind smallint,
     exp jsonb
+);
+
+CREATE TABLE proc_desc_roots (
+    desc_id varchar UNIQUE,
+    desc_rn bigint
 );
 
 CREATE TABLE proc_desc_binds (

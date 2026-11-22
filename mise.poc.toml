@@ -101,7 +101,7 @@ run = "go test -run=TestIntegration ./internal/... ./cmd/... ./test/it/..."
 description = "Refresh Go module and root toolchain lockfiles"
 run = [
   "GOWORK=off go mod tidy",
-  "mise lock",
+  "mise -E poc lock",
 ]
 
 [tasks."poc:binaries:check"]

@@ -96,7 +96,7 @@ tasks:
     desc: Lint TypeSpec without modifying files
     dir: tsp
     cmds:
-      - npm exec -- tsp format --check .
+      - npm exec -- tsp format --check "**/*.tsp"
 
   specs:analyze:
     desc: Analyze and compile the TypeSpec project without emitting artifacts

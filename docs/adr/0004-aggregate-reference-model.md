@@ -289,3 +289,59 @@ Type и Term следует рассматривать не обязательн
 - pinned child-state reference (например, ID + ExpCK).
 
 Это особенно важно для ссылочной целостности и concurrency: изменение Type aggregate может увеличить root RN, но не обязательно должно инвалидировать уже сохранённую term variable, если она намеренно закрепляет прежний ExpCK.
+
+
+## 17. Зафиксированные решения по границе descsem и терминологии
+
+В обсуждении issue #128 подтверждены следующие решения:
+
+1. Использовать термин **QN** (*qualified name*) вместо `QName` во всём ADR и последующей документации.
+2. Единый `descsem` aggregate существует **внутри каждого bounded context**. Следовательно, `proc` и `pool` владеют независимыми descriptor identity spaces, QN namespaces, kind и RN. Общая identity space между контекстами не предполагается.
+3. Type и Term остаются различными сущностями первого уровня одного `descsem` aggregate в каждом контексте.
+
+Это решение снимает вопрос 15.4(1): root scope — контекстный. Оно не означает общий Go/API repository между `proc` и `pool`; каждый bounded context сохраняет собственные application ports, persistence adapters и транзакционные границы.
+
+## 18. Дополнительный аудит ссылок и TypeExp
+
+### 18.1. TypeExp — адресуемое состояние, а не часть идентичности Type
+
+В обеих реализациях Type root хранит `ExpCK`, а TypeExp state хранится в отдельной context-owned таблице (`proc_type_exps` или `pool_type_exps`). Дерево expression восстанавливается по `exp_ck` через recursive query. В Process Type Modify при изменении expression создаётся новый expression record, обновляется `ExpCK` Type root и увеличивается `TypeRN`; сама expression state адресуется собственным `ExpCK`.
+
+Следовательно, на текущем уровне данных:
+- Type identity и текущая версия Type принадлежат Type root;
+- `ExpCK` выбирает конкретное expression state;
+- expression records не содержат TypeRN и не являются самостоятельными Type roots;
+- изменение expression меняет Type root RN и его указатель `ExpCK`, но expression key остаётся отдельным адресом состояния.
+
+Это согласуется с моделью, где TypeExp — kind-specific state внутри Type variant одного descsem root, а не самостоятельный descriptor. Однако при переносе в новую схему нужно сохранить возможность закреплять конкретный `ExpCK` независимо от текущего root RN.
+
+### 18.2. Классификация ссылок по проверенным потребителям
+
+| Поле/путь | Core representation | Сохраняемая форма / поведение | Предварительная семантика |
+|---|---|---|---|
+| Process Type Modify/Retrieve | Type ID + Type RN | Root row хранит ID, RN и ExpCK; Modify сравнивает RN | Exact current-state reference / optimistic concurrency |
+| Pool Type Create | Type ID + Type RN | Root row хранит ID, RN и ExpCK | Root identity + current state |
+| Pool TermDef Create | Term ID + Term RN | Term root row хранит ID и RN; variable payload отдельно | Root identity + current state |
+| Process TermDec Create/Retrieve | Term ID + Term RN | Root row хранит ID и RN; текущая реализация Retrieve проверяет ID без полноценного RN contract | Требует выравнивания с целевым exact/latest правилом |
+| TermVar.TypeRef | Type ID + Type RN в core | DTO хранит только TypeID и ExpCK; RN намеренно не сериализуется | Identity association + pinned TypeExp state |
+| Pool SpawnSpec2.ProcTermRef | Term ID + Term RN | Входной API принимает пару ID/RN; в проверенном коде это преобразуется в core SpawnSpec2 | Revision-bearing input reference; дальнейшая persistence/use требует отдельной трассировки |
+| Pool SpawnSpec2.ProcCompRefs | Computation ID + Computation RN | Входной API принимает пары ID/RN; core передаёт refs в SpawnSpec2 | Revision-bearing input references |
+
+Важно: последняя пара SpawnSpec2 refs проверена на inbound conversion в core, но в этом аудите не установлено, что сами refs сохраняются как durable references. Не следует делать такой вывод без трассировки полного Spawn use case.
+
+### 18.3. Выводы для целевого descsem aggregate
+
+- Descriptor root должен владеть общей для Type и Term парой identity/RN внутри конкретного контекста.
+- Type и Term payload остаются специализированными вариантами; TypeExp остаётся адресуемым child state через `ExpCK`.
+- Вложенная связь на Type может быть identity-only и одновременно закреплять конкретный expression state. Поэтому root RN и child-state key решают разные задачи и не должны автоматически сливаться.
+- Контекстная независимость означает, что `proc` reference нельзя разрешить через `pool` repository (и наоборот), даже если низкоуровневая пара ID/RN имеет одинаковую форму.
+- Входной revision-bearing reference ещё не доказывает durable persistence. Для каждой связи отдельно фиксировать: источник (API/core), сохранение, rehydration и точку проверки RN.
+
+### 18.4. Оставшаяся трассировка перед проектированием DDL
+
+1. Проследить Spawn use case целиком: от `SpawnSpec2` до создания process/computation и выяснить, где проверяются `ProcTermRef` и `ProcCompRefs`, и сохраняются ли они.
+2. Завершить инвентаризацию computation references в variables, connections и actions, включая RN check/CAS.
+3. Сопоставить все ссылки Type/Term в обоих контекстах с четырьмя классами из раздела 16.
+4. На основании этой карты определить root-level revision policy, затем предложить schema migration и compatibility strategy для существующих TypeRef/TermRef wire DTO.
+
+До выполнения этих шагов код и DDL не менять.

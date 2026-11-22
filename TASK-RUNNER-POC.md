@@ -37,15 +37,19 @@ mise -E poc run poc:tests:e2e
 
 ## Run engine tasks from the workspace root
 
-From the `go-workspace` repository root (assuming the nested checkout is `engine/`):
+From the `go-workspace` repository root (assuming the nested checkout is `engine/`), compare the workspace's existing engine gate with the native PoC:
 
 ```sh
+# Existing workspace -> engine orchestration
+mise run //engine:binaries:gate
+
+# Direct native-mise PoC inside the nested engine repository
 mise -C engine -E poc run poc:binaries:gate
 mise -C engine -E poc run poc:binaries:build
 mise -C engine -E poc run poc:binaries:unit-test
 ```
 
-This deliberately exercises the same nested-repository boundary used by the workspace. No workspace config or `sdk` files are changed by this PoC.
+This deliberately exercises the nested-repository boundary and independent mise configurations. No workspace config or `sdk` files are changed by this PoC.
 
 ## What is covered
 

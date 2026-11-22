@@ -18,18 +18,18 @@
 
 ## Разработка
 
-Команды проекта определены в `.mise/tasks/`, общие настройки и версии инструментов — в `mise.toml`.
+Команды проекта определены в `.mise/tasks/`, версии инструментов — в корневом `mise.toml`.
 
-- `mise install` — установка Go и инструментов, зафиксированных в mise-конфигурации и lock-файлах.
-- `mise run specs:prepare` — обновление TypeSpec/npm lock-файлов, установка npm-зависимостей и генерация OpenAPI.
-- `mise run specs:gate` — проверка TypeSpec, lock-файлов и сгенерированного OpenAPI.
+- `mise install` — установка Go, Node.js и Go CLI-инструментов, версии которых указаны в `mise.toml`.
+- `mise run specs:prepare` — обновление npm lock-файла, установка npm-зависимостей и генерация OpenAPI.
+- `mise run specs:gate` — проверка TypeSpec, npm lock-файла и сгенерированного OpenAPI.
 - `mise run sources:prepare` — генерация исходников и форматирование Go-кода.
 - `mise run sources:gate` — проверка воспроизводимости генерации, форматирования, lint и static analysis.
-- `mise run binaries:lock` — обновление Go module manifests и mise lock-файла.
-- `mise run binaries:check` — проверка актуальности Go module manifests и mise lock-файла.
+- `mise run binaries:lock` — обновление Go module manifests.
+- `mise run binaries:check` — проверка актуальности Go module manifests.
 - `mise run binaries:build` — сборка бинарника Engine.
 - `mise run binaries:unit-test` / `mise run binaries:integration-test` — unit- и интеграционные тесты.
-- `mise run binaries:gate` — полный CI gate: Specs, Sources, lock checks, build и тесты.
+- `mise run binaries:gate` — полный CI gate: Specs, Sources, build и тесты.
 - `mise run hooks:install` — настройка versioned Git hooks.
 
-Версии Go, Node.js и Go CLI-инструментов фиксируются в `mise.toml`, `mise.lock` и stage-specific mise lock-файлах; зависимости приложения — в `go.mod` / `go.sum`; зависимости TypeSpec — в `tsp/package.json` / `tsp/package-lock.json`.
+Версии Go, Node.js и Go CLI-инструментов задаются в `mise.toml`; зависимости приложения — в `go.mod` / `go.sum`; зависимости TypeSpec — в `tsp/package.json` / `tsp/package-lock.json`.

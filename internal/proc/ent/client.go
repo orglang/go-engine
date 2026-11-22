@@ -13,6 +13,7 @@ import (
 
 	"orglang/go-engine/internal/proc/ent/compconn"
 	"orglang/go-engine/internal/proc/ent/compexec"
+	"orglang/go-engine/internal/proc/ent/descroot"
 	"orglang/go-engine/internal/proc/ent/termdec"
 	"orglang/go-engine/internal/proc/ent/typedef"
 	"orglang/go-engine/internal/proc/ent/typeexp"
@@ -31,6 +32,8 @@ type Client struct {
 	CompConn *CompConnClient
 	// CompExec is the client for interacting with the CompExec builders.
 	CompExec *CompExecClient
+	// DescRoot is the client for interacting with the DescRoot builders.
+	DescRoot *DescRootClient
 	// TermDec is the client for interacting with the TermDec builders.
 	TermDec *TermDecClient
 	// TypeDef is the client for interacting with the TypeDef builders.
@@ -50,6 +53,7 @@ func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.CompConn = NewCompConnClient(c.config)
 	c.CompExec = NewCompExecClient(c.config)
+	c.DescRoot = NewDescRootClient(c.config)
 	c.TermDec = NewTermDecClient(c.config)
 	c.TypeDef = NewTypeDefClient(c.config)
 	c.TypeExp = NewTypeExpClient(c.config)
@@ -147,6 +151,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		config:   cfg,
 		CompConn: NewCompConnClient(cfg),
 		CompExec: NewCompExecClient(cfg),
+		DescRoot: NewDescRootClient(cfg),
 		TermDec:  NewTermDecClient(cfg),
 		TypeDef:  NewTypeDefClient(cfg),
 		TypeExp:  NewTypeExpClient(cfg),
@@ -171,6 +176,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		config:   cfg,
 		CompConn: NewCompConnClient(cfg),
 		CompExec: NewCompExecClient(cfg),
+		DescRoot: NewDescRootClient(cfg),
 		TermDec:  NewTermDecClient(cfg),
 		TypeDef:  NewTypeDefClient(cfg),
 		TypeExp:  NewTypeExpClient(cfg),
@@ -202,21 +208,21 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.CompConn.Use(hooks...)
-	c.CompExec.Use(hooks...)
-	c.TermDec.Use(hooks...)
-	c.TypeDef.Use(hooks...)
-	c.TypeExp.Use(hooks...)
+	for _, n := range []interface{ Use(...Hook) }{
+		c.CompConn, c.CompExec, c.DescRoot, c.TermDec, c.TypeDef, c.TypeExp,
+	} {
+		n.Use(hooks...)
+	}
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
-	c.CompConn.Intercept(interceptors...)
-	c.CompExec.Intercept(interceptors...)
-	c.TermDec.Intercept(interceptors...)
-	c.TypeDef.Intercept(interceptors...)
-	c.TypeExp.Intercept(interceptors...)
+	for _, n := range []interface{ Intercept(...Interceptor) }{
+		c.CompConn, c.CompExec, c.DescRoot, c.TermDec, c.TypeDef, c.TypeExp,
+	} {
+		n.Intercept(interceptors...)
+	}
 }
 
 // Mutate implements the ent.Mutator interface.
@@ -226,6 +232,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.CompConn.mutate(ctx, m)
 	case *CompExecMutation:
 		return c.CompExec.mutate(ctx, m)
+	case *DescRootMutation:
+		return c.DescRoot.mutate(ctx, m)
 	case *TermDecMutation:
 		return c.TermDec.mutate(ctx, m)
 	case *TypeDefMutation:
@@ -500,6 +508,139 @@ func (c *CompExecClient) mutate(ctx context.Context, m *CompExecMutation) (Value
 		return (&CompExecDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown CompExec mutation op: %q", m.Op())
+	}
+}
+
+// DescRootClient is a client for the DescRoot schema.
+type DescRootClient struct {
+	config
+}
+
+// NewDescRootClient returns a client for the DescRoot from the given config.
+func NewDescRootClient(c config) *DescRootClient {
+	return &DescRootClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `descroot.Hooks(f(g(h())))`.
+func (c *DescRootClient) Use(hooks ...Hook) {
+	c.hooks.DescRoot = append(c.hooks.DescRoot, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `descroot.Intercept(f(g(h())))`.
+func (c *DescRootClient) Intercept(interceptors ...Interceptor) {
+	c.inters.DescRoot = append(c.inters.DescRoot, interceptors...)
+}
+
+// Create returns a builder for creating a DescRoot entity.
+func (c *DescRootClient) Create() *DescRootCreate {
+	mutation := newDescRootMutation(c.config, OpCreate)
+	return &DescRootCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of DescRoot entities.
+func (c *DescRootClient) CreateBulk(builders ...*DescRootCreate) *DescRootCreateBulk {
+	return &DescRootCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DescRootClient) MapCreateBulk(slice any, setFunc func(*DescRootCreate, int)) *DescRootCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DescRootCreateBulk{err: fmt.Errorf("calling to DescRootClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DescRootCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DescRootCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for DescRoot.
+func (c *DescRootClient) Update() *DescRootUpdate {
+	mutation := newDescRootMutation(c.config, OpUpdate)
+	return &DescRootUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *DescRootClient) UpdateOne(_m *DescRoot) *DescRootUpdateOne {
+	mutation := newDescRootMutation(c.config, OpUpdateOne, withDescRoot(_m))
+	return &DescRootUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *DescRootClient) UpdateOneID(id string) *DescRootUpdateOne {
+	mutation := newDescRootMutation(c.config, OpUpdateOne, withDescRootID(id))
+	return &DescRootUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for DescRoot.
+func (c *DescRootClient) Delete() *DescRootDelete {
+	mutation := newDescRootMutation(c.config, OpDelete)
+	return &DescRootDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *DescRootClient) DeleteOne(_m *DescRoot) *DescRootDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *DescRootClient) DeleteOneID(id string) *DescRootDeleteOne {
+	builder := c.Delete().Where(descroot.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &DescRootDeleteOne{builder}
+}
+
+// Query returns a query builder for DescRoot.
+func (c *DescRootClient) Query() *DescRootQuery {
+	return &DescRootQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeDescRoot},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a DescRoot entity by its id.
+func (c *DescRootClient) Get(ctx context.Context, id string) (*DescRoot, error) {
+	return c.Query().Where(descroot.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *DescRootClient) GetX(ctx context.Context, id string) *DescRoot {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *DescRootClient) Hooks() []Hook {
+	return c.hooks.DescRoot
+}
+
+// Interceptors returns the client interceptors.
+func (c *DescRootClient) Interceptors() []Interceptor {
+	return c.inters.DescRoot
+}
+
+func (c *DescRootClient) mutate(ctx context.Context, m *DescRootMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&DescRootCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&DescRootUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&DescRootUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&DescRootDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown DescRoot mutation op: %q", m.Op())
 	}
 }
 
@@ -905,9 +1046,9 @@ func (c *TypeExpClient) mutate(ctx context.Context, m *TypeExpMutation) (Value, 
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		CompConn, CompExec, TermDec, TypeDef, TypeExp []ent.Hook
+		CompConn, CompExec, DescRoot, TermDec, TypeDef, TypeExp []ent.Hook
 	}
 	inters struct {
-		CompConn, CompExec, TermDec, TypeDef, TypeExp []ent.Interceptor
+		CompConn, CompExec, DescRoot, TermDec, TypeDef, TypeExp []ent.Interceptor
 	}
 )

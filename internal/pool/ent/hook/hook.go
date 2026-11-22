@@ -32,6 +32,18 @@ func (f CompExecFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CompExecMutation", m)
 }
 
+// The DescRootFunc type is an adapter to allow the use of ordinary
+// function as DescRoot mutator.
+type DescRootFunc func(context.Context, *ent.DescRootMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f DescRootFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.DescRootMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DescRootMutation", m)
+}
+
 // The TermDefFunc type is an adapter to allow the use of ordinary
 // function as TermDef mutator.
 type TermDefFunc func(context.Context, *ent.TermDefMutation) (ent.Value, error)

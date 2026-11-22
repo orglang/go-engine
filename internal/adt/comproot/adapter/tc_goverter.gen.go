@@ -38,18 +38,18 @@ func init() {
 		return comprootSemRef, nil
 	}
 	DataToRefMap = func(source map[uniqsym.ADT]SemRef) (map[uniqsym.ADT]comproot.SemRef, error) {
-		var mapUniqsymADTCompsemSemRef map[uniqsym.ADT]comproot.SemRef
+		var mapUniqsymADTComprootSemRef map[uniqsym.ADT]comproot.SemRef
 		if source != nil {
-			mapUniqsymADTCompsemSemRef = make(map[uniqsym.ADT]comproot.SemRef, len(source))
+			mapUniqsymADTComprootSemRef = make(map[uniqsym.ADT]comproot.SemRef, len(source))
 			for key, value := range source {
 				comprootSemRef, err := DataToRef(value)
 				if err != nil {
 					return nil, err
 				}
-				mapUniqsymADTCompsemSemRef[key] = comprootSemRef
+				mapUniqsymADTComprootSemRef[key] = comprootSemRef
 			}
 		}
-		return mapUniqsymADTCompsemSemRef, nil
+		return mapUniqsymADTComprootSemRef, nil
 	}
 	DataToRefs = func(source []SemRef) ([]comproot.SemRef, error) {
 		var comprootSemRefList []comproot.SemRef

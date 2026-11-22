@@ -917,49 +917,57 @@ Retire является наблюдаемым изменением состоя
 
 Retirement не освобождает прежний QN для повторного использования. Имя остаётся зарезервированным вместе с Description identity и данными; оно может быть использовано повторно только после физического Delete Description, допустимого при отсутствии зависимостей, нарушающих referential integrity.
 
-## 35. Description composition: shared Provider Type and Terms
+## 35. Description composition and Type relationships
 
-Это решение уточняет и заменяет те части §19.1–19.2, §30.2, §31.1 и §32–33, в которых состав Description был описан как ровно одна сущность первого уровня — либо Type, либо Term. Сам Description root остаётся единым типом aggregate root; уточнение «Provider» не является отдельным видом Description.
+This section refines the Description composition and distinguishes two different relationships between a Term and a Type: implementation (Provider) and use (Client). A Provider Type is part of the same Description root as the Terms that implement it. A Client Type is referenced by a Term and may belong to another Description in the same bounded context.
 
-### 35.1. Допустимые композиции
+### 35.1. Description composition
 
-Description может иметь одну из следующих композиций:
+The target compositions are:
 
-1. **Type Description:** одна Type entity.
-2. **Term Description:** одна Term entity.
-3. **Shared Type-and-Term Description:** ровно одна Provider Type entity и ноль или более Term entities, реализующих этот Provider Type.
+1. **Type Description:** one Type entity.
+2. **Shared Type-and-Term Description:** exactly one Provider Type entity and zero or more Term entities implementing that Provider Type.
 
-В третьей композиции:
-- Provider — роль, которую Type играет в Declaration соответствующего Term; это не отдельный объект и не тип Description.
-- Каждый Term является отдельной декларацией/определением и реализует общий Provider Type.
-- Несколько Terms могут реализовывать один и тот же Provider Type в пределах одного Description.
-- Provider Type не является собственностью одного Term и в принципе может использоваться несколькими Terms.
-- Type и каждый Term сохраняют собственные TypeID/TermID; все они принадлежат одному Description root и разделяют его DescID и DescRN.
+A Term cannot exist without a Provider Type. Therefore, a Term and its Provider Type always belong to the same Description root; a Term-only Description is not a valid target composition.
 
-Нулевая кардинальность Terms допустима: Description может быть создан с Provider Type до появления первой реализации. В рамках этой композиции нескольких Provider Types не вводится.
+In the shared composition:
+- Provider is the role of the Type contract that a Term implements; it is not a separate object or a Description kind.
+- Every Term has exactly one Provider Type.
+- One Provider Type may be implemented by multiple Terms in the same Description.
+- A Description may be created with its Provider Type before any implementing Terms exist.
+- The Provider Type and its Terms retain separate TypeID/TermID identities while sharing DescID and DescRN.
 
-### 35.2. Статическая согласованность общей композиции
+### 35.2. Provider relationship and static consistency
 
-Shared Type-and-Term Description задаёт consistency boundary для соответствия Provider Type и всех принадлежащих ему Terms:
+The Provider relationship expresses implementation of a Type contract:
 
-- При создании или изменении Term его Declaration/Definition проверяется на соответствие текущему Provider Type.
-- Изменение Provider Type допустимо только если после изменения все принадлежащие этому Description Terms остаются корректными.
-- Команда, меняющая Type или Term, проверяет соответствующие инварианты и фиксирует изменение атомарно в пределах Description.
-- Любая успешная атомарная команда, меняющая наблюдаемое состояние этой композиции, увеличивает общий DescRN ровно один раз.
+- When a Term is created or changed, its Declaration/Definition is checked against its Provider Type.
+- A Provider Type may be changed only if every Term implementing it in the same Description remains valid.
+- A command changing the Provider Type or an implementing Term checks the relevant invariants and commits atomically within the Description.
+- A successful atomic command that changes observable state increments the shared DescRN exactly once.
 
-Таким образом, Description root обеспечивает статическую согласованность Provider Type со всем набором его Terms, а не только с одним выбранным Term.
+The consistency guarantee applies to implementing Terms, not to every Term that references the Type as a Client.
 
-### 35.3. Независимые Type и Term Description roots
+### 35.3. Client relationship and revision pinning
 
-Type и Term также могут иметь независимые Description roots:
-- Type Description содержит одну Type entity.
-- Term Description содержит одну Term entity.
-- Term может ссылаться на Type из другого Description по TypeID; один Type может использоваться несколькими такими Terms.
-- Такая ссылка не означает владения Type со стороны Term и не объединяет их aggregate roots.
-- Независимые roots не дают общей атомарной consistency boundary между Type и Term. Совместная статическая гарантия §35.2 действует только когда Provider Type и реализующие его Terms входят в один Description.
+The Client relationship expresses use of a Type contract, not implementation of that contract:
 
-Выбор между общей композицией и независимыми roots определяется требуемой гарантией доменной согласованности, а не удобством хранения. В частности, если изменение Type обязано сохранять корректность всего набора его Terms атомарно, эти сущности должны входить в один Description root. Если такой общей гарантии не требуется, Type и Term могут оставаться независимыми Description roots.
+- A Term may use zero or more Types in the Client role.
+- Each Client use refers to a specific revision of the Type. A later change to the Type does not silently update an existing Client reference.
+- A Type may be used as Client by multiple Terms.
+- The same Type may be both Provider and Client for the same Term; these remain distinct relationships with distinct semantics.
+- A Term may have multiple Client uses of the same Type. Whether those uses may pin different revisions remains undecided.
+- Client references may target a Type in another Description root, provided both are in the same bounded context.
+- Cross-bounded-context Type references are not allowed.
 
-### 35.4. Revision
+A change to a Type does not have to preserve compatibility with Terms that use an earlier revision in the Client role. Those Client references continue to identify the revision they pinned. Client references do not make the referenced Type part of the Term's Description and do not transfer ownership.
 
-Правила общей Description revision из §33 сохраняются. Для Shared Type-and-Term Description DescRN версионирует совместное наблюдаемое состояние Provider Type и всех принадлежащих ему Terms. Мутация любого из них, а также одна команда, меняющая несколько из них, увеличивает DescRN ровно один раз за атомарную команду.
+### 35.4. Revision and aggregate boundaries
+
+The Description revision rules in §33 remain in force:
+- For a shared Type-and-Term Description, DescRN versions the observable state of the Provider Type and all Terms implementing it.
+- A mutation of any of those entities, or one atomic command changing several of them, increments DescRN exactly once.
+- A Client reference to a Type in another Description pins that Type's revision; it does not merge the two Description roots or change the referenced Description's revision.
+- Provider and Client relationships are separate domain relationships and must not be collapsed into one generic Type reference.
+
+The rule for repeated Client uses of the same Type with different pinned revisions is intentionally left open pending a domain requirement.

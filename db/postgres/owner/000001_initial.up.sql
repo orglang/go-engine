@@ -1,8 +1,8 @@
 CREATE EXTENSION IF NOT EXISTS ltree;
 
 CREATE TABLE pool_desc_roots (
-    desc_id varchar UNIQUE,
-    desc_rn bigint
+    desc_id varchar PRIMARY KEY,
+    desc_rn bigint NOT NULL
 );
 
 CREATE TABLE pool_desc_binds (
@@ -84,8 +84,8 @@ CREATE TABLE pool_conn_acts (
 );
 
 CREATE TABLE proc_desc_roots (
-    desc_id varchar UNIQUE,
-    desc_rn bigint
+    desc_id varchar PRIMARY KEY,
+    desc_rn bigint NOT NULL
 );
 
 CREATE TABLE proc_desc_binds (

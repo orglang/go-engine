@@ -916,3 +916,50 @@ QN изменяем: переименование не создаёт новый
 Retire является наблюдаемым изменением состояния Description и выполняется как атомарная мутация с увеличением `DescRN` ровно один раз согласно §33. Правила чтения retired Description, снятия с retirement и конкретный механизм проверки зависимостей перед физическим Delete относятся к последующим lifecycle и persistence contracts.
 
 Retirement не освобождает прежний QN для повторного использования. Имя остаётся зарезервированным вместе с Description identity и данными; оно может быть использовано повторно только после физического Delete Description, допустимого при отсутствии зависимостей, нарушающих referential integrity.
+
+## 35. Description composition: shared Provider Type and Terms
+
+Это решение уточняет и заменяет те части §19.1–19.2, §30.2, §31.1 и §32–33, в которых состав Description был описан как ровно одна сущность первого уровня — либо Type, либо Term. Сам Description root остаётся единым типом aggregate root; уточнение «Provider» не является отдельным видом Description.
+
+### 35.1. Допустимые композиции
+
+Description может иметь одну из следующих композиций:
+
+1. **Type Description:** одна Type entity.
+2. **Term Description:** одна Term entity.
+3. **Shared Type-and-Term Description:** ровно одна Provider Type entity и ноль или более Term entities, реализующих этот Provider Type.
+
+В третьей композиции:
+- Provider — роль, которую Type играет в Declaration соответствующего Term; это не отдельный объект и не тип Description.
+- Каждый Term является отдельной декларацией/определением и реализует общий Provider Type.
+- Несколько Terms могут реализовывать один и тот же Provider Type в пределах одного Description.
+- Provider Type не является собственностью одного Term и в принципе может использоваться несколькими Terms.
+- Type и каждый Term сохраняют собственные TypeID/TermID; все они принадлежат одному Description root и разделяют его DescID и DescRN.
+
+Нулевая кардинальность Terms допустима: Description может быть создан с Provider Type до появления первой реализации. В рамках этой композиции нескольких Provider Types не вводится.
+
+### 35.2. Статическая согласованность общей композиции
+
+Shared Type-and-Term Description задаёт consistency boundary для соответствия Provider Type и всех принадлежащих ему Terms:
+
+- При создании или изменении Term его Declaration/Definition проверяется на соответствие текущему Provider Type.
+- Изменение Provider Type допустимо только если после изменения все принадлежащие этому Description Terms остаются корректными.
+- Команда, меняющая Type или Term, проверяет соответствующие инварианты и фиксирует изменение атомарно в пределах Description.
+- Любая успешная атомарная команда, меняющая наблюдаемое состояние этой композиции, увеличивает общий DescRN ровно один раз.
+
+Таким образом, Description root обеспечивает статическую согласованность Provider Type со всем набором его Terms, а не только с одним выбранным Term.
+
+### 35.3. Независимые Type и Term Description roots
+
+Type и Term также могут иметь независимые Description roots:
+- Type Description содержит одну Type entity.
+- Term Description содержит одну Term entity.
+- Term может ссылаться на Type из другого Description по TypeID; один Type может использоваться несколькими такими Terms.
+- Такая ссылка не означает владения Type со стороны Term и не объединяет их aggregate roots.
+- Независимые roots не дают общей атомарной consistency boundary между Type и Term. Совместная статическая гарантия §35.2 действует только когда Provider Type и реализующие его Terms входят в один Description.
+
+Выбор между общей композицией и независимыми roots определяется требуемой гарантией доменной согласованности, а не удобством хранения. В частности, если изменение Type обязано сохранять корректность всего набора его Terms атомарно, эти сущности должны входить в один Description root. Если такой общей гарантии не требуется, Type и Term могут оставаться независимыми Description roots.
+
+### 35.4. Revision
+
+Правила общей Description revision из §33 сохраняются. Для Shared Type-and-Term Description DescRN версионирует совместное наблюдаемое состояние Provider Type и всех принадлежащих ему Terms. Мутация любого из них, а также одна команда, меняющая несколько из них, увеличивает DescRN ровно один раз за атомарную команду.

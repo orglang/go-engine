@@ -116,3 +116,29 @@ ADR-0002 фиксирует, что Pool Connection и Process Connection — н
 3. Не объединять Proc/Pool roots, TypeExp state, Connection lifecycle или use cases только из-за общей формы ссылки.
 4. Не вводить универсальный `AggRef`: публичная модель уже имеет три конкретных типа, и они точнее выражают допустимые связи.
 5. Перед изменением Go contracts проверить все conversion sites, сериализацию, DI wiring и потребителей semantic ports; отдельно определить, должна ли revision быть частью каждой ссылки в каждом use case.
+
+
+## 13. Отдельная гипотеза: схлопнуть TypeRef и TermRef
+
+Эта гипотеза рассматривается отдельно от вопроса об объединении aggregate roots. У `typesem.SemRef` и `termsem.SemRef` одинаковая физическая форма: пара `identity.ADT` + `seqnum.ADT`, одинаковый конструктор `New()` и одинаковая базовая трактовка revision. Это аргумент в пользу общего value representation.
+
+При этом обнаружены реальные семантические различия:
+
+- Type references разрешаются по QName через `typesem.Repo.GetRefsByQNs`; этот port также предоставляет `TouchRef`. `proc/termdec` использует его, чтобы разрешить типы liability/asset variables.
+- Term references сейчас не имеют аналогичного semantic repository port. Term QName разрешается контекстными `termdef`/`termdec` repositories и descriptor bindings.
+- `termvar.VarRec.TypeRef` всегда ссылается на Type, тогда как `pool/termexp.SpawnSpec2.ProcTermRef` ссылается на Process Term. В этих местах вид ссылки — часть предметного смысла поля.
+- Descriptor binding (`descsem`) различает `TypeKind` и `TermKind`, то есть реестр QName уже хранит явный discriminator вида сущности.
+- Публичный TypeSpec API в настоящее время экспортирует `Any.TypeRef` и `Any.TermRef` отдельно. Внутреннее объединение не должно автоматически менять wire contract.
+
+### Варианты модели
+
+1. **Общий внутренний value type, разные именованные поля/контракты.** Ввести общий `adt/semref.Ref` (ID + revision), а Type/Term boundary packages использовать для семантических операций и явных конвертаций. Это устраняет структурное дублирование, но требует не допускать неявной подмены Type ссылкой на Term.
+2. **Один полностью общий `SemRef` без discriminator.** Самый компактный вариант, но вызывающий код должен знать вид root из контекста. Он слабее защищает от ошибочного lookup в неправильном repository и не подходит для автономной передачи/хранения ссылки без контекста.
+3. **Общий `SemRef` с kind discriminator.** Ссылка становится самодостаточной для маршрутизации, но kind дублирует часть информации, уже заданной типизированным полем/контрактом и descriptor registry. Также нужно определить, входит ли kind в идентичность или только в маршрутизацию.
+4. **Оставить TypeRef и TermRef независимыми.** Сохраняет максимальную статическую типобезопасность, но дублирует одинаковую пару ID/revision и конвертеры.
+
+### Предварительная рекомендация
+
+Исследовать вариант 1 как основной: общий низкоуровневый value representation для Type и Term, но сохранять семантические границы в названиях полей, repository ports и use cases. Не объединять `typesem.Repo` и операции поиска по QName с term repositories. Не менять TypeSpec `Any.TypeRef`/`Any.TermRef` в рамках этой задачи, пока не доказана необходимость wire-level изменения.
+
+До реализации проверить: (а) уникальность identity между Type и Term внутри одного persistence context; (б) все сериализационные и generated conversion paths; (в) правила revision/CAS для Term roots и Type roots; (г) возможность случайно передать общий Ref в repository неправильного вида; (д) не требует ли автономная ссылка kind для корректной маршрутизации. Если хотя бы один из этих контрактов требует статической гарантии вида, оставить TypeRef/TermRef как distinct named wrappers поверх общей пары.

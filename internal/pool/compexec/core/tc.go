@@ -1,13 +1,13 @@
 package core
 
 import (
-	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/comproot"
 	"orglang/go-engine/internal/adt/compvar"
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/symbol"
 )
 
-func ConvertRecToRef(rec ExecSnap2) compsem.SemRef {
+func ConvertRecToRef(rec ExecSnap2) comproot.SemRef {
 	return rec.CompRef
 }
 

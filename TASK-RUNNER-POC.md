@@ -27,6 +27,7 @@ Run the native-mise PoC:
 ```sh
 mise -E poc run poc:specs:gate
 mise -E poc run poc:sources:gate
+mise -E poc run poc:binaries:gate
 mise -E poc run poc:binaries:build
 mise -E poc run poc:binaries:unit-test
 mise -E poc run poc:binaries:integration-test
@@ -38,6 +39,7 @@ mise -E poc run poc:tests:e2e
 From the `go-workspace` repository root (assuming the nested checkout is `engine/`):
 
 ```sh
+mise -C engine -E poc run poc:binaries:gate
 mise -C engine -E poc run poc:binaries:build
 mise -C engine -E poc run poc:binaries:unit-test
 ```
@@ -52,9 +54,10 @@ This deliberately exercises the same nested-repository boundary used by the work
 | Go source generation | `poc:sources:generate` | Same generator commands and ordering |
 | Go source lint / analyze | `poc:sources:lint`, `poc:sources:analyze` | Same golangci-lint and go vet arguments |
 | Sources gate | `poc:sources:gate` | Reproduces lock, generation, generated-file cleanliness, formatting, lint and analysis checks |
+| Full Engine gate | `poc:binaries:gate` | Composes Specs, Sources, lockfile checks, build and tests without Task |
 | Build / unit / integration / E2E | `poc:binaries:build`, `poc:binaries:unit-test`, `poc:binaries:integration-test`, `poc:tests:e2e` | Direct Go commands; avoids Task wrappers |
 
-The PoC intentionally does not port the lock-refresh/check workflow (`binaries:lock` / `binaries:check`) or process/container convenience tasks yet. Those are useful follow-up cases if the first comparison indicates that native mise is viable.
+The PoC ports the lock-refresh/check workflow (`poc:binaries:lock` / `poc:binaries:check`) as part of the full Engine gate. Process/container convenience tasks are not included; they are outside the CI build lifecycle under evaluation.
 
 ## Evaluation checklist
 

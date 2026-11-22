@@ -120,10 +120,10 @@ Computation — отдельный aggregate root в каждом bounded contex
 
 ### Identity и Execution
 
-- `ComputationID` идентифицирует Computation aggregate и его единственный Execution.
+- `CompID` идентифицирует Computation aggregate и его единственный Execution.
 - В одном Computation существует ровно один Execution; отдельный `ExecutionID` не вводится.
-- `ComputationRevision` — revision Computation aggregate.
-- Variables и channel bindings принадлежат Execution и адресуются через `ComputationID`.
+- `CompRN` — revision Computation aggregate.
+- Variables и channel bindings принадлежат Execution и адресуются через `CompID`.
 - Повторный запуск изменяет состояние того же Execution. Несколько Execution, retry history и run history базовой моделью не поддерживаются.
 
 ### Connection

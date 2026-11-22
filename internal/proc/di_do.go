@@ -28,7 +28,7 @@ var Package = do.Package(
 		return ent.NewClient(ent.Driver(entpgx.New())), nil
 	}),
 	compconn.Package,
-	do.Lazy[descroot.Repo](func(i do.Injector) (descroot.Repo, error) {
+	do.LazyNamed[descroot.Repo]("proc-descroot", func(i do.Injector) (descroot.Repo, error) {
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil {
 			return nil, err

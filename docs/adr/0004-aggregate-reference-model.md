@@ -584,7 +584,7 @@ Term declaration/definition ports остаются раздельными там
 3. **Term payload:** какие части данных принадлежат declaration, какие definition, какие общие TermState?
 4. **TypeExp retention:** обязаны ли все durable ExpCK pins сохраняться бессрочно, либо допустим управляемый retention?
 5. **Description revision:** должны ли все metadata изменения (включая rename/lifecycle) увеличивать ту же revision, или нужна отдельная metadata revision?
-6. **Execution identity/cardinality:** является ли Execution ровно одной сущностью на Computation или Computation допускает несколько Execution (например, повторные запуски); нужен ли отдельный ExecutionID или ключом служит ComputationID?
+6. **Execution identity/cardinality — решено:** одна Computation содержит ровно один Execution; ComputationID является его идентификатором. Отдельный ExecutionID и несколько Execution/retries под одной Computation не вводятся. Повторный запуск трактуется как изменение состояния этого Execution.
 7. **Reference durability:** для каждого поля Type/Term/Comp refs в Execution variables, Connection endpoints, Acts и Spawn определить identity association vs pinned state vs command precondition. Полный Spawn use case ещё не подтверждён аудитом: SpawnSpec2 доказывает только входную передачу revision-bearing refs.
 8. **Cross-aggregate atomicity:** какие команды могут атомарно менять несколько Computations и каков набор expected revisions/lock ordering?
 9. **Deletion:** допускается ли физическое удаление Description/Term/Type/Computation и какие durable references блокируют его?
@@ -667,7 +667,7 @@ ADR-0002 уже задаёт правило: Connection имеет одного 
 - Оба Ent adapters создают запись `*_comp_execs` с `comp_id`, `comp_rn`, `liab_mode`; отдельный ключ Execution в рассмотренных core/adapter contracts не обнаружен.
 - Variables/channel bindings адресуются через Computation ID и revision, а не через самостоятельный ExecutionID.
 
-Следовательно, **текущая реализация моделирует один Execution на Computation identity** (или, осторожнее, один execution-state record на Computation root). Она не демонстрирует поддержку нескольких независимых Execution/retries под одним Computation. Это факт текущего кода, но не решение для target model: §23.6 остаётся открытым, пока не определены lifecycle, retry semantics и необходимость сохранять несколько запусков.
+Следовательно, текущая реализация моделирует один execution-state record на Computation identity. В целевой модели принимается то же решение: **одна Computation содержит ровно одну сущность Execution, а ComputationID служит её идентификатором**. Отдельный ExecutionID не вводится. Повторный запуск в рамках этой модели изменяет состояние существующего Execution; создание нескольких запусков или истории retries под одной Computation не входит в текущую модель и потребует отдельного пересмотра.
 
 ### 27.2. Variables и channel bindings
 
@@ -719,14 +719,16 @@ Target contract должен развести:
 
 Эта таблица разделяет наблюдаемую текущую форму данных и target semantics. Последняя колонка — проектная рекомендация, а не утверждение о существующем поведении.
 
-### 27.6. Последствия для Execution design
+### 27.6. Зафиксированное решение по Execution identity
 
-До выбора cardinality нужно ответить на три разных вопроса, не смешивая их:
+Целевая модель принимает одну сущность Execution на Computation:
 
-1. **Identity:** ComputationID одновременно является ExecutionID (один execution-state record) или Execution получает собственный ID?
-2. **Cardinality:** Computation допускает один текущий Execution, несколько одновременных Execution или историю последовательных запусков?
-3. **Lifecycle/history:** повторный запуск мутирует существующий Execution, создаёт новый Execution под тем же Computation, либо создаёт новую Computation identity?
+- ComputationID одновременно адресует Computation aggregate и его единственный Execution entity;
+- отдельный ExecutionID не вводится;
+- variables/channel bindings адресуются через ComputationID и принадлежат этому Execution;
+- повторный запуск в рамках текущей модели изменяет состояние существующего Execution;
+- несколько Execution под одной Computation, параллельные запуски и история retries не поддерживаются этим решением и потребуют отдельного изменения модели.
 
-Если требуется несколько Execution под одним Computation, variables/channel bindings должны ссылаться на Execution identity, а Computation root revision должна защищать их изменения и коллекцию/выбор активного Execution. Если сохраняется один Execution, отдельный ExecutionID может не давать достаточной ценности; тогда ComputationID остаётся естественным ключом Execution entity. Ни один вариант пока не утверждается.
+Это решение соответствует наблюдаемой текущей форме core/storage contracts и не требует вводить дополнительную identity без подтверждённой предметной потребности.
 
 Этот аудит завершает первичную карту известных Computation reference sites, но не заменяет полный поиск по всем persistence schemas и inbound/outbound API contracts перед миграцией.

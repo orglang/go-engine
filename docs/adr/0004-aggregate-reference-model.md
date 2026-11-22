@@ -269,3 +269,23 @@ Type и Term следует рассматривать не обязательн
 ### 15.5. Наблюдение по zero RN
 
 В internal/adt/seqnum уже определён seqnum.Zero, а seqnum.ADT является числовым value type. Это позволяет выразить selector «latest» без pointer/nil: zero RN означает resolve current; ненулевой RN означает проверку соответствия текущей ревизии. Это должно оставаться семантикой query/use case, а не означать, что durable reference может содержать нулевую ревизию. Текущие публичные TypeSpec refs имеют обязательные числовые RN, поэтому wire contract не следует менять автоматически.
+
+
+## 16. Дополнительная проверка ссылок внутри aggregate state
+
+Аудит term variable persistence выявил важное исключение из предположения, что TypeRef всегда сохраняется как полная пара ID + RN:
+
+- В core termvar.VarRec поле TypeRef имеет тип typesem.SemRef и содержит TypeID + TypeRN.
+- Persistence DTO internal/adt/termvar/adapter/VarRec содержит только TypeID (JSON key id), ChnlPH и ExpCK.
+- Generated converter DataFromVarRec сохраняет TypeID, но не TypeRN; обратный converter восстанавливает TypeID, оставляя TypeRN равным zero-value.
+- ExpCK сохраняется отдельно и указывает на конкретное type expression state.
+
+Таким образом, вложенная ссылка переменной на Type сейчас фактически является ссылкой на identity Type без RN, а выбранное expression state фиксируется отдельным ExpCK. Это не просто потеря поля в converter: persistence schema намеренно не содержит TypeRN. Нужно определить, является ли это правильной моделью snapshot semantics (Type identity + pinned expression), либо при переходе на общий descsem root переменная должна ссылаться на root RN, а ExpCK останется ссылкой на конкретное expression state.
+
+Следствие: нельзя автоматически объявить все Type/Term references durable revision-bearing references с обязательным RN. Нужно классифицировать каждое поле:
+- exact aggregate state reference (ID + RN);
+- identity-only association (ID);
+- latest selector (ID + zero RN);
+- pinned child-state reference (например, ID + ExpCK).
+
+Это особенно важно для ссылочной целостности и concurrency: изменение Type aggregate может увеличить root RN, но не обязательно должно инвалидировать уже сохранённую term variable, если она намеренно закрепляет прежний ExpCK.

@@ -29,7 +29,6 @@
 - `mise run binaries:check` — проверка актуальности Go module manifests и mise lock-файла.
 - `mise run binaries:build` — сборка бинарника Engine.
 - `mise run binaries:unit-test` / `mise run binaries:integration-test` — unit- и интеграционные тесты.
-- `mise run tests:e2e` — сквозные тесты.
 - `mise run binaries:gate` — полный CI gate: Specs, Sources, lock checks, build и тесты.
 - `mise run engine:process` — запуск приложения.
 - `mise run db:process` — запуск PostgreSQL через Docker Compose.

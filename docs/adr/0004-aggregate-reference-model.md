@@ -1,12 +1,12 @@
 # ADR-0004: Модель корней агрегатов и semantic references
 
-- **Статус:** Proposed (инвентаризация; решения не приняты)
+- **Статус:** Proposed (целевой Description aggregate и reference contracts; открытые предметные решения перечислены в §23)
 - **Дата:** 2026-11-22
 - **Связано:** go-workspace#128, go-engine#188, go-workspace#122
 
 ## Цель
 
-Зафиксировать фактическую модель агрегатов в `proc` и `pool`, отделить её от ADT и подготовить обоснованные решения о reference-контрактах и persistence roots. Этот документ пока не разрешает изменения публичных контрактов или схемы БД.
+Зафиксировать фактическую модель агрегатов в `proc` и `pool`, отделить её от ADT и подготовить обоснованные решения о reference-контрактах и persistence roots. Этот документ задаёт целевую предметную модель. Публичные контракты и схема БД могут быть изменены для её реализации; конкретные изменения определяются после согласования §23 и migration plan.
 
 ## 1. Оси модели
 
@@ -21,7 +21,7 @@
 | `pool` | `pool/typedef` → `pool_type_defs` | `pool/termdef` → `pool_term_decs` | `pool/compexec` → `pool_comp_execs` |
 | `proc` | `proc/typedef` → `proc_type_defs` | `proc/termdec` → `proc_term_decs` | `proc/compexec` → `proc_comp_execs` |
 
-`proc/termdef` присутствует в исходниках, но текущий core содержит незавершённые заглушки; в initial SQL migration и Ent schema соответствующего process term-definition root нет. До отдельного подтверждения это не следует считать валидным самостоятельным агрегатом.
+`proc/termdef` присутствует в исходниках, но текущий core содержит незавершённые заглушки; в initial SQL migration и Ent schema соответствующего process term-definition root нет. Это описание current state, а не целевой модели: proc.termdef входит в целевой Term Description и должен быть реализован как часть этого направления.
 
 Таблицы и имена в матрице описывают текущую реализацию, а не целевую схему.
 
@@ -79,12 +79,12 @@
 
 ## 8. Ограничения реализации
 
-- Не менять SDK.
+- SDK и его контракты не являются ограничением целевой модели; при необходимости они проектируются и меняются отдельным согласованным этапом.
 - Не менять SQL migrations без отдельного обоснования и совместимого migration plan.
 - Не создавать все декартовы комбинации автоматически.
 - Не вводить универсальный CRUD или универсальный reference только ради уменьшения числа типов.
 - Не переносить Ent API или persistence DTO за границы adapters.
-- Сохранять внешние wire/API contracts до отдельного решения о совместимости.
+- Не сохранять внешние wire/API contracts только ради обратной совместимости; API проектируется под целевые domain/reference contracts.
 
 
 ## 9. Проверка по публичной TypeSpec-модели
@@ -251,24 +251,24 @@ Type и Term следует рассматривать не обязательн
 
 Это пока гипотеза, а не принятое решение. Необходимо сравнить как минимум две формы:
 
-1. **Единый descriptor root + специализированное состояние.** Один descsem root на descriptor ID, содержащий QN, kind и RN; type/term-specific tables являются state/parts этого root и используют общий ID/RN.
+1. **Единый Description root + специализированное состояние.** Один Description root на descriptor ID, содержащий QN, kind и RN; type/term-specific tables являются state/parts этого root и используют общий ID/RN.
 2. **Общий descriptor registry над самостоятельными Type/Term roots.** descsem централизует QN и kind, но Type/Term сохраняют собственные root identities/revisions и consistency boundaries.
 
 Первая форма соответствует сильному прочтению идеи «две сущности первого уровня одного агрегата» и может устранить дублирование identity/revision semantics. Вторая — более эволюционный вариант, но сама по себе не объединяет aggregate boundary и не гарантирует атомарность cross-kind invariants.
 
 ### 15.4. Существенные вопросы до выбора схемы
 
-1. Должен ли descsem root существовать отдельно в каждом контексте, как сейчас (proc_desc_binds и pool_desc_binds), или одна descriptor identity должна быть общей между proc и pool? Текущая схема подтверждает только контекстное владение.
+1. Решено в §17: отдельный Description aggregate внутри каждого bounded context; общей identity space между proc и pool нет.
 2. Является ли QN частью identity root или изменяемым unique name/binding, который можно переименовать независимо от ID?
-3. Должен ли RN жить в descriptor root и версионировать изменения Type/Term state совместно?
+3. Должен ли RN жить в Description root и версионировать изменения Type/Term state совместно?
 4. Как моделировать TypeExp: часть Type variant state под тем же root RN или отдельный immutable/versioned child resource?
 5. Как обеспечить, чтобы kind соответствовал ровно одному специализированному состоянию и чтобы QN разрешался в согласованный ID/RN?
 6. Должны ли Process Term Declaration (termdec) и Process Term Definition (termdef) быть двумя use cases одной Term-сущности/варианта, либо это разные роли/сущности внутри descriptor aggregate?
-7. Как мигрировать текущие таблицы и wire refs, не ломая публичные Any.TypeRef и Any.TermRef?
+7. Как спроектировать миграцию текущих таблиц и API на целевые typed references без требования wire compatibility?
 
 ### 15.5. Наблюдение по zero RN
 
-В internal/adt/seqnum уже определён seqnum.Zero, а seqnum.ADT является числовым value type. Это позволяет выразить selector «latest» без pointer/nil: zero RN означает resolve current; ненулевой RN означает проверку соответствия текущей ревизии. Это должно оставаться семантикой query/use case, а не означать, что durable reference может содержать нулевую ревизию. Текущие публичные TypeSpec refs имеют обязательные числовые RN, поэтому wire contract не следует менять автоматически.
+В internal/adt/seqnum уже определён seqnum.Zero, а seqnum.ADT является числовым value type. Это позволяет выразить selector «latest» без pointer/nil: zero RN означает resolve current; ненулевой RN означает проверку соответствия текущей ревизии. Это должно оставаться семантикой query/use case, а не означать, что durable reference может содержать нулевую ревизию. Текущие TypeSpec refs имеют обязательные числовые RN; это наблюдение о current state и не ограничивает целевой API.
 
 
 ## 16. Дополнительная проверка ссылок внутри aggregate state
@@ -280,7 +280,7 @@ Type и Term следует рассматривать не обязательн
 - Generated converter DataFromVarRec сохраняет TypeID, но не TypeRN; обратный converter восстанавливает TypeID, оставляя TypeRN равным zero-value.
 - ExpCK сохраняется отдельно и указывает на конкретное type expression state.
 
-Таким образом, вложенная ссылка переменной на Type сейчас фактически является ссылкой на identity Type без RN, а выбранное expression state фиксируется отдельным ExpCK. Это не просто потеря поля в converter: persistence schema намеренно не содержит TypeRN. Нужно определить, является ли это правильной моделью snapshot semantics (Type identity + pinned expression), либо при переходе на общий descsem root переменная должна ссылаться на root RN, а ExpCK останется ссылкой на конкретное expression state.
+Таким образом, вложенная ссылка переменной на Type сейчас фактически является ссылкой на identity Type без RN, а выбранное expression state фиксируется отдельным ExpCK. Это не просто потеря поля в converter: persistence schema намеренно не содержит TypeRN. Нужно определить, является ли это правильной моделью snapshot semantics (Type identity + pinned expression), либо при переходе на общий Description root переменная должна ссылаться на root RN, а ExpCK останется ссылкой на конкретное expression state.
 
 Следствие: нельзя автоматически объявить все Type/Term references durable revision-bearing references с обязательным RN. Нужно классифицировать каждое поле:
 - exact aggregate state reference (ID + RN);
@@ -313,7 +313,7 @@ Type и Term следует рассматривать не обязательн
 - expression records не содержат TypeRN и не являются самостоятельными Type roots;
 - изменение expression меняет Type root RN и его указатель `ExpCK`, но expression key остаётся отдельным адресом состояния.
 
-Это согласуется с моделью, где TypeExp — kind-specific state внутри Type variant одного descsem root, а не самостоятельный descriptor. Однако при переносе в новую схему нужно сохранить возможность закреплять конкретный `ExpCK` независимо от текущего root RN.
+Это согласуется с моделью, где TypeExp — kind-specific state внутри Type variant одного Description root, а не самостоятельный descriptor. Однако при переносе в новую схему нужно сохранить возможность закреплять конкретный `ExpCK` независимо от текущего root RN.
 
 ### 18.2. Классификация ссылок по проверенным потребителям
 
@@ -342,7 +342,7 @@ Type и Term следует рассматривать не обязательн
 1. Проследить Spawn use case целиком: от `SpawnSpec2` до создания process/computation и выяснить, где проверяются `ProcTermRef` и `ProcCompRefs`, и сохраняются ли они.
 2. Завершить инвентаризацию computation references в variables, connections и actions, включая RN check/CAS.
 3. Сопоставить все ссылки Type/Term в обоих контекстах с четырьмя классами из раздела 16.
-4. На основании этой карты определить root-level revision policy, затем предложить schema migration и compatibility strategy для существующих TypeRef/TermRef wire DTO.
+4. На основании этой карты утвердить root-level revision policy и спроектировать новую schema/API migration без обязательства сохранять существующие TypeRef/TermRef wire DTO.
 
 До выполнения этих шагов код и DDL не менять.
 

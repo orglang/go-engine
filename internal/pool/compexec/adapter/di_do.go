@@ -8,7 +8,6 @@ import (
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/adt/compsem"
-	compsemadapter "orglang/go-engine/internal/adt/compsem/adapter"
 	"orglang/go-engine/internal/adt/implsem"
 	implsemadapter "orglang/go-engine/internal/adt/implsem/adapter"
 	"orglang/go-engine/internal/lib/tx"
@@ -122,11 +121,15 @@ var Package = do.Package(
 		return newControllerEcho(api, logger), nil
 	}),
 	do.Lazy[compsem.Repo](func(i do.Injector) (compsem.Repo, error) {
+		client, err := do.Invoke[*ent.Client](i)
+		if err != nil {
+			return nil, err
+		}
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil {
 			return nil, err
 		}
-		return compsemadapter.NewDaoPgx("pool_comp_execs")(logger), nil
+		return NewCompSemDaoEnt(client, logger), nil
 	}),
 	do.Lazy[implsem.Repo](func(i do.Injector) (implsem.Repo, error) {
 		logger, err := do.Invoke[*slog.Logger](i)

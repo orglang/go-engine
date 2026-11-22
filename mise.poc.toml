@@ -78,7 +78,7 @@ run = [
   "mise -E sources lock",
   "mise run poc:sources:generate",
   'test -z "$(git status --porcelain -- mise.sources-dev.lock)"',
-  """test -z "$(git status --porcelain -- ':(glob)**/*.gen.go' ':(glob)**/ent/**')" """,
+  "test -z \"$(git status --porcelain -- ':(glob)**/*.gen.go' ':(glob)**/ent/**')\"",
   "golangci-lint fmt --diff",
   "mise run poc:sources:lint",
   "mise run poc:sources:analyze",

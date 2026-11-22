@@ -85,6 +85,22 @@ linters:
               desc: Core/domain code must depend on a port, not an adapter.
             - pkg: github.com/jackc/pgx
               desc: Use lib/tx contracts; keep pgx in infrastructure adapters.
+        ProcCore:
+          list-mode: lax
+          files:
+            - "**/proc/**/core/**/*.go"
+            - "!**/*_test.go"
+          deny:
+            - pkg: orglang/go-engine/internal/pool
+              desc: Process core must not depend on pool application or persistence contracts; compose them at the application boundary.
+        PoolCore:
+          list-mode: lax
+          files:
+            - "**/pool/**/core/**/*.go"
+            - "!**/*_test.go"
+          deny:
+            - pkg: orglang/go-engine/internal/proc
+              desc: Pool core must not depend on process application or persistence contracts; compose them at the application boundary.
         ADT:
           list-mode: lax
           files:
@@ -101,6 +117,10 @@ linters:
               desc: Domain types must not depend on concrete adapters.
             - pkg: orglang/go-engine/internal/adt/typesem/adapter
               desc: Domain types must not depend on concrete adapters.
+            - pkg: orglang/go-engine/internal/proc
+              desc: ADT is an upstream shared domain; it must not depend on the process aggregate.
+            - pkg: orglang/go-engine/internal/pool
+              desc: ADT is an upstream shared domain; it must not depend on the pool aggregate.
             - pkg: github.com/jackc/pgx
               desc: Keep database drivers outside the domain.
     revive:

@@ -1,9 +1,2 @@
 [tools]
 node = "26.10.0"
-
-[task_config.input_groups]
-specs = [
-  "tsp/**",
-  "openapi/openapi.yaml",
-  ".mise/conf.d/specs.toml",
-]

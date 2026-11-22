@@ -24,13 +24,11 @@ func NewDaoPgx(table string) func(*slog.Logger) *daoPgx {
 	}
 }
 
-// for compilation purposes
-func newRepo() descroot.Repo {
-	return new(daoPgx)
-}
-
 func (dao *daoPgx) AddRef(ctx context.Context, conn tx.Conn, ref descroot.SemRef) error {
-	const query = `INSERT INTO %s (desc_id, desc_rn) VALUES ($1, $2)`
+	const query = `
+INSERT INTO %s (desc_id, desc_rn)
+VALUES ($1, $2)
+`
 	sql := fmt.Sprintf(query, dao.tableName)
 	_, err := conn.Pgx.Exec(ctx, sql, ref.DescID.String(), ref.DescRN)
 	if err != nil {
@@ -42,7 +40,11 @@ func (dao *daoPgx) AddRef(ctx context.Context, conn tx.Conn, ref descroot.SemRef
 
 // TouchRef advances the Description revision if the expected revision matches.
 func (dao *daoPgx) TouchRef(ctx context.Context, conn tx.Conn, ref descroot.SemRef) error {
-	const query = `UPDATE %s SET desc_rn = desc_rn + 1 WHERE desc_id = $1 AND desc_rn = $2`
+	const query = `
+UPDATE %s
+SET desc_rn = desc_rn + 1
+WHERE desc_id = $1 AND desc_rn = $2
+`
 	sql := fmt.Sprintf(query, dao.tableName)
 	tag, err := conn.Pgx.Exec(ctx, sql, ref.DescID.String(), ref.DescRN)
 	if err != nil {

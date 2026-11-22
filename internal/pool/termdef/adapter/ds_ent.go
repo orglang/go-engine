@@ -42,7 +42,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdef.DefRec)
 
 	_, err = dao.client.TermDef.Create().
 		SetID(dto.TermID).
-		SetTermRn(dto.TermRN).
+		SetDescID(dto.DescID).
 		SetLiabVar(dto.LiabVar).
 		SetAssetVars(dto.AssetVars).
 		Save(entpgx.WithConn(ctx, conn.Pgx))
@@ -58,9 +58,10 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdef.DefRec)
 func (dao *daoEnt) GetRecByQN(ctx context.Context, conn tx.Conn, qn uniqsym.ADT) (termdef.DefRec, error) {
 	qnAttr := slog.Any("qn", qn)
 	const query = `
-SELECT def.term_id, def.term_rn, def.liab_var, def.asset_vars
-FROM pool_term_decs def
-JOIN pool_desc_binds bind ON bind.desc_id = def.term_id
+SELECT def.term_id, def.desc_id, root.desc_rn, def.liab_var, def.asset_vars
+FROM pool_term_decs AS def
+JOIN pool_desc_roots AS root ON root.desc_id = def.desc_id
+JOIN pool_desc_binds AS bind ON bind.desc_id = def.term_id
 WHERE bind.desc_qn = $1
 `
 	rows, err := conn.Pgx.Query(ctx, query, uniqsym.ConvertToString(qn))
@@ -68,6 +69,7 @@ WHERE bind.desc_qn = $1
 		dao.log.Error("query execution failed", qnAttr)
 		return termdef.DefRec{}, err
 	}
+	defer rows.Close()
 	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRec])
 	if err != nil {
 		dao.log.Error("rows scanning failed", qnAttr)

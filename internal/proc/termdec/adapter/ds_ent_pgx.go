@@ -17,13 +17,13 @@ import (
 	"orglang/go-engine/internal/adt/termsem"
 
 	"orglang/go-engine/internal/proc/ent"
-	termdec "orglang/go-engine/internal/proc/termdec/core"
+	termdef "orglang/go-engine/internal/proc/termdef/core"
 )
 
 type decRootRef struct {
+	TermID string `db:"term_id"`
 	DescID string `db:"desc_id"`
-	Rev    int64  `db:"rev"`
-	Title  string `db:"title"`
+	DescRN int64  `db:"desc_rn"`
 }
 
 type daoEnt struct {
@@ -31,17 +31,17 @@ type daoEnt struct {
 	log    *slog.Logger
 }
 
-func NewDaoEnt(client *ent.Client, log *slog.Logger) termdec.Repo {
+func NewDaoEnt(client *ent.Client, log *slog.Logger) termdef.Repo {
 	name := slog.String("name", reflect.TypeFor[daoEnt]().Name())
 	return &daoEnt{client: client, log: log.With(name)}
 }
 
 // for compilation purposes
-func newRepo() termdec.Repo {
+func newRepo() termdef.Repo {
 	return new(daoEnt)
 }
 
-func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdec.DecRec) error {
+func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdef.DecRec) error {
 	refAttr := slog.Any("ref", rec.TermRef)
 	dto, err := DataFromDecRec(rec)
 	if err != nil {
@@ -50,7 +50,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdec.DecRec)
 	}
 	_, err = dao.client.TermDec.Create().
 		SetID(dto.TermID).
-		SetTermRn(dto.TermRN).
+		SetDescID(dto.DescID).
 		SetLiabVar(dto.LiabVar).
 		SetAssetVars(dto.AssetVars).
 		Save(entpgx.WithConn(ctx, conn.Pgx))
@@ -61,38 +61,38 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdec.DecRec)
 	return nil
 }
 
-func (dao *daoEnt) GetSnap(ctx context.Context, conn tx.Conn, ref termsem.SemRef) (termdec.DecSnap, error) {
+func (dao *daoEnt) GetSnap(ctx context.Context, conn tx.Conn, ref termsem.SemRef) (termdef.DecSnap, error) {
 	refAttr := slog.Any("ref", ref)
 	rows, err := conn.Pgx.Query(ctx, selectByRef, ref.TermID.String())
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)
-		return termdec.DecSnap{}, err
+		return termdef.DecSnap{}, err
 	}
 	defer rows.Close()
 	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecSnap])
 	if err != nil {
 		dao.log.Error("row scanning failed", refAttr)
-		return termdec.DecSnap{}, err
+		return termdef.DecSnap{}, err
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "entity selection succeed", slog.Any("dto", dto))
 	return DataToDecSnap(dto)
 }
 
-func (dao *daoEnt) SelectEnv(ctx context.Context, conn tx.Conn, ids []identity.ADT) (map[identity.ADT]termdec.DecRec, error) {
+func (dao *daoEnt) SelectEnv(ctx context.Context, conn tx.Conn, ids []identity.ADT) (map[identity.ADT]termdef.DecRec, error) {
 	decs, err := dao.GetRecs(ctx, conn, ids)
 	if err != nil {
 		return nil, err
 	}
-	env := make(map[identity.ADT]termdec.DecRec, len(decs))
+	env := make(map[identity.ADT]termdef.DecRec, len(decs))
 	for _, dec := range decs {
 		env[dec.TermRef.TermID] = dec
 	}
 	return env, nil
 }
 
-func (dao *daoEnt) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT) (_ []termdec.DecRec, err error) {
+func (dao *daoEnt) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT) (_ []termdef.DecRec, err error) {
 	if len(ids) == 0 {
-		return []termdec.DecRec{}, nil
+		return []termdef.DecRec{}, nil
 	}
 	batch := pgx.Batch{}
 	for _, rid := range ids {
@@ -127,9 +127,9 @@ func (dao *daoEnt) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT
 
 func (dao *daoEnt) GetRefs(ctx context.Context, conn tx.Conn) ([]termsem.SemRef, error) {
 	query := `
-SELECT
-    desc_id, rev, title
-FROM dec_roots
+SELECT td.term_id, td.desc_id, dr.desc_rn
+FROM proc_term_decs AS td
+JOIN proc_desc_roots AS dr ON dr.desc_id = td.desc_id
 `
 	rows, err := conn.Pgx.Query(ctx, query)
 	if err != nil {
@@ -144,23 +144,28 @@ FROM dec_roots
 	}
 	refs := make([]termsem.SemRef, len(dtos))
 	for i, dto := range dtos {
-		id, convErr := identity.ConvertFromString(dto.DescID)
+		id, convErr := identity.ConvertFromString(dto.TermID)
 		if convErr != nil {
 			return nil, convErr
 		}
-		refs[i] = termsem.SemRef{TermID: id, TermRN: seqnum.ConvertFromInt(dto.Rev)}
+		descID, convErr := identity.ConvertFromString(dto.DescID)
+		if convErr != nil {
+			return nil, convErr
+		}
+		refs[i] = termsem.SemRef{TermID: id, DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)}
 	}
 	return refs, nil
 }
 
 const selectByRef = `
 SELECT
+    pd.term_id,
     pd.desc_id,
-    ds.desc_rn,
+    dr.desc_rn,
     pd.liab_var,
     pd.asset_vars
-FROM proc_term_decs pd
-LEFT JOIN desc_sems ds
-    ON ds.desc_id = pd.desc_id
-WHERE pd.desc_id = $1
+FROM proc_term_decs AS pd
+JOIN proc_desc_roots AS dr
+    ON dr.desc_id = pd.desc_id
+WHERE pd.term_id = $1
 `

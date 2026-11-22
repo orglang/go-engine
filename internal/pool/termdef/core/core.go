@@ -6,7 +6,9 @@ import (
 
 	"orglang/go-engine/internal/lib/tx"
 
+	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/descsem"
+	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/uniqsym"
@@ -40,17 +42,19 @@ type DefSnap struct {
 
 func NewService(
 	termDefRepo Repo,
+	descRootRepo descroot.Repo,
 	typeDefRepo typedef.Repo,
 	descSemRepo descsem.Repo,
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
-	return &service{termDefRepo, typeDefRepo, descSemRepo, transactor, log}
+	return &service{termDefRepo, descRootRepo, typeDefRepo, descSemRepo, transactor, log}
 }
 
 type service struct {
-	termDefRepo Repo
-	typeDefRepo typedef.Repo
+	termDefRepo  Repo
+	descRootRepo descroot.Repo
+	typeDefRepo  typedef.Repo
 	descSemRepo descsem.Repo
 	transactor  tx.Transactor
 	log         *slog.Logger
@@ -82,9 +86,16 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ termsem.SemRef, e
 			ExpCK:   typeDefs[varSpec.TypeQN].ExpCK,
 		})
 	}
-	newDef := DefRec{TermRef: termsem.New(), LiabVar: newLiabVar, AssetVars: newAssetVars}
+	providerRef := typeDefs[spec.LiabVar.TypeQN].TypeRef
+	expectedRoot := descroot.SemRef{DescID: providerRef.DescID, DescRN: providerRef.DescRN}
+	newRoot := descroot.SemRef{DescID: expectedRoot.DescID, DescRN: seqnum.Next(expectedRoot.DescRN)}
+	newDef := DefRec{TermRef: termsem.New(newRoot), LiabVar: newLiabVar, AssetVars: newAssetVars}
 	newBind := descsem.SemRec{DescQN: spec.TermQN, DescID: newDef.TermRef.TermID, Kind: descsem.TermKind}
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
+		err = s.descRootRepo.TouchRef(txCtx, conn, expectedRoot)
+		if err != nil {
+			return err
+		}
 		err = s.descSemRepo.AddRec(txCtx, conn, newBind)
 		if err != nil {
 			return err

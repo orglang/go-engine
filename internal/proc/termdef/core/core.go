@@ -1,40 +1,62 @@
 package core
 
 import (
+	"context"
 	"fmt"
+	"iter"
 	"log/slog"
 
 	"orglang/go-engine/internal/lib/tx"
 
+	"orglang/go-engine/internal/adt/descroot"
+	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/adt/identity"
-	"orglang/go-engine/internal/adt/symbol"
+	"orglang/go-engine/internal/adt/seqnum"
+	"orglang/go-engine/internal/adt/termsem"
+	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/typesem"
 	"orglang/go-engine/internal/adt/uniqsym"
-	termexp "orglang/go-engine/internal/proc/termexp/core"
+
+	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
 type API interface {
-	Create(DefSpec) (typesem.SemRef, error)
-	Retrieve(identity.ADT) (DefRec, error)
+	Incept(context.Context, uniqsym.ADT) (termsem.SemRef, error)
+	Create(context.Context, DefSpec) (DefSnap, error)
+	RetrieveSnap(context.Context, termsem.SemRef) (DefSnap, error)
+	RetreiveRefs(context.Context) ([]termsem.SemRef, error)
 }
 
 type DefSpec struct {
-	ProcQN uniqsym.ADT // or dec.ProcID
-	ProcES termexp.ExpSpec
+	TermQN uniqsym.ADT
+	// endpoint where process acts as a provider
+	LiabVar termvar.VarSpec
+	// endpoints where process acts as a client
+	AssetVars []termvar.VarSpec
 }
 
 type DefRec struct {
-	Ref typesem.SemRef
+	TermRef   termsem.SemRef
+	TermQN    uniqsym.ADT
+	LiabVar   termvar.VarRec
+	AssetVars []termvar.VarRec
 }
 
+// aka ExpDec or ExpDecDef without expression
 type DefSnap struct {
-	Ref typesem.SemRef
+	TermRef   termsem.SemRef
+	LiabVar   termvar.VarRec
+	AssetVars []termvar.VarRec
 }
 
 type service struct {
-	procDefs   Repo
-	transactor tx.Transactor
-	log        *slog.Logger
+	termDecRepo  Repo
+	descRootRepo descroot.Repo
+	descSemRepo  descsem.Repo
+	typeDefRepo  typedef.Repo
+	typeSemRepo  typesem.Repo
+	transactor  tx.Transactor
+	log         *slog.Logger
 }
 
 // for compilation purposes
@@ -43,20 +65,121 @@ func newAPI() API {
 }
 
 func NewService(
-	procs Repo,
+	termDecRepo Repo,
+	descRootRepo descroot.Repo,
+	descSemRepo descsem.Repo,
+	typeDefRepo typedef.Repo,
+	typeSemRepo typesem.Repo,
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
-	return &service{procs, transactor, log}
+	return &service{termDecRepo, descRootRepo, descSemRepo, typeDefRepo, typeSemRepo, transactor, log}
 }
 
-func (s *service) Create(spec DefSpec) (typesem.SemRef, error) {
-	return typesem.SemRef{}, nil
+func (s *service) Incept(ctx context.Context, termQN uniqsym.ADT) (_ termsem.SemRef, err error) {
+	qnAttr := slog.Any("qn", termQN)
+	s.log.Debug("inception started", qnAttr)
+	newRoot := descroot.New()
+	newDec := DefRec{TermRef: termsem.New(newRoot), TermQN: termQN}
+	newBind := descsem.SemRec{DescQN: termQN, DescID: newDec.TermRef.TermID, Kind: descsem.TermKind}
+	err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
+		if err := s.descRootRepo.AddRef(txCtx, conn, newRoot); err != nil {
+			return err
+		}
+		if err := s.descSemRepo.AddRec(txCtx, conn, newBind); err != nil {
+			return err
+		}
+		return s.termDecRepo.AddRec(txCtx, conn, newDec)
+	})
+	if err != nil {
+		s.log.Error("inception failed", qnAttr)
+		return termsem.SemRef{}, err
+	}
+	s.log.Debug("inception succeed", qnAttr, slog.Any("ref", newDec.TermRef))
+	return newDec.TermRef, nil
 }
 
-func (s *service) Retrieve(recID identity.ADT) (DefRec, error) {
-	return DefRec{}, nil
+func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err error) {
+	qnAttr := slog.Any("qn", spec.TermQN)
+	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
+	assetQNs := make([]uniqsym.ADT, 0, len(spec.AssetVars)+1)
+	for _, spec := range spec.AssetVars {
+		assetQNs = append(assetQNs, spec.TypeQN)
+	}
+	typeRefs, getErr := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[uniqsym.ADT]typesem.SemRef, error) {
+		return s.typeSemRepo.GetRefsByQNs(txCtx, conn, append(assetQNs, spec.LiabVar.TypeQN))
+	})
+	if getErr != nil {
+		return DefSnap{}, getErr
+	}
+	newLiabVar := termvar.VarRec{
+		TypeRef: typeRefs[spec.LiabVar.TypeQN],
+		ChnlPH:  spec.LiabVar.ChnlPH,
+	}
+	newAssetVars := make([]termvar.VarRec, 0, len(spec.AssetVars))
+	for _, assetVar := range spec.AssetVars {
+		newAssetVars = append(newAssetVars, termvar.VarRec{
+			TypeRef: typeRefs[assetVar.TypeQN],
+			ChnlPH:  assetVar.ChnlPH,
+		})
+	}
+	providerRef := typeRefs[spec.LiabVar.TypeQN]
+	expectedRoot := descroot.SemRef{DescID: providerRef.DescID, DescRN: providerRef.DescRN}
+	newRoot := descroot.SemRef{DescID: expectedRoot.DescID, DescRN: seqnum.Next(expectedRoot.DescRN)}
+	newDec := DefRec{TermRef: termsem.New(newRoot), TermQN: spec.TermQN, LiabVar: newLiabVar, AssetVars: newAssetVars}
+	newBind := descsem.SemRec{DescQN: spec.TermQN, DescID: newDec.TermRef.TermID, Kind: descsem.TermKind}
+	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
+		if err := s.descRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil {
+			return err
+		}
+		if err := s.descSemRepo.AddRec(txCtx, conn, newBind); err != nil {
+			return err
+		}
+		return s.termDecRepo.AddRec(txCtx, conn, newDec)
+	})
+	if transactErr != nil {
+		s.log.Error("creation failed", qnAttr)
+		return DefSnap{}, transactErr
+	}
+	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", newDec.TermRef))
+	return DefSnap{TermRef: newDec.TermRef, LiabVar: newLiabVar, AssetVars: newAssetVars}, nil
 }
+
+func (s *service) RetrieveSnap(ctx context.Context, ref termsem.SemRef) (snap DefSnap, err error) {
+	snap, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DefSnap, error) {
+		return s.termDecRepo.GetSnap(txCtx, conn, ref)
+	})
+	if err != nil {
+		s.log.Error("retrieval failed", slog.Any("ref", ref))
+		return DefSnap{}, err
+	}
+	return snap, nil
+}
+
+func (s *service) RetreiveRefs(ctx context.Context) (refs []termsem.SemRef, err error) {
+	refs, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) ([]termsem.SemRef, error) {
+		return s.termDecRepo.GetRefs(txCtx, conn)
+	})
+	if err != nil {
+		s.log.Error("retrieval failed")
+		return nil, err
+	}
+	return refs, nil
+}
+
+func CollectEnv(recs iter.Seq[DefRec]) []uniqsym.ADT {
+	return []uniqsym.ADT{}
+}
+
+func ErrRootMissingInEnv(rid identity.ADT) error {
+	return fmt.Errorf("root missing in env: %v", rid)
+}
+
+
+// Dec* aliases remain available to the existing HTTP declaration adapter.
+type DecSpec = DefSpec
+type DecRec = DefRec
+type DecSnap = DefSnap
 
 func ErrDoesNotExist(want identity.ADT) error {
 	return fmt.Errorf("rec doesn't exist: %v", want)

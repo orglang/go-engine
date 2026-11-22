@@ -1,153 +1,41 @@
+// Package core is a compatibility facade for the unified process termdef capability.
 package core
 
 import (
-	"context"
 	"fmt"
 	"iter"
 	"log/slog"
 
-	"orglang/go-engine/internal/lib/tx"
-
+	"orglang/go-engine/internal/adt/descroot"
+	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/adt/identity"
-	"orglang/go-engine/internal/adt/termsem"
-	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/typesem"
 	"orglang/go-engine/internal/adt/uniqsym"
-
+	"orglang/go-engine/internal/lib/tx"
+	termdef "orglang/go-engine/internal/proc/termdef/core"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
-type API interface {
-	Incept(context.Context, uniqsym.ADT) (termsem.SemRef, error)
-	Create(context.Context, DecSpec) (DecSnap, error)
-	RetrieveSnap(context.Context, termsem.SemRef) (DecSnap, error)
-	RetreiveRefs(context.Context) ([]termsem.SemRef, error)
-}
-
-type DecSpec struct {
-	TermQN uniqsym.ADT
-	// endpoint where process acts as a provider
-	LiabVar termvar.VarSpec
-	// endpoints where process acts as a client
-	AssetVars []termvar.VarSpec
-}
-
-type DecRec struct {
-	TermRef   termsem.SemRef
-	TermQN    uniqsym.ADT
-	LiabVar   termvar.VarRec
-	AssetVars []termvar.VarRec
-}
-
-// aka ExpDec or ExpDecDef without expression
-type DecSnap struct {
-	TermRef   termsem.SemRef
-	LiabVar   termvar.VarRec
-	AssetVars []termvar.VarRec
-}
-
-type service struct {
-	termDecRepo Repo
-	typeDefRepo typedef.Repo
-	typeSemRepo typesem.Repo
-	transactor  tx.Transactor
-	log         *slog.Logger
-}
-
-// for compilation purposes
-func newAPI() API {
-	return new(service)
-}
+type API = termdef.API
+type DecSpec = termdef.DecSpec
+type DecRec = termdef.DecRec
+type DecSnap = termdef.DecSnap
+type Repo = termdef.Repo
 
 func NewService(
 	termDecRepo Repo,
+	descRootRepo descroot.Repo,
+	descSemRepo descsem.Repo,
 	typeDefRepo typedef.Repo,
 	typeSemRepo typesem.Repo,
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
-	return &service{termDecRepo, typeDefRepo, typeSemRepo, transactor, log}
-}
-
-func (s *service) Incept(ctx context.Context, termQN uniqsym.ADT) (_ termsem.SemRef, err error) {
-	qnAttr := slog.Any("qn", termQN)
-	s.log.Debug("inception started", qnAttr)
-	newDec := DecRec{TermRef: termsem.New(), TermQN: termQN}
-	err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		err = s.termDecRepo.AddRec(txCtx, conn, newDec)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	if err != nil {
-		s.log.Error("inception failed", qnAttr)
-		return termsem.SemRef{}, err
-	}
-	s.log.Debug("inception succeed", qnAttr, slog.Any("ref", newDec.TermRef))
-	return newDec.TermRef, nil
-}
-
-func (s *service) Create(ctx context.Context, spec DecSpec) (_ DecSnap, err error) {
-	qnAttr := slog.Any("qn", spec.TermQN)
-	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
-	assetQNs := make([]uniqsym.ADT, 0, len(spec.AssetVars)+1)
-	for _, spec := range spec.AssetVars {
-		assetQNs = append(assetQNs, spec.TypeQN)
-	}
-	typeRefs, getErr := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[uniqsym.ADT]typesem.SemRef, error) {
-		return s.typeSemRepo.GetRefsByQNs(txCtx, conn, append(assetQNs, spec.LiabVar.TypeQN))
-	})
-	if getErr != nil {
-		return DecSnap{}, getErr
-	}
-	newLiabVar := termvar.VarRec{
-		TypeRef: typeRefs[spec.LiabVar.TypeQN],
-		ChnlPH:  spec.LiabVar.ChnlPH,
-	}
-	newAssetVars := make([]termvar.VarRec, 0, len(spec.AssetVars))
-	for _, assetVar := range spec.AssetVars {
-		newAssetVars = append(newAssetVars, termvar.VarRec{
-			TypeRef: typeRefs[assetVar.TypeQN],
-			ChnlPH:  assetVar.ChnlPH,
-		})
-	}
-	newDec := DecRec{TermRef: termsem.New(), TermQN: spec.TermQN, LiabVar: newLiabVar, AssetVars: newAssetVars}
-	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		return s.termDecRepo.AddRec(txCtx, conn, newDec)
-	})
-	if transactErr != nil {
-		s.log.Error("creation failed", qnAttr)
-		return DecSnap{}, transactErr
-	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", newDec.TermRef))
-	return DecSnap{TermRef: newDec.TermRef, LiabVar: newLiabVar, AssetVars: newAssetVars}, nil
-}
-
-func (s *service) RetrieveSnap(ctx context.Context, ref termsem.SemRef) (snap DecSnap, err error) {
-	snap, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DecSnap, error) {
-		return s.termDecRepo.GetSnap(txCtx, conn, ref)
-	})
-	if err != nil {
-		s.log.Error("retrieval failed", slog.Any("ref", ref))
-		return DecSnap{}, err
-	}
-	return snap, nil
-}
-
-func (s *service) RetreiveRefs(ctx context.Context) (refs []termsem.SemRef, err error) {
-	refs, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) ([]termsem.SemRef, error) {
-		return s.termDecRepo.GetRefs(txCtx, conn)
-	})
-	if err != nil {
-		s.log.Error("retrieval failed")
-		return nil, err
-	}
-	return refs, nil
+	return termdef.NewService(termDecRepo, descRootRepo, descSemRepo, typeDefRepo, typeSemRepo, transactor, log)
 }
 
 func CollectEnv(recs iter.Seq[DecRec]) []uniqsym.ADT {
-	return []uniqsym.ADT{}
+	return termdef.CollectEnv(recs)
 }
 
 func ErrRootMissingInEnv(rid identity.ADT) error {

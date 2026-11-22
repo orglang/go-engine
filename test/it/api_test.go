@@ -105,7 +105,7 @@ func TestIntegrationGeneratedEchoServer(t *testing.T) {
 		if err := json.NewDecoder(rec.Body).Decode(&response); err != nil {
 			t.Fatalf("decode typed response: %v", err)
 		}
-		if response.TermId != "term-123" || response.TermRn != 7 {
+		if response.TermId != "term-123" || response.DescRn != 7 {
 			t.Errorf("unexpected typed response: got %+v, want term-123 revision 7", response)
 		}
 	})
@@ -191,7 +191,7 @@ func (s *apiServerBodyStub) CreateProcessDeclaration(c *echo.Context) error {
 
 	return c.JSON(http.StatusCreated, api.AnyTermRef{
 		TermId: "term-123",
-		TermRn: 7,
+		DescRn: 7,
 	})
 }
 

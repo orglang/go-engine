@@ -28,7 +28,7 @@ CREATE TABLE pool_type_exps (
 
 CREATE TABLE pool_term_decs (
     term_id varchar UNIQUE,
-    term_rn bigint,
+    desc_id varchar NOT NULL,
     liab_var jsonb,
     asset_vars jsonb
 );
@@ -111,7 +111,7 @@ CREATE TABLE proc_type_exps (
 
 CREATE TABLE proc_term_decs (
     term_id varchar UNIQUE,
-    term_rn bigint,
+    desc_id varchar NOT NULL,
     liab_var jsonb,
     asset_vars jsonb
 );

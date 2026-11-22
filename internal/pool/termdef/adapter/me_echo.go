@@ -45,6 +45,6 @@ func (h *controllerEcho) CreatePoolDeclaration(c *echo.Context) error {
 	}
 	return c.JSON(http.StatusCreated, webapi.AnyTermRef{
 		TermId: identity.ConvertToString(ref.TermID),
-		TermRn: seqnum.ConvertToInt(ref.TermRN),
+		DescRn: seqnum.ConvertToInt(ref.DescRN),
 	})
 }

@@ -60,12 +60,12 @@ func TestCreateProcessDeclarationHandler(t *testing.T) {
 
 		var response struct {
 			TermID string `json:"term_id"`
-			TermRn int64  `json:"term_rn"`
+			DescRn int64  `json:"desc_rn"`
 		}
 		if err := json.NewDecoder(rec.Body).Decode(&response); err != nil {
 			t.Fatalf("decode response: %v", err)
 		}
-		if response.TermRn != 11 {
+		if response.DescRn != 11 {
 			t.Errorf("unexpected term revision: got %d, want 11", response.TermRn)
 		}
 	})

@@ -30,12 +30,12 @@ var (
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/termvar/adapter:Data.*
 var (
 	// goverter:map . TermRef | dataToTermRef
 	DataToDecRec func(DefRec) (termdef.DefRec, error)
 	// goverter:autoMap TermRef
 	DataFromDecRec func(termdef.DefRec) (DefRec, error)
-	// goverter:ignore TermRN
 	dataToTermRef func(DefRec) (termsem.SemRef, error)
 )

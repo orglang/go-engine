@@ -39,5 +39,6 @@ sources = [
   "**/go.mod",
   "**/go.sum",
   ".mise/conf.d/binaries.toml",
+  ".mise/tasks/binaries.toml",
 ]
 outputs = []

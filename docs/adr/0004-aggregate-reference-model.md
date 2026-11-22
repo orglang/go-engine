@@ -85,3 +85,34 @@
 - Не вводить универсальный CRUD или универсальный reference только ради уменьшения числа типов.
 - Не переносить Ent API или persistence DTO за границы adapters.
 - Сохранять внешние wire/API contracts до отдельного решения о совместимости.
+
+
+## 9. Проверка по публичной TypeSpec-модели
+
+В текущем `tsp` уже существует общий namespace `OrgLang.Any` с тремя типизированными ссылками:
+
+- `Any.TypeRef { type_id, type_rn }`;
+- `Any.TermRef { term_id, term_rn }`;
+- `Any.CompRef { comp_id, comp_rn }`.
+
+Операции создания Process и Pool Type возвращают один `Any.TypeRef`; операции создания Process/Pool Declaration возвращают один `Any.TermRef`; списки Process/Pool executions возвращают `Any.CompRef[]`. Следовательно, публичный wire-контракт уже подтверждает разделение ссылок по виду агрегата и не кодирует execution context в типе ссылки.
+
+Это не означает, что сами агрегаты или их application services общие. TypeSpec сохраняет контекстные модели (`Proc.Type.DefSnap`, `Pool.Type.DefSnap`, `Proc.CompSnap`, `Pool.CompSnap`), а физические roots остаются раздельными.
+
+## 10. Уточнение по Computation и Connection
+
+ADR-0002 фиксирует, что Pool Connection и Process Connection — независимые вложенные сущности со своими жизненными циклами. Обе endpoint-ссылки представлены явно как provider/client computation refs. При этом Connection принадлежит provider Computation aggregate: изменения Connection выполняются через provider root и защищаются CAS по его revision, независимо от того, какая сторона инициировала действие.
+
+Вывод: общий `CompRef` обозначает computation identity/revision и может использоваться в обоих контекстах, но сам по себе не выражает владение, право записи, транзакционную границу или lifecycle Connection. Эти гарантии должны оставаться в контекстных core/use-case контрактах.
+
+## 11. Уточнение по TypeExp
+
+Хотя обе стороны используют одинаковый ключ `exp_ck` и отдельные таблицы `proc_type_exps` / `pool_type_exps`, их payload schemas уже различаются: Process содержит, например, `plus[]`/`with[]`, Pool — `plus`/`with` и дополнительные `up`/`down`. Поэтому общий `TypeRef` не является основанием объединять TypeExp state или его persistence model. На текущем уровне это context-owned state, адресуемый из соответствующего Type root через `exp_ck`.
+
+## 12. Рабочее решение для следующего этапа
+
+1. Сохранить три семейства семантических ссылок по виду агрегата: Type, Term и Computation. На уровне Go рассмотреть переименование `SemRef` в `TypeRef`/`TermRef`/`CompRef` как отдельный compatibility-aware шаг, а не смешивать его с изменением поведения.
+2. Не включать `Proc`/`Pool` в тип ссылки. Контекст остаётся частью владельца, репозитория, application service и persistence boundary.
+3. Не объединять Proc/Pool roots, TypeExp state, Connection lifecycle или use cases только из-за общей формы ссылки.
+4. Не вводить универсальный `AggRef`: публичная модель уже имеет три конкретных типа, и они точнее выражают допустимые связи.
+5. Перед изменением Go contracts проверить все conversion sites, сериализацию, DI wiring и потребителей semantic ports; отдельно определить, должна ли revision быть частью каждой ссылки в каждом use case.

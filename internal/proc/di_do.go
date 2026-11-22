@@ -7,13 +7,13 @@ import (
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/adt/descroot"
-	descrootadapter "orglang/go-engine/internal/adt/descroot/adapter"
 	"orglang/go-engine/internal/adt/typesem"
 	webapi "orglang/go-engine/internal/app/web/api"
 	"orglang/go-engine/internal/lib/entpgx"
+	descrootadapter "orglang/go-engine/internal/proc/descroot/adapter"
+	"orglang/go-engine/internal/proc/ent"
 	compconn "orglang/go-engine/internal/proc/compconn/adapter"
 	compexec "orglang/go-engine/internal/proc/compexec/adapter"
-	"orglang/go-engine/internal/proc/ent"
 	termdec "orglang/go-engine/internal/proc/termdec/adapter"
 	termdef "orglang/go-engine/internal/proc/termdef/adapter"
 	typedef "orglang/go-engine/internal/proc/typedef/adapter"
@@ -29,11 +29,15 @@ var Package = do.Package(
 	}),
 	compconn.Package,
 	do.LazyNamed[descroot.Repo]("proc-descroot", func(i do.Injector) (descroot.Repo, error) {
+		client, err := do.Invoke[*ent.Client](i)
+		if err != nil {
+			return nil, err
+		}
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil {
 			return nil, err
 		}
-		return descrootadapter.NewDaoPgx("proc_desc_roots")(logger), nil
+		return descrootadapter.NewDaoEnt(client, logger), nil
 	}),
 	compexec.Package,
 	termdec.Package,

@@ -14,7 +14,8 @@ func init() {
 	DataFromRef = func(source typesem.SemRef) SemRef {
 		var adapterSemRef SemRef
 		adapterSemRef.TypeID = identity.ConvertToString(source.TypeID)
-		adapterSemRef.TypeRN = seqnum.ConvertToInt(source.TypeRN)
+		adapterSemRef.DescID = identity.ConvertToString(source.DescID)
+		adapterSemRef.DescRN = seqnum.ConvertToInt(source.DescRN)
 		return adapterSemRef
 	}
 	DataFromRefs = func(source []typesem.SemRef) ([]SemRef, error) {
@@ -34,7 +35,12 @@ func init() {
 			return typesemSemRef, err
 		}
 		typesemSemRef.TypeID = identityADT
-		typesemSemRef.TypeRN = seqnum.ConvertFromInt(source.TypeRN)
+		identityADT2, err := identity.ConvertFromString(source.DescID)
+		if err != nil {
+			return typesemSemRef, err
+		}
+		typesemSemRef.DescID = identityADT2
+		typesemSemRef.DescRN = seqnum.ConvertFromInt(source.DescRN)
 		return typesemSemRef, nil
 	}
 	DataToRefMap = func(source map[uniqsym.ADT]SemRef) (map[uniqsym.ADT]typesem.SemRef, error) {

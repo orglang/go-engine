@@ -2139,8 +2139,7 @@ type TypeDefMutation struct {
 	op            Op
 	typ           string
 	id            *string
-	type_rn       *int64
-	addtype_rn    *int64
+	desc_id       *string
 	exp_ck        *int64
 	addexp_ck     *int64
 	clearedFields map[string]struct{}
@@ -2253,60 +2252,40 @@ func (m *TypeDefMutation) IDs(ctx context.Context) ([]string, error) {
 	}
 }
 
-// SetTypeRn sets the "type_rn" field.
-func (m *TypeDefMutation) SetTypeRn(i int64) {
-	m.type_rn = &i
-	m.addtype_rn = nil
+// SetDescID sets the "desc_id" field.
+func (m *TypeDefMutation) SetDescID(s string) {
+	m.desc_id = &s
 }
 
-// TypeRn returns the value of the "type_rn" field in the mutation.
-func (m *TypeDefMutation) TypeRn() (r int64, exists bool) {
-	v := m.type_rn
+// DescID returns the value of the "desc_id" field in the mutation.
+func (m *TypeDefMutation) DescID() (r string, exists bool) {
+	v := m.desc_id
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldTypeRn returns the old "type_rn" field's value of the TypeDef entity.
+// OldDescID returns the old "desc_id" field's value of the TypeDef entity.
 // If the TypeDef object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TypeDefMutation) OldTypeRn(ctx context.Context) (v int64, err error) {
+func (m *TypeDefMutation) OldDescID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldTypeRn is only allowed on UpdateOne operations")
+		return v, errors.New("OldDescID is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldTypeRn requires an ID field in the mutation")
+		return v, errors.New("OldDescID requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldTypeRn: %w", err)
+		return v, fmt.Errorf("querying old value for OldDescID: %w", err)
 	}
-	return oldValue.TypeRn, nil
+	return oldValue.DescID, nil
 }
 
-// AddTypeRn adds i to the "type_rn" field.
-func (m *TypeDefMutation) AddTypeRn(i int64) {
-	if m.addtype_rn != nil {
-		*m.addtype_rn += i
-	} else {
-		m.addtype_rn = &i
-	}
-}
-
-// AddedTypeRn returns the value that was added to the "type_rn" field in this mutation.
-func (m *TypeDefMutation) AddedTypeRn() (r int64, exists bool) {
-	v := m.addtype_rn
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetTypeRn resets all changes to the "type_rn" field.
-func (m *TypeDefMutation) ResetTypeRn() {
-	m.type_rn = nil
-	m.addtype_rn = nil
+// ResetDescID resets all changes to the "desc_id" field.
+func (m *TypeDefMutation) ResetDescID() {
+	m.desc_id = nil
 }
 
 // SetExpCk sets the "exp_ck" field.
@@ -2400,8 +2379,8 @@ func (m *TypeDefMutation) Type() string {
 // AddedFields().
 func (m *TypeDefMutation) Fields() []string {
 	fields := make([]string, 0, 2)
-	if m.type_rn != nil {
-		fields = append(fields, typedef.FieldTypeRn)
+	if m.desc_id != nil {
+		fields = append(fields, typedef.FieldDescID)
 	}
 	if m.exp_ck != nil {
 		fields = append(fields, typedef.FieldExpCk)
@@ -2414,8 +2393,8 @@ func (m *TypeDefMutation) Fields() []string {
 // schema.
 func (m *TypeDefMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case typedef.FieldTypeRn:
-		return m.TypeRn()
+	case typedef.FieldDescID:
+		return m.DescID()
 	case typedef.FieldExpCk:
 		return m.ExpCk()
 	}
@@ -2427,8 +2406,8 @@ func (m *TypeDefMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *TypeDefMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case typedef.FieldTypeRn:
-		return m.OldTypeRn(ctx)
+	case typedef.FieldDescID:
+		return m.OldDescID(ctx)
 	case typedef.FieldExpCk:
 		return m.OldExpCk(ctx)
 	}
@@ -2440,12 +2419,12 @@ func (m *TypeDefMutation) OldField(ctx context.Context, name string) (ent.Value,
 // type.
 func (m *TypeDefMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case typedef.FieldTypeRn:
-		v, ok := value.(int64)
+	case typedef.FieldDescID:
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetTypeRn(v)
+		m.SetDescID(v)
 		return nil
 	case typedef.FieldExpCk:
 		v, ok := value.(int64)
@@ -2462,9 +2441,6 @@ func (m *TypeDefMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *TypeDefMutation) AddedFields() []string {
 	var fields []string
-	if m.addtype_rn != nil {
-		fields = append(fields, typedef.FieldTypeRn)
-	}
 	if m.addexp_ck != nil {
 		fields = append(fields, typedef.FieldExpCk)
 	}
@@ -2476,8 +2452,6 @@ func (m *TypeDefMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *TypeDefMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
-	case typedef.FieldTypeRn:
-		return m.AddedTypeRn()
 	case typedef.FieldExpCk:
 		return m.AddedExpCk()
 	}
@@ -2489,13 +2463,6 @@ func (m *TypeDefMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *TypeDefMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case typedef.FieldTypeRn:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddTypeRn(v)
-		return nil
 	case typedef.FieldExpCk:
 		v, ok := value.(int64)
 		if !ok {
@@ -2530,8 +2497,8 @@ func (m *TypeDefMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *TypeDefMutation) ResetField(name string) error {
 	switch name {
-	case typedef.FieldTypeRn:
-		m.ResetTypeRn()
+	case typedef.FieldDescID:
+		m.ResetDescID()
 		return nil
 	case typedef.FieldExpCk:
 		m.ResetExpCk()

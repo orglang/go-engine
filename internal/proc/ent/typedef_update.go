@@ -27,24 +27,17 @@ func (_u *TypeDefUpdate) Where(ps ...predicate.TypeDef) *TypeDefUpdate {
 	return _u
 }
 
-// SetTypeRn sets the "type_rn" field.
-func (_u *TypeDefUpdate) SetTypeRn(v int64) *TypeDefUpdate {
-	_u.mutation.ResetTypeRn()
-	_u.mutation.SetTypeRn(v)
+// SetDescID sets the "desc_id" field.
+func (_u *TypeDefUpdate) SetDescID(v string) *TypeDefUpdate {
+	_u.mutation.SetDescID(v)
 	return _u
 }
 
-// SetNillableTypeRn sets the "type_rn" field if the given value is not nil.
-func (_u *TypeDefUpdate) SetNillableTypeRn(v *int64) *TypeDefUpdate {
+// SetNillableDescID sets the "desc_id" field if the given value is not nil.
+func (_u *TypeDefUpdate) SetNillableDescID(v *string) *TypeDefUpdate {
 	if v != nil {
-		_u.SetTypeRn(*v)
+		_u.SetDescID(*v)
 	}
-	return _u
-}
-
-// AddTypeRn adds value to the "type_rn" field.
-func (_u *TypeDefUpdate) AddTypeRn(v int64) *TypeDefUpdate {
-	_u.mutation.AddTypeRn(v)
 	return _u
 }
 
@@ -110,11 +103,8 @@ func (_u *TypeDefUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			}
 		}
 	}
-	if value, ok := _u.mutation.TypeRn(); ok {
-		_spec.SetField(typedef.FieldTypeRn, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.AddedTypeRn(); ok {
-		_spec.AddField(typedef.FieldTypeRn, field.TypeInt64, value)
+	if value, ok := _u.mutation.DescID(); ok {
+		_spec.SetField(typedef.FieldDescID, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.ExpCk(); ok {
 		_spec.SetField(typedef.FieldExpCk, field.TypeInt64, value)
@@ -142,24 +132,17 @@ type TypeDefUpdateOne struct {
 	mutation *TypeDefMutation
 }
 
-// SetTypeRn sets the "type_rn" field.
-func (_u *TypeDefUpdateOne) SetTypeRn(v int64) *TypeDefUpdateOne {
-	_u.mutation.ResetTypeRn()
-	_u.mutation.SetTypeRn(v)
+// SetDescID sets the "desc_id" field.
+func (_u *TypeDefUpdateOne) SetDescID(v string) *TypeDefUpdateOne {
+	_u.mutation.SetDescID(v)
 	return _u
 }
 
-// SetNillableTypeRn sets the "type_rn" field if the given value is not nil.
-func (_u *TypeDefUpdateOne) SetNillableTypeRn(v *int64) *TypeDefUpdateOne {
+// SetNillableDescID sets the "desc_id" field if the given value is not nil.
+func (_u *TypeDefUpdateOne) SetNillableDescID(v *string) *TypeDefUpdateOne {
 	if v != nil {
-		_u.SetTypeRn(*v)
+		_u.SetDescID(*v)
 	}
-	return _u
-}
-
-// AddTypeRn adds value to the "type_rn" field.
-func (_u *TypeDefUpdateOne) AddTypeRn(v int64) *TypeDefUpdateOne {
-	_u.mutation.AddTypeRn(v)
 	return _u
 }
 
@@ -255,11 +238,8 @@ func (_u *TypeDefUpdateOne) sqlSave(ctx context.Context) (_node *TypeDef, err er
 			}
 		}
 	}
-	if value, ok := _u.mutation.TypeRn(); ok {
-		_spec.SetField(typedef.FieldTypeRn, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.AddedTypeRn(); ok {
-		_spec.AddField(typedef.FieldTypeRn, field.TypeInt64, value)
+	if value, ok := _u.mutation.DescID(); ok {
+		_spec.SetField(typedef.FieldDescID, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.ExpCk(); ok {
 		_spec.SetField(typedef.FieldExpCk, field.TypeInt64, value)

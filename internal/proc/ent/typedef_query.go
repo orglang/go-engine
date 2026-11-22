@@ -262,12 +262,12 @@ func (_q *TypeDefQuery) Clone() *TypeDefQuery {
 // Example:
 //
 //	var v []struct {
-//		TypeRn int64 `json:"type_rn,omitempty"`
+//		DescID string `json:"desc_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.TypeDef.Query().
-//		GroupBy(typedef.FieldTypeRn).
+//		GroupBy(typedef.FieldDescID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *TypeDefQuery) GroupBy(field string, fields ...string) *TypeDefGroupBy {
@@ -285,11 +285,11 @@ func (_q *TypeDefQuery) GroupBy(field string, fields ...string) *TypeDefGroupBy 
 // Example:
 //
 //	var v []struct {
-//		TypeRn int64 `json:"type_rn,omitempty"`
+//		DescID string `json:"desc_id,omitempty"`
 //	}
 //
 //	client.TypeDef.Query().
-//		Select(typedef.FieldTypeRn).
+//		Select(typedef.FieldDescID).
 //		Scan(ctx, &v)
 func (_q *TypeDefQuery) Select(fields ...string) *TypeDefSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

@@ -63,9 +63,9 @@ func IDContainsFold(id string) predicate.TypeDef {
 	return predicate.TypeDef(sql.FieldContainsFold(FieldID, id))
 }
 
-// TypeRn applies equality check predicate on the "type_rn" field. It's identical to TypeRnEQ.
-func TypeRn(v int64) predicate.TypeDef {
-	return predicate.TypeDef(sql.FieldEQ(FieldTypeRn, v))
+// DescID applies equality check predicate on the "desc_id" field. It's identical to DescIDEQ.
+func DescID(v string) predicate.TypeDef {
+	return predicate.TypeDef(sql.FieldEQ(FieldDescID, v))
 }
 
 // ExpCk applies equality check predicate on the "exp_ck" field. It's identical to ExpCkEQ.
@@ -73,44 +73,69 @@ func ExpCk(v int64) predicate.TypeDef {
 	return predicate.TypeDef(sql.FieldEQ(FieldExpCk, v))
 }
 
-// TypeRnEQ applies the EQ predicate on the "type_rn" field.
-func TypeRnEQ(v int64) predicate.TypeDef {
-	return predicate.TypeDef(sql.FieldEQ(FieldTypeRn, v))
+// DescIDEQ applies the EQ predicate on the "desc_id" field.
+func DescIDEQ(v string) predicate.TypeDef {
+	return predicate.TypeDef(sql.FieldEQ(FieldDescID, v))
 }
 
-// TypeRnNEQ applies the NEQ predicate on the "type_rn" field.
-func TypeRnNEQ(v int64) predicate.TypeDef {
-	return predicate.TypeDef(sql.FieldNEQ(FieldTypeRn, v))
+// DescIDNEQ applies the NEQ predicate on the "desc_id" field.
+func DescIDNEQ(v string) predicate.TypeDef {
+	return predicate.TypeDef(sql.FieldNEQ(FieldDescID, v))
 }
 
-// TypeRnIn applies the In predicate on the "type_rn" field.
-func TypeRnIn(vs ...int64) predicate.TypeDef {
-	return predicate.TypeDef(sql.FieldIn(FieldTypeRn, vs...))
+// DescIDIn applies the In predicate on the "desc_id" field.
+func DescIDIn(vs ...string) predicate.TypeDef {
+	return predicate.TypeDef(sql.FieldIn(FieldDescID, vs...))
 }
 
-// TypeRnNotIn applies the NotIn predicate on the "type_rn" field.
-func TypeRnNotIn(vs ...int64) predicate.TypeDef {
-	return predicate.TypeDef(sql.FieldNotIn(FieldTypeRn, vs...))
+// DescIDNotIn applies the NotIn predicate on the "desc_id" field.
+func DescIDNotIn(vs ...string) predicate.TypeDef {
+	return predicate.TypeDef(sql.FieldNotIn(FieldDescID, vs...))
 }
 
-// TypeRnGT applies the GT predicate on the "type_rn" field.
-func TypeRnGT(v int64) predicate.TypeDef {
-	return predicate.TypeDef(sql.FieldGT(FieldTypeRn, v))
+// DescIDGT applies the GT predicate on the "desc_id" field.
+func DescIDGT(v string) predicate.TypeDef {
+	return predicate.TypeDef(sql.FieldGT(FieldDescID, v))
 }
 
-// TypeRnGTE applies the GTE predicate on the "type_rn" field.
-func TypeRnGTE(v int64) predicate.TypeDef {
-	return predicate.TypeDef(sql.FieldGTE(FieldTypeRn, v))
+// DescIDGTE applies the GTE predicate on the "desc_id" field.
+func DescIDGTE(v string) predicate.TypeDef {
+	return predicate.TypeDef(sql.FieldGTE(FieldDescID, v))
 }
 
-// TypeRnLT applies the LT predicate on the "type_rn" field.
-func TypeRnLT(v int64) predicate.TypeDef {
-	return predicate.TypeDef(sql.FieldLT(FieldTypeRn, v))
+// DescIDLT applies the LT predicate on the "desc_id" field.
+func DescIDLT(v string) predicate.TypeDef {
+	return predicate.TypeDef(sql.FieldLT(FieldDescID, v))
 }
 
-// TypeRnLTE applies the LTE predicate on the "type_rn" field.
-func TypeRnLTE(v int64) predicate.TypeDef {
-	return predicate.TypeDef(sql.FieldLTE(FieldTypeRn, v))
+// DescIDLTE applies the LTE predicate on the "desc_id" field.
+func DescIDLTE(v string) predicate.TypeDef {
+	return predicate.TypeDef(sql.FieldLTE(FieldDescID, v))
+}
+
+// DescIDContains applies the Contains predicate on the "desc_id" field.
+func DescIDContains(v string) predicate.TypeDef {
+	return predicate.TypeDef(sql.FieldContains(FieldDescID, v))
+}
+
+// DescIDHasPrefix applies the HasPrefix predicate on the "desc_id" field.
+func DescIDHasPrefix(v string) predicate.TypeDef {
+	return predicate.TypeDef(sql.FieldHasPrefix(FieldDescID, v))
+}
+
+// DescIDHasSuffix applies the HasSuffix predicate on the "desc_id" field.
+func DescIDHasSuffix(v string) predicate.TypeDef {
+	return predicate.TypeDef(sql.FieldHasSuffix(FieldDescID, v))
+}
+
+// DescIDEqualFold applies the EqualFold predicate on the "desc_id" field.
+func DescIDEqualFold(v string) predicate.TypeDef {
+	return predicate.TypeDef(sql.FieldEqualFold(FieldDescID, v))
+}
+
+// DescIDContainsFold applies the ContainsFold predicate on the "desc_id" field.
+func DescIDContainsFold(v string) predicate.TypeDef {
+	return predicate.TypeDef(sql.FieldContainsFold(FieldDescID, v))
 }
 
 // ExpCkEQ applies the EQ predicate on the "exp_ck" field.

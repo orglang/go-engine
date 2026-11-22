@@ -22,9 +22,9 @@ type TypeDefCreate struct {
 	conflict []sql.ConflictOption
 }
 
-// SetTypeRn sets the "type_rn" field.
-func (_c *TypeDefCreate) SetTypeRn(v int64) *TypeDefCreate {
-	_c.mutation.SetTypeRn(v)
+// SetDescID sets the "desc_id" field.
+func (_c *TypeDefCreate) SetDescID(v string) *TypeDefCreate {
+	_c.mutation.SetDescID(v)
 	return _c
 }
 
@@ -74,8 +74,8 @@ func (_c *TypeDefCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *TypeDefCreate) check() error {
-	if _, ok := _c.mutation.TypeRn(); !ok {
-		return &ValidationError{Name: "type_rn", err: errors.New(`ent: missing required field "TypeDef.type_rn"`)}
+	if _, ok := _c.mutation.DescID(); !ok {
+		return &ValidationError{Name: "desc_id", err: errors.New(`ent: missing required field "TypeDef.desc_id"`)}
 	}
 	if _, ok := _c.mutation.ExpCk(); !ok {
 		return &ValidationError{Name: "exp_ck", err: errors.New(`ent: missing required field "TypeDef.exp_ck"`)}
@@ -116,9 +116,9 @@ func (_c *TypeDefCreate) createSpec() (*TypeDef, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := _c.mutation.TypeRn(); ok {
-		_spec.SetField(typedef.FieldTypeRn, field.TypeInt64, value)
-		_node.TypeRn = value
+	if value, ok := _c.mutation.DescID(); ok {
+		_spec.SetField(typedef.FieldDescID, field.TypeString, value)
+		_node.DescID = value
 	}
 	if value, ok := _c.mutation.ExpCk(); ok {
 		_spec.SetField(typedef.FieldExpCk, field.TypeInt64, value)
@@ -131,7 +131,7 @@ func (_c *TypeDefCreate) createSpec() (*TypeDef, *sqlgraph.CreateSpec) {
 // of the `INSERT` statement. For example:
 //
 //	client.TypeDef.Create().
-//		SetTypeRn(v).
+//		SetDescID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -140,7 +140,7 @@ func (_c *TypeDefCreate) createSpec() (*TypeDef, *sqlgraph.CreateSpec) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.TypeDefUpsert) {
-//			SetTypeRn(v+v).
+//			SetDescID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *TypeDefCreate) OnConflict(opts ...sql.ConflictOption) *TypeDefUpsertOne {
@@ -176,21 +176,15 @@ type (
 	}
 )
 
-// SetTypeRn sets the "type_rn" field.
-func (u *TypeDefUpsert) SetTypeRn(v int64) *TypeDefUpsert {
-	u.Set(typedef.FieldTypeRn, v)
+// SetDescID sets the "desc_id" field.
+func (u *TypeDefUpsert) SetDescID(v string) *TypeDefUpsert {
+	u.Set(typedef.FieldDescID, v)
 	return u
 }
 
-// UpdateTypeRn sets the "type_rn" field to the value that was provided on create.
-func (u *TypeDefUpsert) UpdateTypeRn() *TypeDefUpsert {
-	u.SetExcluded(typedef.FieldTypeRn)
-	return u
-}
-
-// AddTypeRn adds v to the "type_rn" field.
-func (u *TypeDefUpsert) AddTypeRn(v int64) *TypeDefUpsert {
-	u.Add(typedef.FieldTypeRn, v)
+// UpdateDescID sets the "desc_id" field to the value that was provided on create.
+func (u *TypeDefUpsert) UpdateDescID() *TypeDefUpsert {
+	u.SetExcluded(typedef.FieldDescID)
 	return u
 }
 
@@ -260,24 +254,17 @@ func (u *TypeDefUpsertOne) Update(set func(*TypeDefUpsert)) *TypeDefUpsertOne {
 	return u
 }
 
-// SetTypeRn sets the "type_rn" field.
-func (u *TypeDefUpsertOne) SetTypeRn(v int64) *TypeDefUpsertOne {
+// SetDescID sets the "desc_id" field.
+func (u *TypeDefUpsertOne) SetDescID(v string) *TypeDefUpsertOne {
 	return u.Update(func(s *TypeDefUpsert) {
-		s.SetTypeRn(v)
+		s.SetDescID(v)
 	})
 }
 
-// AddTypeRn adds v to the "type_rn" field.
-func (u *TypeDefUpsertOne) AddTypeRn(v int64) *TypeDefUpsertOne {
+// UpdateDescID sets the "desc_id" field to the value that was provided on create.
+func (u *TypeDefUpsertOne) UpdateDescID() *TypeDefUpsertOne {
 	return u.Update(func(s *TypeDefUpsert) {
-		s.AddTypeRn(v)
-	})
-}
-
-// UpdateTypeRn sets the "type_rn" field to the value that was provided on create.
-func (u *TypeDefUpsertOne) UpdateTypeRn() *TypeDefUpsertOne {
-	return u.Update(func(s *TypeDefUpsert) {
-		s.UpdateTypeRn()
+		s.UpdateDescID()
 	})
 }
 
@@ -437,7 +424,7 @@ func (_c *TypeDefCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.TypeDefUpsert) {
-//			SetTypeRn(v+v).
+//			SetDescID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *TypeDefCreateBulk) OnConflict(opts ...sql.ConflictOption) *TypeDefUpsertBulk {
@@ -516,24 +503,17 @@ func (u *TypeDefUpsertBulk) Update(set func(*TypeDefUpsert)) *TypeDefUpsertBulk 
 	return u
 }
 
-// SetTypeRn sets the "type_rn" field.
-func (u *TypeDefUpsertBulk) SetTypeRn(v int64) *TypeDefUpsertBulk {
+// SetDescID sets the "desc_id" field.
+func (u *TypeDefUpsertBulk) SetDescID(v string) *TypeDefUpsertBulk {
 	return u.Update(func(s *TypeDefUpsert) {
-		s.SetTypeRn(v)
+		s.SetDescID(v)
 	})
 }
 
-// AddTypeRn adds v to the "type_rn" field.
-func (u *TypeDefUpsertBulk) AddTypeRn(v int64) *TypeDefUpsertBulk {
+// UpdateDescID sets the "desc_id" field to the value that was provided on create.
+func (u *TypeDefUpsertBulk) UpdateDescID() *TypeDefUpsertBulk {
 	return u.Update(func(s *TypeDefUpsert) {
-		s.AddTypeRn(v)
-	})
-}
-
-// UpdateTypeRn sets the "type_rn" field to the value that was provided on create.
-func (u *TypeDefUpsertBulk) UpdateTypeRn() *TypeDefUpsertBulk {
-	return u.Update(func(s *TypeDefUpsert) {
-		s.UpdateTypeRn()
+		s.UpdateDescID()
 	})
 }
 

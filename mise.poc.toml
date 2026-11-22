@@ -96,6 +96,33 @@ run = "go test -tags=unit ./internal/... ./cmd/..."
 description = "Run integration tests"
 run = "go test -run=TestIntegration ./internal/... ./cmd/... ./test/it/..."
 
+
+[tasks."poc:binaries:lock"]
+description = "Refresh Go module and root toolchain lockfiles"
+run = [
+  "GOWORK=off go mod tidy",
+  "mise lock",
+]
+
+[tasks."poc:binaries:check"]
+description = "Check Go module and toolchain lockfiles without Task"
+run = [
+  "mise run poc:binaries:lock",
+  "git status --short -- go.mod go.sum mise.lock",
+  'test -z "$(git status --porcelain -- go.mod go.sum mise.lock)"',
+]
+
+[tasks."poc:binaries:gate"]
+description = "Run the complete Engine gate without Task"
+run = [
+  "mise -E poc run poc:specs:gate",
+  "mise -E poc run poc:sources:gate",
+  "mise -E poc run poc:binaries:check",
+  "mise -E poc run poc:binaries:unit-test",
+  "mise -E poc run poc:binaries:build",
+  "mise -E poc run poc:binaries:integration-test",
+]
+
 [tasks."poc:tests:e2e"]
 description = "Run E2E tests without Task"
 run = "go test -failfast ./test/..."

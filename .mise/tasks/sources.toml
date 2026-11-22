@@ -45,5 +45,6 @@ sources = [
   ".golangci.yml",
   "staticcheck.conf",
   ".mise/conf.d/sources.toml",
+  ".mise/tasks/sources.toml",
 ]
 outputs = []

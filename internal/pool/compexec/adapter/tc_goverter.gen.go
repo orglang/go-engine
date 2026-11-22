@@ -32,7 +32,7 @@ func init() {
 	}
 	DataToExecRec = func(source ExecRec) (core.ExecRec, error) {
 		var coreExecRec core.ExecRec
-		comprootSemRef, err := adapterExecRecToCompsemSemRef(source)
+		comprootSemRef, err := adapterExecRecToComprootSemRef(source)
 		if err != nil {
 			return coreExecRec, err
 		}
@@ -42,7 +42,7 @@ func init() {
 	}
 	DataToExecSnap2 = func(source ExecSnap2) (core.ExecSnap2, error) {
 		var coreExecSnap2 core.ExecSnap2
-		comprootSemRef, err := adapterExecSnap2ToCompsemSemRef(source)
+		comprootSemRef, err := adapterExecSnap2ToComprootSemRef(source)
 		if err != nil {
 			return coreExecSnap2, err
 		}
@@ -89,7 +89,7 @@ func init() {
 		return mapUniqsymADTCoreExecSnap1, nil
 	}
 }
-func adapterExecRecToCompsemSemRef(source ExecRec) (comproot.SemRef, error) {
+func adapterExecRecToComprootSemRef(source ExecRec) (comproot.SemRef, error) {
 	var comprootSemRef comproot.SemRef
 	identityADT, err := identity.ConvertFromString(source.CompID)
 	if err != nil {
@@ -99,7 +99,7 @@ func adapterExecRecToCompsemSemRef(source ExecRec) (comproot.SemRef, error) {
 	comprootSemRef.CompRN = seqnum.ADT(source.CompRN)
 	return comprootSemRef, nil
 }
-func adapterExecSnap2ToCompsemSemRef(source ExecSnap2) (comproot.SemRef, error) {
+func adapterExecSnap2ToComprootSemRef(source ExecSnap2) (comproot.SemRef, error) {
 	var comprootSemRef comproot.SemRef
 	identityADT, err := identity.ConvertFromString(source.CompID)
 	if err != nil {

@@ -83,8 +83,8 @@ tools = { node = "26.10.0" }
 depends = ["deps:install"]
 run = [
   "task specs:gate",
-  "task specs:lint",
-  "task specs:analyze",
+  { task = "specs:lint" },
+  { task = "specs:analyze" },
 ]
 sources = ["@group:common", "@group:specs"]
 outputs = []
@@ -99,8 +99,8 @@ tools = {
 }
 run = [
   "task sources:gate",
-  "task sources:lint",
-  "task sources:analyze",
+  { task = "sources:lint" },
+  { task = "sources:analyze" },
 ]
 sources = ["@group:sources"]
 outputs = []

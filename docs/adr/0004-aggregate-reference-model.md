@@ -208,3 +208,64 @@ Type и Term следует рассматривать не обязательн
 3. Сопоставить ссылки и foreign keys во всех Type/Term consumers с новой aggregate boundary; установить, какие ссылки должны нести RN, а какие могут запрашивать latest.
 4. Определить durable reference contract отдельно от read selector contract и выбрать Go representation для optional RN.
 5. Включить будущий \`proc/termdef\` в целевую матрицу, не выдавая текущие заглушки за реализованный persistence root.
+
+
+## 15. Аудит существующего descsem (фактическая реализация)
+
+Проверка исходников показывает, что internal/adt/descsem уже существует. Однако текущий descsem пока **не является полноценным aggregate root для Type и Term**. Это минимальный descriptor/QName binding registry:
+
+- descsem.SemRec содержит только DescQN, DescID и Kind.
+- Kind различает TypeKind и TermKind.
+- descsem.Repo предоставляет только AddRec; операций retrieve, resolve, modify, delete или revision/CAS нет.
+- PGX adapter выполняет только INSERT INTO <context table> (desc_qn, desc_id, kind).
+- В миграции proc_desc_binds и pool_desc_binds имеют desc_qn ltree UNIQUE, desc_id varchar, kind smallint; revision в этих таблицах нет.
+- Внешний ключ от desc_id к type/term storage и constraint на согласованность kind с целевой таблицей в initial migration не заданы.
+
+Следовательно, название descsem уже занято общей семантической регистрацией descriptor names, но текущая модель пока не выражает предлагаемую общую identity/revision/lifecycle boundary. Это полезная отправная точка и, возможно, естественное место эволюции, но не доказательство, что агрегат уже реализован.
+
+### 15.1. Текущее использование по контекстам
+
+| Use case | Создаёт descriptor binding | Kind | Данные сущности |
+|---|---|---|---|
+| proc/typedef.Create | Да | TypeKind | proc_type_defs + proc_type_exps |
+| pool/typedef.Create | Да | TypeKind | pool_type_defs + pool_type_exps |
+| pool/termdef.Create | Да | TermKind | pool_term_decs |
+| proc/termdec.Incept/Create | Нет в текущем core path | — | proc_term_decs |
+| будущий proc/termdef | Целевое поведение ещё предстоит определить | Вероятно TermKind | Отдельная целевая модель не реализована |
+
+У proc/termdec DI wiring также не получает descsem.Repo, а его текущий adapter содержит старые запросы к dec_roots/desc_sems. По принятому в обсуждении уточнению эти SQL-запросы считаются устаревшими; не следует выводить из них дополнительную схему. При этом отсутствие descriptor binding на текущем process term path — реальный пробел относительно Pool Term и Type paths, который нужно закрыть в целевой модели.
+
+### 15.2. QName resolution сейчас распределён по потребителям
+
+- Process Type lookup по QName идёт через proc_desc_binds с последующим чтением proc_type_defs.
+- Pool Type lookup по QName идёт через pool_desc_binds с последующим чтением pool_type_defs.
+- Pool Term lookup по QName идёт через pool_desc_binds с последующим чтением pool_term_decs.
+- Process Term lookup в текущем proc/termdec adapter опирается на устаревшие SQL fragments и не является надёжным образцом целевого контракта.
+- typesem.Repo.GetRefsByQNs — не общий descriptor resolver: он жёстко соединяет proc_desc_binds с proc_type_defs и возвращает только Type refs.
+
+Иными словами, descsem пока пишет QName/kind binding, но чтение и проверка kind/сущности реализованы в контекстных специализированных repositories. Это создаёт дублирование lookup logic и не обеспечивает единую ссылочную целостность.
+
+### 15.3. Архитектурная гипотеза для целевой модели
+
+Исследовать эволюцию descsem в общий aggregate root внутри каждого bounded context (proc и pool), который владеет descriptor identity, QName, kind и RN. Type и Term в таком случае остаются разными сущностями/вариантами первого уровня одного агрегата; специализированные данные Type (включая TypeExp) и Term хранятся как kind-specific state, принадлежащий этому root.
+
+Это пока гипотеза, а не принятое решение. Необходимо сравнить как минимум две формы:
+
+1. **Единый descriptor root + специализированное состояние.** Один descsem root на descriptor ID, содержащий QName, kind и RN; type/term-specific tables являются state/parts этого root и используют общий ID/RN.
+2. **Общий descriptor registry над самостоятельными Type/Term roots.** descsem централизует QName и kind, но Type/Term сохраняют собственные root identities/revisions и consistency boundaries.
+
+Первая форма соответствует сильному прочтению идеи «две сущности первого уровня одного агрегата» и может устранить дублирование identity/revision semantics. Вторая — более эволюционный вариант, но сама по себе не объединяет aggregate boundary и не гарантирует атомарность cross-kind invariants.
+
+### 15.4. Существенные вопросы до выбора схемы
+
+1. Должен ли descsem root существовать отдельно в каждом контексте, как сейчас (proc_desc_binds и pool_desc_binds), или одна descriptor identity должна быть общей между proc и pool? Текущая схема подтверждает только контекстное владение.
+2. Является ли QName частью identity root или изменяемым unique name/binding, который можно переименовать независимо от ID?
+3. Должен ли RN жить в descriptor root и версионировать изменения Type/Term state совместно?
+4. Как моделировать TypeExp: часть Type variant state под тем же root RN или отдельный immutable/versioned child resource?
+5. Как обеспечить, чтобы kind соответствовал ровно одному специализированному состоянию и чтобы QName разрешался в согласованный ID/RN?
+6. Должны ли Process Term Declaration (termdec) и Process Term Definition (termdef) быть двумя use cases одной Term-сущности/варианта, либо это разные роли/сущности внутри descriptor aggregate?
+7. Как мигрировать текущие таблицы и wire refs, не ломая публичные Any.TypeRef и Any.TermRef?
+
+### 15.5. Наблюдение по zero RN
+
+В internal/adt/seqnum уже определён seqnum.Zero, а seqnum.ADT является числовым value type. Это позволяет выразить selector «latest» без pointer/nil: zero RN означает resolve current; ненулевой RN означает проверку соответствия текущей ревизии. Это должно оставаться семантикой query/use case, а не означать, что durable reference может содержать нулевую ревизию. Текущие публичные TypeSpec refs имеют обязательные числовые RN, поэтому wire contract не следует менять автоматически.

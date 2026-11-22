@@ -4,7 +4,7 @@
 package adapter
 
 import (
-	compsem "orglang/go-engine/internal/adt/compsem"
+	comproot "orglang/go-engine/internal/adt/comproot"
 	compvar "orglang/go-engine/internal/adt/compvar"
 	identity "orglang/go-engine/internal/adt/identity"
 	core "orglang/go-engine/internal/proc/compexec/core"
@@ -20,21 +20,21 @@ func init() {
 	}
 	DataToExecRec = func(source ExecRec) (core.ExecRec, error) {
 		var coreExecRec core.ExecRec
-		compsemSemRef, err := dataToSemRef(source)
+		comprootSemRef, err := dataToSemRef(source)
 		if err != nil {
 			return coreExecRec, err
 		}
-		coreExecRec.CompRef = compsemSemRef
+		coreExecRec.CompRef = comprootSemRef
 		coreExecRec.LiabMode = compvar.Mode(source.LiabMode)
 		return coreExecRec, nil
 	}
-	dataToSemRef = func(source ExecRec) (compsem.SemRef, error) {
-		var compsemSemRef compsem.SemRef
+	dataToSemRef = func(source ExecRec) (comproot.SemRef, error) {
+		var comprootSemRef comproot.SemRef
 		identityADT, err := identity.ConvertFromString(source.CompID)
 		if err != nil {
-			return compsemSemRef, err
+			return comprootSemRef, err
 		}
-		compsemSemRef.CompID = identityADT
-		return compsemSemRef, nil
+		comprootSemRef.CompID = identityADT
+		return comprootSemRef, nil
 	}
 }

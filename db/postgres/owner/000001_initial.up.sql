@@ -15,7 +15,7 @@ CREATE INDEX pool_desc_qn_gist_idx ON pool_desc_binds USING GIST (desc_qn);
 
 CREATE TABLE pool_type_defs (
     type_id varchar UNIQUE,
-    type_rn bigint,
+    desc_id varchar NOT NULL REFERENCES pool_desc_roots (desc_id),
     exp_ck bigint
 );
 
@@ -98,7 +98,7 @@ CREATE INDEX proc_desc_qn_gist_idx ON proc_desc_binds USING GIST (desc_qn);
 
 CREATE TABLE proc_type_defs (
     type_id varchar UNIQUE,
-    type_rn bigint,
+    desc_id varchar NOT NULL REFERENCES proc_desc_roots (desc_id),
     exp_ck bigint
 );
 

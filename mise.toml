@@ -1,3 +1,31 @@
 [settings]
 lockfile = false
 experimental = true
+
+[task_config.input_groups]
+common = [
+  ".github/**",
+  "mise.toml",
+  ".mise/conf.d/common.toml",
+]
+specs = [
+  "tsp/**",
+  "openapi/openapi.yaml",
+  ".mise/conf.d/specs.toml",
+]
+sources = [
+  "*.go",
+  "**/*.go",
+  ".golangci.yml",
+  "staticcheck.conf",
+  ".mise/conf.d/sources.toml",
+]
+binaries = [
+  "*.sql",
+  "**/*.sql",
+  "go.mod",
+  "go.sum",
+  "**/go.mod",
+  "**/go.sum",
+  ".mise/conf.d/binaries.toml",
+]

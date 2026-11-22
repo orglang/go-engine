@@ -55,6 +55,26 @@ tools = {
 }
 run = "task sources:generate"
 
+[tasks."specs:lint"]
+description = "Lint TypeSpec without modifying files"
+tools = { node = "26.10.0" }
+run = "task specs:lint"
+
+[tasks."specs:analyze"]
+description = "Analyze the TypeSpec project"
+tools = { node = "26.10.0" }
+run = "task specs:analyze"
+
+[tasks."sources:lint"]
+description = "Lint Go sources without static or architecture analysis"
+tools = { "go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint" = "v2.15.0" }
+run = "task sources:lint"
+
+[tasks."sources:analyze"]
+description = "Run Go static and architecture analysis"
+tools = { "go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint" = "v2.15.0" }
+run = "task sources:analyze"
+
 # The gate chain follows the pipeline order. Each task declares only its
 # own stage inputs; dependencies provide the cumulative execution order.
 [tasks."specs:gate"]
@@ -80,12 +100,12 @@ outputs = []
 [tasks."binaries:gate"]
 description = "Run Specs, Sources, then Binaries in the CI pipeline"
 depends = ["sources:gate"]
-run = """
-task binaries:check
-mise run binaries:unit-test
-task binaries:build
-mise run binaries:integration-test
-"""
+run = [
+  "task binaries:check",
+  { task = "binaries:unit-test" },
+  "task binaries:build",
+  { task = "binaries:integration-test" },
+]
 sources = ["@group:binaries"]
 outputs = []
 

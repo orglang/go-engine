@@ -14,11 +14,12 @@ This branch adds an isolated native-mise implementation for comparison. It does 
 Run the existing Task implementation:
 
 ```sh
-mise exec -- task specs:gate
-mise exec -- task sources:gate
-mise exec -- task binaries:build
-mise exec -- go test -tags=unit ./internal/... ./cmd/...
-mise exec -- go test -run=TestIntegration ./internal/... ./cmd/... ./test/it/...
+mise run specs:gate
+mise run sources:gate
+mise run binaries:gate
+mise run binaries:build
+mise run binaries:unit-test
+mise run binaries:integration-test
 mise exec -- task tests:e2e
 ```
 

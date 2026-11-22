@@ -4,9 +4,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
-	"entgo.io/ent/schema/field"
 
-	typesemSchema "orglang/go-engine/internal/adt/typesem/adapter/entschema"
+	"orglang/go-engine/internal/adt/typesem/adapter/entschema"
 )
 
 // TypeDef describes a persisted pool type definition.
@@ -17,7 +16,7 @@ type TypeDef struct {
 // Mixin of the TypeDef.
 func (TypeDef) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		typesemSchema.TypeSemMixin{},
+		entschema.TypeSemMixin{},
 	}
 }
 

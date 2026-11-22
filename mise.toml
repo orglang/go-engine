@@ -13,6 +13,8 @@ run = "npm ci --prefix tsp --no-audit --no-fund"
 sources = ["tsp/package.json", "tsp/package-lock.json"]
 outputs = ["tsp/node_modules"]
 
+# Reusable source groups keep stage-owned input paths in one place.
+# Stage gates compose these groups to reflect the downstream impact mapping.
 [task_config.input_groups]
 common = [
   ".github/**",
@@ -44,90 +46,47 @@ binaries = [
   "**/go.sum",
 ]
 
+# Keep generator tools available whenever source generation is invoked directly.
+[tasks."sources:generate"]
+description = "Generate source artifacts"
+tools = {
+  "go:github.com/jmattheis/goverter/cmd/goverter" = "v1.11.1",
+  "go:github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen" = "v2.8.2",
+}
+run = "task sources:generate"
+
+# The gate chain follows the pipeline order. Each task declares only its
+# own stage inputs; dependencies provide the cumulative execution order.
 [tasks."specs:gate"]
-description = "Generate and verify TypeSpec outputs and lockfiles"
+description = "Run Specs in the CI pipeline"
 tools = { node = "26.10.0" }
 depends = ["deps:install"]
-run = """
-set -eu
-mise -E specs lock
-npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund
-npm run build --prefix tsp
-test -z "$(git status --porcelain -- mise.specs-dev.lock tsp/package-lock.json)"
-test -f openapi/openapi.yaml
-test -z "$(git status --porcelain -- openapi/openapi.yaml)"
-cd tsp
-npx tsp format --check "**/*.tsp"
-"""
+run = "task specs:gate"
 sources = ["@group:common", "@group:specs"]
 outputs = []
 
-[tasks."specs:lint"]
-description = "Check TypeSpec formatting and compiler lint diagnostics"
-tools = { node = "26.10.0" }
-depends = ["deps:install"]
-run = """
-cd tsp
-npx tsp format --check "**/*.tsp"
-npx tsp compile . --no-emit --warn-as-error
-"""
-sources = ["@group:specs"]
-outputs = []
-
-[tasks."specs:analyze"]
-description = "Analyze HTTP API semantics without emitting artifacts"
-tools = { node = "26.10.0" }
-depends = ["deps:install"]
-run = "cd tsp && npx tsp compile . --no-emit --warn-as-error --linter-ruleset @typespec/http/all"
-sources = ["@group:specs"]
-outputs = []
-
 [tasks."sources:gate"]
-description = "Generate and verify Sources, tool locks, and formatting"
+description = "Run Specs, then Sources in the CI pipeline"
 depends = ["specs:gate"]
 tools = {
   "go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint" = "v2.15.0",
   "go:github.com/jmattheis/goverter/cmd/goverter" = "v1.11.1",
   "go:github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen" = "v2.8.2",
 }
-run = """
-set -eu
-oapi-codegen -config internal/lib/e2e/api/cfg.yaml openapi/openapi.yaml
-go tool ent generate --target internal/pool/ent ./internal/pool/ent/schema
-go tool ent generate --feature sql/upsert --target internal/proc/ent ./internal/proc/ent/schema
-goverter gen -global 'skipCopySameType' ./...
-oapi-codegen -config internal/app/web/api/cfg.yaml openapi/openapi.yaml
-mise -E sources lock
-test -z "$(git status --porcelain -- mise.sources-dev.lock)"
-test -z "$(git status --porcelain -- ':(glob)**/*.gen.go' ':(glob)**/ent/**')"
-golangci-lint fmt --diff
-"""
-sources = ["@group:common", "@group:sources"]
-outputs = []
-
-[tasks."sources:lint"]
-description = "Lint Sources without staticcheck or depguard"
-tools = {
-  "go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint" = "v2.15.0",
-  "go:github.com/jmattheis/goverter/cmd/goverter" = "v1.11.1",
-  "go:github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen" = "v2.8.2",
-}
-run = "golangci-lint run --disable staticcheck --disable depguard ./..."
+run = "task sources:gate"
 sources = ["@group:sources"]
 outputs = []
 
-[tasks."sources:analyze"]
-description = "Run static and architecture analysis on Sources"
-tools = {
-  "go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint" = "v2.15.0",
-  "go:github.com/jmattheis/goverter/cmd/goverter" = "v1.11.1",
-  "go:github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen" = "v2.8.2",
-}
+[tasks."binaries:gate"]
+description = "Run Specs, Sources, then Binaries in the CI pipeline"
+depends = ["sources:gate"]
 run = """
-go vet ./...
-golangci-lint run --enable-only depguard ./...
+task binaries:check
+mise run tests:unit
+task binaries:build
+mise run tests:it
 """
-sources = ["@group:sources"]
+sources = ["@group:binaries"]
 outputs = []
 
 [tasks."tests:unit"]
@@ -141,32 +100,3 @@ run = "go test -run=TestIntegration ./internal/... ./cmd/... ./test/it/..."
 [tasks."tests:e2e"]
 description = "Run end-to-end tests"
 run = "go test -failfast ./test/..."
-
-[tasks."binaries:check"]
-description = "Check Go dependencies and toolchain lockfiles"
-run = """
-set -eu
-GOWORK=off go mod tidy
-mise lock
-git status --short -- go.mod go.sum mise.lock
-test -z "$(git status --porcelain -- go.mod go.sum mise.lock)"
-"""
-
-[tasks."binaries:build"]
-description = "Build the distributable binary"
-run = """
-mkdir -p dist
-CGO_ENABLED=0 go build -o dist/go-engine ./cmd/engine
-"""
-
-[tasks."binaries:gate"]
-description = "Run unit tests, build the binary, then run integration tests"
-depends = ["sources:gate"]
-run = """
-mise run binaries:check
-mise run tests:unit
-mise run binaries:build
-mise run tests:it
-"""
-sources = ["@group:binaries"]
-outputs = ["dist/go-engine"]

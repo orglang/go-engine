@@ -616,3 +616,41 @@ ADR-0002 фиксирует важные правила Connection lifecycle и 
 - Client endpoint не становится владельцем Connection; client root revision меняется только при изменении собственного Execution state.
 
 Иными словами, «сущность первого уровня Computation» описывает место Connection в доменной модели, а «Provider Computation владеет Connection» определяет конкретный aggregate owner для каждой Connection. Эти утверждения совместимы.
+
+## 26. Дополнительный аудит Computation и Spawn
+
+### 26.1. Фактическое представление Computation
+
+В текущей реализации pool и proc имеют отдельные context-owned Computation repositories и storage:
+
+- *_comp_execs хранит comp_id, comp_rn и liab_mode;
+- *_comp_vars и специализированные *_struct_vars / *_linear_vars хранят состояние переменных и channel bindings, адресованное через comp_id и comp_rn;
+- *_comp_conns хранит conn_id, Provider и Client Computation refs, offset_nr и act_nr;
+- *_conn_acts хранит ordered Act records с conn_id, act_nr, comp_id, comp_rn, chnl_id, kind и expression payload.
+
+Это подтверждает фактическое разделение execution state, Connection и Act stream. Целевая модель §19.7 задаёт доменную ownership: Execution и Connection — сущности первого уровня Computation; Act принадлежит Connection. Текущие названия comp_execs и compexec не следует автоматически принимать за окончательную доменную терминологию.
+
+### 26.2. Connection ownership и OCC
+
+ADR-0002 уже задаёт правило: Connection имеет одного owner — Provider Computation. Изменение Connection защищается CAS по ожидаемой Provider Computation revision; отдельная Connection revision не используется. Client Computation revision увеличивается только при изменении её собственного состояния.
+
+Текущий Pool use case Take собирает все затронутые Computation refs, выполняет CAS по ним до записи Connection/variable state и добавляет Provider ref для Connection mutation. Process path также передаёт Provider ref в ExecMod.CompRefs; его repository обновляет соответствующие proc_comp_execs по ID + expected RN. Это поддерживает target rule о Computation root revision как consistency/concurrency boundary для owned Execution и Connection.
+
+### 26.3. Spawn refs: фактический статус
+
+Текущий inbound adapter pool/compexec/adapter/me_echo.go преобразует PoolTermSpawnSpec:
+
+- proc_dr → Term reference с ID + RN;
+- каждый элемент proc_irs → Computation reference с ID + RN;
+- результат помещается в termexp.SpawnSpec2{ProcTermRef, ProcCompRefs}.
+
+Однако аудит использования SpawnSpec2 показывает, что в текущем core он только объявлен и создаётся inbound adapter-ом; consumer в pool/compexec не найден. pool/compexec.service.Spawn принимает StepSpec, но текущая реализация создаёт новый Process Computation execution record и не использует переданное PoolExp. Поэтому нельзя утверждать, что ProcTermRef/ProcCompRefs разрешаются, проверяются, сохраняются или rehydrate-ятся как durable references. Это незавершённый use case, а не основание выводить контракт хранения из текущего кода.
+
+Следствия для target design:
+
+1. Spawn должен стать полноценным application use case с явным разрешением Term Description и referenced Computations в Process context.
+2. Нужно определить, какие Computation refs являются входными expected-current preconditions, какие — identity associations, и какие должны переживать Spawn как durable associations.
+3. Нужно определить, должен ли Spawn создавать новую Execution entity в целевом Computation aggregate, новую Computation identity или оба объекта; текущий код недостаточен для такого решения.
+4. Нельзя переносить входные RN в постоянное хранилище только потому, что они присутствуют в inbound DTO.
+5. Spawn semantics и reference durability должны быть согласованы с ownership и CAS rules Computation из §19.7 и §20.
+

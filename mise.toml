@@ -146,6 +146,8 @@ run = "go test -failfast ./test/..."
 description = "Check Go dependencies and toolchain lockfiles"
 run = """
 set -eu
+GOWORK=off go mod tidy
+mise lock
 git status --short -- go.mod go.sum mise.lock
 test -z "$(git status --porcelain -- go.mod go.sum mise.lock)"
 """

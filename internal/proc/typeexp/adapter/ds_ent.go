@@ -45,10 +45,11 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typeexp.ExpRec)
 			SetSpec(st.Spec))
 	}
 	txCtx := entpgx.WithConn(ctx, conn.Pgx)
-	if err := dao.client.TypeExp.CreateBulk(builders...).
+	err := dao.client.TypeExp.CreateBulk(builders...).
 		OnConflictColumns(typeexpent.FieldID).
 		DoNothing().
-		Exec(txCtx); err != nil {
+		Exec(txCtx)
+	if err != nil {
 		dao.log.Error("query execution failed", ckAttr)
 		return err
 	}

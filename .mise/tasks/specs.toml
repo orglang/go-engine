@@ -40,5 +40,6 @@ sources = [
   "tsp/**",
   "openapi/openapi.yaml",
   ".mise/conf.d/specs.toml",
+  ".mise/tasks/specs.toml",
 ]
 outputs = []

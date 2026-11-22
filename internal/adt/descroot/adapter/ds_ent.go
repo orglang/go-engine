@@ -10,8 +10,8 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 )
 
-// DAO shares Description root persistence behavior across Ent clients.
-type DAO[T any] struct {
+// daoEnt shares Description root persistence behavior across Ent clients.
+type daoEnt[T any] struct {
 	client T
 	create func(T, context.Context, tx.Conn, descroot.SemRef) error
 	update func(T, context.Context, tx.Conn, descroot.SemRef) (int, error)
@@ -24,9 +24,9 @@ func NewDaoEnt[T any](
 	log *slog.Logger,
 	create func(T, context.Context, tx.Conn, descroot.SemRef) error,
 	update func(T, context.Context, tx.Conn, descroot.SemRef) (int, error),
-) *DAO[T] {
-	name := slog.String("name", reflect.TypeFor[DAO[T]]().Name())
-	return &DAO[T]{
+) descroot.Repo {
+	name := slog.String("name", reflect.TypeFor[daoEnt[T]]().Name())
+	return &daoEnt[T]{
 		client: client,
 		create: create,
 		update: update,
@@ -35,7 +35,7 @@ func NewDaoEnt[T any](
 }
 
 // AddRef inserts a new aggregate root at its initial revision.
-func (dao *DAO[T]) AddRef(ctx context.Context, conn tx.Conn, ref descroot.SemRef) error {
+func (dao *daoEnt[T]) AddRef(ctx context.Context, conn tx.Conn, ref descroot.SemRef) error {
 	if err := dao.create(dao.client, ctx, conn, ref); err != nil {
 		dao.log.Error("query execution failed", slog.Any("ref", ref))
 		return err
@@ -44,7 +44,7 @@ func (dao *DAO[T]) AddRef(ctx context.Context, conn tx.Conn, ref descroot.SemRef
 }
 
 // TouchRef advances the Description revision if the expected revision matches.
-func (dao *DAO[T]) TouchRef(ctx context.Context, conn tx.Conn, ref descroot.SemRef) error {
+func (dao *daoEnt[T]) TouchRef(ctx context.Context, conn tx.Conn, ref descroot.SemRef) error {
 	updated, err := dao.update(dao.client, ctx, conn, ref)
 	if err != nil {
 		dao.log.Error("query execution failed", slog.Any("ref", ref))

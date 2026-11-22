@@ -208,9 +208,6 @@ run = [
 sources = ["@group:binaries"]
 outputs = []
 
-[tasks."tests:e2e"]
-description = "Run end-to-end tests"
-run = "go test -failfast ./test/..."
 
 [tasks."hooks:install"]
 description = "Configure this repository to use versioned Git hooks"

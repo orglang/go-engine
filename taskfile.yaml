@@ -36,7 +36,7 @@ tasks:
   tests:e2e:
     desc: Temporary compatibility alias for the workspace stack E2E step
     cmds:
-      - go test -run=TestIntegration ./internal/... ./cmd/... ./test/it/...
+      - go test -failfast ./test/...
 
   sources:gate:
     desc: Verify generated sources, tool locks, formatting, lint, and analysis

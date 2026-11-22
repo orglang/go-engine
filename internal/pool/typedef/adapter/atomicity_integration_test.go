@@ -7,10 +7,10 @@ import (
 	"time"
 
 	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
-	descrootadapter "orglang/go-engine/internal/pool/descroot/adapter"
 	"orglang/go-engine/internal/adt/uniqsym"
 	dbadapter "orglang/go-engine/internal/lib/db/adapter"
 	"orglang/go-engine/internal/lib/entpgx"
+	descrootadapter "orglang/go-engine/internal/pool/descroot/adapter"
 	"orglang/go-engine/internal/pool/ent"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 	typeexpadapter "orglang/go-engine/internal/pool/typeexp/adapter"

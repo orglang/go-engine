@@ -13,7 +13,7 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
-	)
+)
 
 type typeSemDaoPgx struct {
 	log *slog.Logger
@@ -23,7 +23,6 @@ func NewTypeSemDaoPgx(log *slog.Logger) typesem.Repo {
 	name := slog.String("name", reflect.TypeFor[typeSemDaoPgx]().Name())
 	return &typeSemDaoPgx{log: log.With(name)}
 }
-
 
 func (dao *typeSemDaoPgx) GetRefsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uniqsym.ADT) (_ map[uniqsym.ADT]typesem.SemRef, err error) {
 	dao.log.Log(ctx, lf.LevelTrace, "getting started", slog.Any("qns", typeQNs))

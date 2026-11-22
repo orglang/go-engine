@@ -1,10 +1,10 @@
-[tasks."deps:install"]
+["deps:install"]
 description = "Install TypeSpec dependencies"
 tools = { node = "26.10.0" }
 run = "npm ci --prefix tsp --no-audit --no-fund"
 sources = ["tsp/package.json", "tsp/package-lock.json"]
 outputs = ["tsp/node_modules"]
 
-[tasks."hooks:install"]
+["hooks:install"]
 description = "Configure this repository to use versioned Git hooks"
 run = "git config core.hooksPath .githooks"

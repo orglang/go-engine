@@ -293,7 +293,7 @@ Type и Term следует рассматривать не обязательн
 В обсуждении issue #128 подтверждены следующие решения:
 
 1. Использовать термин **QN** (*qualified name*) вместо `QN` во всём ADR и последующей документации.
-2. Единый `descsem` aggregate существует **внутри каждого bounded context**. Следовательно, `proc` и `pool` владеют независимыми descriptor identity spaces, QN namespaces, kind и RN. Общая identity space между контекстами не предполагается.
+2. Единый Description aggregate существует **внутри каждого bounded context**. Следовательно, `proc` и `pool` владеют независимыми Description/entity identity spaces, QN namespaces и DescRN. Внутри каждого контекста QN Type и Term используют одно общее пространство имён. Общая identity space между контекстами не предполагается.
 3. Type и Term остаются различными сущностями первого уровня одного `descsem` aggregate в каждом контексте.
 
 Это решение снимает вопрос 15.4(1): root scope — контекстный. Оно не означает общий Go/API repository между `proc` и `pool`; каждый bounded context сохраняет собственные application ports, persistence adapters и транзакционные границы.
@@ -393,6 +393,16 @@ Description
 7. Retirement сохраняет `DescID`, `TypeID`, `TermID`, QN и данные. Физическое удаление не является частью обычного lifecycle и допустимо только при отсутствии зависимостей, нарушающих referential integrity.
 
 `DescID` идентифицирует Description aggregate root и не переиспользуется как identity принадлежащих ему доменных сущностей. `TypeID` и `TermID` — отдельные identity. Kind как discriminator Description отсутствует: состав агрегата выражается его сущностями и инвариантами.
+
+### 19.3. QN ownership and resolution
+
+QN принадлежит Type или Term, а не Description. Внутри bounded context QN всех Type и Term входят в одно общее пространство имён; одинаковое имя у двух сущностей запрещено независимо от их вида и Description.
+
+- Type QN разрешается в `TypeID`, Term QN — в `TermID`.
+- Resolver использует типизированную операцию, поэтому единое пространство имён не требует общего неразмеченного reference type.
+- Rename Type/Term не меняет соответствующий entity ID или `DescID` владельца.
+- Разрешение QN и чтение сущности должны быть согласованы в одной транзакционной точке.
+- Alias/history для старых QN не вводится в базовой модели.
 
 ### 19.4. Root revision
 
@@ -499,7 +509,7 @@ Typed resolver выполняет проверки:
 
 1. Scope: искать только в repository соответствующего bounded context.
 2. Existence: root identity существует и доступна.
-3. Kind: TypeRef разрешается только в Type Description; TermID разрешается только в Term Description.
+3. Entity type: TypeID разрешается только как Type, а TermID — только как Term; Description-level kind отсутствует.
 4. Revision policy: latest read игнорирует expected revision только если use case явно выбрал latest semantics; command с expected revision проверяет exact equality.
 5. Child pin: ExpCK принадлежит указанному Type Description и существует.
 6. Lifecycle: retired/deleted state не разрешается обычными active-use cases.
@@ -541,11 +551,11 @@ Term declaration/definition ports остаются раздельными там
 
 Целевая схема не обязана повторять текущую форму таблиц. Она должна обеспечивать:
 
-1. единый Description identity space Type + Term внутри каждого контекста;
-2. уникальность QN внутри контекста;
-3. однозначное соответствие kind специализированному state;
-4. невозможность TypeState для Term root и TermState для Type root;
-5. атомарную запись Description root, QN, kind, revision и initial specialized state;
+1. единый Description aggregate, содержащий один Provider Type и ноль или более Terms внутри каждого контекста;
+2. единое пространство уникальности QN для всех Type и Term внутри контекста;
+3. однозначную принадлежность каждой Type/Term entity своему Description root;
+4. невозможность существования Description без Provider Type и Term без своего Provider Type;
+5. атомарную запись Description root, entity identities, QN и revision вместе с initial specialized state;
 6. атомарное увеличение Description revision вместе с изменением owned Type/Term state;
 7. проверку expected revision в том же атомарном write, что и mutation;
 8. referential integrity для ID + ExpCK pins и retention expression state;
@@ -564,12 +574,12 @@ Term declaration/definition ports остаются раздельными там
 
 Основные доменные решения для Description и Computation согласованы:
 
-1. **QN и retirement:** QN изменяем и уникален в пределах bounded context. Rename атомарен и увеличивает DescRN. Aliases и история имён не входят в базовую модель. Retire сохраняет Description identity, данные и прежний QN; QN остаётся зарезервированным и освобождается только после физического Delete.
+1. **QN ownership and retirement:** QN принадлежит Type или Term. Все Type/Term QN уникальны в едином пространстве имён bounded context. Rename сущности атомарен и увеличивает DescRN её Description. Aliases и история имён не входят в базовую модель. Retire сохраняет QN всех принадлежащих Description сущностей; имена освобождаются только после физического Delete Description.
 2. **Term facets:** Term создаётся сразу с обязательной Declaration. Пустой Term и отдельная draft/Incept-фаза не входят в базовую модель. Definition необязательна и добавляется отдельной командой.
 3. **Declaration mutability:** Declaration immutable после создания.
 4. **Definition mutability:** Definition допускает только additive-изменения. Замена и редактирование существующих частей не входят в базовую модель.
 5. **Term lifecycle:** Declaration и Definition принадлежат одной Term entity и одному Description aggregate; эти правила одинаковы в `proc` и `pool`.
-6. **Description revision:** все атомарные команды, меняющие наблюдаемое состояние Description, увеличивают общий DescRN ровно один раз, включая Type expression/ExpCK, Term facets, QN rename и retirement.
+6. **Description revision:** все атомарные команды, меняющие наблюдаемое состояние Description, увеличивают общий DescRN ровно один раз, включая Type expression/ExpCK, Term facets, Type/Term QN rename и retirement.
 7. **TypeExp retention:** текущие expression states сохраняются, пока на них существуют действующие ссылки или зависимости; полная история Type revisions не вводится.
 8. **Execution identity/cardinality:** одна Computation содержит ровно один Execution; ComputationID служит его identity. Отдельный ExecutionID, несколько Execution и история retries не вводятся.
 9. **Computation references:** Connection принадлежит Provider Computation; Client является внешним endpoint. Connection mutations используют expected Provider Computation revision. Остальные durable reference semantics применяются согласно классификации §27.5; детали незавершённого Spawn use case не требуют проектировать persistence заранее.
@@ -790,7 +800,7 @@ Declaration и Definition не являются разными видами Desc
 - **DescID** — identity Description aggregate root в конкретном bounded context;
 - **TermID** — identity принадлежащей ему доменной сущности Term.
 
-DescID и TermID — разные идентификаторы с разными назначениями. Description root владеет Term entity, но не переиспользует его ID. Descriptor registry связывает QN и kind с DescID; Term resolver связывает TermID с соответствующим Description root и проверяет, что его kind — Term.
+DescID и TermID — разные идентификаторы с разными назначениями. Description root владеет Term entity, но не переиспользует его ID. Исторический descriptor registry связывает QN и kind с DescID. В целевой модели QN принадлежит Type или Term; resolver связывает TypeID/TermID с соответствующим Description root без Description-level kind.
 
 Term адресуется непосредственно по TermID. Отдельный TermRef wrapper не вводится: он не добавляет необходимой семантики поверх TermID. Revision также не является частью TermID и передаётся отдельно там, где команда требует optimistic concurrency. При разрешении TermID система однозначно находит владеющий DescID в пределах текущего context, затем применяет правила kind и lifecycle. Это отображение обеспечивается инвариантами и атомарностью persistence, а не совпадением значений ID.
 
@@ -839,7 +849,7 @@ Incept не переносится как самостоятельная фаз�
 Type является доменной сущностью внутри Description aggregate, а не отдельным aggregate root. Его identity отделена от identity владельца:
 - `DescID` идентифицирует Description aggregate root;
 - `TypeID` идентифицирует принадлежащую ему Type entity;
-- `QN` является человеко-понятным внешним идентификатором Description, используемым в API, конфигурациях и поиске.
+- `QN` является человеко-понятным внешним идентификатором Type, используемым в API, конфигурациях и поиске; Term имеет собственный QN.
 
 Type сохраняет ссылку на текущее expression state через `ExpCK`. Изменение Type создаёт новое expression state и переключает текущий `ExpCK`; конкурентные изменения Description защищаются общей Description revision. Отдельная Type revision в целевой модели не вводится.
 
@@ -855,7 +865,7 @@ QN изменяем: переименование Type или Term не созд
 
 ### 31.3. Граница архитектурного решения
 
-Проверка соответствия запрошенного вида сущности фактическому kind при разрешении `TypeID`/`TermID`, а также детали ошибок resolver-а являются реализационными контрактами. Они не вводят дополнительные identity или aggregate boundaries и не рассматриваются здесь как отдельное архитектурное решение.
+Проверка соответствия типизированной операции сущности (`TypeID` или `TermID`), а также детали ошибок resolver-а являются реализационными контрактами; Description-level kind не вводится. Они не вводят дополнительные identity или aggregate boundaries и не рассматриваются здесь как отдельное архитектурное решение.
 
 ## 32. Description revision и typed entity references
 

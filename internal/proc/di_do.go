@@ -6,6 +6,8 @@ import (
 	"github.com/labstack/echo/v5"
 	"github.com/samber/do/v2"
 
+	"orglang/go-engine/internal/adt/descroot"
+	descrootadapter "orglang/go-engine/internal/adt/descroot/adapter"
 	"orglang/go-engine/internal/adt/typesem"
 	webapi "orglang/go-engine/internal/app/web/api"
 	"orglang/go-engine/internal/lib/entpgx"
@@ -26,6 +28,13 @@ var Package = do.Package(
 		return ent.NewClient(ent.Driver(entpgx.New())), nil
 	}),
 	compconn.Package,
+	do.Lazy[descroot.Repo](func(i do.Injector) (descroot.Repo, error) {
+		logger, err := do.Invoke[*slog.Logger](i)
+		if err != nil {
+			return nil, err
+		}
+		return descrootadapter.NewDaoPgx("proc_desc_roots")(logger), nil
+	}),
 	compexec.Package,
 	termdec.Package,
 	termdef.Package,

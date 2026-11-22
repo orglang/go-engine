@@ -2,7 +2,7 @@ package adapter
 
 import (
 	"fmt"
-	compsemadapter "orglang/go-engine/internal/adt/compsem/adapter"
+	compsemadapter "orglang/go-engine/internal/adt/comproot/adapter"
 	"orglang/go-engine/internal/adt/identity"
 	termexp "orglang/go-engine/internal/pool/termexp/adapter"
 

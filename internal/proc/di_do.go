@@ -45,15 +45,11 @@ var Package = do.Package(
 	typedef.Package,
 	typeexp.Package,
 	do.Lazy[typesem.Repo](func(i do.Injector) (typesem.Repo, error) {
-		client, err := do.Invoke[*ent.Client](i)
-		if err != nil {
-			return nil, err
-		}
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil {
 			return nil, err
 		}
-		return typedef.NewTypeSemDaoEnt(client, logger), nil
+		return typedef.NewTypeSemDaoPgx(logger), nil
 	}),
 )
 

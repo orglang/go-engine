@@ -2,5 +2,6 @@ package adapter
 
 type SemRef struct {
 	TypeID string `db:"type_id"`
-	TypeRN int64  `db:"type_rn"`
+	DescID string `db:"desc_id"`
+	DescRN int64  `db:"desc_rn"`
 }

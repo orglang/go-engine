@@ -10,6 +10,7 @@ import (
 
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/descsem"
+	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/symbol"
@@ -49,6 +50,7 @@ type Context struct {
 
 type service struct {
 	typeDefRepo Repo
+	descRootRepo descroot.Repo
 	typeExpRepo typeexp.Repo
 	descSemRepo DescSemRepo
 	transactor  tx.Transactor
@@ -62,12 +64,13 @@ func newAPI() API {
 
 func NewService(
 	typeDefRepo Repo,
+	descRootRepo descroot.Repo,
 	typeExpRepo typeexp.Repo,
 	descSemRepo DescSemRepo,
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
-	return &service{typeDefRepo, typeExpRepo, descSemRepo, transactor, log}
+	return &service{typeDefRepo: typeDefRepo, descRootRepo: descRootRepo, typeExpRepo: typeExpRepo, descSemRepo: descSemRepo, transactor: transactor, log: log}
 }
 
 func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err error) {
@@ -78,8 +81,13 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err erro
 		return DefSnap{}, err
 	}
 	newDef := DefRec{TypeRef: typesem.New(), ExpCK: newExp.Key()}
+	newRoot := descroot.SemRef{DescID: newDef.TypeRef.DescID, DescRN: newDef.TypeRef.DescRN}
 	newDesc := descsem.SemRec{DescQN: spec.TypeQN, DescID: newDef.TypeRef.TypeID, Kind: descsem.TypeKind}
 	err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
+		err = s.descRootRepo.AddRef(txCtx, conn, newRoot)
+		if err != nil {
+			return err
+		}
 		err = s.descSemRepo.AddRec(txCtx, conn, newDesc)
 		if err != nil {
 			return err
@@ -111,36 +119,33 @@ func (s *service) Modify(ctx context.Context, snap DefSnap) (_ DefSnap, err erro
 		s.log.Error("modification failed", refAttr)
 		return DefSnap{}, err
 	}
-	if snap.TypeRef.TypeRN != rec.TypeRef.TypeRN {
+	if snap.TypeRef.DescRN != rec.TypeRef.DescRN {
 		s.log.Error("modification failed", refAttr)
-		return DefSnap{}, errConcurrentModification(snap.TypeRef.TypeRN, rec.TypeRef.TypeRN)
+		return DefSnap{}, errConcurrentModification(snap.TypeRef.DescRN, rec.TypeRef.DescRN)
 	}
-	snap.TypeRef.TypeRN = seqnum.Next(snap.TypeRef.TypeRN)
 	curSnap, err := s.retrieveSnap(ctx, rec)
 	if err != nil {
 		s.log.Error("modification failed", refAttr)
 		return DefSnap{}, err
 	}
+	if typeexp.CheckSpec(snap.DefSpec.TypeExp, curSnap.DefSpec.TypeExp) == nil {
+		return curSnap, nil
+	}
+	newExp, err := typeexp.ConvertSpecToRec(snap.DefSpec.TypeExp)
+	if err != nil {
+		return DefSnap{}, err
+	}
+	expectedRoot := descroot.SemRef{DescID: rec.TypeRef.DescID, DescRN: snap.TypeRef.DescRN}
+	snap.TypeRef.DescRN = seqnum.Next(snap.TypeRef.DescRN)
+	rec.ExpCK = newExp.Key()
 	err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		if typeexp.CheckSpec(snap.DefSpec.TypeExp, curSnap.DefSpec.TypeExp) != nil {
-			newExp, err := typeexp.ConvertSpecToRec(snap.DefSpec.TypeExp)
-			if err != nil {
-				return err
-			}
-			err = s.typeExpRepo.AddRec(txCtx, conn, newExp)
-			if err != nil {
-				return err
-			}
-			rec.ExpCK = newExp.Key()
-			rec.TypeRef.TypeRN = snap.TypeRef.TypeRN
+		if err := s.descRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil {
+			return err
 		}
-		if rec.TypeRef.TypeRN == snap.TypeRef.TypeRN {
-			err = s.typeDefRepo.ModifyRec(txCtx, conn, rec)
-			if err != nil {
-				return err
-			}
+		if err := s.typeExpRepo.AddRec(txCtx, conn, newExp); err != nil {
+			return err
 		}
-		return nil
+		return s.typeDefRepo.ModifyRec(txCtx, conn, rec)
 	})
 	if err != nil {
 		s.log.Error("modification failed", refAttr)

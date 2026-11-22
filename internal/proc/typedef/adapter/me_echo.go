@@ -57,7 +57,7 @@ func (h *controllerEcho) GetProcessTypeDefinition(c *echo.Context, id string, pa
 	}
 	ref := typesem.SemRef{TypeID: typeID}
 	if params.Rn != nil {
-		ref.TypeRN = seqnum.ConvertFromInt(*params.Rn)
+		ref.DescRN = seqnum.ConvertFromInt(*params.Rn)
 	}
 	snap, err := h.api.RetrieveSnap(c.Request().Context(), ref)
 	if err != nil {

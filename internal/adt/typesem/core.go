@@ -7,11 +7,12 @@ import (
 
 type SemRef struct {
 	TypeID identity.ADT
-	TypeRN seqnum.ADT
+	DescID identity.ADT
+	DescRN seqnum.ADT
 }
 
 func New() SemRef {
-	return SemRef{identity.New(), seqnum.New()}
+	return SemRef{TypeID: identity.New(), DescID: identity.New(), DescRN: seqnum.New()}
 }
 
 type typeKind int16

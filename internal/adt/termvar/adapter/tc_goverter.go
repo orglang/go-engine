@@ -14,6 +14,7 @@ var (
 	DataFromVarRec func(termvar.VarRec) (VarRec, error)
 	// goverter:map . TypeRef | dataToTypeRef
 	DataToVarRec func(VarRec) (termvar.VarRec, error)
-	// goverter:ignore TypeRN
+	// goverter:ignore DescID
+	// goverter:ignore DescRN
 	dataToTypeRef func(VarRec) (typesem.SemRef, error)
 )

@@ -6,8 +6,8 @@ import (
 	"entgo.io/ent/schema/mixin"
 )
 
-// TypeSemMixin defines the fields shared by pool and process type definition
-// tables that are used for ADT semantic revision tracking.
+// TypeSemMixin defines the identity and owning Description fields shared by
+// pool and process Type definition tables.
 type TypeSemMixin struct {
 	mixin.Schema
 }
@@ -16,6 +16,6 @@ type TypeSemMixin struct {
 func (TypeSemMixin) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("id").StorageKey("type_id").Immutable(),
-		field.Int64("type_rn"),
+		field.String("desc_id"),
 	}
 }

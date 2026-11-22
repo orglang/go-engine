@@ -8,6 +8,5 @@ import (
 )
 
 type Repo interface {
-	TouchRef(context.Context, tx.Conn, SemRef) error
 	GetRefsByQNs(context.Context, tx.Conn, []uniqsym.ADT) (map[uniqsym.ADT]SemRef, error)
 }

@@ -1,4 +1,4 @@
-[tasks."specs:lock"]
+["specs:lock"]
 description = "Refresh TypeSpec toolchain and npm dependency lockfiles"
 tools = { node = "26.10.0" }
 run = [
@@ -6,25 +6,25 @@ run = [
   "npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund",
 ]
 
-[tasks."specs:generate"]
+["specs:generate"]
 description = "Generate OpenAPI from TypeSpec"
 tools = { node = "26.10.0" }
 dir = "tsp"
 run = "npm run build"
 
-[tasks."specs:lint"]
+["specs:lint"]
 description = "Lint TypeSpec without modifying files"
 tools = { node = "26.10.0" }
 dir = "tsp"
 run = 'npm exec -- tsp format --check "**/*.tsp"'
 
-[tasks."specs:analyze"]
+["specs:analyze"]
 description = "Analyze and compile the TypeSpec project without emitting artifacts"
 tools = { node = "26.10.0" }
 dir = "tsp"
 run = "npm exec -- tsp compile . --no-emit"
 
-[tasks."specs:prepare"]
+["specs:prepare"]
 description = "Refresh TypeSpec dependencies and locks, then generate OpenAPI"
 depends = ["deps:install"]
 run = [
@@ -32,7 +32,7 @@ run = [
   { task = "specs:generate" },
 ]
 
-[tasks."specs:gate"]
+["specs:gate"]
 description = "Check TypeSpec formatting, compilation, dependency locks, and generated OpenAPI"
 depends = ["specs:prepare"]
 run = [

@@ -2,12 +2,3 @@
 "go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint" = "v2.15.0"
 "go:github.com/jmattheis/goverter/cmd/goverter" = "v1.11.1"
 "go:github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen" = "v2.8.2"
-
-[task_config.input_groups]
-sources = [
-  "*.go",
-  "**/*.go",
-  ".golangci.yml",
-  "staticcheck.conf",
-  ".mise/conf.d/sources.toml",
-]

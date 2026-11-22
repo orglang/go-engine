@@ -52,6 +52,10 @@ func (r *batchQueryErrorResults) Close() error {
 	return nil
 }
 
+func (r *batchQueryErrorResults) Tx() pgx.Tx {
+	panic("unexpected batch Tx")
+}
+
 func TestGetRecsReturnsBatchQueryError(t *testing.T) {
 	queryErr := errors.New("batch query failed")
 	batch := &batchQueryErrorResults{queryErr: queryErr}

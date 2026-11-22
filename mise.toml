@@ -4,33 +4,3 @@ experimental = true
 
 [tools]
 go = "1.27.0"
-
-[task_config.input_groups]
-common = [
-  ".github/**",
-  "mise.toml",
-  "mise.lock",
-  ".miserc.toml",
-]
-specs = [
-  "tsp/**",
-  "openapi/openapi.yaml",
-  "mise.specs-dev.toml",
-  "mise.specs-dev.lock",
-]
-sources = [
-  "*.go",
-  "**/*.go",
-  "mise.sources-dev.toml",
-  "mise.sources-dev.lock",
-  ".golangci.yml",
-  "staticcheck.conf",
-]
-binaries = [
-  "*.sql",
-  "**/*.sql",
-  "go.mod",
-  "go.sum",
-  "**/go.mod",
-  "**/go.sum",
-]

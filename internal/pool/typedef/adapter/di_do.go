@@ -6,7 +6,6 @@ import (
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/adt/descsem"
-	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/pool/ent"
 	"orglang/go-engine/internal/pool/typedef/core"
@@ -14,12 +13,6 @@ import (
 )
 
 var Package = do.Package(
-	do.Lazy[QueryBuilder](func(do.Injector) (QueryBuilder, error) {
-		return newSQLBuilder(), nil
-	}),
-	do.Lazy[*ent.Client](func(do.Injector) (*ent.Client, error) {
-		return ent.NewClient(ent.Driver(entpgx.New())), nil
-	}),
 	do.Lazy[core.Repo](func(i do.Injector) (core.Repo, error) {
 		client, err := do.Invoke[*ent.Client](i)
 		if err != nil {

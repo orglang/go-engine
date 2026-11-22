@@ -5,16 +5,14 @@ import (
 
 	"github.com/samber/do/v2"
 
+	"orglang/go-engine/internal/proc/ent"
 	"orglang/go-engine/internal/proc/typeexp/core"
 )
 
 // Package registers process type-expression persistence.
 var Package = do.Package(
-	do.Lazy[QueryBuilder](func(do.Injector) (QueryBuilder, error) {
-		return newSQLBuilder(), nil
-	}),
 	do.Lazy[core.Repo](func(i do.Injector) (core.Repo, error) {
-		builder, err := do.Invoke[QueryBuilder](i)
+		client, err := do.Invoke[*ent.Client](i)
 		if err != nil {
 			return nil, err
 		}
@@ -22,6 +20,6 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return NewDaoPgx(builder, logger), nil
+		return NewDaoEnt(client, logger), nil
 	}),
 )

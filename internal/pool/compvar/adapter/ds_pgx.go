@@ -18,13 +18,12 @@ import (
 )
 
 type daoPgx struct {
-	qb  queryBuilder
 	log *slog.Logger
 }
 
-func NewDaoPgx(qb queryBuilder, log *slog.Logger) compvar.Repo {
+func NewDaoPgx(log *slog.Logger) compvar.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
-	return &daoPgx{qb, log.With(name)}
+	return &daoPgx{log.With(name)}
 }
 
 // for compilation purposes
@@ -36,8 +35,7 @@ func (dao *daoPgx) AddRecs(ctx context.Context, conn tx.Conn, recs []adtcompvar.
 	batch := pgx.Batch{}
 	for _, rec := range recs {
 		dto := compvaradapter.DataFromVarRec(rec)
-		sql, args := dao.qb.InsertRec(getTableName(rec), dto)
-		batch.Queue(sql, args...)
+		batch.Queue(insertRec(getTableName(rec)), dto.CompID, dto.CompRN, dto.ConnID, dto.ChnlID, dto.ChnlPH, dto.ExpCK, dto.ChnlBS)
 	}
 	br := conn.Pgx.SendBatch(ctx, &batch)
 	defer func() {
@@ -64,3 +62,22 @@ func getTableName(rec adtcompvar.VarRec) string {
 		panic(adtcompvar.ErrUnexpectedRecType(rec))
 	}
 }
+
+func insertRec(table string) string {
+	switch table {
+	case poolStructVars:
+		return insertStructVar
+	case poolLinearVars:
+		return insertLinearVar
+	default:
+		panic("unexpected component-variable table")
+	}
+}
+
+const (
+	poolStructVars = "pool_struct_vars"
+	poolLinearVars = "pool_linear_vars"
+
+	insertStructVar = `INSERT INTO pool_struct_vars (comp_id, comp_rn, conn_id, chnl_id, chnl_ph, exp_ck, side) VALUES ($1, $2, $3, $4, $5, $6, $7)`
+	insertLinearVar = `INSERT INTO pool_linear_vars (comp_id, comp_rn, conn_id, chnl_id, chnl_ph, exp_ck, side) VALUES ($1, $2, $3, $4, $5, $6, $7)`
+)

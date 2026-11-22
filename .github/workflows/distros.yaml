@@ -2,10 +2,16 @@ name: Distros
 
 on:
   workflow_dispatch:
+    inputs:
+      workspace_ref:
+        description: "Branch, tag, or commit in orglang/go-workspace"
+        required: true
+        default: main
+        type: string
   schedule:
     # GitHub Actions evaluates cron schedules in UTC; avoid the top-of-hour
     # scheduling peak by running daily at 03:42 UTC.
-    - cron: '42 3 * * *'
+    - cron: '42 1 * * *'
   pull_request:
     branches: [main]
     types:
@@ -32,7 +38,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: orglang/go-workspace
-          ref: c6d6db3a400a04913e09754d05faa0c5a6b4229e
+          ref: ${{ github.event.inputs.workspace_ref || 'c6d6db3a400a04913e09754d05faa0c5a6b4229e' }}
           fetch-depth: 0
 
       - name: Checkout engine

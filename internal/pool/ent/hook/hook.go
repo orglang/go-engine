@@ -8,6 +8,42 @@ import (
 	"orglang/go-engine/internal/pool/ent"
 )
 
+// The CompConnFunc type is an adapter to allow the use of ordinary
+// function as CompConn mutator.
+type CompConnFunc func(context.Context, *ent.CompConnMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CompConnFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.CompConnMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CompConnMutation", m)
+}
+
+// The CompExecFunc type is an adapter to allow the use of ordinary
+// function as CompExec mutator.
+type CompExecFunc func(context.Context, *ent.CompExecMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CompExecFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.CompExecMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CompExecMutation", m)
+}
+
+// The TermDefFunc type is an adapter to allow the use of ordinary
+// function as TermDef mutator.
+type TermDefFunc func(context.Context, *ent.TermDefMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TermDefFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TermDefMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TermDefMutation", m)
+}
+
 // The TypeDefFunc type is an adapter to allow the use of ordinary
 // function as TypeDef mutator.
 type TypeDefFunc func(context.Context, *ent.TypeDefMutation) (ent.Value, error)
@@ -18,6 +54,18 @@ func (f TypeDefFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TypeDefMutation", m)
+}
+
+// The TypeExpFunc type is an adapter to allow the use of ordinary
+// function as TypeExp mutator.
+type TypeExpFunc func(context.Context, *ent.TypeExpMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TypeExpFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TypeExpMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TypeExpMutation", m)
 }
 
 // Condition is a hook condition function.

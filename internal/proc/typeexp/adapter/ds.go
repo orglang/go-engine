@@ -1,5 +1,7 @@
 package adapter
 
+import enttypeschema "orglang/go-engine/internal/proc/ent/schema"
+
 type ExpKind int
 
 const (
@@ -29,20 +31,8 @@ type State struct {
 	Spec     ExpSpec `db:"spec"`
 }
 
-type ExpSpec struct {
-	Link   string `json:"link,omitempty"`
-	Tensor *Prod  `json:"tensor,omitempty"`
-	Lolli  *Prod  `json:"lolli,omitempty"`
-	Plus   []Sum  `json:"plus,omitempty"`
-	With   []Sum  `json:"with,omitempty"`
-}
-
-type Prod struct {
-	ValExpCK  int64 `json:"on"`
-	ContExpCK int64 `json:"to"`
-}
-
-type Sum struct {
-	LabQN     string `json:"on"`
-	ContExpCK int64  `json:"to"`
-}
+type (
+	ExpSpec = enttypeschema.ExpSpec
+	Prod    = enttypeschema.ExpProd
+	Sum     = enttypeschema.ExpSum
+)

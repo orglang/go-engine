@@ -9,6 +9,47 @@ import (
 )
 
 var (
+	// PoolCompConnsColumns holds the columns for the "pool_comp_conns" table.
+	PoolCompConnsColumns = []*schema.Column{
+		{Name: "conn_id", Type: field.TypeString, Unique: true},
+		{Name: "provider_comp_id", Type: field.TypeString},
+		{Name: "provider_comp_rn", Type: field.TypeInt64},
+		{Name: "client_comp_id", Type: field.TypeString},
+		{Name: "client_comp_rn", Type: field.TypeInt64},
+		{Name: "offset_nr", Type: field.TypeInt64, Nullable: true},
+		{Name: "act_nr", Type: field.TypeInt64, Nullable: true},
+	}
+	// PoolCompConnsTable holds the schema information for the "pool_comp_conns" table.
+	PoolCompConnsTable = &schema.Table{
+		Name:       "pool_comp_conns",
+		Columns:    PoolCompConnsColumns,
+		PrimaryKey: []*schema.Column{PoolCompConnsColumns[0]},
+	}
+	// PoolCompExecsColumns holds the columns for the "pool_comp_execs" table.
+	PoolCompExecsColumns = []*schema.Column{
+		{Name: "comp_id", Type: field.TypeString, Unique: true},
+		{Name: "comp_rn", Type: field.TypeInt64},
+		{Name: "liab_mode", Type: field.TypeInt16},
+	}
+	// PoolCompExecsTable holds the schema information for the "pool_comp_execs" table.
+	PoolCompExecsTable = &schema.Table{
+		Name:       "pool_comp_execs",
+		Columns:    PoolCompExecsColumns,
+		PrimaryKey: []*schema.Column{PoolCompExecsColumns[0]},
+	}
+	// PoolTermDecsColumns holds the columns for the "pool_term_decs" table.
+	PoolTermDecsColumns = []*schema.Column{
+		{Name: "term_id", Type: field.TypeString},
+		{Name: "term_rn", Type: field.TypeInt64},
+		{Name: "liab_var", Type: field.TypeJSON},
+		{Name: "asset_vars", Type: field.TypeJSON},
+	}
+	// PoolTermDecsTable holds the schema information for the "pool_term_decs" table.
+	PoolTermDecsTable = &schema.Table{
+		Name:       "pool_term_decs",
+		Columns:    PoolTermDecsColumns,
+		PrimaryKey: []*schema.Column{PoolTermDecsColumns[0]},
+	}
 	// PoolTypeDefsColumns holds the columns for the "pool_type_defs" table.
 	PoolTypeDefsColumns = []*schema.Column{
 		{Name: "type_id", Type: field.TypeString},
@@ -21,14 +62,43 @@ var (
 		Columns:    PoolTypeDefsColumns,
 		PrimaryKey: []*schema.Column{PoolTypeDefsColumns[0]},
 	}
+	// PoolTypeExpsColumns holds the columns for the "pool_type_exps" table.
+	PoolTypeExpsColumns = []*schema.Column{
+		{Name: "exp_ck", Type: field.TypeInt64, Increment: true},
+		{Name: "sup_exp_ck", Type: field.TypeInt64},
+		{Name: "kind", Type: field.TypeInt16},
+		{Name: "spec", Type: field.TypeJSON, Nullable: true},
+	}
+	// PoolTypeExpsTable holds the schema information for the "pool_type_exps" table.
+	PoolTypeExpsTable = &schema.Table{
+		Name:       "pool_type_exps",
+		Columns:    PoolTypeExpsColumns,
+		PrimaryKey: []*schema.Column{PoolTypeExpsColumns[0]},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		PoolCompConnsTable,
+		PoolCompExecsTable,
+		PoolTermDecsTable,
 		PoolTypeDefsTable,
+		PoolTypeExpsTable,
 	}
 )
 
 func init() {
+	PoolCompConnsTable.Annotation = &entsql.Annotation{
+		Table: "pool_comp_conns",
+	}
+	PoolCompExecsTable.Annotation = &entsql.Annotation{
+		Table: "pool_comp_execs",
+	}
+	PoolTermDecsTable.Annotation = &entsql.Annotation{
+		Table: "pool_term_decs",
+	}
 	PoolTypeDefsTable.Annotation = &entsql.Annotation{
 		Table: "pool_type_defs",
+	}
+	PoolTypeExpsTable.Annotation = &entsql.Annotation{
+		Table: "pool_type_exps",
 	}
 }

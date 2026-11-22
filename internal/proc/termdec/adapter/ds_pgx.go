@@ -8,6 +8,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 
@@ -15,6 +16,7 @@ import (
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/termsem"
 
+	"orglang/go-engine/internal/proc/ent"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
@@ -24,38 +26,42 @@ type decRootRef struct {
 	Title  string `db:"title"`
 }
 
-type daoPgx struct {
-	qb  queryBuilder
-	log *slog.Logger
+type daoEnt struct {
+	client *ent.Client
+	log    *slog.Logger
 }
 
-func NewDaoPgx(qb queryBuilder, log *slog.Logger) termdec.Repo {
-	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
-	return &daoPgx{qb, log.With(name)}
+func NewDaoEnt(client *ent.Client, log *slog.Logger) termdec.Repo {
+	name := slog.String("name", reflect.TypeFor[daoEnt]().Name())
+	return &daoEnt{client: client, log: log.With(name)}
 }
 
 // for compilation purposes
 func newRepo() termdec.Repo {
-	return new(daoPgx)
+	return new(daoEnt)
 }
 
-func (dao *daoPgx) AddRec(ctx context.Context, conn tx.Conn, rec termdec.DecRec) error {
+func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdec.DecRec) error {
 	refAttr := slog.Any("ref", rec.TermRef)
 	dto, err := DataFromDecRec(rec)
 	if err != nil {
 		dao.log.Error("model conversion failed", refAttr)
 		return err
 	}
-	sql, args := dao.qb.InsertRec(dto)
-	_, err = conn.Pgx.Exec(ctx, sql, args...)
+	_, err = dao.client.TermDec.Create().
+		SetID(dto.TermID).
+		SetTermRn(dto.TermRN).
+		SetLiabVar(dto.LiabVar).
+		SetAssetVars(dto.AssetVars).
+		Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
-		dao.log.Error("query execution failed", refAttr, slog.String("sql", sql))
+		dao.log.Error("query execution failed", refAttr)
 		return err
 	}
 	return nil
 }
 
-func (dao *daoPgx) GetSnap(ctx context.Context, conn tx.Conn, ref termsem.SemRef) (termdec.DecSnap, error) {
+func (dao *daoEnt) GetSnap(ctx context.Context, conn tx.Conn, ref termsem.SemRef) (termdec.DecSnap, error) {
 	refAttr := slog.Any("ref", ref)
 	rows, err := conn.Pgx.Query(ctx, selectByRef, ref.TermID.String())
 	if err != nil {
@@ -72,7 +78,7 @@ func (dao *daoPgx) GetSnap(ctx context.Context, conn tx.Conn, ref termsem.SemRef
 	return DataToDecSnap(dto)
 }
 
-func (dao *daoPgx) SelectEnv(ctx context.Context, conn tx.Conn, ids []identity.ADT) (map[identity.ADT]termdec.DecRec, error) {
+func (dao *daoEnt) SelectEnv(ctx context.Context, conn tx.Conn, ids []identity.ADT) (map[identity.ADT]termdec.DecRec, error) {
 	decs, err := dao.GetRecs(ctx, conn, ids)
 	if err != nil {
 		return nil, err
@@ -84,7 +90,7 @@ func (dao *daoPgx) SelectEnv(ctx context.Context, conn tx.Conn, ids []identity.A
 	return env, nil
 }
 
-func (dao *daoPgx) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT) (_ []termdec.DecRec, err error) {
+func (dao *daoEnt) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT) (_ []termdec.DecRec, err error) {
 	if len(ids) == 0 {
 		return []termdec.DecRec{}, nil
 	}
@@ -118,11 +124,12 @@ func (dao *daoPgx) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT
 	return DataToDecRecs(dtos)
 }
 
-func (dao *daoPgx) GetRefs(ctx context.Context, conn tx.Conn) ([]termsem.SemRef, error) {
+func (dao *daoEnt) GetRefs(ctx context.Context, conn tx.Conn) ([]termsem.SemRef, error) {
 	query := `
-		select
-			desc_id, rev, title
-		from dec_roots`
+SELECT
+    desc_id, rev, title
+FROM dec_roots
+`
 	rows, err := conn.Pgx.Query(ctx, query)
 	if err != nil {
 		dao.log.Error("query execution failed")
@@ -147,13 +154,14 @@ func (dao *daoPgx) GetRefs(ctx context.Context, conn tx.Conn) ([]termsem.SemRef,
 
 const (
 	selectByRef = `
-		select
-			pd.desc_id,
-			ds.desc_rn,
-			pd.liab_var,
-			pd.asset_vars
-		from proc_term_decs pd
-		left join desc_sems ds
-			on ds.desc_id = pd.desc_id
-		where pd.desc_id = $1`
+SELECT
+    pd.desc_id,
+    ds.desc_rn,
+    pd.liab_var,
+    pd.asset_vars
+FROM proc_term_decs pd
+LEFT JOIN desc_sems ds
+    ON ds.desc_id = pd.desc_id
+WHERE pd.desc_id = $1
+`
 )

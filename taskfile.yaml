@@ -63,7 +63,7 @@ tasks:
       - task: sources:lock
     cmds:
       - test -z "$(git status --porcelain -- mise.sources-dev.lock)"
-      - test -z "$(git status --porcelain -- ':(glob)**/*.gen.go')"
+      - test -z "$(git status --porcelain -- ':(glob)**/*.gen.go' ':(glob)**/ent/**')"
       - golangci-lint fmt --diff
 
   sources:lock:
@@ -87,6 +87,7 @@ tasks:
       # TODO: Move Ent CLI to mise's Go backend once its standalone dependency graph
       # uses x/tools compatible with Go 1.27 export data; verify installation and generation in CI.
       - go tool ent generate --target internal/pool/ent ./internal/pool/ent/schema
+      - go tool ent generate --feature sql/upsert --target internal/proc/ent ./internal/proc/ent/schema
       - goverter gen -global 'skipCopySameType' ./...
       - oapi-codegen -config internal/app/web/api/cfg.yaml openapi/openapi.yaml
 

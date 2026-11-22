@@ -17,17 +17,6 @@ import (
 	"orglang/go-engine/internal/testutil/pgxtest"
 )
 
-type integrationTypeExpQueryBuilder struct{}
-
-func (integrationTypeExpQueryBuilder) InsertRec(st typeexpadapter.State) (string, []any) {
-	return "INSERT INTO pool_type_exps (exp_ck, sup_exp_ck, kind, spec) VALUES ($1, $2, $3, $4)",
-		[]any{st.ExpCK, st.SupExpCK, st.K, []byte("{}")}
-}
-
-func (integrationTypeExpQueryBuilder) SelectRecByCK() string {
-	return ""
-}
-
 func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 	pool := pgxtest.NewPostgresPool(t)
 
@@ -74,8 +63,8 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 	})
 
 	typeDefRepo := NewDaoEnt(entClient, logger)
-	typeExpRepo := typeexpadapter.NewDaoPgx(integrationTypeExpQueryBuilder{}, logger)
-	descSemRepo := descsemadapter.NewDaoPgx(descBinds)(logger)
+	typeExpRepo := typeexpadapter.NewDaoEnt(entClient, logger)
+	descSemRepo := descsemadapter.NewDaoPgx("pool_desc_binds")(logger)
 	service := typedef.NewService(
 		typeDefRepo,
 		typeExpRepo,
@@ -158,8 +147,8 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 
 	service := typedef.NewService(
 		NewDaoEnt(entClient, logger),
-		typeexpadapter.NewDaoPgx(integrationTypeExpQueryBuilder{}, logger),
-		descsemadapter.NewDaoPgx(descBinds)(logger),
+		typeexpadapter.NewDaoEnt(entClient, logger),
+		descsemadapter.NewDaoPgx("pool_desc_binds")(logger),
 		dbadapter.NewTransactorPgx(pool),
 		logger,
 	)

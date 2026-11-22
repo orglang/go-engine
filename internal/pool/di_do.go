@@ -7,8 +7,8 @@ import (
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/adt/descroot"
-	"orglang/go-engine/internal/adt/descsem"
 	descrootadapter "orglang/go-engine/internal/adt/descroot/adapter"
+	"orglang/go-engine/internal/adt/descsem"
 	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/wp"
@@ -32,7 +32,7 @@ var Package = do.Package(
 	typeexp.Package,
 	typedef.Package,
 	termdef.Package,
-	do.Lazy[descroot.Repo](func(i do.Injector) (descroot.Repo, error) {
+	do.LazyNamed[descroot.Repo]("pool-descroot", func(i do.Injector) (descroot.Repo, error) {
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil {
 			return nil, err

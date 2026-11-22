@@ -1,0 +1,7 @@
+[task_config.input_groups]
+sources = [
+  "*.go",
+  "**/*.go",
+  ".golangci.yml",
+  "staticcheck.conf",
+]

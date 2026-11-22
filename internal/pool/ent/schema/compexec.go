@@ -4,9 +4,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
-	"entgo.io/ent/schema/field"
 
-	compsemSchema "orglang/go-engine/internal/adt/compsem/adapter/entschema"
+	"orglang/go-engine/internal/adt/compsem/adapter/entschema"
 )
 
 // CompExec describes a persisted pool computation execution.
@@ -17,7 +16,7 @@ type CompExec struct {
 // Mixin of the CompExec.
 func (CompExec) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		compsemSchema.CompSemMixin{},
+		entschema.CompSemMixin{},
 	}
 }
 

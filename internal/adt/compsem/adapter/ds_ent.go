@@ -19,7 +19,7 @@ type daoEnt struct {
 	log    *slog.Logger
 }
 
-func NewDaoEnt(client *ent.Client, log *slog.Logger) *daoEnt {
+func NewDaoEnt(client *ent.Client, log *slog.Logger) compsem.Repo {
 	name := slog.String("name", reflect.TypeFor[daoEnt]().Name())
 	return &daoEnt{client: client, log: log.With(name)}
 }

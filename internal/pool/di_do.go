@@ -6,7 +6,9 @@ import (
 	"github.com/labstack/echo/v5"
 	"github.com/samber/do/v2"
 
+	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/descsem"
+	descrootadapter "orglang/go-engine/internal/adt/descroot/adapter"
 	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/wp"
@@ -30,6 +32,13 @@ var Package = do.Package(
 	typeexp.Package,
 	typedef.Package,
 	termdef.Package,
+	do.Lazy[descroot.Repo](func(i do.Injector) (descroot.Repo, error) {
+		logger, err := do.Invoke[*slog.Logger](i)
+		if err != nil {
+			return nil, err
+		}
+		return descrootadapter.NewDaoPgx("pool_desc_roots")(logger), nil
+	}),
 	do.LazyNamed[descsem.Repo]("pool-descsem", func(i do.Injector) (descsem.Repo, error) {
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil {

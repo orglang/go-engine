@@ -3,7 +3,7 @@ package compvar
 import (
 	"fmt"
 
-	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/comproot"
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
@@ -22,7 +22,7 @@ type VarSpec struct {
 // machine-readable record of computation variable
 // машиночитаемая запись переменной вычисления
 type VarRec interface {
-	GetCompRef() compsem.SemRef
+	GetCompRef() comproot.SemRef
 	GetConnID() identity.ADT
 	GetChnlID() identity.ADT
 	GetChnlPH() symbol.ADT
@@ -30,7 +30,7 @@ type VarRec interface {
 }
 
 type LinearRec struct {
-	CompRef compsem.SemRef
+	CompRef comproot.SemRef
 	ConnID  identity.ADT
 	ChnlID  identity.ADT
 	ChnlPH  symbol.ADT
@@ -44,7 +44,7 @@ type LinearRec struct {
 	ExpCK contkey.ADT
 }
 
-func (r LinearRec) GetCompRef() compsem.SemRef { return r.CompRef }
+func (r LinearRec) GetCompRef() comproot.SemRef { return r.CompRef }
 
 func (r LinearRec) GetConnID() identity.ADT { return r.ConnID }
 
@@ -55,7 +55,7 @@ func (r LinearRec) GetChnlPH() symbol.ADT { return r.ChnlPH }
 func (r LinearRec) GetExpCK() contkey.ADT { return r.ExpCK }
 
 type StructRec struct {
-	CompRef compsem.SemRef
+	CompRef comproot.SemRef
 	ConnID  identity.ADT
 	ChnlID  identity.ADT
 	ChnlPH  symbol.ADT
@@ -69,7 +69,7 @@ type StructRec struct {
 	ExpCK contkey.ADT
 }
 
-func (r StructRec) GetCompRef() compsem.SemRef { return r.CompRef }
+func (r StructRec) GetCompRef() comproot.SemRef { return r.CompRef }
 
 func (r StructRec) GetConnID() identity.ADT { return r.ConnID }
 

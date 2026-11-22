@@ -19,9 +19,9 @@ type TypeDefCreate struct {
 	hooks    []Hook
 }
 
-// SetTypeRn sets the "type_rn" field.
-func (_c *TypeDefCreate) SetTypeRn(v int64) *TypeDefCreate {
-	_c.mutation.SetTypeRn(v)
+// SetDescID sets the "desc_id" field.
+func (_c *TypeDefCreate) SetDescID(v string) *TypeDefCreate {
+	_c.mutation.SetDescID(v)
 	return _c
 }
 
@@ -71,8 +71,8 @@ func (_c *TypeDefCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *TypeDefCreate) check() error {
-	if _, ok := _c.mutation.TypeRn(); !ok {
-		return &ValidationError{Name: "type_rn", err: errors.New(`ent: missing required field "TypeDef.type_rn"`)}
+	if _, ok := _c.mutation.DescID(); !ok {
+		return &ValidationError{Name: "desc_id", err: errors.New(`ent: missing required field "TypeDef.desc_id"`)}
 	}
 	if _, ok := _c.mutation.ExpCk(); !ok {
 		return &ValidationError{Name: "exp_ck", err: errors.New(`ent: missing required field "TypeDef.exp_ck"`)}
@@ -112,9 +112,9 @@ func (_c *TypeDefCreate) createSpec() (*TypeDef, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := _c.mutation.TypeRn(); ok {
-		_spec.SetField(typedef.FieldTypeRn, field.TypeInt64, value)
-		_node.TypeRn = value
+	if value, ok := _c.mutation.DescID(); ok {
+		_spec.SetField(typedef.FieldDescID, field.TypeString, value)
+		_node.DescID = value
 	}
 	if value, ok := _c.mutation.ExpCk(); ok {
 		_spec.SetField(typedef.FieldExpCk, field.TypeInt64, value)

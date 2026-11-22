@@ -41,8 +41,8 @@ jobs:
       - name: Generate specs
         run: mise run specs:generate
 
-      - name: Generate sources
-        run: mise run sources:generate
+      - name: Prepare sources
+        run: mise run sources:prepare
 
       - name: Commit sources
         run: |

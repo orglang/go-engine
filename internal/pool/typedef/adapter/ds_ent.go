@@ -38,7 +38,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec)
 
 	_, err = dao.client.TypeDef.Create().
 		SetID(dto.TypeID).
-		SetTypeRn(dto.TypeRN).
+		SetDescID(dto.DescID).
 		SetExpCk(dto.ExpCK).
 		Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
@@ -55,9 +55,12 @@ func (dao *daoEnt) GetRecsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 		return map[uniqsym.ADT]typedef.DefRec{}, nil
 	}
 	const query = `
-SELECT td.type_id, td.type_rn, td.exp_ck
-FROM pool_type_defs td
-JOIN pool_desc_binds db ON db.desc_id = td.type_id
+SELECT td.type_id, td.desc_id, dr.desc_rn AS desc_rn, td.exp_ck
+FROM pool_type_defs AS td
+JOIN pool_desc_roots AS dr
+    ON dr.desc_id = td.desc_id
+JOIN pool_desc_binds AS db
+    ON db.desc_id = td.type_id
 WHERE db.desc_qn = $1
 `
 	batch := pgx.Batch{}

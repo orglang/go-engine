@@ -64,7 +64,7 @@ var (
 	// PoolTypeDefsColumns holds the columns for the "pool_type_defs" table.
 	PoolTypeDefsColumns = []*schema.Column{
 		{Name: "type_id", Type: field.TypeString},
-		{Name: "type_rn", Type: field.TypeInt64},
+		{Name: "desc_id", Type: field.TypeString},
 		{Name: "exp_ck", Type: field.TypeInt64},
 	}
 	// PoolTypeDefsTable holds the schema information for the "pool_type_defs" table.

@@ -47,7 +47,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec)
 	}
 	_, err = dao.client.TypeDef.Create().
 		SetID(dto.TypeID).
-		SetTypeRn(dto.TypeRN).
+		SetDescID(dto.DescID).
 		SetExpCk(dto.ExpCK).
 		Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
@@ -67,8 +67,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, rec typedef.DefR
 		return err
 	}
 	affected, err := dao.client.TypeDef.Update().
-		Where(typedefent.ID(dto.TypeID), typedefent.TypeRn(dto.TypeRN-1)).
-		SetTypeRn(dto.TypeRN).
+		Where(typedefent.ID(dto.TypeID)).
 		SetExpCk(dto.ExpCK).
 		Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
@@ -77,7 +76,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, rec typedef.DefR
 	}
 	if affected == 0 {
 		dao.log.Error("entity update failed", idAttr)
-		return typedef.ErrOptimisticUpdate(rec.TypeRef.TypeRN - 1)
+		return typedef.ErrDoesNotExist(rec.TypeRef.TypeID)
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "modification succeed", idAttr)
 	return nil
@@ -213,32 +212,37 @@ func (dao *daoEnt) GetRecsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 const (
 	selectRecByQN = `
 SELECT
+    td.type_id,
     td.desc_id,
     td.exp_ck,
-    de.desc_rn
-FROM proc_type_defs td
-LEFT JOIN desc_sems de
-    ON de.desc_id = td.desc_id
-LEFT JOIN desc_binds db
-    ON db.desc_id = td.desc_id
+    dr.desc_rn AS desc_rn
+FROM proc_type_defs AS td
+JOIN proc_desc_roots AS dr
+    ON dr.desc_id = td.desc_id
+JOIN proc_desc_binds AS db
+    ON db.desc_id = td.type_id
 WHERE db.desc_qn = $1
 `
 
 	selectRecByID = `
 SELECT
+    td.type_id,
     td.desc_id,
     td.exp_ck,
-    de.desc_rn
-FROM proc_type_defs td
-LEFT JOIN desc_sems de
-    ON de.desc_id = td.desc_id
-WHERE td.desc_id = $1
+    dr.desc_rn AS desc_rn
+FROM proc_type_defs AS td
+JOIN proc_desc_roots AS dr
+    ON dr.desc_id = td.desc_id
+WHERE td.type_id = $1
 `
 
 	selectRefs = `
 SELECT
-    desc_id,
-    def_rn
-FROM proc_type_defs
+    td.type_id,
+    td.desc_id,
+    dr.desc_rn AS desc_rn
+FROM proc_type_defs AS td
+JOIN proc_desc_roots AS dr
+    ON dr.desc_id = td.desc_id
 `
 )

@@ -11,8 +11,8 @@ const (
 	Label = "type_def"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "type_id"
-	// FieldTypeRn holds the string denoting the type_rn field in the database.
-	FieldTypeRn = "type_rn"
+	// FieldDescID holds the string denoting the desc_id field in the database.
+	FieldDescID = "desc_id"
 	// FieldExpCk holds the string denoting the exp_ck field in the database.
 	FieldExpCk = "exp_ck"
 	// Table holds the table name of the typedef in the database.
@@ -22,7 +22,7 @@ const (
 // Columns holds all SQL columns for typedef fields.
 var Columns = []string{
 	FieldID,
-	FieldTypeRn,
+	FieldDescID,
 	FieldExpCk,
 }
 
@@ -44,9 +44,9 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByTypeRn orders the results by the type_rn field.
-func ByTypeRn(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldTypeRn, opts...).ToFunc()
+// ByDescID orders the results by the desc_id field.
+func ByDescID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDescID, opts...).ToFunc()
 }
 
 // ByExpCk orders the results by the exp_ck field.

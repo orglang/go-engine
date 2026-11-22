@@ -109,7 +109,7 @@ func (p *echoPresenter) GetOne(c *echo.Context) error {
 			return echo.NewHTTPError(http.StatusBadRequest, "invalid revision").Wrap(convErr)
 		}
 	}
-	ref := typesem.SemRef{TypeID: id, TypeRN: seqnum.ConvertFromInt(rn)}
+	ref := typesem.SemRef{TypeID: id, DescRN: seqnum.ConvertFromInt(rn)}
 	ctx := c.Request().Context()
 	p.log.Log(ctx, lf.LevelTrace, "getting started", slog.Any("ref", ref))
 	snap, retrieveErr := p.api.RetrieveSnap(ctx, ref)

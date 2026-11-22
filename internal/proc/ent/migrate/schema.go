@@ -64,7 +64,7 @@ var (
 	// ProcTypeDefsColumns holds the columns for the "proc_type_defs" table.
 	ProcTypeDefsColumns = []*schema.Column{
 		{Name: "type_id", Type: field.TypeString},
-		{Name: "type_rn", Type: field.TypeInt64},
+		{Name: "desc_id", Type: field.TypeString},
 		{Name: "exp_ck", Type: field.TypeInt64},
 	}
 	// ProcTypeDefsTable holds the schema information for the "proc_type_defs" table.

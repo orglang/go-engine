@@ -16,7 +16,8 @@ func init() {
 	DataFromDefRec = func(source core.DefRec) (DefRec, error) {
 		var adapterDefRec DefRec
 		adapterDefRec.TypeID = identity.ConvertToString(source.TypeRef.TypeID)
-		adapterDefRec.TypeRN = seqnum.ConvertToInt(source.TypeRef.TypeRN)
+		adapterDefRec.DescID = identity.ConvertToString(source.TypeRef.DescID)
+		adapterDefRec.DescRN = seqnum.ConvertToInt(source.TypeRef.DescRN)
 		adapterDefRec.ExpCK = contkey.ConvertToInt(source.ExpCK)
 		return adapterDefRec, nil
 	}
@@ -84,6 +85,11 @@ func adapterDefRecToTypesemSemRef(source DefRec) (typesem.SemRef, error) {
 		return typesemSemRef, err
 	}
 	typesemSemRef.TypeID = identityADT
-	typesemSemRef.TypeRN = seqnum.ConvertFromInt(source.TypeRN)
+	identityADT2, err := identity.ConvertFromString(source.DescID)
+	if err != nil {
+		return typesemSemRef, err
+	}
+	typesemSemRef.DescID = identityADT2
+	typesemSemRef.DescRN = seqnum.ConvertFromInt(source.DescRN)
 	return typesemSemRef, nil
 }

@@ -93,6 +93,8 @@ linters:
           deny:
             - pkg: orglang/go-engine/internal/pool
               desc: Process core must not depend on pool application or persistence contracts; compose them at the application boundary.
+            - pkg: orglang/go-engine/internal/prog
+              desc: Process core must not depend on the application composition root.
         PoolCore:
           list-mode: lax
           files:
@@ -101,6 +103,8 @@ linters:
           deny:
             - pkg: orglang/go-engine/internal/proc
               desc: Pool core must not depend on process application or persistence contracts; compose them at the application boundary.
+            - pkg: orglang/go-engine/internal/prog
+              desc: Pool core must not depend on the application composition root.
         ADT:
           list-mode: lax
           files:
@@ -121,6 +125,8 @@ linters:
               desc: ADT is an upstream shared domain; it must not depend on the process aggregate.
             - pkg: orglang/go-engine/internal/pool
               desc: ADT is an upstream shared domain; it must not depend on the pool aggregate.
+            - pkg: orglang/go-engine/internal/prog
+              desc: ADT is an upstream shared domain; it must not depend on the application composition root.
             - pkg: github.com/jackc/pgx
               desc: Keep database drivers outside the domain.
     revive:

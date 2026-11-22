@@ -1,0 +1,50 @@
+["sources:generate"]
+description = "Generate source artifacts"
+run = [
+  # Generate the E2E client first: Goverter loads ./... and needs this package
+  # to exist even on a clean checkout.
+  "oapi-codegen -config internal/lib/e2e/api/cfg.yaml openapi/openapi.yaml",
+  "go tool ent generate --target internal/pool/ent ./internal/pool/ent/schema",
+  "go tool ent generate --feature sql/upsert --target internal/proc/ent ./internal/proc/ent/schema",
+  "goverter gen -global 'skipCopySameType' ./...",
+  "oapi-codegen -config internal/app/web/api/cfg.yaml openapi/openapi.yaml",
+]
+
+["sources:lint"]
+description = "Run Go linting without static analysis or architecture checks"
+run = "golangci-lint run --disable staticcheck --disable depguard ./..."
+
+["sources:analyze"]
+description = "Run Go static and architecture analysis"
+run = [
+  "go vet ./...",
+  "golangci-lint run --enable-only staticcheck,depguard ./...",
+]
+
+["sources:prepare"]
+description = "Generate source artifacts and format handwritten Go code"
+run = [
+  { task = "sources:generate" },
+  "golangci-lint fmt",
+]
+
+["sources:gate"]
+description = "Verify generated sources, formatting, lint, and analysis"
+depends = ["specs:gate"]
+run = [
+  { task = "sources:prepare" },
+  "test -z \"$(git status --porcelain -- ':(glob)**/*.gen.go' ':(glob)**/ent/**')\"",
+  "golangci-lint fmt --diff",
+  { task = "sources:lint" },
+  { task = "sources:analyze" },
+]
+sources = [
+  "@group:common",
+  "*.go",
+  "**/*.go",
+  ".golangci.yml",
+  "staticcheck.conf",
+  ".mise/conf.d/sources.toml",
+  ".mise/tasks/sources.toml",
+]
+outputs = []

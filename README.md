@@ -4,11 +4,11 @@
 
 ## Структура
 
-- `cmd/engine/` — точка входа и задачи сборки/запуска исполняемого приложения.
+- `cmd/engine/` — точка входа приложения.
 - `internal/app/` — прикладные сценарии и входящие адаптеры (HTTP и другие интерфейсы).
 - `internal/adt/`, `internal/pool/`, `internal/proc/` — внутренние доменные возможности движка, сгруппированные по предметным областям.
 - `internal/lib/` — общие технические контракты и инфраструктурные компоненты, используемые ядром.
-- `db/` — инфраструктура БД: миграции, Compose и задачи локального обслуживания.
+- `db/` — инфраструктура БД: миграции и Compose.
 - `internal/proto/` — внутренние протоколы и версии форматов/исполнения.
 - `test/` — сквозные проверки, архитектурные проверки и тестовые сценарии.
 
@@ -18,19 +18,18 @@
 
 ## Разработка
 
-- `mise install` — установка Go, Node.js и Go-инструментов, зафиксированных в `mise.toml` и `mise.lock`.
-- `mise run deps:lock` — приведение Go-зависимостей приложения к актуальному состоянию и обновление lock-файлов mise и TypeSpec npm.
-- `mise run deps:install` — загрузка Go-модулей и установка TypeSpec npm-зависимостей через `npm ci`.
-- `mise run deps:check` — проверка актуальности Go module manifests, checksum-файлов, npm- и mise-lock-файлов.
-- `task specs:generate` — генерация OpenAPI из TypeSpec.
-- `task specs:check` — компиляция TypeSpec и проверка актуальности сгенерированного OpenAPI.
-- `task specs:verify` — проверка спецификаций перед публикацией.
-- `task sources:generate` — генерация исходников, включая Echo HTTP server из `openapi/openapi.yaml`.
-- `task sources:check` — проверка воспроизводимости генерации и запуск линтеров; форматтеры пропускают файлы с заголовком generated code.
-- `task tests:unit` — unit-тесты.
-- `task tests:it` — интеграционные тесты.
-- `task tests:e2e` — сквозные тесты.
-- `task engine:binary` — сборка бинарника в `app/engine`.
-- `task engine:process` — запуск приложения.
+Команды проекта определены в `.mise/tasks/`, версии инструментов — в корневом `mise.toml`.
 
-Версии Go, Node.js и Go CLI-инструментов фиксируются в `mise.toml` / `mise.lock`; зависимости приложения — в `go.mod` / `go.sum`; зависимости TypeSpec — в `tsp/package.json` / `tsp/package-lock.json`.
+- `mise install` — установка Go, Node.js и Go CLI-инструментов, версии которых указаны в `mise.toml`.
+- `mise run specs:prepare` — обновление npm lock-файла, установка npm-зависимостей и генерация OpenAPI.
+- `mise run specs:gate` — проверка TypeSpec, npm lock-файла и сгенерированного OpenAPI.
+- `mise run sources:prepare` — генерация исходников и форматирование Go-кода.
+- `mise run sources:gate` — проверка воспроизводимости генерации, форматирования, lint и static analysis.
+- `mise run binaries:lock` — обновление Go module manifests.
+- `mise run binaries:check` — проверка актуальности Go module manifests.
+- `mise run binaries:build` — сборка бинарника Engine.
+- `mise run binaries:unit-test` / `mise run binaries:integration-test` — unit- и интеграционные тесты.
+- `mise run binaries:gate` — полный CI gate: Specs, Sources, build и тесты.
+- `mise run hooks:install` — настройка versioned Git hooks.
+
+Версии Go, Node.js и Go CLI-инструментов задаются в `mise.toml`; зависимости приложения — в `go.mod` / `go.sum`; зависимости TypeSpec — в `tsp/package.json` / `tsp/package-lock.json`.

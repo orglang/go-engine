@@ -1,0 +1,45 @@
+["specs:lock"]
+description = "Refresh TypeSpec npm dependency lockfile"
+run = "npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund"
+
+["specs:generate"]
+description = "Generate OpenAPI from TypeSpec"
+dir = "tsp"
+run = "npm run build"
+
+["specs:lint"]
+description = "Lint TypeSpec without modifying files"
+dir = "tsp"
+run = 'npm exec -- tsp format --check "**/*.tsp"'
+
+["specs:analyze"]
+description = "Analyze and compile the TypeSpec project without emitting artifacts"
+dir = "tsp"
+run = "npm exec -- tsp compile . --no-emit"
+
+["specs:prepare"]
+description = "Refresh TypeSpec dependencies and npm lockfile, then generate OpenAPI"
+depends = ["deps:install"]
+run = [
+  { task = "specs:lock" },
+  { task = "specs:generate" },
+]
+
+["specs:gate"]
+description = "Check TypeSpec formatting, compilation, npm lockfile, and generated OpenAPI"
+depends = ["specs:prepare"]
+run = [
+  'test -z "$(git status --porcelain -- tsp/package-lock.json)"',
+  "test -f openapi/openapi.yaml",
+  'test -z "$(git status --porcelain -- openapi/openapi.yaml)"',
+  { task = "specs:lint" },
+  { task = "specs:analyze" },
+]
+sources = [
+  "@group:common",
+  "tsp/**",
+  "openapi/openapi.yaml",
+  ".mise/conf.d/specs.toml",
+  ".mise/tasks/specs.toml",
+]
+outputs = []

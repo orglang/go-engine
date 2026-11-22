@@ -27,9 +27,9 @@ From the `go-engine` repository root:
 
 ## Run
 
-The existing database task remains the entry point:
+Start the PostgreSQL Compose stack from the repository root:
 
-    task db:process
+    docker compose --file db/postgres/compose.yaml up --remove-orphans --pull missing --quiet-pull --detach
 
 The Compose workflow starts PostgreSQL, then the `database` one-shot service runs `dba/bootstrap.sql` with the administrative URL. After it exits successfully, the `schema` one-shot service runs golang-migrate with the filesystem source `file:///migrations/owner` and the owner URL.
 

@@ -8,7 +8,7 @@ import (
 
 	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/internal/adt/compsem"
+	"orglang/go-engine/internal/adt/comproot"
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/implsem"
@@ -30,9 +30,9 @@ import (
 )
 
 type API interface {
-	Run(context.Context, ExecSpec) (compsem.SemRef, error) // aka Create
+	Run(context.Context, ExecSpec) (comproot.SemRef, error) // aka Create
 	Take(context.Context, compstep.StepSpec) error
-	Spawn(context.Context, compstep.StepSpec) (compsem.SemRef, error)
+	Spawn(context.Context, compstep.StepSpec) (comproot.SemRef, error)
 }
 
 type Broker interface {
@@ -50,12 +50,12 @@ type ExecSpec struct {
 }
 
 type ExecRec struct {
-	CompRef  compsem.SemRef
+	CompRef  comproot.SemRef
 	LiabMode compvar.Mode
 }
 
 type ExecMod struct {
-	CompRef compsem.SemRef
+	CompRef comproot.SemRef
 	Vars    []compvar.VarRec
 }
 
@@ -66,19 +66,19 @@ type ExecEff struct {
 }
 
 type ExecSnap1 struct {
-	CompRef compsem.SemRef
+	CompRef comproot.SemRef
 	LiabVar compvar.VarRec
 }
 
 type ExecSnap2 struct {
-	CompRef    compsem.SemRef
+	CompRef    comproot.SemRef
 	LiabMode   compvar.Mode
 	StructVars []compvar.StructRec
 	LinearVars []compvar.LinearRec
 }
 
 type ExecSnap3 struct {
-	CompRef    compsem.SemRef
+	CompRef    comproot.SemRef
 	StructVars map[symbol.ADT]compvar.StructRec
 	StructExps map[symbol.ADT]typeexp.ExpRec
 	LinearVars map[symbol.ADT]compvar.LinearRec
@@ -94,7 +94,7 @@ type service struct {
 	procExecRepo   proccompexec.Repo
 	termDefRepo    termdef.Repo
 	implSemRepo    implsem.Repo
-	compSemRepo    compsem.Repo
+	compSemRepo    comproot.Repo
 	transactor     tx.Transactor
 	log            *slog.Logger
 }
@@ -113,7 +113,7 @@ type ServiceDeps struct {
 	ProcExecRepo   proccompexec.Repo
 	TermDefRepo    termdef.Repo
 	ImplSemRepo    implsem.Repo
-	CompSemRepo    compsem.Repo
+	CompSemRepo    comproot.Repo
 	Transactor     tx.Transactor
 	Logger         *slog.Logger
 }
@@ -128,7 +128,7 @@ func NewService(deps ServiceDeps) API {
 	}
 }
 
-func (s *service) Run(ctx context.Context, spec ExecSpec) (_ compsem.SemRef, err error) {
+func (s *service) Run(ctx context.Context, spec ExecSpec) (_ comproot.SemRef, err error) {
 	specAttr := slog.Any("spec", spec)
 	s.log.Debug("creation started", specAttr)
 	var termDec termdef.DefRec
@@ -138,7 +138,7 @@ func (s *service) Run(ctx context.Context, spec ExecSpec) (_ compsem.SemRef, err
 	})
 	if getErr1 != nil {
 		s.log.Error("creation failed", specAttr)
-		return compsem.SemRef{}, getErr1
+		return comproot.SemRef{}, getErr1
 	}
 	assetQNs := make([]uniqsym.ADT, 0, len(spec.AssetVars))
 	for _, assetVar := range spec.AssetVars {
@@ -154,9 +154,9 @@ func (s *service) Run(ctx context.Context, spec ExecSpec) (_ compsem.SemRef, err
 	})
 	if getErr2 != nil {
 		s.log.Error("creation failed", specAttr)
-		return compsem.SemRef{}, getErr2
+		return comproot.SemRef{}, getErr2
 	}
-	newExec := ExecRec{CompRef: compsem.New(), LiabMode: compvar.StructMode}
+	newExec := ExecRec{CompRef: comproot.New(), LiabMode: compvar.StructMode}
 	// Reserve the provider-side connection identity in its liability variable.
 	// The Connection record itself is created when a client Computation attaches.
 	newConnID := identity.New()
@@ -178,7 +178,7 @@ func (s *service) Run(ctx context.Context, spec ExecSpec) (_ compsem.SemRef, err
 		var connID identity.ADT
 		var chnlID identity.ADT
 		var expCK contkey.ADT
-		var providerCompRef compsem.SemRef
+		var providerCompRef comproot.SemRef
 		assetExec, ok := assetExecs[assetVar.TermQN]
 		if !ok && assetVar.TermQN == spec.LiabVar.TermQN {
 			connID = newConnID
@@ -230,22 +230,22 @@ func (s *service) Run(ctx context.Context, spec ExecSpec) (_ compsem.SemRef, err
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", specAttr)
-		return compsem.SemRef{}, transactErr
+		return comproot.SemRef{}, transactErr
 	}
 	s.log.Debug("creation succeed", slog.Any("ref", newExec.CompRef))
 	return newExec.CompRef, nil
 }
 
-func (s *service) Spawn(ctx context.Context, spec compstep.StepSpec) (_ compsem.SemRef, err error) {
+func (s *service) Spawn(ctx context.Context, spec compstep.StepSpec) (_ comproot.SemRef, err error) {
 	refAttr := slog.Any("ref", spec.CompRef)
 	s.log.Debug("proc spawning started", refAttr, slog.Any("exp", spec.PoolExp))
-	newExec := proccompexec.ExecRec{CompRef: compsem.New(), LiabMode: compvar.LinearMode}
+	newExec := proccompexec.ExecRec{CompRef: comproot.New(), LiabMode: compvar.LinearMode}
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		return s.procExecRepo.AddRec(txCtx, conn, newExec)
 	})
 	if transactErr != nil {
 		s.log.Error("proc spawning failed", refAttr)
-		return compsem.SemRef{}, transactErr
+		return comproot.SemRef{}, transactErr
 	}
 	s.log.Debug("proc spawning succeed", refAttr, slog.Any("proc", newExec.CompRef))
 	return newExec.CompRef, nil
@@ -267,14 +267,14 @@ func (s *service) Take(ctx context.Context, spec compstep.StepSpec) (err error) 
 	// Every changed Computation aggregate is guarded by its observed root revision.
 	// Connection changes always include the provider aggregate, regardless of
 	// which endpoint initiated the step.
-	compRefs := map[string]compsem.SemRef{}
+	compRefs := map[string]comproot.SemRef{}
 	if connMod.ProviderCompID.IsEmpty() {
 		// Non-connection steps still mutate the executing Computation root.
 		compRefs[execSnap.CompRef.CompID.String()] = execSnap.CompRef
 	} else {
 		// A connection step always mutates the provider aggregate. The
 		// initiating client root is added only if its own variables change.
-		providerRef := compsem.SemRef{
+		providerRef := comproot.SemRef{
 			CompID: connMod.ProviderCompID,
 			CompRN: connMod.ProviderCompRN,
 		}
@@ -866,7 +866,7 @@ func (s *service) takeStep(
 	}
 }
 
-func (s *service) retrieveSnap(ctx context.Context, ref compsem.SemRef) (_ ExecSnap3, err error) {
+func (s *service) retrieveSnap(ctx context.Context, ref comproot.SemRef) (_ ExecSnap3, err error) {
 	var execSnap ExecSnap2
 	getErr1 := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		execSnap, err = s.compExecRepo.GetSnapByRef(txCtx, conn, ref)

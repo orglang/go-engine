@@ -27,11 +27,6 @@ tasks:
       - GOWORK=off go mod tidy
       - mise lock
 
-  binaries:test:
-    desc: Run integration tests required for binary delivery
-    cmds:
-      - task: tests:it
-
   binaries:build:
     desc: Build application binaries
     cmds:

@@ -82,21 +82,17 @@ description = "Run Specs, Sources, then Binaries in the CI pipeline"
 depends = ["sources:gate"]
 run = """
 task binaries:check
-mise run tests:unit
+mise run binaries:unit-test
 task binaries:build
-mise run tests:it
+mise run binaries:integration-test
 """
 sources = ["@group:binaries"]
 outputs = []
 
-[tasks."tests:unit"]
+[tasks."binaries:unit-test"]
 description = "Run unit tests"
 run = "go test -tags=unit ./internal/... ./cmd/..."
 
-[tasks."tests:it"]
+[tasks."binaries:integration-test"]
 description = "Run integration tests"
 run = "go test -run=TestIntegration ./internal/... ./cmd/... ./test/it/..."
-
-[tasks."tests:e2e"]
-description = "Run end-to-end tests"
-run = "go test -failfast ./test/..."

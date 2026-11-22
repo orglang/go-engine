@@ -1,16 +1,8 @@
+// Package compsem is a compatibility facade for the comproot aggregate reference.
 package compsem
 
-import (
-	"orglang/go-engine/internal/adt/identity"
-	"orglang/go-engine/internal/adt/seqnum"
-)
+import "orglang/go-engine/internal/adt/comproot"
 
-type SemRef struct {
-	CompID identity.ADT
-	// revision number
-	CompRN seqnum.ADT
-}
+type SemRef = comproot.SemRef
 
-func New() SemRef {
-	return SemRef{identity.New(), seqnum.New()}
-}
+func New() SemRef { return comproot.New() }

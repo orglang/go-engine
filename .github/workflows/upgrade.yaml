@@ -26,7 +26,10 @@ jobs:
           auto_update: true
           install: false
 
-      - name: Upgrade mise tools
+      - name: Upgrade Go
+        run: mise upgrade --bump go
+
+      - name: Upgrade remaining mise tools
         run: mise upgrade --bump
 
       - name: Create Pull Request

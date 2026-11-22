@@ -13,14 +13,6 @@ vars:
   PSV: shell # shell, docker
 
 tasks:
-  binaries:
-    desc: Check Go dependencies, run tests, and build application binaries
-    cmds:
-      - task: binaries:check
-      - task: tests:unit
-      - task: binaries:test
-      - task: binaries:build
-
   binaries:check:
     desc: Check Go module and toolchain lockfiles
     deps:
@@ -35,25 +27,38 @@ tasks:
       - GOWORK=off go mod tidy
       - mise lock
 
-  binaries:test:
-    desc: Run integration tests required for binary delivery
-    cmds:
-      - task: tests:it
-
   binaries:build:
     desc: Build application binaries
     cmds:
       - task: engine:binary
 
-  sources:check:
-    desc: Verify generated sources, tool locks, and linters
+  # TODO: Remove after go-workspace updates stack to invoke the Mise E2E task directly.
+  tests:e2e:
+    desc: Temporary compatibility alias for the workspace stack E2E step
+    cmds:
+      - go test -failfast ./test/...
+
+  sources:gate:
+    desc: Verify generated sources, tool locks, formatting, lint, and analysis
     cmds:
       - task: sources:lock
       - task: sources:generate
       - test -z "$(git status --porcelain -- mise.sources-dev.lock)"
       - test -z "$(git status --porcelain -- ':(glob)**/*.gen.go' ':(glob)**/ent/**')"
       - golangci-lint fmt --diff
-      - golangci-lint run ./...
+      - task: sources:lint
+      - task: sources:analyze
+
+  sources:lint:
+    desc: Run Go linting without static analysis or architecture checks
+    cmds:
+      - golangci-lint run --disable staticcheck --disable depguard ./...
+
+  sources:analyze:
+    desc: Run Go static and architecture analysis
+    cmds:
+      - go vet ./...
+      - golangci-lint run --enable-only staticcheck,depguard ./...
 
   sources:lock:
     desc: Refresh source toolchain lockfiles
@@ -79,14 +84,21 @@ tasks:
       - goverter gen -global 'skipCopySameType' ./...
       - oapi-codegen -config internal/app/web/api/cfg.yaml openapi/openapi.yaml
 
+  specs:prepare:
+    desc: Refresh TypeSpec dependencies and locks, then generate OpenAPI
+    cmds:
+      - task: specs:lock
+      - npm ci --prefix tsp --no-audit --no-fund
+      - task: specs:generate
+
   specs:generate:
     desc: Generate OpenAPI from TypeSpec
     dir: tsp
     cmds:
       - npm run build
 
-  specs:check:
-    desc: Check TypeSpec compilation, dependency locks, and generated OpenAPI
+  specs:gate:
+    desc: Check TypeSpec formatting, compilation, dependency locks, and generated OpenAPI
     deps:
       - task: specs:generate
       - task: specs:lock
@@ -94,17 +106,26 @@ tasks:
       - test -z "$(git status --porcelain -- mise.specs-dev.lock tsp/package-lock.json)"
       - test -f openapi/openapi.yaml
       - test -z "$(git status --porcelain -- openapi/openapi.yaml)"
+      - task: specs:lint
+      - task: specs:analyze
+
+  specs:lint:
+    desc: Lint TypeSpec without modifying files
+    dir: tsp
+    cmds:
+      - npm exec -- tsp format --check "**/*.tsp"
+
+  specs:analyze:
+    desc: Analyze and compile the TypeSpec project without emitting artifacts
+    dir: tsp
+    cmds:
+      - npm exec -- tsp compile . --no-emit
 
   specs:lock:
     desc: Refresh TypeSpec toolchain and npm dependency lockfiles
     cmds:
       - mise -E specs lock
       - npm install --prefix tsp --package-lock-only --ignore-scripts --no-audit --no-fund
-
-  specs:verify:
-    desc: Verify TypeSpec compilation, dependency locks, and generated OpenAPI
-    cmds:
-      - task: specs:check
 
   hooks:install:
     desc: Configure this repository to use versioned Git hooks
@@ -127,15 +148,3 @@ tasks:
     desc: Run and interrupt all processes
     cmds:
       - task: engine:process
-
-  tests:*:
-    desc: Run tests of specified level (unit, it, e2e).
-    vars:
-      LEVEL: '{{index .MATCH 0}}'
-    cmds:
-      - cmd: go test -tags=unit ./internal/... ./cmd/...
-        if: '{{eq .LEVEL "unit"}}'
-      - cmd: go test -run=TestIntegration ./internal/... ./cmd/... ./test/it/...
-        if: '{{eq .LEVEL "it"}}'
-      - cmd: go test -failfast ./test/...
-        if: '{{eq .LEVEL "e2e"}}'

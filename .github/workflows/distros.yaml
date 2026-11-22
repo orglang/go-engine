@@ -65,7 +65,7 @@ jobs:
         uses: crazy-max/ghaction-github-runtime@v4
 
       - name: Run Distros gate
-        run: mise run //:distros:gate
+        run: mise run //:distros:gate commons
 
       - name: PostgreSQL logs
         if: ${{ failure() }}

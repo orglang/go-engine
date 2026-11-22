@@ -16,12 +16,30 @@ union ExprSpec {
 }
 
 model OneSpec {}
-model LinkSpec { link: OrgLang.Any.Type.LinkSpec; }
-model TensorSpec { val_expr: ExprSpec; cont_expr: ExprSpec; }
-model LolliSpec { val_expr: ExprSpec; cont_expr: ExprSpec; }
-model PlusSpec { choices: ChoiceSpec[]; }
-model WithSpec { choices: ChoiceSpec[]; }
-model ChoiceSpec { lab_qn: string; cont_expr: ExprSpec; }
-model UpSpec { cont_expr: ExprSpec; }
-model DownSpec { cont_expr: ExprSpec; }
-
+model LinkSpec {
+  link: OrgLang.Any.Type.LinkSpec;
+}
+model TensorSpec {
+  val_expr: ExprSpec;
+  cont_expr: ExprSpec;
+}
+model LolliSpec {
+  val_expr: ExprSpec;
+  cont_expr: ExprSpec;
+}
+model PlusSpec {
+  choices: ChoiceSpec[];
+}
+model WithSpec {
+  choices: ChoiceSpec[];
+}
+model ChoiceSpec {
+  lab_qn: string;
+  cont_expr: ExprSpec;
+}
+model UpSpec {
+  cont_expr: ExprSpec;
+}
+model DownSpec {
+  cont_expr: ExprSpec;
+}

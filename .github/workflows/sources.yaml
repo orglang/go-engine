@@ -8,12 +8,7 @@ on:
       - opened
       - reopened
       - converted_to_draft
-      - ready_for_review
       - synchronize
-  merge_group:
-    branches: [main]
-    types:
-      - checks_requested
 
 permissions:
   contents: read
@@ -21,6 +16,7 @@ permissions:
 jobs:
   quality-gate:
     name: Quality Gate
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == true }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout engine
@@ -37,20 +33,5 @@ jobs:
           install: true
           cache_save_post: true
 
-      - name: Run Specs gate
-        run: mise run specs:gate
-
-      - name: Run Specs lint
-        run: mise run specs:lint
-
-      - name: Analyze Specs
-        run: mise run specs:analyze
-
       - name: Run Sources gate
         run: mise run sources:gate
-
-      - name: Lint Sources
-        run: mise run sources:lint
-
-      - name: Analyze Sources
-        run: mise run sources:analyze

@@ -58,7 +58,7 @@ func (s *suite) beforeEach(t *testing.T) {
 }
 
 // The generated OpenAPI union types intentionally hide their discriminator
-// storage. Decode a contract-shaped value to construct them without SDK types.
+// storage. Decode a contract-shaped value to construct them from JSON.
 func poolTypeExpr(kind string, value any) api.PoolTypeExprSpec {
 	return decodeUnion[api.PoolTypeExprSpec](kind, value)
 }

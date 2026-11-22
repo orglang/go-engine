@@ -1,11 +1,6 @@
+// Package compsem is a compatibility facade for comproot.
 package compsem
 
-import (
-	"context"
+import "orglang/go-engine/internal/adt/comproot"
 
-	"orglang/go-engine/internal/lib/tx"
-)
-
-type Repo interface {
-	TouchRef(context.Context, tx.Conn, SemRef) error
-}
+type Repo = comproot.Repo

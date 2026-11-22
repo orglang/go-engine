@@ -35,5 +35,10 @@ run = [
   { task = "specs:lint" },
   { task = "specs:analyze" },
 ]
-sources = ["@group:common", "@group:specs"]
+sources = [
+  "@group:common",
+  "tsp/**",
+  "openapi/openapi.yaml",
+  ".mise/conf.d/specs.toml",
+]
 outputs = []

@@ -231,7 +231,7 @@ Type и Term следует рассматривать не обязательн
 | pool/typedef.Create | Да | TypeKind | pool_type_defs + pool_type_exps |
 | pool/termdef.Create | Да | TermKind | pool_term_decs |
 | proc/termdec.Incept/Create | Нет в текущем core path | — | proc_term_decs |
-| будущий proc/termdef | Целевое поведение ещё предстоит определить | Вероятно TermKind | Отдельная целевая модель не реализована |
+| будущая реализация Process Term Definition | Term входит в общую Description модель; отдельный завершённый proc/termdef API/storage сейчас отсутствует | TermKind | Реализуется как Definition facet существующего Term Description |
 
 У proc/termdec DI wiring также не получает descsem.Repo, а его текущий adapter содержит старые запросы к dec_roots/desc_sems. По принятому в обсуждении уточнению эти SQL-запросы считаются устаревшими; не следует выводить из них дополнительную схему. При этом отсутствие descriptor binding на текущем process term path — реальный пробел относительно Pool Term и Type paths, который нужно закрыть в целевой модели.
 
@@ -795,7 +795,7 @@ QN — context-local qualified name и lookup key, но не identity. В target
 - QN mutable через явную RenameDescription command;
 - rename выполняется атомарно с проверкой уникальности в пределах bounded context и увеличивает общую Description revision;
 - QN уникален среди всех Description, которые не были физически удалены; retirement не освобождает имя;
-- alias/history не вводить в базовую модель без подтверждённого use case; если позже потребуется стабильное разрешение старых имён, это отдельная сущность/политика, а не неявная часть identity;
+- aliases и историю QN не вводить в базовую модель;
 - Retire сохраняет binding и резервирует прежний QN; повторное использование возможно только после физического Delete Description при отсутствии зависимостей, нарушающих referential integrity.
 
 Это согласованная политика; она не требует отдельного alias/history registry и не приравнивает retirement к физическому удалению.

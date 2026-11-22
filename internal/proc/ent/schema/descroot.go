@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
+
 	"orglang/go-engine/internal/adt/descroot/adapter/entschema"
 )
 

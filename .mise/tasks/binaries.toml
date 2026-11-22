@@ -1,16 +1,12 @@
 ["binaries:lock"]
-description = "Refresh Go module and root toolchain lockfiles"
-run = [
-  "GOWORK=off go mod tidy",
-  "mise lock",
-]
+description = "Refresh Go module manifests"
+run = "GOWORK=off go mod tidy"
 
 ["binaries:check"]
-description = "Check Go module and toolchain lockfiles"
+description = "Check Go module manifests"
 run = [
   { task = "binaries:lock" },
-  "git status --short -- go.mod go.sum mise.lock",
-  'test -z "$(git status --porcelain -- go.mod go.sum mise.lock)"',
+  'test -z "$(git status --porcelain -- go.mod go.sum)"',
 ]
 
 ["binaries:build"]

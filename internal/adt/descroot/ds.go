@@ -6,9 +6,8 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 )
 
-// Repo is the persistence port for Description aggregate revision tracking.
-// A successful TouchRef advances the aggregate revision only when the
-// supplied revision matches the currently persisted revision.
+// Repo persists Description aggregate references and enforces their OCC boundary.
 type Repo interface {
+	AddRef(context.Context, tx.Conn, SemRef) error
 	TouchRef(context.Context, tx.Conn, SemRef) error
 }

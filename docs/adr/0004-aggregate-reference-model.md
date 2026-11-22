@@ -878,3 +878,17 @@ QN изменяем: переименование не создаёт новый
 
 Проверка соответствия запрошенного вида сущности фактическому kind при разрешении `TypeID`/`TermID`, а также детали ошибок resolver-а являются реализационными контрактами. Они не вводят дополнительные identity или aggregate boundaries и не рассматриваются здесь как отдельное архитектурное решение.
 
+## 32. Description revision и typed entity references
+
+Целевая модель использует одну revision на Description aggregate:
+- `DescID` — identity Description root;
+- `DescRN` — revision изменяемого состояния Description;
+- `TypeID` и `TermID` — самостоятельные identity принадлежащих ему доменных сущностей;
+- `ExpCK` — identity конкретного Type expression state.
+
+Отдельные `TypeRN` и `TermRN` в целевой модели не вводятся. `TypeRef` в форме пары `TypeID + TypeRN` не сохраняется: Type адресуется непосредственно через `TypeID`. Аналогично Term адресуется непосредственно через `TermID`, без `TermRef` wrapper.
+
+Команды, которым необходима optimistic concurrency, используют ожидаемый `DescRN` владельца Description. При необходимости явного указания aggregate identity команда передаёт `DescID` вместе с expected `DescRN`; эти значения описывают aggregate boundary и concurrency precondition, а не новую entity reference.
+
+Таким образом, entity identity не включает revision. Любое изменение Type или Term, меняющее наблюдаемое состояние Description, увеличивает общий `DescRN` один раз в рамках соответствующей атомарной команды.
+

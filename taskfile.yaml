@@ -33,13 +33,15 @@ tasks:
       - task: engine:binary
 
   sources:gate:
-    desc: Verify generated sources, tool locks, and formatting
+    desc: Verify generated sources, tool locks, formatting, lint, and analysis
     cmds:
       - task: sources:lock
       - task: sources:generate
       - test -z "$(git status --porcelain -- mise.sources-dev.lock)"
       - test -z "$(git status --porcelain -- ':(glob)**/*.gen.go' ':(glob)**/ent/**')"
       - golangci-lint fmt --diff
+      - task: sources:lint
+      - task: sources:analyze
 
   sources:lint:
     desc: Run Go linting without static analysis or architecture checks
@@ -83,7 +85,7 @@ tasks:
       - npm run build
 
   specs:gate:
-    desc: Check TypeSpec compilation, dependency locks, and generated OpenAPI
+    desc: Check TypeSpec formatting, compilation, dependency locks, and generated OpenAPI
     deps:
       - task: specs:generate
       - task: specs:lock
@@ -91,6 +93,8 @@ tasks:
       - test -z "$(git status --porcelain -- mise.specs-dev.lock tsp/package-lock.json)"
       - test -f openapi/openapi.yaml
       - test -z "$(git status --porcelain -- openapi/openapi.yaml)"
+      - task: specs:lint
+      - task: specs:analyze
 
   specs:lint:
     desc: Lint TypeSpec without modifying files

@@ -29,6 +29,11 @@ tasks:
     desc: Start specified container in background
     cmd: container started
 
+  tests:e2e:
+    desc: Compatibility entry point for workspace E2E orchestration
+    cmds:
+      - mise run tests:e2e
+
   processes:
     aliases: [procs]
     desc: Run and interrupt all processes

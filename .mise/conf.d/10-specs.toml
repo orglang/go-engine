@@ -1,0 +1,7 @@
+[task_config.input_groups]
+specs = [
+  "tsp/**",
+  "openapi/openapi.yaml",
+  "mise.specs-dev.toml",
+  "mise.specs-dev.lock",
+]

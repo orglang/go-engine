@@ -57,17 +57,20 @@ run = [
 [tasks."specs:generate"]
 description = "Generate OpenAPI from TypeSpec"
 tools = { node = "26.10.0" }
-run = "npm run build --prefix tsp"
+dir = "tsp"
+run = "npm run build"
 
 [tasks."specs:lint"]
 description = "Lint TypeSpec without modifying files"
 tools = { node = "26.10.0" }
-run = 'npm exec --prefix tsp -- tsp format --check "**/*.tsp"'
+dir = "tsp"
+run = 'npm exec -- tsp format --check "**/*.tsp"'
 
 [tasks."specs:analyze"]
 description = "Analyze and compile the TypeSpec project without emitting artifacts"
 tools = { node = "26.10.0" }
-run = "npm exec --prefix tsp -- tsp compile . --no-emit"
+dir = "tsp"
+run = "npm exec -- tsp compile . --no-emit"
 
 [tasks."specs:prepare"]
 description = "Refresh TypeSpec dependencies and locks, then generate OpenAPI"
@@ -173,7 +176,7 @@ run = [
 
 [tasks."engine:binary"]
 description = "Build the Engine binary"
-alias = "engine:bin"
+alias = ["bin", "engine:bin"]
 run = "go build -o engine ./cmd/engine"
 
 [tasks."engine:process"]
@@ -214,6 +217,7 @@ description = "Configure this repository to use versioned Git hooks"
 run = "git config core.hooksPath .githooks"
 
 [tasks."db:process"]
+alias = "db:proc"
 description = "Start the PostgreSQL container in the background"
 dir = "db"
 run = "docker compose --file postgres/compose.yaml up --remove-orphans --pull missing --quiet-pull --detach"

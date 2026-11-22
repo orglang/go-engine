@@ -1,0 +1,9 @@
+[task_config.input_groups]
+binaries = [
+  "*.sql",
+  "**/*.sql",
+  "go.mod",
+  "go.sum",
+  "**/go.mod",
+  "**/go.sum",
+]

@@ -30,14 +30,14 @@ run = "npm exec -- tsp compile . --no-emit"
 description = "Run the TypeSpec gate without Task"
 tools = { node = "26.10.0" }
 run = [
-  "mise run poc:specs:deps",
-  "mise run poc:specs:generate",
+  "mise -E poc run poc:specs:deps",
+  "mise -E poc run poc:specs:generate",
   "mise -E specs lock",
   'test -z "$(git status --porcelain -- mise.specs-dev.lock tsp/package-lock.json)"',
   "test -f openapi/openapi.yaml",
   'test -z "$(git status --porcelain -- openapi/openapi.yaml)"',
-  "mise run poc:specs:lint",
-  "mise run poc:specs:analyze",
+  "mise -E poc run poc:specs:lint",
+  "mise -E poc run poc:specs:analyze",
 ]
 
 [tasks."poc:sources:generate"]
@@ -76,12 +76,12 @@ tools = {
 }
 run = [
   "mise -E sources lock",
-  "mise run poc:sources:generate",
+  "mise -E poc run poc:sources:generate",
   'test -z "$(git status --porcelain -- mise.sources-dev.lock)"',
   "test -z \"$(git status --porcelain -- ':(glob)**/*.gen.go' ':(glob)**/ent/**')\"",
   "golangci-lint fmt --diff",
-  "mise run poc:sources:lint",
-  "mise run poc:sources:analyze",
+  "mise -E poc run poc:sources:lint",
+  "mise -E poc run poc:sources:analyze",
 ]
 
 [tasks."poc:binaries:build"]

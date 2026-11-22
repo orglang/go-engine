@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	compsemadapter "orglang/go-engine/internal/adt/compsem/adapter"
+	compsemadapter "orglang/go-engine/internal/adt/comproot/adapter"
 	"orglang/go-engine/internal/adt/compvar"
 	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
 

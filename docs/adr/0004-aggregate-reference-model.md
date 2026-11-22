@@ -142,3 +142,18 @@ ADR-0002 фиксирует, что Pool Connection и Process Connection — н
 Исследовать вариант 1 как основной: общий низкоуровневый value representation для Type и Term, но сохранять семантические границы в названиях полей, repository ports и use cases. Не объединять `typesem.Repo` и операции поиска по QName с term repositories. Не менять TypeSpec `Any.TypeRef`/`Any.TermRef` в рамках этой задачи, пока не доказана необходимость wire-level изменения.
 
 До реализации проверить: (а) уникальность identity между Type и Term внутри одного persistence context; (б) все сериализационные и generated conversion paths; (в) правила revision/CAS для Term roots и Type roots; (г) возможность случайно передать общий Ref в repository неправильного вида; (д) не требует ли автономная ссылка kind для корректной маршрутизации. Если хотя бы один из этих контрактов требует статической гарантии вида, оставить TypeRef/TermRef как distinct named wrappers поверх общей пары.
+
+
+### Результат проверки revision и маршрутизации
+
+Предварительное сходство Type/Term по паре полей не означает одинаковые revision guarantees:
+
+- Process Type реализует optimistic modification: `Modify` сравнивает входящий `TypeRN` с сохранённым и увеличивает revision; `typesem.Repo.TouchRef` выполняет CAS update по ID + revision.
+- Process Term на текущем пути создаётся с `TermRN`, но `RetrieveSnap` в `proc/termdec/adapter/ds_ent_pgx.go` выбирает запись только по `TermID` и не проверяет `TermRN`. В просмотренных core/API нет операции изменения Term или CAS-порта, аналогичного `typesem.Repo.TouchRef`.
+- Pool Type и Pool Term в текущем core имеют только `Create`; для них не обнаружено симметричного modify/CAS use case.
+
+Значит, revision сейчас присутствует в Type/Term references как часть wire/data shape, но его фактические гарантии неодинаковы и зависят от контекста/use case. До унификации нужно решить, является ли revision обязательной частью общего Ref для всех видов корней или только version token там, где поддерживается optimistic concurrency. В частности, нельзя заявлять, что общий тип автоматически даёт одинаковую семантику CAS.
+
+`identity.New()` использует xid, поэтому коллизии между разными таблицами практически маловероятны, но схема не задаёт единого cross-table uniqueness constraint. Общий Ref без kind discriminator сам по себе не позволяет маршрутизировать ID в Type или Term repository; ожидаемый вид должен оставаться известен из типизированного поля/use case либо кодироваться явно.
+
+Это усиливает рекомендацию: общий низкоуровневый `Ref{ID, Revision}` возможен, но семантический контракт Type и Term пока следует оставить раздельным. Полное схлопывание до одного неразмеченного `SemRef` преждевременно, пока не согласованы revision policy и правила маршрутизации.

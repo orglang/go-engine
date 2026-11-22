@@ -1,6 +1,11 @@
 // Package reference defines the identity and optimistic-concurrency references
 // used inside the pool bounded context.
 //
+// The aggregate matrix is deliberately small: Description owns exactly one
+// Provider Type and zero or more Terms; Computation owns one Execution and its
+// Connections. Type and Term are entities, not aggregate roots. Execution is
+// part of Computation, not an independent aggregate.
+//
 // These types intentionally live in pool rather than adt: a pool reference
 // cannot be passed to proc, even though both contexts use the same ID generator.
 package reference

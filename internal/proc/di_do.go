@@ -40,7 +40,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return NewTypeSemDaoEnt(client, logger), nil
+		return typedef.NewTypeSemDaoEnt(client, logger), nil
 	}),
 )
 

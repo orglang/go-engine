@@ -35,56 +35,31 @@ linters:
             - "**/domain/**/*.go"
             - "!**/*_test.go"
           deny:
-            - pkg: orglang/go-engine/internal/lib/db/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/prog/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/proc/compstep/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/proc/compconn/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/proc/connact/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/proc/compexec/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/proc/termdec/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/proc/termdef/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/proc/termexp/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/proc/typedef/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/proc/typeexp/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/pool/compstep/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/pool/compconn/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/pool/connact/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/pool/compexec/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/pool/compvar/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/pool/termdef/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/pool/termexp/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/pool/typedef/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/pool/typeexp/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/adt/compsem/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/adt/descsem/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/adt/implsem/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: orglang/go-engine/internal/adt/typesem/adapter
-              desc: Core/domain code must depend on a port, not an adapter.
-            - pkg: github.com/jackc/pgx
-              desc: Use lib/tx contracts; keep pgx in infrastructure adapters.
+            - {pkg: orglang/go-engine/internal/lib/db/adapter, desc: &adapterBoundary "Core/domain code must depend on a port, not an adapter."}
+            - {pkg: orglang/go-engine/internal/prog/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/proc/compstep/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/proc/compconn/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/proc/connact/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/proc/compexec/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/proc/termdec/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/proc/termdef/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/proc/termexp/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/proc/typedef/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/proc/typeexp/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/pool/compstep/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/pool/compconn/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/pool/connact/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/pool/compexec/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/pool/compvar/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/pool/termdef/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/pool/termexp/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/pool/typedef/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/pool/typeexp/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/adt/compsem/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/adt/descsem/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/adt/implsem/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/adt/typesem/adapter, desc: *adapterBoundary}
+            - {pkg: github.com/jackc/pgx, desc: "Use lib/tx contracts; keep pgx in infrastructure adapters."}
         ProcCore:
           list-mode: lax
           files:
@@ -113,22 +88,14 @@ linters:
             - "**/adt/*/domain/**/*.go"
             - "!**/*_test.go"
           deny:
-            - pkg: orglang/go-engine/internal/adt/compsem/adapter
-              desc: Domain types must not depend on concrete adapters.
-            - pkg: orglang/go-engine/internal/adt/descsem/adapter
-              desc: Domain types must not depend on concrete adapters.
-            - pkg: orglang/go-engine/internal/adt/implsem/adapter
-              desc: Domain types must not depend on concrete adapters.
-            - pkg: orglang/go-engine/internal/adt/typesem/adapter
-              desc: Domain types must not depend on concrete adapters.
-            - pkg: orglang/go-engine/internal/proc
-              desc: ADT is an upstream shared domain; it must not depend on the process aggregate.
-            - pkg: orglang/go-engine/internal/pool
-              desc: ADT is an upstream shared domain; it must not depend on the pool aggregate.
-            - pkg: orglang/go-engine/internal/prog
-              desc: ADT is an upstream shared domain; it must not depend on the application composition root.
-            - pkg: github.com/jackc/pgx
-              desc: Keep database drivers outside the domain.
+            - {pkg: orglang/go-engine/internal/adt/compsem/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/adt/descsem/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/adt/implsem/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/adt/typesem/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/proc, desc: "ADT is an upstream shared domain; it must not depend on the process aggregate."}
+            - {pkg: orglang/go-engine/internal/pool, desc: "ADT is an upstream shared domain; it must not depend on the pool aggregate."}
+            - {pkg: orglang/go-engine/internal/prog, desc: "ADT is an upstream shared domain; it must not depend on the application composition root."}
+            - {pkg: github.com/jackc/pgx, desc: "Keep database drivers outside the domain."}
     revive:
       enable-all-rules: true
       rules:

@@ -90,9 +90,7 @@ func (r DescReleaseRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 // ConvertSpecToRec converts a declarative Definition into its content-addressed domain record.
 func ConvertSpecToRec(spec DescSpec) (DescRec, error) {
-	old, err := descSpecToExpSpec(spec)
-	if err != nil { return nil, err }
-	key, _, err := ContentKey(old)
+	key, _, err := DescContentKey(spec)
 	if err != nil { return nil, err }
 	switch s := spec.(type) {
 	case DescCloseSpec: return DescCloseRec{key,s.ContChnlPH}, nil
@@ -139,26 +137,5 @@ func ConvertRecToSpec(rec DescRec) DescSpec {
 	case DescDetachRec: return DescDetachSpec{r.ConnChnlPH}
 	case DescReleaseRec: return DescReleaseSpec{r.ConnChnlPH}
 	default: panic(fmt.Sprintf("unexpected process Description rec %T",rec))
-	}
-}
-
-func descSpecToExpSpec(spec DescSpec) (ExpSpec,error) {
-	switch s:=spec.(type) {
-	case DescCloseSpec: return CloseSpec{s.ContChnlPH},nil
-	case DescWaitSpec: c,e:=descSpecToExpSpec(s.ContExp); return WaitSpec{s.ContChnlPH,c},e
-	case DescSendSpec: return SendSpec{s.ConnChnlPH,s.ValChnlPH},nil
-	case DescRecvSpec: c,e:=descSpecToExpSpec(s.ContExp); return RecvSpec{s.ConnChnlPH,s.NewChnlPH,c},e
-	case DescLabSpec: c,e:=descSpecToExpSpec(s.ContExp); return LabSpec{s.ConnChnlPH,s.ValLabQN,c},e
-	case DescCaseSpec:
-		cs:=make(map[uniqsym.ADT]ExpSpec,len(s.ContExps)); for q,v:=range s.ContExps { c,e:=descSpecToExpSpec(v); if e!=nil{return nil,e}; cs[q]=c }; return CaseSpec{s.ConnChnlPH,cs},nil
-	case DescLinkSpec: return LinkSpec{s.ProcTermQN,s.X,s.Ys},nil
-	case DescFwdSpec: return FwdSpec{s.ConnChnlPH,s.ContChnlPH},nil
-	case DescCallSpec: c,e:=descSpecToExpSpec(s.ContExp); return CallSpec{s.ConnChnlPH,s.NewChnlPH,s.ProcTermQN,s.ValChnlPHs,c},e
-	case DescSpawnSpec: c,e:=descSpecToExpSpec(s.ContExp); return SpawnSpec{s.ConnChnlPH,s.ProcTermQN,s.NewChnlPHs,c},e
-	case DescAcquireSpec: c,e:=descSpecToExpSpec(s.ContExp); return AcqureSpec{s.ConnChnlPH,c},e
-	case DescAcceptSpec: c,e:=descSpecToExpSpec(s.ContExp); return AcceptSpec{s.ConnChnlPH,c},e
-	case DescDetachSpec: return DetachSpec{s.ConnChnlPH},nil
-	case DescReleaseSpec: return ReleaseSpec{s.ConnChnlPH},nil
-	default: return nil,fmt.Errorf("unexpected process Description spec %T",spec)
 	}
 }

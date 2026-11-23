@@ -60,8 +60,7 @@ func (DescSpawnRec) descRec() {}
 func (r DescSpawnRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 func ConvertSpecToRec(spec DescSpec) (DescRec,error) {
-	old,err:=descSpecToExpSpec(spec); if err!=nil{return nil,err}
-	key,_,err:=ContentKey(old); if err!=nil{return nil,err}
+	key,_,err:=DescContentKey(spec); if err!=nil{return nil,err}
 	switch s:=spec.(type) {
 	case DescAcquireSpec: c,e:=ConvertSpecToRec(s.ContExp); if e!=nil{return nil,e}; return DescAcquireRec{key,s.ConnChnlPH,c},nil
 	case DescAcceptSpec: c,e:=ConvertSpecToRec(s.ContExp); if e!=nil{return nil,e}; return DescAcceptRec{key,s.ConnChnlPH,c},nil
@@ -87,19 +86,5 @@ func ConvertRecToSpec(rec DescRec) DescSpec {
 	case DescQuitRec: return DescQuitSpec{r.ConnChnlPH,r.ProcTermQN}
 	case DescSpawnRec: return DescSpawnSpec{r.ProcTermQN,r.ProcCompQNs}
 	default: panic(fmt.Sprintf("unexpected pool Description rec %T",rec))
-	}
-}
-func descSpecToExpSpec(spec DescSpec) (ExpSpec,error) {
-	switch s:=spec.(type) {
-	case DescAcquireSpec: c,e:=descSpecToExpSpec(s.ContExp); return AcquireSpec{s.ConnChnlPH,c},e
-	case DescAcceptSpec: c,e:=descSpecToExpSpec(s.ContExp); return AcceptSpec{s.ConnChnlPH,c},e
-	case DescHireSpec: c,e:=descSpecToExpSpec(s.ContExp); return HireSpec{s.ConnChnlPH,s.ProcTermQN,c},e
-	case DescApplySpec: c,e:=descSpecToExpSpec(s.ContExp); return ApplySpec{s.ConnChnlPH,s.ProcTermQN,c},e
-	case DescReleaseSpec: return ReleaseSpec{s.ConnChnlPH},nil
-	case DescDetachSpec: return DetachSpec{s.ConnChnlPH},nil
-	case DescFireSpec: return FireSpec{s.ConnChnlPH,s.ProcTermQN},nil
-	case DescQuitSpec: return QuitSpec{s.ConnChnlPH,s.ProcTermQN},nil
-	case DescSpawnSpec: return SpawnSpec{s.ProcTermQN,s.ProcCompQNs},nil
-	default: return nil,fmt.Errorf("unexpected pool Description spec %T",spec)
 	}
 }

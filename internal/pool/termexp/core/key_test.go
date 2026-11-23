@@ -2,6 +2,7 @@ package core
 
 import (
 	"testing"
+	"strings"
 
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
@@ -56,5 +57,35 @@ func TestContentKeyPreservesSpawnProcessOrder(t *testing.T) {
 	}
 	if firstKey == secondKey {
 		t.Fatal("different spawn process order produced the same content key")
+	}
+}
+
+func TestContentKeySerializesEveryDefinitionVariant(t *testing.T) {
+	cont := ReleaseSpec{}
+	specs := []struct {
+		spec ExpSpec
+		kind string
+	}{
+		{AcquireSpec{ContExp: cont}, "acquire"},
+		{AcceptSpec{ContExp: cont}, "accept"},
+		{HireSpec{ContExp: cont}, "hire"},
+		{ApplySpec{ContExp: cont}, "apply"},
+		{ReleaseSpec{}, "release"},
+		{DetachSpec{}, "detach"},
+		{FireSpec{}, "fire"},
+		{QuitSpec{}, "quit"},
+		{SpawnSpec{}, "spawn"},
+	}
+	for _, tc := range specs {
+		_, data, err := ContentKey(tc.spec)
+		if err != nil {
+			t.Fatalf("%s: %v", tc.kind, err)
+		}
+		if !strings.Contains(string(data), `"kind":"`+tc.kind+`"`) {
+			t.Fatalf("%s: missing discriminator in %s", tc.kind, data)
+		}
+	}
+	if _, _, err := ContentKey(SpawnSpec2{}); err == nil {
+		t.Fatal("SpawnSpec2 must not be accepted as Definition content")
 	}
 }

@@ -8,7 +8,6 @@ import (
 	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/descsem"
 	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
-	"orglang/go-engine/internal/adt/typesem"
 	webapi "orglang/go-engine/internal/app/web/api"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/ent"
@@ -53,10 +52,6 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		typeSemRepo, err := do.Invoke[typesem.Repo](i)
-		if err != nil {
-			return nil, err
-		}
 		transactor, err := do.Invoke[tx.Transactor](i)
 		if err != nil {
 			return nil, err
@@ -65,7 +60,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return core.NewService(termDecRepo, descRootRepo, descSemRepo, typeDefRepo, typeSemRepo, transactor, logger), nil
+		return core.NewService(termDecRepo, descRootRepo, descSemRepo, typeDefRepo, transactor, logger), nil
 	}),
 	do.Lazy[webapi.ServerInterface](func(i do.Injector) (webapi.ServerInterface, error) {
 		api, err := do.Invoke[core.API](i)

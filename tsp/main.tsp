@@ -123,7 +123,7 @@ op getProcessTypeDefinition(
   @query rn?: int64,
 ): Ok<Proc.Type.DefSnap>;
 
-/** Get the term definition of a specific process; omit rn to select its latest revision. */
+/** Get the current term definition of a specific process; rn, when supplied, must match its Description revision. */
 @get
 @route("/processes/{id}/definition")
 op getProcessDefinition(
@@ -131,7 +131,7 @@ op getProcessDefinition(
   @query rn?: int64,
 ): Ok<Proc.Term.ExprSpec>;
 
-/** Extend a process term definition using the supplied expected Description revision. */
+/** Extend a process term definition using the expected Description revision. */
 @patch
 @route("/processes/{id}/definition")
 op extendProcessDefinition(
@@ -155,7 +155,7 @@ op getPoolAssociatedDeclaration(
   @query rn?: int64,
 ): Ok<Pool.DecSnap>;
 
-/** Get the term definition of a specific pool; omit rn to select its latest revision. */
+/** Get the current term definition of a specific pool; rn, when supplied, must match its Description revision. */
 @get
 @route("/pools/{id}/definition")
 op getPoolDefinition(
@@ -163,7 +163,7 @@ op getPoolDefinition(
   @query rn?: int64,
 ): Ok<Pool.Term.ExprSpec>;
 
-/** Extend a pool term definition using the supplied expected Description revision. */
+/** Extend a pool term definition using the expected Description revision. */
 @patch
 @route("/pools/{id}/definition")
 op extendPoolDefinition(

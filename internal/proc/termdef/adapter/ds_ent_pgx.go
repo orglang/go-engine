@@ -142,6 +142,22 @@ func (dao *daoEnt) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT
 	return DataToDecRecs(dtos)
 }
 
+func (dao *daoEnt) GetRecByID(ctx context.Context, conn tx.Conn, termID identity.ADT) (termdef.DecRec, error) {
+	if termID.IsEmpty() {
+		return termdef.DecRec{}, identity.ErrEmpty
+	}
+	rows, err := conn.Pgx.Query(ctx, selectByRef, termID.String())
+	if err != nil {
+		return termdef.DecRec{}, err
+	}
+	defer rows.Close()
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecRec])
+	if err != nil {
+		return termdef.DecRec{}, err
+	}
+	return DataToDecRec(dto)
+}
+
 func (dao *daoEnt) GetRefs(ctx context.Context, conn tx.Conn) ([]termsem.SemRef, error) {
 	query := `
 SELECT td.term_id, td.desc_id, dr.desc_rn

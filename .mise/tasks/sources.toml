@@ -6,8 +6,9 @@ run = [
   "oapi-codegen -config internal/lib/e2e/api/cfg.yaml openapi/openapi.yaml",
   "go tool ent generate --target internal/pool/ent ./internal/pool/ent/schema",
   "go tool ent generate --feature sql/upsert --target internal/proc/ent ./internal/proc/ent/schema",
-  "goverter gen -global 'skipCopySameType' ./...",
+  # Goverter loads ./... and needs the web API package to match the current OpenAPI spec.
   "oapi-codegen -config internal/app/web/api/cfg.yaml openapi/openapi.yaml",
+  "goverter gen -global 'skipCopySameType' ./...",
 ]
 
 ["sources:lint"]
@@ -33,7 +34,7 @@ description = "Verify generated sources, formatting, lint, and analysis"
 depends = ["specs:gate"]
 run = [
   { task = "sources:prepare" },
-  "test -z \"$(git status --porcelain -- ':(glob)**/*.gen.go' ':(glob)**/ent/**')\"",
+  "test -z \"$(git status --porcelain -- ':(glob)**/*.gen.go' ':(glob)**/ent/**')\" ",
   "golangci-lint fmt --diff",
   { task = "sources:lint" },
   { task = "sources:analyze" },

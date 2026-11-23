@@ -12,6 +12,7 @@ import (
 	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
+	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/typesem"
@@ -55,8 +56,8 @@ type service struct {
 	descSemRepo  descsem.Repo
 	typeDefRepo  typedef.Repo
 	typeSemRepo  typesem.Repo
-	transactor  tx.Transactor
-	log         *slog.Logger
+	transactor   tx.Transactor
+	log          *slog.Logger
 }
 
 // for compilation purposes
@@ -174,7 +175,6 @@ func CollectEnv(recs iter.Seq[DefRec]) []uniqsym.ADT {
 func ErrRootMissingInEnv(rid identity.ADT) error {
 	return fmt.Errorf("root missing in env: %v", rid)
 }
-
 
 // Dec* aliases remain available to the existing HTTP declaration adapter.
 type DecSpec = DefSpec

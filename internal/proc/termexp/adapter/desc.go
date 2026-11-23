@@ -26,6 +26,7 @@ type descSpecData struct {
 	ContChnlPH string `json:"cont_chnl_ph,omitempty"`
 	ConnChnlPH string `json:"conn_chnl_ph,omitempty"`
 	ValChnlPH string `json:"val_chnl_ph,omitempty"`
+	ValLabQN string `json:"val_lab_qn,omitempty"`
 	NewChnlPH string `json:"new_chnl_ph,omitempty"`
 	ContExpCK int64 `json:"cont_exp_ck,omitempty"`
 	ContExpCKs map[string]int64 `json:"cont_exp_cks,omitempty"`
@@ -52,7 +53,7 @@ func statesFromDescRec(parent int64, rec termexp.DescRec, dto *DescData) int64 {
 	case termexp.DescWaitRec: kind=termexp.WaitKind; d.ContChnlPH=string(r.ContChnlPH); d.ContExpCK=child(r.ContExp)
 	case termexp.DescSendRec: kind=termexp.SendKind; d.ConnChnlPH=string(r.ConnChnlPH); d.ValChnlPH=string(r.ValChnlPH)
 	case termexp.DescRecvRec: kind=termexp.RecvKind; d.ConnChnlPH=string(r.ConnChnlPH); d.NewChnlPH=string(r.NewChnlPH); d.ContExpCK=child(r.ContExp)
-	case termexp.DescLabRec: kind=termexp.LabKind; d.ConnChnlPH=string(r.ConnChnlPH); d.ProcTermQN=uniqsym.ConvertToString(r.ValLabQN); d.ContExpCK=child(r.ContExp)
+	case termexp.DescLabRec: kind=termexp.LabKind; d.ConnChnlPH=string(r.ConnChnlPH); d.ValLabQN=uniqsym.ConvertToString(r.ValLabQN); d.ContExpCK=child(r.ContExp)
 	case termexp.DescCaseRec:
 		kind=termexp.CaseKind; d.ConnChnlPH=string(r.ConnChnlPH); d.ContExpCKs=make(map[string]int64,len(r.ContExps))
 		labels:=make([]uniqsym.ADT,0,len(r.ContExps)); for q:=range r.ContExps { labels=append(labels,q) }
@@ -91,7 +92,7 @@ func statesToDescRec(states map[int64]DescState, st DescState) (termexp.DescRec,
 	case termexp.WaitKind: p,e:=ph(d.ContChnlPH); if e!=nil{return nil,e}; c,e:=child(d.ContExpCK); return termexp.DescWaitRec{ExpCK:key,ContChnlPH:p,ContExp:c},e
 	case termexp.SendKind: x,e:=ph(d.ConnChnlPH); if e!=nil{return nil,e}; y,e:=ph(d.ValChnlPH); return termexp.DescSendRec{ExpCK:key,ConnChnlPH:x,ValChnlPH:y},e
 	case termexp.RecvKind: x,e:=ph(d.ConnChnlPH); if e!=nil{return nil,e}; y,e:=ph(d.NewChnlPH); if e!=nil{return nil,e}; c,e:=child(d.ContExpCK); return termexp.DescRecvRec{ExpCK:key,ConnChnlPH:x,NewChnlPH:y,ContExp:c},e
-	case termexp.LabKind: x,e:=ph(d.ConnChnlPH); if e!=nil{return nil,e}; q,e:=uniqsym.ConvertFromString(d.ProcTermQN); if e!=nil{return nil,e}; c,e:=child(d.ContExpCK); return termexp.DescLabRec{ExpCK:key,ConnChnlPH:x,ValLabQN:q,ContExp:c},e
+	case termexp.LabKind: x,e:=ph(d.ConnChnlPH); if e!=nil{return nil,e}; q,e:=uniqsym.ConvertFromString(d.ValLabQN); if e!=nil{return nil,e}; c,e:=child(d.ContExpCK); return termexp.DescLabRec{ExpCK:key,ConnChnlPH:x,ValLabQN:q,ContExp:c},e
 	case termexp.CaseKind:
 		x,e:=ph(d.ConnChnlPH); if e!=nil{return nil,e}; cs:=make(map[uniqsym.ADT]termexp.DescRec,len(d.ContExpCKs)); for name,ck:=range d.ContExpCKs { q,e:=uniqsym.ConvertFromString(name); if e!=nil{return nil,e}; c,e:=child(ck); if e!=nil{return nil,e}; cs[q]=c }; return termexp.DescCaseRec{ExpCK:key,ConnChnlPH:x,ContExps:cs},nil
 	case termexp.LinkKind:

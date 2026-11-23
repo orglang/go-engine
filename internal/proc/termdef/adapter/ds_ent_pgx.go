@@ -128,7 +128,7 @@ func (dao *daoEnt) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT
 func (dao *daoEnt) GetRefs(ctx context.Context, conn tx.Conn) ([]termsem.SemRef, error) {
 	query := `
 SELECT td.term_id, td.desc_id, dr.desc_rn
-FROM proc_term_decs AS td
+FROM proc_desc_terms AS td
 JOIN proc_desc_roots AS dr ON dr.desc_id = td.desc_id
 `
 	rows, err := conn.Pgx.Query(ctx, query)
@@ -164,7 +164,7 @@ SELECT
     dr.desc_rn,
     pd.liab_var,
     pd.asset_vars
-FROM proc_term_decs AS pd
+FROM proc_desc_terms AS pd
 JOIN proc_desc_roots AS dr
     ON dr.desc_id = pd.desc_id
 WHERE pd.term_id = $1

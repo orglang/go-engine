@@ -103,3 +103,24 @@ func TestContentNodesUseParentKeysAndChildReferences(t *testing.T) {
 	if !strings.Contains(string(nodes[0].Spec), `"cont_exp_ck":`) { t.Fatalf("parent spec does not contain child key: %s", nodes[0].Spec) }
 	if strings.Contains(string(nodes[0].Spec), `"cont_exp":`) { t.Fatalf("parent spec unexpectedly embeds child: %s", nodes[0].Spec) }
 }
+
+func TestContentNodesRoundTrip(t *testing.T) {
+	spec := AcquireSpec{
+		ConnChnlPH: symbol.New("conn"),
+		ContExp: HireSpec{
+			ConnChnlPH: symbol.New("worker"),
+			ProcTermQN: uniqsym.New(symbol.New("designer")),
+			ContExp: SpawnSpec{
+				ProcTermQN: uniqsym.New(symbol.New("process")),
+				ProcCompQNs: []uniqsym.ADT{uniqsym.New(symbol.New("one")), uniqsym.New(symbol.New("two"))},
+			},
+		},
+	}
+	nodes, err := ContentNodes(spec)
+	if err != nil { t.Fatal(err) }
+	restored, err := BuildSpecFromNodes(nodes, nodes[0].ExpCK)
+	if err != nil { t.Fatal(err) }
+	wantKey, _, err := ContentKey(spec); if err != nil { t.Fatal(err) }
+	gotKey, _, err := ContentKey(restored); if err != nil { t.Fatal(err) }
+	if gotKey != wantKey { t.Fatalf("round-trip key = %d, want %d", gotKey, wantKey) }
+}

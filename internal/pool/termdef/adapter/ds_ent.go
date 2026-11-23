@@ -59,7 +59,7 @@ func (dao *daoEnt) GetRecByQN(ctx context.Context, conn tx.Conn, qn uniqsym.ADT)
 	qnAttr := slog.Any("qn", qn)
 	const query = `
 SELECT def.term_id, def.desc_id, root.desc_rn, def.liab_var, def.asset_vars
-FROM pool_term_decs AS def
+FROM pool_desc_terms AS def
 JOIN pool_desc_roots AS root ON root.desc_id = def.desc_id
 JOIN pool_desc_binds AS bind ON bind.desc_id = def.term_id
 WHERE bind.desc_qn = $1

@@ -21,6 +21,9 @@ const (
 	ApplyKind
 	ReleaseKind
 	DetachKind
+	FireKind
+	QuitKind
+	SpawnKind
 )
 
 type ExpSpec interface {

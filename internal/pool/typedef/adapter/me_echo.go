@@ -51,7 +51,7 @@ func (h *controllerEcho) CreatePoolTypeDefinition(c *echo.Context) error {
 	}
 	return c.JSON(http.StatusCreated, webapi.AnyTypeRef{
 		TypeId: identity.ConvertToString(ref.TypeID),
-		TypeRn: seqnum.ConvertToInt(ref.DescRN),
+		DescRn: seqnum.ConvertToInt(ref.DescRN),
 	})
 }
 

@@ -1647,8 +1647,7 @@ type TermDecMutation struct {
 	op               Op
 	typ              string
 	id               *string
-	term_rn          *int64
-	addterm_rn       *int64
+	desc_id          *string
 	liab_var         *adapter.VarRec
 	asset_vars       *[]adapter.VarRec
 	appendasset_vars []adapter.VarRec
@@ -1762,60 +1761,40 @@ func (m *TermDecMutation) IDs(ctx context.Context) ([]string, error) {
 	}
 }
 
-// SetTermRn sets the "term_rn" field.
-func (m *TermDecMutation) SetTermRn(i int64) {
-	m.term_rn = &i
-	m.addterm_rn = nil
+// SetDescID sets the "desc_id" field.
+func (m *TermDecMutation) SetDescID(s string) {
+	m.desc_id = &s
 }
 
-// TermRn returns the value of the "term_rn" field in the mutation.
-func (m *TermDecMutation) TermRn() (r int64, exists bool) {
-	v := m.term_rn
+// DescID returns the value of the "desc_id" field in the mutation.
+func (m *TermDecMutation) DescID() (r string, exists bool) {
+	v := m.desc_id
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldTermRn returns the old "term_rn" field's value of the TermDec entity.
+// OldDescID returns the old "desc_id" field's value of the TermDec entity.
 // If the TermDec object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TermDecMutation) OldTermRn(ctx context.Context) (v int64, err error) {
+func (m *TermDecMutation) OldDescID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldTermRn is only allowed on UpdateOne operations")
+		return v, errors.New("OldDescID is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldTermRn requires an ID field in the mutation")
+		return v, errors.New("OldDescID requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldTermRn: %w", err)
+		return v, fmt.Errorf("querying old value for OldDescID: %w", err)
 	}
-	return oldValue.TermRn, nil
+	return oldValue.DescID, nil
 }
 
-// AddTermRn adds i to the "term_rn" field.
-func (m *TermDecMutation) AddTermRn(i int64) {
-	if m.addterm_rn != nil {
-		*m.addterm_rn += i
-	} else {
-		m.addterm_rn = &i
-	}
-}
-
-// AddedTermRn returns the value that was added to the "term_rn" field in this mutation.
-func (m *TermDecMutation) AddedTermRn() (r int64, exists bool) {
-	v := m.addterm_rn
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetTermRn resets all changes to the "term_rn" field.
-func (m *TermDecMutation) ResetTermRn() {
-	m.term_rn = nil
-	m.addterm_rn = nil
+// ResetDescID resets all changes to the "desc_id" field.
+func (m *TermDecMutation) ResetDescID() {
+	m.desc_id = nil
 }
 
 // SetLiabVar sets the "liab_var" field.
@@ -1940,8 +1919,8 @@ func (m *TermDecMutation) Type() string {
 // AddedFields().
 func (m *TermDecMutation) Fields() []string {
 	fields := make([]string, 0, 3)
-	if m.term_rn != nil {
-		fields = append(fields, termdec.FieldTermRn)
+	if m.desc_id != nil {
+		fields = append(fields, termdec.FieldDescID)
 	}
 	if m.liab_var != nil {
 		fields = append(fields, termdec.FieldLiabVar)
@@ -1957,8 +1936,8 @@ func (m *TermDecMutation) Fields() []string {
 // schema.
 func (m *TermDecMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case termdec.FieldTermRn:
-		return m.TermRn()
+	case termdec.FieldDescID:
+		return m.DescID()
 	case termdec.FieldLiabVar:
 		return m.LiabVar()
 	case termdec.FieldAssetVars:
@@ -1972,8 +1951,8 @@ func (m *TermDecMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *TermDecMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case termdec.FieldTermRn:
-		return m.OldTermRn(ctx)
+	case termdec.FieldDescID:
+		return m.OldDescID(ctx)
 	case termdec.FieldLiabVar:
 		return m.OldLiabVar(ctx)
 	case termdec.FieldAssetVars:
@@ -1987,12 +1966,12 @@ func (m *TermDecMutation) OldField(ctx context.Context, name string) (ent.Value,
 // type.
 func (m *TermDecMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case termdec.FieldTermRn:
-		v, ok := value.(int64)
+	case termdec.FieldDescID:
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetTermRn(v)
+		m.SetDescID(v)
 		return nil
 	case termdec.FieldLiabVar:
 		v, ok := value.(adapter.VarRec)
@@ -2015,21 +1994,13 @@ func (m *TermDecMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *TermDecMutation) AddedFields() []string {
-	var fields []string
-	if m.addterm_rn != nil {
-		fields = append(fields, termdec.FieldTermRn)
-	}
-	return fields
+	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *TermDecMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	case termdec.FieldTermRn:
-		return m.AddedTermRn()
-	}
 	return nil, false
 }
 
@@ -2038,13 +2009,6 @@ func (m *TermDecMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *TermDecMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case termdec.FieldTermRn:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddTermRn(v)
-		return nil
 	}
 	return fmt.Errorf("unknown TermDec numeric field %s", name)
 }
@@ -2072,8 +2036,8 @@ func (m *TermDecMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *TermDecMutation) ResetField(name string) error {
 	switch name {
-	case termdec.FieldTermRn:
-		m.ResetTermRn()
+	case termdec.FieldDescID:
+		m.ResetDescID()
 		return nil
 	case termdec.FieldLiabVar:
 		m.ResetLiabVar()

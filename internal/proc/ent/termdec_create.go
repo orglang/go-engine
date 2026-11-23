@@ -23,9 +23,9 @@ type TermDecCreate struct {
 	conflict []sql.ConflictOption
 }
 
-// SetTermRn sets the "term_rn" field.
-func (_c *TermDecCreate) SetTermRn(v int64) *TermDecCreate {
-	_c.mutation.SetTermRn(v)
+// SetDescID sets the "desc_id" field.
+func (_c *TermDecCreate) SetDescID(v string) *TermDecCreate {
+	_c.mutation.SetDescID(v)
 	return _c
 }
 
@@ -81,8 +81,8 @@ func (_c *TermDecCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *TermDecCreate) check() error {
-	if _, ok := _c.mutation.TermRn(); !ok {
-		return &ValidationError{Name: "term_rn", err: errors.New(`ent: missing required field "TermDec.term_rn"`)}
+	if _, ok := _c.mutation.DescID(); !ok {
+		return &ValidationError{Name: "desc_id", err: errors.New(`ent: missing required field "TermDec.desc_id"`)}
 	}
 	if _, ok := _c.mutation.LiabVar(); !ok {
 		return &ValidationError{Name: "liab_var", err: errors.New(`ent: missing required field "TermDec.liab_var"`)}
@@ -126,9 +126,9 @@ func (_c *TermDecCreate) createSpec() (*TermDec, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := _c.mutation.TermRn(); ok {
-		_spec.SetField(termdec.FieldTermRn, field.TypeInt64, value)
-		_node.TermRn = value
+	if value, ok := _c.mutation.DescID(); ok {
+		_spec.SetField(termdec.FieldDescID, field.TypeString, value)
+		_node.DescID = value
 	}
 	if value, ok := _c.mutation.LiabVar(); ok {
 		_spec.SetField(termdec.FieldLiabVar, field.TypeJSON, value)
@@ -145,7 +145,7 @@ func (_c *TermDecCreate) createSpec() (*TermDec, *sqlgraph.CreateSpec) {
 // of the `INSERT` statement. For example:
 //
 //	client.TermDec.Create().
-//		SetTermRn(v).
+//		SetDescID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -154,7 +154,7 @@ func (_c *TermDecCreate) createSpec() (*TermDec, *sqlgraph.CreateSpec) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.TermDecUpsert) {
-//			SetTermRn(v+v).
+//			SetDescID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *TermDecCreate) OnConflict(opts ...sql.ConflictOption) *TermDecUpsertOne {
@@ -190,21 +190,15 @@ type (
 	}
 )
 
-// SetTermRn sets the "term_rn" field.
-func (u *TermDecUpsert) SetTermRn(v int64) *TermDecUpsert {
-	u.Set(termdec.FieldTermRn, v)
+// SetDescID sets the "desc_id" field.
+func (u *TermDecUpsert) SetDescID(v string) *TermDecUpsert {
+	u.Set(termdec.FieldDescID, v)
 	return u
 }
 
-// UpdateTermRn sets the "term_rn" field to the value that was provided on create.
-func (u *TermDecUpsert) UpdateTermRn() *TermDecUpsert {
-	u.SetExcluded(termdec.FieldTermRn)
-	return u
-}
-
-// AddTermRn adds v to the "term_rn" field.
-func (u *TermDecUpsert) AddTermRn(v int64) *TermDecUpsert {
-	u.Add(termdec.FieldTermRn, v)
+// UpdateDescID sets the "desc_id" field to the value that was provided on create.
+func (u *TermDecUpsert) UpdateDescID() *TermDecUpsert {
+	u.SetExcluded(termdec.FieldDescID)
 	return u
 }
 
@@ -280,24 +274,17 @@ func (u *TermDecUpsertOne) Update(set func(*TermDecUpsert)) *TermDecUpsertOne {
 	return u
 }
 
-// SetTermRn sets the "term_rn" field.
-func (u *TermDecUpsertOne) SetTermRn(v int64) *TermDecUpsertOne {
+// SetDescID sets the "desc_id" field.
+func (u *TermDecUpsertOne) SetDescID(v string) *TermDecUpsertOne {
 	return u.Update(func(s *TermDecUpsert) {
-		s.SetTermRn(v)
+		s.SetDescID(v)
 	})
 }
 
-// AddTermRn adds v to the "term_rn" field.
-func (u *TermDecUpsertOne) AddTermRn(v int64) *TermDecUpsertOne {
+// UpdateDescID sets the "desc_id" field to the value that was provided on create.
+func (u *TermDecUpsertOne) UpdateDescID() *TermDecUpsertOne {
 	return u.Update(func(s *TermDecUpsert) {
-		s.AddTermRn(v)
-	})
-}
-
-// UpdateTermRn sets the "term_rn" field to the value that was provided on create.
-func (u *TermDecUpsertOne) UpdateTermRn() *TermDecUpsertOne {
-	return u.Update(func(s *TermDecUpsert) {
-		s.UpdateTermRn()
+		s.UpdateDescID()
 	})
 }
 
@@ -464,7 +451,7 @@ func (_c *TermDecCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.TermDecUpsert) {
-//			SetTermRn(v+v).
+//			SetDescID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *TermDecCreateBulk) OnConflict(opts ...sql.ConflictOption) *TermDecUpsertBulk {
@@ -543,24 +530,17 @@ func (u *TermDecUpsertBulk) Update(set func(*TermDecUpsert)) *TermDecUpsertBulk 
 	return u
 }
 
-// SetTermRn sets the "term_rn" field.
-func (u *TermDecUpsertBulk) SetTermRn(v int64) *TermDecUpsertBulk {
+// SetDescID sets the "desc_id" field.
+func (u *TermDecUpsertBulk) SetDescID(v string) *TermDecUpsertBulk {
 	return u.Update(func(s *TermDecUpsert) {
-		s.SetTermRn(v)
+		s.SetDescID(v)
 	})
 }
 
-// AddTermRn adds v to the "term_rn" field.
-func (u *TermDecUpsertBulk) AddTermRn(v int64) *TermDecUpsertBulk {
+// UpdateDescID sets the "desc_id" field to the value that was provided on create.
+func (u *TermDecUpsertBulk) UpdateDescID() *TermDecUpsertBulk {
 	return u.Update(func(s *TermDecUpsert) {
-		s.AddTermRn(v)
-	})
-}
-
-// UpdateTermRn sets the "term_rn" field to the value that was provided on create.
-func (u *TermDecUpsertBulk) UpdateTermRn() *TermDecUpsertBulk {
-	return u.Update(func(s *TermDecUpsert) {
-		s.UpdateTermRn()
+		s.UpdateDescID()
 	})
 }
 

@@ -5,6 +5,7 @@ import (
 
 	"github.com/samber/do/v2"
 
+	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/pool/ent"
@@ -29,6 +30,10 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
+		descRootRepo, err := do.InvokeNamed[descroot.Repo](i, "pool-descroot")
+		if err != nil {
+			return nil, err
+		}
 		typeDefRepo, err := do.Invoke[typedef.Repo](i)
 		if err != nil {
 			return nil, err
@@ -45,7 +50,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return core.NewService(repo, typeDefRepo, descRepo, transactor, logger), nil
+		return core.NewService(repo, descRootRepo, typeDefRepo, descRepo, transactor, logger), nil
 	}),
 	do.Lazy[GeneratedController](func(i do.Injector) (GeneratedController, error) {
 		api, err := do.Invoke[core.API](i)

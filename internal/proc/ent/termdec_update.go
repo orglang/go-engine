@@ -29,24 +29,17 @@ func (_u *TermDecUpdate) Where(ps ...predicate.TermDec) *TermDecUpdate {
 	return _u
 }
 
-// SetTermRn sets the "term_rn" field.
-func (_u *TermDecUpdate) SetTermRn(v int64) *TermDecUpdate {
-	_u.mutation.ResetTermRn()
-	_u.mutation.SetTermRn(v)
+// SetDescID sets the "desc_id" field.
+func (_u *TermDecUpdate) SetDescID(v string) *TermDecUpdate {
+	_u.mutation.SetDescID(v)
 	return _u
 }
 
-// SetNillableTermRn sets the "term_rn" field if the given value is not nil.
-func (_u *TermDecUpdate) SetNillableTermRn(v *int64) *TermDecUpdate {
+// SetNillableDescID sets the "desc_id" field if the given value is not nil.
+func (_u *TermDecUpdate) SetNillableDescID(v *string) *TermDecUpdate {
 	if v != nil {
-		_u.SetTermRn(*v)
+		_u.SetDescID(*v)
 	}
-	return _u
-}
-
-// AddTermRn adds value to the "term_rn" field.
-func (_u *TermDecUpdate) AddTermRn(v int64) *TermDecUpdate {
-	_u.mutation.AddTermRn(v)
 	return _u
 }
 
@@ -117,11 +110,8 @@ func (_u *TermDecUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			}
 		}
 	}
-	if value, ok := _u.mutation.TermRn(); ok {
-		_spec.SetField(termdec.FieldTermRn, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.AddedTermRn(); ok {
-		_spec.AddField(termdec.FieldTermRn, field.TypeInt64, value)
+	if value, ok := _u.mutation.DescID(); ok {
+		_spec.SetField(termdec.FieldDescID, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.LiabVar(); ok {
 		_spec.SetField(termdec.FieldLiabVar, field.TypeJSON, value)
@@ -154,24 +144,17 @@ type TermDecUpdateOne struct {
 	mutation *TermDecMutation
 }
 
-// SetTermRn sets the "term_rn" field.
-func (_u *TermDecUpdateOne) SetTermRn(v int64) *TermDecUpdateOne {
-	_u.mutation.ResetTermRn()
-	_u.mutation.SetTermRn(v)
+// SetDescID sets the "desc_id" field.
+func (_u *TermDecUpdateOne) SetDescID(v string) *TermDecUpdateOne {
+	_u.mutation.SetDescID(v)
 	return _u
 }
 
-// SetNillableTermRn sets the "term_rn" field if the given value is not nil.
-func (_u *TermDecUpdateOne) SetNillableTermRn(v *int64) *TermDecUpdateOne {
+// SetNillableDescID sets the "desc_id" field if the given value is not nil.
+func (_u *TermDecUpdateOne) SetNillableDescID(v *string) *TermDecUpdateOne {
 	if v != nil {
-		_u.SetTermRn(*v)
+		_u.SetDescID(*v)
 	}
-	return _u
-}
-
-// AddTermRn adds value to the "term_rn" field.
-func (_u *TermDecUpdateOne) AddTermRn(v int64) *TermDecUpdateOne {
-	_u.mutation.AddTermRn(v)
 	return _u
 }
 
@@ -272,11 +255,8 @@ func (_u *TermDecUpdateOne) sqlSave(ctx context.Context) (_node *TermDec, err er
 			}
 		}
 	}
-	if value, ok := _u.mutation.TermRn(); ok {
-		_spec.SetField(termdec.FieldTermRn, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.AddedTermRn(); ok {
-		_spec.AddField(termdec.FieldTermRn, field.TypeInt64, value)
+	if value, ok := _u.mutation.DescID(); ok {
+		_spec.SetField(termdec.FieldDescID, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.LiabVar(); ok {
 		_spec.SetField(termdec.FieldLiabVar, field.TypeJSON, value)

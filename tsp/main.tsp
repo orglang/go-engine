@@ -131,11 +131,12 @@ op getProcessDefinition(
   @query rn?: int64,
 ): Ok<Proc.Term.ExprSpec>;
 
-/** Extend a process term definition without replacing or removing existing expression parts. */
+/** Extend a process term definition using the supplied expected Description revision. */
 @patch
 @route("/processes/{id}/definition")
 op extendProcessDefinition(
   @path id: string,
+  @query rn: int64,
   @body extension: Proc.Term.ExprSpec,
 ): Ok<Any.TermRef>;
 
@@ -162,11 +163,12 @@ op getPoolDefinition(
   @query rn?: int64,
 ): Ok<Pool.Term.ExprSpec>;
 
-/** Extend a pool term definition without replacing or removing existing expression parts. */
+/** Extend a pool term definition using the supplied expected Description revision. */
 @patch
 @route("/pools/{id}/definition")
 op extendPoolDefinition(
   @path id: string,
+  @query rn: int64,
   @body extension: Pool.Term.ExprSpec,
 ): Ok<Any.TermRef>;
 

@@ -22,7 +22,6 @@ import (
 	compconn "orglang/go-engine/internal/proc/compconn/core"
 	compstep "orglang/go-engine/internal/proc/compstep/core"
 	connact "orglang/go-engine/internal/proc/connact/core"
-	termdec "orglang/go-engine/internal/proc/termdec/core"
 	termdef "orglang/go-engine/internal/proc/termdef/core"
 	termexp "orglang/go-engine/internal/proc/termexp/core"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
@@ -63,7 +62,7 @@ type ExecSnap struct {
 type Env struct {
 	TypeDefs map[uniqsym.ADT]typedef.DefRec
 	TypeExps map[contkey.ADT]typeexp.ExpRec
-	ProcDecs map[identity.ADT]termdec.DecRec
+	ProcDecs map[identity.ADT]termdef.DefRec
 }
 
 func ChnlPH(rec compvar.LinearRec) symbol.ADT { return rec.ChnlPH }
@@ -71,7 +70,7 @@ func ChnlPH(rec compvar.LinearRec) symbol.ADT { return rec.ChnlPH }
 type service struct {
 	compExecRepo Repo
 	connRepo     compconn.Repo
-	termDecRepo  termdec.Repo
+	termDecRepo  termdef.Repo
 	typeDefRepo  typedef.Repo
 	typeExpRepo  typeexp.Repo
 	transactor   tx.Transactor
@@ -86,7 +85,7 @@ func newAPI() API {
 func NewService(
 	compExecRepo Repo,
 	connRepo compconn.Repo,
-	termDecRepo termdec.Repo,
+	termDecRepo termdef.Repo,
 	typeDefRepo typedef.Repo,
 	typeExpRepo typeexp.Repo,
 	transactor tx.Transactor,
@@ -126,14 +125,14 @@ func (s *service) Take(ctx context.Context, spec compstep.StepSpec) (err error) 
 			panic("zero channel binds")
 		}
 		decIDs := termexp.CollectEnv(expSpec)
-		procDecs, getErr2 := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[identity.ADT]termdec.DecRec, error) {
+		procDecs, getErr2 := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[identity.ADT]termdef.DefRec, error) {
 			return s.termDecRepo.SelectEnv(txCtx, conn, decIDs)
 		})
 		if getErr2 != nil {
 			s.log.Error("step taking failed", compAttr, slog.Any("decs", decIDs))
 			return getErr2
 		}
-		typeQNs := termdec.CollectEnv(maps.Values(procDecs))
+		typeQNs := termdef.CollectEnv(maps.Values(procDecs))
 		typeDefs, getErr3 := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[uniqsym.ADT]typedef.DefRec, error) {
 			return s.typeDefRepo.SelectEnv(txCtx, conn, typeQNs)
 		})

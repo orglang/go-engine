@@ -51,7 +51,7 @@ var (
 	// ProcTermDecsColumns holds the columns for the "proc_term_decs" table.
 	ProcTermDecsColumns = []*schema.Column{
 		{Name: "term_id", Type: field.TypeString},
-		{Name: "term_rn", Type: field.TypeInt64},
+		{Name: "desc_id", Type: field.TypeString},
 		{Name: "liab_var", Type: field.TypeJSON},
 		{Name: "asset_vars", Type: field.TypeJSON},
 	}

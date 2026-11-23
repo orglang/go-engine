@@ -14,7 +14,6 @@ import (
 	compexec "orglang/go-engine/internal/proc/compexec/adapter"
 	descrootadapter "orglang/go-engine/internal/proc/descroot/adapter"
 	"orglang/go-engine/internal/proc/ent"
-	termdec "orglang/go-engine/internal/proc/termdec/adapter"
 	termdef "orglang/go-engine/internal/proc/termdef/adapter"
 	typedef "orglang/go-engine/internal/proc/typedef/adapter"
 	typeexp "orglang/go-engine/internal/proc/typeexp/adapter"
@@ -40,7 +39,6 @@ var Package = do.Package(
 		return descrootadapter.NewDaoEnt(client, logger), nil
 	}),
 	compexec.Package,
-	termdec.Package,
 	termdef.Package,
 	typedef.Package,
 	typeexp.Package,
@@ -61,11 +59,11 @@ func RegisterRoutes(server *echo.Echo, i do.Injector) error {
 	if err != nil {
 		return err
 	}
-	termDecController, err := do.Invoke[webapi.ServerInterface](i)
+	termDefController, err := do.Invoke[webapi.ServerInterface](i)
 	if err != nil {
 		return err
 	}
-	termDecPresenter, err := do.Invoke[termdec.Presenter](i)
+	termDefPresenter, err := do.Invoke[termdef.Presenter](i)
 	if err != nil {
 		return err
 	}
@@ -81,10 +79,10 @@ func RegisterRoutes(server *echo.Echo, i do.Injector) error {
 	if err := compexec.RegisterGeneratedRoutes(server, execController); err != nil {
 		return err
 	}
-	if err := termdec.RegisterGeneratedRoutes(server, termDecController); err != nil {
+	if err := termdef.RegisterGeneratedRoutes(server, termDefController); err != nil {
 		return err
 	}
-	if err := termdec.RegisterPresenterRoutes(server, termDecPresenter); err != nil {
+	if err := termdef.RegisterPresenterRoutes(server, termDefPresenter); err != nil {
 		return err
 	}
 	if err := typedef.RegisterGeneratedRoutes(server, typeDefController); err != nil {

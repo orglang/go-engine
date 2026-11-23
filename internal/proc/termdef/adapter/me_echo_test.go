@@ -60,13 +60,13 @@ func TestCreateProcessDeclarationHandler(t *testing.T) {
 
 		var response struct {
 			TermID string `json:"term_id"`
-			TermRn int64  `json:"term_rn"`
+			DescRn int64  `json:"desc_rn"`
 		}
 		if err := json.NewDecoder(rec.Body).Decode(&response); err != nil {
 			t.Fatalf("decode response: %v", err)
 		}
-		if response.TermRn != 11 {
-			t.Errorf("unexpected term revision: got %d, want 11", response.TermRn)
+		if response.DescRn != 11 {
+			t.Errorf("unexpected description revision: got %d, want 11", response.DescRn)
 		}
 	})
 
@@ -107,5 +107,5 @@ func (s *generatedDecAPIStub) Create(ctx context.Context, spec termdec.DecSpec) 
 	s.called = true
 	s.spec = spec
 	s.ctx = ctx
-	return termdec.DecSnap{TermRef: termsem.SemRef{TermRN: 11}}, nil
+	return termdec.DecSnap{TermRef: termsem.SemRef{DescRN: 11}}, nil
 }

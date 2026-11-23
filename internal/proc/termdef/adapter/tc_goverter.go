@@ -3,14 +3,15 @@ package adapter
 import (
 	"orglang/go-engine/internal/adt/termvar"
 	webapi "orglang/go-engine/internal/app/web/api"
-	termdec "orglang/go-engine/internal/proc/termdec/core"
+	termdef "orglang/go-engine/internal/proc/termdef/core"
 )
 
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
 var (
-	ViewFromDecSnap func(termdec.DecSnap) DecSnapVP
+	ViewFromDecSnap func(termdef.DecSnap) DecSnapVP
 )
 
 // goverter:variables
@@ -18,21 +19,22 @@ var (
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/contkey:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/termvar/adapter:Data.*
 var (
 	// goverter:map . TermRef
 	// goverter:ignore TermQN
-	DataToDecRec func(DecRec) (termdec.DecRec, error)
+	DataToDecRec func(DecRec) (termdef.DecRec, error)
 	// goverter:autoMap TermRef
-	DataFromDecRec  func(termdec.DecRec) (DecRec, error)
-	DataToDecRecs   func([]DecRec) ([]termdec.DecRec, error)
-	DataFromDecRecs func([]termdec.DecRec) ([]DecRec, error)
+	DataFromDecRec  func(termdef.DecRec) (DecRec, error)
+	DataToDecRecs   func([]DecRec) ([]termdef.DecRec, error)
+	DataFromDecRecs func([]termdef.DecRec) ([]DecRec, error)
 	// goverter:map . TermRef
-	DataToDecSnap func(DecSnap) (termdec.DecSnap, error)
+	DataToDecSnap func(DecSnap) (termdef.DecSnap, error)
 	// goverter:autoMap TermRef
-	DataFromDecSnap  func(termdec.DecSnap) (DecSnap, error)
-	DataToDecSnaps   func([]DecSnap) ([]termdec.DecSnap, error)
-	DataFromDecSnaps func([]termdec.DecSnap) ([]DecSnap, error)
+	DataFromDecSnap  func(termdef.DecSnap) (DecSnap, error)
+	DataToDecSnaps   func([]DecSnap) ([]termdef.DecSnap, error)
+	DataFromDecSnaps func([]termdef.DecSnap) ([]DecSnap, error)
 )
 
 // goverter:variables
@@ -47,9 +49,9 @@ var (
 	ConnVarFromGenerated func(webapi.AnyConnVarSpec) (termvar.VarSpec, error)
 
 	// goverter:map TermQn TermQN
-	DecSpecFromGenerated func(webapi.ProcDecSpec) (termdec.DecSpec, error)
+	DecSpecFromGenerated func(webapi.ProcDecSpec) (termdef.DecSpec, error)
 
 	// goverter:map TermRef.TermID TermId
-	// goverter:map TermRef.TermRN TermRn
-	DecSnapToGenerated func(termdec.DecSnap) webapi.AnyTermRef
+	// goverter:map TermRef.DescRN DescRn
+	DecSnapToGenerated func(termdef.DecSnap) webapi.AnyTermRef
 )

@@ -20,9 +20,9 @@ type TermDefCreate struct {
 	hooks    []Hook
 }
 
-// SetTermRn sets the "term_rn" field.
-func (_c *TermDefCreate) SetTermRn(v int64) *TermDefCreate {
-	_c.mutation.SetTermRn(v)
+// SetDescID sets the "desc_id" field.
+func (_c *TermDefCreate) SetDescID(v string) *TermDefCreate {
+	_c.mutation.SetDescID(v)
 	return _c
 }
 
@@ -78,8 +78,8 @@ func (_c *TermDefCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *TermDefCreate) check() error {
-	if _, ok := _c.mutation.TermRn(); !ok {
-		return &ValidationError{Name: "term_rn", err: errors.New(`ent: missing required field "TermDef.term_rn"`)}
+	if _, ok := _c.mutation.DescID(); !ok {
+		return &ValidationError{Name: "desc_id", err: errors.New(`ent: missing required field "TermDef.desc_id"`)}
 	}
 	if _, ok := _c.mutation.LiabVar(); !ok {
 		return &ValidationError{Name: "liab_var", err: errors.New(`ent: missing required field "TermDef.liab_var"`)}
@@ -122,9 +122,9 @@ func (_c *TermDefCreate) createSpec() (*TermDef, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := _c.mutation.TermRn(); ok {
-		_spec.SetField(termdef.FieldTermRn, field.TypeInt64, value)
-		_node.TermRn = value
+	if value, ok := _c.mutation.DescID(); ok {
+		_spec.SetField(termdef.FieldDescID, field.TypeString, value)
+		_node.DescID = value
 	}
 	if value, ok := _c.mutation.LiabVar(); ok {
 		_spec.SetField(termdef.FieldLiabVar, field.TypeJSON, value)

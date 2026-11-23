@@ -5,6 +5,7 @@ package adapter
 
 import (
 	identity "orglang/go-engine/internal/adt/identity"
+	seqnum "orglang/go-engine/internal/adt/seqnum"
 	symbol "orglang/go-engine/internal/adt/symbol"
 	termsem "orglang/go-engine/internal/adt/termsem"
 	termvar "orglang/go-engine/internal/adt/termvar"
@@ -60,7 +61,8 @@ func init() {
 	DataFromDecRec = func(source core.DefRec) (DefRec, error) {
 		var adapterDefRec DefRec
 		adapterDefRec.TermID = identity.ConvertToString(source.TermRef.TermID)
-		adapterDefRec.TermRN = int64(source.TermRef.TermRN)
+		adapterDefRec.DescID = identity.ConvertToString(source.TermRef.DescID)
+		adapterDefRec.DescRN = seqnum.ConvertToInt(source.TermRef.DescRN)
 		adapterVarRec, err := adapter.DataFromVarRec(source.LiabVar)
 		if err != nil {
 			return adapterDefRec, err
@@ -109,6 +111,12 @@ func init() {
 			return termsemSemRef, err
 		}
 		termsemSemRef.TermID = identityADT
+		identityADT2, err := identity.ConvertFromString(source.DescID)
+		if err != nil {
+			return termsemSemRef, err
+		}
+		termsemSemRef.DescID = identityADT2
+		termsemSemRef.DescRN = seqnum.ConvertFromInt(source.DescRN)
 		return termsemSemRef, nil
 	}
 }

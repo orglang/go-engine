@@ -11,8 +11,8 @@ const (
 	Label = "term_def"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "term_id"
-	// FieldTermRn holds the string denoting the term_rn field in the database.
-	FieldTermRn = "term_rn"
+	// FieldDescID holds the string denoting the desc_id field in the database.
+	FieldDescID = "desc_id"
 	// FieldLiabVar holds the string denoting the liab_var field in the database.
 	FieldLiabVar = "liab_var"
 	// FieldAssetVars holds the string denoting the asset_vars field in the database.
@@ -24,7 +24,7 @@ const (
 // Columns holds all SQL columns for termdef fields.
 var Columns = []string{
 	FieldID,
-	FieldTermRn,
+	FieldDescID,
 	FieldLiabVar,
 	FieldAssetVars,
 }
@@ -47,7 +47,7 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByTermRn orders the results by the term_rn field.
-func ByTermRn(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldTermRn, opts...).ToFunc()
+// ByDescID orders the results by the desc_id field.
+func ByDescID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDescID, opts...).ToFunc()
 }

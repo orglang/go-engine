@@ -16,7 +16,7 @@ import (
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/uniqsym"
 
-	termdec "orglang/go-engine/internal/proc/termdec/core"
+	termdef "orglang/go-engine/internal/proc/termdef/core"
 )
 
 // Presenter is the server-rendered HTTP port implemented by the Echo adapter.
@@ -27,12 +27,12 @@ type Presenter interface {
 }
 
 type echoPresenter struct {
-	api termdec.API
+	api termdef.API
 	ssr te.Renderer
 	log *slog.Logger
 }
 
-func newEchoPresenter(a termdec.API, r te.Renderer, l *slog.Logger) *echoPresenter {
+func newEchoPresenter(a termdef.API, r te.Renderer, l *slog.Logger) *echoPresenter {
 	name := slog.String("name", reflect.TypeFor[echoPresenter]().Name())
 	return &echoPresenter{a, r, l.With(name)}
 }
@@ -108,7 +108,7 @@ func (p *echoPresenter) GetSnap(c *echo.Context) error {
 			return echo.NewHTTPError(http.StatusBadRequest, "invalid revision").Wrap(convErr)
 		}
 	}
-	ref := termsem.SemRef{TermID: id, TermRN: seqnum.ConvertFromInt(rn)}
+	ref := termsem.SemRef{TermID: id, DescRN: seqnum.ConvertFromInt(rn)}
 	ctx := c.Request().Context()
 	p.log.Log(ctx, lf.LevelTrace, "getting started", slog.Any("ref", ref))
 	snap, retrieveErr := p.api.RetrieveSnap(ctx, ref)

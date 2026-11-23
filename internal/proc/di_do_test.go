@@ -15,8 +15,8 @@ import (
 	compconn "orglang/go-engine/internal/proc/compconn/core"
 	compexecadapter "orglang/go-engine/internal/proc/compexec/adapter"
 	compexec "orglang/go-engine/internal/proc/compexec/core"
-	termdecadapter "orglang/go-engine/internal/proc/termdec/adapter"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
+	termdefadapter "orglang/go-engine/internal/proc/termdef/adapter"
 	termdef "orglang/go-engine/internal/proc/termdef/core"
 	typedefadapter "orglang/go-engine/internal/proc/typedef/adapter"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
@@ -93,8 +93,8 @@ func TestPackageProvidesApplicationServices(t *testing.T) {
 			_, err := do.Invoke[compexec.API](injector)
 			return err
 		}},
-		{"term-declaration service", func() error {
-			_, err := do.Invoke[termdec.API](injector)
+		{"unified term lifecycle service", func() error {
+			_, err := do.Invoke[termdef.API](injector)
 			return err
 		}},
 		{"type-definition service", func() error {
@@ -123,12 +123,12 @@ func TestPackageProvidesHTTPAdapters(t *testing.T) {
 			_, err := do.Invoke[compexecadapter.GeneratedController](injector)
 			return err
 		}},
-		{"term-declaration controller", func() error {
+		{"term-definition controller", func() error {
 			_, err := do.Invoke[webapi.ServerInterface](injector)
 			return err
 		}},
-		{"term-declaration presenter", func() error {
-			_, err := do.Invoke[termdecadapter.Presenter](injector)
+		{"term-definition presenter", func() error {
+			_, err := do.Invoke[termdefadapter.Presenter](injector)
 			return err
 		}},
 		{"generated type-definition controller", func() error {

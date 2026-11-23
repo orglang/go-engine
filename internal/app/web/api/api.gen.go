@@ -40,8 +40,8 @@ type AnyExecSpec struct {
 
 // AnyTermRef Shared term identity.
 type AnyTermRef struct {
+	DescRn int64  `json:"desc_rn"`
 	TermId string `json:"term_id"`
-	TermRn int64  `json:"term_rn"`
 }
 
 // AnyTypeLinkSpec defines model for Any.Type.LinkSpec.
@@ -51,8 +51,8 @@ type AnyTypeLinkSpec struct {
 
 // AnyTypeRef Shared type identity.
 type AnyTypeRef struct {
+	DescRn int64  `json:"desc_rn"`
 	TypeId string `json:"type_id"`
-	TypeRn int64  `json:"type_rn"`
 }
 
 // PoolDecSnap defines model for Pool.DecSnap.
@@ -408,6 +408,11 @@ type GetPoolDefinitionParams struct {
 	Rn *int64 `form:"rn,omitempty" json:"rn,omitempty"`
 }
 
+// ExtendPoolDefinitionParams defines parameters for ExtendPoolDefinition.
+type ExtendPoolDefinitionParams struct {
+	Rn int64 `form:"rn" json:"rn"`
+}
+
 // GetProcessDeclarationParams defines parameters for GetProcessDeclaration.
 type GetProcessDeclarationParams struct {
 	Rn *int64 `form:"rn,omitempty" json:"rn,omitempty"`
@@ -431,6 +436,11 @@ type GetProcessAssociatedDeclarationParams struct {
 // GetProcessDefinitionParams defines parameters for GetProcessDefinition.
 type GetProcessDefinitionParams struct {
 	Rn *int64 `form:"rn,omitempty" json:"rn,omitempty"`
+}
+
+// ExtendProcessDefinitionParams defines parameters for ExtendProcessDefinition.
+type ExtendProcessDefinitionParams struct {
+	Rn int64 `form:"rn" json:"rn"`
 }
 
 // CreateProgramTextBody defines parameters for CreateProgram.
@@ -1837,7 +1847,7 @@ type ServerInterface interface {
 	GetPoolDefinition(ctx *echo.Context, id string, params GetPoolDefinitionParams) error
 
 	// (PATCH /api/v1/pools/{id}/definition)
-	ExtendPoolDefinition(ctx *echo.Context, id string) error
+	ExtendPoolDefinition(ctx *echo.Context, id string, params ExtendPoolDefinitionParams) error
 
 	// (GET /api/v1/pools/{id}/executions)
 	ListPoolExecutions(ctx *echo.Context, id string) error
@@ -1867,7 +1877,7 @@ type ServerInterface interface {
 	GetProcessDefinition(ctx *echo.Context, id string, params GetProcessDefinitionParams) error
 
 	// (PATCH /api/v1/processes/{id}/definition)
-	ExtendProcessDefinition(ctx *echo.Context, id string) error
+	ExtendProcessDefinition(ctx *echo.Context, id string, params ExtendProcessDefinitionParams) error
 
 	// (GET /api/v1/processes/{id}/executions)
 	ListProcessExecutions(ctx *echo.Context, id string) error
@@ -2012,8 +2022,17 @@ func (w *ServerInterfaceWrapper) ExtendPoolDefinition(ctx *echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
 	}
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ExtendPoolDefinitionParams
+	// ------------- Required query parameter "rn" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", false, true, "rn", ctx.QueryParams(), &params.Rn, runtime.BindQueryParameterOptions{Type: "integer", Format: "int64"})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter rn: %s", err))
+	}
+
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ExtendPoolDefinition(ctx, id)
+	err = w.Handler.ExtendPoolDefinition(ctx, id, params)
 	return err
 }
 
@@ -2203,8 +2222,17 @@ func (w *ServerInterfaceWrapper) ExtendProcessDefinition(ctx *echo.Context) erro
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
 	}
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ExtendProcessDefinitionParams
+	// ------------- Required query parameter "rn" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", false, true, "rn", ctx.QueryParams(), &params.Rn, runtime.BindQueryParameterOptions{Type: "integer", Format: "int64"})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter rn: %s", err))
+	}
+
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ExtendProcessDefinition(ctx, id)
+	err = w.Handler.ExtendProcessDefinition(ctx, id, params)
 	return err
 }
 

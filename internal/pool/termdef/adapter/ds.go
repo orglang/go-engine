@@ -4,7 +4,8 @@ import termvaradapter "orglang/go-engine/internal/adt/termvar/adapter"
 
 type DefRec struct {
 	TermID    string                  `db:"term_id"`
-	TermRN    int64                   `db:"term_rn"`
+	DescID    string                  `db:"desc_id"`
+	DescRN    int64                   `db:"desc_rn"`
 	LiabVar   termvaradapter.VarRec   `db:"liab_var" fieldopt:"noexpand"`
 	AssetVars []termvaradapter.VarRec `db:"asset_vars"`
 }

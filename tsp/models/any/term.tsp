@@ -3,5 +3,5 @@ namespace OrgLang.Any;
 /** Shared term identity. */
 model TermRef {
   term_id: string;
-  term_rn: int64;
+  desc_rn: int64;
 }

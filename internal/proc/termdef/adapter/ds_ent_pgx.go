@@ -155,7 +155,12 @@ func (dao *daoEnt) GetRecByID(ctx context.Context, conn tx.Conn, termID identity
 	if err != nil {
 		return termdef.DecRec{}, err
 	}
-	return DataToDecRec(dto)
+	rec, err := DataToDecRec(dto)
+	if err != nil {
+		return termdef.DecRec{}, err
+	}
+	rec.ExpCK = contkey.ADT(dto.ExpCK)
+	return rec, nil
 }
 
 func (dao *daoEnt) GetRefs(ctx context.Context, conn tx.Conn) ([]termsem.SemRef, error) {

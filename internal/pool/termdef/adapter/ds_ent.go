@@ -90,7 +90,12 @@ WHERE def.term_id = $1
 	if err != nil {
 		return termdef.DefRec{}, err
 	}
-	return DataToDecRec(dto)
+	rec, err := DataToDecRec(dto)
+	if err != nil {
+		return termdef.DefRec{}, err
+	}
+	rec.ExpCK = contkey.ADT(dto.ExpCK)
+	return rec, nil
 }
 
 func (dao *daoEnt) GetRecByQN(ctx context.Context, conn tx.Conn, qn uniqsym.ADT) (termdef.DefRec, error) {

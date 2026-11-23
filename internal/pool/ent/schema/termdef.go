@@ -9,7 +9,7 @@ import (
 	termvaradapter "orglang/go-engine/internal/adt/termvar/adapter"
 )
 
-// TermDef describes a persisted pool term definition.
+// TermDef describes persisted pool term declaration data.
 type TermDef struct {
 	ent.Schema
 }
@@ -24,9 +24,9 @@ func (TermDef) Fields() []ent.Field {
 	}
 }
 
-// Annotations maps the schema to its existing PostgreSQL table.
+// Annotations maps the schema to its owning Description's Term identity table.
 func (TermDef) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "pool_term_decs"},
+		entsql.Annotation{Table: "pool_desc_terms"},
 	}
 }

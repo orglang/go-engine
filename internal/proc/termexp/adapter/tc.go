@@ -249,9 +249,17 @@ func dataFromExpSpec(s termexp.ExpSpec) (ExpSpec, error) {
 			},
 		}, nil
 	case termexp.LabSpec:
+		cont, err := dataFromExpSpec(spec.ContExp)
+		if err != nil {
+			return ExpSpec{}, err
+		}
 		return ExpSpec{
-			K:   LabExp,
-			Lab: &LabSpec{X: symbol.ConvertToString(spec.ConnChnlPH), Label: uniqsym.ConvertToString(spec.ValLabQN), ContES: func() ExpSpec { dto, err := dataFromExpSpec(spec.ContExp); if err != nil { panic(err) }; return dto }()},
+			K: LabExp,
+			Lab: &LabSpec{
+				X: symbol.ConvertToString(spec.ConnChnlPH),
+				Label: uniqsym.ConvertToString(spec.ValLabQN),
+				ContES: cont,
+			},
 		}, nil
 	case termexp.CaseSpec:
 		brs := []BranchSpec{}

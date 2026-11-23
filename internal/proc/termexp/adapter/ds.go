@@ -78,8 +78,9 @@ type RecvRec struct {
 }
 
 type LabSpec struct {
-	X     string `json:"x"`
-	Label string `json:"lab"`
+	X      string  `json:"x"`
+	Label  string  `json:"lab"`
+	ContES ExpSpec `json:"cont"`
 }
 type LabRec struct {
 	X     string `json:"x"`

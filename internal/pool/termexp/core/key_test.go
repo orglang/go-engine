@@ -89,3 +89,17 @@ func TestContentKeySerializesEveryDefinitionVariant(t *testing.T) {
 		t.Fatal("SpawnSpec2 must not be accepted as Definition content")
 	}
 }
+
+func TestContentNodesUseParentKeysAndChildReferences(t *testing.T) {
+	spec := AcquireSpec{
+		ConnChnlPH: symbol.New("conn"),
+		ContExp: ReleaseSpec{ConnChnlPH: symbol.New("next")},
+	}
+	nodes, err := ContentNodes(spec)
+	if err != nil { t.Fatal(err) }
+	if len(nodes) != 2 { t.Fatalf("want 2 nodes, got %d", len(nodes)) }
+	if nodes[0].SupExpCK != 0 { t.Fatalf("root has parent key %d", nodes[0].SupExpCK) }
+	if nodes[1].SupExpCK != nodes[0].ExpCK { t.Fatalf("child parent key = %d, want %d", nodes[1].SupExpCK, nodes[0].ExpCK) }
+	if !strings.Contains(string(nodes[0].Spec), `"cont_exp_ck":`) { t.Fatalf("parent spec does not contain child key: %s", nodes[0].Spec) }
+	if strings.Contains(string(nodes[0].Spec), `"cont_exp":`) { t.Fatalf("parent spec unexpectedly embeds child: %s", nodes[0].Spec) }
+}

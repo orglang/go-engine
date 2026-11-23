@@ -9,7 +9,6 @@ import (
 	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/adt/identity"
-	"orglang/go-engine/internal/adt/typesem"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/tx"
 	termdef "orglang/go-engine/internal/proc/termdef/core"
@@ -27,11 +26,10 @@ func NewService(
 	descRootRepo descroot.Repo,
 	descSemRepo descsem.Repo,
 	typeDefRepo typedef.Repo,
-	typeSemRepo typesem.Repo,
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
-	return termdef.NewService(termDecRepo, descRootRepo, descSemRepo, typeDefRepo, typeSemRepo, transactor, log)
+	return termdef.NewService(termDecRepo, descRootRepo, descSemRepo, typeDefRepo, transactor, log)
 }
 
 func CollectEnv(recs iter.Seq[DecRec]) []uniqsym.ADT {

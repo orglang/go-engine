@@ -5,17 +5,25 @@ import (
 	jsonv2 "encoding/json/v2"
 	"fmt"
 
+	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/uniqsym"
 )
 
+type ExpNode struct {
+	ExpCK    contkey.ADT
+	SupExpCK contkey.ADT
+	Kind     int16
+	Spec     []byte
+}
+
 func marshalTaggedSpec(enc *jsontext.Encoder, kind string, fields map[string]any) error {
-	for name, value := range fields {
-		if child, ok := value.(ExpSpec); ok && child == nil {
-			return fmt.Errorf("%s: nil nested expression", name)
-		}
-	}
 	fields["kind"] = kind
 	return jsonv2.MarshalEncode(enc, fields)
+}
+
+func childContentKey(spec ExpSpec) (int64, error) {
+	key, _, err := ContentKey(spec)
+	return int64(key), err
 }
 
 func validateDefinitionSpec(spec ExpSpec) error {
@@ -34,16 +42,20 @@ func validateDefinitionSpec(spec ExpSpec) error {
 }
 
 func (s AcquireSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
-	return marshalTaggedSpec(enc, "acquire", map[string]any{"conn_chnl_ph": string(s.ConnChnlPH), "cont_exp": s.ContExp})
+	ck, err := childContentKey(s.ContExp); if err != nil { return err }
+	return marshalTaggedSpec(enc, "acquire", map[string]any{"conn_chnl_ph": string(s.ConnChnlPH), "cont_exp_ck": ck})
 }
 func (s AcceptSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
-	return marshalTaggedSpec(enc, "accept", map[string]any{"conn_chnl_ph": string(s.ConnChnlPH), "cont_exp": s.ContExp})
+	ck, err := childContentKey(s.ContExp); if err != nil { return err }
+	return marshalTaggedSpec(enc, "accept", map[string]any{"conn_chnl_ph": string(s.ConnChnlPH), "cont_exp_ck": ck})
 }
 func (s HireSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
-	return marshalTaggedSpec(enc, "hire", map[string]any{"conn_chnl_ph": string(s.ConnChnlPH), "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN), "cont_exp": s.ContExp})
+	ck, err := childContentKey(s.ContExp); if err != nil { return err }
+	return marshalTaggedSpec(enc, "hire", map[string]any{"conn_chnl_ph": string(s.ConnChnlPH), "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN), "cont_exp_ck": ck})
 }
 func (s ApplySpec) MarshalJSONTo(enc *jsontext.Encoder) error {
-	return marshalTaggedSpec(enc, "apply", map[string]any{"conn_chnl_ph": string(s.ConnChnlPH), "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN), "cont_exp": s.ContExp})
+	ck, err := childContentKey(s.ContExp); if err != nil { return err }
+	return marshalTaggedSpec(enc, "apply", map[string]any{"conn_chnl_ph": string(s.ConnChnlPH), "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN), "cont_exp_ck": ck})
 }
 func (s ReleaseSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
 	return marshalTaggedSpec(enc, "release", map[string]any{"conn_chnl_ph": string(s.ConnChnlPH)})
@@ -64,4 +76,45 @@ func (s SpawnSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
 }
 func (s SpawnSpec2) MarshalJSONTo(enc *jsontext.Encoder) error {
 	return fmt.Errorf("pool SpawnSpec2 is an execution reference form and has no Definition content key")
+}
+
+func ContentNodes(spec ExpSpec) ([]ExpNode, error) {
+	if err := validateDefinitionSpec(spec); err != nil { return nil, err }
+	nodes := make([]ExpNode, 0)
+	var walk func(ExpSpec, contkey.ADT) error
+	walk = func(current ExpSpec, parent contkey.ADT) error {
+		key, data, err := ContentKey(current); if err != nil { return err }
+		kind, err := expNodeKind(current); if err != nil { return err }
+		nodes = append(nodes, ExpNode{ExpCK: key, SupExpCK: parent, Kind: kind, Spec: data})
+		children, err := expChildren(current); if err != nil { return err }
+		for _, child := range children { if err := walk(child, key); err != nil { return err } }
+		return nil
+	}
+	if err := walk(spec, contkey.Zero); err != nil { return nil, err }
+	return nodes, nil
+}
+
+func expNodeKind(spec ExpSpec) (int16, error) {
+	switch spec.(type) {
+	case AcquireSpec: return int16(AcquireKind), nil
+	case AcceptSpec: return int16(AcceptKind), nil
+	case HireSpec: return int16(HireKind), nil
+	case ApplySpec: return int16(ApplyKind), nil
+	case ReleaseSpec: return int16(ReleaseKind), nil
+	case DetachSpec: return int16(DetachKind), nil
+	case FireSpec: return int16(FireKind), nil
+	case QuitSpec: return int16(QuitKind), nil
+	case SpawnSpec: return int16(SpawnKind), nil
+	default: return 0, ErrSpecTypeUnexpected(spec)
+	}
+}
+
+func expChildren(spec ExpSpec) ([]ExpSpec, error) {
+	switch s := spec.(type) {
+	case AcquireSpec: return []ExpSpec{s.ContExp}, nil
+	case AcceptSpec: return []ExpSpec{s.ContExp}, nil
+	case HireSpec: return []ExpSpec{s.ContExp}, nil
+	case ApplySpec: return []ExpSpec{s.ContExp}, nil
+	default: return nil, nil
+	}
 }

@@ -30,6 +30,12 @@ func NewDaoPgx(log *slog.Logger) termexp.Repo {
 	return &daoPgx{log:log.With(name)}
 }
 
+// Insert retains the legacy runtime persistence contract. Runtime records are
+// currently not stored by this adapter; declarative Definition uses InsertSpec.
+func (dao *daoPgx) Insert(ctx context.Context, conn tx.Conn, rec termexp.ExpRec) error {
+	return nil
+}
+
 func (dao *daoPgx) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.DescSpec) (contkey.ADT,error) {
 	rec,err:=termexp.ConvertSpecToRec(spec); if err!=nil{return contkey.Zero,err}
 	dto,err:=dataFromDescRec(rec); if err!=nil{return contkey.Zero,err}

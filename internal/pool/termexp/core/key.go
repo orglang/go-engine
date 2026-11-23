@@ -7,6 +7,14 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 )
 
+// ContentKey hashes the execution-oriented expression model used by the runtime.
+func ContentKey(spec ExpSpec) (contkey.ADT, []byte, error) {
+	if err := validateDefinitionSpec(spec); err != nil {
+		return contkey.Zero, nil, err
+	}
+	return contkey.HashJSON(spec)
+}
+
 // DescContentKey hashes only the declarative Definition model.
 func DescContentKey(spec DescSpec) (contkey.ADT, []byte, error) {
 	value, err := descContentValue(spec)

@@ -133,11 +133,20 @@ func (s ReleaseSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
 func ContentNodes(spec ExpSpec) ([]ExpNode, error) {
 	if err := validateDefinitionSpec(spec); err != nil { return nil, err }
 	nodes := make([]ExpNode, 0)
+	seen := make(map[contkey.ADT]ExpNode)
 	var walk func(ExpSpec, contkey.ADT) error
 	walk = func(current ExpSpec, parent contkey.ADT) error {
 		key, data, err := ContentKey(current); if err != nil { return err }
 		kind, err := expNodeKind(current); if err != nil { return err }
-		nodes = append(nodes, ExpNode{ExpCK: key, SupExpCK: parent, Kind: kind, Spec: data})
+		node := ExpNode{ExpCK: key, SupExpCK: parent, Kind: kind, Spec: data}
+		if existing, ok := seen[key]; ok {
+			if existing.SupExpCK != parent || existing.Kind != kind || string(existing.Spec) != string(data) {
+				return fmt.Errorf("expression node %d has conflicting parent or content", key)
+			}
+			return nil
+		}
+		seen[key] = node
+		nodes = append(nodes, node)
 		children, err := expChildren(current); if err != nil { return err }
 		for _, child := range children { if err := walk(child, key); err != nil { return err } }
 		return nil

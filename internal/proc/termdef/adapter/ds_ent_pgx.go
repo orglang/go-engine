@@ -12,6 +12,7 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 
+	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/termsem"
@@ -57,6 +58,22 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdef.DecRec)
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)
 		return err
+	}
+	return nil
+}
+
+func (dao *daoEnt) SetExpCK(ctx context.Context, conn tx.Conn, termID identity.ADT, expCK contkey.ADT) error {
+	const query = `
+UPDATE proc_desc_terms
+SET exp_ck = $1
+WHERE term_id = $2
+`
+	result, err := conn.Pgx.Exec(ctx, query, int64(expCK), termID.String())
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected() == 0 {
+		return termdef.ErrDoesNotExist(termID)
 	}
 	return nil
 }

@@ -2,11 +2,14 @@ package adapter
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"reflect"
 
 	"github.com/jackc/pgx/v5"
 
+	"orglang/go-engine/internal/adt/contkey"
+	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/lf"
@@ -52,6 +55,22 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdef.DefRec)
 	}
 
 	dao.log.Log(ctx, lf.LevelTrace, "addition succeed", refAttr)
+	return nil
+}
+
+func (dao *daoEnt) SetExpCK(ctx context.Context, conn tx.Conn, termID identity.ADT, expCK contkey.ADT) error {
+	const query = `
+UPDATE pool_desc_terms
+SET exp_ck = $1
+WHERE term_id = $2
+`
+	result, err := conn.Pgx.Exec(ctx, query, int64(expCK), termID.String())
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected() == 0 {
+		return fmt.Errorf("pool term %v does not exist", termID)
+	}
 	return nil
 }
 

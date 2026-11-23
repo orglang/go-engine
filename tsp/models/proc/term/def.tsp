@@ -42,11 +42,7 @@ model DefLabSpec {
 }
 model DefCaseSpec {
   conn_ph: string;
-  cont_exps: DefBranchSpec[];
-}
-model DefBranchSpec {
-  label_qn: string;
-  cont_expr: DefinitionSpec;
+  cont_exps: Record<string, DefinitionSpec>;
 }
 model DefLinkSpec {
   proc_qn: string;

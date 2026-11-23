@@ -19,6 +19,7 @@ func (TermDef) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("id").StorageKey("term_id").Immutable(),
 		field.String("desc_id"),
+		field.Int64("exp_ck").Optional(),
 		field.JSON("liab_var", termvaradapter.VarRec{}),
 		field.JSON("asset_vars", []termvaradapter.VarRec{}),
 	}

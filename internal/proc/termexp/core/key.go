@@ -51,7 +51,11 @@ func canonicalExpSpec(spec ExpSpec) (any, error) {
 		}
 		return base("recv", map[string]any{"conn_chnl_ph": string(s.ConnChnlPH), "new_chnl_ph": string(s.NewChnlPH), "cont_exp": cont}), nil
 	case LabSpec:
-		return base("lab", map[string]any{"conn_chnl_ph": string(s.ConnChnlPH), "val_lab_qn": uniqsym.ConvertToString(s.ValLabQN)}), nil
+		cont, err := nested(s.ContExp)
+		if err != nil {
+			return nil, fmt.Errorf("lab.cont: %w", err)
+		}
+		return base("lab", map[string]any{"conn_chnl_ph": string(s.ConnChnlPH), "val_lab_qn": uniqsym.ConvertToString(s.ValLabQN), "cont_exp": cont}), nil
 	case CaseSpec:
 		branches := make(map[string]any, len(s.ContExps))
 		for qn, child := range s.ContExps {

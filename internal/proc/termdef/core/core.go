@@ -15,7 +15,6 @@ import (
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/termvar"
-	"orglang/go-engine/internal/adt/typesem"
 	"orglang/go-engine/internal/adt/uniqsym"
 
 	typedef "orglang/go-engine/internal/proc/typedef/core"
@@ -55,7 +54,6 @@ type service struct {
 	descRootRepo descroot.Repo
 	descSemRepo  descsem.Repo
 	typeDefRepo  typedef.Repo
-	typeSemRepo  typesem.Repo
 	transactor   tx.Transactor
 	log          *slog.Logger
 }
@@ -70,11 +68,10 @@ func NewService(
 	descRootRepo descroot.Repo,
 	descSemRepo descsem.Repo,
 	typeDefRepo typedef.Repo,
-	typeSemRepo typesem.Repo,
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
-	return &service{termDecRepo, descRootRepo, descSemRepo, typeDefRepo, typeSemRepo, transactor, log}
+	return &service{termDecRepo, descRootRepo, descSemRepo, typeDefRepo, transactor, log}
 }
 
 func (s *service) Incept(ctx context.Context, termQN uniqsym.ADT) (_ termsem.SemRef, err error) {
@@ -107,24 +104,28 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err erro
 	for _, spec := range spec.AssetVars {
 		assetQNs = append(assetQNs, spec.TypeQN)
 	}
-	typeRefs, getErr := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[uniqsym.ADT]typesem.SemRef, error) {
-		return s.typeSemRepo.GetRefsByQNs(txCtx, conn, append(assetQNs, spec.LiabVar.TypeQN))
+	typeDefs, getErr := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[uniqsym.ADT]typedef.DefRec, error) {
+		return s.typeDefRepo.SelectEnv(txCtx, conn, append(assetQNs, spec.LiabVar.TypeQN))
 	})
 	if getErr != nil {
 		return DefSnap{}, getErr
 	}
+	providerDef := typeDefs[spec.LiabVar.TypeQN]
 	newLiabVar := termvar.VarRec{
-		TypeRef: typeRefs[spec.LiabVar.TypeQN],
+		TypeRef: providerDef.TypeRef,
 		ChnlPH:  spec.LiabVar.ChnlPH,
+		ExpCK:   providerDef.ExpCK,
 	}
 	newAssetVars := make([]termvar.VarRec, 0, len(spec.AssetVars))
 	for _, assetVar := range spec.AssetVars {
+		typeDef := typeDefs[assetVar.TypeQN]
 		newAssetVars = append(newAssetVars, termvar.VarRec{
-			TypeRef: typeRefs[assetVar.TypeQN],
+			TypeRef: typeDef.TypeRef,
 			ChnlPH:  assetVar.ChnlPH,
+			ExpCK:   typeDef.ExpCK,
 		})
 	}
-	providerRef := typeRefs[spec.LiabVar.TypeQN]
+	providerRef := providerDef.TypeRef
 	expectedRoot := descroot.SemRef{DescID: providerRef.DescID, DescRN: providerRef.DescRN}
 	newRoot := descroot.SemRef{DescID: expectedRoot.DescID, DescRN: seqnum.Next(expectedRoot.DescRN)}
 	newDec := DefRec{TermRef: termsem.New(newRoot), TermQN: spec.TermQN, LiabVar: newLiabVar, AssetVars: newAssetVars}

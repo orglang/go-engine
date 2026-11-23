@@ -24,9 +24,9 @@ func (TermDec) Fields() []ent.Field {
 	}
 }
 
-// Annotations maps the schema to its existing PostgreSQL table.
+// Annotations maps the schema to its owning Description's Term identity table.
 func (TermDec) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "proc_term_decs"},
+		entsql.Annotation{Table: "proc_desc_terms"},
 	}
 }

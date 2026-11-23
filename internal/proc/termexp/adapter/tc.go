@@ -2,6 +2,7 @@ package adapter
 
 import (
 	"fmt"
+	"sort"
 
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
@@ -243,18 +244,22 @@ func dataFromExpSpec(s termexp.ExpSpec) (ExpSpec, error) {
 			K: RecvExp,
 			Recv: &RecvSpec{
 				X:      symbol.ConvertToString(spec.ConnChnlPH),
-				Y:      symbol.ConvertToString(spec.ConnChnlPH),
+				Y:      symbol.ConvertToString(spec.NewChnlPH),
 				ContES: dto,
 			},
 		}, nil
 	case termexp.LabSpec:
 		return ExpSpec{
 			K:   LabExp,
-			Lab: &LabSpec{X: symbol.ConvertToString(spec.ConnChnlPH), Label: uniqsym.ConvertToString(spec.ValLabQN)},
+			Lab: &LabSpec{X: symbol.ConvertToString(spec.ConnChnlPH), Label: uniqsym.ConvertToString(spec.ValLabQN), ContES: func() ExpSpec { dto, err := dataFromExpSpec(spec.ContExp); if err != nil { panic(err) }; return dto }()},
 		}, nil
 	case termexp.CaseSpec:
 		brs := []BranchSpec{}
-		for l, cont := range spec.ContExps {
+		labels := make([]uniqsym.ADT, 0, len(spec.ContExps))
+		for label := range spec.ContExps { labels = append(labels, label) }
+		sort.Slice(labels, func(i, j int) bool { return uniqsym.ConvertToString(labels[i]) < uniqsym.ConvertToString(labels[j]) })
+		for _, l := range labels {
+			cont := spec.ContExps[l]
 			dto, err := dataFromExpSpec(cont)
 			if err != nil {
 				return ExpSpec{}, err
@@ -332,7 +337,9 @@ func dataToExpSpec(dto ExpSpec) (termexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return termexp.LabSpec{ConnChnlPH: x, ValLabQN: label}, nil
+		cont, err := dataToExpSpec(dto.Lab.ContES)
+		if err != nil { return nil, err }
+		return termexp.LabSpec{ConnChnlPH: x, ValLabQN: label, ContExp: cont}, nil
 	case CaseExp:
 		x, err := symbol.ConvertFromString(dto.Case.X)
 		if err != nil {
@@ -344,7 +351,7 @@ func dataToExpSpec(dto ExpSpec) (termexp.ExpSpec, error) {
 			if err != nil {
 				return nil, err
 			}
-			label, err := uniqsym.ConvertFromString(dto.Lab.Label)
+			label, err := uniqsym.ConvertFromString(b.Label)
 			if err != nil {
 				return nil, err
 			}

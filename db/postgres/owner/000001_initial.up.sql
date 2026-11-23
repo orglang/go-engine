@@ -26,7 +26,7 @@ CREATE TABLE pool_type_exps (
     spec jsonb
 );
 
-CREATE TABLE pool_term_decs (
+CREATE TABLE pool_desc_terms (
     term_id varchar UNIQUE,
     desc_id varchar NOT NULL,
     liab_var jsonb,
@@ -109,7 +109,7 @@ CREATE TABLE proc_type_exps (
     spec jsonb
 );
 
-CREATE TABLE proc_term_decs (
+CREATE TABLE proc_desc_terms (
     term_id varchar UNIQUE,
     desc_id varchar NOT NULL,
     liab_var jsonb,

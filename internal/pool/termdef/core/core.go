@@ -55,9 +55,9 @@ type service struct {
 	termDefRepo  Repo
 	descRootRepo descroot.Repo
 	typeDefRepo  typedef.Repo
-	descSemRepo descsem.Repo
-	transactor  tx.Transactor
-	log         *slog.Logger
+	descSemRepo  descsem.Repo
+	transactor   tx.Transactor
+	log          *slog.Logger
 }
 
 func (s *service) Create(ctx context.Context, spec DefSpec) (_ termsem.SemRef, err error) {

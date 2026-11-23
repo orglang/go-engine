@@ -500,11 +500,11 @@ components:
       type: object
       required:
         - term_id
-        - term_rn
+        - desc_rn
       properties:
         term_id:
           type: string
-        term_rn:
+        desc_rn:
           type: integer
           format: int64
       description: Shared term identity.
@@ -519,11 +519,11 @@ components:
       type: object
       required:
         - type_id
-        - type_rn
+        - desc_rn
       properties:
         type_id:
           type: string
-        type_rn:
+        desc_rn:
           type: integer
           format: int64
       description: Shared type identity.

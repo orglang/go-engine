@@ -51,7 +51,7 @@ var (
 	// PoolTermDecsColumns holds the columns for the "pool_term_decs" table.
 	PoolTermDecsColumns = []*schema.Column{
 		{Name: "term_id", Type: field.TypeString},
-		{Name: "term_rn", Type: field.TypeInt64},
+		{Name: "desc_id", Type: field.TypeString},
 		{Name: "liab_var", Type: field.TypeJSON},
 		{Name: "asset_vars", Type: field.TypeJSON},
 	}

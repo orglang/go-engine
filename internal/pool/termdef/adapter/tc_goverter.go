@@ -37,5 +37,5 @@ var (
 	DataToDecRec func(DefRec) (termdef.DefRec, error)
 	// goverter:autoMap TermRef
 	DataFromDecRec func(termdef.DefRec) (DefRec, error)
-	dataToTermRef func(DefRec) (termsem.SemRef, error)
+	dataToTermRef  func(DefRec) (termsem.SemRef, error)
 )

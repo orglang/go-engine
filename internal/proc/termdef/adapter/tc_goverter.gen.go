@@ -12,21 +12,22 @@ import (
 	adapter "orglang/go-engine/internal/adt/termvar/adapter"
 	uniqsym "orglang/go-engine/internal/adt/uniqsym"
 	api "orglang/go-engine/internal/app/web/api"
-	core "orglang/go-engine/internal/proc/termdec/core"
+	core "orglang/go-engine/internal/proc/termdef/core"
 )
 
 func init() {
-	ViewFromDecSnap = func(source core.DecSnap) DecSnapVP {
+	ViewFromDecSnap = func(source core.DefSnap) DecSnapVP {
 		var adapterDecSnapVP DecSnapVP
 		adapterDecSnapVP.TermRef = source.TermRef
 		return adapterDecSnapVP
 	}
 }
 func init() {
-	DataFromDecRec = func(source core.DecRec) (DecRec, error) {
+	DataFromDecRec = func(source core.DefRec) (DecRec, error) {
 		var adapterDecRec DecRec
 		adapterDecRec.TermID = identity.ConvertToString(source.TermRef.TermID)
-		adapterDecRec.TermRN = int64(source.TermRef.TermRN)
+		adapterDecRec.DescID = identity.ConvertToString(source.TermRef.DescID)
+		adapterDecRec.DescRN = seqnum.ConvertToInt(source.TermRef.DescRN)
 		adapterVarRec, err := adapter.DataFromVarRec(source.LiabVar)
 		if err != nil {
 			return adapterDecRec, err
@@ -44,7 +45,7 @@ func init() {
 		}
 		return adapterDecRec, nil
 	}
-	DataFromDecRecs = func(source []core.DecRec) ([]DecRec, error) {
+	DataFromDecRecs = func(source []core.DefRec) ([]DecRec, error) {
 		var adapterDecRecList []DecRec
 		if source != nil {
 			adapterDecRecList = make([]DecRec, len(source))
@@ -58,10 +59,11 @@ func init() {
 		}
 		return adapterDecRecList, nil
 	}
-	DataFromDecSnap = func(source core.DecSnap) (DecSnap, error) {
+	DataFromDecSnap = func(source core.DefSnap) (DecSnap, error) {
 		var adapterDecSnap DecSnap
 		adapterDecSnap.TermID = identity.ConvertToString(source.TermRef.TermID)
-		adapterDecSnap.TermRN = int64(source.TermRef.TermRN)
+		adapterDecSnap.DescID = identity.ConvertToString(source.TermRef.DescID)
+		adapterDecSnap.DescRN = seqnum.ConvertToInt(source.TermRef.DescRN)
 		adapterVarRec, err := adapter.DataFromVarRec(source.LiabVar)
 		if err != nil {
 			return adapterDecSnap, err
@@ -79,7 +81,7 @@ func init() {
 		}
 		return adapterDecSnap, nil
 	}
-	DataFromDecSnaps = func(source []core.DecSnap) ([]DecSnap, error) {
+	DataFromDecSnaps = func(source []core.DefSnap) ([]DecSnap, error) {
 		var adapterDecSnapList []DecSnap
 		if source != nil {
 			adapterDecSnapList = make([]DecSnap, len(source))
@@ -93,81 +95,81 @@ func init() {
 		}
 		return adapterDecSnapList, nil
 	}
-	DataToDecRec = func(source DecRec) (core.DecRec, error) {
-		var coreDecRec core.DecRec
+	DataToDecRec = func(source DecRec) (core.DefRec, error) {
+		var coreDefRec core.DefRec
 		termsemSemRef, err := adapterDecRecToTermsemSemRef(source)
 		if err != nil {
-			return coreDecRec, err
+			return coreDefRec, err
 		}
-		coreDecRec.TermRef = termsemSemRef
+		coreDefRec.TermRef = termsemSemRef
 		termvarVarRec, err := adapter.DataToVarRec(source.LiabVar)
 		if err != nil {
-			return coreDecRec, err
+			return coreDefRec, err
 		}
-		coreDecRec.LiabVar = termvarVarRec
+		coreDefRec.LiabVar = termvarVarRec
 		if source.AssetVars != nil {
-			coreDecRec.AssetVars = make([]termvar.VarRec, len(source.AssetVars))
+			coreDefRec.AssetVars = make([]termvar.VarRec, len(source.AssetVars))
 			for i := 0; i < len(source.AssetVars); i++ {
 				termvarVarRec2, err := adapter.DataToVarRec(source.AssetVars[i])
 				if err != nil {
-					return coreDecRec, err
+					return coreDefRec, err
 				}
-				coreDecRec.AssetVars[i] = termvarVarRec2
+				coreDefRec.AssetVars[i] = termvarVarRec2
 			}
 		}
-		return coreDecRec, nil
+		return coreDefRec, nil
 	}
-	DataToDecRecs = func(source []DecRec) ([]core.DecRec, error) {
-		var coreDecRecList []core.DecRec
+	DataToDecRecs = func(source []DecRec) ([]core.DefRec, error) {
+		var coreDefRecList []core.DefRec
 		if source != nil {
-			coreDecRecList = make([]core.DecRec, len(source))
+			coreDefRecList = make([]core.DefRec, len(source))
 			for i := 0; i < len(source); i++ {
-				coreDecRec, err := DataToDecRec(source[i])
+				coreDefRec, err := DataToDecRec(source[i])
 				if err != nil {
 					return nil, err
 				}
-				coreDecRecList[i] = coreDecRec
+				coreDefRecList[i] = coreDefRec
 			}
 		}
-		return coreDecRecList, nil
+		return coreDefRecList, nil
 	}
-	DataToDecSnap = func(source DecSnap) (core.DecSnap, error) {
-		var coreDecSnap core.DecSnap
+	DataToDecSnap = func(source DecSnap) (core.DefSnap, error) {
+		var coreDefSnap core.DefSnap
 		termsemSemRef, err := adapterDecSnapToTermsemSemRef(source)
 		if err != nil {
-			return coreDecSnap, err
+			return coreDefSnap, err
 		}
-		coreDecSnap.TermRef = termsemSemRef
+		coreDefSnap.TermRef = termsemSemRef
 		termvarVarRec, err := adapter.DataToVarRec(source.LiabVar)
 		if err != nil {
-			return coreDecSnap, err
+			return coreDefSnap, err
 		}
-		coreDecSnap.LiabVar = termvarVarRec
+		coreDefSnap.LiabVar = termvarVarRec
 		if source.AssetVars != nil {
-			coreDecSnap.AssetVars = make([]termvar.VarRec, len(source.AssetVars))
+			coreDefSnap.AssetVars = make([]termvar.VarRec, len(source.AssetVars))
 			for i := 0; i < len(source.AssetVars); i++ {
 				termvarVarRec2, err := adapter.DataToVarRec(source.AssetVars[i])
 				if err != nil {
-					return coreDecSnap, err
+					return coreDefSnap, err
 				}
-				coreDecSnap.AssetVars[i] = termvarVarRec2
+				coreDefSnap.AssetVars[i] = termvarVarRec2
 			}
 		}
-		return coreDecSnap, nil
+		return coreDefSnap, nil
 	}
-	DataToDecSnaps = func(source []DecSnap) ([]core.DecSnap, error) {
-		var coreDecSnapList []core.DecSnap
+	DataToDecSnaps = func(source []DecSnap) ([]core.DefSnap, error) {
+		var coreDefSnapList []core.DefSnap
 		if source != nil {
-			coreDecSnapList = make([]core.DecSnap, len(source))
+			coreDefSnapList = make([]core.DefSnap, len(source))
 			for i := 0; i < len(source); i++ {
-				coreDecSnap, err := DataToDecSnap(source[i])
+				coreDefSnap, err := DataToDecSnap(source[i])
 				if err != nil {
 					return nil, err
 				}
-				coreDecSnapList[i] = coreDecSnap
+				coreDefSnapList[i] = coreDefSnap
 			}
 		}
-		return coreDecSnapList, nil
+		return coreDefSnapList, nil
 	}
 }
 func adapterDecRecToTermsemSemRef(source DecRec) (termsem.SemRef, error) {
@@ -177,7 +179,12 @@ func adapterDecRecToTermsemSemRef(source DecRec) (termsem.SemRef, error) {
 		return termsemSemRef, err
 	}
 	termsemSemRef.TermID = identityADT
-	termsemSemRef.TermRN = seqnum.ADT(source.TermRN)
+	identityADT2, err := identity.ConvertFromString(source.DescID)
+	if err != nil {
+		return termsemSemRef, err
+	}
+	termsemSemRef.DescID = identityADT2
+	termsemSemRef.DescRN = seqnum.ConvertFromInt(source.DescRN)
 	return termsemSemRef, nil
 }
 func adapterDecSnapToTermsemSemRef(source DecSnap) (termsem.SemRef, error) {
@@ -187,7 +194,12 @@ func adapterDecSnapToTermsemSemRef(source DecSnap) (termsem.SemRef, error) {
 		return termsemSemRef, err
 	}
 	termsemSemRef.TermID = identityADT
-	termsemSemRef.TermRN = seqnum.ADT(source.TermRN)
+	identityADT2, err := identity.ConvertFromString(source.DescID)
+	if err != nil {
+		return termsemSemRef, err
+	}
+	termsemSemRef.DescID = identityADT2
+	termsemSemRef.DescRN = seqnum.ConvertFromInt(source.DescRN)
 	return termsemSemRef, nil
 }
 func init() {
@@ -205,34 +217,34 @@ func init() {
 		termvarVarSpec.TypeQN = uniqsymADT
 		return termvarVarSpec, nil
 	}
-	DecSnapToGenerated = func(source core.DecSnap) api.AnyTermRef {
+	DecSnapToGenerated = func(source core.DefSnap) api.AnyTermRef {
 		var apiAnyTermRef api.AnyTermRef
+		apiAnyTermRef.DescRn = seqnum.ConvertToInt(source.TermRef.DescRN)
 		apiAnyTermRef.TermId = identity.ConvertToString(source.TermRef.TermID)
-		apiAnyTermRef.TermRn = seqnum.ConvertToInt(source.TermRef.TermRN)
 		return apiAnyTermRef
 	}
-	DecSpecFromGenerated = func(source api.ProcDecSpec) (core.DecSpec, error) {
-		var coreDecSpec core.DecSpec
+	DecSpecFromGenerated = func(source api.ProcDecSpec) (core.DefSpec, error) {
+		var coreDefSpec core.DefSpec
 		uniqsymADT, err := uniqsym.ConvertFromString(source.TermQn)
 		if err != nil {
-			return coreDecSpec, err
+			return coreDefSpec, err
 		}
-		coreDecSpec.TermQN = uniqsymADT
+		coreDefSpec.TermQN = uniqsymADT
 		termvarVarSpec, err := ConnVarFromGenerated(source.LiabVar)
 		if err != nil {
-			return coreDecSpec, err
+			return coreDefSpec, err
 		}
-		coreDecSpec.LiabVar = termvarVarSpec
+		coreDefSpec.LiabVar = termvarVarSpec
 		if source.AssetVars != nil {
-			coreDecSpec.AssetVars = make([]termvar.VarSpec, len(source.AssetVars))
+			coreDefSpec.AssetVars = make([]termvar.VarSpec, len(source.AssetVars))
 			for i := 0; i < len(source.AssetVars); i++ {
 				termvarVarSpec2, err := ConnVarFromGenerated(source.AssetVars[i])
 				if err != nil {
-					return coreDecSpec, err
+					return coreDefSpec, err
 				}
-				coreDecSpec.AssetVars[i] = termvarVarSpec2
+				coreDefSpec.AssetVars[i] = termvarVarSpec2
 			}
 		}
-		return coreDecSpec, nil
+		return coreDefSpec, nil
 	}
 }

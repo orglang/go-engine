@@ -40,8 +40,8 @@ type AnyExecSpec struct {
 
 // AnyTermRef Shared term identity.
 type AnyTermRef struct {
+	DescRn int64  `json:"desc_rn"`
 	TermId string `json:"term_id"`
-	TermRn int64  `json:"term_rn"`
 }
 
 // AnyTypeLinkSpec defines model for Any.Type.LinkSpec.
@@ -51,8 +51,8 @@ type AnyTypeLinkSpec struct {
 
 // AnyTypeRef Shared type identity.
 type AnyTypeRef struct {
+	DescRn int64  `json:"desc_rn"`
 	TypeId string `json:"type_id"`
-	TypeRn int64  `json:"type_rn"`
 }
 
 // PoolDecSnap defines model for Pool.DecSnap.

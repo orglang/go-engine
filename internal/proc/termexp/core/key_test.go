@@ -111,3 +111,26 @@ func TestContentNodesUseParentKeysAndChildReferences(t *testing.T) {
 	if !strings.Contains(string(nodes[0].Spec), `"cont_exp_ck":`) { t.Fatalf("parent spec does not contain child key: %s", nodes[0].Spec) }
 	if strings.Contains(string(nodes[0].Spec), `"cont_exp":`) { t.Fatalf("parent spec unexpectedly embeds child: %s", nodes[0].Spec) }
 }
+
+func TestContentNodesRoundTrip(t *testing.T) {
+	shared := LinkSpec{
+		ProcTermQN: uniqsym.New(symbol.New("service")),
+		X: identity.New(),
+		Ys: []identity.ADT{identity.New(), identity.New()},
+	}
+	spec := CaseSpec{
+		ConnChnlPH: symbol.New("conn"),
+		ContExps: map[uniqsym.ADT]ExpSpec{
+			uniqsym.New(symbol.New("left")): shared,
+			uniqsym.New(symbol.New("right")): shared,
+		},
+	}
+	nodes, err := ContentNodes(spec)
+	if err != nil { t.Fatal(err) }
+	if len(nodes) != 2 { t.Fatalf("want shared tree of 2 nodes, got %d", len(nodes)) }
+	restored, err := BuildSpecFromNodes(nodes, nodes[0].ExpCK)
+	if err != nil { t.Fatal(err) }
+	wantKey, _, err := ContentKey(spec); if err != nil { t.Fatal(err) }
+	gotKey, _, err := ContentKey(restored); if err != nil { t.Fatal(err) }
+	if gotKey != wantKey { t.Fatalf("round-trip key = %d, want %d", gotKey, wantKey) }
+}

@@ -41,7 +41,6 @@ linters:
             - {pkg: orglang/go-engine/internal/proc/compconn/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc/connact/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc/compexec/adapter, desc: *adapterBoundary}
-            - {pkg: orglang/go-engine/internal/proc/termdec/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc/termdef/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc/termexp/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc/typedef/adapter, desc: *adapterBoundary}

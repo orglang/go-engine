@@ -7,8 +7,8 @@ import (
 )
 
 // HashJSON returns the FNV-1a 64-bit content key and canonical JSON bytes
-// for value. Callers must include a format version and a type discriminator
-// in value when those are relevant to the identity being hashed.
+// for value. Callers must include a type discriminator when it is relevant
+// to the identity being hashed.
 func HashJSON(value any) (ADT, []byte, error) {
 	data, err := jsonv2.Marshal(value)
 	if err != nil {

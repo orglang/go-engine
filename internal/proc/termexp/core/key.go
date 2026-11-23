@@ -1,8 +1,6 @@
 package core
 
-import (
-	"orglang/go-engine/internal/adt/contkey"
-)
+import "orglang/go-engine/internal/adt/contkey"
 
 func ContentKey(spec ExpSpec) (contkey.ADT, []byte, error) {
 	if err := validateDefinitionSpec(spec); err != nil {

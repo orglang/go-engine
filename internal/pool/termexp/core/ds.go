@@ -9,6 +9,6 @@ import (
 
 // Repo persists and retrieves declarative pool term-definition trees.
 type Repo interface {
-	InsertSpec(context.Context, tx.Conn, ExpSpec) (contkey.ADT, error)
-	SelectSpecByCK(context.Context, tx.Conn, contkey.ADT) (ExpSpec, error)
+	InsertSpec(context.Context, tx.Conn, DescSpec) (contkey.ADT, error)
+	SelectSpecByCK(context.Context, tx.Conn, contkey.ADT) (DescSpec, error)
 }

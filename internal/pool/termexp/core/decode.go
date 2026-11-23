@@ -23,14 +23,17 @@ func BuildSpecFromNodes(nodes []ExpNode, root contkey.ADT) (ExpSpec, error) {
 		if _, exists := byKey[node.ExpCK]; exists { return nil, fmt.Errorf("duplicate expression node %d", node.ExpCK) }
 		byKey[node.ExpCK] = node
 	}
-	visited := make(map[contkey.ADT]bool, len(nodes))
+	active := make(map[contkey.ADT]bool, len(nodes))
+	decoded := make(map[contkey.ADT]ExpSpec, len(nodes))
 	var decode func(contkey.ADT, contkey.ADT) (ExpSpec, error)
 	decode = func(key, parent contkey.ADT) (ExpSpec, error) {
 		node, ok := byKey[key]
 		if !ok { return nil, fmt.Errorf("expression node %d does not exist", key) }
 		if node.SupExpCK != parent { return nil, fmt.Errorf("expression node %d has parent %d, expected %d", key, node.SupExpCK, parent) }
-		if visited[key] { return nil, fmt.Errorf("expression node %d is referenced more than once or cyclic", key) }
-		visited[key] = true
+		if active[key] { return nil, fmt.Errorf("expression node %d is cyclic", key) }
+		if cached, ok := decoded[key]; ok { return cached, nil }
+		active[key] = true
+		defer delete(active, key)
 		var dto storedSpec
 		if err := jsonv2.Unmarshal(node.Spec, &dto); err != nil { return nil, fmt.Errorf("decode expression node %d: %w", key, err) }
 		child := func() (ExpSpec, error) {
@@ -81,11 +84,12 @@ func BuildSpecFromNodes(nodes []ExpNode, root contkey.ADT) (ExpSpec, error) {
 		}
 		kind, err := expNodeKind(spec); if err != nil { return nil, err }
 		if kind != node.Kind { return nil, fmt.Errorf("expression node %d kind mismatch: json=%q db=%d", key, dto.Kind, node.Kind) }
+		decoded[key] = spec
 		return spec, nil
 	}
 	spec, err := decode(root, contkey.Zero)
 	if err != nil { return nil, err }
-	if len(visited) != len(nodes) { return nil, fmt.Errorf("expression tree has %d unreachable nodes", len(nodes)-len(visited)) }
+	if len(decoded) != len(nodes) { return nil, fmt.Errorf("expression tree has %d unreachable nodes", len(nodes)-len(decoded)) }
 	key, _, err := ContentKey(spec)
 	if err != nil { return nil, err }
 	if key != root { return nil, fmt.Errorf("expression root key mismatch: got %d, want %d", key, root) }

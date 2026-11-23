@@ -162,6 +162,7 @@ SELECT
     pd.term_id,
     pd.desc_id,
     dr.desc_rn,
+    COALESCE(pd.exp_ck, 0) AS exp_ck,
     pd.liab_var,
     pd.asset_vars
 FROM proc_desc_terms AS pd

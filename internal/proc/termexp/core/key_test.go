@@ -2,6 +2,7 @@ package core
 
 import (
 	"testing"
+	"strings"
 
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
@@ -61,5 +62,37 @@ func TestContentKeyIsStableForCaseMapInsertionOrder(t *testing.T) {
 	}
 	if leftKey != rightKey || string(leftJSON) != string(rightJSON) {
 		t.Fatal("equivalent case maps produced different canonical content")
+	}
+}
+
+func TestContentKeySerializesEveryDefinitionVariant(t *testing.T) {
+	cont := CloseSpec{ContChnlPH: symbol.New("next")}
+	specs := []struct {
+		spec ExpSpec
+		kind string
+	}{
+		{CloseSpec{}, "close"},
+		{WaitSpec{ContExp: cont}, "wait"},
+		{SendSpec{}, "send"},
+		{RecvSpec{ContExp: cont}, "recv"},
+		{LabSpec{ContExp: cont}, "lab"},
+		{CaseSpec{ContExps: map[uniqsym.ADT]ExpSpec{}}, "case"},
+		{LinkSpec{}, "link"},
+		{FwdSpec{}, "fwd"},
+		{CallSpec{ContExp: cont}, "call"},
+		{SpawnSpec{ContExp: cont}, "spawn"},
+		{AcqureSpec{ContExp: cont}, "acquire"},
+		{AcceptSpec{ContExp: cont}, "accept"},
+		{DetachSpec{}, "detach"},
+		{ReleaseSpec{}, "release"},
+	}
+	for _, tc := range specs {
+		_, data, err := ContentKey(tc.spec)
+		if err != nil {
+			t.Fatalf("%s: %v", tc.kind, err)
+		}
+		if !strings.Contains(string(data), `"kind":"`+tc.kind+`"`) {
+			t.Fatalf("%s: missing discriminator in %s", tc.kind, data)
+		}
 	}
 }

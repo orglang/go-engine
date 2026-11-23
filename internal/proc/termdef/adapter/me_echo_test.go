@@ -66,7 +66,7 @@ func TestCreateProcessDeclarationHandler(t *testing.T) {
 			t.Fatalf("decode response: %v", err)
 		}
 		if response.DescRn != 11 {
-			t.Errorf("unexpected term revision: got %d, want 11", response.TermRn)
+			t.Errorf("unexpected description revision: got %d, want 11", response.DescRn)
 		}
 	})
 
@@ -107,5 +107,5 @@ func (s *generatedDecAPIStub) Create(ctx context.Context, spec termdec.DecSpec) 
 	s.called = true
 	s.spec = spec
 	s.ctx = ctx
-	return termdec.DecSnap{TermRef: termsem.SemRef{TermRN: 11}}, nil
+	return termdec.DecSnap{TermRef: termsem.SemRef{DescRN: 11}}, nil
 }

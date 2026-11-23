@@ -10,11 +10,13 @@ import "./models/any/exec.tsp";
 import "./models/proc/type/expr.tsp";
 import "./models/proc/type/def.tsp";
 import "./models/proc/term/expr.tsp";
+import "./models/proc/term/def.tsp";
 import "./models/proc/term/dec.tsp";
 import "./models/proc/comp.tsp";
 import "./models/pool/type/expr.tsp";
 import "./models/pool/type/def.tsp";
 import "./models/pool/term/expr.tsp";
+import "./models/pool/term/def.tsp";
 import "./models/pool/term/dec.tsp";
 import "./models/pool/comp.tsp";
 
@@ -123,21 +125,21 @@ op getProcessTypeDefinition(
   @query rn?: int64,
 ): Ok<Proc.Type.DefSnap>;
 
-/** Get the current term definition of a specific process; rn, when supplied, must match its Description revision. */
+/** Get the current declarative term Definition; rn, when supplied, must match its Description revision. */
 @get
 @route("/processes/{id}/definition")
 op getProcessDefinition(
   @path id: string,
   @query rn?: int64,
-): Ok<Proc.Term.ExprSpec>;
+): Ok<Proc.Term.DefinitionSpec>;
 
-/** Extend a process term definition using the expected Description revision. */
+/** Extend a process term Definition using the expected Description revision. */
 @patch
 @route("/processes/{id}/definition")
 op extendProcessDefinition(
   @path id: string,
   @query rn: int64,
-  @body extension: Proc.Term.ExprSpec,
+  @body extension: Proc.Term.DefinitionSpec,
 ): Ok<Any.TermRef>;
 
 // Pool declarations and executions
@@ -155,21 +157,21 @@ op getPoolAssociatedDeclaration(
   @query rn?: int64,
 ): Ok<Pool.DecSnap>;
 
-/** Get the current term definition of a specific pool; rn, when supplied, must match its Description revision. */
+/** Get the current declarative term Definition; rn, when supplied, must match its Description revision. */
 @get
 @route("/pools/{id}/definition")
 op getPoolDefinition(
   @path id: string,
   @query rn?: int64,
-): Ok<Pool.Term.ExprSpec>;
+): Ok<Pool.Term.DefinitionSpec>;
 
-/** Extend a pool term definition using the expected Description revision. */
+/** Extend a pool term Definition using the expected Description revision. */
 @patch
 @route("/pools/{id}/definition")
 op extendPoolDefinition(
   @path id: string,
   @query rn: int64,
-  @body extension: Pool.Term.ExprSpec,
+  @body extension: Pool.Term.DefinitionSpec,
 ): Ok<Any.TermRef>;
 
 /** List execution identities associated with a pool. */

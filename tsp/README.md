@@ -112,7 +112,8 @@ operations apply the supplied expression as an additive extension to the
 existing term definition; they do not replace it. Existing expression parts
 cannot be removed or changed. The extension must be applied atomically: if
 any part conflicts or violates expression constraints, the whole operation is
-rejected. A successful extension creates a new term revision.
+rejected. A successful extension advances the owning Description's `DescRN`
+exactly once; it does not create a separate Term revision.
 
 Type definitions remain separate resources, retrieved through
 `GET /api/v1/processes/types/{id}` and `GET /api/v1/pools/types/{id}`.
@@ -132,7 +133,7 @@ empty `200 OK` or `204 No Content` response as specified by the operation.
 ## Revision query
 
 Single-resource retrieval operations that expose revisioned data accept an
-optional `rn` query parameter. When omitted, the contract describes retrieval
-of the latest available revision. When supplied, it identifies the requested
-revision. Historical revision persistence is not asserted by this
-specification.
+optional `rn` query parameter. For Term Definition retrieval, `rn` is the
+owning Description's `DescRN`. When omitted, the current expression is
+returned. Historical Description snapshots are not persisted, so a supplied
+`rn` can identify only the current revision.

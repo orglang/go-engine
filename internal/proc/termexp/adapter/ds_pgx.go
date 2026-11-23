@@ -18,67 +18,50 @@ import (
 type daoPgx struct { log *slog.Logger }
 
 type expNodeRow struct {
-	ExpCK    int64  `db:"exp_ck"`
-	SupExpCK int64  `db:"sup_exp_ck"`
-	Kind     int16  `db:"kind"`
-	Spec     []byte `db:"spec"`
+	ExpCK int64 `db:"exp_ck"`
+	SupExpCK int64 `db:"sup_exp_ck"`
+	Kind int16 `db:"kind"`
+	Spec []byte `db:"spec"`
 }
 
 func newRepo() termexp.Repo { return new(daoPgx) }
-
 func NewDaoPgx(log *slog.Logger) termexp.Repo {
-	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
-	return &daoPgx{log: log.With(name)}
+	name:=slog.String("name",reflect.TypeFor[daoPgx]().Name())
+	return &daoPgx{log:log.With(name)}
 }
 
-// Insert is the legacy runtime-record path. Definition persistence uses InsertSpec.
-func (dao *daoPgx) Insert(context.Context, tx.Conn, termexp.ExpRec) error {
-	return nil
-}
-
-func (dao *daoPgx) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.ExpSpec) (contkey.ADT, error) {
-	nodes, err := termexp.ContentNodes(spec)
-	if err != nil { return contkey.Zero, err }
-	for _, node := range nodes {
-		_, err := conn.Pgx.Exec(ctx, insertTermExp,
-			int64(node.ExpCK), int64(node.SupExpCK), node.Kind, string(node.Spec))
-		if err != nil {
-			dao.log.Error("term expression insertion failed", slog.Int64("exp_ck", int64(node.ExpCK)), slog.Any("error", err))
-			return contkey.Zero, err
-		}
+func (dao *daoPgx) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.DescSpec) (contkey.ADT,error) {
+	rec,err:=termexp.ConvertSpecToRec(spec); if err!=nil{return contkey.Zero,err}
+	dto,err:=dataFromDescRec(rec); if err!=nil{return contkey.Zero,err}
+	for _,state:=range dto.States {
+		_,err=conn.Pgx.Exec(ctx,insertTermExp,state.ExpCK,state.SupExpCK,state.K,string(state.Spec))
+		if err!=nil { dao.log.Error("process term Definition insertion failed",slog.Int64("exp_ck",state.ExpCK),slog.Any("error",err)); return contkey.Zero,err }
 		var existing expNodeRow
-		err = conn.Pgx.QueryRow(ctx, selectTermExpByCK, int64(node.ExpCK)).Scan(
-			&existing.SupExpCK, &existing.Kind, &existing.Spec)
-		if err != nil { return contkey.Zero, err }
-		canonical, err := canonicalStoredJSON(existing.Spec)
-		if err != nil { return contkey.Zero, err }
-		if existing.SupExpCK != int64(node.SupExpCK) || existing.Kind != node.Kind || !bytes.Equal(canonical, node.Spec) {
-			return contkey.Zero, fmt.Errorf("process term expression content-key collision or parent conflict for %d", node.ExpCK)
+		err=conn.Pgx.QueryRow(ctx,selectTermExpByCK,state.ExpCK).Scan(&existing.SupExpCK,&existing.Kind,&existing.Spec)
+		if err!=nil{return contkey.Zero,err}
+		canonical,err:=canonicalStoredJSON(existing.Spec); if err!=nil{return contkey.Zero,err}
+		expected,err:=canonicalStoredJSON(state.Spec); if err!=nil{return contkey.Zero,err}
+		if existing.SupExpCK!=state.SupExpCK || existing.Kind!=state.K || !bytes.Equal(canonical,expected) {
+			return contkey.Zero,fmt.Errorf("process term Definition content-key collision or parent conflict for %d",state.ExpCK)
 		}
 	}
-	return nodes[0].ExpCK, nil
+	return contkey.ConvertFromInt(dto.ExpCK)
 }
 
-func (dao *daoPgx) SelectSpecByCK(ctx context.Context, conn tx.Conn, key contkey.ADT) (termexp.ExpSpec, error) {
-	rows, err := conn.Pgx.Query(ctx, selectTermExpTree, int64(key))
-	if err != nil { return nil, err }
-	defer rows.Close()
-	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[expNodeRow])
-	if err != nil { return nil, err }
-	if len(dtos) == 0 { return nil, fmt.Errorf("process term expression %d does not exist", key) }
-	nodes := make([]termexp.ExpNode, len(dtos))
-	for i, dto := range dtos {
-		expCK, convErr := contkey.ConvertFromInt(dto.ExpCK); if convErr != nil { return nil, convErr }
-		supCK, convErr := contkey.ConvertFromInt(dto.SupExpCK); if convErr != nil { return nil, convErr }
-		nodes[i] = termexp.ExpNode{ExpCK: expCK, SupExpCK: supCK, Kind: dto.Kind, Spec: dto.Spec}
-	}
-	return termexp.BuildSpecFromNodes(nodes, key)
+func (dao *daoPgx) SelectSpecByCK(ctx context.Context,conn tx.Conn,key contkey.ADT)(termexp.DescSpec,error) {
+	rows,err:=conn.Pgx.Query(ctx,selectTermExpTree,int64(key)); if err!=nil{return nil,err}; defer rows.Close()
+	rowsDTO,err:=pgx.CollectRows(rows,pgx.RowToStructByName[expNodeRow]); if err!=nil{return nil,err}
+	if len(rowsDTO)==0{return nil,fmt.Errorf("process term Definition %d does not exist",key)}
+	dto:=DescData{ExpCK:int64(key),States:make([]DescState,len(rowsDTO))}
+	for i,row:=range rowsDTO { dto.States[i]=DescState{ExpCK:row.ExpCK,SupExpCK:row.SupExpCK,K:row.Kind,Spec:row.Spec} }
+	rec,err:=dataToDescRec(dto); if err!=nil{return nil,err}
+	return termexp.ConvertRecToSpec(rec),nil
 }
 
-func canonicalStoredJSON(raw []byte) ([]byte, error) {
-	value := jsontext.Value(raw)
-	if err := value.Canonicalize(jsontext.CanonicalizeRawInts(false)); err != nil { return nil, err }
-	return []byte(value), nil
+func canonicalStoredJSON(raw []byte)([]byte,error) {
+	value:=jsontext.Value(raw)
+	if err:=value.Canonicalize(jsontext.CanonicalizeRawInts(false)); err!=nil{return nil,err}
+	return []byte(value),nil
 }
 
 const insertTermExp = `
@@ -86,13 +69,11 @@ INSERT INTO proc_term_exps (exp_ck, sup_exp_ck, kind, spec)
 VALUES ($1, $2, $3, $4::jsonb)
 ON CONFLICT (exp_ck) DO NOTHING
 `
-
 const selectTermExpByCK = `
 SELECT sup_exp_ck, kind, spec
 FROM proc_term_exps
 WHERE exp_ck = $1
 `
-
 const selectTermExpTree = `
 WITH RECURSIVE exp_tree AS (
     SELECT top.*

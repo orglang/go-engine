@@ -13,8 +13,8 @@ type Repo interface {
 	Insert(context.Context, tx.Conn, ExpRec) error
 
 	// InsertSpec persists a declarative Definition tree and returns its root key.
-	InsertSpec(context.Context, tx.Conn, ExpSpec) (contkey.ADT, error)
+	InsertSpec(context.Context, tx.Conn, DescSpec) (contkey.ADT, error)
 
 	// SelectSpecByCK reads a declarative Definition tree by its root content key.
-	SelectSpecByCK(context.Context, tx.Conn, contkey.ADT) (ExpSpec, error)
+	SelectSpecByCK(context.Context, tx.Conn, contkey.ADT) (DescSpec, error)
 }

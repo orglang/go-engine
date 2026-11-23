@@ -164,13 +164,20 @@ paths:
                 $ref: '#/components/schemas/Pool.Term.ExprSpec'
     patch:
       operationId: extendPoolDefinition
-      description: Extend a pool term definition without replacing or removing existing expression parts.
+      description: Extend a pool term definition using the supplied expected Description revision.
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
+        - name: rn
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+          explode: false
       responses:
         '200':
           description: The request has succeeded.
@@ -380,13 +387,20 @@ paths:
                 $ref: '#/components/schemas/Proc.Term.ExprSpec'
     patch:
       operationId: extendProcessDefinition
-      description: Extend a process term definition without replacing or removing existing expression parts.
+      description: Extend a process term definition using the supplied expected Description revision.
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
+        - name: rn
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+          explode: false
       responses:
         '200':
           description: The request has succeeded.

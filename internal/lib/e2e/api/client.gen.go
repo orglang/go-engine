@@ -412,6 +412,11 @@ type GetPoolDefinitionParams struct {
 	Rn *int64 `form:"rn,omitempty" json:"rn,omitempty"`
 }
 
+// ExtendPoolDefinitionParams defines parameters for ExtendPoolDefinition.
+type ExtendPoolDefinitionParams struct {
+	Rn int64 `form:"rn" json:"rn"`
+}
+
 // GetProcessDeclarationParams defines parameters for GetProcessDeclaration.
 type GetProcessDeclarationParams struct {
 	Rn *int64 `form:"rn,omitempty" json:"rn,omitempty"`
@@ -435,6 +440,11 @@ type GetProcessAssociatedDeclarationParams struct {
 // GetProcessDefinitionParams defines parameters for GetProcessDefinition.
 type GetProcessDefinitionParams struct {
 	Rn *int64 `form:"rn,omitempty" json:"rn,omitempty"`
+}
+
+// ExtendProcessDefinitionParams defines parameters for ExtendProcessDefinition.
+type ExtendProcessDefinitionParams struct {
+	Rn int64 `form:"rn" json:"rn"`
 }
 
 // CreateProgramTextBody defines parameters for CreateProgram.
@@ -1965,14 +1975,14 @@ type ClientInterface interface {
 	// ExtendPoolDefinitionWithBody performs a PATCH /api/v1/pools/{id}/definition (the `ExtendPoolDefinition` operationId) request,
 	// with any type of body and a specified content type.
 	//
-	// Extend a pool term definition without replacing or removing existing expression parts.
-	ExtendPoolDefinitionWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// Extend a pool term definition using the supplied expected Description revision.
+	ExtendPoolDefinitionWithBody(ctx context.Context, id string, params *ExtendPoolDefinitionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ExtendPoolDefinition performs a PATCH /api/v1/pools/{id}/definition (the `ExtendPoolDefinition` operationId) request.
 	// Takes a body of the `application/json` content type.
 	//
-	// Extend a pool term definition without replacing or removing existing expression parts.
-	ExtendPoolDefinition(ctx context.Context, id string, body ExtendPoolDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// Extend a pool term definition using the supplied expected Description revision.
+	ExtendPoolDefinition(ctx context.Context, id string, params *ExtendPoolDefinitionParams, body ExtendPoolDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListPoolExecutions performs a GET /api/v1/pools/{id}/executions (the `ListPoolExecutions` operationId) request.
 	//
@@ -2043,14 +2053,14 @@ type ClientInterface interface {
 	// ExtendProcessDefinitionWithBody performs a PATCH /api/v1/processes/{id}/definition (the `ExtendProcessDefinition` operationId) request,
 	// with any type of body and a specified content type.
 	//
-	// Extend a process term definition without replacing or removing existing expression parts.
-	ExtendProcessDefinitionWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// Extend a process term definition using the supplied expected Description revision.
+	ExtendProcessDefinitionWithBody(ctx context.Context, id string, params *ExtendProcessDefinitionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ExtendProcessDefinition performs a PATCH /api/v1/processes/{id}/definition (the `ExtendProcessDefinition` operationId) request.
 	// Takes a body of the `application/json` content type.
 	//
-	// Extend a process term definition without replacing or removing existing expression parts.
-	ExtendProcessDefinition(ctx context.Context, id string, body ExtendProcessDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// Extend a process term definition using the supplied expected Description revision.
+	ExtendProcessDefinition(ctx context.Context, id string, params *ExtendProcessDefinitionParams, body ExtendProcessDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListProcessExecutions performs a GET /api/v1/processes/{id}/executions (the `ListProcessExecutions` operationId) request.
 	//
@@ -2278,9 +2288,9 @@ func (c *Client) GetPoolDefinition(ctx context.Context, id string, params *GetPo
 // ExtendPoolDefinitionWithBody performs a PATCH /api/v1/pools/{id}/definition (the `ExtendPoolDefinition` operationId) request,
 // with any type of body and a specified content type.
 //
-// Extend a pool term definition without replacing or removing existing expression parts.
-func (c *Client) ExtendPoolDefinitionWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewExtendPoolDefinitionRequestWithBody(c.Server, id, contentType, body)
+// Extend a pool term definition using the supplied expected Description revision.
+func (c *Client) ExtendPoolDefinitionWithBody(ctx context.Context, id string, params *ExtendPoolDefinitionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewExtendPoolDefinitionRequestWithBody(c.Server, id, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2294,9 +2304,9 @@ func (c *Client) ExtendPoolDefinitionWithBody(ctx context.Context, id string, co
 // ExtendPoolDefinition performs a PATCH /api/v1/pools/{id}/definition (the `ExtendPoolDefinition` operationId) request.
 // Takes a body of the `application/json` content type.
 //
-// Extend a pool term definition without replacing or removing existing expression parts.
-func (c *Client) ExtendPoolDefinition(ctx context.Context, id string, body ExtendPoolDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewExtendPoolDefinitionRequest(c.Server, id, body)
+// Extend a pool term definition using the supplied expected Description revision.
+func (c *Client) ExtendPoolDefinition(ctx context.Context, id string, params *ExtendPoolDefinitionParams, body ExtendPoolDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewExtendPoolDefinitionRequest(c.Server, id, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2496,9 +2506,9 @@ func (c *Client) GetProcessDefinition(ctx context.Context, id string, params *Ge
 // ExtendProcessDefinitionWithBody performs a PATCH /api/v1/processes/{id}/definition (the `ExtendProcessDefinition` operationId) request,
 // with any type of body and a specified content type.
 //
-// Extend a process term definition without replacing or removing existing expression parts.
-func (c *Client) ExtendProcessDefinitionWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewExtendProcessDefinitionRequestWithBody(c.Server, id, contentType, body)
+// Extend a process term definition using the supplied expected Description revision.
+func (c *Client) ExtendProcessDefinitionWithBody(ctx context.Context, id string, params *ExtendProcessDefinitionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewExtendProcessDefinitionRequestWithBody(c.Server, id, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2512,9 +2522,9 @@ func (c *Client) ExtendProcessDefinitionWithBody(ctx context.Context, id string,
 // ExtendProcessDefinition performs a PATCH /api/v1/processes/{id}/definition (the `ExtendProcessDefinition` operationId) request.
 // Takes a body of the `application/json` content type.
 //
-// Extend a process term definition without replacing or removing existing expression parts.
-func (c *Client) ExtendProcessDefinition(ctx context.Context, id string, body ExtendProcessDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewExtendProcessDefinitionRequest(c.Server, id, body)
+// Extend a process term definition using the supplied expected Description revision.
+func (c *Client) ExtendProcessDefinition(ctx context.Context, id string, params *ExtendProcessDefinitionParams, body ExtendProcessDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewExtendProcessDefinitionRequest(c.Server, id, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2956,18 +2966,18 @@ func NewGetPoolDefinitionRequest(server string, id string, params *GetPoolDefini
 }
 
 // NewExtendPoolDefinitionRequest calls the generic ExtendPoolDefinition builder with application/json body
-func NewExtendPoolDefinitionRequest(server string, id string, body ExtendPoolDefinitionJSONRequestBody) (*http.Request, error) {
+func NewExtendPoolDefinitionRequest(server string, id string, params *ExtendPoolDefinitionParams, body ExtendPoolDefinitionJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewExtendPoolDefinitionRequestWithBody(server, id, "application/json", bodyReader)
+	return NewExtendPoolDefinitionRequestWithBody(server, id, params, "application/json", bodyReader)
 }
 
 // NewExtendPoolDefinitionRequestWithBody constructs an http.Request for the ExtendPoolDefinition method, with any body, and a specified content type
-func NewExtendPoolDefinitionRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+func NewExtendPoolDefinitionRequestWithBody(server string, id string, params *ExtendPoolDefinitionParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -2990,6 +3000,29 @@ func NewExtendPoolDefinitionRequestWithBody(server string, id string, contentTyp
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", false, "rn", params.Rn, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int64"}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
@@ -3469,18 +3502,18 @@ func NewGetProcessDefinitionRequest(server string, id string, params *GetProcess
 }
 
 // NewExtendProcessDefinitionRequest calls the generic ExtendProcessDefinition builder with application/json body
-func NewExtendProcessDefinitionRequest(server string, id string, body ExtendProcessDefinitionJSONRequestBody) (*http.Request, error) {
+func NewExtendProcessDefinitionRequest(server string, id string, params *ExtendProcessDefinitionParams, body ExtendProcessDefinitionJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewExtendProcessDefinitionRequestWithBody(server, id, "application/json", bodyReader)
+	return NewExtendProcessDefinitionRequestWithBody(server, id, params, "application/json", bodyReader)
 }
 
 // NewExtendProcessDefinitionRequestWithBody constructs an http.Request for the ExtendProcessDefinition method, with any body, and a specified content type
-func NewExtendProcessDefinitionRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+func NewExtendProcessDefinitionRequestWithBody(server string, id string, params *ExtendProcessDefinitionParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -3503,6 +3536,29 @@ func NewExtendProcessDefinitionRequestWithBody(server string, id string, content
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", false, "rn", params.Rn, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: "int64"}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
@@ -3727,16 +3783,16 @@ type ClientWithResponsesInterface interface {
 	// ExtendPoolDefinitionWithBodyWithResponse performs a PATCH /api/v1/pools/{id}/definition (the `ExtendPoolDefinition` operationId) request,
 	// with any type of body and a specified content type.
 	//
-	// Extend a pool term definition without replacing or removing existing expression parts.
+	// Extend a pool term definition using the supplied expected Description revision.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	ExtendPoolDefinitionWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ExtendPoolDefinitionResponse, error)
+	ExtendPoolDefinitionWithBodyWithResponse(ctx context.Context, id string, params *ExtendPoolDefinitionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ExtendPoolDefinitionResponse, error)
 
 	// ExtendPoolDefinitionWithResponse performs a PATCH /api/v1/pools/{id}/definition (the `ExtendPoolDefinition` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
-	// Extend a pool term definition without replacing or removing existing expression parts.
-	ExtendPoolDefinitionWithResponse(ctx context.Context, id string, body ExtendPoolDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*ExtendPoolDefinitionResponse, error)
+	// Extend a pool term definition using the supplied expected Description revision.
+	ExtendPoolDefinitionWithResponse(ctx context.Context, id string, params *ExtendPoolDefinitionParams, body ExtendPoolDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*ExtendPoolDefinitionResponse, error)
 
 	// ListPoolExecutionsWithResponse performs a GET /api/v1/pools/{id}/executions (the `ListPoolExecutions` operationId) request.
 	//
@@ -3825,16 +3881,16 @@ type ClientWithResponsesInterface interface {
 	// ExtendProcessDefinitionWithBodyWithResponse performs a PATCH /api/v1/processes/{id}/definition (the `ExtendProcessDefinition` operationId) request,
 	// with any type of body and a specified content type.
 	//
-	// Extend a process term definition without replacing or removing existing expression parts.
+	// Extend a process term definition using the supplied expected Description revision.
 	//
 	// Returns a wrapper object for the known response body format(s).
-	ExtendProcessDefinitionWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ExtendProcessDefinitionResponse, error)
+	ExtendProcessDefinitionWithBodyWithResponse(ctx context.Context, id string, params *ExtendProcessDefinitionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ExtendProcessDefinitionResponse, error)
 
 	// ExtendProcessDefinitionWithResponse performs a PATCH /api/v1/processes/{id}/definition (the `ExtendProcessDefinition` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
-	// Extend a process term definition without replacing or removing existing expression parts.
-	ExtendProcessDefinitionWithResponse(ctx context.Context, id string, body ExtendProcessDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*ExtendProcessDefinitionResponse, error)
+	// Extend a process term definition using the supplied expected Description revision.
+	ExtendProcessDefinitionWithResponse(ctx context.Context, id string, params *ExtendProcessDefinitionParams, body ExtendProcessDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*ExtendProcessDefinitionResponse, error)
 
 	// ListProcessExecutionsWithResponse performs a GET /api/v1/processes/{id}/executions (the `ListProcessExecutions` operationId) request.
 	//
@@ -4870,11 +4926,11 @@ func (c *ClientWithResponses) GetPoolDefinitionWithResponse(ctx context.Context,
 // ExtendPoolDefinitionWithBodyWithResponse performs a PATCH /api/v1/pools/{id}/definition (the `ExtendPoolDefinition` operationId) request,
 // with any type of body and a specified content type.
 //
-// Extend a pool term definition without replacing or removing existing expression parts.
+// Extend a pool term definition using the supplied expected Description revision.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) ExtendPoolDefinitionWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ExtendPoolDefinitionResponse, error) {
-	rsp, err := c.ExtendPoolDefinitionWithBody(ctx, id, contentType, body, reqEditors...)
+func (c *ClientWithResponses) ExtendPoolDefinitionWithBodyWithResponse(ctx context.Context, id string, params *ExtendPoolDefinitionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ExtendPoolDefinitionResponse, error) {
+	rsp, err := c.ExtendPoolDefinitionWithBody(ctx, id, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4884,9 +4940,9 @@ func (c *ClientWithResponses) ExtendPoolDefinitionWithBodyWithResponse(ctx conte
 // ExtendPoolDefinitionWithResponse performs a PATCH /api/v1/pools/{id}/definition (the `ExtendPoolDefinition` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
-// Extend a pool term definition without replacing or removing existing expression parts.
-func (c *ClientWithResponses) ExtendPoolDefinitionWithResponse(ctx context.Context, id string, body ExtendPoolDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*ExtendPoolDefinitionResponse, error) {
-	rsp, err := c.ExtendPoolDefinition(ctx, id, body, reqEditors...)
+// Extend a pool term definition using the supplied expected Description revision.
+func (c *ClientWithResponses) ExtendPoolDefinitionWithResponse(ctx context.Context, id string, params *ExtendPoolDefinitionParams, body ExtendPoolDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*ExtendPoolDefinitionResponse, error) {
+	rsp, err := c.ExtendPoolDefinition(ctx, id, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -5052,11 +5108,11 @@ func (c *ClientWithResponses) GetProcessDefinitionWithResponse(ctx context.Conte
 // ExtendProcessDefinitionWithBodyWithResponse performs a PATCH /api/v1/processes/{id}/definition (the `ExtendProcessDefinition` operationId) request,
 // with any type of body and a specified content type.
 //
-// Extend a process term definition without replacing or removing existing expression parts.
+// Extend a process term definition using the supplied expected Description revision.
 //
 // Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) ExtendProcessDefinitionWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ExtendProcessDefinitionResponse, error) {
-	rsp, err := c.ExtendProcessDefinitionWithBody(ctx, id, contentType, body, reqEditors...)
+func (c *ClientWithResponses) ExtendProcessDefinitionWithBodyWithResponse(ctx context.Context, id string, params *ExtendProcessDefinitionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ExtendProcessDefinitionResponse, error) {
+	rsp, err := c.ExtendProcessDefinitionWithBody(ctx, id, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -5066,9 +5122,9 @@ func (c *ClientWithResponses) ExtendProcessDefinitionWithBodyWithResponse(ctx co
 // ExtendProcessDefinitionWithResponse performs a PATCH /api/v1/processes/{id}/definition (the `ExtendProcessDefinition` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
-// Extend a process term definition without replacing or removing existing expression parts.
-func (c *ClientWithResponses) ExtendProcessDefinitionWithResponse(ctx context.Context, id string, body ExtendProcessDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*ExtendProcessDefinitionResponse, error) {
-	rsp, err := c.ExtendProcessDefinition(ctx, id, body, reqEditors...)
+// Extend a process term definition using the supplied expected Description revision.
+func (c *ClientWithResponses) ExtendProcessDefinitionWithResponse(ctx context.Context, id string, params *ExtendProcessDefinitionParams, body ExtendProcessDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*ExtendProcessDefinitionResponse, error) {
+	rsp, err := c.ExtendProcessDefinition(ctx, id, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

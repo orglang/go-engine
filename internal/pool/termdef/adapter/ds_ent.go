@@ -88,6 +88,9 @@ WHERE def.term_id = $1
 	defer rows.Close()
 	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRec])
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return termdef.DefRec{}, termdef.ErrTermMissing(termID)
+		}
 		return termdef.DefRec{}, err
 	}
 	rec, err := DataToDecRec(dto)

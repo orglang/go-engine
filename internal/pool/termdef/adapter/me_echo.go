@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v5"
 
 	"orglang/go-engine/internal/adt/identity"
@@ -46,12 +45,11 @@ func (h *controllerEcho) GetPoolDefinition(c *echo.Context, id string, params we
 	}
 	spec, err := h.api.RetrieveDefinition(c.Request().Context(), termID, expectedRN)
 	if err != nil {
-		var revisionErr termdef.DefinitionRevisionMismatchError
 		var missingErr termdef.DefinitionMissingError
 		switch {
-		case errors.Is(err, pgx.ErrNoRows), errors.As(err, &missingErr):
+		case errors.As(err, &missingErr):
 			return echo.NewHTTPError(http.StatusNotFound, err.Error())
-		case errors.As(err, &revisionErr):
+		case errors.Is(err, termdef.ErrDefinitionRevisionMismatch):
 			return echo.NewHTTPError(http.StatusConflict, err.Error())
 		default:
 			return err

@@ -8,9 +8,9 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 
 	"orglang/go-engine/internal/adt/contkey"
-	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/descsem"
+	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/termvar"

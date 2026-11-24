@@ -9,6 +9,8 @@ import (
 	"orglang/go-engine/internal/adt/termvar/adapter"
 	"orglang/go-engine/internal/pool/ent/termdef"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 )
@@ -18,6 +20,7 @@ type TermDefCreate struct {
 	config
 	mutation *TermDefMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetDescID sets the "desc_id" field.
@@ -132,6 +135,7 @@ func (_c *TermDefCreate) createSpec() (*TermDef, *sqlgraph.CreateSpec) {
 		_node = &TermDef{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(termdef.Table, sqlgraph.NewFieldSpec(termdef.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -155,11 +159,277 @@ func (_c *TermDefCreate) createSpec() (*TermDef, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.TermDef.Create().
+//		SetDescID(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.TermDefUpsert) {
+//			SetDescID(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *TermDefCreate) OnConflict(opts ...sql.ConflictOption) *TermDefUpsertOne {
+	_c.conflict = opts
+	return &TermDefUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.TermDef.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *TermDefCreate) OnConflictColumns(columns ...string) *TermDefUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &TermDefUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// TermDefUpsertOne is the builder for "upsert"-ing
+	//  one TermDef node.
+	TermDefUpsertOne struct {
+		create *TermDefCreate
+	}
+
+	// TermDefUpsert is the "OnConflict" setter.
+	TermDefUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetDescID sets the "desc_id" field.
+func (u *TermDefUpsert) SetDescID(v string) *TermDefUpsert {
+	u.Set(termdef.FieldDescID, v)
+	return u
+}
+
+// UpdateDescID sets the "desc_id" field to the value that was provided on create.
+func (u *TermDefUpsert) UpdateDescID() *TermDefUpsert {
+	u.SetExcluded(termdef.FieldDescID)
+	return u
+}
+
+// SetExpCk sets the "exp_ck" field.
+func (u *TermDefUpsert) SetExpCk(v int64) *TermDefUpsert {
+	u.Set(termdef.FieldExpCk, v)
+	return u
+}
+
+// UpdateExpCk sets the "exp_ck" field to the value that was provided on create.
+func (u *TermDefUpsert) UpdateExpCk() *TermDefUpsert {
+	u.SetExcluded(termdef.FieldExpCk)
+	return u
+}
+
+// AddExpCk adds v to the "exp_ck" field.
+func (u *TermDefUpsert) AddExpCk(v int64) *TermDefUpsert {
+	u.Add(termdef.FieldExpCk, v)
+	return u
+}
+
+// ClearExpCk clears the value of the "exp_ck" field.
+func (u *TermDefUpsert) ClearExpCk() *TermDefUpsert {
+	u.SetNull(termdef.FieldExpCk)
+	return u
+}
+
+// SetLiabVar sets the "liab_var" field.
+func (u *TermDefUpsert) SetLiabVar(v adapter.VarRec) *TermDefUpsert {
+	u.Set(termdef.FieldLiabVar, v)
+	return u
+}
+
+// UpdateLiabVar sets the "liab_var" field to the value that was provided on create.
+func (u *TermDefUpsert) UpdateLiabVar() *TermDefUpsert {
+	u.SetExcluded(termdef.FieldLiabVar)
+	return u
+}
+
+// SetAssetVars sets the "asset_vars" field.
+func (u *TermDefUpsert) SetAssetVars(v []adapter.VarRec) *TermDefUpsert {
+	u.Set(termdef.FieldAssetVars, v)
+	return u
+}
+
+// UpdateAssetVars sets the "asset_vars" field to the value that was provided on create.
+func (u *TermDefUpsert) UpdateAssetVars() *TermDefUpsert {
+	u.SetExcluded(termdef.FieldAssetVars)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.TermDef.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(termdef.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *TermDefUpsertOne) UpdateNewValues() *TermDefUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(termdef.FieldID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.TermDef.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *TermDefUpsertOne) Ignore() *TermDefUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *TermDefUpsertOne) DoNothing() *TermDefUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the TermDefCreate.OnConflict
+// documentation for more info.
+func (u *TermDefUpsertOne) Update(set func(*TermDefUpsert)) *TermDefUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&TermDefUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetDescID sets the "desc_id" field.
+func (u *TermDefUpsertOne) SetDescID(v string) *TermDefUpsertOne {
+	return u.Update(func(s *TermDefUpsert) {
+		s.SetDescID(v)
+	})
+}
+
+// UpdateDescID sets the "desc_id" field to the value that was provided on create.
+func (u *TermDefUpsertOne) UpdateDescID() *TermDefUpsertOne {
+	return u.Update(func(s *TermDefUpsert) {
+		s.UpdateDescID()
+	})
+}
+
+// SetExpCk sets the "exp_ck" field.
+func (u *TermDefUpsertOne) SetExpCk(v int64) *TermDefUpsertOne {
+	return u.Update(func(s *TermDefUpsert) {
+		s.SetExpCk(v)
+	})
+}
+
+// AddExpCk adds v to the "exp_ck" field.
+func (u *TermDefUpsertOne) AddExpCk(v int64) *TermDefUpsertOne {
+	return u.Update(func(s *TermDefUpsert) {
+		s.AddExpCk(v)
+	})
+}
+
+// UpdateExpCk sets the "exp_ck" field to the value that was provided on create.
+func (u *TermDefUpsertOne) UpdateExpCk() *TermDefUpsertOne {
+	return u.Update(func(s *TermDefUpsert) {
+		s.UpdateExpCk()
+	})
+}
+
+// ClearExpCk clears the value of the "exp_ck" field.
+func (u *TermDefUpsertOne) ClearExpCk() *TermDefUpsertOne {
+	return u.Update(func(s *TermDefUpsert) {
+		s.ClearExpCk()
+	})
+}
+
+// SetLiabVar sets the "liab_var" field.
+func (u *TermDefUpsertOne) SetLiabVar(v adapter.VarRec) *TermDefUpsertOne {
+	return u.Update(func(s *TermDefUpsert) {
+		s.SetLiabVar(v)
+	})
+}
+
+// UpdateLiabVar sets the "liab_var" field to the value that was provided on create.
+func (u *TermDefUpsertOne) UpdateLiabVar() *TermDefUpsertOne {
+	return u.Update(func(s *TermDefUpsert) {
+		s.UpdateLiabVar()
+	})
+}
+
+// SetAssetVars sets the "asset_vars" field.
+func (u *TermDefUpsertOne) SetAssetVars(v []adapter.VarRec) *TermDefUpsertOne {
+	return u.Update(func(s *TermDefUpsert) {
+		s.SetAssetVars(v)
+	})
+}
+
+// UpdateAssetVars sets the "asset_vars" field to the value that was provided on create.
+func (u *TermDefUpsertOne) UpdateAssetVars() *TermDefUpsertOne {
+	return u.Update(func(s *TermDefUpsert) {
+		s.UpdateAssetVars()
+	})
+}
+
+// Exec executes the query.
+func (u *TermDefUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for TermDefCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *TermDefUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *TermDefUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: TermDefUpsertOne.ID is not supported by MySQL driver. Use TermDefUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *TermDefUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // TermDefCreateBulk is the builder for creating many TermDef entities in bulk.
 type TermDefCreateBulk struct {
 	config
 	err      error
 	builders []*TermDefCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the TermDef entities in the database.
@@ -188,6 +458,7 @@ func (_c *TermDefCreateBulk) Save(ctx context.Context) ([]*TermDef, error) {
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -234,6 +505,190 @@ func (_c *TermDefCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *TermDefCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.TermDef.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.TermDefUpsert) {
+//			SetDescID(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *TermDefCreateBulk) OnConflict(opts ...sql.ConflictOption) *TermDefUpsertBulk {
+	_c.conflict = opts
+	return &TermDefUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.TermDef.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *TermDefCreateBulk) OnConflictColumns(columns ...string) *TermDefUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &TermDefUpsertBulk{
+		create: _c,
+	}
+}
+
+// TermDefUpsertBulk is the builder for "upsert"-ing
+// a bulk of TermDef nodes.
+type TermDefUpsertBulk struct {
+	create *TermDefCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.TermDef.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(termdef.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *TermDefUpsertBulk) UpdateNewValues() *TermDefUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(termdef.FieldID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.TermDef.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *TermDefUpsertBulk) Ignore() *TermDefUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *TermDefUpsertBulk) DoNothing() *TermDefUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the TermDefCreateBulk.OnConflict
+// documentation for more info.
+func (u *TermDefUpsertBulk) Update(set func(*TermDefUpsert)) *TermDefUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&TermDefUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetDescID sets the "desc_id" field.
+func (u *TermDefUpsertBulk) SetDescID(v string) *TermDefUpsertBulk {
+	return u.Update(func(s *TermDefUpsert) {
+		s.SetDescID(v)
+	})
+}
+
+// UpdateDescID sets the "desc_id" field to the value that was provided on create.
+func (u *TermDefUpsertBulk) UpdateDescID() *TermDefUpsertBulk {
+	return u.Update(func(s *TermDefUpsert) {
+		s.UpdateDescID()
+	})
+}
+
+// SetExpCk sets the "exp_ck" field.
+func (u *TermDefUpsertBulk) SetExpCk(v int64) *TermDefUpsertBulk {
+	return u.Update(func(s *TermDefUpsert) {
+		s.SetExpCk(v)
+	})
+}
+
+// AddExpCk adds v to the "exp_ck" field.
+func (u *TermDefUpsertBulk) AddExpCk(v int64) *TermDefUpsertBulk {
+	return u.Update(func(s *TermDefUpsert) {
+		s.AddExpCk(v)
+	})
+}
+
+// UpdateExpCk sets the "exp_ck" field to the value that was provided on create.
+func (u *TermDefUpsertBulk) UpdateExpCk() *TermDefUpsertBulk {
+	return u.Update(func(s *TermDefUpsert) {
+		s.UpdateExpCk()
+	})
+}
+
+// ClearExpCk clears the value of the "exp_ck" field.
+func (u *TermDefUpsertBulk) ClearExpCk() *TermDefUpsertBulk {
+	return u.Update(func(s *TermDefUpsert) {
+		s.ClearExpCk()
+	})
+}
+
+// SetLiabVar sets the "liab_var" field.
+func (u *TermDefUpsertBulk) SetLiabVar(v adapter.VarRec) *TermDefUpsertBulk {
+	return u.Update(func(s *TermDefUpsert) {
+		s.SetLiabVar(v)
+	})
+}
+
+// UpdateLiabVar sets the "liab_var" field to the value that was provided on create.
+func (u *TermDefUpsertBulk) UpdateLiabVar() *TermDefUpsertBulk {
+	return u.Update(func(s *TermDefUpsert) {
+		s.UpdateLiabVar()
+	})
+}
+
+// SetAssetVars sets the "asset_vars" field.
+func (u *TermDefUpsertBulk) SetAssetVars(v []adapter.VarRec) *TermDefUpsertBulk {
+	return u.Update(func(s *TermDefUpsert) {
+		s.SetAssetVars(v)
+	})
+}
+
+// UpdateAssetVars sets the "asset_vars" field to the value that was provided on create.
+func (u *TermDefUpsertBulk) UpdateAssetVars() *TermDefUpsertBulk {
+	return u.Update(func(s *TermDefUpsert) {
+		s.UpdateAssetVars()
+	})
+}
+
+// Exec executes the query.
+func (u *TermDefUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the TermDefCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for TermDefCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *TermDefUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

@@ -269,7 +269,9 @@ func dataFromExpSpec(s termexp.CompSpec) (ExpSpec, error) {
 		for label := range spec.ContExps {
 			labels = append(labels, label)
 		}
-		slices.SortFunc(labels, func(a, b uniqsym.ADT) int { return strings.Compare(uniqsym.ConvertToString(a), uniqsym.ConvertToString(b)) })
+		slices.SortFunc(labels, func(a, b uniqsym.ADT) int {
+			return strings.Compare(uniqsym.ConvertToString(a), uniqsym.ConvertToString(b))
+		})
 		for _, l := range labels {
 			cont := spec.ContExps[l]
 			dto, err := dataFromExpSpec(cont)
@@ -434,7 +436,9 @@ func statesFromDescRec(parent int64, rec termexp.DescRec, dto *DescData) int64 {
 		for q := range r.ContExps {
 			labels = append(labels, q)
 		}
-		slices.SortFunc(labels, func(a, b uniqsym.ADT) int { return strings.Compare(uniqsym.ConvertToString(a), uniqsym.ConvertToString(b)) })
+		slices.SortFunc(labels, func(a, b uniqsym.ADT) int {
+			return strings.Compare(uniqsym.ConvertToString(a), uniqsym.ConvertToString(b))
+		})
 		for _, q := range labels {
 			d.ContExpCKs[uniqsym.ConvertToString(q)] = child(r.ContExps[q])
 		}

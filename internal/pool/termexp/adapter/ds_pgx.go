@@ -36,9 +36,10 @@ func (dao *daoPgx) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.De
 			dao.log.Error("pool term Definition insertion failed", slog.Int64("exp_ck", state.ExpCK), slog.Any("error", err))
 			return err
 		}
-		var existing DescState
-		err = conn.Pgx.QueryRow(ctx, selectTermExpByCK, state.ExpCK).Scan(
-			&existing.ExpCK, &existing.SupExpCK, &existing.K, &existing.Spec)
+		rows, err := conn.Pgx.Query(ctx, selectTermExpByCK, state.ExpCK)
+		if err != nil { return err }
+		existing, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[DescState])
+		rows.Close()
 		if err != nil { return err }
 		canonical, err := canonicalStoredJSON(existing.Spec)
 		if err != nil { return err }

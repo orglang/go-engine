@@ -9,6 +9,7 @@ import (
 
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
+	"orglang/go-engine/internal/adt/termsem"
 	webapi "orglang/go-engine/internal/app/web/api"
 	termdef "orglang/go-engine/internal/proc/termdef/core"
 )

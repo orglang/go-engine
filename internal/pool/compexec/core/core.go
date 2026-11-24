@@ -327,7 +327,7 @@ func (s *service) Take(ctx context.Context, spec compstep.StepSpec) (err error) 
 func (s *service) takeStep(
 	ctx context.Context,
 	execSnap ExecSnap3,
-	exp termexp.ExpSpec,
+	exp termexp.CompSpec,
 ) (
 	execMod ExecMod,
 	execEff ExecEff,

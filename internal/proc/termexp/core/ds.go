@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 
+	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/lib/tx"
 )
 
@@ -11,7 +12,7 @@ type Repo interface {
 	// runtime path and is not the Definition persistence contract.
 	Insert(context.Context, tx.Conn, ExpRec) error
 
-	// InsertSpec persists a declarative Definition tree and returns its root key.
+	// InsertSpec persists a declarative Definition tree and persists the declarative Definition tree.
 	InsertSpec(context.Context, tx.Conn, DescSpec) error
 
 	// SelectSpecByCK reads a declarative Definition tree by its root content key.

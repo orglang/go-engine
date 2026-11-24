@@ -3,6 +3,7 @@ package adapter
 import (
 	"encoding/json"
 	"orglang/go-engine/internal/adt/contkey"
+	"orglang/go-engine/internal/adt/symbol"
 	"fmt"
 
 	"orglang/go-engine/internal/adt/uniqsym"

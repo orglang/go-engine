@@ -29,19 +29,19 @@ func (dao *daoPgx) Insert(ctx context.Context, conn tx.Conn, rec termexp.ExpRec)
 	return nil
 }
 
-func (dao *daoPgx) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.DescSpec) (contkey.ADT,error) {
-	rec,err:=termexp.ConvertSpecToRec(spec); if err!=nil{return contkey.Zero,err}
+func (dao *daoPgx) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.DescSpec) error {
+	rec,err:=termexp.ConvertSpecToRec(spec); if err!=nil{return err}
 	dto,err:=dataFromDescRec(rec); if err!=nil{return contkey.Zero,err}
 	for _,state:=range dto.States {
 		_,err=conn.Pgx.Exec(ctx,insertTermExp,state.ExpCK,state.SupExpCK,state.K,string(state.Spec))
 		if err!=nil { dao.log.Error("process term Definition insertion failed",slog.Int64("exp_ck",state.ExpCK),slog.Any("error",err)); return contkey.Zero,err }
-		var existing expNodeRow
-		err=conn.Pgx.QueryRow(ctx,selectTermExpByCK,state.ExpCK).Scan(&existing.SupExpCK,&existing.Kind,&existing.Spec)
+		var existing DescState
+		err=conn.Pgx.QueryRow(ctx,selectTermExpByCK,state.ExpCK).Scan(&existing.ExpCK,&existing.SupExpCK,&existing.K,&existing.Spec)
 		if err!=nil{return contkey.Zero,err}
 		canonical,err:=canonicalStoredJSON(existing.Spec); if err!=nil{return contkey.Zero,err}
 		expected,err:=canonicalStoredJSON(state.Spec); if err!=nil{return contkey.Zero,err}
-		if existing.SupExpCK!=state.SupExpCK || existing.Kind!=state.K || !bytes.Equal(canonical,expected) {
-			return contkey.Zero,fmt.Errorf("process term Definition content-key collision or parent conflict for %d",state.ExpCK)
+		if existing.SupExpCK!=state.SupExpCK || existing.K!=state.K || !bytes.Equal(canonical,expected) {
+			return fmt.Errorf("process term Definition content-key collision or parent conflict for %d",state.ExpCK)
 		}
 	}
 	return nil
@@ -69,7 +69,7 @@ VALUES ($1, $2, $3, $4::jsonb)
 ON CONFLICT (exp_ck) DO NOTHING
 `
 const selectTermExpByCK = `
-SELECT sup_exp_ck, kind, spec
+SELECT exp_ck, sup_exp_ck, kind, spec
 FROM proc_term_exps
 WHERE exp_ck = $1
 `

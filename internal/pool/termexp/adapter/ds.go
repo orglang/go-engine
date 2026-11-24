@@ -1,6 +1,10 @@
 package adapter
 
-import termexp "orglang/go-engine/internal/pool/termexp/core"
+import (
+	"encoding/json"
+
+	termexp "orglang/go-engine/internal/pool/termexp/core"
+)
 
 type ExpSpec struct {
 	K       ExpKind     `json:"k"`

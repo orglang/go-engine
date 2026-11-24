@@ -32,8 +32,10 @@ jobs:
       - name: Upgrade remaining mise tools
         run: mise upgrade --bump
 
-      - name: Regenerate source artifacts
-        run: mise run sources:prepare
+      - name: Regenerate generated artifacts
+        run: |
+          mise run specs:prepare
+          mise run sources:prepare
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
@@ -44,7 +46,7 @@ jobs:
             Automated mise toolchain upgrade.
 
             Configured tools are upgraded across the common, specs, and sources environments.
-            Generated source artifacts are refreshed with the upgraded generators.
+            Generated specs and source artifacts are refreshed with the upgraded generators.
             Dependency updates are handled separately by Dependabot.
           branch: chore/update-mise-tools
           delete-branch: true

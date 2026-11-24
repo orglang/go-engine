@@ -185,6 +185,11 @@ func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT, e
 }
 
 var ErrDefinitionRevisionMismatch = errors.New("description revision mismatch")
+var ErrTermDoesNotExist = errors.New("process term does not exist")
+
+func ErrTermMissing(termID identity.ADT) error {
+	return fmt.Errorf("%w: %v", ErrTermDoesNotExist, termID)
+}
 
 type DefinitionMissingError struct {
 	TermID identity.ADT

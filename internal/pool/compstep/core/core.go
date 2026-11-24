@@ -7,5 +7,5 @@ import (
 
 type StepSpec struct {
 	CompRef comproot.SemRef
-	PoolExp termexp.ExpSpec
+	PoolExp termexp.CompSpec
 }

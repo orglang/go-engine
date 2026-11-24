@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"orglang/go-engine/internal/pool/ent/compexec"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 )
@@ -17,6 +19,7 @@ type CompExecCreate struct {
 	config
 	mutation *CompExecMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCompRn sets the "comp_rn" field.
@@ -108,6 +111,7 @@ func (_c *CompExecCreate) createSpec() (*CompExec, *sqlgraph.CreateSpec) {
 		_node = &CompExec{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(compexec.Table, sqlgraph.NewFieldSpec(compexec.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -123,11 +127,225 @@ func (_c *CompExecCreate) createSpec() (*CompExec, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.CompExec.Create().
+//		SetCompRn(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.CompExecUpsert) {
+//			SetCompRn(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *CompExecCreate) OnConflict(opts ...sql.ConflictOption) *CompExecUpsertOne {
+	_c.conflict = opts
+	return &CompExecUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.CompExec.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *CompExecCreate) OnConflictColumns(columns ...string) *CompExecUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &CompExecUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// CompExecUpsertOne is the builder for "upsert"-ing
+	//  one CompExec node.
+	CompExecUpsertOne struct {
+		create *CompExecCreate
+	}
+
+	// CompExecUpsert is the "OnConflict" setter.
+	CompExecUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetCompRn sets the "comp_rn" field.
+func (u *CompExecUpsert) SetCompRn(v int64) *CompExecUpsert {
+	u.Set(compexec.FieldCompRn, v)
+	return u
+}
+
+// UpdateCompRn sets the "comp_rn" field to the value that was provided on create.
+func (u *CompExecUpsert) UpdateCompRn() *CompExecUpsert {
+	u.SetExcluded(compexec.FieldCompRn)
+	return u
+}
+
+// AddCompRn adds v to the "comp_rn" field.
+func (u *CompExecUpsert) AddCompRn(v int64) *CompExecUpsert {
+	u.Add(compexec.FieldCompRn, v)
+	return u
+}
+
+// SetLiabMode sets the "liab_mode" field.
+func (u *CompExecUpsert) SetLiabMode(v int16) *CompExecUpsert {
+	u.Set(compexec.FieldLiabMode, v)
+	return u
+}
+
+// UpdateLiabMode sets the "liab_mode" field to the value that was provided on create.
+func (u *CompExecUpsert) UpdateLiabMode() *CompExecUpsert {
+	u.SetExcluded(compexec.FieldLiabMode)
+	return u
+}
+
+// AddLiabMode adds v to the "liab_mode" field.
+func (u *CompExecUpsert) AddLiabMode(v int16) *CompExecUpsert {
+	u.Add(compexec.FieldLiabMode, v)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.CompExec.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(compexec.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *CompExecUpsertOne) UpdateNewValues() *CompExecUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(compexec.FieldID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.CompExec.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *CompExecUpsertOne) Ignore() *CompExecUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *CompExecUpsertOne) DoNothing() *CompExecUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the CompExecCreate.OnConflict
+// documentation for more info.
+func (u *CompExecUpsertOne) Update(set func(*CompExecUpsert)) *CompExecUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&CompExecUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetCompRn sets the "comp_rn" field.
+func (u *CompExecUpsertOne) SetCompRn(v int64) *CompExecUpsertOne {
+	return u.Update(func(s *CompExecUpsert) {
+		s.SetCompRn(v)
+	})
+}
+
+// AddCompRn adds v to the "comp_rn" field.
+func (u *CompExecUpsertOne) AddCompRn(v int64) *CompExecUpsertOne {
+	return u.Update(func(s *CompExecUpsert) {
+		s.AddCompRn(v)
+	})
+}
+
+// UpdateCompRn sets the "comp_rn" field to the value that was provided on create.
+func (u *CompExecUpsertOne) UpdateCompRn() *CompExecUpsertOne {
+	return u.Update(func(s *CompExecUpsert) {
+		s.UpdateCompRn()
+	})
+}
+
+// SetLiabMode sets the "liab_mode" field.
+func (u *CompExecUpsertOne) SetLiabMode(v int16) *CompExecUpsertOne {
+	return u.Update(func(s *CompExecUpsert) {
+		s.SetLiabMode(v)
+	})
+}
+
+// AddLiabMode adds v to the "liab_mode" field.
+func (u *CompExecUpsertOne) AddLiabMode(v int16) *CompExecUpsertOne {
+	return u.Update(func(s *CompExecUpsert) {
+		s.AddLiabMode(v)
+	})
+}
+
+// UpdateLiabMode sets the "liab_mode" field to the value that was provided on create.
+func (u *CompExecUpsertOne) UpdateLiabMode() *CompExecUpsertOne {
+	return u.Update(func(s *CompExecUpsert) {
+		s.UpdateLiabMode()
+	})
+}
+
+// Exec executes the query.
+func (u *CompExecUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for CompExecCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *CompExecUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *CompExecUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: CompExecUpsertOne.ID is not supported by MySQL driver. Use CompExecUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *CompExecUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // CompExecCreateBulk is the builder for creating many CompExec entities in bulk.
 type CompExecCreateBulk struct {
 	config
 	err      error
 	builders []*CompExecCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the CompExec entities in the database.
@@ -156,6 +374,7 @@ func (_c *CompExecCreateBulk) Save(ctx context.Context) ([]*CompExec, error) {
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -202,6 +421,162 @@ func (_c *CompExecCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *CompExecCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.CompExec.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.CompExecUpsert) {
+//			SetCompRn(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *CompExecCreateBulk) OnConflict(opts ...sql.ConflictOption) *CompExecUpsertBulk {
+	_c.conflict = opts
+	return &CompExecUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.CompExec.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *CompExecCreateBulk) OnConflictColumns(columns ...string) *CompExecUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &CompExecUpsertBulk{
+		create: _c,
+	}
+}
+
+// CompExecUpsertBulk is the builder for "upsert"-ing
+// a bulk of CompExec nodes.
+type CompExecUpsertBulk struct {
+	create *CompExecCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.CompExec.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(compexec.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *CompExecUpsertBulk) UpdateNewValues() *CompExecUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(compexec.FieldID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.CompExec.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *CompExecUpsertBulk) Ignore() *CompExecUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *CompExecUpsertBulk) DoNothing() *CompExecUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the CompExecCreateBulk.OnConflict
+// documentation for more info.
+func (u *CompExecUpsertBulk) Update(set func(*CompExecUpsert)) *CompExecUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&CompExecUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetCompRn sets the "comp_rn" field.
+func (u *CompExecUpsertBulk) SetCompRn(v int64) *CompExecUpsertBulk {
+	return u.Update(func(s *CompExecUpsert) {
+		s.SetCompRn(v)
+	})
+}
+
+// AddCompRn adds v to the "comp_rn" field.
+func (u *CompExecUpsertBulk) AddCompRn(v int64) *CompExecUpsertBulk {
+	return u.Update(func(s *CompExecUpsert) {
+		s.AddCompRn(v)
+	})
+}
+
+// UpdateCompRn sets the "comp_rn" field to the value that was provided on create.
+func (u *CompExecUpsertBulk) UpdateCompRn() *CompExecUpsertBulk {
+	return u.Update(func(s *CompExecUpsert) {
+		s.UpdateCompRn()
+	})
+}
+
+// SetLiabMode sets the "liab_mode" field.
+func (u *CompExecUpsertBulk) SetLiabMode(v int16) *CompExecUpsertBulk {
+	return u.Update(func(s *CompExecUpsert) {
+		s.SetLiabMode(v)
+	})
+}
+
+// AddLiabMode adds v to the "liab_mode" field.
+func (u *CompExecUpsertBulk) AddLiabMode(v int16) *CompExecUpsertBulk {
+	return u.Update(func(s *CompExecUpsert) {
+		s.AddLiabMode(v)
+	})
+}
+
+// UpdateLiabMode sets the "liab_mode" field to the value that was provided on create.
+func (u *CompExecUpsertBulk) UpdateLiabMode() *CompExecUpsertBulk {
+	return u.Update(func(s *CompExecUpsert) {
+		s.UpdateLiabMode()
+	})
+}
+
+// Exec executes the query.
+func (u *CompExecUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the CompExecCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for CompExecCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *CompExecUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

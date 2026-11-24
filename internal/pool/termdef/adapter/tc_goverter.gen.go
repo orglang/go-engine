@@ -4,6 +4,7 @@
 package adapter
 
 import (
+	contkey "orglang/go-engine/internal/adt/contkey"
 	identity "orglang/go-engine/internal/adt/identity"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
 	symbol "orglang/go-engine/internal/adt/symbol"
@@ -63,6 +64,7 @@ func init() {
 		adapterDefRec.TermID = identity.ConvertToString(source.TermRef.TermID)
 		adapterDefRec.DescID = identity.ConvertToString(source.TermRef.DescID)
 		adapterDefRec.DescRN = seqnum.ConvertToInt(source.TermRef.DescRN)
+		adapterDefRec.ExpCK = contkey.ConvertToInt(source.ExpCK)
 		adapterVarRec, err := adapter.DataFromVarRec(source.LiabVar)
 		if err != nil {
 			return adapterDefRec, err
@@ -87,6 +89,11 @@ func init() {
 			return coreDefRec, err
 		}
 		coreDefRec.TermRef = termsemSemRef
+		contkeyADT, err := contkey.ConvertFromInt(source.ExpCK)
+		if err != nil {
+			return coreDefRec, err
+		}
+		coreDefRec.ExpCK = contkeyADT
 		termvarVarRec, err := adapter.DataToVarRec(source.LiabVar)
 		if err != nil {
 			return coreDefRec, err

@@ -6,6 +6,7 @@ import (
 
 	"orglang/go-engine/internal/lib/tx"
 
+	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/adt/seqnum"
@@ -32,6 +33,7 @@ type DefSpec struct {
 
 type DefRec struct {
 	TermRef   termsem.SemRef
+	ExpCK     contkey.ADT
 	LiabVar   termvar.VarRec
 	AssetVars []termvar.VarRec
 }

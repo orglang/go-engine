@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"testing"
 
+	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/adt/identity"
@@ -58,6 +59,10 @@ func (r *contextRepo) AddRec(ctx context.Context, _ tx.Conn, _ DecRec) error {
 	return r.ctxErr
 }
 
+func (*contextRepo) SetExpCK(context.Context, tx.Conn, identity.ADT, contkey.ADT) error {
+	return nil
+}
+
 func (*contextRepo) GetRefs(context.Context, tx.Conn) ([]termsem.SemRef, error) {
 	return nil, nil
 }
@@ -68,6 +73,10 @@ func (*contextRepo) GetSnap(context.Context, tx.Conn, termsem.SemRef) (DecSnap, 
 
 func (*contextRepo) GetRecs(context.Context, tx.Conn, []identity.ADT) ([]DecRec, error) {
 	return nil, nil
+}
+
+func (*contextRepo) GetRecByID(context.Context, tx.Conn, identity.ADT) (DecRec, error) {
+	return DecRec{}, nil
 }
 
 func (*contextRepo) SelectEnv(context.Context, tx.Conn, []identity.ADT) (map[identity.ADT]DecRec, error) {

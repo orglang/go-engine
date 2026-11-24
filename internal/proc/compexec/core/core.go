@@ -206,7 +206,7 @@ func (s *service) takeWith(
 	ctx context.Context,
 	procEnv Env,
 	execSnap ExecSnap,
-	exp termexp.ExpSpec,
+	exp termexp.CompSpec,
 ) (takeResult, error) {
 	var execMod ExecMod
 	var execEff ExecEff
@@ -924,7 +924,7 @@ func (s *service) checkType(
 	procEnv Env,
 	procCtx typedef.Context,
 	execSnap ExecSnap,
-	expSpec termexp.ExpSpec,
+	expSpec termexp.CompSpec,
 ) error {
 	chnlBR, ok := execSnap.LinearVars[expSpec.Via()]
 	if !ok {
@@ -940,7 +940,7 @@ func (s *service) checkProvider(
 	procEnv Env,
 	procCtx typedef.Context,
 	procCfg ExecSnap,
-	es termexp.ExpSpec,
+	es termexp.CompSpec,
 ) error {
 	switch expSpec := es.(type) {
 	case termexp.CloseSpec:
@@ -1128,7 +1128,7 @@ func (s *service) checkClient(
 	procEnv Env,
 	procCtx typedef.Context,
 	procCfg ExecSnap,
-	es termexp.ExpSpec,
+	es termexp.CompSpec,
 ) error {
 	switch expSpec := es.(type) {
 	case termexp.CloseSpec:

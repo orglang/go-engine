@@ -9,6 +9,7 @@ import (
 	"orglang/go-engine/internal/pool/ent/schema"
 	"orglang/go-engine/internal/pool/ent/typeexp"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 )
@@ -18,6 +19,7 @@ type TypeExpCreate struct {
 	config
 	mutation *TypeExpMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetSupExpCk sets the "sup_exp_ck" field.
@@ -120,6 +122,7 @@ func (_c *TypeExpCreate) createSpec() (*TypeExp, *sqlgraph.CreateSpec) {
 		_node = &TypeExp{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(typeexp.Table, sqlgraph.NewFieldSpec(typeexp.FieldID, field.TypeInt64))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -139,11 +142,259 @@ func (_c *TypeExpCreate) createSpec() (*TypeExp, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.TypeExp.Create().
+//		SetSupExpCk(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.TypeExpUpsert) {
+//			SetSupExpCk(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *TypeExpCreate) OnConflict(opts ...sql.ConflictOption) *TypeExpUpsertOne {
+	_c.conflict = opts
+	return &TypeExpUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.TypeExp.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *TypeExpCreate) OnConflictColumns(columns ...string) *TypeExpUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &TypeExpUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// TypeExpUpsertOne is the builder for "upsert"-ing
+	//  one TypeExp node.
+	TypeExpUpsertOne struct {
+		create *TypeExpCreate
+	}
+
+	// TypeExpUpsert is the "OnConflict" setter.
+	TypeExpUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetSupExpCk sets the "sup_exp_ck" field.
+func (u *TypeExpUpsert) SetSupExpCk(v int64) *TypeExpUpsert {
+	u.Set(typeexp.FieldSupExpCk, v)
+	return u
+}
+
+// UpdateSupExpCk sets the "sup_exp_ck" field to the value that was provided on create.
+func (u *TypeExpUpsert) UpdateSupExpCk() *TypeExpUpsert {
+	u.SetExcluded(typeexp.FieldSupExpCk)
+	return u
+}
+
+// AddSupExpCk adds v to the "sup_exp_ck" field.
+func (u *TypeExpUpsert) AddSupExpCk(v int64) *TypeExpUpsert {
+	u.Add(typeexp.FieldSupExpCk, v)
+	return u
+}
+
+// SetKind sets the "kind" field.
+func (u *TypeExpUpsert) SetKind(v int16) *TypeExpUpsert {
+	u.Set(typeexp.FieldKind, v)
+	return u
+}
+
+// UpdateKind sets the "kind" field to the value that was provided on create.
+func (u *TypeExpUpsert) UpdateKind() *TypeExpUpsert {
+	u.SetExcluded(typeexp.FieldKind)
+	return u
+}
+
+// AddKind adds v to the "kind" field.
+func (u *TypeExpUpsert) AddKind(v int16) *TypeExpUpsert {
+	u.Add(typeexp.FieldKind, v)
+	return u
+}
+
+// SetSpec sets the "spec" field.
+func (u *TypeExpUpsert) SetSpec(v schema.ExpSpec) *TypeExpUpsert {
+	u.Set(typeexp.FieldSpec, v)
+	return u
+}
+
+// UpdateSpec sets the "spec" field to the value that was provided on create.
+func (u *TypeExpUpsert) UpdateSpec() *TypeExpUpsert {
+	u.SetExcluded(typeexp.FieldSpec)
+	return u
+}
+
+// ClearSpec clears the value of the "spec" field.
+func (u *TypeExpUpsert) ClearSpec() *TypeExpUpsert {
+	u.SetNull(typeexp.FieldSpec)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.TypeExp.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(typeexp.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *TypeExpUpsertOne) UpdateNewValues() *TypeExpUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(typeexp.FieldID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.TypeExp.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *TypeExpUpsertOne) Ignore() *TypeExpUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *TypeExpUpsertOne) DoNothing() *TypeExpUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the TypeExpCreate.OnConflict
+// documentation for more info.
+func (u *TypeExpUpsertOne) Update(set func(*TypeExpUpsert)) *TypeExpUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&TypeExpUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetSupExpCk sets the "sup_exp_ck" field.
+func (u *TypeExpUpsertOne) SetSupExpCk(v int64) *TypeExpUpsertOne {
+	return u.Update(func(s *TypeExpUpsert) {
+		s.SetSupExpCk(v)
+	})
+}
+
+// AddSupExpCk adds v to the "sup_exp_ck" field.
+func (u *TypeExpUpsertOne) AddSupExpCk(v int64) *TypeExpUpsertOne {
+	return u.Update(func(s *TypeExpUpsert) {
+		s.AddSupExpCk(v)
+	})
+}
+
+// UpdateSupExpCk sets the "sup_exp_ck" field to the value that was provided on create.
+func (u *TypeExpUpsertOne) UpdateSupExpCk() *TypeExpUpsertOne {
+	return u.Update(func(s *TypeExpUpsert) {
+		s.UpdateSupExpCk()
+	})
+}
+
+// SetKind sets the "kind" field.
+func (u *TypeExpUpsertOne) SetKind(v int16) *TypeExpUpsertOne {
+	return u.Update(func(s *TypeExpUpsert) {
+		s.SetKind(v)
+	})
+}
+
+// AddKind adds v to the "kind" field.
+func (u *TypeExpUpsertOne) AddKind(v int16) *TypeExpUpsertOne {
+	return u.Update(func(s *TypeExpUpsert) {
+		s.AddKind(v)
+	})
+}
+
+// UpdateKind sets the "kind" field to the value that was provided on create.
+func (u *TypeExpUpsertOne) UpdateKind() *TypeExpUpsertOne {
+	return u.Update(func(s *TypeExpUpsert) {
+		s.UpdateKind()
+	})
+}
+
+// SetSpec sets the "spec" field.
+func (u *TypeExpUpsertOne) SetSpec(v schema.ExpSpec) *TypeExpUpsertOne {
+	return u.Update(func(s *TypeExpUpsert) {
+		s.SetSpec(v)
+	})
+}
+
+// UpdateSpec sets the "spec" field to the value that was provided on create.
+func (u *TypeExpUpsertOne) UpdateSpec() *TypeExpUpsertOne {
+	return u.Update(func(s *TypeExpUpsert) {
+		s.UpdateSpec()
+	})
+}
+
+// ClearSpec clears the value of the "spec" field.
+func (u *TypeExpUpsertOne) ClearSpec() *TypeExpUpsertOne {
+	return u.Update(func(s *TypeExpUpsert) {
+		s.ClearSpec()
+	})
+}
+
+// Exec executes the query.
+func (u *TypeExpUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for TypeExpCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *TypeExpUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *TypeExpUpsertOne) ID(ctx context.Context) (id int64, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *TypeExpUpsertOne) IDX(ctx context.Context) int64 {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // TypeExpCreateBulk is the builder for creating many TypeExp entities in bulk.
 type TypeExpCreateBulk struct {
 	config
 	err      error
 	builders []*TypeExpCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the TypeExp entities in the database.
@@ -172,6 +423,7 @@ func (_c *TypeExpCreateBulk) Save(ctx context.Context) ([]*TypeExp, error) {
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -222,6 +474,183 @@ func (_c *TypeExpCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *TypeExpCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.TypeExp.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.TypeExpUpsert) {
+//			SetSupExpCk(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *TypeExpCreateBulk) OnConflict(opts ...sql.ConflictOption) *TypeExpUpsertBulk {
+	_c.conflict = opts
+	return &TypeExpUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.TypeExp.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *TypeExpCreateBulk) OnConflictColumns(columns ...string) *TypeExpUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &TypeExpUpsertBulk{
+		create: _c,
+	}
+}
+
+// TypeExpUpsertBulk is the builder for "upsert"-ing
+// a bulk of TypeExp nodes.
+type TypeExpUpsertBulk struct {
+	create *TypeExpCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.TypeExp.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(typeexp.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *TypeExpUpsertBulk) UpdateNewValues() *TypeExpUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(typeexp.FieldID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.TypeExp.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *TypeExpUpsertBulk) Ignore() *TypeExpUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *TypeExpUpsertBulk) DoNothing() *TypeExpUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the TypeExpCreateBulk.OnConflict
+// documentation for more info.
+func (u *TypeExpUpsertBulk) Update(set func(*TypeExpUpsert)) *TypeExpUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&TypeExpUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetSupExpCk sets the "sup_exp_ck" field.
+func (u *TypeExpUpsertBulk) SetSupExpCk(v int64) *TypeExpUpsertBulk {
+	return u.Update(func(s *TypeExpUpsert) {
+		s.SetSupExpCk(v)
+	})
+}
+
+// AddSupExpCk adds v to the "sup_exp_ck" field.
+func (u *TypeExpUpsertBulk) AddSupExpCk(v int64) *TypeExpUpsertBulk {
+	return u.Update(func(s *TypeExpUpsert) {
+		s.AddSupExpCk(v)
+	})
+}
+
+// UpdateSupExpCk sets the "sup_exp_ck" field to the value that was provided on create.
+func (u *TypeExpUpsertBulk) UpdateSupExpCk() *TypeExpUpsertBulk {
+	return u.Update(func(s *TypeExpUpsert) {
+		s.UpdateSupExpCk()
+	})
+}
+
+// SetKind sets the "kind" field.
+func (u *TypeExpUpsertBulk) SetKind(v int16) *TypeExpUpsertBulk {
+	return u.Update(func(s *TypeExpUpsert) {
+		s.SetKind(v)
+	})
+}
+
+// AddKind adds v to the "kind" field.
+func (u *TypeExpUpsertBulk) AddKind(v int16) *TypeExpUpsertBulk {
+	return u.Update(func(s *TypeExpUpsert) {
+		s.AddKind(v)
+	})
+}
+
+// UpdateKind sets the "kind" field to the value that was provided on create.
+func (u *TypeExpUpsertBulk) UpdateKind() *TypeExpUpsertBulk {
+	return u.Update(func(s *TypeExpUpsert) {
+		s.UpdateKind()
+	})
+}
+
+// SetSpec sets the "spec" field.
+func (u *TypeExpUpsertBulk) SetSpec(v schema.ExpSpec) *TypeExpUpsertBulk {
+	return u.Update(func(s *TypeExpUpsert) {
+		s.SetSpec(v)
+	})
+}
+
+// UpdateSpec sets the "spec" field to the value that was provided on create.
+func (u *TypeExpUpsertBulk) UpdateSpec() *TypeExpUpsertBulk {
+	return u.Update(func(s *TypeExpUpsert) {
+		s.UpdateSpec()
+	})
+}
+
+// ClearSpec clears the value of the "spec" field.
+func (u *TypeExpUpsertBulk) ClearSpec() *TypeExpUpsertBulk {
+	return u.Update(func(s *TypeExpUpsert) {
+		s.ClearSpec()
+	})
+}
+
+// Exec executes the query.
+func (u *TypeExpUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the TypeExpCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for TypeExpCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *TypeExpUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

@@ -2,11 +2,14 @@ package adapter
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"reflect"
 
 	"github.com/jackc/pgx/v5"
 
+	"orglang/go-engine/internal/adt/contkey"
+	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/lf"
@@ -55,11 +58,50 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdef.DefRec)
 	return nil
 }
 
+func (dao *daoEnt) SetExpCK(ctx context.Context, conn tx.Conn, termID identity.ADT, expCK contkey.ADT) error {
+	const query = `
+UPDATE pool_desc_terms
+SET exp_ck = $1
+WHERE term_id = $2
+`
+	result, err := conn.Pgx.Exec(ctx, query, int64(expCK), termID.String())
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected() == 0 {
+		return fmt.Errorf("pool term %v does not exist", termID)
+	}
+	return nil
+}
+
+func (dao *daoEnt) GetRecByID(ctx context.Context, conn tx.Conn, termID identity.ADT) (termdef.DefRec, error) {
+	const query = `
+SELECT def.term_id, def.desc_id, root.desc_rn, COALESCE(def.exp_ck, 0) AS exp_ck, def.liab_var, def.asset_vars
+FROM pool_desc_terms AS def
+JOIN pool_desc_roots AS root ON root.desc_id = def.desc_id
+WHERE def.term_id = $1
+`
+	rows, err := conn.Pgx.Query(ctx, query, termID.String())
+	if err != nil {
+		return termdef.DefRec{}, err
+	}
+	defer rows.Close()
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRec])
+	if err != nil {
+		return termdef.DefRec{}, err
+	}
+	rec, err := DataToDecRec(dto)
+	if err != nil {
+		return termdef.DefRec{}, err
+	}
+	return rec, nil
+}
+
 func (dao *daoEnt) GetRecByQN(ctx context.Context, conn tx.Conn, qn uniqsym.ADT) (termdef.DefRec, error) {
 	qnAttr := slog.Any("qn", qn)
 	const query = `
-SELECT def.term_id, def.desc_id, root.desc_rn, def.liab_var, def.asset_vars
-FROM pool_term_decs AS def
+SELECT def.term_id, def.desc_id, root.desc_rn, COALESCE(def.exp_ck, 0) AS exp_ck, def.liab_var, def.asset_vars
+FROM pool_desc_terms AS def
 JOIN pool_desc_roots AS root ON root.desc_id = def.desc_id
 JOIN pool_desc_binds AS bind ON bind.desc_id = def.term_id
 WHERE bind.desc_qn = $1

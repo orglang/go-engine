@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"orglang/go-engine/internal/pool/ent/typedef"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 )
@@ -17,6 +19,7 @@ type TypeDefCreate struct {
 	config
 	mutation *TypeDefMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetDescID sets the "desc_id" field.
@@ -108,6 +111,7 @@ func (_c *TypeDefCreate) createSpec() (*TypeDef, *sqlgraph.CreateSpec) {
 		_node = &TypeDef{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(typedef.Table, sqlgraph.NewFieldSpec(typedef.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -123,11 +127,212 @@ func (_c *TypeDefCreate) createSpec() (*TypeDef, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.TypeDef.Create().
+//		SetDescID(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.TypeDefUpsert) {
+//			SetDescID(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *TypeDefCreate) OnConflict(opts ...sql.ConflictOption) *TypeDefUpsertOne {
+	_c.conflict = opts
+	return &TypeDefUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.TypeDef.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *TypeDefCreate) OnConflictColumns(columns ...string) *TypeDefUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &TypeDefUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// TypeDefUpsertOne is the builder for "upsert"-ing
+	//  one TypeDef node.
+	TypeDefUpsertOne struct {
+		create *TypeDefCreate
+	}
+
+	// TypeDefUpsert is the "OnConflict" setter.
+	TypeDefUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetDescID sets the "desc_id" field.
+func (u *TypeDefUpsert) SetDescID(v string) *TypeDefUpsert {
+	u.Set(typedef.FieldDescID, v)
+	return u
+}
+
+// UpdateDescID sets the "desc_id" field to the value that was provided on create.
+func (u *TypeDefUpsert) UpdateDescID() *TypeDefUpsert {
+	u.SetExcluded(typedef.FieldDescID)
+	return u
+}
+
+// SetExpCk sets the "exp_ck" field.
+func (u *TypeDefUpsert) SetExpCk(v int64) *TypeDefUpsert {
+	u.Set(typedef.FieldExpCk, v)
+	return u
+}
+
+// UpdateExpCk sets the "exp_ck" field to the value that was provided on create.
+func (u *TypeDefUpsert) UpdateExpCk() *TypeDefUpsert {
+	u.SetExcluded(typedef.FieldExpCk)
+	return u
+}
+
+// AddExpCk adds v to the "exp_ck" field.
+func (u *TypeDefUpsert) AddExpCk(v int64) *TypeDefUpsert {
+	u.Add(typedef.FieldExpCk, v)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.TypeDef.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(typedef.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *TypeDefUpsertOne) UpdateNewValues() *TypeDefUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(typedef.FieldID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.TypeDef.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *TypeDefUpsertOne) Ignore() *TypeDefUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *TypeDefUpsertOne) DoNothing() *TypeDefUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the TypeDefCreate.OnConflict
+// documentation for more info.
+func (u *TypeDefUpsertOne) Update(set func(*TypeDefUpsert)) *TypeDefUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&TypeDefUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetDescID sets the "desc_id" field.
+func (u *TypeDefUpsertOne) SetDescID(v string) *TypeDefUpsertOne {
+	return u.Update(func(s *TypeDefUpsert) {
+		s.SetDescID(v)
+	})
+}
+
+// UpdateDescID sets the "desc_id" field to the value that was provided on create.
+func (u *TypeDefUpsertOne) UpdateDescID() *TypeDefUpsertOne {
+	return u.Update(func(s *TypeDefUpsert) {
+		s.UpdateDescID()
+	})
+}
+
+// SetExpCk sets the "exp_ck" field.
+func (u *TypeDefUpsertOne) SetExpCk(v int64) *TypeDefUpsertOne {
+	return u.Update(func(s *TypeDefUpsert) {
+		s.SetExpCk(v)
+	})
+}
+
+// AddExpCk adds v to the "exp_ck" field.
+func (u *TypeDefUpsertOne) AddExpCk(v int64) *TypeDefUpsertOne {
+	return u.Update(func(s *TypeDefUpsert) {
+		s.AddExpCk(v)
+	})
+}
+
+// UpdateExpCk sets the "exp_ck" field to the value that was provided on create.
+func (u *TypeDefUpsertOne) UpdateExpCk() *TypeDefUpsertOne {
+	return u.Update(func(s *TypeDefUpsert) {
+		s.UpdateExpCk()
+	})
+}
+
+// Exec executes the query.
+func (u *TypeDefUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for TypeDefCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *TypeDefUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *TypeDefUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: TypeDefUpsertOne.ID is not supported by MySQL driver. Use TypeDefUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *TypeDefUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // TypeDefCreateBulk is the builder for creating many TypeDef entities in bulk.
 type TypeDefCreateBulk struct {
 	config
 	err      error
 	builders []*TypeDefCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the TypeDef entities in the database.
@@ -156,6 +361,7 @@ func (_c *TypeDefCreateBulk) Save(ctx context.Context) ([]*TypeDef, error) {
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -202,6 +408,155 @@ func (_c *TypeDefCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *TypeDefCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.TypeDef.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.TypeDefUpsert) {
+//			SetDescID(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *TypeDefCreateBulk) OnConflict(opts ...sql.ConflictOption) *TypeDefUpsertBulk {
+	_c.conflict = opts
+	return &TypeDefUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.TypeDef.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *TypeDefCreateBulk) OnConflictColumns(columns ...string) *TypeDefUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &TypeDefUpsertBulk{
+		create: _c,
+	}
+}
+
+// TypeDefUpsertBulk is the builder for "upsert"-ing
+// a bulk of TypeDef nodes.
+type TypeDefUpsertBulk struct {
+	create *TypeDefCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.TypeDef.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(typedef.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *TypeDefUpsertBulk) UpdateNewValues() *TypeDefUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(typedef.FieldID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.TypeDef.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *TypeDefUpsertBulk) Ignore() *TypeDefUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *TypeDefUpsertBulk) DoNothing() *TypeDefUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the TypeDefCreateBulk.OnConflict
+// documentation for more info.
+func (u *TypeDefUpsertBulk) Update(set func(*TypeDefUpsert)) *TypeDefUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&TypeDefUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetDescID sets the "desc_id" field.
+func (u *TypeDefUpsertBulk) SetDescID(v string) *TypeDefUpsertBulk {
+	return u.Update(func(s *TypeDefUpsert) {
+		s.SetDescID(v)
+	})
+}
+
+// UpdateDescID sets the "desc_id" field to the value that was provided on create.
+func (u *TypeDefUpsertBulk) UpdateDescID() *TypeDefUpsertBulk {
+	return u.Update(func(s *TypeDefUpsert) {
+		s.UpdateDescID()
+	})
+}
+
+// SetExpCk sets the "exp_ck" field.
+func (u *TypeDefUpsertBulk) SetExpCk(v int64) *TypeDefUpsertBulk {
+	return u.Update(func(s *TypeDefUpsert) {
+		s.SetExpCk(v)
+	})
+}
+
+// AddExpCk adds v to the "exp_ck" field.
+func (u *TypeDefUpsertBulk) AddExpCk(v int64) *TypeDefUpsertBulk {
+	return u.Update(func(s *TypeDefUpsert) {
+		s.AddExpCk(v)
+	})
+}
+
+// UpdateExpCk sets the "exp_ck" field to the value that was provided on create.
+func (u *TypeDefUpsertBulk) UpdateExpCk() *TypeDefUpsertBulk {
+	return u.Update(func(s *TypeDefUpsert) {
+		s.UpdateExpCk()
+	})
+}
+
+// Exec executes the query.
+func (u *TypeDefUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the TypeDefCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for TypeDefCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *TypeDefUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

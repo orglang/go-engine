@@ -40,11 +40,11 @@ func init() {
 			return corePubRec, err
 		}
 		corePubRec.ChnlID = identityADT2
-		coreExpRec, err := adapter.DataToExpRec(source.Exp)
+		coreCompRec, err := adapter.DataToExpRec(source.Exp)
 		if err != nil {
 			return corePubRec, err
 		}
-		corePubRec.ValExp = coreExpRec
+		corePubRec.ValExp = coreCompRec
 		return corePubRec, nil
 	}
 	DataToSubRec = func(source ActRec) (core.SubRec, error) {
@@ -65,11 +65,11 @@ func init() {
 			return coreSubRec, err
 		}
 		coreSubRec.ChnlID = identityADT2
-		coreExpRec, err := adapter.DataToExpRec(source.Exp)
+		coreCompRec, err := adapter.DataToExpRec(source.Exp)
 		if err != nil {
 			return coreSubRec, err
 		}
-		coreSubRec.ContExp = coreExpRec
+		coreSubRec.ContExp = coreCompRec
 		return coreSubRec, nil
 	}
 }

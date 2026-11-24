@@ -15,13 +15,13 @@ import (
 	descrootadapter "orglang/go-engine/internal/proc/descroot/adapter"
 	"orglang/go-engine/internal/proc/ent"
 	termdef "orglang/go-engine/internal/proc/termdef/adapter"
+	termexp "orglang/go-engine/internal/proc/termexp/adapter"
 	typedef "orglang/go-engine/internal/proc/typedef/adapter"
 	typeexp "orglang/go-engine/internal/proc/typeexp/adapter"
 )
 
 // Package is the process-domain composition boundary. It registers the
-// persistence adapters and services currently used by production process
-// endpoints. Incomplete and unused areas such as termexp remain unwired.
+// persistence adapters and services currently used by production endpoints.
 var Package = do.Package(
 	do.Lazy[*ent.Client](func(do.Injector) (*ent.Client, error) {
 		return ent.NewClient(ent.Driver(entpgx.New())), nil
@@ -40,6 +40,7 @@ var Package = do.Package(
 	}),
 	compexec.Package,
 	termdef.Package,
+	termexp.Package,
 	typedef.Package,
 	typeexp.Package,
 	do.Lazy[typesem.Repo](func(i do.Injector) (typesem.Repo, error) {

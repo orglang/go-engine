@@ -26,11 +26,19 @@ CREATE TABLE pool_type_exps (
     spec jsonb
 );
 
-CREATE TABLE pool_term_decs (
+CREATE TABLE pool_desc_terms (
     term_id varchar UNIQUE,
     desc_id varchar NOT NULL,
+    exp_ck bigint,
     liab_var jsonb,
     asset_vars jsonb
+);
+
+CREATE TABLE pool_term_exps (
+    exp_ck bigint UNIQUE,
+    sup_exp_ck bigint,
+    kind smallint,
+    spec jsonb
 );
 
 CREATE TABLE pool_impl_binds (
@@ -109,11 +117,19 @@ CREATE TABLE proc_type_exps (
     spec jsonb
 );
 
-CREATE TABLE proc_term_decs (
+CREATE TABLE proc_desc_terms (
     term_id varchar UNIQUE,
     desc_id varchar NOT NULL,
+    exp_ck bigint,
     liab_var jsonb,
     asset_vars jsonb
+);
+
+CREATE TABLE proc_term_exps (
+    exp_ck bigint UNIQUE,
+    sup_exp_ck bigint,
+    kind smallint,
+    spec jsonb
 );
 
 CREATE TABLE proc_impl_binds (

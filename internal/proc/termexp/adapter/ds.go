@@ -15,7 +15,7 @@ const (
 	FwdExp
 )
 
-type ExpSpec struct {
+type CompSpec struct {
 	K     ExpKind    `json:"k"`
 	Close *CloseSpec `json:"close,omitempty"`
 	Wait  *WaitSpec  `json:"wait,omitempty"`
@@ -45,12 +45,12 @@ type CloseRec struct {
 }
 
 type WaitSpec struct {
-	X      string  `json:"x"`
-	ContES ExpSpec `json:"cont"`
+	X      string   `json:"x"`
+	ContES CompSpec `json:"cont"`
 }
 type WaitRec struct {
-	X      string  `json:"x"`
-	ContES ExpSpec `json:"cont"`
+	X      string   `json:"x"`
+	ContES CompSpec `json:"cont"`
 }
 
 type SendSpec struct {
@@ -66,20 +66,21 @@ type SendRec struct {
 }
 
 type RecvSpec struct {
-	X      string  `json:"x"`
-	Y      string  `json:"y"`
-	ContES ExpSpec `json:"cont"`
+	X      string   `json:"x"`
+	Y      string   `json:"y"`
+	ContES CompSpec `json:"cont"`
 }
 type RecvRec struct {
-	X      string  `json:"x"`
-	A      string  `json:"a"`
-	Y      string  `json:"y"`
-	ContES ExpSpec `json:"cont"`
+	X      string   `json:"x"`
+	A      string   `json:"a"`
+	Y      string   `json:"y"`
+	ContES CompSpec `json:"cont"`
 }
 
 type LabSpec struct {
-	X     string `json:"x"`
-	Label string `json:"lab"`
+	X      string   `json:"x"`
+	Label  string   `json:"lab"`
+	ContES CompSpec `json:"cont"`
 }
 type LabRec struct {
 	X     string `json:"x"`
@@ -100,12 +101,12 @@ type CaseRec struct {
 }
 
 type BranchSpec struct {
-	Label  string  `json:"lab"`
-	ContES ExpSpec `json:"cont"`
+	Label  string   `json:"lab"`
+	ContES CompSpec `json:"cont"`
 }
 type BranchRec struct {
-	Label  string  `json:"lab"`
-	ContES ExpSpec `json:"cont"`
+	Label  string   `json:"lab"`
+	ContES CompSpec `json:"cont"`
 }
 
 type FwdSpec struct {
@@ -115,4 +116,31 @@ type FwdSpec struct {
 type FwdRec struct {
 	X string `json:"x"`
 	B string `json:"b"`
+}
+
+type DescData struct {
+	ExpCK  int64       `db:"exp_ck"`
+	States []DescState `db:"states"`
+}
+
+type DescState struct {
+	ExpCK    int64     `db:"exp_ck"`
+	SupExpCK int64     `db:"sup_exp_ck"`
+	K        int16     `db:"kind"`
+	Spec     StateSpec `db:"spec"`
+}
+
+type StateSpec struct {
+	ContChnlPH string           `json:"cont_chnl_ph,omitempty"`
+	ConnChnlPH string           `json:"conn_chnl_ph,omitempty"`
+	ValChnlPH  string           `json:"val_chnl_ph,omitempty"`
+	ValLabQN   string           `json:"val_lab_qn,omitempty"`
+	NewChnlPH  string           `json:"new_chnl_ph,omitempty"`
+	ContExpCK  int64            `json:"cont_exp_ck,omitempty"`
+	ContExpCKs map[string]int64 `json:"cont_exp_cks,omitempty"`
+	ProcTermQN string           `json:"proc_term_qn,omitempty"`
+	X          string           `json:"x,omitempty"`
+	Ys         []string         `json:"ys,omitempty"`
+	ValChnlPHs []string         `json:"val_chnl_phs,omitempty"`
+	NewChnlPHs []string         `json:"new_chnl_phs,omitempty"`
 }

@@ -29,6 +29,20 @@ func (_c *TermDecCreate) SetDescID(v string) *TermDecCreate {
 	return _c
 }
 
+// SetExpCk sets the "exp_ck" field.
+func (_c *TermDecCreate) SetExpCk(v int64) *TermDecCreate {
+	_c.mutation.SetExpCk(v)
+	return _c
+}
+
+// SetNillableExpCk sets the "exp_ck" field if the given value is not nil.
+func (_c *TermDecCreate) SetNillableExpCk(v *int64) *TermDecCreate {
+	if v != nil {
+		_c.SetExpCk(*v)
+	}
+	return _c
+}
+
 // SetLiabVar sets the "liab_var" field.
 func (_c *TermDecCreate) SetLiabVar(v adapter.VarRec) *TermDecCreate {
 	_c.mutation.SetLiabVar(v)
@@ -130,6 +144,10 @@ func (_c *TermDecCreate) createSpec() (*TermDec, *sqlgraph.CreateSpec) {
 		_spec.SetField(termdec.FieldDescID, field.TypeString, value)
 		_node.DescID = value
 	}
+	if value, ok := _c.mutation.ExpCk(); ok {
+		_spec.SetField(termdec.FieldExpCk, field.TypeInt64, value)
+		_node.ExpCk = value
+	}
 	if value, ok := _c.mutation.LiabVar(); ok {
 		_spec.SetField(termdec.FieldLiabVar, field.TypeJSON, value)
 		_node.LiabVar = value
@@ -199,6 +217,30 @@ func (u *TermDecUpsert) SetDescID(v string) *TermDecUpsert {
 // UpdateDescID sets the "desc_id" field to the value that was provided on create.
 func (u *TermDecUpsert) UpdateDescID() *TermDecUpsert {
 	u.SetExcluded(termdec.FieldDescID)
+	return u
+}
+
+// SetExpCk sets the "exp_ck" field.
+func (u *TermDecUpsert) SetExpCk(v int64) *TermDecUpsert {
+	u.Set(termdec.FieldExpCk, v)
+	return u
+}
+
+// UpdateExpCk sets the "exp_ck" field to the value that was provided on create.
+func (u *TermDecUpsert) UpdateExpCk() *TermDecUpsert {
+	u.SetExcluded(termdec.FieldExpCk)
+	return u
+}
+
+// AddExpCk adds v to the "exp_ck" field.
+func (u *TermDecUpsert) AddExpCk(v int64) *TermDecUpsert {
+	u.Add(termdec.FieldExpCk, v)
+	return u
+}
+
+// ClearExpCk clears the value of the "exp_ck" field.
+func (u *TermDecUpsert) ClearExpCk() *TermDecUpsert {
+	u.SetNull(termdec.FieldExpCk)
 	return u
 }
 
@@ -285,6 +327,34 @@ func (u *TermDecUpsertOne) SetDescID(v string) *TermDecUpsertOne {
 func (u *TermDecUpsertOne) UpdateDescID() *TermDecUpsertOne {
 	return u.Update(func(s *TermDecUpsert) {
 		s.UpdateDescID()
+	})
+}
+
+// SetExpCk sets the "exp_ck" field.
+func (u *TermDecUpsertOne) SetExpCk(v int64) *TermDecUpsertOne {
+	return u.Update(func(s *TermDecUpsert) {
+		s.SetExpCk(v)
+	})
+}
+
+// AddExpCk adds v to the "exp_ck" field.
+func (u *TermDecUpsertOne) AddExpCk(v int64) *TermDecUpsertOne {
+	return u.Update(func(s *TermDecUpsert) {
+		s.AddExpCk(v)
+	})
+}
+
+// UpdateExpCk sets the "exp_ck" field to the value that was provided on create.
+func (u *TermDecUpsertOne) UpdateExpCk() *TermDecUpsertOne {
+	return u.Update(func(s *TermDecUpsert) {
+		s.UpdateExpCk()
+	})
+}
+
+// ClearExpCk clears the value of the "exp_ck" field.
+func (u *TermDecUpsertOne) ClearExpCk() *TermDecUpsertOne {
+	return u.Update(func(s *TermDecUpsert) {
+		s.ClearExpCk()
 	})
 }
 
@@ -541,6 +611,34 @@ func (u *TermDecUpsertBulk) SetDescID(v string) *TermDecUpsertBulk {
 func (u *TermDecUpsertBulk) UpdateDescID() *TermDecUpsertBulk {
 	return u.Update(func(s *TermDecUpsert) {
 		s.UpdateDescID()
+	})
+}
+
+// SetExpCk sets the "exp_ck" field.
+func (u *TermDecUpsertBulk) SetExpCk(v int64) *TermDecUpsertBulk {
+	return u.Update(func(s *TermDecUpsert) {
+		s.SetExpCk(v)
+	})
+}
+
+// AddExpCk adds v to the "exp_ck" field.
+func (u *TermDecUpsertBulk) AddExpCk(v int64) *TermDecUpsertBulk {
+	return u.Update(func(s *TermDecUpsert) {
+		s.AddExpCk(v)
+	})
+}
+
+// UpdateExpCk sets the "exp_ck" field to the value that was provided on create.
+func (u *TermDecUpsertBulk) UpdateExpCk() *TermDecUpsertBulk {
+	return u.Update(func(s *TermDecUpsert) {
+		s.UpdateExpCk()
+	})
+}
+
+// ClearExpCk clears the value of the "exp_ck" field.
+func (u *TermDecUpsertBulk) ClearExpCk() *TermDecUpsertBulk {
+	return u.Update(func(s *TermDecUpsert) {
+		s.ClearExpCk()
 	})
 }
 

@@ -12,6 +12,7 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 
+	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/termsem"
@@ -57,6 +58,22 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdef.DecRec)
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)
 		return err
+	}
+	return nil
+}
+
+func (dao *daoEnt) SetExpCK(ctx context.Context, conn tx.Conn, termID identity.ADT, expCK contkey.ADT) error {
+	const query = `
+UPDATE proc_desc_terms
+SET exp_ck = $1
+WHERE term_id = $2
+`
+	result, err := conn.Pgx.Exec(ctx, query, int64(expCK), termID.String())
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected() == 0 {
+		return termdef.ErrDoesNotExist(termID)
 	}
 	return nil
 }
@@ -125,10 +142,30 @@ func (dao *daoEnt) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT
 	return DataToDecRecs(dtos)
 }
 
+func (dao *daoEnt) GetRecByID(ctx context.Context, conn tx.Conn, termID identity.ADT) (termdef.DecRec, error) {
+	if termID.IsEmpty() {
+		return termdef.DecRec{}, identity.ErrEmpty
+	}
+	rows, err := conn.Pgx.Query(ctx, selectByRef, termID.String())
+	if err != nil {
+		return termdef.DecRec{}, err
+	}
+	defer rows.Close()
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecRec])
+	if err != nil {
+		return termdef.DecRec{}, err
+	}
+	rec, err := DataToDecRec(dto)
+	if err != nil {
+		return termdef.DecRec{}, err
+	}
+	return rec, nil
+}
+
 func (dao *daoEnt) GetRefs(ctx context.Context, conn tx.Conn) ([]termsem.SemRef, error) {
 	query := `
 SELECT td.term_id, td.desc_id, dr.desc_rn
-FROM proc_term_decs AS td
+FROM proc_desc_terms AS td
 JOIN proc_desc_roots AS dr ON dr.desc_id = td.desc_id
 `
 	rows, err := conn.Pgx.Query(ctx, query)
@@ -162,9 +199,10 @@ SELECT
     pd.term_id,
     pd.desc_id,
     dr.desc_rn,
+    COALESCE(pd.exp_ck, 0) AS exp_ck,
     pd.liab_var,
     pd.asset_vars
-FROM proc_term_decs AS pd
+FROM proc_desc_terms AS pd
 JOIN proc_desc_roots AS dr
     ON dr.desc_id = pd.desc_id
 WHERE pd.term_id = $1

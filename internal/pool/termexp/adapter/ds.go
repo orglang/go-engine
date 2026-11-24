@@ -1,8 +1,10 @@
 package adapter
 
-import termexp "orglang/go-engine/internal/pool/termexp/core"
+import (
+	termexp "orglang/go-engine/internal/pool/termexp/core"
+)
 
-type ExpSpec struct {
+type CompSpec struct {
 	K       ExpKind     `json:"k"`
 	Acquire *GrantSpec  `json:"acquire,omitempty"`
 	Accept  *GrantSpec  `json:"accept,omitempty"`
@@ -13,14 +15,14 @@ type ExpSpec struct {
 }
 
 type GrantSpec struct {
-	ConnChnlPH string  `json:"ph"`
-	ContExp    ExpSpec `json:"exp"`
+	ConnChnlPH string   `json:"ph"`
+	ContExp    CompSpec `json:"exp"`
 }
 
 type CoopSpec struct {
-	ConnChnlPH string  `json:"ph"`
-	ProcTermQN string  `json:"qn"`
-	ContExp    ExpSpec `json:"exp"`
+	ConnChnlPH string   `json:"ph"`
+	ProcTermQN string   `json:"qn"`
+	ContExp    CompSpec `json:"exp"`
 }
 
 type RevokeSpec struct {
@@ -50,16 +52,38 @@ const (
 )
 
 type GrantRec struct {
-	ContChnlPH string  `json:"ph"`
-	ContExp    ExpSpec `json:"exp"`
+	ContChnlPH string   `json:"ph"`
+	ContExp    CompSpec `json:"exp"`
 }
 
 type CoopRec struct {
-	ContChnlPH string  `json:"ph"`
-	ProcTermQN string  `json:"qn"`
-	ContExp    ExpSpec `json:"exp"`
+	ContChnlPH string   `json:"ph"`
+	ProcTermQN string   `json:"qn"`
+	ContExp    CompSpec `json:"exp"`
 }
 
 type RevokeRec struct {
 	ContChnlPH string `json:"ph"`
+}
+
+// DescData is the adapter representation of a complete stored Definition.
+type DescData struct {
+	ExpCK  int64       `db:"exp_ck"`
+	States []DescState `db:"states"`
+}
+
+// DescState is one persisted expression node. Spec contains scalar data and
+// child content keys; tree reconstruction belongs to this adapter.
+type DescState struct {
+	ExpCK    int64     `db:"exp_ck"`
+	SupExpCK int64     `db:"sup_exp_ck"`
+	K        ExpKind   `db:"kind"`
+	Spec     StateSpec `db:"spec"`
+}
+
+type StateSpec struct {
+	ConnChnlPH  string   `json:"conn_chnl_ph,omitempty"`
+	ProcTermQN  string   `json:"proc_term_qn,omitempty"`
+	ProcCompQNs []string `json:"proc_comp_qns,omitempty"`
+	ContExpCK   int64    `json:"cont_exp_ck,omitempty"`
 }

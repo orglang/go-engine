@@ -23,7 +23,7 @@ type PubRec struct {
 	ActNr   seqnum.ADT
 	CompRef comproot.SemRef
 	ChnlID  identity.ADT
-	ValExp  termexp.ExpRec
+	ValExp  termexp.CompRec
 }
 
 func (r PubRec) act() identity.ADT       { return r.ChnlID }
@@ -35,7 +35,7 @@ type SubRec struct {
 	ActNr   seqnum.ADT
 	CompRef comproot.SemRef
 	ChnlID  identity.ADT
-	ContExp termexp.ExpRec
+	ContExp termexp.CompRec
 }
 
 func (r SubRec) act() identity.ADT       { return r.ChnlID }

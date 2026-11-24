@@ -1,7 +1,10 @@
 package adapter
 
 import (
+	"errors"
 	"fmt"
+	"slices"
+	"strings"
 
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
@@ -11,7 +14,7 @@ import (
 	termexp "orglang/go-engine/internal/proc/termexp/core"
 )
 
-func DataFromExpRec(r termexp.ExpRec) (ExpRec, error) {
+func DataFromExpRec(r termexp.CompRec) (ExpRec, error) {
 	switch rec := r.(type) {
 	case termexp.CloseRec:
 		return ExpRec{
@@ -19,7 +22,7 @@ func DataFromExpRec(r termexp.ExpRec) (ExpRec, error) {
 			Close: &CloseRec{X: symbol.ConvertToString(rec.ContChnlPH)},
 		}, nil
 	case termexp.WaitRec:
-		dto, err := dataFromExpSpec(rec.ContExp)
+		dto, err := dataFromCompSpec(rec.ContExp)
 		if err != nil {
 			return ExpRec{}, err
 		}
@@ -43,7 +46,7 @@ func DataFromExpRec(r termexp.ExpRec) (ExpRec, error) {
 			},
 		}, nil
 	case termexp.RecvRec:
-		dto, err := dataFromExpSpec(rec.ContExp)
+		dto, err := dataFromCompSpec(rec.ContExp)
 		if err != nil {
 			return ExpRec{}, err
 		}
@@ -69,7 +72,7 @@ func DataFromExpRec(r termexp.ExpRec) (ExpRec, error) {
 	case termexp.CaseRec:
 		brs := []BranchRec{}
 		for l, cont := range rec.ContExps {
-			dto, err := dataFromExpSpec(cont)
+			dto, err := dataFromCompSpec(cont)
 			if err != nil {
 				return ExpRec{}, err
 			}
@@ -96,7 +99,7 @@ func DataFromExpRec(r termexp.ExpRec) (ExpRec, error) {
 	}
 }
 
-func DataToExpRec(dto ExpRec) (termexp.ExpRec, error) {
+func DataToExpRec(dto ExpRec) (termexp.CompRec, error) {
 	switch dto.K {
 	case CloseExp:
 		a, err := symbol.ConvertFromString(dto.Close.X)
@@ -109,7 +112,7 @@ func DataToExpRec(dto ExpRec) (termexp.ExpRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		cont, err := dataToExpSpec(dto.Wait.ContES)
+		cont, err := dataToCompSpec(dto.Wait.ContES)
 		if err != nil {
 			return nil, err
 		}
@@ -151,7 +154,7 @@ func DataToExpRec(dto ExpRec) (termexp.ExpRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		cont, err := dataToExpSpec(dto.Recv.ContES)
+		cont, err := dataToCompSpec(dto.Recv.ContES)
 		if err != nil {
 			return nil, err
 		}
@@ -179,9 +182,9 @@ func DataToExpRec(dto ExpRec) (termexp.ExpRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		conts := make(map[uniqsym.ADT]termexp.ExpSpec, len(dto.Case.Branches))
+		conts := make(map[uniqsym.ADT]termexp.CompSpec, len(dto.Case.Branches))
 		for _, branch := range dto.Case.Branches {
-			cont, err := dataToExpSpec(branch.ContES)
+			cont, err := dataToCompSpec(branch.ContES)
 			if err != nil {
 				return nil, err
 			}
@@ -207,19 +210,19 @@ func DataToExpRec(dto ExpRec) (termexp.ExpRec, error) {
 	}
 }
 
-func dataFromExpSpec(s termexp.ExpSpec) (ExpSpec, error) {
+func dataFromCompSpec(s termexp.CompSpec) (CompSpec, error) {
 	switch spec := s.(type) {
 	case termexp.CloseSpec:
-		return ExpSpec{
+		return CompSpec{
 			K:     CloseExp,
 			Close: &CloseSpec{X: symbol.ConvertToString(spec.ContChnlPH)},
 		}, nil
 	case termexp.WaitSpec:
-		dto, err := dataFromExpSpec(spec.ContExp)
+		dto, err := dataFromCompSpec(spec.ContExp)
 		if err != nil {
-			return ExpSpec{}, err
+			return CompSpec{}, err
 		}
-		return ExpSpec{
+		return CompSpec{
 			K: WaitExp,
 			Wait: &WaitSpec{
 				X:      symbol.ConvertToString(spec.ContChnlPH),
@@ -227,7 +230,7 @@ func dataFromExpSpec(s termexp.ExpSpec) (ExpSpec, error) {
 			},
 		}, nil
 	case termexp.SendSpec:
-		return ExpSpec{
+		return CompSpec{
 			K: SendExp,
 			Send: &SendSpec{
 				X: symbol.ConvertToString(spec.ConnChnlPH),
@@ -235,33 +238,49 @@ func dataFromExpSpec(s termexp.ExpSpec) (ExpSpec, error) {
 			},
 		}, nil
 	case termexp.RecvSpec:
-		dto, err := dataFromExpSpec(spec.ContExp)
+		dto, err := dataFromCompSpec(spec.ContExp)
 		if err != nil {
-			return ExpSpec{}, err
+			return CompSpec{}, err
 		}
-		return ExpSpec{
+		return CompSpec{
 			K: RecvExp,
 			Recv: &RecvSpec{
 				X:      symbol.ConvertToString(spec.ConnChnlPH),
-				Y:      symbol.ConvertToString(spec.ConnChnlPH),
+				Y:      symbol.ConvertToString(spec.NewChnlPH),
 				ContES: dto,
 			},
 		}, nil
 	case termexp.LabSpec:
-		return ExpSpec{
-			K:   LabExp,
-			Lab: &LabSpec{X: symbol.ConvertToString(spec.ConnChnlPH), Label: uniqsym.ConvertToString(spec.ValLabQN)},
+		cont, err := dataFromCompSpec(spec.ContExp)
+		if err != nil {
+			return CompSpec{}, err
+		}
+		return CompSpec{
+			K: LabExp,
+			Lab: &LabSpec{
+				X:      symbol.ConvertToString(spec.ConnChnlPH),
+				Label:  uniqsym.ConvertToString(spec.ValLabQN),
+				ContES: cont,
+			},
 		}, nil
 	case termexp.CaseSpec:
 		brs := []BranchSpec{}
-		for l, cont := range spec.ContExps {
-			dto, err := dataFromExpSpec(cont)
+		labels := make([]uniqsym.ADT, 0, len(spec.ContExps))
+		for label := range spec.ContExps {
+			labels = append(labels, label)
+		}
+		slices.SortFunc(labels, func(a, b uniqsym.ADT) int {
+			return strings.Compare(uniqsym.ConvertToString(a), uniqsym.ConvertToString(b))
+		})
+		for _, l := range labels {
+			cont := spec.ContExps[l]
+			dto, err := dataFromCompSpec(cont)
 			if err != nil {
-				return ExpSpec{}, err
+				return CompSpec{}, err
 			}
 			brs = append(brs, BranchSpec{Label: uniqsym.ConvertToString(l), ContES: dto})
 		}
-		return ExpSpec{
+		return CompSpec{
 			K: CaseExp,
 			Case: &CaseSpec{
 				X:        symbol.ConvertToString(spec.ConnChnlPH),
@@ -269,7 +288,7 @@ func dataFromExpSpec(s termexp.ExpSpec) (ExpSpec, error) {
 			},
 		}, nil
 	case termexp.FwdSpec:
-		return ExpSpec{
+		return CompSpec{
 			K: FwdExp,
 			Fwd: &FwdSpec{
 				X: symbol.ConvertToString(spec.ConnChnlPH),
@@ -281,7 +300,7 @@ func dataFromExpSpec(s termexp.ExpSpec) (ExpSpec, error) {
 	}
 }
 
-func dataToExpSpec(dto ExpSpec) (termexp.ExpSpec, error) {
+func dataToCompSpec(dto CompSpec) (termexp.CompSpec, error) {
 	switch dto.K {
 	case CloseExp:
 		a, err := symbol.ConvertFromString(dto.Close.X)
@@ -294,7 +313,7 @@ func dataToExpSpec(dto ExpSpec) (termexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		cont, err := dataToExpSpec(dto.Wait.ContES)
+		cont, err := dataToCompSpec(dto.Wait.ContES)
 		if err != nil {
 			return nil, err
 		}
@@ -318,7 +337,7 @@ func dataToExpSpec(dto ExpSpec) (termexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		cont, err := dataToExpSpec(dto.Recv.ContES)
+		cont, err := dataToCompSpec(dto.Recv.ContES)
 		if err != nil {
 			return nil, err
 		}
@@ -332,19 +351,23 @@ func dataToExpSpec(dto ExpSpec) (termexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return termexp.LabSpec{ConnChnlPH: x, ValLabQN: label}, nil
+		cont, err := dataToCompSpec(dto.Lab.ContES)
+		if err != nil {
+			return nil, err
+		}
+		return termexp.LabSpec{ConnChnlPH: x, ValLabQN: label, ContExp: cont}, nil
 	case CaseExp:
 		x, err := symbol.ConvertFromString(dto.Case.X)
 		if err != nil {
 			return nil, err
 		}
-		conts := make(map[uniqsym.ADT]termexp.ExpSpec, len(dto.Case.Branches))
+		conts := make(map[uniqsym.ADT]termexp.CompSpec, len(dto.Case.Branches))
 		for _, b := range dto.Case.Branches {
-			cont, err := dataToExpSpec(b.ContES)
+			cont, err := dataToCompSpec(b.ContES)
 			if err != nil {
 				return nil, err
 			}
-			label, err := uniqsym.ConvertFromString(dto.Lab.Label)
+			label, err := uniqsym.ConvertFromString(b.Label)
 			if err != nil {
 				return nil, err
 			}
@@ -368,4 +391,280 @@ func dataToExpSpec(dto ExpSpec) (termexp.ExpSpec, error) {
 
 func errUnexpectedExpKind(k ExpKind) error {
 	return fmt.Errorf("unexpected term kind: %v", k)
+}
+
+func dataFromDescRec(rec termexp.DescRec) (DescData, error) {
+	if rec == nil {
+		return DescData{}, errors.New("nil process Description record")
+	}
+	dto := DescData{ExpCK: contkey.ConvertToInt(rec.ContentKey())}
+	statesFromDescRec(0, rec, &dto)
+	return dto, nil
+}
+func statesFromDescRec(parent int64, rec termexp.DescRec, dto *DescData) int64 {
+	key := contkey.ConvertToInt(rec.ContentKey())
+	var kind int16
+	d := StateSpec{}
+	child := func(r termexp.DescRec) int64 { return statesFromDescRec(key, r, dto) }
+	switch r := rec.(type) {
+	case termexp.DescCloseRec:
+		kind = termexp.CloseKind
+		d.ContChnlPH = string(r.ContChnlPH)
+	case termexp.DescWaitRec:
+		kind = termexp.WaitKind
+		d.ContChnlPH = string(r.ContChnlPH)
+		d.ContExpCK = child(r.ContExp)
+	case termexp.DescSendRec:
+		kind = termexp.SendKind
+		d.ConnChnlPH = string(r.ConnChnlPH)
+		d.ValChnlPH = string(r.ValChnlPH)
+	case termexp.DescRecvRec:
+		kind = termexp.RecvKind
+		d.ConnChnlPH = string(r.ConnChnlPH)
+		d.NewChnlPH = string(r.NewChnlPH)
+		d.ContExpCK = child(r.ContExp)
+	case termexp.DescLabRec:
+		kind = termexp.LabKind
+		d.ConnChnlPH = string(r.ConnChnlPH)
+		d.ValLabQN = uniqsym.ConvertToString(r.ValLabQN)
+		d.ContExpCK = child(r.ContExp)
+	case termexp.DescCaseRec:
+		kind = termexp.CaseKind
+		d.ConnChnlPH = string(r.ConnChnlPH)
+		d.ContExpCKs = make(map[string]int64, len(r.ContExps))
+		labels := make([]uniqsym.ADT, 0, len(r.ContExps))
+		for q := range r.ContExps {
+			labels = append(labels, q)
+		}
+		slices.SortFunc(labels, func(a, b uniqsym.ADT) int {
+			return strings.Compare(uniqsym.ConvertToString(a), uniqsym.ConvertToString(b))
+		})
+		for _, q := range labels {
+			d.ContExpCKs[uniqsym.ConvertToString(q)] = child(r.ContExps[q])
+		}
+	case termexp.DescLinkRec:
+		kind = termexp.LinkKind
+		d.ProcTermQN = uniqsym.ConvertToString(r.ProcTermQN)
+		d.X = identity.ConvertToString(r.X)
+		d.Ys = make([]string, len(r.Ys))
+		for i, v := range r.Ys {
+			d.Ys[i] = identity.ConvertToString(v)
+		}
+	case termexp.DescFwdRec:
+		kind = termexp.FwdKind
+		d.ConnChnlPH = string(r.ConnChnlPH)
+		d.ContChnlPH = string(r.ContChnlPH)
+	case termexp.DescCallRec:
+		kind = termexp.CallKind
+		d.ConnChnlPH = string(r.ConnChnlPH)
+		d.NewChnlPH = string(r.NewChnlPH)
+		d.ProcTermQN = uniqsym.ConvertToString(r.ProcTermQN)
+		d.ValChnlPHs = make([]string, len(r.ValChnlPHs))
+		for i, v := range r.ValChnlPHs {
+			d.ValChnlPHs[i] = string(v)
+		}
+		d.ContExpCK = child(r.ContExp)
+	case termexp.DescSpawnRec:
+		kind = termexp.SpawnKind
+		d.ConnChnlPH = string(r.ConnChnlPH)
+		d.ProcTermQN = uniqsym.ConvertToString(r.ProcTermQN)
+		d.NewChnlPHs = make([]string, len(r.NewChnlPHs))
+		for i, v := range r.NewChnlPHs {
+			d.NewChnlPHs[i] = string(v)
+		}
+		d.ContExpCK = child(r.ContExp)
+	case termexp.DescAcquireRec:
+		kind = termexp.AcquireKind
+		d.ConnChnlPH = string(r.ConnChnlPH)
+		d.ContExpCK = child(r.ContExp)
+	case termexp.DescAcceptRec:
+		kind = termexp.AcceptKind
+		d.ConnChnlPH = string(r.ConnChnlPH)
+		d.ContExpCK = child(r.ContExp)
+	case termexp.DescDetachRec:
+		kind = termexp.DetachKind
+		d.ConnChnlPH = string(r.ConnChnlPH)
+	case termexp.DescReleaseRec:
+		kind = termexp.ReleaseKind
+		d.ConnChnlPH = string(r.ConnChnlPH)
+	default:
+		panic(fmt.Sprintf("unexpected process Description record %T", rec))
+	}
+	dto.States = append(dto.States, DescState{ExpCK: key, SupExpCK: parent, K: kind, Spec: d})
+	return key
+}
+
+func dataToDescRec(dto DescData) (termexp.DescRec, error) {
+	states := make(map[int64]DescState, len(dto.States))
+	for _, s := range dto.States {
+		states[s.ExpCK] = s
+	}
+	root, ok := states[dto.ExpCK]
+	if !ok {
+		return nil, fmt.Errorf("process Description root %d is missing", dto.ExpCK)
+	}
+	return statesToDescRec(states, root)
+}
+func statesToDescRec(states map[int64]DescState, st DescState) (termexp.DescRec, error) {
+	key, err := contkey.ConvertFromInt(st.ExpCK)
+	if err != nil {
+		return nil, err
+	}
+	d := st.Spec
+	child := func(ck int64) (termexp.DescRec, error) {
+		s, ok := states[ck]
+		if !ok {
+			return nil, fmt.Errorf("process Description child %d is missing", ck)
+		}
+		if s.SupExpCK != st.ExpCK {
+			return nil, fmt.Errorf("process Description child %d has unexpected parent", ck)
+		}
+		return statesToDescRec(states, s)
+	}
+	ph := symbol.ConvertFromString
+	switch st.K {
+	case termexp.CloseKind:
+		p, e := ph(d.ContChnlPH)
+		return termexp.DescCloseRec{ExpCK: key, ContChnlPH: p}, e
+	case termexp.WaitKind:
+		p, e := ph(d.ContChnlPH)
+		if e != nil {
+			return nil, e
+		}
+		c, e := child(d.ContExpCK)
+		return termexp.DescWaitRec{ExpCK: key, ContChnlPH: p, ContExp: c}, e
+	case termexp.SendKind:
+		x, e := ph(d.ConnChnlPH)
+		if e != nil {
+			return nil, e
+		}
+		y, e := ph(d.ValChnlPH)
+		return termexp.DescSendRec{ExpCK: key, ConnChnlPH: x, ValChnlPH: y}, e
+	case termexp.RecvKind:
+		x, e := ph(d.ConnChnlPH)
+		if e != nil {
+			return nil, e
+		}
+		y, e := ph(d.NewChnlPH)
+		if e != nil {
+			return nil, e
+		}
+		c, e := child(d.ContExpCK)
+		return termexp.DescRecvRec{ExpCK: key, ConnChnlPH: x, NewChnlPH: y, ContExp: c}, e
+	case termexp.LabKind:
+		x, e := ph(d.ConnChnlPH)
+		if e != nil {
+			return nil, e
+		}
+		q, e := uniqsym.ConvertFromString(d.ValLabQN)
+		if e != nil {
+			return nil, e
+		}
+		c, e := child(d.ContExpCK)
+		return termexp.DescLabRec{ExpCK: key, ConnChnlPH: x, ValLabQN: q, ContExp: c}, e
+	case termexp.CaseKind:
+		x, e := ph(d.ConnChnlPH)
+		if e != nil {
+			return nil, e
+		}
+		cs := make(map[uniqsym.ADT]termexp.DescRec, len(d.ContExpCKs))
+		for name, ck := range d.ContExpCKs {
+			q, e := uniqsym.ConvertFromString(name)
+			if e != nil {
+				return nil, e
+			}
+			c, e := child(ck)
+			if e != nil {
+				return nil, e
+			}
+			cs[q] = c
+		}
+		return termexp.DescCaseRec{ExpCK: key, ConnChnlPH: x, ContExps: cs}, nil
+	case termexp.LinkKind:
+		q, e := uniqsym.ConvertFromString(d.ProcTermQN)
+		if e != nil {
+			return nil, e
+		}
+		x, e := identity.ConvertFromString(d.X)
+		if e != nil {
+			return nil, e
+		}
+		ys := make([]identity.ADT, len(d.Ys))
+		for i, v := range d.Ys {
+			ys[i], e = identity.ConvertFromString(v)
+			if e != nil {
+				return nil, e
+			}
+		}
+		return termexp.DescLinkRec{ExpCK: key, ProcTermQN: q, X: x, Ys: ys}, nil
+	case termexp.FwdKind:
+		x, e := ph(d.ConnChnlPH)
+		if e != nil {
+			return nil, e
+		}
+		y, e := ph(d.ContChnlPH)
+		return termexp.DescFwdRec{ExpCK: key, ConnChnlPH: x, ContChnlPH: y}, e
+	case termexp.CallKind:
+		x, e := ph(d.ConnChnlPH)
+		if e != nil {
+			return nil, e
+		}
+		y, e := ph(d.NewChnlPH)
+		if e != nil {
+			return nil, e
+		}
+		q, e := uniqsym.ConvertFromString(d.ProcTermQN)
+		if e != nil {
+			return nil, e
+		}
+		chs := make([]symbol.ADT, len(d.ValChnlPHs))
+		for i, v := range d.ValChnlPHs {
+			chs[i], e = ph(v)
+			if e != nil {
+				return nil, e
+			}
+		}
+		c, e := child(d.ContExpCK)
+		return termexp.DescCallRec{ExpCK: key, ConnChnlPH: x, NewChnlPH: y, ProcTermQN: q, ValChnlPHs: chs, ContExp: c}, e
+	case termexp.SpawnKind:
+		x, e := ph(d.ConnChnlPH)
+		if e != nil {
+			return nil, e
+		}
+		q, e := uniqsym.ConvertFromString(d.ProcTermQN)
+		if e != nil {
+			return nil, e
+		}
+		chs := make([]symbol.ADT, len(d.NewChnlPHs))
+		for i, v := range d.NewChnlPHs {
+			chs[i], e = ph(v)
+			if e != nil {
+				return nil, e
+			}
+		}
+		c, e := child(d.ContExpCK)
+		return termexp.DescSpawnRec{ExpCK: key, ConnChnlPH: x, ProcTermQN: q, NewChnlPHs: chs, ContExp: c}, e
+	case termexp.AcquireKind:
+		x, e := ph(d.ConnChnlPH)
+		if e != nil {
+			return nil, e
+		}
+		c, e := child(d.ContExpCK)
+		return termexp.DescAcquireRec{ExpCK: key, ConnChnlPH: x, ContExp: c}, e
+	case termexp.AcceptKind:
+		x, e := ph(d.ConnChnlPH)
+		if e != nil {
+			return nil, e
+		}
+		c, e := child(d.ContExpCK)
+		return termexp.DescAcceptRec{ExpCK: key, ConnChnlPH: x, ContExp: c}, e
+	case termexp.DetachKind:
+		x, e := ph(d.ConnChnlPH)
+		return termexp.DescDetachRec{ExpCK: key, ConnChnlPH: x}, e
+	case termexp.ReleaseKind:
+		x, e := ph(d.ConnChnlPH)
+		return termexp.DescReleaseRec{ExpCK: key, ConnChnlPH: x}, e
+	default:
+		return nil, fmt.Errorf("unexpected process Description kind %d", st.K)
+	}
 }

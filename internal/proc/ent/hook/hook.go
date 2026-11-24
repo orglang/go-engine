@@ -56,6 +56,18 @@ func (f TermDecFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TermDecMutation", m)
 }
 
+// The TermExpFunc type is an adapter to allow the use of ordinary
+// function as TermExp mutator.
+type TermExpFunc func(context.Context, *ent.TermExpMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TermExpFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TermExpMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TermExpMutation", m)
+}
+
 // The TypeDefFunc type is an adapter to allow the use of ordinary
 // function as TypeDef mutator.
 type TypeDefFunc func(context.Context, *ent.TypeDefMutation) (ent.Value, error)

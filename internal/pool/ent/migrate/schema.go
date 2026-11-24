@@ -48,18 +48,32 @@ var (
 		Columns:    PoolDescRootsColumns,
 		PrimaryKey: []*schema.Column{PoolDescRootsColumns[0]},
 	}
-	// PoolTermDecsColumns holds the columns for the "pool_term_decs" table.
-	PoolTermDecsColumns = []*schema.Column{
+	// PoolDescTermsColumns holds the columns for the "pool_desc_terms" table.
+	PoolDescTermsColumns = []*schema.Column{
 		{Name: "term_id", Type: field.TypeString},
 		{Name: "desc_id", Type: field.TypeString},
+		{Name: "exp_ck", Type: field.TypeInt64, Nullable: true},
 		{Name: "liab_var", Type: field.TypeJSON},
 		{Name: "asset_vars", Type: field.TypeJSON},
 	}
-	// PoolTermDecsTable holds the schema information for the "pool_term_decs" table.
-	PoolTermDecsTable = &schema.Table{
-		Name:       "pool_term_decs",
-		Columns:    PoolTermDecsColumns,
-		PrimaryKey: []*schema.Column{PoolTermDecsColumns[0]},
+	// PoolDescTermsTable holds the schema information for the "pool_desc_terms" table.
+	PoolDescTermsTable = &schema.Table{
+		Name:       "pool_desc_terms",
+		Columns:    PoolDescTermsColumns,
+		PrimaryKey: []*schema.Column{PoolDescTermsColumns[0]},
+	}
+	// PoolTermExpsColumns holds the columns for the "pool_term_exps" table.
+	PoolTermExpsColumns = []*schema.Column{
+		{Name: "exp_ck", Type: field.TypeInt64, Increment: true},
+		{Name: "sup_exp_ck", Type: field.TypeInt64},
+		{Name: "kind", Type: field.TypeInt16},
+		{Name: "spec", Type: field.TypeJSON, Nullable: true},
+	}
+	// PoolTermExpsTable holds the schema information for the "pool_term_exps" table.
+	PoolTermExpsTable = &schema.Table{
+		Name:       "pool_term_exps",
+		Columns:    PoolTermExpsColumns,
+		PrimaryKey: []*schema.Column{PoolTermExpsColumns[0]},
 	}
 	// PoolTypeDefsColumns holds the columns for the "pool_type_defs" table.
 	PoolTypeDefsColumns = []*schema.Column{
@@ -91,7 +105,8 @@ var (
 		PoolCompConnsTable,
 		PoolCompExecsTable,
 		PoolDescRootsTable,
-		PoolTermDecsTable,
+		PoolDescTermsTable,
+		PoolTermExpsTable,
 		PoolTypeDefsTable,
 		PoolTypeExpsTable,
 	}
@@ -107,8 +122,11 @@ func init() {
 	PoolDescRootsTable.Annotation = &entsql.Annotation{
 		Table: "pool_desc_roots",
 	}
-	PoolTermDecsTable.Annotation = &entsql.Annotation{
-		Table: "pool_term_decs",
+	PoolDescTermsTable.Annotation = &entsql.Annotation{
+		Table: "pool_desc_terms",
+	}
+	PoolTermExpsTable.Annotation = &entsql.Annotation{
+		Table: "pool_term_exps",
 	}
 	PoolTypeDefsTable.Annotation = &entsql.Annotation{
 		Table: "pool_type_defs",

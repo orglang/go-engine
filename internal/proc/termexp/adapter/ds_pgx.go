@@ -37,9 +37,9 @@ func (dao *daoPgx) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.De
 		if err!=nil { dao.log.Error("process term Definition insertion failed",slog.Int64("exp_ck",state.ExpCK),slog.Any("error",err)); return err }
 		var existing DescState
 		err=conn.Pgx.QueryRow(ctx,selectTermExpByCK,state.ExpCK).Scan(&existing.ExpCK,&existing.SupExpCK,&existing.K,&existing.Spec)
-		if err!=nil{return contkey.Zero,err}
-		canonical,err:=canonicalStoredJSON(existing.Spec); if err!=nil{return contkey.Zero,err}
-		expected,err:=canonicalStoredJSON(state.Spec); if err!=nil{return contkey.Zero,err}
+		if err!=nil{return err}
+		canonical,err:=canonicalStoredJSON(existing.Spec); if err!=nil{return err}
+		expected,err:=canonicalStoredJSON(state.Spec); if err!=nil{return err}
 		if existing.SupExpCK!=state.SupExpCK || existing.K!=state.K || !bytes.Equal(canonical,expected) {
 			return fmt.Errorf("process term Definition content-key collision or parent conflict for %d",state.ExpCK)
 		}

@@ -8,7 +8,7 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 )
 
-func TestContentKeyDistinguishesExpressionVariants(t *testing.T) {
+func TestCompContentKeyDistinguishesExpressionVariants(t *testing.T) {
 	acquire := AcquireSpec{
 		ConnChnlPH: symbol.New("conn"),
 		ContExp:    ReleaseSpec{ConnChnlPH: symbol.New("next")},
@@ -31,7 +31,7 @@ func TestContentKeyDistinguishesExpressionVariants(t *testing.T) {
 	}
 }
 
-func TestContentKeyPreservesSpawnProcessOrder(t *testing.T) {
+func TestCompContentKeyPreservesSpawnProcessOrder(t *testing.T) {
 	first := SpawnSpec{
 		ProcTermQN: uniqsym.New(symbol.New("process")),
 		ProcCompQNs: []uniqsym.ADT{
@@ -60,7 +60,7 @@ func TestContentKeyPreservesSpawnProcessOrder(t *testing.T) {
 	}
 }
 
-func TestContentKeySerializesEveryDefinitionVariant(t *testing.T) {
+func TestCompContentKeySerializesEveryDefinitionVariant(t *testing.T) {
 	cont := ReleaseSpec{}
 	specs := []struct {
 		spec CompSpec

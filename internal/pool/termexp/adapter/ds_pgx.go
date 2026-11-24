@@ -41,8 +41,7 @@ func (dao *daoPgx) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.De
 		if err != nil {
 			return err
 		}
-		existing, _, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[DescState])
-		rows.Close()
+		existing, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[DescState])
 		if err != nil {
 			return err
 		}

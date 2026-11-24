@@ -26,7 +26,7 @@ func (r generatedRouteFilter) DELETE(string, echo.HandlerFunc, ...echo.Middlewar
 	return echo.RouteInfo{}
 }
 func (r generatedRouteFilter) GET(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) echo.RouteInfo {
-	if path != processDeclarationRoute+"/:id" {
+	if path != processDeclarationRoute+"/:id" && path != "/api/v1/processes/:id/definition" {
 		return echo.RouteInfo{}
 	}
 	return r.EchoRouter.GET(path, h, m...)
@@ -53,8 +53,8 @@ func (r generatedRouteFilter) TRACE(string, echo.HandlerFunc, ...echo.Middleware
 	return echo.RouteInfo{}
 }
 
-// RegisterGeneratedRoutes mounts only the migrated generated process
-// declaration operations on the application's existing Echo server.
+// RegisterGeneratedRoutes mounts the migrated generated process
+// declaration and Definition-read operations on the application's existing Echo server.
 func RegisterGeneratedRoutes(e *echo.Echo, h webapi.ServerInterface) error {
 	registerGeneratedServer(e, h)
 	return nil

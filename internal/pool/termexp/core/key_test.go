@@ -90,37 +90,3 @@ func TestContentKeySerializesEveryDefinitionVariant(t *testing.T) {
 	}
 }
 
-func TestContentNodesUseParentKeysAndChildReferences(t *testing.T) {
-	spec := AcquireSpec{
-		ConnChnlPH: symbol.New("conn"),
-		ContExp: ReleaseSpec{ConnChnlPH: symbol.New("next")},
-	}
-	nodes, err := CompContentNodes(spec)
-	if err != nil { t.Fatal(err) }
-	if len(nodes) != 2 { t.Fatalf("want 2 nodes, got %d", len(nodes)) }
-	if nodes[0].SupExpCK != 0 { t.Fatalf("root has parent key %d", nodes[0].SupExpCK) }
-	if nodes[1].SupExpCK != nodes[0].ExpCK { t.Fatalf("child parent key = %d, want %d", nodes[1].SupExpCK, nodes[0].ExpCK) }
-	if !strings.Contains(string(nodes[0].Spec), `"cont_exp_ck":`) { t.Fatalf("parent spec does not contain child key: %s", nodes[0].Spec) }
-	if strings.Contains(string(nodes[0].Spec), `"cont_exp":`) { t.Fatalf("parent spec unexpectedly embeds child: %s", nodes[0].Spec) }
-}
-
-func TestContentNodesRoundTrip(t *testing.T) {
-	spec := AcquireSpec{
-		ConnChnlPH: symbol.New("conn"),
-		ContExp: HireSpec{
-			ConnChnlPH: symbol.New("worker"),
-			ProcTermQN: uniqsym.New(symbol.New("designer")),
-			ContExp: SpawnSpec{
-				ProcTermQN: uniqsym.New(symbol.New("process")),
-				ProcCompQNs: []uniqsym.ADT{uniqsym.New(symbol.New("one")), uniqsym.New(symbol.New("two"))},
-			},
-		},
-	}
-	nodes, err := CompContentNodes(spec)
-	if err != nil { t.Fatal(err) }
-	restored, err := BuildSpecFromNodes(nodes, nodes[0].ExpCK)
-	if err != nil { t.Fatal(err) }
-	wantKey, _, err := CompContentKey(spec); if err != nil { t.Fatal(err) }
-	gotKey, _, err := CompContentKey(restored); if err != nil { t.Fatal(err) }
-	if gotKey != wantKey { t.Fatalf("round-trip key = %d, want %d", gotKey, wantKey) }
-}

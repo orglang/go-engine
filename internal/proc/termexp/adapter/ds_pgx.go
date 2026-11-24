@@ -2,7 +2,6 @@ package adapter
 
 import (
 	"bytes"
-	"context"
 	"encoding/json/jsontext"
 	"fmt"
 	"log/slog"
@@ -33,7 +32,7 @@ func (dao *daoPgx) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.De
 	rec,err:=termexp.ConvertSpecToRec(spec); if err!=nil{return err}
 	dto,err:=dataFromDescRec(rec); if err!=nil{return err}
 	for _,state:=range dto.States {
-		_,err=conn.Pgx.Exec(ctx,insertTermExp,state.ExpCK,state.SupExpCK,state.K,string(state.Spec))
+		_,err=conn.Pgx.Exec(ctx,insertTermExp,state.ExpCK,state.SupExpCK,state.K,state.Spec)
 		if err!=nil { dao.log.Error("process term Definition insertion failed",slog.Int64("exp_ck",state.ExpCK),slog.Any("error",err)); return err }
 		rows, err := conn.Pgx.Query(ctx, selectTermExpByCK, state.ExpCK)
 		if err != nil {

@@ -10,7 +10,7 @@ import (
 type Repo interface {
 	// Insert persists an execution-oriented record. It is retained for the
 	// runtime path and is not the Definition persistence contract.
-	Insert(context.Context, tx.Conn, ExpRec) error
+	Insert(context.Context, tx.Conn, CompRec) error
 
 	// InsertSpec persists a declarative Definition tree.
 	InsertSpec(context.Context, tx.Conn, DescSpec) error

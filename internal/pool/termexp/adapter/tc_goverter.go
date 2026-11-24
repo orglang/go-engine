@@ -9,8 +9,8 @@ import (
 // goverter:useZeroValueOnPointerInconsistency
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
-// goverter:extend DataFromExpSpec
-// goverter:extend DataToExpSpec
+// goverter:extend DataFromCompSpec
+// goverter:extend DataToCompSpec
 var (
 	DataFromAcquireSpec func(termexp.AcquireSpec) *GrantSpec
 	DataFromAcceptSpec  func(termexp.AcceptSpec) *GrantSpec

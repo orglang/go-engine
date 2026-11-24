@@ -148,10 +148,27 @@ func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT, e
 	})
 }
 
+type DefinitionRevisionMismatchError struct {
+	Expected seqnum.ADT
+	Current  seqnum.ADT
+}
+
+func (e DefinitionRevisionMismatchError) Error() string {
+	return fmt.Sprintf("description revision mismatch: expected %d, current %d", e.Expected, e.Current)
+}
+
 func ErrDefinitionRevisionMismatch(expected, current seqnum.ADT) error {
-	return fmt.Errorf("description revision mismatch: expected %d, current %d", expected, current)
+	return DefinitionRevisionMismatchError{Expected: expected, Current: current}
+}
+
+type DefinitionMissingError struct {
+	TermID identity.ADT
+}
+
+func (e DefinitionMissingError) Error() string {
+	return fmt.Sprintf("pool term %v has no Definition", e.TermID)
 }
 
 func ErrDefinitionMissing(termID identity.ADT) error {
-	return fmt.Errorf("pool term %v has no Definition", termID)
+	return DefinitionMissingError{TermID: termID}
 }

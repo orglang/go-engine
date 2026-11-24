@@ -48,6 +48,17 @@ type DefSnap struct {
 
 func NewService(
 	termDefRepo Repo,
+	descRootRepo descroot.Repo,
+	typeDefRepo typedef.Repo,
+	descSemRepo descsem.Repo,
+	transactor tx.Transactor,
+	log *slog.Logger,
+) API {
+	return &service{termDefRepo: termDefRepo, descRootRepo: descRootRepo, typeDefRepo: typeDefRepo, descSemRepo: descSemRepo, transactor: transactor, log: log}
+}
+
+func NewServiceWithTermExpRepo(
+	termDefRepo Repo,
 	termExpRepo termexp.Repo,
 	descRootRepo descroot.Repo,
 	typeDefRepo typedef.Repo,
@@ -55,7 +66,7 @@ func NewService(
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
-	return &service{termDefRepo, termExpRepo, descRootRepo, typeDefRepo, descSemRepo, transactor, log}
+	return &service{termDefRepo: termDefRepo, termExpRepo: termExpRepo, descRootRepo: descRootRepo, typeDefRepo: typeDefRepo, descSemRepo: descSemRepo, transactor: transactor, log: log}
 }
 
 type service struct {
@@ -119,6 +130,9 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ termsem.SemRef, e
 }
 
 func (s *service) RetrieveDefinition(ctx context.Context, ref termsem.SemRef) (termexp.DescSpec, error) {
+	if s.termExpRepo == nil {
+		return nil, fmt.Errorf("term Definition repository is not configured")
+	}
 	return tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (termexp.DescSpec, error) {
 		rec, err := s.termDefRepo.GetRecByID(txCtx, conn, ref.TermID)
 		if err != nil {

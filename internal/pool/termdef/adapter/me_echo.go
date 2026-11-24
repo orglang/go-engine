@@ -9,7 +9,6 @@ import (
 
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
-	"orglang/go-engine/internal/adt/termsem"
 	webapi "orglang/go-engine/internal/app/web/api"
 	termdef "orglang/go-engine/internal/pool/termdef/core"
 )
@@ -38,11 +37,12 @@ func (h *controllerEcho) GetPoolDefinition(c *echo.Context, id string, params we
 		h.log.Error("conversion failed", slog.Any("id", id), slog.Any("err", err))
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	ref := termsem.SemRef{TermID: termID}
+	var expectedRN *seqnum.ADT
 	if params.Rn != nil {
-		ref.DescRN = seqnum.ConvertFromInt(*params.Rn)
+		rn := seqnum.ConvertFromInt(*params.Rn)
+		expectedRN = &rn
 	}
-	spec, err := h.api.RetrieveDefinition(c.Request().Context(), ref)
+	spec, err := h.api.RetrieveDefinition(c.Request().Context(), termID, expectedRN)
 	if err != nil {
 		return err
 	}

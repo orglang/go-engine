@@ -18,11 +18,11 @@ func TestContentKeyDistinguishesExpressionVariants(t *testing.T) {
 		ContExp:    ReleaseSpec{ConnChnlPH: symbol.New("next")},
 	}
 
-	acquireKey, _, err := ContentKey(acquire)
+	acquireKey, _, err := CompContentKey(acquire)
 	if err != nil {
 		t.Fatal(err)
 	}
-	acceptKey, _, err := ContentKey(accept)
+	acceptKey, _, err := CompContentKey(accept)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -47,11 +47,11 @@ func TestContentKeyPreservesSpawnProcessOrder(t *testing.T) {
 		},
 	}
 
-	firstKey, _, err := ContentKey(first)
+	firstKey, _, err := CompContentKey(first)
 	if err != nil {
 		t.Fatal(err)
 	}
-	secondKey, _, err := ContentKey(second)
+	secondKey, _, err := CompContentKey(second)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -63,7 +63,7 @@ func TestContentKeyPreservesSpawnProcessOrder(t *testing.T) {
 func TestContentKeySerializesEveryDefinitionVariant(t *testing.T) {
 	cont := ReleaseSpec{}
 	specs := []struct {
-		spec ExpSpec
+		spec CompSpec
 		kind string
 	}{
 		{AcquireSpec{ContExp: cont}, "acquire"},
@@ -77,7 +77,7 @@ func TestContentKeySerializesEveryDefinitionVariant(t *testing.T) {
 		{SpawnSpec{}, "spawn"},
 	}
 	for _, tc := range specs {
-		_, data, err := ContentKey(tc.spec)
+		_, data, err := CompContentKey(tc.spec)
 		if err != nil {
 			t.Fatalf("%s: %v", tc.kind, err)
 		}
@@ -85,7 +85,7 @@ func TestContentKeySerializesEveryDefinitionVariant(t *testing.T) {
 			t.Fatalf("%s: missing discriminator in %s", tc.kind, data)
 		}
 	}
-	if _, _, err := ContentKey(SpawnSpec2{}); err == nil {
+	if _, _, err := CompContentKey(SpawnSpec2{}); err == nil {
 		t.Fatal("SpawnSpec2 must not be accepted as Definition content")
 	}
 }
@@ -95,7 +95,7 @@ func TestContentNodesUseParentKeysAndChildReferences(t *testing.T) {
 		ConnChnlPH: symbol.New("conn"),
 		ContExp: ReleaseSpec{ConnChnlPH: symbol.New("next")},
 	}
-	nodes, err := ContentNodes(spec)
+	nodes, err := CompContentNodes(spec)
 	if err != nil { t.Fatal(err) }
 	if len(nodes) != 2 { t.Fatalf("want 2 nodes, got %d", len(nodes)) }
 	if nodes[0].SupExpCK != 0 { t.Fatalf("root has parent key %d", nodes[0].SupExpCK) }
@@ -116,11 +116,11 @@ func TestContentNodesRoundTrip(t *testing.T) {
 			},
 		},
 	}
-	nodes, err := ContentNodes(spec)
+	nodes, err := CompContentNodes(spec)
 	if err != nil { t.Fatal(err) }
 	restored, err := BuildSpecFromNodes(nodes, nodes[0].ExpCK)
 	if err != nil { t.Fatal(err) }
-	wantKey, _, err := ContentKey(spec); if err != nil { t.Fatal(err) }
-	gotKey, _, err := ContentKey(restored); if err != nil { t.Fatal(err) }
+	wantKey, _, err := CompContentKey(spec); if err != nil { t.Fatal(err) }
+	gotKey, _, err := CompContentKey(restored); if err != nil { t.Fatal(err) }
 	if gotKey != wantKey { t.Fatalf("round-trip key = %d, want %d", gotKey, wantKey) }
 }

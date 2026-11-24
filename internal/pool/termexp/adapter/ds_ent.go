@@ -56,10 +56,11 @@ func (dao *daoEnt) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.De
 	}
 
 	txCtx := entpgx.WithConn(ctx, conn.Pgx)
-	if err := dao.client.TermExp.CreateBulk(builders...).
+	err = dao.client.TermExp.CreateBulk(builders...).
 		OnConflictColumns(termexpent.FieldID).
 		DoNothing().
-		Exec(txCtx); err != nil {
+		Exec(txCtx)
+	if err != nil {
 		dao.log.Error("pool term Definition insertion failed", slog.Any("error", err))
 		return err
 	}

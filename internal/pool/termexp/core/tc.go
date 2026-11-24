@@ -8,12 +8,6 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 )
 
-type CompNode struct {
-	ExpCK    contkey.ADT
-	SupExpCK contkey.ADT
-	Kind     int16
-	Spec     []byte
-}
 
 func marshalTaggedSpec(enc *jsontext.Encoder, kind string, fields map[string]any) error {
 	fields["kind"] = kind

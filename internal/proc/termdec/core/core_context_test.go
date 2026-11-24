@@ -70,6 +70,10 @@ func (*contextRepo) GetRecs(context.Context, tx.Conn, []identity.ADT) ([]DecRec,
 	return nil, nil
 }
 
+func (*contextRepo) GetRecByID(context.Context, tx.Conn, identity.ADT) (DecRec, error) {
+	return DecRec{}, nil
+}
+
 func (*contextRepo) SelectEnv(context.Context, tx.Conn, []identity.ADT) (map[identity.ADT]DecRec, error) {
 	return nil, nil
 }

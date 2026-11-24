@@ -172,7 +172,7 @@ func termRefFromAPI(dto api.AnyTermRef) (termsem.SemRef, error) {
 	return termsem.SemRef{TermID: id, DescRN: seqnum.ConvertFromInt(dto.DescRn)}, nil
 }
 
-func poolTermExprToCore(dto api.PoolTermExprSpec) (termexp.ExpSpec, error) {
+func poolTermExprToCore(dto api.PoolTermExprSpec) (termexp.CompSpec, error) {
 	data, err := json.Marshal(dto)
 	if err != nil {
 		return nil, err

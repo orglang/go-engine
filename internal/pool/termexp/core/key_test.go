@@ -60,7 +60,7 @@ func TestCompContentKeyPreservesSpawnProcessOrder(t *testing.T) {
 	}
 }
 
-func TestCompContentKeySerializesEveryDefinitionVariant(t *testing.T) {
+func TestCompContentKeySerializesEveryVariant(t *testing.T) {
 	cont := ReleaseSpec{}
 	specs := []struct {
 		spec CompSpec

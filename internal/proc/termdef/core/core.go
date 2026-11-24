@@ -70,6 +70,17 @@ func newAPI() API {
 
 func NewService(
 	termDecRepo Repo,
+	descRootRepo descroot.Repo,
+	descSemRepo descsem.Repo,
+	typeDefRepo typedef.Repo,
+	transactor tx.Transactor,
+	log *slog.Logger,
+) API {
+	return &service{termDecRepo: termDecRepo, descRootRepo: descRootRepo, descSemRepo: descSemRepo, typeDefRepo: typeDefRepo, transactor: transactor, log: log}
+}
+
+func NewServiceWithTermExpRepo(
+	termDecRepo Repo,
 	termExpRepo termexp.Repo,
 	descRootRepo descroot.Repo,
 	descSemRepo descsem.Repo,
@@ -77,7 +88,7 @@ func NewService(
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
-	return &service{termDecRepo, termExpRepo, descRootRepo, descSemRepo, typeDefRepo, transactor, log}
+	return &service{termDecRepo: termDecRepo, termExpRepo: termExpRepo, descRootRepo: descRootRepo, descSemRepo: descSemRepo, typeDefRepo: typeDefRepo, transactor: transactor, log: log}
 }
 
 func (s *service) Incept(ctx context.Context, termQN uniqsym.ADT) (_ termsem.SemRef, err error) {
@@ -165,6 +176,9 @@ func (s *service) RetrieveSnap(ctx context.Context, ref termsem.SemRef) (snap De
 }
 
 func (s *service) RetrieveDefinition(ctx context.Context, ref termsem.SemRef) (termexp.DescSpec, error) {
+	if s.termExpRepo == nil {
+		return nil, fmt.Errorf("term Definition repository is not configured")
+	}
 	return tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (termexp.DescSpec, error) {
 		rec, err := s.termDecRepo.GetRecByID(txCtx, conn, ref.TermID)
 		if err != nil {

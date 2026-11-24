@@ -12,6 +12,7 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/ent"
 	"orglang/go-engine/internal/proc/termdef/core"
+	termexp "orglang/go-engine/internal/proc/termexp/core"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
@@ -40,6 +41,10 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
+		termExpRepo, err := do.Invoke[termexp.Repo](i)
+		if err != nil {
+			return nil, err
+		}
 		descRootRepo, err := do.InvokeNamed[descroot.Repo](i, "proc-descroot")
 		if err != nil {
 			return nil, err
@@ -60,7 +65,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return core.NewService(termDecRepo, descRootRepo, descSemRepo, typeDefRepo, transactor, logger), nil
+		return core.NewService(termDecRepo, termExpRepo, descRootRepo, descSemRepo, typeDefRepo, transactor, logger), nil
 	}),
 	do.Lazy[webapi.ServerInterface](func(i do.Injector) (webapi.ServerInterface, error) {
 		api, err := do.Invoke[core.API](i)

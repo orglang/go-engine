@@ -37,6 +37,11 @@ jobs:
       - name: Upgrade remaining mise tools
         run: mise upgrade --bump
 
+      - name: Regenerate generated artifacts
+        run: |
+          mise run specs:prepare
+          mise run sources:prepare
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
@@ -46,6 +51,7 @@ jobs:
             Automated Go and mise toolchain upgrade.
 
             The Go version in go.mod and module dependencies are updated alongside configured mise tools.
+            Generated specs and source artifacts are refreshed with the upgraded generators.
             Dependency updates are handled separately by Dependabot.
           branch: chore/update-mise-tools
           delete-branch: true

@@ -26,14 +26,14 @@ const (
 	SpawnKind
 )
 
-type ExpSpec interface {
+type CompSpec interface {
 	spec()
 }
 
 // запрос доступа (подписка) со стороны клиента (спрос на доступ)
 type AcquireSpec struct {
 	ConnChnlPH symbol.ADT
-	ContExp    ExpSpec
+	ContExp    CompSpec
 }
 
 func (s AcquireSpec) spec() {}
@@ -45,7 +45,7 @@ func (s AcquireSpec) LogValue() slog.Value {
 // предложение доступа (публикация) со стороны провайдера (предложение доступа)
 type AcceptSpec struct {
 	ConnChnlPH symbol.ADT
-	ContExp    ExpSpec
+	ContExp    CompSpec
 }
 
 func (s AcceptSpec) spec() {}
@@ -59,7 +59,7 @@ type HireSpec struct {
 	ConnChnlPH symbol.ADT
 	// запрашиваемая компетенция
 	ProcTermQN uniqsym.ADT
-	ContExp    ExpSpec
+	ContExp    CompSpec
 }
 
 func (s HireSpec) spec() {}
@@ -73,7 +73,7 @@ type ApplySpec struct {
 	ConnChnlPH symbol.ADT
 	// предлагаемая компетенция
 	ProcTermQN uniqsym.ADT
-	ContExp    ExpSpec
+	ContExp    CompSpec
 }
 
 func (s ApplySpec) spec() {}
@@ -154,20 +154,20 @@ func (s SpawnSpec2) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
 }
 
-type ExpRec interface {
+type CompRec interface {
 	rec()
 }
 
 type AcquireRec struct {
 	ContChnlPH symbol.ADT
-	ContExp    ExpSpec
+	ContExp    CompSpec
 }
 
 func (r AcquireRec) rec() {}
 
 type AcceptRec struct {
 	ContChnlPH symbol.ADT
-	ContExp    ExpSpec
+	ContExp    CompSpec
 }
 
 func (r AcceptRec) rec() {}
@@ -175,7 +175,7 @@ func (r AcceptRec) rec() {}
 type HireRec struct {
 	ContChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
-	ContExp    ExpSpec
+	ContExp    CompSpec
 }
 
 func (r HireRec) rec() {}
@@ -183,7 +183,7 @@ func (r HireRec) rec() {}
 type ApplyRec struct {
 	ContChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
-	ContExp    ExpSpec
+	ContExp    CompSpec
 }
 
 func (r ApplyRec) rec() {}
@@ -218,11 +218,11 @@ type SpawnRec struct {
 
 func (r SpawnRec) rec() {}
 
-func ErrSpecTypeUnexpected(got ExpSpec) error {
+func ErrSpecTypeUnexpected(got CompSpec) error {
 	return fmt.Errorf("exp spec unexpected: %T%+v", got, got)
 }
 
-func ErrRecTypeUnexpected(got ExpRec) error {
+func ErrRecTypeUnexpected(got CompRec) error {
 	return fmt.Errorf("exp rec unexpected: %T%+v", got, got)
 }
 

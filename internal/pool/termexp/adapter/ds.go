@@ -4,7 +4,7 @@ import (
 	termexp "orglang/go-engine/internal/pool/termexp/core"
 )
 
-type ExpSpec struct {
+type CompSpec struct {
 	K       ExpKind     `json:"k"`
 	Acquire *GrantSpec  `json:"acquire,omitempty"`
 	Accept  *GrantSpec  `json:"accept,omitempty"`
@@ -16,13 +16,13 @@ type ExpSpec struct {
 
 type GrantSpec struct {
 	ConnChnlPH string  `json:"ph"`
-	ContExp    ExpSpec `json:"exp"`
+	ContExp    CompSpec `json:"exp"`
 }
 
 type CoopSpec struct {
 	ConnChnlPH string  `json:"ph"`
 	ProcTermQN string  `json:"qn"`
-	ContExp    ExpSpec `json:"exp"`
+	ContExp    CompSpec `json:"exp"`
 }
 
 type RevokeSpec struct {
@@ -53,13 +53,13 @@ const (
 
 type GrantRec struct {
 	ContChnlPH string  `json:"ph"`
-	ContExp    ExpSpec `json:"exp"`
+	ContExp    CompSpec `json:"exp"`
 }
 
 type CoopRec struct {
 	ContChnlPH string  `json:"ph"`
 	ProcTermQN string  `json:"qn"`
-	ContExp    ExpSpec `json:"exp"`
+	ContExp    CompSpec `json:"exp"`
 }
 
 type RevokeRec struct {

@@ -12,7 +12,7 @@ type Repo interface {
 	// runtime path and is not the Definition persistence contract.
 	Insert(context.Context, tx.Conn, ExpRec) error
 
-	// InsertSpec persists a declarative Definition tree and persists the declarative Definition tree.
+	// InsertSpec persists a declarative Definition tree.
 	InsertSpec(context.Context, tx.Conn, DescSpec) error
 
 	// SelectSpecByCK reads a declarative Definition tree by its root content key.

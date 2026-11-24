@@ -31,10 +31,10 @@ func (dao *daoPgx) Insert(ctx context.Context, conn tx.Conn, rec termexp.ExpRec)
 
 func (dao *daoPgx) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.DescSpec) error {
 	rec,err:=termexp.ConvertSpecToRec(spec); if err!=nil{return err}
-	dto,err:=dataFromDescRec(rec); if err!=nil{return contkey.Zero,err}
+	dto,err:=dataFromDescRec(rec); if err!=nil{return err}
 	for _,state:=range dto.States {
 		_,err=conn.Pgx.Exec(ctx,insertTermExp,state.ExpCK,state.SupExpCK,state.K,string(state.Spec))
-		if err!=nil { dao.log.Error("process term Definition insertion failed",slog.Int64("exp_ck",state.ExpCK),slog.Any("error",err)); return contkey.Zero,err }
+		if err!=nil { dao.log.Error("process term Definition insertion failed",slog.Int64("exp_ck",state.ExpCK),slog.Any("error",err)); return err }
 		var existing DescState
 		err=conn.Pgx.QueryRow(ctx,selectTermExpByCK,state.ExpCK).Scan(&existing.ExpCK,&existing.SupExpCK,&existing.K,&existing.Spec)
 		if err!=nil{return contkey.Zero,err}

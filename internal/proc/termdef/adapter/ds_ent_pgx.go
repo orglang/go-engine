@@ -153,6 +153,9 @@ func (dao *daoEnt) GetRecByID(ctx context.Context, conn tx.Conn, termID identity
 	defer rows.Close()
 	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecRec])
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return termdef.DecRec{}, termdef.ErrTermMissing(termID)
+		}
 		return termdef.DecRec{}, err
 	}
 	rec, err := DataToDecRec(dto)

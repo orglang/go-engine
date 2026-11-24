@@ -17,13 +17,6 @@ import (
 
 type daoPgx struct { log *slog.Logger }
 
-type expNodeRow struct {
-	ExpCK int64 `db:"exp_ck"`
-	SupExpCK int64 `db:"sup_exp_ck"`
-	Kind int16 `db:"kind"`
-	Spec []byte `db:"spec"`
-}
-
 func newRepo() termexp.Repo { return new(daoPgx) }
 func NewDaoPgx(log *slog.Logger) termexp.Repo {
 	name:=slog.String("name",reflect.TypeFor[daoPgx]().Name())
@@ -51,12 +44,12 @@ func (dao *daoPgx) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.De
 			return contkey.Zero,fmt.Errorf("process term Definition content-key collision or parent conflict for %d",state.ExpCK)
 		}
 	}
-	return contkey.ConvertFromInt(dto.ExpCK)
+	return nil
 }
 
 func (dao *daoPgx) SelectSpecByCK(ctx context.Context,conn tx.Conn,key contkey.ADT)(termexp.DescSpec,error) {
 	rows,err:=conn.Pgx.Query(ctx,selectTermExpTree,int64(key)); if err!=nil{return nil,err}; defer rows.Close()
-	rowsDTO,err:=pgx.CollectRows(rows,pgx.RowToStructByName[expNodeRow]); if err!=nil{return nil,err}
+	rowsDTO,err:=pgx.CollectRows(rows,pgx.RowToStructByName[DescState]); if err!=nil{return nil,err}
 	if len(rowsDTO)==0{return nil,fmt.Errorf("process term Definition %d does not exist",key)}
 	dto:=DescData{ExpCK:int64(key),States:make([]DescState,len(rowsDTO))}
 	for i,row:=range rowsDTO { dto.States[i]=DescState{ExpCK:row.ExpCK,SupExpCK:row.SupExpCK,K:row.Kind,Spec:row.Spec} }

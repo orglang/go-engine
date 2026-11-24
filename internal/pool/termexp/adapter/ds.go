@@ -63,3 +63,26 @@ type CoopRec struct {
 type RevokeRec struct {
 	ContChnlPH string `json:"ph"`
 }
+
+// DescData is the adapter representation of a complete stored Definition.
+type DescData struct {
+	ExpCK  int64       `db:"exp_ck"`
+	States []DescState `db:"states"`
+}
+
+// DescState is one persisted expression node. Spec contains scalar data and
+// child content keys; tree reconstruction belongs to this adapter.
+type DescState struct {
+	ExpCK    int64           `db:"exp_ck"`
+	SupExpCK int64           `db:"sup_exp_ck"`
+	K        ExpKind         `db:"kind"`
+	Spec     json.RawMessage `db:"spec"`
+}
+
+type DescStateSpec struct {
+	ConnChnlPH  string   `json:"conn_chnl_ph,omitempty"`
+	ProcTermQN  string   `json:"proc_term_qn,omitempty"`
+	ProcCompQNs []string `json:"proc_comp_qns,omitempty"`
+	ContExpCK   int64    `json:"cont_exp_ck,omitempty"`
+}
+

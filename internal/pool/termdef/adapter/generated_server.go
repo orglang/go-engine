@@ -18,8 +18,11 @@ func (r generatedRouteFilter) CONNECT(string, echo.HandlerFunc, ...echo.Middlewa
 func (r generatedRouteFilter) DELETE(string, echo.HandlerFunc, ...echo.MiddlewareFunc) echo.RouteInfo {
 	return echo.RouteInfo{}
 }
-func (r generatedRouteFilter) GET(string, echo.HandlerFunc, ...echo.MiddlewareFunc) echo.RouteInfo {
-	return echo.RouteInfo{}
+func (r generatedRouteFilter) GET(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) echo.RouteInfo {
+	if path != "/api/v1/pools/:id/definition" {
+		return echo.RouteInfo{}
+	}
+	return r.EchoRouter.GET(path, h, m...)
 }
 func (r generatedRouteFilter) HEAD(string, echo.HandlerFunc, ...echo.MiddlewareFunc) echo.RouteInfo {
 	return echo.RouteInfo{}
@@ -55,4 +58,8 @@ type generatedServer struct {
 
 func (s generatedServer) CreatePoolDeclaration(c *echo.Context) error {
 	return s.handler.CreatePoolDeclaration(c)
+}
+
+func (s generatedServer) GetPoolDefinition(c *echo.Context, id string, params webapi.GetPoolDefinitionParams) error {
+	return s.handler.GetPoolDefinition(c, id, params)
 }

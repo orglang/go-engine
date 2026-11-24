@@ -29,7 +29,7 @@ func validateCompSpec(spec CompSpec) error {
 	case ReleaseSpec, DetachSpec, FireSpec, QuitSpec, SpawnSpec:
 		return nil
 	case SpawnSpec2:
-		return fmt.Errorf("pool SpawnSpec2 is an execution reference form and has no Definition content key")
+		return fmt.Errorf("pool SpawnSpec2 is an execution reference form and has no computation content key")
 	default: return ErrSpecTypeUnexpected(spec)
 	}
 }
@@ -68,6 +68,6 @@ func (s SpawnSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
 	return marshalTaggedSpec(enc, "spawn", map[string]any{"proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN), "proc_comp_qns": qns})
 }
 func (s SpawnSpec2) MarshalJSONTo(enc *jsontext.Encoder) error {
-	return fmt.Errorf("pool SpawnSpec2 is an execution reference form and has no Definition content key")
+	return fmt.Errorf("pool SpawnSpec2 is an execution reference form and has no computation content key")
 }
 

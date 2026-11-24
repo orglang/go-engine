@@ -9,7 +9,7 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 )
 
-func TestContentKeyIncludesLabContinuation(t *testing.T) {
+func TestCompContentKeyIncludesLabContinuation(t *testing.T) {
 	label := uniqsym.New(symbol.New("accepted"))
 	base := LabSpec{
 		ConnChnlPH: symbol.New("conn"),
@@ -35,7 +35,7 @@ func TestContentKeyIncludesLabContinuation(t *testing.T) {
 	}
 }
 
-func TestContentKeyIsStableForCaseMapInsertionOrder(t *testing.T) {
+func TestCompContentKeyIsStableForCaseMapInsertionOrder(t *testing.T) {
 	leftLabel := uniqsym.New(symbol.New("left"))
 	rightLabel := uniqsym.New(symbol.New("right"))
 	left := CaseSpec{
@@ -66,7 +66,7 @@ func TestContentKeyIsStableForCaseMapInsertionOrder(t *testing.T) {
 	}
 }
 
-func TestContentKeySerializesEveryDefinitionVariant(t *testing.T) {
+func TestCompContentKeySerializesEveryDefinitionVariant(t *testing.T) {
 	cont := CloseSpec{ContChnlPH: symbol.New("next")}
 	specs := []struct {
 		spec CompSpec

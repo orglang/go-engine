@@ -13,7 +13,7 @@ import (
 	termexp "orglang/go-engine/internal/proc/termexp/core"
 )
 
-func DataFromExpRec(r termexp.ExpRec) (ExpRec, error) {
+func DataFromExpRec(r termexp.CompRec) (ExpRec, error) {
 	switch rec := r.(type) {
 	case termexp.CloseRec:
 		return ExpRec{
@@ -98,7 +98,7 @@ func DataFromExpRec(r termexp.ExpRec) (ExpRec, error) {
 	}
 }
 
-func DataToExpRec(dto ExpRec) (termexp.ExpRec, error) {
+func DataToExpRec(dto ExpRec) (termexp.CompRec, error) {
 	switch dto.K {
 	case CloseExp:
 		a, err := symbol.ConvertFromString(dto.Close.X)
@@ -181,7 +181,7 @@ func DataToExpRec(dto ExpRec) (termexp.ExpRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		conts := make(map[uniqsym.ADT]termexp.ExpSpec, len(dto.Case.Branches))
+		conts := make(map[uniqsym.ADT]termexp.CompSpec, len(dto.Case.Branches))
 		for _, branch := range dto.Case.Branches {
 			cont, err := dataToExpSpec(branch.ContES)
 			if err != nil {
@@ -209,7 +209,7 @@ func DataToExpRec(dto ExpRec) (termexp.ExpRec, error) {
 	}
 }
 
-func dataFromExpSpec(s termexp.ExpSpec) (ExpSpec, error) {
+func dataFromExpSpec(s termexp.CompSpec) (ExpSpec, error) {
 	switch spec := s.(type) {
 	case termexp.CloseSpec:
 		return ExpSpec{
@@ -295,7 +295,7 @@ func dataFromExpSpec(s termexp.ExpSpec) (ExpSpec, error) {
 	}
 }
 
-func dataToExpSpec(dto ExpSpec) (termexp.ExpSpec, error) {
+func dataToExpSpec(dto ExpSpec) (termexp.CompSpec, error) {
 	switch dto.K {
 	case CloseExp:
 		a, err := symbol.ConvertFromString(dto.Close.X)
@@ -354,7 +354,7 @@ func dataToExpSpec(dto ExpSpec) (termexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		conts := make(map[uniqsym.ADT]termexp.ExpSpec, len(dto.Case.Branches))
+		conts := make(map[uniqsym.ADT]termexp.CompSpec, len(dto.Case.Branches))
 		for _, b := range dto.Case.Branches {
 			cont, err := dataToExpSpec(b.ContES)
 			if err != nil {

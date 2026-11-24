@@ -1,7 +1,6 @@
 package adapter
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"orglang/go-engine/internal/adt/contkey"
@@ -99,7 +98,7 @@ func dataFromDescRec(rec termexp.DescRec) (DescData, error) {
 func statesFromDescRec(parent int64, rec termexp.DescRec, dto *DescData) int64 {
 	key := contkey.ConvertToInt(rec.ContentKey())
 	var kind ExpKind
-	data := DescStateSpec{}
+	data := StateSpec{}
 	switch r := rec.(type) {
 	case termexp.DescAcquireRec:
 		kind, data.ConnChnlPH = AcquireKind, string(r.ConnChnlPH)
@@ -127,9 +126,7 @@ func statesFromDescRec(parent int64, rec termexp.DescRec, dto *DescData) int64 {
 	default:
 		panic(fmt.Sprintf("unexpected pool Description record %T", rec))
 	}
-	raw, err := json.Marshal(data)
-	if err != nil { panic(err) }
-	dto.States = append(dto.States, DescState{ExpCK:key, SupExpCK:parent, K:kind, Spec:raw})
+	dto.States = append(dto.States, DescState{ExpCK:key, SupExpCK:parent, K:kind, Spec:data})
 	return key
 }
 
@@ -144,8 +141,7 @@ func dataToDescRec(dto DescData) (termexp.DescRec, error) {
 func statesToDescRec(states map[int64]DescState, state DescState) (termexp.DescRec, error) {
 	key, err := contkey.ConvertFromInt(state.ExpCK)
 	if err != nil { return nil, err }
-	var spec DescStateSpec
-	if err := json.Unmarshal(state.Spec, &spec); err != nil { return nil, err }
+	spec := state.Spec
 	cont := func() (termexp.DescRec, error) {
 		child, ok := states[spec.ContExpCK]
 		if !ok { return nil, fmt.Errorf("pool Description child %d is missing", spec.ContExpCK) }

@@ -4,9 +4,7 @@ import (
 	"encoding/json/jsontext"
 	jsonv2 "encoding/json/v2"
 	"fmt"
-	"sort"
 
-	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/uniqsym"
 )
@@ -28,13 +26,6 @@ const (
 	ReleaseKind
 )
 
-// CompNode is one immutable node in a persisted Definition tree.
-type CompNode struct {
-	ExpCK    contkey.ADT
-	SupExpCK contkey.ADT
-	Kind     int16
-	Spec     []byte
-}
 
 func marshalTaggedSpec(enc *jsontext.Encoder, kind string, fields map[string]any) error {
 	fields["kind"] = kind
@@ -130,67 +121,3 @@ func (s ReleaseSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
 	return marshalTaggedSpec(enc, "release", map[string]any{"conn_chnl_ph": string(s.ConnChnlPH)})
 }
 
-func CompContentNodes(spec CompSpec) ([]CompNode, error) {
-	if err := validateCompSpec(spec); err != nil { return nil, err }
-	nodes := make([]CompNode, 0)
-	seen := make(map[contkey.ADT]CompNode)
-	var walk func(CompSpec, contkey.ADT) error
-	walk = func(current CompSpec, parent contkey.ADT) error {
-		key, data, err := CompContentKey(current); if err != nil { return err }
-		kind, err := compNodeKind(current); if err != nil { return err }
-		node := CompNode{ExpCK: key, SupExpCK: parent, Kind: kind, Spec: data}
-		if existing, ok := seen[key]; ok {
-			if existing.SupExpCK != parent || existing.Kind != kind || string(existing.Spec) != string(data) {
-				return fmt.Errorf("expression node %d has conflicting parent or content", key)
-			}
-			return nil
-		}
-		seen[key] = node
-		nodes = append(nodes, node)
-		children, err := compChildren(current); if err != nil { return err }
-		for _, child := range children { if err := walk(child, key); err != nil { return err } }
-		return nil
-	}
-	if err := walk(spec, contkey.Zero); err != nil { return nil, err }
-	return nodes, nil
-}
-
-func compNodeKind(spec CompSpec) (int16, error) {
-	switch spec.(type) {
-	case CloseSpec: return CloseKind, nil
-	case WaitSpec: return WaitKind, nil
-	case SendSpec: return SendKind, nil
-	case RecvSpec: return RecvKind, nil
-	case LabSpec: return LabKind, nil
-	case CaseSpec: return CaseKind, nil
-	case LinkSpec: return LinkKind, nil
-	case FwdSpec: return FwdKind, nil
-	case CallSpec: return CallKind, nil
-	case SpawnSpec: return SpawnKind, nil
-	case AcqureSpec: return AcquireKind, nil
-	case AcceptSpec: return AcceptKind, nil
-	case DetachSpec: return DetachKind, nil
-	case ReleaseSpec: return ReleaseKind, nil
-	default: return 0, ErrExpTypeUnexpected(spec)
-	}
-}
-
-func compChildren(spec CompSpec) ([]CompSpec, error) {
-	switch s := spec.(type) {
-	case WaitSpec: return []CompSpec{s.ContExp}, nil
-	case RecvSpec: return []CompSpec{s.ContExp}, nil
-	case LabSpec: return []CompSpec{s.ContExp}, nil
-	case CaseSpec:
-		labels := make([]uniqsym.ADT, 0, len(s.ContExps))
-		for label := range s.ContExps { labels = append(labels, label) }
-		sort.Slice(labels, func(i,j int) bool { return uniqsym.ConvertToString(labels[i]) < uniqsym.ConvertToString(labels[j]) })
-		children := make([]CompSpec, 0, len(labels))
-		for _, label := range labels { children = append(children, s.ContExps[label]) }
-		return children, nil
-	case CallSpec: return []CompSpec{s.ContExp}, nil
-	case SpawnSpec: return []CompSpec{s.ContExp}, nil
-	case AcqureSpec: return []CompSpec{s.ContExp}, nil
-	case AcceptSpec: return []CompSpec{s.ContExp}, nil
-	default: return nil, nil
-	}
-}

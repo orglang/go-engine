@@ -3,6 +3,7 @@ package core
 import (
 	"encoding/json/jsontext"
 	jsonv2 "encoding/json/v2"
+	"errors"
 	"fmt"
 
 	"orglang/go-engine/internal/adt/identity"
@@ -38,7 +39,7 @@ func childCompContentKey(spec CompSpec) (int64, error) {
 
 func validateCompSpec(spec CompSpec) error {
 	if spec == nil {
-		return fmt.Errorf("nil process term expression")
+		return errors.New("nil process term expression")
 	}
 	switch s := spec.(type) {
 	case CloseSpec, SendSpec, LinkSpec, FwdSpec, DetachSpec, ReleaseSpec:

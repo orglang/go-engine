@@ -1,7 +1,6 @@
 package adapter
 
 import (
-	"encoding/json"
 	"orglang/go-engine/internal/adt/contkey"
 	"fmt"
 	"sort"
@@ -396,7 +395,7 @@ func dataFromDescRec(rec termexp.DescRec) (DescData,error) {
 func statesFromDescRec(parent int64, rec termexp.DescRec, dto *DescData) int64 {
 	key:=contkey.ConvertToInt(rec.ContentKey())
 	var kind int16
-	d:=DescStateSpec{}
+	d:=StateSpec{}
 	child:=func(r termexp.DescRec) int64 { return statesFromDescRec(key,r,dto) }
 	switch r:=rec.(type) {
 	case termexp.DescCloseRec: kind=termexp.CloseKind; d.ContChnlPH=string(r.ContChnlPH)
@@ -422,8 +421,7 @@ func statesFromDescRec(parent int64, rec termexp.DescRec, dto *DescData) int64 {
 	case termexp.DescReleaseRec: kind=termexp.ReleaseKind; d.ConnChnlPH=string(r.ConnChnlPH)
 	default: panic(fmt.Sprintf("unexpected process Description record %T",rec))
 	}
-	raw,err:=json.Marshal(d); if err!=nil { panic(err) }
-	dto.States=append(dto.States,DescState{ExpCK:key,SupExpCK:parent,K:kind,Spec:raw})
+	dto.States=append(dto.States,DescState{ExpCK:key,SupExpCK:parent,K:kind,Spec:d})
 	return key
 }
 
@@ -434,7 +432,7 @@ func dataToDescRec(dto DescData) (termexp.DescRec,error) {
 }
 func statesToDescRec(states map[int64]DescState, st DescState) (termexp.DescRec,error) {
 	key,err:=contkey.ConvertFromInt(st.ExpCK); if err!=nil{return nil,err}
-	var d DescStateSpec; if err=json.Unmarshal(st.Spec,&d); err!=nil{return nil,err}
+	d:=st.Spec
 	child:=func(ck int64)(termexp.DescRec,error){ s,ok:=states[ck]; if !ok{return nil,fmt.Errorf("process Description child %d is missing",ck)}; if s.SupExpCK!=st.ExpCK{return nil,fmt.Errorf("process Description child %d has unexpected parent",ck)}; return statesToDescRec(states,s) }
 	ph:=func(v string)(symbol.ADT,error){return symbol.ConvertFromString(v)}
 	switch st.K {

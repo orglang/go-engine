@@ -967,7 +967,7 @@ func (t PoolTermDefinitionSpec) Discriminator() (string, error) {
 	return discriminator.Discriminator, err
 }
 
-func (t PoolTermDefinitionSpec) ValueByDiscriminator() (interface{}, error) {
+func (t PoolTermDefinitionSpec) ValueByDiscriminator() (any, error) {
 	discriminator, err := t.Discriminator()
 	if err != nil {
 		return nil, err
@@ -1320,7 +1320,7 @@ func (t PoolTermExprSpec) Discriminator() (string, error) {
 	return discriminator.Discriminator, err
 }
 
-func (t PoolTermExprSpec) ValueByDiscriminator() (interface{}, error) {
+func (t PoolTermExprSpec) ValueByDiscriminator() (any, error) {
 	discriminator, err := t.Discriminator()
 	if err != nil {
 		return nil, err
@@ -1639,7 +1639,7 @@ func (t PoolTypeExprSpec) Discriminator() (string, error) {
 	return discriminator.Discriminator, err
 }
 
-func (t PoolTypeExprSpec) ValueByDiscriminator() (interface{}, error) {
+func (t PoolTypeExprSpec) ValueByDiscriminator() (any, error) {
 	discriminator, err := t.Discriminator()
 	if err != nil {
 		return nil, err
@@ -2160,7 +2160,7 @@ func (t ProcTermDefinitionSpec) Discriminator() (string, error) {
 	return discriminator.Discriminator, err
 }
 
-func (t ProcTermDefinitionSpec) ValueByDiscriminator() (interface{}, error) {
+func (t ProcTermDefinitionSpec) ValueByDiscriminator() (any, error) {
 	discriminator, err := t.Discriminator()
 	if err != nil {
 		return nil, err
@@ -2523,7 +2523,7 @@ func (t ProcTermExprSpec) Discriminator() (string, error) {
 	return discriminator.Discriminator, err
 }
 
-func (t ProcTermExprSpec) ValueByDiscriminator() (interface{}, error) {
+func (t ProcTermExprSpec) ValueByDiscriminator() (any, error) {
 	discriminator, err := t.Discriminator()
 	if err != nil {
 		return nil, err
@@ -2842,7 +2842,7 @@ func (t ProcTypeExprSpec) Discriminator() (string, error) {
 	return discriminator.Discriminator, err
 }
 
-func (t ProcTypeExprSpec) ValueByDiscriminator() (interface{}, error) {
+func (t ProcTypeExprSpec) ValueByDiscriminator() (any, error) {
 	discriminator, err := t.Discriminator()
 	if err != nil {
 		return nil, err

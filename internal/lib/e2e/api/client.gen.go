@@ -971,7 +971,7 @@ func (t PoolTermDefinitionSpec) Discriminator() (string, error) {
 	return discriminator.Discriminator, err
 }
 
-func (t PoolTermDefinitionSpec) ValueByDiscriminator() (interface{}, error) {
+func (t PoolTermDefinitionSpec) ValueByDiscriminator() (any, error) {
 	discriminator, err := t.Discriminator()
 	if err != nil {
 		return nil, err
@@ -1324,7 +1324,7 @@ func (t PoolTermExprSpec) Discriminator() (string, error) {
 	return discriminator.Discriminator, err
 }
 
-func (t PoolTermExprSpec) ValueByDiscriminator() (interface{}, error) {
+func (t PoolTermExprSpec) ValueByDiscriminator() (any, error) {
 	discriminator, err := t.Discriminator()
 	if err != nil {
 		return nil, err
@@ -1643,7 +1643,7 @@ func (t PoolTypeExprSpec) Discriminator() (string, error) {
 	return discriminator.Discriminator, err
 }
 
-func (t PoolTypeExprSpec) ValueByDiscriminator() (interface{}, error) {
+func (t PoolTypeExprSpec) ValueByDiscriminator() (any, error) {
 	discriminator, err := t.Discriminator()
 	if err != nil {
 		return nil, err
@@ -2164,7 +2164,7 @@ func (t ProcTermDefinitionSpec) Discriminator() (string, error) {
 	return discriminator.Discriminator, err
 }
 
-func (t ProcTermDefinitionSpec) ValueByDiscriminator() (interface{}, error) {
+func (t ProcTermDefinitionSpec) ValueByDiscriminator() (any, error) {
 	discriminator, err := t.Discriminator()
 	if err != nil {
 		return nil, err
@@ -2527,7 +2527,7 @@ func (t ProcTermExprSpec) Discriminator() (string, error) {
 	return discriminator.Discriminator, err
 }
 
-func (t ProcTermExprSpec) ValueByDiscriminator() (interface{}, error) {
+func (t ProcTermExprSpec) ValueByDiscriminator() (any, error) {
 	discriminator, err := t.Discriminator()
 	if err != nil {
 		return nil, err
@@ -2846,7 +2846,7 @@ func (t ProcTypeExprSpec) Discriminator() (string, error) {
 	return discriminator.Discriminator, err
 }
 
-func (t ProcTypeExprSpec) ValueByDiscriminator() (interface{}, error) {
+func (t ProcTypeExprSpec) ValueByDiscriminator() (any, error) {
 	discriminator, err := t.Discriminator()
 	if err != nil {
 		return nil, err
@@ -3662,7 +3662,7 @@ func NewCreatePoolDeclarationRequestWithBody(server string, contentType string, 
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/pools/declarations")
+	operationPath := "/api/v1/pools/declarations"
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -3702,7 +3702,7 @@ func NewCreatePoolExecutionRequestWithBody(server string, contentType string, bo
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/pools/executions")
+	operationPath := "/api/v1/pools/executions"
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -3742,7 +3742,7 @@ func NewSpawnPoolExecutionRequestWithBody(server string, contentType string, bod
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/pools/executions/spawns")
+	operationPath := "/api/v1/pools/executions/spawns"
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -3782,7 +3782,7 @@ func NewStepPoolExecutionRequestWithBody(server string, contentType string, body
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/pools/executions/steps")
+	operationPath := "/api/v1/pools/executions/steps"
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -3822,7 +3822,7 @@ func NewCreatePoolTypeDefinitionRequestWithBody(server string, contentType strin
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/pools/types")
+	operationPath := "/api/v1/pools/types"
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -3858,7 +3858,7 @@ func NewGetPoolTypeDefinitionRequest(server string, id string, params *GetPoolTy
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/pools/types/%s", pathParam0)
+	operationPath := "/api/v1/pools/types/" + pathParam0
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -3919,7 +3919,7 @@ func NewGetPoolAssociatedDeclarationRequest(server string, id string, params *Ge
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/pools/%s/declaration", pathParam0)
+	operationPath := "/api/v1/pools/" + pathParam0 + "/declaration"
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -3980,7 +3980,7 @@ func NewGetPoolDefinitionRequest(server string, id string, params *GetPoolDefini
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/pools/%s/definition", pathParam0)
+	operationPath := "/api/v1/pools/" + pathParam0 + "/definition"
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -4052,7 +4052,7 @@ func NewExtendPoolDefinitionRequestWithBody(server string, id string, params *Ex
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/pools/%s/definition", pathParam0)
+	operationPath := "/api/v1/pools/" + pathParam0 + "/definition"
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -4111,7 +4111,7 @@ func NewListPoolExecutionsRequest(server string, id string) (*http.Request, erro
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/pools/%s/executions", pathParam0)
+	operationPath := "/api/v1/pools/" + pathParam0 + "/executions"
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -4149,7 +4149,7 @@ func NewCreateProcessDeclarationRequestWithBody(server string, contentType strin
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/processes/declarations")
+	operationPath := "/api/v1/processes/declarations"
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -4185,7 +4185,7 @@ func NewGetProcessDeclarationRequest(server string, id string, params *GetProces
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/processes/declarations/%s", pathParam0)
+	operationPath := "/api/v1/processes/declarations/" + pathParam0
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -4246,7 +4246,7 @@ func NewGetProcessExecutionRequest(server string, id string, params *GetProcessE
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/processes/executions/%s", pathParam0)
+	operationPath := "/api/v1/processes/executions/" + pathParam0
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -4318,7 +4318,7 @@ func NewStepProcessExecutionRequestWithBody(server string, id string, contentTyp
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/processes/executions/%s/steps", pathParam0)
+	operationPath := "/api/v1/processes/executions/" + pathParam0 + "/steps"
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -4358,7 +4358,7 @@ func NewCreateProcessTypeDefinitionRequestWithBody(server string, contentType st
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/processes/types")
+	operationPath := "/api/v1/processes/types"
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -4394,7 +4394,7 @@ func NewGetProcessTypeDefinitionRequest(server string, id string, params *GetPro
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/processes/types/%s", pathParam0)
+	operationPath := "/api/v1/processes/types/" + pathParam0
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -4455,7 +4455,7 @@ func NewGetProcessAssociatedDeclarationRequest(server string, id string, params 
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/processes/%s/declaration", pathParam0)
+	operationPath := "/api/v1/processes/" + pathParam0 + "/declaration"
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -4516,7 +4516,7 @@ func NewGetProcessDefinitionRequest(server string, id string, params *GetProcess
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/processes/%s/definition", pathParam0)
+	operationPath := "/api/v1/processes/" + pathParam0 + "/definition"
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -4588,7 +4588,7 @@ func NewExtendProcessDefinitionRequestWithBody(server string, id string, params 
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/processes/%s/definition", pathParam0)
+	operationPath := "/api/v1/processes/" + pathParam0 + "/definition"
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -4647,7 +4647,7 @@ func NewListProcessExecutionsRequest(server string, id string) (*http.Request, e
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/processes/%s/executions", pathParam0)
+	operationPath := "/api/v1/processes/" + pathParam0 + "/executions"
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -4668,7 +4668,7 @@ func NewListProcessExecutionsRequest(server string, id string) (*http.Request, e
 // NewCreateProgramRequestWithTextBody calls the generic CreateProgram builder with text/plain body
 func NewCreateProgramRequestWithTextBody(server string, body CreateProgramTextRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
-	if stringer, ok := interface{}(body).(fmt.Stringer); ok {
+	if stringer, ok := any(body).(fmt.Stringer); ok {
 		bodyReader = strings.NewReader(stringer.String())
 	} else {
 		bodyReader = strings.NewReader(fmt.Sprint(body))
@@ -4685,7 +4685,7 @@ func NewCreateProgramRequestWithBody(server string, contentType string, body io.
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v1/programs")
+	operationPath := "/api/v1/programs"
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}

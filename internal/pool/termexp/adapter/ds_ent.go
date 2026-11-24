@@ -65,15 +65,13 @@ func (dao *daoEnt) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.De
 	}
 
 	for _, state := range dto.States {
-		rows, err := conn.Pgx.Query(ctx, selectTermExpByCK, state.ExpCK)
+		existing, err := dao.client.TermExp.Query().
+			Where(termexpent.ID(state.ExpCK)).
+			Only(txCtx)
 		if err != nil {
 			return err
 		}
-		existing, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[DescState])
-		if err != nil {
-			return err
-		}
-		canonical, err := canonicalStoredJSON(existing.Spec)
+		canonical, err := canonicalJSON([]byte(existing.Spec))
 		if err != nil {
 			return err
 		}
@@ -81,7 +79,7 @@ func (dao *daoEnt) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.De
 		if err != nil {
 			return err
 		}
-		if existing.SupExpCK != state.SupExpCK || existing.K != state.K || !bytes.Equal(canonical, expected) {
+		if existing.SupExpCk != state.SupExpCK || existing.Kind != int16(state.K) || !bytes.Equal(canonical, expected) {
 			return fmt.Errorf("pool term Definition content-key collision or parent conflict for %d", state.ExpCK)
 		}
 	}
@@ -114,18 +112,16 @@ func canonicalStoredJSON(spec StateSpec) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	return canonicalJSON(raw)
+}
+
+func canonicalJSON(raw []byte) ([]byte, error) {
 	value := jsontext.Value(raw)
 	if err := value.Canonicalize(jsontext.CanonicalizeRawInts(false)); err != nil {
 		return nil, err
 	}
 	return []byte(value), nil
 }
-
-const selectTermExpByCK = `
-SELECT exp_ck, sup_exp_ck, kind, spec
-FROM pool_term_exps
-WHERE exp_ck = $1
-`
 
 const selectTermExpTree = `
 WITH RECURSIVE exp_tree AS (

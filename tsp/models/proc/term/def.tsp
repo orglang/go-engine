@@ -42,7 +42,7 @@ model DefLabSpec {
 }
 model DefCaseSpec {
   conn_ph: string;
-  cont_exps: Record<string, DefinitionSpec>;
+  cont_exps: Record<DefinitionSpec>;
 }
 model DefLinkSpec {
   proc_qn: string;

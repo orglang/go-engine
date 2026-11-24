@@ -1,12 +1,12 @@
 package schema
 
 import (
+	"encoding/json"
+
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
-
-	termexpadapter "orglang/go-engine/internal/proc/termexp/adapter"
 )
 
 // TermExp describes one persisted process term-definition expression node.
@@ -20,7 +20,7 @@ func (TermExp) Fields() []ent.Field {
 		field.Int64("id").StorageKey("exp_ck").Unique().Immutable(),
 		field.Int64("sup_exp_ck"),
 		field.Int16("kind"),
-		field.JSON("spec", termexpadapter.StateSpec{}).Optional(),
+		field.JSON("spec", json.RawMessage{}).Optional(),
 	}
 }
 

@@ -23,11 +23,11 @@ func TestContentKeyIncludesLabContinuation(t *testing.T) {
 		ContExp:    CloseSpec{ContChnlPH: symbol.New("right")},
 	}
 
-	baseKey, _, err := ContentKey(base)
+	baseKey, _, err := CompContentKey(base)
 	if err != nil {
 		t.Fatal(err)
 	}
-	changedKey, _, err := ContentKey(changed)
+	changedKey, _, err := CompContentKey(changed)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -41,24 +41,24 @@ func TestContentKeyIsStableForCaseMapInsertionOrder(t *testing.T) {
 	rightLabel := uniqsym.New(symbol.New("right"))
 	left := CaseSpec{
 		ConnChnlPH: symbol.New("conn"),
-		ContExps: map[uniqsym.ADT]ExpSpec{
+		ContExps: map[uniqsym.ADT]CompSpec{
 			leftLabel:  CloseSpec{ContChnlPH: symbol.New("left")},
 			rightLabel: CloseSpec{ContChnlPH: symbol.New("right")},
 		},
 	}
 	right := CaseSpec{
 		ConnChnlPH: symbol.New("conn"),
-		ContExps: map[uniqsym.ADT]ExpSpec{
+		ContExps: map[uniqsym.ADT]CompSpec{
 			rightLabel: CloseSpec{ContChnlPH: symbol.New("right")},
 			leftLabel:  CloseSpec{ContChnlPH: symbol.New("left")},
 		},
 	}
 
-	leftKey, leftJSON, err := ContentKey(left)
+	leftKey, leftJSON, err := CompContentKey(left)
 	if err != nil {
 		t.Fatal(err)
 	}
-	rightKey, rightJSON, err := ContentKey(right)
+	rightKey, rightJSON, err := CompContentKey(right)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -70,7 +70,7 @@ func TestContentKeyIsStableForCaseMapInsertionOrder(t *testing.T) {
 func TestContentKeySerializesEveryDefinitionVariant(t *testing.T) {
 	cont := CloseSpec{ContChnlPH: symbol.New("next")}
 	specs := []struct {
-		spec ExpSpec
+		spec CompSpec
 		kind string
 	}{
 		{CloseSpec{}, "close"},
@@ -78,7 +78,7 @@ func TestContentKeySerializesEveryDefinitionVariant(t *testing.T) {
 		{SendSpec{}, "send"},
 		{RecvSpec{ContExp: cont}, "recv"},
 		{LabSpec{ContExp: cont}, "lab"},
-		{CaseSpec{ContExps: map[uniqsym.ADT]ExpSpec{}}, "case"},
+		{CaseSpec{ContExps: map[uniqsym.ADT]CompSpec{}}, "case"},
 		{LinkSpec{}, "link"},
 		{FwdSpec{}, "fwd"},
 		{CallSpec{ContExp: cont}, "call"},
@@ -89,7 +89,7 @@ func TestContentKeySerializesEveryDefinitionVariant(t *testing.T) {
 		{ReleaseSpec{}, "release"},
 	}
 	for _, tc := range specs {
-		_, data, err := ContentKey(tc.spec)
+		_, data, err := CompContentKey(tc.spec)
 		if err != nil {
 			t.Fatalf("%s: %v", tc.kind, err)
 		}
@@ -105,7 +105,7 @@ func TestContentNodesUseParentKeysAndChildReferences(t *testing.T) {
 		ValLabQN: uniqsym.New(symbol.New("accepted")),
 		ContExp: CloseSpec{ContChnlPH: symbol.New("next")},
 	}
-	nodes, err := ContentNodes(spec)
+	nodes, err := CompContentNodes(spec)
 	if err != nil { t.Fatal(err) }
 	if len(nodes) != 2 { t.Fatalf("want 2 nodes, got %d", len(nodes)) }
 	if nodes[0].SupExpCK != 0 { t.Fatalf("root has parent key %d", nodes[0].SupExpCK) }
@@ -122,17 +122,17 @@ func TestContentNodesRoundTrip(t *testing.T) {
 	}
 	spec := CaseSpec{
 		ConnChnlPH: symbol.New("conn"),
-		ContExps: map[uniqsym.ADT]ExpSpec{
+		ContExps: map[uniqsym.ADT]CompSpec{
 			uniqsym.New(symbol.New("left")): shared,
 			uniqsym.New(symbol.New("right")): shared,
 		},
 	}
-	nodes, err := ContentNodes(spec)
+	nodes, err := CompContentNodes(spec)
 	if err != nil { t.Fatal(err) }
 	if len(nodes) != 2 { t.Fatalf("want shared tree of 2 nodes, got %d", len(nodes)) }
 	restored, err := BuildSpecFromNodes(nodes, nodes[0].ExpCK)
 	if err != nil { t.Fatal(err) }
-	wantKey, _, err := ContentKey(spec); if err != nil { t.Fatal(err) }
-	gotKey, _, err := ContentKey(restored); if err != nil { t.Fatal(err) }
+	wantKey, _, err := CompContentKey(spec); if err != nil { t.Fatal(err) }
+	gotKey, _, err := CompContentKey(restored); if err != nil { t.Fatal(err) }
 	if gotKey != wantKey { t.Fatalf("round-trip key = %d, want %d", gotKey, wantKey) }
 }

@@ -3,6 +3,7 @@ package core
 import (
 	"encoding/json/jsontext"
 	jsonv2 "encoding/json/v2"
+	"errors"
 	"fmt"
 
 	"orglang/go-engine/internal/adt/uniqsym"
@@ -20,7 +21,7 @@ func childCompContentKey(spec CompSpec) (int64, error) {
 
 func validateCompSpec(spec CompSpec) error {
 	if spec == nil {
-		return fmt.Errorf("nil pool term expression")
+		return errors.New("nil pool term expression")
 	}
 	switch s := spec.(type) {
 	case AcquireSpec:
@@ -34,7 +35,7 @@ func validateCompSpec(spec CompSpec) error {
 	case ReleaseSpec, DetachSpec, FireSpec, QuitSpec, SpawnSpec:
 		return nil
 	case SpawnSpec2:
-		return fmt.Errorf("pool SpawnSpec2 is an execution reference form and has no computation content key")
+		return errors.New("pool SpawnSpec2 is an execution reference form and has no computation content key")
 	default:
 		return ErrSpecTypeUnexpected(spec)
 	}

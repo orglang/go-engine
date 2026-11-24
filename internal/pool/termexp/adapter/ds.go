@@ -1,8 +1,6 @@
 package adapter
 
 import (
-	"encoding/json"
-
 	termexp "orglang/go-engine/internal/pool/termexp/core"
 )
 
@@ -80,10 +78,10 @@ type DescState struct {
 	ExpCK    int64           `db:"exp_ck"`
 	SupExpCK int64           `db:"sup_exp_ck"`
 	K        ExpKind         `db:"kind"`
-	Spec     json.RawMessage `db:"spec"`
+	Spec     StateSpec `db:"spec"`
 }
 
-type DescStateSpec struct {
+type StateSpec struct {
 	ConnChnlPH  string   `json:"conn_chnl_ph,omitempty"`
 	ProcTermQN  string   `json:"proc_term_qn,omitempty"`
 	ProcCompQNs []string `json:"proc_comp_qns,omitempty"`

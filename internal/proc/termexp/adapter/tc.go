@@ -1,9 +1,12 @@
 package adapter
 
 import (
+	"errors"
 	"fmt"
+	"slices"
+	"strings"
+
 	"orglang/go-engine/internal/adt/contkey"
-	"sort"
 
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
@@ -267,7 +270,7 @@ func dataFromExpSpec(s termexp.CompSpec) (ExpSpec, error) {
 		for label := range spec.ContExps {
 			labels = append(labels, label)
 		}
-		sort.Slice(labels, func(i, j int) bool { return uniqsym.ConvertToString(labels[i]) < uniqsym.ConvertToString(labels[j]) })
+		slices.SortFunc(labels, func(a, b uniqsym.ADT) int { return strings.Compare(uniqsym.ConvertToString(a), uniqsym.ConvertToString(b)) })
 		for _, l := range labels {
 			cont := spec.ContExps[l]
 			dto, err := dataFromExpSpec(cont)
@@ -391,7 +394,7 @@ func errUnexpectedExpKind(k ExpKind) error {
 
 func dataFromDescRec(rec termexp.DescRec) (DescData, error) {
 	if rec == nil {
-		return DescData{}, fmt.Errorf("nil process Description record")
+		return DescData{}, errors.New("nil process Description record")
 	}
 	dto := DescData{ExpCK: contkey.ConvertToInt(rec.ContentKey())}
 	statesFromDescRec(0, rec, &dto)
@@ -432,7 +435,7 @@ func statesFromDescRec(parent int64, rec termexp.DescRec, dto *DescData) int64 {
 		for q := range r.ContExps {
 			labels = append(labels, q)
 		}
-		sort.Slice(labels, func(i, j int) bool { return uniqsym.ConvertToString(labels[i]) < uniqsym.ConvertToString(labels[j]) })
+		slices.SortFunc(labels, func(a, b uniqsym.ADT) int { return strings.Compare(uniqsym.ConvertToString(a), uniqsym.ConvertToString(b)) })
 		for _, q := range labels {
 			d.ContExpCKs[uniqsym.ConvertToString(q)] = child(r.ContExps[q])
 		}
@@ -515,7 +518,7 @@ func statesToDescRec(states map[int64]DescState, st DescState) (termexp.DescRec,
 		}
 		return statesToDescRec(states, s)
 	}
-	ph := func(v string) (symbol.ADT, error) { return symbol.ConvertFromString(v) }
+	ph := symbol.ConvertFromString
 	switch st.K {
 	case termexp.CloseKind:
 		p, e := ph(d.ContChnlPH)

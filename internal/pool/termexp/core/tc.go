@@ -4,7 +4,6 @@ import (
 	"encoding/json/jsontext"
 	jsonv2 "encoding/json/v2"
 	"errors"
-	"fmt"
 
 	"orglang/go-engine/internal/adt/uniqsym"
 )
@@ -89,5 +88,5 @@ func (s SpawnSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
 	return marshalTaggedSpec(enc, "spawn", map[string]any{"proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN), "proc_comp_qns": qns})
 }
 func (s SpawnSpec2) MarshalJSONTo(enc *jsontext.Encoder) error {
-	return fmt.Errorf("pool SpawnSpec2 is an execution reference form and has no computation content key")
+	return errors.New("pool SpawnSpec2 is an execution reference form and has no computation content key")
 }

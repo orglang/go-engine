@@ -12,7 +12,7 @@ import (
 	termexp "orglang/go-engine/internal/pool/termexp/core"
 )
 
-func DataFromExpSpec(s termexp.ExpSpec) ExpSpec {
+func DataFromExpSpec(s termexp.CompSpec) ExpSpec {
 	switch spec := s.(type) {
 	case termexp.AcquireSpec:
 		return ExpSpec{K: AcquireKind, Acquire: DataFromAcquireSpec(spec)}
@@ -31,7 +31,7 @@ func DataFromExpSpec(s termexp.ExpSpec) ExpSpec {
 	}
 }
 
-func DataToExpSpec(dto ExpSpec) (termexp.ExpSpec, error) {
+func DataToExpSpec(dto ExpSpec) (termexp.CompSpec, error) {
 	switch dto.K {
 	case AcquireKind:
 		return DataToAcquireSpec(dto.Acquire)
@@ -50,7 +50,7 @@ func DataToExpSpec(dto ExpSpec) (termexp.ExpSpec, error) {
 	}
 }
 
-func DataFromExpRec(r termexp.ExpRec) ExpRec {
+func DataFromExpRec(r termexp.CompRec) ExpRec {
 	switch rec := r.(type) {
 	case termexp.AcquireRec:
 		return ExpRec{K: AcquireKind, Acquire: DataFromAcquireRec(rec)}
@@ -69,7 +69,7 @@ func DataFromExpRec(r termexp.ExpRec) ExpRec {
 	}
 }
 
-func DataToExpRec(dto ExpRec) (termexp.ExpRec, error) {
+func DataToExpRec(dto ExpRec) (termexp.CompRec, error) {
 	switch dto.K {
 	case AcquireKind:
 		return DataToAcquireRec(dto.Acquire)

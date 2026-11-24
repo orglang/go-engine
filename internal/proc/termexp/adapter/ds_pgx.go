@@ -25,7 +25,7 @@ func NewDaoPgx(log *slog.Logger) termexp.Repo {
 
 // Insert retains the legacy runtime persistence contract. Runtime records are
 // currently not stored by this adapter; declarative Definition uses InsertSpec.
-func (dao *daoPgx) Insert(ctx context.Context, conn tx.Conn, rec termexp.ExpRec) error {
+func (dao *daoPgx) Insert(ctx context.Context, conn tx.Conn, rec termexp.CompRec) error {
 	return nil
 }
 

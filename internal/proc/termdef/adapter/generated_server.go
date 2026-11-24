@@ -72,10 +72,18 @@ type generatedServerStub struct {
 	webapi.ServerInterface
 	gotID string
 	gotRN *int64
+	gotDefinitionID string
+	gotDefinitionRN *int64
 }
 
 func (s *generatedServerStub) CreateProcessDeclaration(c *echo.Context) error {
 	return c.NoContent(http.StatusCreated)
+}
+
+func (s *generatedServerStub) GetProcessDefinition(c *echo.Context, id string, params webapi.GetProcessDefinitionParams) error {
+	s.gotDefinitionID = id
+	s.gotDefinitionRN = params.Rn
+	return c.NoContent(http.StatusOK)
 }
 
 func (s *generatedServerStub) GetProcessDeclaration(c *echo.Context, id string, params webapi.GetProcessDeclarationParams) error {
@@ -107,6 +115,19 @@ func TestCfgGeneratedServerRegistersGeneratedRoutes(t *testing.T) {
 	}
 	if stub.gotRN == nil || *stub.gotRN != 7 {
 		t.Errorf("unexpected rn: got %v, want 7", stub.gotRN)
+	}
+
+	req = httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/v1/processes/proc-2/definition?rn=9", nil)
+	rec = httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("unexpected Definition GET status: got %d, want %d; body: %s", rec.Code, http.StatusOK, rec.Body.String())
+	}
+	if stub.gotDefinitionID != "proc-2" {
+		t.Errorf("unexpected Definition id: got %q, want %q", stub.gotDefinitionID, "proc-2")
+	}
+	if stub.gotDefinitionRN == nil || *stub.gotDefinitionRN != 9 {
+		t.Errorf("unexpected Definition rn: got %v, want 9", stub.gotDefinitionRN)
 	}
 
 	req = httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/v1/programs", nil)

@@ -65,7 +65,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return core.NewService(termDecRepo, termExpRepo, descRootRepo, descSemRepo, typeDefRepo, transactor, logger), nil
+		return core.NewServiceWithTermExpRepo(termDecRepo, termExpRepo, descRootRepo, descSemRepo, typeDefRepo, transactor, logger), nil
 	}),
 	do.Lazy[webapi.ServerInterface](func(i do.Injector) (webapi.ServerInterface, error) {
 		api, err := do.Invoke[core.API](i)

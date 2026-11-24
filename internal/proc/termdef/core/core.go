@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"iter"
 	"log/slog"
@@ -69,17 +70,6 @@ func newAPI() API {
 }
 
 func NewService(
-	termDecRepo Repo,
-	descRootRepo descroot.Repo,
-	descSemRepo descsem.Repo,
-	typeDefRepo typedef.Repo,
-	transactor tx.Transactor,
-	log *slog.Logger,
-) API {
-	return &service{termDecRepo: termDecRepo, descRootRepo: descRootRepo, descSemRepo: descSemRepo, typeDefRepo: typeDefRepo, transactor: transactor, log: log}
-}
-
-func NewServiceWithTermExpRepo(
 	termDecRepo Repo,
 	termExpRepo termexp.Repo,
 	descRootRepo descroot.Repo,
@@ -185,7 +175,7 @@ func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT, e
 			return nil, err
 		}
 		if expectedRN != nil && *expectedRN != rec.TermRef.DescRN {
-			return nil, ErrDefinitionRevisionMismatch(*expectedRN, rec.TermRef.DescRN)
+			return nil, fmt.Errorf("%w: expected %d, current %d", ErrDefinitionRevisionMismatch, *expectedRN, rec.TermRef.DescRN)
 		}
 		if rec.ExpCK == 0 {
 			return nil, ErrDefinitionMissing(termID)
@@ -194,18 +184,7 @@ func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT, e
 	})
 }
 
-type DefinitionRevisionMismatchError struct {
-	Expected seqnum.ADT
-	Current  seqnum.ADT
-}
-
-func (e DefinitionRevisionMismatchError) Error() string {
-	return fmt.Sprintf("description revision mismatch: expected %d, current %d", e.Expected, e.Current)
-}
-
-func ErrDefinitionRevisionMismatch(expected, current seqnum.ADT) error {
-	return DefinitionRevisionMismatchError{Expected: expected, Current: current}
-}
+var ErrDefinitionRevisionMismatch = errors.New("description revision mismatch")
 
 type DefinitionMissingError struct {
 	TermID identity.ADT

@@ -45,11 +45,11 @@ type CloseRec struct {
 }
 
 type WaitSpec struct {
-	X      string  `json:"x"`
+	X      string   `json:"x"`
 	ContES CompSpec `json:"cont"`
 }
 type WaitRec struct {
-	X      string  `json:"x"`
+	X      string   `json:"x"`
 	ContES CompSpec `json:"cont"`
 }
 
@@ -66,20 +66,20 @@ type SendRec struct {
 }
 
 type RecvSpec struct {
-	X      string  `json:"x"`
-	Y      string  `json:"y"`
+	X      string   `json:"x"`
+	Y      string   `json:"y"`
 	ContES CompSpec `json:"cont"`
 }
 type RecvRec struct {
-	X      string  `json:"x"`
-	A      string  `json:"a"`
-	Y      string  `json:"y"`
+	X      string   `json:"x"`
+	A      string   `json:"a"`
+	Y      string   `json:"y"`
 	ContES CompSpec `json:"cont"`
 }
 
 type LabSpec struct {
-	X      string  `json:"x"`
-	Label  string  `json:"lab"`
+	X      string   `json:"x"`
+	Label  string   `json:"lab"`
 	ContES CompSpec `json:"cont"`
 }
 type LabRec struct {
@@ -101,11 +101,11 @@ type CaseRec struct {
 }
 
 type BranchSpec struct {
-	Label  string  `json:"lab"`
+	Label  string   `json:"lab"`
 	ContES CompSpec `json:"cont"`
 }
 type BranchRec struct {
-	Label  string  `json:"lab"`
+	Label  string   `json:"lab"`
 	ContES CompSpec `json:"cont"`
 }
 

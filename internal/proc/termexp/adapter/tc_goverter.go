@@ -11,6 +11,6 @@ import (
 var (
 	DataToCompSpecs   func([]CompSpec) ([]termexp.CompSpec, error)
 	DataFromCompSpecs func([]termexp.CompSpec) ([]CompSpec, error)
-	DataToExpRecs    func([]ExpRec) ([]termexp.CompRec, error)
-	DataFromExpRecs  func([]termexp.CompRec) ([]ExpRec, error)
+	DataToExpRecs     func([]ExpRec) ([]termexp.CompRec, error)
+	DataFromExpRecs   func([]termexp.CompRec) ([]ExpRec, error)
 )

@@ -1,7 +1,6 @@
 package adapter
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"encoding/json/jsontext"
@@ -16,7 +15,6 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/pool/ent"
-	termexpent "orglang/go-engine/internal/pool/ent/termexp"
 	termexp "orglang/go-engine/internal/pool/termexp/core"
 )
 
@@ -65,25 +63,6 @@ func (dao *daoEnt) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.De
 		return err
 	}
 
-	for _, state := range dto.States {
-		existing, err := dao.client.TermExp.Query().
-			Where(termexpent.ID(state.ExpCK)).
-			Only(txCtx)
-		if err != nil {
-			return err
-		}
-		canonical, err := canonicalJSON([]byte(existing.Spec))
-		if err != nil {
-			return err
-		}
-		expected, err := canonicalStoredJSON(state.Spec)
-		if err != nil {
-			return err
-		}
-		if existing.SupExpCk != state.SupExpCK || existing.Kind != int16(state.K) || !bytes.Equal(canonical, expected) {
-			return fmt.Errorf("pool term Definition content-key collision or parent conflict for %d", state.ExpCK)
-		}
-	}
 	dao.log.Log(ctx, lf.LevelTrace, "term Definition insertion succeeded", slog.Int("states", len(dto.States)))
 	return nil
 }
@@ -106,14 +85,6 @@ func (dao *daoEnt) SelectSpecByCK(ctx context.Context, conn tx.Conn, key contkey
 		return nil, err
 	}
 	return termexp.ConvertRecToSpec(rec), nil
-}
-
-func canonicalStoredJSON(spec StateSpec) ([]byte, error) {
-	raw, err := json.Marshal(spec)
-	if err != nil {
-		return nil, err
-	}
-	return canonicalJSON(raw)
 }
 
 func canonicalJSON(raw []byte) ([]byte, error) {

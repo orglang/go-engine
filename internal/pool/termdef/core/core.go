@@ -21,7 +21,7 @@ import (
 
 type API interface {
 	Create(context.Context, DefSpec) (termsem.SemRef, error)
-	RetrieveDefinition(context.Context, termsem.SemRef) (termexp.DescSpec, error)
+	RetrieveDefinition(context.Context, identity.ADT, *seqnum.ADT) (termexp.DescSpec, error)
 }
 
 // for compilation purposes
@@ -129,20 +129,20 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ termsem.SemRef, e
 	return newDef.TermRef, nil
 }
 
-func (s *service) RetrieveDefinition(ctx context.Context, ref termsem.SemRef) (termexp.DescSpec, error) {
+func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT, expectedRN *seqnum.ADT) (termexp.DescSpec, error) {
 	if s.termExpRepo == nil {
 		return nil, fmt.Errorf("term Definition repository is not configured")
 	}
 	return tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (termexp.DescSpec, error) {
-		rec, err := s.termDefRepo.GetRecByID(txCtx, conn, ref.TermID)
+		rec, err := s.termDefRepo.GetRecByID(txCtx, conn, termID)
 		if err != nil {
 			return nil, err
 		}
-		if ref.DescRN != 0 && ref.DescRN != rec.TermRef.DescRN {
-			return nil, ErrDefinitionRevisionMismatch(ref.DescRN, rec.TermRef.DescRN)
+		if expectedRN != nil && *expectedRN != rec.TermRef.DescRN {
+			return nil, ErrDefinitionRevisionMismatch(*expectedRN, rec.TermRef.DescRN)
 		}
 		if rec.ExpCK == 0 {
-			return nil, ErrDefinitionMissing(ref.TermID)
+			return nil, ErrDefinitionMissing(termID)
 		}
 		return s.termExpRepo.SelectSpecByCK(txCtx, conn, rec.ExpCK)
 	})

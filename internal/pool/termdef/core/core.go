@@ -2,22 +2,26 @@ package core
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	"orglang/go-engine/internal/lib/tx"
 
 	"orglang/go-engine/internal/adt/contkey"
+	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/uniqsym"
+	termexp "orglang/go-engine/internal/pool/termexp/core"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 )
 
 type API interface {
 	Create(context.Context, DefSpec) (termsem.SemRef, error)
+	RetrieveDefinition(context.Context, termsem.SemRef) (termexp.DescSpec, error)
 }
 
 // for compilation purposes
@@ -44,17 +48,19 @@ type DefSnap struct {
 
 func NewService(
 	termDefRepo Repo,
+	termExpRepo termexp.Repo,
 	descRootRepo descroot.Repo,
 	typeDefRepo typedef.Repo,
 	descSemRepo descsem.Repo,
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
-	return &service{termDefRepo, descRootRepo, typeDefRepo, descSemRepo, transactor, log}
+	return &service{termDefRepo, termExpRepo, descRootRepo, typeDefRepo, descSemRepo, transactor, log}
 }
 
 type service struct {
 	termDefRepo  Repo
+	termExpRepo  termexp.Repo
 	descRootRepo descroot.Repo
 	typeDefRepo  typedef.Repo
 	descSemRepo  descsem.Repo
@@ -110,4 +116,28 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ termsem.SemRef, e
 	}
 	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", newDef.TermRef))
 	return newDef.TermRef, nil
+}
+
+func (s *service) RetrieveDefinition(ctx context.Context, ref termsem.SemRef) (termexp.DescSpec, error) {
+	return tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (termexp.DescSpec, error) {
+		rec, err := s.termDefRepo.GetRecByID(txCtx, conn, ref.TermID)
+		if err != nil {
+			return nil, err
+		}
+		if ref.DescRN != 0 && ref.DescRN != rec.TermRef.DescRN {
+			return nil, ErrDefinitionRevisionMismatch(ref.DescRN, rec.TermRef.DescRN)
+		}
+		if rec.ExpCK == 0 {
+			return nil, ErrDefinitionMissing(ref.TermID)
+		}
+		return s.termExpRepo.SelectSpecByCK(txCtx, conn, rec.ExpCK)
+	})
+}
+
+func ErrDefinitionRevisionMismatch(expected, current seqnum.ADT) error {
+	return fmt.Errorf("description revision mismatch: expected %d, current %d", expected, current)
+}
+
+func ErrDefinitionMissing(termID identity.ADT) error {
+	return fmt.Errorf("pool term %v has no Definition", termID)
 }

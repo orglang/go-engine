@@ -9,8 +9,8 @@ import (
 // goverter:extend Data.*
 // goverter:extend data.*
 var (
-	DataToExpSpecs   func([]ExpSpec) ([]termexp.CompSpec, error)
-	DataFromExpSpecs func([]termexp.CompSpec) ([]ExpSpec, error)
+	DataToCompSpecs   func([]CompSpec) ([]termexp.CompSpec, error)
+	DataFromCompSpecs func([]termexp.CompSpec) ([]CompSpec, error)
 	DataToExpRecs    func([]ExpRec) ([]termexp.CompRec, error)
 	DataFromExpRecs  func([]termexp.CompRec) ([]ExpRec, error)
 )

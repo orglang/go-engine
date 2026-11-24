@@ -167,7 +167,7 @@ func (s *service) RetrieveSnap(ctx context.Context, ref termsem.SemRef) (snap De
 
 func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT, expectedRN *seqnum.ADT) (termexp.DescSpec, error) {
 	if s.termExpRepo == nil {
-		return nil, fmt.Errorf("term Definition repository is not configured")
+		return nil, errors.New("term Definition repository is not configured")
 	}
 	return tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (termexp.DescSpec, error) {
 		rec, err := s.termDecRepo.GetRecByID(txCtx, conn, termID)

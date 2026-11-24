@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"testing"
 
+	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/adt/identity"
@@ -56,6 +57,10 @@ func (r *contextRepo) AddRec(ctx context.Context, _ tx.Conn, _ DecRec) error {
 	<-ctx.Done()
 	r.ctxErr = ctx.Err()
 	return r.ctxErr
+}
+
+func (*contextRepo) SetExpCK(context.Context, tx.Conn, identity.ADT, contkey.ADT) error {
+	return nil
 }
 
 func (*contextRepo) GetRefs(context.Context, tx.Conn) ([]termsem.SemRef, error) {

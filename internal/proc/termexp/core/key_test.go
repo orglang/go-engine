@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
 )
@@ -67,24 +68,25 @@ func TestCompContentKeyIsStableForCaseMapInsertionOrder(t *testing.T) {
 
 func TestCompContentKeySerializesEveryVariant(t *testing.T) {
 	cont := CloseSpec{ContChnlPH: symbol.New("next")}
+	procTermQN := uniqsym.New(symbol.New("process"))
 	specs := []struct {
 		spec CompSpec
 		kind string
 	}{
-		{CloseSpec{}, "close"},
-		{WaitSpec{ContExp: cont}, "wait"},
-		{SendSpec{}, "send"},
-		{RecvSpec{ContExp: cont}, "recv"},
-		{LabSpec{ContExp: cont}, "lab"},
-		{CaseSpec{ContExps: map[uniqsym.ADT]CompSpec{}}, "case"},
-		{LinkSpec{}, "link"},
-		{FwdSpec{}, "fwd"},
-		{CallSpec{ContExp: cont}, "call"},
-		{SpawnSpec{ContExp: cont}, "spawn"},
-		{AcqureSpec{ContExp: cont}, "acquire"},
-		{AcceptSpec{ContExp: cont}, "accept"},
-		{DetachSpec{}, "detach"},
-		{ReleaseSpec{}, "release"},
+		{CloseSpec{ContChnlPH: symbol.New("end")}, "close"},
+		{WaitSpec{ContChnlPH: symbol.New("conn"), ContExp: cont}, "wait"},
+		{SendSpec{ConnChnlPH: symbol.New("conn"), ValChnlPH: symbol.New("value")}, "send"},
+		{RecvSpec{ConnChnlPH: symbol.New("conn"), NewChnlPH: symbol.New("new"), ContExp: cont}, "recv"},
+		{LabSpec{ConnChnlPH: symbol.New("conn"), ValLabQN: uniqsym.New(symbol.New("label")), ContExp: cont}, "lab"},
+		{CaseSpec{ConnChnlPH: symbol.New("conn"), ContExps: map[uniqsym.ADT]CompSpec{uniqsym.New(symbol.New("label")): cont}}, "case"},
+		{LinkSpec{ProcTermQN: procTermQN, X: identity.New(), Ys: []identity.ADT{identity.New()}}, "link"},
+		{FwdSpec{ConnChnlPH: symbol.New("conn"), ContChnlPH: symbol.New("next")}, "fwd"},
+		{CallSpec{ConnChnlPH: symbol.New("conn"), NewChnlPH: symbol.New("new"), ProcTermQN: procTermQN, ValChnlPHs: []symbol.ADT{symbol.New("value")}, ContExp: cont}, "call"},
+		{SpawnSpec{ConnChnlPH: symbol.New("conn"), ProcTermQN: procTermQN, NewChnlPHs: []symbol.ADT{symbol.New("new")}, ContExp: cont}, "spawn"},
+		{AcqureSpec{ConnChnlPH: symbol.New("conn"), ContExp: cont}, "acquire"},
+		{AcceptSpec{ConnChnlPH: symbol.New("conn"), ContExp: cont}, "accept"},
+		{DetachSpec{ConnChnlPH: symbol.New("conn")}, "detach"},
+		{ReleaseSpec{ConnChnlPH: symbol.New("conn")}, "release"},
 	}
 	for _, tc := range specs {
 		_, data, err := CompContentKey(tc.spec)

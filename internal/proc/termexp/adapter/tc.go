@@ -22,7 +22,7 @@ func DataFromExpRec(r termexp.CompRec) (ExpRec, error) {
 			Close: &CloseRec{X: symbol.ConvertToString(rec.ContChnlPH)},
 		}, nil
 	case termexp.WaitRec:
-		dto, err := dataFromExpSpec(rec.ContExp)
+		dto, err := dataFromCompSpec(rec.ContExp)
 		if err != nil {
 			return ExpRec{}, err
 		}
@@ -46,7 +46,7 @@ func DataFromExpRec(r termexp.CompRec) (ExpRec, error) {
 			},
 		}, nil
 	case termexp.RecvRec:
-		dto, err := dataFromExpSpec(rec.ContExp)
+		dto, err := dataFromCompSpec(rec.ContExp)
 		if err != nil {
 			return ExpRec{}, err
 		}
@@ -72,7 +72,7 @@ func DataFromExpRec(r termexp.CompRec) (ExpRec, error) {
 	case termexp.CaseRec:
 		brs := []BranchRec{}
 		for l, cont := range rec.ContExps {
-			dto, err := dataFromExpSpec(cont)
+			dto, err := dataFromCompSpec(cont)
 			if err != nil {
 				return ExpRec{}, err
 			}
@@ -112,7 +112,7 @@ func DataToExpRec(dto ExpRec) (termexp.CompRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		cont, err := dataToExpSpec(dto.Wait.ContES)
+		cont, err := dataToCompSpec(dto.Wait.ContES)
 		if err != nil {
 			return nil, err
 		}
@@ -154,7 +154,7 @@ func DataToExpRec(dto ExpRec) (termexp.CompRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		cont, err := dataToExpSpec(dto.Recv.ContES)
+		cont, err := dataToCompSpec(dto.Recv.ContES)
 		if err != nil {
 			return nil, err
 		}
@@ -184,7 +184,7 @@ func DataToExpRec(dto ExpRec) (termexp.CompRec, error) {
 		}
 		conts := make(map[uniqsym.ADT]termexp.CompSpec, len(dto.Case.Branches))
 		for _, branch := range dto.Case.Branches {
-			cont, err := dataToExpSpec(branch.ContES)
+			cont, err := dataToCompSpec(branch.ContES)
 			if err != nil {
 				return nil, err
 			}
@@ -210,19 +210,19 @@ func DataToExpRec(dto ExpRec) (termexp.CompRec, error) {
 	}
 }
 
-func dataFromExpSpec(s termexp.CompSpec) (ExpSpec, error) {
+func dataFromCompSpec(s termexp.CompSpec) (CompSpec, error) {
 	switch spec := s.(type) {
 	case termexp.CloseSpec:
-		return ExpSpec{
+		return CompSpec{
 			K:     CloseExp,
 			Close: &CloseSpec{X: symbol.ConvertToString(spec.ContChnlPH)},
 		}, nil
 	case termexp.WaitSpec:
-		dto, err := dataFromExpSpec(spec.ContExp)
+		dto, err := dataFromCompSpec(spec.ContExp)
 		if err != nil {
-			return ExpSpec{}, err
+			return CompSpec{}, err
 		}
-		return ExpSpec{
+		return CompSpec{
 			K: WaitExp,
 			Wait: &WaitSpec{
 				X:      symbol.ConvertToString(spec.ContChnlPH),
@@ -230,7 +230,7 @@ func dataFromExpSpec(s termexp.CompSpec) (ExpSpec, error) {
 			},
 		}, nil
 	case termexp.SendSpec:
-		return ExpSpec{
+		return CompSpec{
 			K: SendExp,
 			Send: &SendSpec{
 				X: symbol.ConvertToString(spec.ConnChnlPH),
@@ -238,11 +238,11 @@ func dataFromExpSpec(s termexp.CompSpec) (ExpSpec, error) {
 			},
 		}, nil
 	case termexp.RecvSpec:
-		dto, err := dataFromExpSpec(spec.ContExp)
+		dto, err := dataFromCompSpec(spec.ContExp)
 		if err != nil {
-			return ExpSpec{}, err
+			return CompSpec{}, err
 		}
-		return ExpSpec{
+		return CompSpec{
 			K: RecvExp,
 			Recv: &RecvSpec{
 				X:      symbol.ConvertToString(spec.ConnChnlPH),
@@ -251,11 +251,11 @@ func dataFromExpSpec(s termexp.CompSpec) (ExpSpec, error) {
 			},
 		}, nil
 	case termexp.LabSpec:
-		cont, err := dataFromExpSpec(spec.ContExp)
+		cont, err := dataFromCompSpec(spec.ContExp)
 		if err != nil {
-			return ExpSpec{}, err
+			return CompSpec{}, err
 		}
-		return ExpSpec{
+		return CompSpec{
 			K: LabExp,
 			Lab: &LabSpec{
 				X:      symbol.ConvertToString(spec.ConnChnlPH),
@@ -274,13 +274,13 @@ func dataFromExpSpec(s termexp.CompSpec) (ExpSpec, error) {
 		})
 		for _, l := range labels {
 			cont := spec.ContExps[l]
-			dto, err := dataFromExpSpec(cont)
+			dto, err := dataFromCompSpec(cont)
 			if err != nil {
-				return ExpSpec{}, err
+				return CompSpec{}, err
 			}
 			brs = append(brs, BranchSpec{Label: uniqsym.ConvertToString(l), ContES: dto})
 		}
-		return ExpSpec{
+		return CompSpec{
 			K: CaseExp,
 			Case: &CaseSpec{
 				X:        symbol.ConvertToString(spec.ConnChnlPH),
@@ -288,7 +288,7 @@ func dataFromExpSpec(s termexp.CompSpec) (ExpSpec, error) {
 			},
 		}, nil
 	case termexp.FwdSpec:
-		return ExpSpec{
+		return CompSpec{
 			K: FwdExp,
 			Fwd: &FwdSpec{
 				X: symbol.ConvertToString(spec.ConnChnlPH),
@@ -300,7 +300,7 @@ func dataFromExpSpec(s termexp.CompSpec) (ExpSpec, error) {
 	}
 }
 
-func dataToExpSpec(dto ExpSpec) (termexp.CompSpec, error) {
+func dataToCompSpec(dto CompSpec) (termexp.CompSpec, error) {
 	switch dto.K {
 	case CloseExp:
 		a, err := symbol.ConvertFromString(dto.Close.X)
@@ -313,7 +313,7 @@ func dataToExpSpec(dto ExpSpec) (termexp.CompSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		cont, err := dataToExpSpec(dto.Wait.ContES)
+		cont, err := dataToCompSpec(dto.Wait.ContES)
 		if err != nil {
 			return nil, err
 		}
@@ -337,7 +337,7 @@ func dataToExpSpec(dto ExpSpec) (termexp.CompSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		cont, err := dataToExpSpec(dto.Recv.ContES)
+		cont, err := dataToCompSpec(dto.Recv.ContES)
 		if err != nil {
 			return nil, err
 		}
@@ -351,7 +351,7 @@ func dataToExpSpec(dto ExpSpec) (termexp.CompSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		cont, err := dataToExpSpec(dto.Lab.ContES)
+		cont, err := dataToCompSpec(dto.Lab.ContES)
 		if err != nil {
 			return nil, err
 		}
@@ -363,7 +363,7 @@ func dataToExpSpec(dto ExpSpec) (termexp.CompSpec, error) {
 		}
 		conts := make(map[uniqsym.ADT]termexp.CompSpec, len(dto.Case.Branches))
 		for _, b := range dto.Case.Branches {
-			cont, err := dataToExpSpec(b.ContES)
+			cont, err := dataToCompSpec(b.ContES)
 			if err != nil {
 				return nil, err
 			}

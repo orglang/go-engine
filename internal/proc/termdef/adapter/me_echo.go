@@ -45,6 +45,27 @@ func (h *controllerEcho) GetProcessDeclaration(c *echo.Context, id string, param
 	return c.JSON(http.StatusOK, DecSnapToGenerated(snap))
 }
 
+func (h *controllerEcho) GetProcessDefinition(c *echo.Context, id string, params webapi.GetProcessDefinitionParams) error {
+	termID, err := identity.ConvertFromString(id)
+	if err != nil {
+		h.log.Error("conversion failed", slog.Any("id", id), slog.Any("err", err))
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	ref := termsem.SemRef{TermID: termID}
+	if params.Rn != nil {
+		ref.DescRN = seqnum.ConvertFromInt(*params.Rn)
+	}
+	spec, err := h.api.RetrieveDefinition(c.Request().Context(), ref)
+	if err != nil {
+		return err
+	}
+	dto, err := DefinitionToGenerated(spec)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, dto)
+}
+
 func (h *controllerEcho) CreateProcessDeclaration(c *echo.Context) error {
 	var dto webapi.ProcDecSpec
 	if err := c.Bind(&dto); err != nil {

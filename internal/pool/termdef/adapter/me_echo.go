@@ -9,6 +9,7 @@ import (
 
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
+	"orglang/go-engine/internal/adt/termsem"
 	webapi "orglang/go-engine/internal/app/web/api"
 	termdef "orglang/go-engine/internal/pool/termdef/core"
 )
@@ -16,6 +17,7 @@ import (
 // GeneratedController is the inbound HTTP port for pool term definitions.
 type GeneratedController interface {
 	CreatePoolDeclaration(*echo.Context) error
+	GetPoolDefinition(*echo.Context, string, webapi.GetPoolDefinitionParams) error
 }
 
 type controllerEcho struct {
@@ -28,6 +30,27 @@ var _ GeneratedController = (*controllerEcho)(nil)
 func newControllerEcho(a termdef.API, l *slog.Logger) *controllerEcho {
 	name := slog.String("name", reflect.TypeFor[controllerEcho]().Name())
 	return &controllerEcho{api: a, log: l.With(name)}
+}
+
+func (h *controllerEcho) GetPoolDefinition(c *echo.Context, id string, params webapi.GetPoolDefinitionParams) error {
+	termID, err := identity.ConvertFromString(id)
+	if err != nil {
+		h.log.Error("conversion failed", slog.Any("id", id), slog.Any("err", err))
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	ref := termsem.SemRef{TermID: termID}
+	if params.Rn != nil {
+		ref.DescRN = seqnum.ConvertFromInt(*params.Rn)
+	}
+	spec, err := h.api.RetrieveDefinition(c.Request().Context(), ref)
+	if err != nil {
+		return err
+	}
+	dto, err := DefinitionToGenerated(spec)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, dto)
 }
 
 func (h *controllerEcho) CreatePoolDeclaration(c *echo.Context) error {

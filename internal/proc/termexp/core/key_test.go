@@ -66,7 +66,7 @@ func TestCompContentKeyIsStableForCaseMapInsertionOrder(t *testing.T) {
 	}
 }
 
-func TestCompContentKeySerializesEveryDefinitionVariant(t *testing.T) {
+func TestCompContentKeySerializesEveryVariant(t *testing.T) {
 	cont := CloseSpec{ContChnlPH: symbol.New("next")}
 	specs := []struct {
 		spec CompSpec

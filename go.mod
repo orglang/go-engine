@@ -1,6 +1,6 @@
 module orglang/go-engine
 
-go 1.27.0
+go 1.27.4
 
 tool entgo.io/ent/cmd/ent
 

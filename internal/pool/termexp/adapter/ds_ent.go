@@ -15,6 +15,7 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/pool/ent"
+	termexpent "orglang/go-engine/internal/pool/ent/termexp"
 	termexp "orglang/go-engine/internal/pool/termexp/core"
 )
 

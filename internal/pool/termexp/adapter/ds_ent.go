@@ -52,7 +52,7 @@ func (dao *daoEnt) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.De
 			SetID(state.ExpCK).
 			SetSupExpCk(state.SupExpCK).
 			SetKind(int16(state.K)).
-			SetSpec(json.RawMessage(raw)))
+			SetSpec(jsontext.Value(raw)))
 	}
 
 	txCtx := entpgx.WithConn(ctx, conn.Pgx)

@@ -61,20 +61,21 @@ func TestCompContentKeyPreservesSpawnProcessOrder(t *testing.T) {
 }
 
 func TestCompContentKeySerializesEveryVariant(t *testing.T) {
-	cont := ReleaseSpec{}
+	cont := ReleaseSpec{ConnChnlPH: symbol.New("next")}
+	procTermQN := uniqsym.New(symbol.New("process"))
 	specs := []struct {
 		spec CompSpec
 		kind string
 	}{
-		{AcquireSpec{ContExp: cont}, "acquire"},
-		{AcceptSpec{ContExp: cont}, "accept"},
-		{HireSpec{ContExp: cont}, "hire"},
-		{ApplySpec{ContExp: cont}, "apply"},
-		{ReleaseSpec{}, "release"},
-		{DetachSpec{}, "detach"},
-		{FireSpec{}, "fire"},
-		{QuitSpec{}, "quit"},
-		{SpawnSpec{}, "spawn"},
+		{AcquireSpec{ConnChnlPH: symbol.New("conn"), ContExp: cont}, "acquire"},
+		{AcceptSpec{ConnChnlPH: symbol.New("conn"), ContExp: cont}, "accept"},
+		{HireSpec{ConnChnlPH: symbol.New("conn"), ProcTermQN: procTermQN, ContExp: cont}, "hire"},
+		{ApplySpec{ConnChnlPH: symbol.New("conn"), ProcTermQN: procTermQN, ContExp: cont}, "apply"},
+		{ReleaseSpec{ConnChnlPH: symbol.New("conn")}, "release"},
+		{DetachSpec{ConnChnlPH: symbol.New("conn")}, "detach"},
+		{FireSpec{ConnChnlPH: symbol.New("conn"), ProcTermQN: procTermQN}, "fire"},
+		{QuitSpec{ConnChnlPH: symbol.New("conn"), ProcTermQN: procTermQN}, "quit"},
+		{SpawnSpec{ProcTermQN: procTermQN, ProcCompQNs: []uniqsym.ADT{procTermQN}}, "spawn"},
 	}
 	for _, tc := range specs {
 		_, data, err := CompContentKey(tc.spec)

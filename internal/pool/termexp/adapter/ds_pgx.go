@@ -16,7 +16,7 @@ import (
 	termexp "orglang/go-engine/internal/pool/termexp/core"
 )
 
-type daoPgx struct { log *slog.Logger }
+type daoPgx struct{ log *slog.Logger }
 
 func newRepo() termexp.Repo { return new(daoPgx) }
 
@@ -27,9 +27,13 @@ func NewDaoPgx(log *slog.Logger) termexp.Repo {
 
 func (dao *daoPgx) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.DescSpec) error {
 	rec, err := termexp.ConvertSpecToRec(spec)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	dto, err := dataFromDescRec(rec)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	for _, state := range dto.States {
 		_, err := conn.Pgx.Exec(ctx, insertTermExp,
 			state.ExpCK, state.SupExpCK, int16(state.K), state.Spec)
@@ -46,9 +50,13 @@ func (dao *daoPgx) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.De
 			return err
 		}
 		canonical, err := canonicalStoredJSON(existing.Spec)
-		if err != nil { return err }
+		if err != nil {
+			return err
+		}
 		expected, err := canonicalStoredJSON(state.Spec)
-		if err != nil { return err }
+		if err != nil {
+			return err
+		}
 		if existing.SupExpCK != state.SupExpCK || existing.K != state.K || !bytes.Equal(canonical, expected) {
 			return fmt.Errorf("pool term Definition content-key collision or parent conflict for %d", state.ExpCK)
 		}
@@ -58,25 +66,37 @@ func (dao *daoPgx) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.De
 
 func (dao *daoPgx) SelectSpecByCK(ctx context.Context, conn tx.Conn, key contkey.ADT) (termexp.DescSpec, error) {
 	rows, err := conn.Pgx.Query(ctx, selectTermExpTree, int64(key))
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 	defer rows.Close()
 	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[DescState])
-	if err != nil { return nil, err }
-	if len(dtos) == 0 { return nil, fmt.Errorf("pool term Definition %d does not exist", key) }
+	if err != nil {
+		return nil, err
+	}
+	if len(dtos) == 0 {
+		return nil, fmt.Errorf("pool term Definition %d does not exist", key)
+	}
 	data := DescData{ExpCK: int64(key), States: make([]DescState, len(dtos))}
 	for i, row := range dtos {
-		data.States[i] = DescState{ExpCK:row.ExpCK, SupExpCK:row.SupExpCK, K:row.K, Spec:row.Spec}
+		data.States[i] = DescState{ExpCK: row.ExpCK, SupExpCK: row.SupExpCK, K: row.K, Spec: row.Spec}
 	}
 	rec, err := dataToDescRec(data)
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 	return termexp.ConvertRecToSpec(rec), nil
 }
 
 func canonicalStoredJSON(spec StateSpec) ([]byte, error) {
 	raw, err := json.Marshal(spec)
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 	value := jsontext.Value(raw)
-	if err := value.Canonicalize(jsontext.CanonicalizeRawInts(false)); err != nil { return nil, err }
+	if err := value.Canonicalize(jsontext.CanonicalizeRawInts(false)); err != nil {
+		return nil, err
+	}
 	return []byte(value), nil
 }
 

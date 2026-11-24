@@ -20,6 +20,8 @@ type TermDec struct {
 	ID string `json:"id,omitempty"`
 	// DescID holds the value of the "desc_id" field.
 	DescID string `json:"desc_id,omitempty"`
+	// ExpCk holds the value of the "exp_ck" field.
+	ExpCk int64 `json:"exp_ck,omitempty"`
 	// LiabVar holds the value of the "liab_var" field.
 	LiabVar adapter.VarRec `json:"liab_var,omitempty"`
 	// AssetVars holds the value of the "asset_vars" field.
@@ -34,6 +36,8 @@ func (*TermDec) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case termdec.FieldLiabVar, termdec.FieldAssetVars:
 			values[i] = new([]byte)
+		case termdec.FieldExpCk:
+			values[i] = new(sql.NullInt64)
 		case termdec.FieldID, termdec.FieldDescID:
 			values[i] = new(sql.NullString)
 		default:
@@ -62,6 +66,12 @@ func (_m *TermDec) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field desc_id", values[i])
 			} else if value.Valid {
 				_m.DescID = value.String
+			}
+		case termdec.FieldExpCk:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field exp_ck", values[i])
+			} else if value.Valid {
+				_m.ExpCk = value.Int64
 			}
 		case termdec.FieldLiabVar:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -117,6 +127,9 @@ func (_m *TermDec) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("desc_id=")
 	builder.WriteString(_m.DescID)
+	builder.WriteString(", ")
+	builder.WriteString("exp_ck=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ExpCk))
 	builder.WriteString(", ")
 	builder.WriteString("liab_var=")
 	builder.WriteString(fmt.Sprintf("%v", _m.LiabVar))

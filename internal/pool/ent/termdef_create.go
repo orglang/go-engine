@@ -26,6 +26,20 @@ func (_c *TermDefCreate) SetDescID(v string) *TermDefCreate {
 	return _c
 }
 
+// SetExpCk sets the "exp_ck" field.
+func (_c *TermDefCreate) SetExpCk(v int64) *TermDefCreate {
+	_c.mutation.SetExpCk(v)
+	return _c
+}
+
+// SetNillableExpCk sets the "exp_ck" field if the given value is not nil.
+func (_c *TermDefCreate) SetNillableExpCk(v *int64) *TermDefCreate {
+	if v != nil {
+		_c.SetExpCk(*v)
+	}
+	return _c
+}
+
 // SetLiabVar sets the "liab_var" field.
 func (_c *TermDefCreate) SetLiabVar(v adapter.VarRec) *TermDefCreate {
 	_c.mutation.SetLiabVar(v)
@@ -125,6 +139,10 @@ func (_c *TermDefCreate) createSpec() (*TermDef, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DescID(); ok {
 		_spec.SetField(termdef.FieldDescID, field.TypeString, value)
 		_node.DescID = value
+	}
+	if value, ok := _c.mutation.ExpCk(); ok {
+		_spec.SetField(termdef.FieldExpCk, field.TypeInt64, value)
+		_node.ExpCk = value
 	}
 	if value, ok := _c.mutation.LiabVar(); ok {
 		_spec.SetField(termdef.FieldLiabVar, field.TypeJSON, value)

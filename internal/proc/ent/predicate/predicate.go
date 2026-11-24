@@ -18,6 +18,9 @@ type DescRoot func(*sql.Selector)
 // TermDec is the predicate function for termdec builders.
 type TermDec func(*sql.Selector)
 
+// TermExp is the predicate function for termexp builders.
+type TermExp func(*sql.Selector)
+
 // TypeDef is the predicate function for typedef builders.
 type TypeDef func(*sql.Selector)
 

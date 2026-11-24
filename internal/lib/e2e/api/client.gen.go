@@ -107,6 +107,73 @@ type PoolTermApplySpec struct {
 	ProcQn   string           `json:"proc_qn"`
 }
 
+// PoolTermDefAcceptSpec defines model for Pool.Term.DefAcceptSpec.
+type PoolTermDefAcceptSpec struct {
+	ConnPh string `json:"conn_ph"`
+
+	// ContExpr Declarative pool term Definition persisted independently from execution expressions.
+	ContExpr PoolTermDefinitionSpec `json:"cont_expr"`
+}
+
+// PoolTermDefAcquireSpec defines model for Pool.Term.DefAcquireSpec.
+type PoolTermDefAcquireSpec struct {
+	ConnPh string `json:"conn_ph"`
+
+	// ContExpr Declarative pool term Definition persisted independently from execution expressions.
+	ContExpr PoolTermDefinitionSpec `json:"cont_expr"`
+}
+
+// PoolTermDefApplySpec defines model for Pool.Term.DefApplySpec.
+type PoolTermDefApplySpec struct {
+	ConnPh string `json:"conn_ph"`
+
+	// ContExpr Declarative pool term Definition persisted independently from execution expressions.
+	ContExpr PoolTermDefinitionSpec `json:"cont_expr"`
+	ProcQn   string                 `json:"proc_qn"`
+}
+
+// PoolTermDefDetachSpec defines model for Pool.Term.DefDetachSpec.
+type PoolTermDefDetachSpec struct {
+	ConnPh string `json:"conn_ph"`
+}
+
+// PoolTermDefFireSpec defines model for Pool.Term.DefFireSpec.
+type PoolTermDefFireSpec struct {
+	ConnPh string `json:"conn_ph"`
+	ProcQn string `json:"proc_qn"`
+}
+
+// PoolTermDefHireSpec defines model for Pool.Term.DefHireSpec.
+type PoolTermDefHireSpec struct {
+	ConnPh string `json:"conn_ph"`
+
+	// ContExpr Declarative pool term Definition persisted independently from execution expressions.
+	ContExpr PoolTermDefinitionSpec `json:"cont_expr"`
+	ProcQn   string                 `json:"proc_qn"`
+}
+
+// PoolTermDefQuitSpec defines model for Pool.Term.DefQuitSpec.
+type PoolTermDefQuitSpec struct {
+	ConnPh string `json:"conn_ph"`
+	ProcQn string `json:"proc_qn"`
+}
+
+// PoolTermDefReleaseSpec defines model for Pool.Term.DefReleaseSpec.
+type PoolTermDefReleaseSpec struct {
+	ConnPh string `json:"conn_ph"`
+}
+
+// PoolTermDefSpawnSpec defines model for Pool.Term.DefSpawnSpec.
+type PoolTermDefSpawnSpec struct {
+	ProcCompQns []string `json:"proc_comp_qns"`
+	ProcQn      string   `json:"proc_qn"`
+}
+
+// PoolTermDefinitionSpec Declarative pool term Definition persisted independently from execution expressions.
+type PoolTermDefinitionSpec struct {
+	union json.RawMessage
+}
+
 // PoolTermDetachSpec defines model for Pool.Term.DetachSpec.
 type PoolTermDetachSpec struct {
 	ConnPh string `json:"conn_ph"`
@@ -274,6 +341,113 @@ type ProcTermCaseSpec struct {
 // ProcTermCloseSpec defines model for Proc.Term.CloseSpec.
 type ProcTermCloseSpec struct {
 	ConnPh string `json:"conn_ph"`
+}
+
+// ProcTermDefAcceptSpec defines model for Proc.Term.DefAcceptSpec.
+type ProcTermDefAcceptSpec struct {
+	ConnPh string `json:"conn_ph"`
+
+	// ContExpr Declarative process term Definition persisted independently from execution expressions.
+	ContExpr ProcTermDefinitionSpec `json:"cont_expr"`
+}
+
+// ProcTermDefAcquireSpec defines model for Proc.Term.DefAcquireSpec.
+type ProcTermDefAcquireSpec struct {
+	ConnPh string `json:"conn_ph"`
+
+	// ContExpr Declarative process term Definition persisted independently from execution expressions.
+	ContExpr ProcTermDefinitionSpec `json:"cont_expr"`
+}
+
+// ProcTermDefCallSpec defines model for Proc.Term.DefCallSpec.
+type ProcTermDefCallSpec struct {
+	ConnPh string `json:"conn_ph"`
+
+	// ContExpr Declarative process term Definition persisted independently from execution expressions.
+	ContExpr ProcTermDefinitionSpec `json:"cont_expr"`
+	NewPh    string                 `json:"new_ph"`
+	ProcQn   string                 `json:"proc_qn"`
+	ValPhs   []string               `json:"val_phs"`
+}
+
+// ProcTermDefCaseSpec defines model for Proc.Term.DefCaseSpec.
+type ProcTermDefCaseSpec struct {
+	ConnPh   string                            `json:"conn_ph"`
+	ContExps map[string]ProcTermDefinitionSpec `json:"cont_exps"`
+}
+
+// ProcTermDefCloseSpec defines model for Proc.Term.DefCloseSpec.
+type ProcTermDefCloseSpec struct {
+	ContPh string `json:"cont_ph"`
+}
+
+// ProcTermDefDetachSpec defines model for Proc.Term.DefDetachSpec.
+type ProcTermDefDetachSpec struct {
+	ConnPh string `json:"conn_ph"`
+}
+
+// ProcTermDefFwdSpec defines model for Proc.Term.DefFwdSpec.
+type ProcTermDefFwdSpec struct {
+	ConnPh string `json:"conn_ph"`
+	ContPh string `json:"cont_ph"`
+}
+
+// ProcTermDefLabSpec defines model for Proc.Term.DefLabSpec.
+type ProcTermDefLabSpec struct {
+	ConnPh string `json:"conn_ph"`
+
+	// ContExpr Declarative process term Definition persisted independently from execution expressions.
+	ContExpr ProcTermDefinitionSpec `json:"cont_expr"`
+	ValLabQn string                 `json:"val_lab_qn"`
+}
+
+// ProcTermDefLinkSpec defines model for Proc.Term.DefLinkSpec.
+type ProcTermDefLinkSpec struct {
+	ProcQn string   `json:"proc_qn"`
+	X      string   `json:"x"`
+	Ys     []string `json:"ys"`
+}
+
+// ProcTermDefRecvSpec defines model for Proc.Term.DefRecvSpec.
+type ProcTermDefRecvSpec struct {
+	ConnPh string `json:"conn_ph"`
+
+	// ContExpr Declarative process term Definition persisted independently from execution expressions.
+	ContExpr ProcTermDefinitionSpec `json:"cont_expr"`
+	NewPh    string                 `json:"new_ph"`
+}
+
+// ProcTermDefReleaseSpec defines model for Proc.Term.DefReleaseSpec.
+type ProcTermDefReleaseSpec struct {
+	ConnPh string `json:"conn_ph"`
+}
+
+// ProcTermDefSendSpec defines model for Proc.Term.DefSendSpec.
+type ProcTermDefSendSpec struct {
+	ConnPh string `json:"conn_ph"`
+	ValPh  string `json:"val_ph"`
+}
+
+// ProcTermDefSpawnSpec defines model for Proc.Term.DefSpawnSpec.
+type ProcTermDefSpawnSpec struct {
+	ConnPh string `json:"conn_ph"`
+
+	// ContExpr Declarative process term Definition persisted independently from execution expressions.
+	ContExpr ProcTermDefinitionSpec `json:"cont_expr"`
+	NewPhs   []string               `json:"new_phs"`
+	ProcQn   string                 `json:"proc_qn"`
+}
+
+// ProcTermDefWaitSpec defines model for Proc.Term.DefWaitSpec.
+type ProcTermDefWaitSpec struct {
+	// ContExpr Declarative process term Definition persisted independently from execution expressions.
+	ContExpr ProcTermDefinitionSpec `json:"cont_expr"`
+	ContPh   string                 `json:"cont_ph"`
+}
+
+// ProcTermDefinitionSpec Declarative process term Definition persisted independently from execution expressions.
+type ProcTermDefinitionSpec struct {
+	union json.RawMessage
 }
 
 // ProcTermExprSpec Process term expression specification. Exactly one variant is serialized inline with its kind discriminator.
@@ -466,7 +640,7 @@ type StepPoolExecutionJSONRequestBody = PoolStepSpec
 type CreatePoolTypeDefinitionJSONRequestBody = PoolTypeDefSpec
 
 // ExtendPoolDefinitionJSONRequestBody defines body for ExtendPoolDefinition for application/json ContentType.
-type ExtendPoolDefinitionJSONRequestBody = PoolTermExprSpec
+type ExtendPoolDefinitionJSONRequestBody = PoolTermDefinitionSpec
 
 // CreateProcessDeclarationJSONRequestBody defines body for CreateProcessDeclaration for application/json ContentType.
 type CreateProcessDeclarationJSONRequestBody = ProcDecSpec
@@ -478,10 +652,363 @@ type StepProcessExecutionJSONRequestBody = ProcStepSpec
 type CreateProcessTypeDefinitionJSONRequestBody = ProcTypeDefSpec
 
 // ExtendProcessDefinitionJSONRequestBody defines body for ExtendProcessDefinition for application/json ContentType.
-type ExtendProcessDefinitionJSONRequestBody = ProcTermExprSpec
+type ExtendProcessDefinitionJSONRequestBody = ProcTermDefinitionSpec
 
 // CreateProgramTextRequestBody defines body for CreateProgram for text/plain ContentType.
 type CreateProgramTextRequestBody = CreateProgramTextBody
+
+// AsPoolTermDefAcquireSpec returns the union data inside the PoolTermDefinitionSpec as a PoolTermDefAcquireSpec
+func (t PoolTermDefinitionSpec) AsPoolTermDefAcquireSpec() (PoolTermDefAcquireSpec, error) {
+	var body PoolTermDefAcquireSpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPoolTermDefAcquireSpec overwrites any union data inside the PoolTermDefinitionSpec as the provided PoolTermDefAcquireSpec
+func (t *PoolTermDefinitionSpec) FromPoolTermDefAcquireSpec(v PoolTermDefAcquireSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"acquire"}`))
+	t.union = b
+	return err
+}
+
+// MergePoolTermDefAcquireSpec performs a merge with any union data inside the PoolTermDefinitionSpec, using the provided PoolTermDefAcquireSpec
+func (t *PoolTermDefinitionSpec) MergePoolTermDefAcquireSpec(v PoolTermDefAcquireSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"acquire"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsPoolTermDefAcceptSpec returns the union data inside the PoolTermDefinitionSpec as a PoolTermDefAcceptSpec
+func (t PoolTermDefinitionSpec) AsPoolTermDefAcceptSpec() (PoolTermDefAcceptSpec, error) {
+	var body PoolTermDefAcceptSpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPoolTermDefAcceptSpec overwrites any union data inside the PoolTermDefinitionSpec as the provided PoolTermDefAcceptSpec
+func (t *PoolTermDefinitionSpec) FromPoolTermDefAcceptSpec(v PoolTermDefAcceptSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"accept"}`))
+	t.union = b
+	return err
+}
+
+// MergePoolTermDefAcceptSpec performs a merge with any union data inside the PoolTermDefinitionSpec, using the provided PoolTermDefAcceptSpec
+func (t *PoolTermDefinitionSpec) MergePoolTermDefAcceptSpec(v PoolTermDefAcceptSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"accept"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsPoolTermDefHireSpec returns the union data inside the PoolTermDefinitionSpec as a PoolTermDefHireSpec
+func (t PoolTermDefinitionSpec) AsPoolTermDefHireSpec() (PoolTermDefHireSpec, error) {
+	var body PoolTermDefHireSpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPoolTermDefHireSpec overwrites any union data inside the PoolTermDefinitionSpec as the provided PoolTermDefHireSpec
+func (t *PoolTermDefinitionSpec) FromPoolTermDefHireSpec(v PoolTermDefHireSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"hire"}`))
+	t.union = b
+	return err
+}
+
+// MergePoolTermDefHireSpec performs a merge with any union data inside the PoolTermDefinitionSpec, using the provided PoolTermDefHireSpec
+func (t *PoolTermDefinitionSpec) MergePoolTermDefHireSpec(v PoolTermDefHireSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"hire"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsPoolTermDefApplySpec returns the union data inside the PoolTermDefinitionSpec as a PoolTermDefApplySpec
+func (t PoolTermDefinitionSpec) AsPoolTermDefApplySpec() (PoolTermDefApplySpec, error) {
+	var body PoolTermDefApplySpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPoolTermDefApplySpec overwrites any union data inside the PoolTermDefinitionSpec as the provided PoolTermDefApplySpec
+func (t *PoolTermDefinitionSpec) FromPoolTermDefApplySpec(v PoolTermDefApplySpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"apply"}`))
+	t.union = b
+	return err
+}
+
+// MergePoolTermDefApplySpec performs a merge with any union data inside the PoolTermDefinitionSpec, using the provided PoolTermDefApplySpec
+func (t *PoolTermDefinitionSpec) MergePoolTermDefApplySpec(v PoolTermDefApplySpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"apply"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsPoolTermDefReleaseSpec returns the union data inside the PoolTermDefinitionSpec as a PoolTermDefReleaseSpec
+func (t PoolTermDefinitionSpec) AsPoolTermDefReleaseSpec() (PoolTermDefReleaseSpec, error) {
+	var body PoolTermDefReleaseSpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPoolTermDefReleaseSpec overwrites any union data inside the PoolTermDefinitionSpec as the provided PoolTermDefReleaseSpec
+func (t *PoolTermDefinitionSpec) FromPoolTermDefReleaseSpec(v PoolTermDefReleaseSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"release"}`))
+	t.union = b
+	return err
+}
+
+// MergePoolTermDefReleaseSpec performs a merge with any union data inside the PoolTermDefinitionSpec, using the provided PoolTermDefReleaseSpec
+func (t *PoolTermDefinitionSpec) MergePoolTermDefReleaseSpec(v PoolTermDefReleaseSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"release"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsPoolTermDefDetachSpec returns the union data inside the PoolTermDefinitionSpec as a PoolTermDefDetachSpec
+func (t PoolTermDefinitionSpec) AsPoolTermDefDetachSpec() (PoolTermDefDetachSpec, error) {
+	var body PoolTermDefDetachSpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPoolTermDefDetachSpec overwrites any union data inside the PoolTermDefinitionSpec as the provided PoolTermDefDetachSpec
+func (t *PoolTermDefinitionSpec) FromPoolTermDefDetachSpec(v PoolTermDefDetachSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"detach"}`))
+	t.union = b
+	return err
+}
+
+// MergePoolTermDefDetachSpec performs a merge with any union data inside the PoolTermDefinitionSpec, using the provided PoolTermDefDetachSpec
+func (t *PoolTermDefinitionSpec) MergePoolTermDefDetachSpec(v PoolTermDefDetachSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"detach"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsPoolTermDefFireSpec returns the union data inside the PoolTermDefinitionSpec as a PoolTermDefFireSpec
+func (t PoolTermDefinitionSpec) AsPoolTermDefFireSpec() (PoolTermDefFireSpec, error) {
+	var body PoolTermDefFireSpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPoolTermDefFireSpec overwrites any union data inside the PoolTermDefinitionSpec as the provided PoolTermDefFireSpec
+func (t *PoolTermDefinitionSpec) FromPoolTermDefFireSpec(v PoolTermDefFireSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"fire"}`))
+	t.union = b
+	return err
+}
+
+// MergePoolTermDefFireSpec performs a merge with any union data inside the PoolTermDefinitionSpec, using the provided PoolTermDefFireSpec
+func (t *PoolTermDefinitionSpec) MergePoolTermDefFireSpec(v PoolTermDefFireSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"fire"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsPoolTermDefQuitSpec returns the union data inside the PoolTermDefinitionSpec as a PoolTermDefQuitSpec
+func (t PoolTermDefinitionSpec) AsPoolTermDefQuitSpec() (PoolTermDefQuitSpec, error) {
+	var body PoolTermDefQuitSpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPoolTermDefQuitSpec overwrites any union data inside the PoolTermDefinitionSpec as the provided PoolTermDefQuitSpec
+func (t *PoolTermDefinitionSpec) FromPoolTermDefQuitSpec(v PoolTermDefQuitSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"quit"}`))
+	t.union = b
+	return err
+}
+
+// MergePoolTermDefQuitSpec performs a merge with any union data inside the PoolTermDefinitionSpec, using the provided PoolTermDefQuitSpec
+func (t *PoolTermDefinitionSpec) MergePoolTermDefQuitSpec(v PoolTermDefQuitSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"quit"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsPoolTermDefSpawnSpec returns the union data inside the PoolTermDefinitionSpec as a PoolTermDefSpawnSpec
+func (t PoolTermDefinitionSpec) AsPoolTermDefSpawnSpec() (PoolTermDefSpawnSpec, error) {
+	var body PoolTermDefSpawnSpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPoolTermDefSpawnSpec overwrites any union data inside the PoolTermDefinitionSpec as the provided PoolTermDefSpawnSpec
+func (t *PoolTermDefinitionSpec) FromPoolTermDefSpawnSpec(v PoolTermDefSpawnSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"spawn"}`))
+	t.union = b
+	return err
+}
+
+// MergePoolTermDefSpawnSpec performs a merge with any union data inside the PoolTermDefinitionSpec, using the provided PoolTermDefSpawnSpec
+func (t *PoolTermDefinitionSpec) MergePoolTermDefSpawnSpec(v PoolTermDefSpawnSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"spawn"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t PoolTermDefinitionSpec) Discriminator() (string, error) {
+	var discriminator struct {
+		Discriminator string `json:"kind"`
+	}
+	err := json.Unmarshal(t.union, &discriminator)
+	return discriminator.Discriminator, err
+}
+
+func (t PoolTermDefinitionSpec) ValueByDiscriminator() (interface{}, error) {
+	discriminator, err := t.Discriminator()
+	if err != nil {
+		return nil, err
+	}
+	switch discriminator {
+	case "accept":
+		return t.AsPoolTermDefAcceptSpec()
+	case "acquire":
+		return t.AsPoolTermDefAcquireSpec()
+	case "apply":
+		return t.AsPoolTermDefApplySpec()
+	case "detach":
+		return t.AsPoolTermDefDetachSpec()
+	case "fire":
+		return t.AsPoolTermDefFireSpec()
+	case "hire":
+		return t.AsPoolTermDefHireSpec()
+	case "quit":
+		return t.AsPoolTermDefQuitSpec()
+	case "release":
+		return t.AsPoolTermDefReleaseSpec()
+	case "spawn":
+		return t.AsPoolTermDefSpawnSpec()
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
+	}
+}
+
+func (t PoolTermDefinitionSpec) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *PoolTermDefinitionSpec) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
 
 // AsPoolTermHireSpec returns the union data inside the PoolTermExprSpec as a PoolTermHireSpec
 func (t PoolTermExprSpec) AsPoolTermHireSpec() (PoolTermHireSpec, error) {
@@ -1149,6 +1676,539 @@ func (t PoolTypeExprSpec) MarshalJSON() ([]byte, error) {
 }
 
 func (t *PoolTypeExprSpec) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsProcTermDefCloseSpec returns the union data inside the ProcTermDefinitionSpec as a ProcTermDefCloseSpec
+func (t ProcTermDefinitionSpec) AsProcTermDefCloseSpec() (ProcTermDefCloseSpec, error) {
+	var body ProcTermDefCloseSpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProcTermDefCloseSpec overwrites any union data inside the ProcTermDefinitionSpec as the provided ProcTermDefCloseSpec
+func (t *ProcTermDefinitionSpec) FromProcTermDefCloseSpec(v ProcTermDefCloseSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"close"}`))
+	t.union = b
+	return err
+}
+
+// MergeProcTermDefCloseSpec performs a merge with any union data inside the ProcTermDefinitionSpec, using the provided ProcTermDefCloseSpec
+func (t *ProcTermDefinitionSpec) MergeProcTermDefCloseSpec(v ProcTermDefCloseSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"close"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsProcTermDefWaitSpec returns the union data inside the ProcTermDefinitionSpec as a ProcTermDefWaitSpec
+func (t ProcTermDefinitionSpec) AsProcTermDefWaitSpec() (ProcTermDefWaitSpec, error) {
+	var body ProcTermDefWaitSpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProcTermDefWaitSpec overwrites any union data inside the ProcTermDefinitionSpec as the provided ProcTermDefWaitSpec
+func (t *ProcTermDefinitionSpec) FromProcTermDefWaitSpec(v ProcTermDefWaitSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"wait"}`))
+	t.union = b
+	return err
+}
+
+// MergeProcTermDefWaitSpec performs a merge with any union data inside the ProcTermDefinitionSpec, using the provided ProcTermDefWaitSpec
+func (t *ProcTermDefinitionSpec) MergeProcTermDefWaitSpec(v ProcTermDefWaitSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"wait"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsProcTermDefSendSpec returns the union data inside the ProcTermDefinitionSpec as a ProcTermDefSendSpec
+func (t ProcTermDefinitionSpec) AsProcTermDefSendSpec() (ProcTermDefSendSpec, error) {
+	var body ProcTermDefSendSpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProcTermDefSendSpec overwrites any union data inside the ProcTermDefinitionSpec as the provided ProcTermDefSendSpec
+func (t *ProcTermDefinitionSpec) FromProcTermDefSendSpec(v ProcTermDefSendSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"send"}`))
+	t.union = b
+	return err
+}
+
+// MergeProcTermDefSendSpec performs a merge with any union data inside the ProcTermDefinitionSpec, using the provided ProcTermDefSendSpec
+func (t *ProcTermDefinitionSpec) MergeProcTermDefSendSpec(v ProcTermDefSendSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"send"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsProcTermDefRecvSpec returns the union data inside the ProcTermDefinitionSpec as a ProcTermDefRecvSpec
+func (t ProcTermDefinitionSpec) AsProcTermDefRecvSpec() (ProcTermDefRecvSpec, error) {
+	var body ProcTermDefRecvSpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProcTermDefRecvSpec overwrites any union data inside the ProcTermDefinitionSpec as the provided ProcTermDefRecvSpec
+func (t *ProcTermDefinitionSpec) FromProcTermDefRecvSpec(v ProcTermDefRecvSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"recv"}`))
+	t.union = b
+	return err
+}
+
+// MergeProcTermDefRecvSpec performs a merge with any union data inside the ProcTermDefinitionSpec, using the provided ProcTermDefRecvSpec
+func (t *ProcTermDefinitionSpec) MergeProcTermDefRecvSpec(v ProcTermDefRecvSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"recv"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsProcTermDefLabSpec returns the union data inside the ProcTermDefinitionSpec as a ProcTermDefLabSpec
+func (t ProcTermDefinitionSpec) AsProcTermDefLabSpec() (ProcTermDefLabSpec, error) {
+	var body ProcTermDefLabSpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProcTermDefLabSpec overwrites any union data inside the ProcTermDefinitionSpec as the provided ProcTermDefLabSpec
+func (t *ProcTermDefinitionSpec) FromProcTermDefLabSpec(v ProcTermDefLabSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"lab"}`))
+	t.union = b
+	return err
+}
+
+// MergeProcTermDefLabSpec performs a merge with any union data inside the ProcTermDefinitionSpec, using the provided ProcTermDefLabSpec
+func (t *ProcTermDefinitionSpec) MergeProcTermDefLabSpec(v ProcTermDefLabSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"lab"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsProcTermDefCaseSpec returns the union data inside the ProcTermDefinitionSpec as a ProcTermDefCaseSpec
+func (t ProcTermDefinitionSpec) AsProcTermDefCaseSpec() (ProcTermDefCaseSpec, error) {
+	var body ProcTermDefCaseSpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProcTermDefCaseSpec overwrites any union data inside the ProcTermDefinitionSpec as the provided ProcTermDefCaseSpec
+func (t *ProcTermDefinitionSpec) FromProcTermDefCaseSpec(v ProcTermDefCaseSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"case"}`))
+	t.union = b
+	return err
+}
+
+// MergeProcTermDefCaseSpec performs a merge with any union data inside the ProcTermDefinitionSpec, using the provided ProcTermDefCaseSpec
+func (t *ProcTermDefinitionSpec) MergeProcTermDefCaseSpec(v ProcTermDefCaseSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"case"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsProcTermDefLinkSpec returns the union data inside the ProcTermDefinitionSpec as a ProcTermDefLinkSpec
+func (t ProcTermDefinitionSpec) AsProcTermDefLinkSpec() (ProcTermDefLinkSpec, error) {
+	var body ProcTermDefLinkSpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProcTermDefLinkSpec overwrites any union data inside the ProcTermDefinitionSpec as the provided ProcTermDefLinkSpec
+func (t *ProcTermDefinitionSpec) FromProcTermDefLinkSpec(v ProcTermDefLinkSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"link"}`))
+	t.union = b
+	return err
+}
+
+// MergeProcTermDefLinkSpec performs a merge with any union data inside the ProcTermDefinitionSpec, using the provided ProcTermDefLinkSpec
+func (t *ProcTermDefinitionSpec) MergeProcTermDefLinkSpec(v ProcTermDefLinkSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"link"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsProcTermDefFwdSpec returns the union data inside the ProcTermDefinitionSpec as a ProcTermDefFwdSpec
+func (t ProcTermDefinitionSpec) AsProcTermDefFwdSpec() (ProcTermDefFwdSpec, error) {
+	var body ProcTermDefFwdSpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProcTermDefFwdSpec overwrites any union data inside the ProcTermDefinitionSpec as the provided ProcTermDefFwdSpec
+func (t *ProcTermDefinitionSpec) FromProcTermDefFwdSpec(v ProcTermDefFwdSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"fwd"}`))
+	t.union = b
+	return err
+}
+
+// MergeProcTermDefFwdSpec performs a merge with any union data inside the ProcTermDefinitionSpec, using the provided ProcTermDefFwdSpec
+func (t *ProcTermDefinitionSpec) MergeProcTermDefFwdSpec(v ProcTermDefFwdSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"fwd"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsProcTermDefCallSpec returns the union data inside the ProcTermDefinitionSpec as a ProcTermDefCallSpec
+func (t ProcTermDefinitionSpec) AsProcTermDefCallSpec() (ProcTermDefCallSpec, error) {
+	var body ProcTermDefCallSpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProcTermDefCallSpec overwrites any union data inside the ProcTermDefinitionSpec as the provided ProcTermDefCallSpec
+func (t *ProcTermDefinitionSpec) FromProcTermDefCallSpec(v ProcTermDefCallSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"call"}`))
+	t.union = b
+	return err
+}
+
+// MergeProcTermDefCallSpec performs a merge with any union data inside the ProcTermDefinitionSpec, using the provided ProcTermDefCallSpec
+func (t *ProcTermDefinitionSpec) MergeProcTermDefCallSpec(v ProcTermDefCallSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"call"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsProcTermDefSpawnSpec returns the union data inside the ProcTermDefinitionSpec as a ProcTermDefSpawnSpec
+func (t ProcTermDefinitionSpec) AsProcTermDefSpawnSpec() (ProcTermDefSpawnSpec, error) {
+	var body ProcTermDefSpawnSpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProcTermDefSpawnSpec overwrites any union data inside the ProcTermDefinitionSpec as the provided ProcTermDefSpawnSpec
+func (t *ProcTermDefinitionSpec) FromProcTermDefSpawnSpec(v ProcTermDefSpawnSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"spawn"}`))
+	t.union = b
+	return err
+}
+
+// MergeProcTermDefSpawnSpec performs a merge with any union data inside the ProcTermDefinitionSpec, using the provided ProcTermDefSpawnSpec
+func (t *ProcTermDefinitionSpec) MergeProcTermDefSpawnSpec(v ProcTermDefSpawnSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"spawn"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsProcTermDefAcquireSpec returns the union data inside the ProcTermDefinitionSpec as a ProcTermDefAcquireSpec
+func (t ProcTermDefinitionSpec) AsProcTermDefAcquireSpec() (ProcTermDefAcquireSpec, error) {
+	var body ProcTermDefAcquireSpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProcTermDefAcquireSpec overwrites any union data inside the ProcTermDefinitionSpec as the provided ProcTermDefAcquireSpec
+func (t *ProcTermDefinitionSpec) FromProcTermDefAcquireSpec(v ProcTermDefAcquireSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"acquire"}`))
+	t.union = b
+	return err
+}
+
+// MergeProcTermDefAcquireSpec performs a merge with any union data inside the ProcTermDefinitionSpec, using the provided ProcTermDefAcquireSpec
+func (t *ProcTermDefinitionSpec) MergeProcTermDefAcquireSpec(v ProcTermDefAcquireSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"acquire"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsProcTermDefAcceptSpec returns the union data inside the ProcTermDefinitionSpec as a ProcTermDefAcceptSpec
+func (t ProcTermDefinitionSpec) AsProcTermDefAcceptSpec() (ProcTermDefAcceptSpec, error) {
+	var body ProcTermDefAcceptSpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProcTermDefAcceptSpec overwrites any union data inside the ProcTermDefinitionSpec as the provided ProcTermDefAcceptSpec
+func (t *ProcTermDefinitionSpec) FromProcTermDefAcceptSpec(v ProcTermDefAcceptSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"accept"}`))
+	t.union = b
+	return err
+}
+
+// MergeProcTermDefAcceptSpec performs a merge with any union data inside the ProcTermDefinitionSpec, using the provided ProcTermDefAcceptSpec
+func (t *ProcTermDefinitionSpec) MergeProcTermDefAcceptSpec(v ProcTermDefAcceptSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"accept"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsProcTermDefDetachSpec returns the union data inside the ProcTermDefinitionSpec as a ProcTermDefDetachSpec
+func (t ProcTermDefinitionSpec) AsProcTermDefDetachSpec() (ProcTermDefDetachSpec, error) {
+	var body ProcTermDefDetachSpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProcTermDefDetachSpec overwrites any union data inside the ProcTermDefinitionSpec as the provided ProcTermDefDetachSpec
+func (t *ProcTermDefinitionSpec) FromProcTermDefDetachSpec(v ProcTermDefDetachSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"detach"}`))
+	t.union = b
+	return err
+}
+
+// MergeProcTermDefDetachSpec performs a merge with any union data inside the ProcTermDefinitionSpec, using the provided ProcTermDefDetachSpec
+func (t *ProcTermDefinitionSpec) MergeProcTermDefDetachSpec(v ProcTermDefDetachSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"detach"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsProcTermDefReleaseSpec returns the union data inside the ProcTermDefinitionSpec as a ProcTermDefReleaseSpec
+func (t ProcTermDefinitionSpec) AsProcTermDefReleaseSpec() (ProcTermDefReleaseSpec, error) {
+	var body ProcTermDefReleaseSpec
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProcTermDefReleaseSpec overwrites any union data inside the ProcTermDefinitionSpec as the provided ProcTermDefReleaseSpec
+func (t *ProcTermDefinitionSpec) FromProcTermDefReleaseSpec(v ProcTermDefReleaseSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"release"}`))
+	t.union = b
+	return err
+}
+
+// MergeProcTermDefReleaseSpec performs a merge with any union data inside the ProcTermDefinitionSpec, using the provided ProcTermDefReleaseSpec
+func (t *ProcTermDefinitionSpec) MergeProcTermDefReleaseSpec(v ProcTermDefReleaseSpec) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	b, err = runtime.JSONMerge(b, []byte(`{"kind":"release"}`))
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ProcTermDefinitionSpec) Discriminator() (string, error) {
+	var discriminator struct {
+		Discriminator string `json:"kind"`
+	}
+	err := json.Unmarshal(t.union, &discriminator)
+	return discriminator.Discriminator, err
+}
+
+func (t ProcTermDefinitionSpec) ValueByDiscriminator() (interface{}, error) {
+	discriminator, err := t.Discriminator()
+	if err != nil {
+		return nil, err
+	}
+	switch discriminator {
+	case "accept":
+		return t.AsProcTermDefAcceptSpec()
+	case "acquire":
+		return t.AsProcTermDefAcquireSpec()
+	case "call":
+		return t.AsProcTermDefCallSpec()
+	case "case":
+		return t.AsProcTermDefCaseSpec()
+	case "close":
+		return t.AsProcTermDefCloseSpec()
+	case "detach":
+		return t.AsProcTermDefDetachSpec()
+	case "fwd":
+		return t.AsProcTermDefFwdSpec()
+	case "lab":
+		return t.AsProcTermDefLabSpec()
+	case "link":
+		return t.AsProcTermDefLinkSpec()
+	case "recv":
+		return t.AsProcTermDefRecvSpec()
+	case "release":
+		return t.AsProcTermDefReleaseSpec()
+	case "send":
+		return t.AsProcTermDefSendSpec()
+	case "spawn":
+		return t.AsProcTermDefSpawnSpec()
+	case "wait":
+		return t.AsProcTermDefWaitSpec()
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
+	}
+}
+
+func (t ProcTermDefinitionSpec) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ProcTermDefinitionSpec) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -1969,19 +3029,19 @@ type ClientInterface interface {
 
 	// GetPoolDefinition performs a GET /api/v1/pools/{id}/definition (the `GetPoolDefinition` operationId) request.
 	//
-	// Get the term definition of a specific pool; omit rn to select its latest revision.
+	// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
 	GetPoolDefinition(ctx context.Context, id string, params *GetPoolDefinitionParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ExtendPoolDefinitionWithBody performs a PATCH /api/v1/pools/{id}/definition (the `ExtendPoolDefinition` operationId) request,
 	// with any type of body and a specified content type.
 	//
-	// Extend a pool term definition using the supplied expected Description revision.
+	// Extend a pool term Definition using the expected Description revision.
 	ExtendPoolDefinitionWithBody(ctx context.Context, id string, params *ExtendPoolDefinitionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ExtendPoolDefinition performs a PATCH /api/v1/pools/{id}/definition (the `ExtendPoolDefinition` operationId) request.
 	// Takes a body of the `application/json` content type.
 	//
-	// Extend a pool term definition using the supplied expected Description revision.
+	// Extend a pool term Definition using the expected Description revision.
 	ExtendPoolDefinition(ctx context.Context, id string, params *ExtendPoolDefinitionParams, body ExtendPoolDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListPoolExecutions performs a GET /api/v1/pools/{id}/executions (the `ListPoolExecutions` operationId) request.
@@ -2047,19 +3107,19 @@ type ClientInterface interface {
 
 	// GetProcessDefinition performs a GET /api/v1/processes/{id}/definition (the `GetProcessDefinition` operationId) request.
 	//
-	// Get the term definition of a specific process; omit rn to select its latest revision.
+	// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
 	GetProcessDefinition(ctx context.Context, id string, params *GetProcessDefinitionParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ExtendProcessDefinitionWithBody performs a PATCH /api/v1/processes/{id}/definition (the `ExtendProcessDefinition` operationId) request,
 	// with any type of body and a specified content type.
 	//
-	// Extend a process term definition using the supplied expected Description revision.
+	// Extend a process term Definition using the expected Description revision.
 	ExtendProcessDefinitionWithBody(ctx context.Context, id string, params *ExtendProcessDefinitionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ExtendProcessDefinition performs a PATCH /api/v1/processes/{id}/definition (the `ExtendProcessDefinition` operationId) request.
 	// Takes a body of the `application/json` content type.
 	//
-	// Extend a process term definition using the supplied expected Description revision.
+	// Extend a process term Definition using the expected Description revision.
 	ExtendProcessDefinition(ctx context.Context, id string, params *ExtendProcessDefinitionParams, body ExtendProcessDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListProcessExecutions performs a GET /api/v1/processes/{id}/executions (the `ListProcessExecutions` operationId) request.
@@ -2272,7 +3332,7 @@ func (c *Client) GetPoolAssociatedDeclaration(ctx context.Context, id string, pa
 
 // GetPoolDefinition performs a GET /api/v1/pools/{id}/definition (the `GetPoolDefinition` operationId) request.
 //
-// Get the term definition of a specific pool; omit rn to select its latest revision.
+// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
 func (c *Client) GetPoolDefinition(ctx context.Context, id string, params *GetPoolDefinitionParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetPoolDefinitionRequest(c.Server, id, params)
 	if err != nil {
@@ -2288,7 +3348,7 @@ func (c *Client) GetPoolDefinition(ctx context.Context, id string, params *GetPo
 // ExtendPoolDefinitionWithBody performs a PATCH /api/v1/pools/{id}/definition (the `ExtendPoolDefinition` operationId) request,
 // with any type of body and a specified content type.
 //
-// Extend a pool term definition using the supplied expected Description revision.
+// Extend a pool term Definition using the expected Description revision.
 func (c *Client) ExtendPoolDefinitionWithBody(ctx context.Context, id string, params *ExtendPoolDefinitionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewExtendPoolDefinitionRequestWithBody(c.Server, id, params, contentType, body)
 	if err != nil {
@@ -2304,7 +3364,7 @@ func (c *Client) ExtendPoolDefinitionWithBody(ctx context.Context, id string, pa
 // ExtendPoolDefinition performs a PATCH /api/v1/pools/{id}/definition (the `ExtendPoolDefinition` operationId) request.
 // Takes a body of the `application/json` content type.
 //
-// Extend a pool term definition using the supplied expected Description revision.
+// Extend a pool term Definition using the expected Description revision.
 func (c *Client) ExtendPoolDefinition(ctx context.Context, id string, params *ExtendPoolDefinitionParams, body ExtendPoolDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewExtendPoolDefinitionRequest(c.Server, id, params, body)
 	if err != nil {
@@ -2490,7 +3550,7 @@ func (c *Client) GetProcessAssociatedDeclaration(ctx context.Context, id string,
 
 // GetProcessDefinition performs a GET /api/v1/processes/{id}/definition (the `GetProcessDefinition` operationId) request.
 //
-// Get the term definition of a specific process; omit rn to select its latest revision.
+// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
 func (c *Client) GetProcessDefinition(ctx context.Context, id string, params *GetProcessDefinitionParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetProcessDefinitionRequest(c.Server, id, params)
 	if err != nil {
@@ -2506,7 +3566,7 @@ func (c *Client) GetProcessDefinition(ctx context.Context, id string, params *Ge
 // ExtendProcessDefinitionWithBody performs a PATCH /api/v1/processes/{id}/definition (the `ExtendProcessDefinition` operationId) request,
 // with any type of body and a specified content type.
 //
-// Extend a process term definition using the supplied expected Description revision.
+// Extend a process term Definition using the expected Description revision.
 func (c *Client) ExtendProcessDefinitionWithBody(ctx context.Context, id string, params *ExtendProcessDefinitionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewExtendProcessDefinitionRequestWithBody(c.Server, id, params, contentType, body)
 	if err != nil {
@@ -2522,7 +3582,7 @@ func (c *Client) ExtendProcessDefinitionWithBody(ctx context.Context, id string,
 // ExtendProcessDefinition performs a PATCH /api/v1/processes/{id}/definition (the `ExtendProcessDefinition` operationId) request.
 // Takes a body of the `application/json` content type.
 //
-// Extend a process term definition using the supplied expected Description revision.
+// Extend a process term Definition using the expected Description revision.
 func (c *Client) ExtendProcessDefinition(ctx context.Context, id string, params *ExtendProcessDefinitionParams, body ExtendProcessDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewExtendProcessDefinitionRequest(c.Server, id, params, body)
 	if err != nil {
@@ -3775,7 +4835,7 @@ type ClientWithResponsesInterface interface {
 
 	// GetPoolDefinitionWithResponse performs a GET /api/v1/pools/{id}/definition (the `GetPoolDefinition` operationId) request.
 	//
-	// Get the term definition of a specific pool; omit rn to select its latest revision.
+	// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	GetPoolDefinitionWithResponse(ctx context.Context, id string, params *GetPoolDefinitionParams, reqEditors ...RequestEditorFn) (*GetPoolDefinitionResponse, error)
@@ -3783,7 +4843,7 @@ type ClientWithResponsesInterface interface {
 	// ExtendPoolDefinitionWithBodyWithResponse performs a PATCH /api/v1/pools/{id}/definition (the `ExtendPoolDefinition` operationId) request,
 	// with any type of body and a specified content type.
 	//
-	// Extend a pool term definition using the supplied expected Description revision.
+	// Extend a pool term Definition using the expected Description revision.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	ExtendPoolDefinitionWithBodyWithResponse(ctx context.Context, id string, params *ExtendPoolDefinitionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ExtendPoolDefinitionResponse, error)
@@ -3791,7 +4851,7 @@ type ClientWithResponsesInterface interface {
 	// ExtendPoolDefinitionWithResponse performs a PATCH /api/v1/pools/{id}/definition (the `ExtendPoolDefinition` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
-	// Extend a pool term definition using the supplied expected Description revision.
+	// Extend a pool term Definition using the expected Description revision.
 	ExtendPoolDefinitionWithResponse(ctx context.Context, id string, params *ExtendPoolDefinitionParams, body ExtendPoolDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*ExtendPoolDefinitionResponse, error)
 
 	// ListPoolExecutionsWithResponse performs a GET /api/v1/pools/{id}/executions (the `ListPoolExecutions` operationId) request.
@@ -3873,7 +4933,7 @@ type ClientWithResponsesInterface interface {
 
 	// GetProcessDefinitionWithResponse performs a GET /api/v1/processes/{id}/definition (the `GetProcessDefinition` operationId) request.
 	//
-	// Get the term definition of a specific process; omit rn to select its latest revision.
+	// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	GetProcessDefinitionWithResponse(ctx context.Context, id string, params *GetProcessDefinitionParams, reqEditors ...RequestEditorFn) (*GetProcessDefinitionResponse, error)
@@ -3881,7 +4941,7 @@ type ClientWithResponsesInterface interface {
 	// ExtendProcessDefinitionWithBodyWithResponse performs a PATCH /api/v1/processes/{id}/definition (the `ExtendProcessDefinition` operationId) request,
 	// with any type of body and a specified content type.
 	//
-	// Extend a process term definition using the supplied expected Description revision.
+	// Extend a process term Definition using the expected Description revision.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	ExtendProcessDefinitionWithBodyWithResponse(ctx context.Context, id string, params *ExtendProcessDefinitionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ExtendProcessDefinitionResponse, error)
@@ -3889,7 +4949,7 @@ type ClientWithResponsesInterface interface {
 	// ExtendProcessDefinitionWithResponse performs a PATCH /api/v1/processes/{id}/definition (the `ExtendProcessDefinition` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
-	// Extend a process term definition using the supplied expected Description revision.
+	// Extend a process term Definition using the expected Description revision.
 	ExtendProcessDefinitionWithResponse(ctx context.Context, id string, params *ExtendProcessDefinitionParams, body ExtendProcessDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*ExtendProcessDefinitionResponse, error)
 
 	// ListProcessExecutionsWithResponse performs a GET /api/v1/processes/{id}/executions (the `ListProcessExecutions` operationId) request.
@@ -4198,11 +5258,11 @@ type GetPoolDefinitionResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *PoolTermExprSpec
+	JSON200 *PoolTermDefinitionSpec
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetPoolDefinitionResponse) GetJSON200() *PoolTermExprSpec {
+func (r GetPoolDefinitionResponse) GetJSON200() *PoolTermDefinitionSpec {
 	return r.JSON200
 }
 
@@ -4601,11 +5661,11 @@ type GetProcessDefinitionResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *ProcTermExprSpec
+	JSON200 *ProcTermDefinitionSpec
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetProcessDefinitionResponse) GetJSON200() *ProcTermExprSpec {
+func (r GetProcessDefinitionResponse) GetJSON200() *ProcTermDefinitionSpec {
 	return r.JSON200
 }
 
@@ -4912,7 +5972,7 @@ func (c *ClientWithResponses) GetPoolAssociatedDeclarationWithResponse(ctx conte
 
 // GetPoolDefinitionWithResponse performs a GET /api/v1/pools/{id}/definition (the `GetPoolDefinition` operationId) request.
 //
-// Get the term definition of a specific pool; omit rn to select its latest revision.
+// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
 //
 // Returns a wrapper object for the known response body format(s).
 func (c *ClientWithResponses) GetPoolDefinitionWithResponse(ctx context.Context, id string, params *GetPoolDefinitionParams, reqEditors ...RequestEditorFn) (*GetPoolDefinitionResponse, error) {
@@ -4926,7 +5986,7 @@ func (c *ClientWithResponses) GetPoolDefinitionWithResponse(ctx context.Context,
 // ExtendPoolDefinitionWithBodyWithResponse performs a PATCH /api/v1/pools/{id}/definition (the `ExtendPoolDefinition` operationId) request,
 // with any type of body and a specified content type.
 //
-// Extend a pool term definition using the supplied expected Description revision.
+// Extend a pool term Definition using the expected Description revision.
 //
 // Returns a wrapper object for the known response body format(s).
 func (c *ClientWithResponses) ExtendPoolDefinitionWithBodyWithResponse(ctx context.Context, id string, params *ExtendPoolDefinitionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ExtendPoolDefinitionResponse, error) {
@@ -4940,7 +6000,7 @@ func (c *ClientWithResponses) ExtendPoolDefinitionWithBodyWithResponse(ctx conte
 // ExtendPoolDefinitionWithResponse performs a PATCH /api/v1/pools/{id}/definition (the `ExtendPoolDefinition` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
-// Extend a pool term definition using the supplied expected Description revision.
+// Extend a pool term Definition using the expected Description revision.
 func (c *ClientWithResponses) ExtendPoolDefinitionWithResponse(ctx context.Context, id string, params *ExtendPoolDefinitionParams, body ExtendPoolDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*ExtendPoolDefinitionResponse, error) {
 	rsp, err := c.ExtendPoolDefinition(ctx, id, params, body, reqEditors...)
 	if err != nil {
@@ -5094,7 +6154,7 @@ func (c *ClientWithResponses) GetProcessAssociatedDeclarationWithResponse(ctx co
 
 // GetProcessDefinitionWithResponse performs a GET /api/v1/processes/{id}/definition (the `GetProcessDefinition` operationId) request.
 //
-// Get the term definition of a specific process; omit rn to select its latest revision.
+// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
 //
 // Returns a wrapper object for the known response body format(s).
 func (c *ClientWithResponses) GetProcessDefinitionWithResponse(ctx context.Context, id string, params *GetProcessDefinitionParams, reqEditors ...RequestEditorFn) (*GetProcessDefinitionResponse, error) {
@@ -5108,7 +6168,7 @@ func (c *ClientWithResponses) GetProcessDefinitionWithResponse(ctx context.Conte
 // ExtendProcessDefinitionWithBodyWithResponse performs a PATCH /api/v1/processes/{id}/definition (the `ExtendProcessDefinition` operationId) request,
 // with any type of body and a specified content type.
 //
-// Extend a process term definition using the supplied expected Description revision.
+// Extend a process term Definition using the expected Description revision.
 //
 // Returns a wrapper object for the known response body format(s).
 func (c *ClientWithResponses) ExtendProcessDefinitionWithBodyWithResponse(ctx context.Context, id string, params *ExtendProcessDefinitionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ExtendProcessDefinitionResponse, error) {
@@ -5122,7 +6182,7 @@ func (c *ClientWithResponses) ExtendProcessDefinitionWithBodyWithResponse(ctx co
 // ExtendProcessDefinitionWithResponse performs a PATCH /api/v1/processes/{id}/definition (the `ExtendProcessDefinition` operationId) request.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
-// Extend a process term definition using the supplied expected Description revision.
+// Extend a process term Definition using the expected Description revision.
 func (c *ClientWithResponses) ExtendProcessDefinitionWithResponse(ctx context.Context, id string, params *ExtendProcessDefinitionParams, body ExtendProcessDefinitionJSONRequestBody, reqEditors ...RequestEditorFn) (*ExtendProcessDefinitionResponse, error) {
 	rsp, err := c.ExtendProcessDefinition(ctx, id, params, body, reqEditors...)
 	if err != nil {
@@ -5357,7 +6417,7 @@ func ParseGetPoolDefinitionResponse(rsp *http.Response) (*GetPoolDefinitionRespo
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest PoolTermExprSpec
+		var dest PoolTermDefinitionSpec
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -5607,7 +6667,7 @@ func ParseGetProcessDefinitionResponse(rsp *http.Response) (*GetProcessDefinitio
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ProcTermExprSpec
+		var dest ProcTermDefinitionSpec
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

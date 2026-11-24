@@ -68,6 +68,11 @@ func DescID(v string) predicate.TermDef {
 	return predicate.TermDef(sql.FieldEQ(FieldDescID, v))
 }
 
+// ExpCk applies equality check predicate on the "exp_ck" field. It's identical to ExpCkEQ.
+func ExpCk(v int64) predicate.TermDef {
+	return predicate.TermDef(sql.FieldEQ(FieldExpCk, v))
+}
+
 // DescIDEQ applies the EQ predicate on the "desc_id" field.
 func DescIDEQ(v string) predicate.TermDef {
 	return predicate.TermDef(sql.FieldEQ(FieldDescID, v))
@@ -131,6 +136,56 @@ func DescIDEqualFold(v string) predicate.TermDef {
 // DescIDContainsFold applies the ContainsFold predicate on the "desc_id" field.
 func DescIDContainsFold(v string) predicate.TermDef {
 	return predicate.TermDef(sql.FieldContainsFold(FieldDescID, v))
+}
+
+// ExpCkEQ applies the EQ predicate on the "exp_ck" field.
+func ExpCkEQ(v int64) predicate.TermDef {
+	return predicate.TermDef(sql.FieldEQ(FieldExpCk, v))
+}
+
+// ExpCkNEQ applies the NEQ predicate on the "exp_ck" field.
+func ExpCkNEQ(v int64) predicate.TermDef {
+	return predicate.TermDef(sql.FieldNEQ(FieldExpCk, v))
+}
+
+// ExpCkIn applies the In predicate on the "exp_ck" field.
+func ExpCkIn(vs ...int64) predicate.TermDef {
+	return predicate.TermDef(sql.FieldIn(FieldExpCk, vs...))
+}
+
+// ExpCkNotIn applies the NotIn predicate on the "exp_ck" field.
+func ExpCkNotIn(vs ...int64) predicate.TermDef {
+	return predicate.TermDef(sql.FieldNotIn(FieldExpCk, vs...))
+}
+
+// ExpCkGT applies the GT predicate on the "exp_ck" field.
+func ExpCkGT(v int64) predicate.TermDef {
+	return predicate.TermDef(sql.FieldGT(FieldExpCk, v))
+}
+
+// ExpCkGTE applies the GTE predicate on the "exp_ck" field.
+func ExpCkGTE(v int64) predicate.TermDef {
+	return predicate.TermDef(sql.FieldGTE(FieldExpCk, v))
+}
+
+// ExpCkLT applies the LT predicate on the "exp_ck" field.
+func ExpCkLT(v int64) predicate.TermDef {
+	return predicate.TermDef(sql.FieldLT(FieldExpCk, v))
+}
+
+// ExpCkLTE applies the LTE predicate on the "exp_ck" field.
+func ExpCkLTE(v int64) predicate.TermDef {
+	return predicate.TermDef(sql.FieldLTE(FieldExpCk, v))
+}
+
+// ExpCkIsNil applies the IsNil predicate on the "exp_ck" field.
+func ExpCkIsNil() predicate.TermDef {
+	return predicate.TermDef(sql.FieldIsNull(FieldExpCk))
+}
+
+// ExpCkNotNil applies the NotNil predicate on the "exp_ck" field.
+func ExpCkNotNil() predicate.TermDef {
+	return predicate.TermDef(sql.FieldNotNull(FieldExpCk))
 }
 
 // And groups predicates with the AND operator between them.

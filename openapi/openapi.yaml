@@ -141,7 +141,7 @@ paths:
   /api/v1/pools/{id}/definition:
     get:
       operationId: getPoolDefinition
-      description: Get the term definition of a specific pool; omit rn to select its latest revision.
+      description: Get the current declarative term Definition; rn, when supplied, must match its Description revision.
       parameters:
         - name: id
           in: path
@@ -161,10 +161,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Pool.Term.ExprSpec'
+                $ref: '#/components/schemas/Pool.Term.DefinitionSpec'
     patch:
       operationId: extendPoolDefinition
-      description: Extend a pool term definition using the supplied expected Description revision.
+      description: Extend a pool term Definition using the expected Description revision.
       parameters:
         - name: id
           in: path
@@ -190,7 +190,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Pool.Term.ExprSpec'
+              $ref: '#/components/schemas/Pool.Term.DefinitionSpec'
   /api/v1/pools/{id}/executions:
     get:
       operationId: listPoolExecutions
@@ -364,7 +364,7 @@ paths:
   /api/v1/processes/{id}/definition:
     get:
       operationId: getProcessDefinition
-      description: Get the term definition of a specific process; omit rn to select its latest revision.
+      description: Get the current declarative term Definition; rn, when supplied, must match its Description revision.
       parameters:
         - name: id
           in: path
@@ -384,10 +384,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Proc.Term.ExprSpec'
+                $ref: '#/components/schemas/Proc.Term.DefinitionSpec'
     patch:
       operationId: extendProcessDefinition
-      description: Extend a process term definition using the supplied expected Description revision.
+      description: Extend a process term Definition using the expected Description revision.
       parameters:
         - name: id
           in: path
@@ -413,7 +413,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Proc.Term.ExprSpec'
+              $ref: '#/components/schemas/Proc.Term.DefinitionSpec'
   /api/v1/processes/{id}/executions:
     get:
       operationId: listProcessExecutions
@@ -616,6 +616,123 @@ components:
           type: string
         cont_expr:
           $ref: '#/components/schemas/Pool.Term.ExprSpec'
+    Pool.Term.DefAcceptSpec:
+      type: object
+      required:
+        - conn_ph
+        - cont_expr
+      properties:
+        conn_ph:
+          type: string
+        cont_expr:
+          $ref: '#/components/schemas/Pool.Term.DefinitionSpec'
+    Pool.Term.DefAcquireSpec:
+      type: object
+      required:
+        - conn_ph
+        - cont_expr
+      properties:
+        conn_ph:
+          type: string
+        cont_expr:
+          $ref: '#/components/schemas/Pool.Term.DefinitionSpec'
+    Pool.Term.DefApplySpec:
+      type: object
+      required:
+        - conn_ph
+        - proc_qn
+        - cont_expr
+      properties:
+        conn_ph:
+          type: string
+        proc_qn:
+          type: string
+        cont_expr:
+          $ref: '#/components/schemas/Pool.Term.DefinitionSpec'
+    Pool.Term.DefDetachSpec:
+      type: object
+      required:
+        - conn_ph
+      properties:
+        conn_ph:
+          type: string
+    Pool.Term.DefFireSpec:
+      type: object
+      required:
+        - conn_ph
+        - proc_qn
+      properties:
+        conn_ph:
+          type: string
+        proc_qn:
+          type: string
+    Pool.Term.DefHireSpec:
+      type: object
+      required:
+        - conn_ph
+        - proc_qn
+        - cont_expr
+      properties:
+        conn_ph:
+          type: string
+        proc_qn:
+          type: string
+        cont_expr:
+          $ref: '#/components/schemas/Pool.Term.DefinitionSpec'
+    Pool.Term.DefQuitSpec:
+      type: object
+      required:
+        - conn_ph
+        - proc_qn
+      properties:
+        conn_ph:
+          type: string
+        proc_qn:
+          type: string
+    Pool.Term.DefReleaseSpec:
+      type: object
+      required:
+        - conn_ph
+      properties:
+        conn_ph:
+          type: string
+    Pool.Term.DefSpawnSpec:
+      type: object
+      required:
+        - proc_qn
+        - proc_comp_qns
+      properties:
+        proc_qn:
+          type: string
+        proc_comp_qns:
+          type: array
+          items:
+            type: string
+    Pool.Term.DefinitionSpec:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/Pool.Term.DefAcquireSpec'
+        - $ref: '#/components/schemas/Pool.Term.DefAcceptSpec'
+        - $ref: '#/components/schemas/Pool.Term.DefHireSpec'
+        - $ref: '#/components/schemas/Pool.Term.DefApplySpec'
+        - $ref: '#/components/schemas/Pool.Term.DefReleaseSpec'
+        - $ref: '#/components/schemas/Pool.Term.DefDetachSpec'
+        - $ref: '#/components/schemas/Pool.Term.DefFireSpec'
+        - $ref: '#/components/schemas/Pool.Term.DefQuitSpec'
+        - $ref: '#/components/schemas/Pool.Term.DefSpawnSpec'
+      discriminator:
+        propertyName: kind
+        mapping:
+          acquire: '#/components/schemas/Pool.Term.DefAcquireSpec'
+          accept: '#/components/schemas/Pool.Term.DefAcceptSpec'
+          hire: '#/components/schemas/Pool.Term.DefHireSpec'
+          apply: '#/components/schemas/Pool.Term.DefApplySpec'
+          release: '#/components/schemas/Pool.Term.DefReleaseSpec'
+          detach: '#/components/schemas/Pool.Term.DefDetachSpec'
+          fire: '#/components/schemas/Pool.Term.DefFireSpec'
+          quit: '#/components/schemas/Pool.Term.DefQuitSpec'
+          spawn: '#/components/schemas/Pool.Term.DefSpawnSpec'
+      description: Declarative pool term Definition persisted independently from execution expressions.
     Pool.Term.DetachSpec:
       type: object
       required:
@@ -893,6 +1010,204 @@ components:
       properties:
         conn_ph:
           type: string
+    Proc.Term.DefAcceptSpec:
+      type: object
+      required:
+        - conn_ph
+        - cont_expr
+      properties:
+        conn_ph:
+          type: string
+        cont_expr:
+          $ref: '#/components/schemas/Proc.Term.DefinitionSpec'
+    Proc.Term.DefAcquireSpec:
+      type: object
+      required:
+        - conn_ph
+        - cont_expr
+      properties:
+        conn_ph:
+          type: string
+        cont_expr:
+          $ref: '#/components/schemas/Proc.Term.DefinitionSpec'
+    Proc.Term.DefCallSpec:
+      type: object
+      required:
+        - conn_ph
+        - new_ph
+        - proc_qn
+        - val_phs
+        - cont_expr
+      properties:
+        conn_ph:
+          type: string
+        new_ph:
+          type: string
+        proc_qn:
+          type: string
+        val_phs:
+          type: array
+          items:
+            type: string
+        cont_expr:
+          $ref: '#/components/schemas/Proc.Term.DefinitionSpec'
+    Proc.Term.DefCaseSpec:
+      type: object
+      required:
+        - conn_ph
+        - cont_exps
+      properties:
+        conn_ph:
+          type: string
+        cont_exps:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Proc.Term.DefinitionSpec'
+    Proc.Term.DefCloseSpec:
+      type: object
+      required:
+        - cont_ph
+      properties:
+        cont_ph:
+          type: string
+    Proc.Term.DefDetachSpec:
+      type: object
+      required:
+        - conn_ph
+      properties:
+        conn_ph:
+          type: string
+    Proc.Term.DefFwdSpec:
+      type: object
+      required:
+        - conn_ph
+        - cont_ph
+      properties:
+        conn_ph:
+          type: string
+        cont_ph:
+          type: string
+    Proc.Term.DefLabSpec:
+      type: object
+      required:
+        - conn_ph
+        - val_lab_qn
+        - cont_expr
+      properties:
+        conn_ph:
+          type: string
+        val_lab_qn:
+          type: string
+        cont_expr:
+          $ref: '#/components/schemas/Proc.Term.DefinitionSpec'
+    Proc.Term.DefLinkSpec:
+      type: object
+      required:
+        - proc_qn
+        - x
+        - ys
+      properties:
+        proc_qn:
+          type: string
+        x:
+          type: string
+        ys:
+          type: array
+          items:
+            type: string
+    Proc.Term.DefRecvSpec:
+      type: object
+      required:
+        - conn_ph
+        - new_ph
+        - cont_expr
+      properties:
+        conn_ph:
+          type: string
+        new_ph:
+          type: string
+        cont_expr:
+          $ref: '#/components/schemas/Proc.Term.DefinitionSpec'
+    Proc.Term.DefReleaseSpec:
+      type: object
+      required:
+        - conn_ph
+      properties:
+        conn_ph:
+          type: string
+    Proc.Term.DefSendSpec:
+      type: object
+      required:
+        - conn_ph
+        - val_ph
+      properties:
+        conn_ph:
+          type: string
+        val_ph:
+          type: string
+    Proc.Term.DefSpawnSpec:
+      type: object
+      required:
+        - conn_ph
+        - proc_qn
+        - new_phs
+        - cont_expr
+      properties:
+        conn_ph:
+          type: string
+        proc_qn:
+          type: string
+        new_phs:
+          type: array
+          items:
+            type: string
+        cont_expr:
+          $ref: '#/components/schemas/Proc.Term.DefinitionSpec'
+    Proc.Term.DefWaitSpec:
+      type: object
+      required:
+        - cont_ph
+        - cont_expr
+      properties:
+        cont_ph:
+          type: string
+        cont_expr:
+          $ref: '#/components/schemas/Proc.Term.DefinitionSpec'
+    Proc.Term.DefinitionSpec:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/Proc.Term.DefCloseSpec'
+        - $ref: '#/components/schemas/Proc.Term.DefWaitSpec'
+        - $ref: '#/components/schemas/Proc.Term.DefSendSpec'
+        - $ref: '#/components/schemas/Proc.Term.DefRecvSpec'
+        - $ref: '#/components/schemas/Proc.Term.DefLabSpec'
+        - $ref: '#/components/schemas/Proc.Term.DefCaseSpec'
+        - $ref: '#/components/schemas/Proc.Term.DefLinkSpec'
+        - $ref: '#/components/schemas/Proc.Term.DefFwdSpec'
+        - $ref: '#/components/schemas/Proc.Term.DefCallSpec'
+        - $ref: '#/components/schemas/Proc.Term.DefSpawnSpec'
+        - $ref: '#/components/schemas/Proc.Term.DefAcquireSpec'
+        - $ref: '#/components/schemas/Proc.Term.DefAcceptSpec'
+        - $ref: '#/components/schemas/Proc.Term.DefDetachSpec'
+        - $ref: '#/components/schemas/Proc.Term.DefReleaseSpec'
+      discriminator:
+        propertyName: kind
+        mapping:
+          close: '#/components/schemas/Proc.Term.DefCloseSpec'
+          wait: '#/components/schemas/Proc.Term.DefWaitSpec'
+          send: '#/components/schemas/Proc.Term.DefSendSpec'
+          recv: '#/components/schemas/Proc.Term.DefRecvSpec'
+          lab: '#/components/schemas/Proc.Term.DefLabSpec'
+          case: '#/components/schemas/Proc.Term.DefCaseSpec'
+          link: '#/components/schemas/Proc.Term.DefLinkSpec'
+          fwd: '#/components/schemas/Proc.Term.DefFwdSpec'
+          call: '#/components/schemas/Proc.Term.DefCallSpec'
+          spawn: '#/components/schemas/Proc.Term.DefSpawnSpec'
+          acquire: '#/components/schemas/Proc.Term.DefAcquireSpec'
+          accept: '#/components/schemas/Proc.Term.DefAcceptSpec'
+          detach: '#/components/schemas/Proc.Term.DefDetachSpec'
+          release: '#/components/schemas/Proc.Term.DefReleaseSpec'
+      description: Declarative process term Definition persisted independently from execution expressions.
     Proc.Term.ExprSpec:
       type: object
       oneOf:

@@ -16,12 +16,12 @@ import (
 	termexp "orglang/go-engine/internal/proc/termexp/core"
 )
 
-type daoPgx struct { log *slog.Logger }
+type daoPgx struct{ log *slog.Logger }
 
 func newRepo() termexp.Repo { return new(daoPgx) }
 func NewDaoPgx(log *slog.Logger) termexp.Repo {
-	name:=slog.String("name",reflect.TypeFor[daoPgx]().Name())
-	return &daoPgx{log:log.With(name)}
+	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
+	return &daoPgx{log: log.With(name)}
 }
 
 // Insert retains the legacy runtime persistence contract. Runtime records are
@@ -31,11 +31,20 @@ func (dao *daoPgx) Insert(ctx context.Context, conn tx.Conn, rec termexp.CompRec
 }
 
 func (dao *daoPgx) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.DescSpec) error {
-	rec,err:=termexp.ConvertSpecToRec(spec); if err!=nil{return err}
-	dto,err:=dataFromDescRec(rec); if err!=nil{return err}
-	for _,state:=range dto.States {
-		_,err=conn.Pgx.Exec(ctx,insertTermExp,state.ExpCK,state.SupExpCK,state.K,state.Spec)
-		if err!=nil { dao.log.Error("process term Definition insertion failed",slog.Int64("exp_ck",state.ExpCK),slog.Any("error",err)); return err }
+	rec, err := termexp.ConvertSpecToRec(spec)
+	if err != nil {
+		return err
+	}
+	dto, err := dataFromDescRec(rec)
+	if err != nil {
+		return err
+	}
+	for _, state := range dto.States {
+		_, err = conn.Pgx.Exec(ctx, insertTermExp, state.ExpCK, state.SupExpCK, state.K, state.Spec)
+		if err != nil {
+			dao.log.Error("process term Definition insertion failed", slog.Int64("exp_ck", state.ExpCK), slog.Any("error", err))
+			return err
+		}
 		rows, err := conn.Pgx.Query(ctx, selectTermExpByCK, state.ExpCK)
 		if err != nil {
 			return err
@@ -44,30 +53,55 @@ func (dao *daoPgx) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.De
 		if err != nil {
 			return err
 		}
-		canonical,err:=canonicalStoredJSON(existing.Spec); if err!=nil{return err}
-		expected,err:=canonicalStoredJSON(state.Spec); if err!=nil{return err}
-		if existing.SupExpCK!=state.SupExpCK || existing.K!=state.K || !bytes.Equal(canonical,expected) {
-			return fmt.Errorf("process term Definition content-key collision or parent conflict for %d",state.ExpCK)
+		canonical, err := canonicalStoredJSON(existing.Spec)
+		if err != nil {
+			return err
+		}
+		expected, err := canonicalStoredJSON(state.Spec)
+		if err != nil {
+			return err
+		}
+		if existing.SupExpCK != state.SupExpCK || existing.K != state.K || !bytes.Equal(canonical, expected) {
+			return fmt.Errorf("process term Definition content-key collision or parent conflict for %d", state.ExpCK)
 		}
 	}
 	return nil
 }
 
-func (dao *daoPgx) SelectSpecByCK(ctx context.Context,conn tx.Conn,key contkey.ADT)(termexp.DescSpec,error) {
-	rows,err:=conn.Pgx.Query(ctx,selectTermExpTree,int64(key)); if err!=nil{return nil,err}; defer rows.Close()
-	rowsDTO,err:=pgx.CollectRows(rows,pgx.RowToStructByName[DescState]); if err!=nil{return nil,err}
-	if len(rowsDTO)==0{return nil,fmt.Errorf("process term Definition %d does not exist",key)}
-	dto:=DescData{ExpCK:int64(key),States:make([]DescState,len(rowsDTO))}
-	for i,row:=range rowsDTO { dto.States[i]=DescState{ExpCK:row.ExpCK,SupExpCK:row.SupExpCK,K:row.K,Spec:row.Spec} }
-	rec,err:=dataToDescRec(dto); if err!=nil{return nil,err}
-	return termexp.ConvertRecToSpec(rec),nil
+func (dao *daoPgx) SelectSpecByCK(ctx context.Context, conn tx.Conn, key contkey.ADT) (termexp.DescSpec, error) {
+	rows, err := conn.Pgx.Query(ctx, selectTermExpTree, int64(key))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	rowsDTO, err := pgx.CollectRows(rows, pgx.RowToStructByName[DescState])
+	if err != nil {
+		return nil, err
+	}
+	if len(rowsDTO) == 0 {
+		return nil, fmt.Errorf("process term Definition %d does not exist", key)
+	}
+	dto := DescData{ExpCK: int64(key), States: make([]DescState, len(rowsDTO))}
+	for i, row := range rowsDTO {
+		dto.States[i] = DescState{ExpCK: row.ExpCK, SupExpCK: row.SupExpCK, K: row.K, Spec: row.Spec}
+	}
+	rec, err := dataToDescRec(dto)
+	if err != nil {
+		return nil, err
+	}
+	return termexp.ConvertRecToSpec(rec), nil
 }
 
-func canonicalStoredJSON(spec StateSpec)([]byte,error) {
-	raw,err:=json.Marshal(spec); if err!=nil{return nil,err}
-	value:=jsontext.Value(raw)
-	if err:=value.Canonicalize(jsontext.CanonicalizeRawInts(false)); err!=nil{return nil,err}
-	return []byte(value),nil
+func canonicalStoredJSON(spec StateSpec) ([]byte, error) {
+	raw, err := json.Marshal(spec)
+	if err != nil {
+		return nil, err
+	}
+	value := jsontext.Value(raw)
+	if err := value.Canonicalize(jsontext.CanonicalizeRawInts(false)); err != nil {
+		return nil, err
+	}
+	return []byte(value), nil
 }
 
 const insertTermExp = `

@@ -12,9 +12,13 @@ func TestDescContentKeyDistinguishesDefinitionVariants(t *testing.T) {
 	accept := DescAcceptSpec{ConnChnlPH: symbol.New("conn"), ContExp: continuation}
 
 	acquireKey, _, err := DescContentKey(acquire)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	acceptKey, _, err := DescContentKey(accept)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	if acquireKey == acceptKey {
 		t.Fatal("different Definition variants produced the same content key")
 	}

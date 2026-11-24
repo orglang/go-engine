@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"orglang/go-engine/internal/adt/termvar/adapter"
@@ -13,6 +14,7 @@ import (
 	"orglang/go-engine/internal/proc/ent/predicate"
 	"orglang/go-engine/internal/proc/ent/schema"
 	"orglang/go-engine/internal/proc/ent/termdec"
+	"orglang/go-engine/internal/proc/ent/termexp"
 	"orglang/go-engine/internal/proc/ent/typedef"
 	"orglang/go-engine/internal/proc/ent/typeexp"
 	"sync"
@@ -34,6 +36,7 @@ const (
 	TypeCompExec = "CompExec"
 	TypeDescRoot = "DescRoot"
 	TypeTermDec  = "TermDec"
+	TypeTermExp  = "TermExp"
 	TypeTypeDef  = "TypeDef"
 	TypeTypeExp  = "TypeExp"
 )
@@ -1648,6 +1651,8 @@ type TermDecMutation struct {
 	typ              string
 	id               *string
 	desc_id          *string
+	exp_ck           *int64
+	addexp_ck        *int64
 	liab_var         *adapter.VarRec
 	asset_vars       *[]adapter.VarRec
 	appendasset_vars []adapter.VarRec
@@ -1797,6 +1802,76 @@ func (m *TermDecMutation) ResetDescID() {
 	m.desc_id = nil
 }
 
+// SetExpCk sets the "exp_ck" field.
+func (m *TermDecMutation) SetExpCk(i int64) {
+	m.exp_ck = &i
+	m.addexp_ck = nil
+}
+
+// ExpCk returns the value of the "exp_ck" field in the mutation.
+func (m *TermDecMutation) ExpCk() (r int64, exists bool) {
+	v := m.exp_ck
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExpCk returns the old "exp_ck" field's value of the TermDec entity.
+// If the TermDec object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TermDecMutation) OldExpCk(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExpCk is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExpCk requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExpCk: %w", err)
+	}
+	return oldValue.ExpCk, nil
+}
+
+// AddExpCk adds i to the "exp_ck" field.
+func (m *TermDecMutation) AddExpCk(i int64) {
+	if m.addexp_ck != nil {
+		*m.addexp_ck += i
+	} else {
+		m.addexp_ck = &i
+	}
+}
+
+// AddedExpCk returns the value that was added to the "exp_ck" field in this mutation.
+func (m *TermDecMutation) AddedExpCk() (r int64, exists bool) {
+	v := m.addexp_ck
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearExpCk clears the value of the "exp_ck" field.
+func (m *TermDecMutation) ClearExpCk() {
+	m.exp_ck = nil
+	m.addexp_ck = nil
+	m.clearedFields[termdec.FieldExpCk] = struct{}{}
+}
+
+// ExpCkCleared returns if the "exp_ck" field was cleared in this mutation.
+func (m *TermDecMutation) ExpCkCleared() bool {
+	_, ok := m.clearedFields[termdec.FieldExpCk]
+	return ok
+}
+
+// ResetExpCk resets all changes to the "exp_ck" field.
+func (m *TermDecMutation) ResetExpCk() {
+	m.exp_ck = nil
+	m.addexp_ck = nil
+	delete(m.clearedFields, termdec.FieldExpCk)
+}
+
 // SetLiabVar sets the "liab_var" field.
 func (m *TermDecMutation) SetLiabVar(ar adapter.VarRec) {
 	m.liab_var = &ar
@@ -1918,9 +1993,12 @@ func (m *TermDecMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TermDecMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 4)
 	if m.desc_id != nil {
 		fields = append(fields, termdec.FieldDescID)
+	}
+	if m.exp_ck != nil {
+		fields = append(fields, termdec.FieldExpCk)
 	}
 	if m.liab_var != nil {
 		fields = append(fields, termdec.FieldLiabVar)
@@ -1938,6 +2016,8 @@ func (m *TermDecMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case termdec.FieldDescID:
 		return m.DescID()
+	case termdec.FieldExpCk:
+		return m.ExpCk()
 	case termdec.FieldLiabVar:
 		return m.LiabVar()
 	case termdec.FieldAssetVars:
@@ -1953,6 +2033,8 @@ func (m *TermDecMutation) OldField(ctx context.Context, name string) (ent.Value,
 	switch name {
 	case termdec.FieldDescID:
 		return m.OldDescID(ctx)
+	case termdec.FieldExpCk:
+		return m.OldExpCk(ctx)
 	case termdec.FieldLiabVar:
 		return m.OldLiabVar(ctx)
 	case termdec.FieldAssetVars:
@@ -1972,6 +2054,13 @@ func (m *TermDecMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDescID(v)
+		return nil
+	case termdec.FieldExpCk:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExpCk(v)
 		return nil
 	case termdec.FieldLiabVar:
 		v, ok := value.(adapter.VarRec)
@@ -1994,13 +2083,21 @@ func (m *TermDecMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *TermDecMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addexp_ck != nil {
+		fields = append(fields, termdec.FieldExpCk)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *TermDecMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case termdec.FieldExpCk:
+		return m.AddedExpCk()
+	}
 	return nil, false
 }
 
@@ -2009,6 +2106,13 @@ func (m *TermDecMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *TermDecMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case termdec.FieldExpCk:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddExpCk(v)
+		return nil
 	}
 	return fmt.Errorf("unknown TermDec numeric field %s", name)
 }
@@ -2016,7 +2120,11 @@ func (m *TermDecMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *TermDecMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(termdec.FieldExpCk) {
+		fields = append(fields, termdec.FieldExpCk)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -2029,6 +2137,11 @@ func (m *TermDecMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *TermDecMutation) ClearField(name string) error {
+	switch name {
+	case termdec.FieldExpCk:
+		m.ClearExpCk()
+		return nil
+	}
 	return fmt.Errorf("unknown TermDec nullable field %s", name)
 }
 
@@ -2038,6 +2151,9 @@ func (m *TermDecMutation) ResetField(name string) error {
 	switch name {
 	case termdec.FieldDescID:
 		m.ResetDescID()
+		return nil
+	case termdec.FieldExpCk:
+		m.ResetExpCk()
 		return nil
 	case termdec.FieldLiabVar:
 		m.ResetLiabVar()
@@ -2095,6 +2211,554 @@ func (m *TermDecMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *TermDecMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown TermDec edge %s", name)
+}
+
+// TermExpMutation represents an operation that mutates the TermExp nodes in the graph.
+type TermExpMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *int64
+	sup_exp_ck    *int64
+	addsup_exp_ck *int64
+	kind          *int16
+	addkind       *int16
+	spec          *jsontext.Value
+	appendspec    jsontext.Value
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*TermExp, error)
+	predicates    []predicate.TermExp
+}
+
+var _ ent.Mutation = (*TermExpMutation)(nil)
+
+// termexpOption allows management of the mutation configuration using functional options.
+type termexpOption func(*TermExpMutation)
+
+// newTermExpMutation creates new mutation for the TermExp entity.
+func newTermExpMutation(c config, op Op, opts ...termexpOption) *TermExpMutation {
+	m := &TermExpMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeTermExp,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withTermExpID sets the ID field of the mutation.
+func withTermExpID(id int64) termexpOption {
+	return func(m *TermExpMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *TermExp
+		)
+		m.oldValue = func(ctx context.Context) (*TermExp, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().TermExp.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withTermExp sets the old TermExp of the mutation.
+func withTermExp(node *TermExp) termexpOption {
+	return func(m *TermExpMutation) {
+		m.oldValue = func(context.Context) (*TermExp, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m TermExpMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m TermExpMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of TermExp entities.
+func (m *TermExpMutation) SetID(id int64) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *TermExpMutation) ID() (id int64, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *TermExpMutation) IDs(ctx context.Context) ([]int64, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int64{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().TermExp.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetSupExpCk sets the "sup_exp_ck" field.
+func (m *TermExpMutation) SetSupExpCk(i int64) {
+	m.sup_exp_ck = &i
+	m.addsup_exp_ck = nil
+}
+
+// SupExpCk returns the value of the "sup_exp_ck" field in the mutation.
+func (m *TermExpMutation) SupExpCk() (r int64, exists bool) {
+	v := m.sup_exp_ck
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSupExpCk returns the old "sup_exp_ck" field's value of the TermExp entity.
+// If the TermExp object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TermExpMutation) OldSupExpCk(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSupExpCk is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSupExpCk requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSupExpCk: %w", err)
+	}
+	return oldValue.SupExpCk, nil
+}
+
+// AddSupExpCk adds i to the "sup_exp_ck" field.
+func (m *TermExpMutation) AddSupExpCk(i int64) {
+	if m.addsup_exp_ck != nil {
+		*m.addsup_exp_ck += i
+	} else {
+		m.addsup_exp_ck = &i
+	}
+}
+
+// AddedSupExpCk returns the value that was added to the "sup_exp_ck" field in this mutation.
+func (m *TermExpMutation) AddedSupExpCk() (r int64, exists bool) {
+	v := m.addsup_exp_ck
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSupExpCk resets all changes to the "sup_exp_ck" field.
+func (m *TermExpMutation) ResetSupExpCk() {
+	m.sup_exp_ck = nil
+	m.addsup_exp_ck = nil
+}
+
+// SetKind sets the "kind" field.
+func (m *TermExpMutation) SetKind(i int16) {
+	m.kind = &i
+	m.addkind = nil
+}
+
+// Kind returns the value of the "kind" field in the mutation.
+func (m *TermExpMutation) Kind() (r int16, exists bool) {
+	v := m.kind
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldKind returns the old "kind" field's value of the TermExp entity.
+// If the TermExp object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TermExpMutation) OldKind(ctx context.Context) (v int16, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldKind is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldKind requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldKind: %w", err)
+	}
+	return oldValue.Kind, nil
+}
+
+// AddKind adds i to the "kind" field.
+func (m *TermExpMutation) AddKind(i int16) {
+	if m.addkind != nil {
+		*m.addkind += i
+	} else {
+		m.addkind = &i
+	}
+}
+
+// AddedKind returns the value that was added to the "kind" field in this mutation.
+func (m *TermExpMutation) AddedKind() (r int16, exists bool) {
+	v := m.addkind
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetKind resets all changes to the "kind" field.
+func (m *TermExpMutation) ResetKind() {
+	m.kind = nil
+	m.addkind = nil
+}
+
+// SetSpec sets the "spec" field.
+func (m *TermExpMutation) SetSpec(j jsontext.Value) {
+	m.spec = &j
+	m.appendspec = nil
+}
+
+// Spec returns the value of the "spec" field in the mutation.
+func (m *TermExpMutation) Spec() (r jsontext.Value, exists bool) {
+	v := m.spec
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSpec returns the old "spec" field's value of the TermExp entity.
+// If the TermExp object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TermExpMutation) OldSpec(ctx context.Context) (v jsontext.Value, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSpec is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSpec requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSpec: %w", err)
+	}
+	return oldValue.Spec, nil
+}
+
+// AppendSpec adds j to the "spec" field.
+func (m *TermExpMutation) AppendSpec(j jsontext.Value) {
+	m.appendspec = append(m.appendspec, j...)
+}
+
+// AppendedSpec returns the list of values that were appended to the "spec" field in this mutation.
+func (m *TermExpMutation) AppendedSpec() (jsontext.Value, bool) {
+	if len(m.appendspec) == 0 {
+		return nil, false
+	}
+	return m.appendspec, true
+}
+
+// ClearSpec clears the value of the "spec" field.
+func (m *TermExpMutation) ClearSpec() {
+	m.spec = nil
+	m.appendspec = nil
+	m.clearedFields[termexp.FieldSpec] = struct{}{}
+}
+
+// SpecCleared returns if the "spec" field was cleared in this mutation.
+func (m *TermExpMutation) SpecCleared() bool {
+	_, ok := m.clearedFields[termexp.FieldSpec]
+	return ok
+}
+
+// ResetSpec resets all changes to the "spec" field.
+func (m *TermExpMutation) ResetSpec() {
+	m.spec = nil
+	m.appendspec = nil
+	delete(m.clearedFields, termexp.FieldSpec)
+}
+
+// Where appends a list predicates to the TermExpMutation builder.
+func (m *TermExpMutation) Where(ps ...predicate.TermExp) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the TermExpMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *TermExpMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.TermExp, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *TermExpMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *TermExpMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (TermExp).
+func (m *TermExpMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *TermExpMutation) Fields() []string {
+	fields := make([]string, 0, 3)
+	if m.sup_exp_ck != nil {
+		fields = append(fields, termexp.FieldSupExpCk)
+	}
+	if m.kind != nil {
+		fields = append(fields, termexp.FieldKind)
+	}
+	if m.spec != nil {
+		fields = append(fields, termexp.FieldSpec)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *TermExpMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case termexp.FieldSupExpCk:
+		return m.SupExpCk()
+	case termexp.FieldKind:
+		return m.Kind()
+	case termexp.FieldSpec:
+		return m.Spec()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *TermExpMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case termexp.FieldSupExpCk:
+		return m.OldSupExpCk(ctx)
+	case termexp.FieldKind:
+		return m.OldKind(ctx)
+	case termexp.FieldSpec:
+		return m.OldSpec(ctx)
+	}
+	return nil, fmt.Errorf("unknown TermExp field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *TermExpMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case termexp.FieldSupExpCk:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSupExpCk(v)
+		return nil
+	case termexp.FieldKind:
+		v, ok := value.(int16)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetKind(v)
+		return nil
+	case termexp.FieldSpec:
+		v, ok := value.(jsontext.Value)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSpec(v)
+		return nil
+	}
+	return fmt.Errorf("unknown TermExp field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *TermExpMutation) AddedFields() []string {
+	var fields []string
+	if m.addsup_exp_ck != nil {
+		fields = append(fields, termexp.FieldSupExpCk)
+	}
+	if m.addkind != nil {
+		fields = append(fields, termexp.FieldKind)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *TermExpMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case termexp.FieldSupExpCk:
+		return m.AddedSupExpCk()
+	case termexp.FieldKind:
+		return m.AddedKind()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *TermExpMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case termexp.FieldSupExpCk:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSupExpCk(v)
+		return nil
+	case termexp.FieldKind:
+		v, ok := value.(int16)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddKind(v)
+		return nil
+	}
+	return fmt.Errorf("unknown TermExp numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *TermExpMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(termexp.FieldSpec) {
+		fields = append(fields, termexp.FieldSpec)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *TermExpMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *TermExpMutation) ClearField(name string) error {
+	switch name {
+	case termexp.FieldSpec:
+		m.ClearSpec()
+		return nil
+	}
+	return fmt.Errorf("unknown TermExp nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *TermExpMutation) ResetField(name string) error {
+	switch name {
+	case termexp.FieldSupExpCk:
+		m.ResetSupExpCk()
+		return nil
+	case termexp.FieldKind:
+		m.ResetKind()
+		return nil
+	case termexp.FieldSpec:
+		m.ResetSpec()
+		return nil
+	}
+	return fmt.Errorf("unknown TermExp field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *TermExpMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *TermExpMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *TermExpMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *TermExpMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *TermExpMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *TermExpMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *TermExpMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown TermExp unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *TermExpMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown TermExp edge %s", name)
 }
 
 // TypeDefMutation represents an operation that mutates the TypeDef nodes in the graph.

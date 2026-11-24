@@ -1,9 +1,8 @@
 package core
 
 import (
-	"testing"
 	"strings"
-
+	"testing"
 
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
@@ -97,4 +96,3 @@ func TestCompContentKeySerializesEveryVariant(t *testing.T) {
 		}
 	}
 }
-

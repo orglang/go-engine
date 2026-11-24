@@ -75,9 +75,9 @@ type DescData struct {
 // DescState is one persisted expression node. Spec contains scalar data and
 // child content keys; tree reconstruction belongs to this adapter.
 type DescState struct {
-	ExpCK    int64           `db:"exp_ck"`
-	SupExpCK int64           `db:"sup_exp_ck"`
-	K        ExpKind         `db:"kind"`
+	ExpCK    int64     `db:"exp_ck"`
+	SupExpCK int64     `db:"sup_exp_ck"`
+	K        ExpKind   `db:"kind"`
 	Spec     StateSpec `db:"spec"`
 }
 
@@ -87,4 +87,3 @@ type StateSpec struct {
 	ProcCompQNs []string `json:"proc_comp_qns,omitempty"`
 	ContExpCK   int64    `json:"cont_exp_ck,omitempty"`
 }
-

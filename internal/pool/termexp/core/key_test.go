@@ -1,8 +1,8 @@
 package core
 
 import (
-	"testing"
 	"strings"
+	"testing"
 
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
@@ -89,4 +89,3 @@ func TestCompContentKeySerializesEveryVariant(t *testing.T) {
 		t.Fatal("SpawnSpec2 must not be accepted as Definition content")
 	}
 }
-

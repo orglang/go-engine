@@ -48,18 +48,32 @@ var (
 		Columns:    ProcDescRootsColumns,
 		PrimaryKey: []*schema.Column{ProcDescRootsColumns[0]},
 	}
-	// ProcTermDecsColumns holds the columns for the "proc_term_decs" table.
-	ProcTermDecsColumns = []*schema.Column{
+	// ProcDescTermsColumns holds the columns for the "proc_desc_terms" table.
+	ProcDescTermsColumns = []*schema.Column{
 		{Name: "term_id", Type: field.TypeString},
 		{Name: "desc_id", Type: field.TypeString},
+		{Name: "exp_ck", Type: field.TypeInt64, Nullable: true},
 		{Name: "liab_var", Type: field.TypeJSON},
 		{Name: "asset_vars", Type: field.TypeJSON},
 	}
-	// ProcTermDecsTable holds the schema information for the "proc_term_decs" table.
-	ProcTermDecsTable = &schema.Table{
-		Name:       "proc_term_decs",
-		Columns:    ProcTermDecsColumns,
-		PrimaryKey: []*schema.Column{ProcTermDecsColumns[0]},
+	// ProcDescTermsTable holds the schema information for the "proc_desc_terms" table.
+	ProcDescTermsTable = &schema.Table{
+		Name:       "proc_desc_terms",
+		Columns:    ProcDescTermsColumns,
+		PrimaryKey: []*schema.Column{ProcDescTermsColumns[0]},
+	}
+	// ProcTermExpsColumns holds the columns for the "proc_term_exps" table.
+	ProcTermExpsColumns = []*schema.Column{
+		{Name: "exp_ck", Type: field.TypeInt64, Increment: true},
+		{Name: "sup_exp_ck", Type: field.TypeInt64},
+		{Name: "kind", Type: field.TypeInt16},
+		{Name: "spec", Type: field.TypeJSON, Nullable: true},
+	}
+	// ProcTermExpsTable holds the schema information for the "proc_term_exps" table.
+	ProcTermExpsTable = &schema.Table{
+		Name:       "proc_term_exps",
+		Columns:    ProcTermExpsColumns,
+		PrimaryKey: []*schema.Column{ProcTermExpsColumns[0]},
 	}
 	// ProcTypeDefsColumns holds the columns for the "proc_type_defs" table.
 	ProcTypeDefsColumns = []*schema.Column{
@@ -91,7 +105,8 @@ var (
 		ProcCompConnsTable,
 		ProcCompExecsTable,
 		ProcDescRootsTable,
-		ProcTermDecsTable,
+		ProcDescTermsTable,
+		ProcTermExpsTable,
 		ProcTypeDefsTable,
 		ProcTypeExpsTable,
 	}
@@ -107,8 +122,11 @@ func init() {
 	ProcDescRootsTable.Annotation = &entsql.Annotation{
 		Table: "proc_desc_roots",
 	}
-	ProcTermDecsTable.Annotation = &entsql.Annotation{
-		Table: "proc_term_decs",
+	ProcDescTermsTable.Annotation = &entsql.Annotation{
+		Table: "proc_desc_terms",
+	}
+	ProcTermExpsTable.Annotation = &entsql.Annotation{
+		Table: "proc_term_exps",
 	}
 	ProcTypeDefsTable.Annotation = &entsql.Annotation{
 		Table: "proc_type_defs",

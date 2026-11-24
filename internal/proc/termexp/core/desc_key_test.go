@@ -21,9 +21,13 @@ func TestDescContentKeyIncludesContinuation(t *testing.T) {
 	}
 
 	leftKey, _, err := DescContentKey(left)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	rightKey, _, err := DescContentKey(right)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	if leftKey == rightKey {
 		t.Fatal("different Definition continuations produced the same content key")
 	}

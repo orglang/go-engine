@@ -58,7 +58,7 @@ func (dao *daoPgx) SelectSpecByCK(ctx context.Context,conn tx.Conn,key contkey.A
 	rowsDTO,err:=pgx.CollectRows(rows,pgx.RowToStructByName[DescState]); if err!=nil{return nil,err}
 	if len(rowsDTO)==0{return nil,fmt.Errorf("process term Definition %d does not exist",key)}
 	dto:=DescData{ExpCK:int64(key),States:make([]DescState,len(rowsDTO))}
-	for i,row:=range rowsDTO { dto.States[i]=DescState{ExpCK:row.ExpCK,SupExpCK:row.SupExpCK,K:row.Kind,Spec:row.Spec} }
+	for i,row:=range rowsDTO { dto.States[i]=DescState{ExpCK:row.ExpCK,SupExpCK:row.SupExpCK,K:row.K,Spec:row.Spec} }
 	rec,err:=dataToDescRec(dto); if err!=nil{return nil,err}
 	return termexp.ConvertRecToSpec(rec),nil
 }

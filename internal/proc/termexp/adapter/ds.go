@@ -1,7 +1,5 @@
 package adapter
 
-import "encoding/json"
-
 type ExpKind int
 
 const (
@@ -129,10 +127,10 @@ type DescState struct {
 	ExpCK    int64           `db:"exp_ck"`
 	SupExpCK int64           `db:"sup_exp_ck"`
 	K        int16           `db:"kind"`
-	Spec     json.RawMessage `db:"spec"`
+	Spec     StateSpec `db:"spec"`
 }
 
-type DescStateSpec struct {
+type StateSpec struct {
 	ContChnlPH  string           `json:"cont_chnl_ph,omitempty"`
 	ConnChnlPH  string           `json:"conn_chnl_ph,omitempty"`
 	ValChnlPH   string           `json:"val_chnl_ph,omitempty"`

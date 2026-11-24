@@ -45,13 +45,13 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
-          commit-message: "chore: update mise tools"
-          title: "chore: update mise tools"
+          commit-message: "ci: update toolchain and regenerate artifacts"
+          title: "ci: update toolchain and regenerate artifacts"
           body: |
             Automated Go and mise toolchain upgrade.
 
             The Go version in go.mod and module dependencies are updated alongside configured mise tools.
             Generated specs and source artifacts are refreshed with the upgraded generators.
             Dependency updates are handled separately by Dependabot.
-          branch: chore/update-mise-tools
+          branch: ci/refresh-generated-artifacts
           delete-branch: true

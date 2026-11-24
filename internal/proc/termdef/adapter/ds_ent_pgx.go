@@ -159,7 +159,6 @@ func (dao *daoEnt) GetRecByID(ctx context.Context, conn tx.Conn, termID identity
 	if err != nil {
 		return termdef.DecRec{}, err
 	}
-	rec.ExpCK = contkey.ADT(dto.ExpCK)
 	return rec, nil
 }
 

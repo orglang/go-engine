@@ -94,7 +94,6 @@ WHERE def.term_id = $1
 	if err != nil {
 		return termdef.DefRec{}, err
 	}
-	rec.ExpCK = contkey.ADT(dto.ExpCK)
 	return rec, nil
 }
 

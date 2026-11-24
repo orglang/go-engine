@@ -2,6 +2,8 @@ package adapter
 
 import (
 	"bytes"
+	"context"
+	"encoding/json"
 	"encoding/json/jsontext"
 	"fmt"
 	"log/slog"
@@ -71,7 +73,9 @@ func (dao *daoPgx) SelectSpecByCK(ctx context.Context, conn tx.Conn, key contkey
 	return termexp.ConvertRecToSpec(rec), nil
 }
 
-func canonicalStoredJSON(raw []byte) ([]byte, error) {
+func canonicalStoredJSON(spec StateSpec) ([]byte, error) {
+	raw, err := json.Marshal(spec)
+	if err != nil { return nil, err }
 	value := jsontext.Value(raw)
 	if err := value.Canonicalize(jsontext.CanonicalizeRawInts(false)); err != nil { return nil, err }
 	return []byte(value), nil

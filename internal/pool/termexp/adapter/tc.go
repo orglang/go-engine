@@ -1,6 +1,7 @@
 package adapter
 
 import (
+	"errors"
 	"fmt"
 
 	"orglang/go-engine/internal/adt/contkey"
@@ -89,7 +90,7 @@ func DataToExpRec(dto ExpRec) (termexp.CompRec, error) {
 
 func dataFromDescRec(rec termexp.DescRec) (DescData, error) {
 	if rec == nil {
-		return DescData{}, fmt.Errorf("nil pool Description record")
+		return DescData{}, errors.New("nil pool Description record")
 	}
 	dto := DescData{ExpCK: contkey.ConvertToInt(rec.ContentKey())}
 	statesFromDescRec(0, rec, &dto)
@@ -118,11 +119,11 @@ func statesFromDescRec(parent int64, rec termexp.DescRec, dto *DescData) int64 {
 	case termexp.DescDetachRec:
 		kind, data.ConnChnlPH = DetachKind, string(r.ConnChnlPH)
 	case termexp.DescFireRec:
-		kind, data.ConnChnlPH, data.ProcTermQN = ExpKind(termexp.FireKind), string(r.ConnChnlPH), uniqsym.ConvertToString(r.ProcTermQN)
+		kind, data.ConnChnlPH, data.ProcTermQN = termexp.FireKind, string(r.ConnChnlPH), uniqsym.ConvertToString(r.ProcTermQN)
 	case termexp.DescQuitRec:
-		kind, data.ConnChnlPH, data.ProcTermQN = ExpKind(termexp.QuitKind), string(r.ConnChnlPH), uniqsym.ConvertToString(r.ProcTermQN)
+		kind, data.ConnChnlPH, data.ProcTermQN = termexp.QuitKind, string(r.ConnChnlPH), uniqsym.ConvertToString(r.ProcTermQN)
 	case termexp.DescSpawnRec:
-		kind, data.ProcTermQN = ExpKind(termexp.SpawnKind), uniqsym.ConvertToString(r.ProcTermQN)
+		kind, data.ProcTermQN = termexp.SpawnKind, uniqsym.ConvertToString(r.ProcTermQN)
 		data.ProcCompQNs = uniqsym.ConvertToStrings(r.ProcCompQNs)
 	default:
 		panic(fmt.Sprintf("unexpected pool Description record %T", rec))
@@ -203,21 +204,21 @@ func statesToDescRec(states map[int64]DescState, state DescState) (termexp.DescR
 	case DetachKind:
 		p, e := ph()
 		return termexp.DescDetachRec{ExpCK: key, ConnChnlPH: p}, e
-	case ExpKind(termexp.FireKind):
+	case termexp.FireKind:
 		p, e := ph()
 		if e != nil {
 			return nil, e
 		}
 		q, e := uniqsym.ConvertFromString(spec.ProcTermQN)
 		return termexp.DescFireRec{ExpCK: key, ConnChnlPH: p, ProcTermQN: q}, e
-	case ExpKind(termexp.QuitKind):
+	case termexp.QuitKind:
 		p, e := ph()
 		if e != nil {
 			return nil, e
 		}
 		q, e := uniqsym.ConvertFromString(spec.ProcTermQN)
 		return termexp.DescQuitRec{ExpCK: key, ConnChnlPH: p, ProcTermQN: q}, e
-	case ExpKind(termexp.SpawnKind):
+	case termexp.SpawnKind:
 		q, e := uniqsym.ConvertFromString(spec.ProcTermQN)
 		if e != nil {
 			return nil, e

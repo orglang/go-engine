@@ -47,7 +47,7 @@ func (h *controllerEcho) GetPoolDefinition(c *echo.Context, id string, params we
 	if err != nil {
 		var missingErr termdef.DefinitionMissingError
 		switch {
-		case errors.As(err, &missingErr):
+		case errors.As(err, &missingErr), errors.Is(err, termdef.ErrTermDoesNotExist):
 			return echo.NewHTTPError(http.StatusNotFound, err.Error())
 		case errors.Is(err, termdef.ErrDefinitionRevisionMismatch):
 			return echo.NewHTTPError(http.StatusConflict, err.Error())

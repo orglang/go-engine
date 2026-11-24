@@ -80,7 +80,7 @@ func (*contextRepo) GetRecByID(context.Context, tx.Conn, identity.ADT) (DecRec, 
 	return DecRec{}, nil
 }
 
-func (*contextRepo) SelectEnv(context.Context, tx.Conn, []identity.ADT) (map[uniqsym.ADT]DecRec, error) {
+func (*contextRepo) SelectEnv(context.Context, tx.Conn, []identity.ADT) (map[identity.ADT]DecRec, error) {
 	return nil, nil
 }
 

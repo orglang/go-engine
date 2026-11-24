@@ -60,10 +60,11 @@ func (dao *daoEnt) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.De
 	}
 
 	txCtx := entpgx.WithConn(ctx, conn.Pgx)
-	if err := dao.client.TermExp.CreateBulk(builders...).
+	err = dao.client.TermExp.CreateBulk(builders...).
 		OnConflictColumns(termexpent.FieldID).
 		DoNothing().
-		Exec(txCtx); err != nil {
+		Exec(txCtx)
+	if err != nil {
 		dao.log.Error("process term Definition insertion failed", slog.Any("error", err))
 		return err
 	}
@@ -83,7 +84,7 @@ func (dao *daoEnt) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.De
 		if err != nil {
 			return err
 		}
-		if existing.SupExpCk != state.SupExpCK || existing.Kind != int16(state.K) || !bytes.Equal(canonical, expected) {
+		if existing.SupExpCk != state.SupExpCK || existing.Kind != state.K || !bytes.Equal(canonical, expected) {
 			return fmt.Errorf("process term Definition content-key collision or parent conflict for %d", state.ExpCK)
 		}
 	}

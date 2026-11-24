@@ -17,6 +17,7 @@ import (
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/uniqsym"
+	termexp "orglang/go-engine/internal/proc/termexp/core"
 
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
@@ -25,6 +26,7 @@ type API interface {
 	Incept(context.Context, uniqsym.ADT) (termsem.SemRef, error)
 	Create(context.Context, DefSpec) (DefSnap, error)
 	RetrieveSnap(context.Context, termsem.SemRef) (DefSnap, error)
+	RetrieveDefinition(context.Context, termsem.SemRef) (termexp.DescSpec, error)
 	RetreiveRefs(context.Context) ([]termsem.SemRef, error)
 }
 
@@ -53,6 +55,7 @@ type DefSnap struct {
 
 type service struct {
 	termDecRepo  Repo
+	termExpRepo  termexp.Repo
 	descRootRepo descroot.Repo
 	descSemRepo  descsem.Repo
 	typeDefRepo  typedef.Repo
@@ -67,13 +70,14 @@ func newAPI() API {
 
 func NewService(
 	termDecRepo Repo,
+	termExpRepo termexp.Repo,
 	descRootRepo descroot.Repo,
 	descSemRepo descsem.Repo,
 	typeDefRepo typedef.Repo,
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
-	return &service{termDecRepo, descRootRepo, descSemRepo, typeDefRepo, transactor, log}
+	return &service{termDecRepo, termExpRepo, descRootRepo, descSemRepo, typeDefRepo, transactor, log}
 }
 
 func (s *service) Incept(ctx context.Context, termQN uniqsym.ADT) (_ termsem.SemRef, err error) {
@@ -158,6 +162,30 @@ func (s *service) RetrieveSnap(ctx context.Context, ref termsem.SemRef) (snap De
 		return DefSnap{}, err
 	}
 	return snap, nil
+}
+
+func (s *service) RetrieveDefinition(ctx context.Context, ref termsem.SemRef) (termexp.DescSpec, error) {
+	return tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (termexp.DescSpec, error) {
+		rec, err := s.termDecRepo.GetRecByID(txCtx, conn, ref.TermID)
+		if err != nil {
+			return nil, err
+		}
+		if ref.DescRN != 0 && ref.DescRN != rec.TermRef.DescRN {
+			return nil, ErrDefinitionRevisionMismatch(ref.DescRN, rec.TermRef.DescRN)
+		}
+		if rec.ExpCK == 0 {
+			return nil, ErrDefinitionMissing(ref.TermID)
+		}
+		return s.termExpRepo.SelectSpecByCK(txCtx, conn, rec.ExpCK)
+	})
+}
+
+func ErrDefinitionRevisionMismatch(expected, current seqnum.ADT) error {
+	return fmt.Errorf("description revision mismatch: expected %d, current %d", expected, current)
+}
+
+func ErrDefinitionMissing(termID identity.ADT) error {
+	return fmt.Errorf("process term %v has no Definition", termID)
 }
 
 func (s *service) RetreiveRefs(ctx context.Context) (refs []termsem.SemRef, err error) {

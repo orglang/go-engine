@@ -55,7 +55,7 @@ type DefSnap struct {
 }
 
 type service struct {
-	termDecRepo  Repo
+	termDefRepo  Repo
 	termExpRepo  termexp.Repo
 	descRootRepo descroot.Repo
 	descSemRepo  descsem.Repo
@@ -70,7 +70,7 @@ func newAPI() API {
 }
 
 func NewService(
-	termDecRepo Repo,
+	termDefRepo Repo,
 	termExpRepo termexp.Repo,
 	descRootRepo descroot.Repo,
 	descSemRepo descsem.Repo,
@@ -78,7 +78,7 @@ func NewService(
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
-	return &service{termDecRepo: termDecRepo, termExpRepo: termExpRepo, descRootRepo: descRootRepo, descSemRepo: descSemRepo, typeDefRepo: typeDefRepo, transactor: transactor, log: log}
+	return &service{termDefRepo: termDefRepo, termExpRepo: termExpRepo, descRootRepo: descRootRepo, descSemRepo: descSemRepo, typeDefRepo: typeDefRepo, transactor: transactor, log: log}
 }
 
 func (s *service) Incept(ctx context.Context, termQN uniqsym.ADT) (_ termsem.SemRef, err error) {
@@ -94,7 +94,7 @@ func (s *service) Incept(ctx context.Context, termQN uniqsym.ADT) (_ termsem.Sem
 		if err := s.descSemRepo.AddRec(txCtx, conn, newBind); err != nil {
 			return err
 		}
-		return s.termDecRepo.AddRec(txCtx, conn, newDec)
+		return s.termDefRepo.AddRec(txCtx, conn, newDec)
 	})
 	if err != nil {
 		s.log.Error("inception failed", qnAttr)
@@ -144,7 +144,7 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err erro
 		if err := s.descSemRepo.AddRec(txCtx, conn, newBind); err != nil {
 			return err
 		}
-		return s.termDecRepo.AddRec(txCtx, conn, newDec)
+		return s.termDefRepo.AddRec(txCtx, conn, newDec)
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", qnAttr)
@@ -156,7 +156,7 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err erro
 
 func (s *service) RetrieveSnap(ctx context.Context, ref termsem.SemRef) (snap DefSnap, err error) {
 	snap, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DefSnap, error) {
-		return s.termDecRepo.GetSnap(txCtx, conn, ref)
+		return s.termDefRepo.GetSnap(txCtx, conn, ref)
 	})
 	if err != nil {
 		s.log.Error("retrieval failed", slog.Any("ref", ref))
@@ -165,17 +165,14 @@ func (s *service) RetrieveSnap(ctx context.Context, ref termsem.SemRef) (snap De
 	return snap, nil
 }
 
-func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT, expectedRN *seqnum.ADT) (termexp.DescSpec, error) {
+func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (termexp.DescSpec, error) {
 	if s.termExpRepo == nil {
-		return nil, errors.New("term Definition repository is not configured")
+		return nil, ErrTermExpRepositoryNotConfigured
 	}
 	return tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (termexp.DescSpec, error) {
-		rec, err := s.termDecRepo.GetRecByID(txCtx, conn, termID)
+		rec, err := s.termDefRepo.GetRecByID(txCtx, conn, termID)
 		if err != nil {
 			return nil, err
-		}
-		if expectedRN != nil && *expectedRN != rec.TermRef.DescRN {
-			return nil, fmt.Errorf("%w: expected %d, current %d", ErrDefinitionRevisionMismatch, *expectedRN, rec.TermRef.DescRN)
 		}
 		if rec.ExpCK == 0 {
 			return nil, ErrDefinitionMissing(termID)
@@ -184,28 +181,10 @@ func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT, e
 	})
 }
 
-var ErrDefinitionRevisionMismatch = errors.New("description revision mismatch")
-var ErrTermDoesNotExist = errors.New("process term does not exist")
-
-func ErrTermMissing(termID identity.ADT) error {
-	return fmt.Errorf("%w: %v", ErrTermDoesNotExist, termID)
-}
-
-type DefinitionMissingError struct {
-	TermID identity.ADT
-}
-
-func (e DefinitionMissingError) Error() string {
-	return fmt.Sprintf("process term %v has no Definition", e.TermID)
-}
-
-func ErrDefinitionMissing(termID identity.ADT) error {
-	return DefinitionMissingError{TermID: termID}
-}
 
 func (s *service) RetreiveRefs(ctx context.Context) (refs []termsem.SemRef, err error) {
 	refs, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) ([]termsem.SemRef, error) {
-		return s.termDecRepo.GetRefs(txCtx, conn)
+		return s.termDefRepo.GetRefs(txCtx, conn)
 	})
 	if err != nil {
 		s.log.Error("retrieval failed")

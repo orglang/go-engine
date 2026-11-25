@@ -39,9 +39,6 @@ type definitionTestTermExpRepo struct {
 	key  contkey.ADT
 }
 
-func (r *definitionTestTermExpRepo) Insert(context.Context, tx.Conn, termexp.CompRec) error {
-	return nil
-}
 
 func (r *definitionTestTermExpRepo) InsertSpec(context.Context, tx.Conn, termdef.ExpSpec) error {
 	return nil

@@ -9,7 +9,6 @@ import (
 	"orglang/go-engine/internal/adt/typesem/adapter/entschema"
 )
 
-// Deprecated: TypeDef is the legacy persistence model for a Type. Use the Type identity and expression repositories.
 type TypeDef struct {
 	ent.Schema
 }

@@ -17,7 +17,6 @@ import (
 	descrootadapter "orglang/go-engine/internal/pool/descroot/adapter"
 	"orglang/go-engine/internal/pool/ent"
 	termdef "orglang/go-engine/internal/pool/termdef/adapter"
-	termexp "orglang/go-engine/internal/pool/termexp/adapter"
 	typedef "orglang/go-engine/internal/pool/typedef/adapter"
 	typeexp "orglang/go-engine/internal/pool/typeexp/adapter"
 )
@@ -31,7 +30,6 @@ var Package = do.Package(
 	compvar.Package,
 	compexec.Package,
 	typeexp.Package,
-	termexp.Package,
 	typedef.Package,
 	termdef.Package,
 	do.LazyNamed[descroot.Repo]("pool-descroot", func(i do.Injector) (descroot.Repo, error) {

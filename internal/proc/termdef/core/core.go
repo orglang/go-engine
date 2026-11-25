@@ -24,13 +24,13 @@ import (
 
 type API interface {
 	Incept(context.Context, uniqsym.ADT) (termsem.SemRef, error)
-	Create(context.Context, DefSpec) (DefSnap, error)
-	RetrieveSnap(context.Context, termsem.SemRef) (DefSnap, error)
+	Create(context.Context, DecSpec) (DecSnap, error)
+	RetrieveSnap(context.Context, termsem.SemRef) (DecSnap, error)
 	RetrieveDefinition(context.Context, identity.ADT) (termexp.DescSpec, error)
 	RetreiveRefs(context.Context) ([]termsem.SemRef, error)
 }
 
-type DefSpec struct {
+type DecSpec struct {
 	TermQN uniqsym.ADT
 	// endpoint where process acts as a provider
 	LiabVar termvar.VarSpec
@@ -47,7 +47,7 @@ type DefRec struct {
 }
 
 // aka ExpDec or ExpDecDef without expression
-type DefSnap struct {
+type DecSnap struct {
 	TermRef   termsem.SemRef
 	LiabVar   termvar.VarRec
 	AssetVars []termvar.VarRec
@@ -103,7 +103,7 @@ func (s *service) Incept(ctx context.Context, termQN uniqsym.ADT) (_ termsem.Sem
 	return newDec.TermRef, nil
 }
 
-func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err error) {
+func (s *service) Create(ctx context.Context, spec DecSpec) (_ DecSnap, err error) {
 	qnAttr := slog.Any("qn", spec.TermQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	assetQNs := make([]uniqsym.ADT, 0, len(spec.AssetVars)+1)
@@ -114,7 +114,7 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err erro
 		return s.typeDefRepo.SelectEnv(txCtx, conn, append(assetQNs, spec.LiabVar.TypeQN))
 	})
 	if getErr != nil {
-		return DefSnap{}, getErr
+		return DecSnap{}, getErr
 	}
 	providerDef := typeDefs[spec.LiabVar.TypeQN]
 	newLiabVar := termvar.VarRec{
@@ -147,19 +147,19 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err erro
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", qnAttr)
-		return DefSnap{}, transactErr
+		return DecSnap{}, transactErr
 	}
 	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", newDec.TermRef))
-	return DefSnap{TermRef: newDec.TermRef, LiabVar: newLiabVar, AssetVars: newAssetVars}, nil
+	return DecSnap{TermRef: newDec.TermRef, LiabVar: newLiabVar, AssetVars: newAssetVars}, nil
 }
 
-func (s *service) RetrieveSnap(ctx context.Context, ref termsem.SemRef) (snap DefSnap, err error) {
-	snap, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DefSnap, error) {
+func (s *service) RetrieveSnap(ctx context.Context, ref termsem.SemRef) (snap DecSnap, err error) {
+	snap, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DecSnap, error) {
 		return s.termDefRepo.GetSnap(txCtx, conn, ref)
 	})
 	if err != nil {
 		s.log.Error("retrieval failed", slog.Any("ref", ref))
-		return DefSnap{}, err
+		return DecSnap{}, err
 	}
 	return snap, nil
 }
@@ -180,7 +180,6 @@ func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (
 	})
 }
 
-
 func (s *service) RetreiveRefs(ctx context.Context) (refs []termsem.SemRef, err error) {
 	refs, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) ([]termsem.SemRef, error) {
 		return s.termDefRepo.GetRefs(txCtx, conn)
@@ -200,10 +199,10 @@ func ErrRootMissingInEnv(rid identity.ADT) error {
 	return fmt.Errorf("root missing in env: %v", rid)
 }
 
-// Dec* aliases remain available to the existing HTTP declaration adapter.
-type DecSpec = DefSpec
+// Compatibility aliases for callers that still use the former names.
+type DefSpec = DecSpec
+type DefSnap = DecSnap
 type DecRec = DefRec
-type DecSnap = DefSnap
 
 func ErrDoesNotExist(want identity.ADT) error {
 	return fmt.Errorf("rec doesn't exist: %v", want)

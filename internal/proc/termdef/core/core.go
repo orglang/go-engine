@@ -54,9 +54,9 @@ type DecSnap struct {
 }
 
 type service struct {
-	termDefRepo  Repo
+	termDefRepo    Repo
 	termDefRefRepo DefRepo
-	termExpRepo  termexp.Repo
+	termExpRepo    termexp.Repo
 	descRootRepo descroot.Repo
 	descSemRepo  descsem.Repo
 	typeDefRepo  typedef.Repo

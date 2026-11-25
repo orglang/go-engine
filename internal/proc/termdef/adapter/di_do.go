@@ -38,9 +38,13 @@ var Package = do.Package(
 	}),
 	do.Lazy[core.DefRepo](func(i do.Injector) (core.DefRepo, error) {
 		logger, err := do.Invoke[*slog.Logger](i)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		client, err := do.Invoke[*ent.Client](i)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		return NewDaoEnt(client, logger), nil
 	}),
 	do.Lazy[core.API](func(i do.Injector) (core.API, error) {
@@ -49,7 +53,9 @@ var Package = do.Package(
 			return nil, err
 		}
 		termDefRefRepo, err := do.Invoke[core.DefRepo](i)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		termExpRepo, err := do.Invoke[termexp.Repo](i)
 		if err != nil {
 			return nil, err

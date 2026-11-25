@@ -32,7 +32,7 @@ type daoEnt struct {
 	log    *slog.Logger
 }
 
-func NewDaoEnt(client *ent.Client, log *slog.Logger) termdef.Repo {
+func NewDaoEnt(client *ent.Client, log *slog.Logger) *daoEnt {
 	name := slog.String("name", reflect.TypeFor[daoEnt]().Name())
 	return &daoEnt{client: client, log: log.With(name)}
 }

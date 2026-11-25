@@ -17,7 +17,3 @@ type Repo interface {
 	GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRec, error)
 	SelectEnv(context.Context, tx.Conn, []identity.ADT) (map[identity.ADT]DefRec, error)
 }
-
-type DefRepo interface {
-	GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRec, error)
-}

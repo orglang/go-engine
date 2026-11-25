@@ -59,9 +59,9 @@ func NewService(
 }
 
 type service struct {
-	termDefRepo    Repo
-	defRepo        DefRepo
-	termExpRepo    termexp.Repo
+	termDefRepo  Repo
+	defRepo      DefRepo
+	termExpRepo  termexp.Repo
 	descRootRepo descroot.Repo
 	typeDefRepo  typedef.Repo
 	descSemRepo  descsem.Repo

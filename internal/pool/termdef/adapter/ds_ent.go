@@ -11,9 +11,9 @@ import (
 
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
-	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/termsem"
+	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"

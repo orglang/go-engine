@@ -54,9 +54,9 @@ type DecSnap struct {
 }
 
 type service struct {
-	termDefRepo    Repo
-	defRepo        DefRepo
-	termExpRepo    termexp.Repo
+	termDefRepo  Repo
+	defRepo      DefRepo
+	termExpRepo  termexp.Repo
 	descRootRepo descroot.Repo
 	descSemRepo  descsem.Repo
 	typeDefRepo  typedef.Repo
@@ -204,6 +204,7 @@ func ErrRootMissingInEnv(rid identity.ADT) error {
 // Compatibility aliases for callers that still use the former names.
 type DefSpec = DecSpec
 type DefSnap = DecSnap
+
 // DecRec contains the persisted Declaration data for a Term.
 type DecRec = DefRec
 

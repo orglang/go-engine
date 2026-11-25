@@ -3107,7 +3107,7 @@ type ClientInterface interface {
 
 	// GetProcessDefinition performs a GET /api/v1/processes/{id}/definition (the `GetProcessDefinition` operationId) request.
 	//
-	// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
+	// Get the current declarative term Definition; rn is reserved and currently ignored.
 	GetProcessDefinition(ctx context.Context, id string, params *GetProcessDefinitionParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ExtendProcessDefinitionWithBody performs a PATCH /api/v1/processes/{id}/definition (the `ExtendProcessDefinition` operationId) request,
@@ -3550,7 +3550,7 @@ func (c *Client) GetProcessAssociatedDeclaration(ctx context.Context, id string,
 
 // GetProcessDefinition performs a GET /api/v1/processes/{id}/definition (the `GetProcessDefinition` operationId) request.
 //
-// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
+// Get the current declarative term Definition; rn is reserved and currently ignored.
 func (c *Client) GetProcessDefinition(ctx context.Context, id string, params *GetProcessDefinitionParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetProcessDefinitionRequest(c.Server, id, params)
 	if err != nil {
@@ -4933,7 +4933,7 @@ type ClientWithResponsesInterface interface {
 
 	// GetProcessDefinitionWithResponse performs a GET /api/v1/processes/{id}/definition (the `GetProcessDefinition` operationId) request.
 	//
-	// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
+	// Get the current declarative term Definition; rn is reserved and currently ignored.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	GetProcessDefinitionWithResponse(ctx context.Context, id string, params *GetProcessDefinitionParams, reqEditors ...RequestEditorFn) (*GetProcessDefinitionResponse, error)
@@ -6154,7 +6154,7 @@ func (c *ClientWithResponses) GetProcessAssociatedDeclarationWithResponse(ctx co
 
 // GetProcessDefinitionWithResponse performs a GET /api/v1/processes/{id}/definition (the `GetProcessDefinition` operationId) request.
 //
-// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
+// Get the current declarative term Definition; rn is reserved and currently ignored.
 //
 // Returns a wrapper object for the known response body format(s).
 func (c *ClientWithResponses) GetProcessDefinitionWithResponse(ctx context.Context, id string, params *GetProcessDefinitionParams, reqEditors ...RequestEditorFn) (*GetProcessDefinitionResponse, error) {

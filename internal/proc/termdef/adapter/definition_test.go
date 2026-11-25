@@ -10,7 +10,7 @@ import (
 func TestDefinitionToGeneratedPreservesNestedContinuation(t *testing.T) {
 	dto, err := DefinitionToGenerated(termexp.DescWaitSpec{
 		ContChnlPH: symbol.ADT("next"),
-		ContExp: termexp.DescCloseSpec{ContChnlPH: symbol.ADT("done")},
+		ContExp:    termexp.DescCloseSpec{ContChnlPH: symbol.ADT("done")},
 	})
 	if err != nil {
 		t.Fatal(err)

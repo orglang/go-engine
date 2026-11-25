@@ -364,7 +364,7 @@ paths:
   /api/v1/processes/{id}/definition:
     get:
       operationId: getProcessDefinition
-      description: Get the current declarative term Definition; rn, when supplied, must match its Description revision.
+      description: Get the current declarative term Definition; rn is reserved and currently ignored.
       parameters:
         - name: id
           in: path

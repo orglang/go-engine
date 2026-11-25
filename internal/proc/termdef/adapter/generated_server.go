@@ -70,8 +70,8 @@ func registerGeneratedServer(e *echo.Echo, h webapi.ServerInterface) {
 
 type generatedServerStub struct {
 	webapi.ServerInterface
-	gotID string
-	gotRN *int64
+	gotID           string
+	gotRN           *int64
 	gotDefinitionID string
 	gotDefinitionRN *int64
 }

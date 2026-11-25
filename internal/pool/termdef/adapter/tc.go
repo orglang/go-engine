@@ -16,19 +16,27 @@ func DefinitionToGenerated(spec termexp.DescSpec) (webapi.PoolTermDefinitionSpec
 	switch s := spec.(type) {
 	case termexp.DescAcquireSpec:
 		cont, err := DefinitionToGenerated(s.ContExp)
-		if err != nil { return out, err }
+		if err != nil {
+			return out, err
+		}
 		return out, out.FromPoolTermDefAcquireSpec(webapi.PoolTermDefAcquireSpec{ConnPh: symbol.ConvertToString(s.ConnChnlPH), ContExpr: cont})
 	case termexp.DescAcceptSpec:
 		cont, err := DefinitionToGenerated(s.ContExp)
-		if err != nil { return out, err }
+		if err != nil {
+			return out, err
+		}
 		return out, out.FromPoolTermDefAcceptSpec(webapi.PoolTermDefAcceptSpec{ConnPh: symbol.ConvertToString(s.ConnChnlPH), ContExpr: cont})
 	case termexp.DescHireSpec:
 		cont, err := DefinitionToGenerated(s.ContExp)
-		if err != nil { return out, err }
+		if err != nil {
+			return out, err
+		}
 		return out, out.FromPoolTermDefHireSpec(webapi.PoolTermDefHireSpec{ConnPh: symbol.ConvertToString(s.ConnChnlPH), ProcQn: uniqsym.ConvertToString(s.ProcTermQN), ContExpr: cont})
 	case termexp.DescApplySpec:
 		cont, err := DefinitionToGenerated(s.ContExp)
-		if err != nil { return out, err }
+		if err != nil {
+			return out, err
+		}
 		return out, out.FromPoolTermDefApplySpec(webapi.PoolTermDefApplySpec{ConnPh: symbol.ConvertToString(s.ConnChnlPH), ProcQn: uniqsym.ConvertToString(s.ProcTermQN), ContExpr: cont})
 	case termexp.DescReleaseSpec:
 		return out, out.FromPoolTermDefReleaseSpec(webapi.PoolTermDefReleaseSpec{ConnPh: symbol.ConvertToString(s.ConnChnlPH)})
@@ -40,7 +48,9 @@ func DefinitionToGenerated(spec termexp.DescSpec) (webapi.PoolTermDefinitionSpec
 		return out, out.FromPoolTermDefQuitSpec(webapi.PoolTermDefQuitSpec{ConnPh: symbol.ConvertToString(s.ConnChnlPH), ProcQn: uniqsym.ConvertToString(s.ProcTermQN)})
 	case termexp.DescSpawnSpec:
 		qns := make([]string, len(s.ProcCompQNs))
-		for i, qn := range s.ProcCompQNs { qns[i] = uniqsym.ConvertToString(qn) }
+		for i, qn := range s.ProcCompQNs {
+			qns[i] = uniqsym.ConvertToString(qn)
+		}
 		return out, out.FromPoolTermDefSpawnSpec(webapi.PoolTermDefSpawnSpec{ProcQn: uniqsym.ConvertToString(s.ProcTermQN), ProcCompQns: qns})
 	default:
 		return out, fmt.Errorf("unsupported pool Definition spec %T", spec)

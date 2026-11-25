@@ -11,7 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// Deprecated: TypeDef is the legacy persistence model for a Type.
+// TypeDef is the model entity for the TypeDef schema.
 type TypeDef struct {
 	config `json:"-"`
 	// ID of the ent.

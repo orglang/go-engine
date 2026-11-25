@@ -25,7 +25,6 @@ var (
 var (
 	// goverter:map . TermRef
 	// goverter:ignore TermQN
-	// goverter:ignore ExpCK
 	DataToDecRec func(DecRec) (termdef.DecRec, error)
 	// goverter:autoMap TermRef
 	// goverter:ignore ExpCK

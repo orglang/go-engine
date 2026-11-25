@@ -11,7 +11,6 @@ import (
 
 type Repo interface {
 	AddRec(context.Context, tx.Conn, DefRec) error
-	SetExpCK(context.Context, tx.Conn, identity.ADT, contkey.ADT) error
 	GetRefs(context.Context, tx.Conn) ([]termsem.SemRef, error)
 	GetSnap(context.Context, tx.Conn, termsem.SemRef) (DefSnap, error)
 	GetRecs(context.Context, tx.Conn, []identity.ADT) ([]DefRec, error)
@@ -19,5 +18,6 @@ type Repo interface {
 }
 
 type DefRepo interface {
+	SetExpCK(context.Context, tx.Conn, identity.ADT, contkey.ADT) error
 	GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRec, error)
 }

@@ -21,3 +21,9 @@ type DefRepo interface {
 	SetExpCK(context.Context, tx.Conn, identity.ADT, contkey.ADT) error
 	GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRec, error)
 }
+
+// ExpRepo stores and retrieves recursive Definition nodes.
+type ExpRepo interface {
+	InsertSpec(context.Context, tx.Conn, ExpSpec) error
+	SelectSpecByCK(context.Context, tx.Conn, contkey.ADT) (ExpSpec, error)
+}

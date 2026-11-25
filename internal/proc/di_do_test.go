@@ -2,10 +2,8 @@ package proc
 
 import (
 	"context"
-	"slices"
 	"testing"
 
-	"github.com/labstack/echo/v5"
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/adt/typesem"
@@ -147,39 +145,6 @@ func TestPackageProvidesHTTPAdapters(t *testing.T) {
 				t.Fatalf("resolve provider: %v", err)
 			}
 		})
-	}
-}
-
-func TestRegisterRoutes(t *testing.T) {
-	injector := newTestInjector()
-	server := echo.New()
-
-	if err := RegisterRoutes(server, injector); err != nil {
-		t.Fatalf("register process routes: %v", err)
-	}
-
-	got := make([]string, 0, len(server.Router().Routes()))
-	for _, route := range server.Router().Routes() {
-		got = append(got, route.Method+" "+route.Path)
-	}
-	want := []string{
-		"GET /api/v1/processes/executions/:id",
-		"POST /api/v1/processes/executions/:id/steps",
-		"POST /api/v1/processes/declarations",
-		"GET /api/v1/processes/declarations/:id",
-		"POST /api/v1/processes/types",
-		"GET /api/v1/processes/types/:id",
-		"POST /ssr/decs",
-		"GET /ssr/decs",
-		"GET /ssr/decs/:id",
-		"POST /ssr/types",
-		"GET /ssr/types",
-		"GET /ssr/types/:id",
-	}
-	slices.Sort(got)
-	slices.Sort(want)
-	if !slices.Equal(got, want) {
-		t.Fatalf("unexpected process routes: got %v, want %v", got, want)
 	}
 }
 

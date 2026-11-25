@@ -21,9 +21,11 @@ type DecSpec = termdef.DecSpec
 type DecRec = termdef.DecRec
 type DecSnap = termdef.DecSnap
 type Repo = termdef.Repo
+type DefRepo = termdef.DefRepo
 
 func NewService(
 	termDecRepo Repo,
+	defRepo DefRepo,
 	termExpRepo termexp.Repo,
 	descRootRepo descroot.Repo,
 	descSemRepo descsem.Repo,
@@ -31,7 +33,7 @@ func NewService(
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
-	return termdef.NewService(termDecRepo, termExpRepo, descRootRepo, descSemRepo, typeDefRepo, transactor, log)
+	return termdef.NewService(termDecRepo, defRepo, termExpRepo, descRootRepo, descSemRepo, typeDefRepo, transactor, log)
 }
 
 func CollectEnv(recs iter.Seq[DecRec]) []uniqsym.ADT {

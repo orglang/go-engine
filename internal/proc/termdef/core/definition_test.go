@@ -7,6 +7,7 @@ import (
 
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/tx"
 )
 
@@ -23,6 +24,7 @@ func (definitionTestTransactor) ImplicitTx(ctx context.Context, fn func(context.
 type definitionTestDefRepo struct {
 	rec DefRec
 	err error
+	qn  uniqsym.ADT
 }
 
 func (r definitionTestDefRepo) SetExpCK(context.Context, tx.Conn, identity.ADT, contkey.ADT) error {
@@ -31,6 +33,10 @@ func (r definitionTestDefRepo) SetExpCK(context.Context, tx.Conn, identity.ADT, 
 
 func (r definitionTestDefRepo) GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRec, error) {
 	return r.rec, r.err
+}
+
+func (r definitionTestDefRepo) GetQNByID(context.Context, tx.Conn, identity.ADT) (uniqsym.ADT, error) {
+	return r.qn, nil
 }
 
 type definitionTestTermExpRepo struct {
@@ -51,14 +57,18 @@ func (r *definitionTestTermExpRepo) SelectSpecByCK(_ context.Context, _ tx.Conn,
 func TestRetrieveDefinition(t *testing.T) {
 	termID := identity.New()
 	wantKey := contkey.ADT(42)
+	wantQN := uniqsym.ADT("example.term")
 
 	t.Run("returns current definition", func(t *testing.T) {
 		termExpRepo := &definitionTestTermExpRepo{spec: ExpCloseSpec{}}
-		service := NewService(nil, definitionTestDefRepo{rec: DefRec{ExpCK: wantKey}}, termExpRepo, nil, nil, nil, definitionTestTransactor{}, nil)
+		service := NewService(nil, definitionTestDefRepo{rec: DefRec{TermID: termID, ExpCK: wantKey}, qn: wantQN}, termExpRepo, nil, nil, nil, definitionTestTransactor{}, nil)
 
 		got, err := service.RetrieveDefinition(context.Background(), termID)
 		if err != nil {
 			t.Fatalf("RetrieveDefinition() error = %v", err)
+		}
+		if got.TermQN != wantQN {
+			t.Fatalf("RetrieveDefinition().TermQN = %v, want %v", got.TermQN, wantQN)
 		}
 		if _, ok := got.Exp.(ExpCloseSpec); !ok {
 			t.Fatalf("RetrieveDefinition().Exp = %T, want ExpCloseSpec", got.Exp)
@@ -78,7 +88,7 @@ func TestRetrieveDefinition(t *testing.T) {
 	})
 
 	t.Run("returns missing definition error", func(t *testing.T) {
-		service := NewService(nil, definitionTestDefRepo{rec: DefRec{}}, &definitionTestTermExpRepo{}, nil, nil, nil, definitionTestTransactor{}, nil)
+		service := NewService(nil, definitionTestDefRepo{rec: DefRec{TermID: termID}}, &definitionTestTermExpRepo{}, nil, nil, nil, definitionTestTransactor{}, nil)
 
 		_, err := service.RetrieveDefinition(context.Background(), termID)
 		if !errors.Is(err, ErrDefinitionMissing) {

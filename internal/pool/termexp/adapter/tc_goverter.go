@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	termexp "orglang/go-engine/internal/pool/termexp/core"
+	compexp "orglang/go-engine/internal/pool/compexec/exp"
 )
 
 // goverter:variables

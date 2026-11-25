@@ -9,28 +9,29 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 
 	termexp "orglang/go-engine/internal/pool/termexp/core"
+	compexp "orglang/go-engine/internal/pool/compexec/exp"
 )
 
-func DataFromCompSpec(s termexp.CompSpec) CompSpec {
+func DataFromCompSpec(s compexp.ExpSpec) CompSpec {
 	switch spec := s.(type) {
-	case termexp.AcquireSpec:
+	case compexp.AcquireSpec:
 		return CompSpec{K: AcquireKind, Acquire: DataFromAcquireSpec(spec)}
-	case termexp.AcceptSpec:
+	case compexp.AcceptSpec:
 		return CompSpec{K: AcceptKind, Accept: DataFromAcceptSpec(spec)}
-	case termexp.HireSpec:
+	case compexp.HireSpec:
 		return CompSpec{K: HireKind, Hire: DataFromHireSpec(spec)}
-	case termexp.ApplySpec:
+	case compexp.ApplySpec:
 		return CompSpec{K: ApplyKind, Apply: DataFromApplySpec(spec)}
-	case termexp.ReleaseSpec:
+	case compexp.ReleaseSpec:
 		return CompSpec{K: ReleaseKind, Release: DataFromReleaseSpec(spec)}
-	case termexp.DetachSpec:
+	case compexp.DetachSpec:
 		return CompSpec{K: DetachKind, Detach: DataFromDetachSpec(spec)}
 	default:
-		panic(termexp.ErrSpecTypeUnexpected(s))
+		panic(compexp.ErrSpecTypeUnexpected(s))
 	}
 }
 
-func DataToCompSpec(dto CompSpec) (termexp.CompSpec, error) {
+func DataToCompSpec(dto CompSpec) (compexp.ExpSpec, error) {
 	switch dto.K {
 	case AcquireKind:
 		return DataToAcquireSpec(dto.Acquire)
@@ -49,26 +50,26 @@ func DataToCompSpec(dto CompSpec) (termexp.CompSpec, error) {
 	}
 }
 
-func DataFromExpRec(r termexp.CompRec) ExpRec {
+func DataFromExpRec(r compexp.ExpRec) ExpRec {
 	switch rec := r.(type) {
-	case termexp.AcquireRec:
+	case compexp.AcquireRec:
 		return ExpRec{K: AcquireKind, Acquire: DataFromAcquireRec(rec)}
-	case termexp.AcceptRec:
+	case compexp.AcceptRec:
 		return ExpRec{K: AcceptKind, Accept: DataFromAcceptRec(rec)}
-	case termexp.HireRec:
+	case compexp.HireRec:
 		return ExpRec{K: HireKind, Hire: DataFromHireRec(rec)}
-	case termexp.ApplyRec:
+	case compexp.ApplyRec:
 		return ExpRec{K: ApplyKind, Apply: DataFromApplyRec(rec)}
-	case termexp.ReleaseRec:
+	case compexp.ReleaseRec:
 		return ExpRec{K: ReleaseKind, Release: DataFromReleaseRec(rec)}
-	case termexp.DetachRec:
+	case compexp.DetachRec:
 		return ExpRec{K: DetachKind, Detach: DataFromDetachRec(rec)}
 	default:
-		panic(termexp.ErrRecTypeUnexpected(r))
+		panic(compexp.ErrRecTypeUnexpected(r))
 	}
 }
 
-func DataToExpRec(dto ExpRec) (termexp.CompRec, error) {
+func DataToExpRec(dto ExpRec) (compexp.ExpRec, error) {
 	switch dto.K {
 	case AcquireKind:
 		return DataToAcquireRec(dto.Acquire)

@@ -6,7 +6,7 @@ import (
 	"orglang/go-engine/internal/adt/comproot"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
-	termexp "orglang/go-engine/internal/pool/termexp/core"
+	compexp "orglang/go-engine/internal/pool/compexec/exp"
 )
 
 // step (aka Act)
@@ -22,7 +22,7 @@ type PubRec struct {
 	ActNr   seqnum.ADT
 	CompRef comproot.SemRef
 	ChnlID  identity.ADT
-	ValExp  termexp.CompRec
+	ValExp  compexp.ExpRec
 }
 
 func (r PubRec) act()                    {}

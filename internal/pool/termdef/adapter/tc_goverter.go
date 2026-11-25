@@ -35,8 +35,9 @@ var (
 // goverter:extend orglang/go-engine/internal/adt/termvar/adapter:Data.*
 var (
 	// goverter:map . TermRef | dataToTermRef
-	DataToDecRec func(DefRec) (termdef.DecRec, error)
+	DataToDecRec func(DecRec) (termdef.DecRec, error)
 	// goverter:autoMap TermRef
-	DataFromDecRec func(termdef.DecRec) (DefRec, error)
-	dataToTermRef  func(DefRec) (termsem.SemRef, error)
+	// goverter:ignore ExpCK
+	DataFromDecRec func(termdef.DecRec) (DecRec, error)
+	dataToTermRef  func(DecRec) (termsem.SemRef, error)
 )

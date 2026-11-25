@@ -2,7 +2,7 @@ package adapter
 
 import termvaradapter "orglang/go-engine/internal/adt/termvar/adapter"
 
-type DefRec struct {
+type DecRec struct {
 	TermID    string                  `db:"term_id"`
 	DescID    string                  `db:"desc_id"`
 	DescRN    int64                   `db:"desc_rn"`
@@ -10,3 +10,6 @@ type DefRec struct {
 	LiabVar   termvaradapter.VarRec   `db:"liab_var" fieldopt:"noexpand"`
 	AssetVars []termvaradapter.VarRec `db:"asset_vars"`
 }
+
+// DefRec is retained for the currently generated mapper until Goverter is run again.
+type DefRec = DecRec

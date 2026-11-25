@@ -136,4 +136,8 @@ func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (
 }
 
 // DefSpec is kept as a compatibility alias for existing callers.
+// DecRec is the Declaration record; kept as an alias until the generated mappers are refreshed.
+type DecRec = DefRec
+
+// DefSpec is kept as a compatibility alias for existing callers.
 type DefSpec = DecSpec

@@ -62,7 +62,7 @@ type ExecSnap struct {
 type Env struct {
 	TypeDefs map[uniqsym.ADT]typedef.DefRec
 	TypeExps map[contkey.ADT]typeexp.ExpRec
-	ProcDecs map[identity.ADT]termdef.DefRec
+	ProcDecs map[identity.ADT]termdef.DecRec
 }
 
 func ChnlPH(rec compvar.LinearRec) symbol.ADT { return rec.ChnlPH }
@@ -125,7 +125,7 @@ func (s *service) Take(ctx context.Context, spec compstep.StepSpec) (err error) 
 			panic("zero channel binds")
 		}
 		decIDs := termexp.CollectEnv(expSpec)
-		procDecs, getErr2 := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[identity.ADT]termdef.DefRec, error) {
+		procDecs, getErr2 := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[identity.ADT]termdef.DecRec, error) {
 			return s.termDefRepo.SelectEnv(txCtx, conn, decIDs)
 		})
 		if getErr2 != nil {

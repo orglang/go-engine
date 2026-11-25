@@ -131,7 +131,7 @@ func NewService(deps ServiceDeps) API {
 func (s *service) Run(ctx context.Context, spec ExecSpec) (_ comproot.SemRef, err error) {
 	specAttr := slog.Any("spec", spec)
 	s.log.Debug("creation started", specAttr)
-	var termDec termdef.DefRec
+	var termDec termdef.DecRec
 	getErr1 := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		termDec, err = s.termDefRepo.GetRecByQN(txCtx, conn, spec.TermQN)
 		return err

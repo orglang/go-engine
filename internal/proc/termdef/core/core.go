@@ -191,7 +191,7 @@ func (s *service) RetreiveRefs(ctx context.Context) (refs []termsem.SemRef, err 
 	return refs, nil
 }
 
-func CollectEnv(recs iter.Seq[DefRec]) []uniqsym.ADT {
+func CollectEnv(recs iter.Seq[DecRec]) []uniqsym.ADT {
 	return []uniqsym.ADT{}
 }
 

@@ -2,10 +2,10 @@ package core
 
 import (
 	"orglang/go-engine/internal/adt/comproot"
-	termexp "orglang/go-engine/internal/proc/termexp/core"
+	compexp "orglang/go-engine/internal/proc/compexec/exp"
 )
 
 type StepSpec struct {
 	CompRef comproot.SemRef
-	ProcExp termexp.CompSpec
+	ProcExp compexp.ExpSpec
 }

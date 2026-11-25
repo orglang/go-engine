@@ -10,8 +10,8 @@ import (
 )
 
 type Repo interface {
-	AddRec(context.Context, tx.Conn, DefRec) error
-	GetRecByQN(context.Context, tx.Conn, uniqsym.ADT) (DefRec, error)
+	AddRec(context.Context, tx.Conn, DecRec) error
+	GetRecByQN(context.Context, tx.Conn, uniqsym.ADT) (DecRec, error)
 }
 
 type DefRepo interface {

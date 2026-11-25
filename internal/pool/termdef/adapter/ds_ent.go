@@ -43,7 +43,7 @@ func newRepo() termdef.Repo {
 	return new(daoEnt)
 }
 
-func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdef.DefRec) error {
+func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdef.DecRec) error {
 	refAttr := slog.Any("ref", rec.TermRef)
 	dao.log.Log(ctx, lf.LevelTrace, "addition started", refAttr)
 
@@ -115,7 +115,7 @@ WHERE def.term_id = $1
 	return termdef.DefRec{TermRef: termsem.SemRef{TermID: termID, DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)}, ExpCK: contkey.ConvertFromInt(dto.ExpCK)}, nil
 }
 
-func (dao *daoEnt) GetRecByQN(ctx context.Context, conn tx.Conn, qn uniqsym.ADT) (termdef.DefRec, error) {
+func (dao *daoEnt) GetRecByQN(ctx context.Context, conn tx.Conn, qn uniqsym.ADT) (termdef.DecRec, error) {
 	qnAttr := slog.Any("qn", qn)
 	const query = `
 SELECT def.term_id, def.desc_id, root.desc_rn, COALESCE(def.exp_ck, 0) AS exp_ck, def.liab_var, def.asset_vars

@@ -10,11 +10,11 @@ import (
 )
 
 type Repo interface {
-	AddRec(context.Context, tx.Conn, DefRec) error
+	AddRec(context.Context, tx.Conn, DecRec) error
 	GetRefs(context.Context, tx.Conn) ([]termsem.SemRef, error)
 	GetSnap(context.Context, tx.Conn, termsem.SemRef) (DefSnap, error)
-	GetRecs(context.Context, tx.Conn, []identity.ADT) ([]DefRec, error)
-	SelectEnv(context.Context, tx.Conn, []identity.ADT) (map[identity.ADT]DefRec, error)
+	GetRecs(context.Context, tx.Conn, []identity.ADT) ([]DecRec, error)
+	SelectEnv(context.Context, tx.Conn, []identity.ADT) (map[identity.ADT]DecRec, error)
 }
 
 type DefRepo interface {

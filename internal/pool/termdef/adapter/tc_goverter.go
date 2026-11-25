@@ -24,7 +24,7 @@ var (
 // goverter:extend ConnVarFromGenerated
 var (
 	// goverter:map DescQn TermQN
-	DecSpecFromGenerated func(api.PoolDecSpec) (termdef.DefSpec, error)
+	DecSpecFromGenerated func(api.PoolDecSpec) (termdef.DecSpec, error)
 )
 
 // goverter:variables
@@ -35,8 +35,8 @@ var (
 // goverter:extend orglang/go-engine/internal/adt/termvar/adapter:Data.*
 var (
 	// goverter:map . TermRef | dataToTermRef
-	DataToDecRec func(DefRec) (termdef.DefRec, error)
+	DataToDecRec func(DefRec) (termdef.DecRec, error)
 	// goverter:autoMap TermRef
-	DataFromDecRec func(termdef.DefRec) (DefRec, error)
+	DataFromDecRec func(termdef.DecRec) (DefRec, error)
 	dataToTermRef  func(DefRec) (termsem.SemRef, error)
 )

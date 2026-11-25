@@ -12,7 +12,7 @@ import (
 
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/uniqsym"
-	termdec "orglang/go-engine/internal/proc/termdec/core"
+	termdef "orglang/go-engine/internal/proc/termdef/core"
 )
 
 type requestContextKey struct{}
@@ -97,13 +97,13 @@ func TestCreateProcessDeclarationHandler(t *testing.T) {
 }
 
 type generatedDecAPIStub struct {
-	termdec.API
+	termdef.API
 	called bool
-	spec   termdec.DecSpec
+	spec   termdef.DecSpec
 	ctx    context.Context
 }
 
-func (s *generatedDecAPIStub) Create(ctx context.Context, spec termdec.DecSpec) (termdec.DecSnap, error) {
+func (s *generatedDecAPIStub) Create(ctx context.Context, spec termdec.DecSpec) (termdef.DecSnap, error) {
 	s.called = true
 	s.spec = spec
 	s.ctx = ctx

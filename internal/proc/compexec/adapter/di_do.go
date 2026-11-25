@@ -36,7 +36,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		termDecRepo, err := do.Invoke[termdef.Repo](i)
+		termDefRepo, err := do.Invoke[termdef.Repo](i)
 		if err != nil {
 			return nil, err
 		}
@@ -56,7 +56,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return core.NewService(execRepo, connRepo, termDecRepo, typeDefRepo, typeExpRepo, transactor, logger), nil
+		return core.NewService(execRepo, connRepo, termDefRepo, typeDefRepo, typeExpRepo, transactor, logger), nil
 	}),
 	do.Lazy[GeneratedController](func(i do.Injector) (GeneratedController, error) {
 		api, err := do.Invoke[core.API](i)

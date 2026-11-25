@@ -13,9 +13,8 @@ type Repo interface {
 	AddRec(context.Context, tx.Conn, DefRec) error
 	SetExpCK(context.Context, tx.Conn, identity.ADT, contkey.ADT) error
 	GetRecByQN(context.Context, tx.Conn, uniqsym.ADT) (DefRec, error)
-
+}
 
 type DefRepo interface {
 	GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRec, error)
-}
 }

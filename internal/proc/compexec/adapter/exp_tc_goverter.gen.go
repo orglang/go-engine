@@ -6,14 +6,14 @@ package adapter
 import core "orglang/go-engine/internal/proc/compexec/exp"
 
 func init() {
-	DataFromCompSpecs = func(source []core.ExpSpec) ([]CompSpec, error) {
-		return DataFromCompSpecs(source)
+	DataFromExpSpecs = func(source []core.ExpSpec) ([]ExpSpec, error) {
+		return DataFromExpSpecs(source)
 	}
 	DataFromExpRecs = func(source []core.ExpRec) ([]ExpRec, error) {
 		return DataFromExpRecs(source)
 	}
-	DataToCompSpecs = func(source []CompSpec) ([]core.CompSpec, error) {
-		return DataToCompSpecs(source)
+	DataToExpSpecs = func(source []ExpSpec) ([]core.ExpSpec, error) {
+		return DataToExpSpecs(source)
 	}
 	DataToExpRecs = func(source []ExpRec) ([]core.CompRec, error) {
 		return DataToExpRecs(source)

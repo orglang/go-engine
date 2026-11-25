@@ -9,7 +9,7 @@ import (
 	termvaradapter "orglang/go-engine/internal/adt/termvar/adapter"
 )
 
-// TermDef describes persisted pool term declaration data.
+// Deprecated: TermDef is the legacy declaration-shaped model for a Term. Use the Term identity and Definition repositories.
 type TermDef struct {
 	ent.Schema
 }

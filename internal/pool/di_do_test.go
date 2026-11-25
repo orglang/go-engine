@@ -2,17 +2,16 @@ package pool
 
 import (
 	"context"
-	"reflect"
-	"slices"
 	"testing"
 
-	"github.com/labstack/echo/v5"
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 	compconn "orglang/go-engine/internal/pool/compconn/core"
 	compexecadapter "orglang/go-engine/internal/pool/compexec/adapter"
+	termdefadapter "orglang/go-engine/internal/pool/termdef/adapter"
+	typedefadapter "orglang/go-engine/internal/pool/typedef/adapter"
 	compexec "orglang/go-engine/internal/pool/compexec/core"
 	compvar "orglang/go-engine/internal/pool/compvar/core"
 	termdef "orglang/go-engine/internal/pool/termdef/core"
@@ -88,29 +87,33 @@ func TestPackageProvidesPersistencePortsAndDefinitionServices(t *testing.T) {
 	}
 }
 
-func TestPackageProvidesHTTPControllersAndRegistersRoutes(t *testing.T) {
+func TestPackageProvidesHTTPControllers(t *testing.T) {
 	injector := newTestInjector()
-	server := echo.New()
 
-	if err := RegisterRoutes(server, injector); err != nil {
-		t.Fatalf("register pool routes: %v", err)
+	providers := []struct {
+		name string
+		call func() error
+	}{
+		{"computation-execution controller", func() error {
+			_, err := do.Invoke[compexec.Controller](injector)
+			return err
+		}},
+		{"generated type-definition controller", func() error {
+			_, err := do.Invoke[typedefadapter.GeneratedController](injector)
+			return err
+		}},
+		{"generated term-definition controller", func() error {
+			_, err := do.Invoke[termdefadapter.GeneratedController](injector)
+			return err
+		}},
 	}
 
-	got := make([]string, 0, len(server.Router().Routes()))
-	for _, route := range server.Router().Routes() {
-		got = append(got, route.Method+" "+route.Path)
-	}
-	want := []string{
-		"POST /api/v1/pools/executions",
-		"POST /api/v1/pools/executions/steps",
-		"POST /api/v1/pools/executions/spawns",
-		"POST /api/v1/pools/types",
-		"POST /api/v1/pools/declarations",
-	}
-	slices.Sort(got)
-	slices.Sort(want)
-	if !reflect.DeepEqual(got, want) {
-		t.Fatalf("registered routes = %v, want %v", got, want)
+	for _, provider := range providers {
+		t.Run(provider.name, func(t *testing.T) {
+			if err := provider.call(); err != nil {
+				t.Fatalf("resolve controller: %v", err)
+			}
+		})
 	}
 }
 

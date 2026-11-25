@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 
@@ -22,7 +21,7 @@ import (
 
 type API interface {
 	Create(context.Context, DefSpec) (termsem.SemRef, error)
-	RetrieveDefinition(context.Context, identity.ADT, *seqnum.ADT) (termexp.DescSpec, error)
+	RetrieveDefinition(context.Context, identity.ADT) (termexp.DescSpec, error)
 }
 
 // for compilation purposes
@@ -129,7 +128,7 @@ func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (
 			return nil, err
 		}
 		if rec.ExpCK == 0 {
-			return nil, ErrDefinitionMissing(termID)
+			return nil, DefinitionMissing(termID)
 		}
 		return s.termExpRepo.SelectSpecByCK(txCtx, conn, rec.ExpCK)
 	})

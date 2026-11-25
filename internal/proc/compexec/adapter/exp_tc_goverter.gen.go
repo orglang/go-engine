@@ -15,7 +15,7 @@ func init() {
 	DataToExpSpecs = func(source []ExpSpec) ([]core.ExpSpec, error) {
 		return DataToExpSpecs(source)
 	}
-	DataToExpRecs = func(source []ExpRec) ([]core.CompRec, error) {
+	DataToExpRecs = func(source []ExpRec) ([]core.ExpRec, error) {
 		return DataToExpRecs(source)
 	}
 }

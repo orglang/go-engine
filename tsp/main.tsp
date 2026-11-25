@@ -157,7 +157,7 @@ op getPoolAssociatedDeclaration(
   @query rn?: int64,
 ): Ok<Pool.DecSnap>;
 
-/** Get the current declarative term Definition; rn, when supplied, must match its Description revision. */
+/** Get the current declarative term Definition; rn is reserved and currently ignored. */
 @get
 @route("/pools/{id}/definition")
 op getPoolDefinition(

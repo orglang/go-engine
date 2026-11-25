@@ -3029,7 +3029,7 @@ type ClientInterface interface {
 
 	// GetPoolDefinition performs a GET /api/v1/pools/{id}/definition (the `GetPoolDefinition` operationId) request.
 	//
-	// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
+	// Get the current declarative term Definition; rn is reserved and currently ignored.
 	GetPoolDefinition(ctx context.Context, id string, params *GetPoolDefinitionParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ExtendPoolDefinitionWithBody performs a PATCH /api/v1/pools/{id}/definition (the `ExtendPoolDefinition` operationId) request,
@@ -3332,7 +3332,7 @@ func (c *Client) GetPoolAssociatedDeclaration(ctx context.Context, id string, pa
 
 // GetPoolDefinition performs a GET /api/v1/pools/{id}/definition (the `GetPoolDefinition` operationId) request.
 //
-// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
+// Get the current declarative term Definition; rn is reserved and currently ignored.
 func (c *Client) GetPoolDefinition(ctx context.Context, id string, params *GetPoolDefinitionParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetPoolDefinitionRequest(c.Server, id, params)
 	if err != nil {
@@ -4835,7 +4835,7 @@ type ClientWithResponsesInterface interface {
 
 	// GetPoolDefinitionWithResponse performs a GET /api/v1/pools/{id}/definition (the `GetPoolDefinition` operationId) request.
 	//
-	// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
+	// Get the current declarative term Definition; rn is reserved and currently ignored.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	GetPoolDefinitionWithResponse(ctx context.Context, id string, params *GetPoolDefinitionParams, reqEditors ...RequestEditorFn) (*GetPoolDefinitionResponse, error)
@@ -5972,7 +5972,7 @@ func (c *ClientWithResponses) GetPoolAssociatedDeclarationWithResponse(ctx conte
 
 // GetPoolDefinitionWithResponse performs a GET /api/v1/pools/{id}/definition (the `GetPoolDefinition` operationId) request.
 //
-// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
+// Get the current declarative term Definition; rn is reserved and currently ignored.
 //
 // Returns a wrapper object for the known response body format(s).
 func (c *ClientWithResponses) GetPoolDefinitionWithResponse(ctx context.Context, id string, params *GetPoolDefinitionParams, reqEditors ...RequestEditorFn) (*GetPoolDefinitionResponse, error) {

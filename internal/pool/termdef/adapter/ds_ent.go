@@ -21,8 +21,6 @@ import (
 
 type defRecDTO struct {
 	TermID string `db:"term_id"`
-	DescID string `db:"desc_id"`
-	DescRN int64  `db:"desc_rn"`
 	ExpCK  int64  `db:"exp_ck"`
 }
 
@@ -84,14 +82,8 @@ WHERE term_id = $2
 
 func (dao *daoEnt) GetRecByID(ctx context.Context, conn tx.Conn, termID identity.ADT) (termdef.DefRec, error) {
 	const query = `
-SELECT
-    def.term_id,
-    def.desc_id,
-    root.desc_rn,
-    COALESCE(def.exp_ck, 0) AS exp_ck
+SELECT def.term_id, COALESCE(def.exp_ck, 0) AS exp_ck
 FROM pool_desc_terms AS def
-JOIN pool_desc_roots AS root
-    ON root.desc_id = def.desc_id
 WHERE def.term_id = $1
 `
 	rows, err := conn.Pgx.Query(ctx, query, termID.String())
@@ -104,10 +96,6 @@ WHERE def.term_id = $1
 		if errors.Is(err, pgx.ErrNoRows) {
 			return termdef.DefRec{}, termdef.ErrTermMissing(termID)
 		}
-		return termdef.DefRec{}, err
-	}
-	descID, err := identity.ConvertFromString(dto.DescID)
-	if err != nil {
 		return termdef.DefRec{}, err
 	}
 	expCK, err := contkey.ConvertFromInt(dto.ExpCK)

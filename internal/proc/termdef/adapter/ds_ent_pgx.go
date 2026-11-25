@@ -27,6 +27,13 @@ type decRootRef struct {
 	DescRN int64  `db:"desc_rn"`
 }
 
+type defRefDTO struct {
+	TermID string `db:"term_id"`
+	DescID string `db:"desc_id"`
+	DescRN int64  `db:"desc_rn"`
+	ExpCK  int64  `db:"exp_ck"`
+}
+
 type daoEnt struct {
 	client *ent.Client
 	log    *slog.Logger
@@ -142,27 +149,38 @@ func (dao *daoEnt) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT
 	return DataToDecRecs(dtos)
 }
 
-func (dao *daoEnt) GetRecByID(ctx context.Context, conn tx.Conn, termID identity.ADT) (termdef.DecRec, error) {
+func (dao *daoEnt) GetRecByID(ctx context.Context, conn tx.Conn, termID identity.ADT) (termdef.DefRef, error) {
 	if termID.IsEmpty() {
-		return termdef.DecRec{}, identity.ErrEmpty
+		return termdef.DefRef{}, identity.ErrEmpty
 	}
-	rows, err := conn.Pgx.Query(ctx, selectByRef, termID.String())
+	const query = `
+SELECT
+    pd.term_id,
+    pd.desc_id,
+    dr.desc_rn,
+    COALESCE(pd.exp_ck, 0) AS exp_ck
+FROM proc_desc_terms AS pd
+JOIN proc_desc_roots AS dr
+    ON dr.desc_id = pd.desc_id
+WHERE pd.term_id = $1
+`
+	rows, err := conn.Pgx.Query(ctx, query, termID.String())
 	if err != nil {
-		return termdef.DecRec{}, err
+		return termdef.DefRef{}, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecRec])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRefDTO])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return termdef.DecRec{}, termdef.ErrTermMissing(termID)
+			return termdef.DefRef{}, termdef.ErrTermMissing(termID)
 		}
-		return termdef.DecRec{}, err
+		return termdef.DefRef{}, err
 	}
-	rec, err := DataToDecRec(dto)
+	descID, err := identity.ConvertFromString(dto.DescID)
 	if err != nil {
-		return termdef.DecRec{}, err
+		return termdef.DefRef{}, err
 	}
-	return rec, nil
+	return termdef.DefRef{TermRef: termsem.SemRef{TermID: termID, DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)}, ExpCK: contkey.ConvertFromInt(dto.ExpCK)}, nil
 }
 
 func (dao *daoEnt) GetRefs(ctx context.Context, conn tx.Conn) ([]termsem.SemRef, error) {

@@ -46,6 +46,11 @@ type DefRec struct {
 	AssetVars []termvar.VarRec
 }
 
+type DefRef struct {
+	TermRef termsem.SemRef
+	ExpCK   contkey.ADT
+}
+
 // aka ExpDec or ExpDecDef without expression
 type DecSnap struct {
 	TermRef   termsem.SemRef

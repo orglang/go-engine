@@ -41,6 +41,11 @@ type DefRec struct {
 	AssetVars []termvar.VarRec
 }
 
+type DefRef struct {
+	TermRef termsem.SemRef
+	ExpCK   contkey.ADT
+}
+
 type DefSnap struct {
 	TermRef termsem.SemRef
 }

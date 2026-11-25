@@ -12,12 +12,21 @@ import (
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/uniqsym"
+	"orglang/go-engine/internal/adt/seqnum"
+	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/pool/ent"
 	termdef "orglang/go-engine/internal/pool/termdef/core"
 )
+
+type defRefDTO struct {
+	TermID string `db:"term_id"`
+	DescID string `db:"desc_id"`
+	DescRN int64  `db:"desc_rn"`
+	ExpCK  int64  `db:"exp_ck"`
+}
 
 type daoEnt struct {
 	client *ent.Client
@@ -75,30 +84,35 @@ WHERE term_id = $2
 	return nil
 }
 
-func (dao *daoEnt) GetRecByID(ctx context.Context, conn tx.Conn, termID identity.ADT) (termdef.DefRec, error) {
+func (dao *daoEnt) GetRecByID(ctx context.Context, conn tx.Conn, termID identity.ADT) (termdef.DefRef, error) {
 	const query = `
-SELECT def.term_id, def.desc_id, root.desc_rn, COALESCE(def.exp_ck, 0) AS exp_ck, def.liab_var, def.asset_vars
+SELECT
+    def.term_id,
+    def.desc_id,
+    root.desc_rn,
+    COALESCE(def.exp_ck, 0) AS exp_ck
 FROM pool_desc_terms AS def
-JOIN pool_desc_roots AS root ON root.desc_id = def.desc_id
+JOIN pool_desc_roots AS root
+    ON root.desc_id = def.desc_id
 WHERE def.term_id = $1
 `
 	rows, err := conn.Pgx.Query(ctx, query, termID.String())
 	if err != nil {
-		return termdef.DefRec{}, err
+		return termdef.DefRef{}, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRec])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRefDTO])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return termdef.DefRec{}, termdef.ErrTermMissing(termID)
+			return termdef.DefRef{}, termdef.ErrTermMissing(termID)
 		}
-		return termdef.DefRec{}, err
+		return termdef.DefRef{}, err
 	}
-	rec, err := DataToDecRec(dto)
+	descID, err := identity.ConvertFromString(dto.DescID)
 	if err != nil {
-		return termdef.DefRec{}, err
+		return termdef.DefRef{}, err
 	}
-	return rec, nil
+	return termdef.DefRef{TermRef: termsem.SemRef{TermID: termID, DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)}, ExpCK: contkey.ConvertFromInt(dto.ExpCK)}, nil
 }
 
 func (dao *daoEnt) GetRecByQN(ctx context.Context, conn tx.Conn, qn uniqsym.ADT) (termdef.DefRec, error) {

@@ -28,7 +28,9 @@ var Package = do.Package(
 	}),
 	do.Lazy[core.DefRepo](func(i do.Injector) (core.DefRepo, error) {
 		client, err := do.Invoke[*ent.Client](i)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil { return nil, err }
 		return NewDaoEnt(client, logger), nil

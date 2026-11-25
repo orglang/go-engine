@@ -15,7 +15,6 @@ import (
 	descrootadapter "orglang/go-engine/internal/proc/descroot/adapter"
 	"orglang/go-engine/internal/proc/ent"
 	termdef "orglang/go-engine/internal/proc/termdef/adapter"
-	termexp "orglang/go-engine/internal/proc/termexp/adapter"
 	typedef "orglang/go-engine/internal/proc/typedef/adapter"
 	typeexp "orglang/go-engine/internal/proc/typeexp/adapter"
 )
@@ -40,7 +39,6 @@ var Package = do.Package(
 	}),
 	compexec.Package,
 	termdef.Package,
-	termexp.Package,
 	typedef.Package,
 	typeexp.Package,
 	do.Lazy[typesem.Repo](func(i do.Injector) (typesem.Repo, error) {

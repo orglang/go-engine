@@ -21,7 +21,7 @@ func TestExpRecRoundTripPreservesConnectionIDs(t *testing.T) {
 	newChnl := symbol.ADT("new")
 	label := uniqsym.New(symbol.ADT("label"))
 
-	tests := []compexp.CompRec{
+	tests := []compexp.ExpRec{
 		compexp.SendRec{
 			ConnChnlPH: connChnl,
 			ContChnlID: contID,
@@ -44,7 +44,7 @@ func TestExpRecRoundTripPreservesConnectionIDs(t *testing.T) {
 		compexp.CaseRec{
 			ConnChnlPH: connChnl,
 			ContChnlID: contID,
-			ContExps: map[uniqsym.ADT]compexp.CompSpec{
+			ContExps: map[uniqsym.ADT]compexp.ExpSpec{
 				label: compexp.CloseSpec{ContChnlPH: contChnl},
 			},
 		},

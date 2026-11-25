@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	termexp "orglang/go-engine/internal/proc/termexp/core"
+	compexp "orglang/go-engine/internal/proc/compexec/exp"
 )
 
 // goverter:variables
@@ -9,8 +9,8 @@ import (
 // goverter:extend Data.*
 // goverter:extend data.*
 var (
-	DataToCompSpecs   func([]CompSpec) ([]termexp.CompSpec, error)
-	DataFromCompSpecs func([]termexp.CompSpec) ([]CompSpec, error)
-	DataToExpRecs     func([]ExpRec) ([]termexp.CompRec, error)
-	DataFromExpRecs   func([]termexp.CompRec) ([]ExpRec, error)
+	DataToCompSpecs   func([]CompSpec) ([]compexp.ExpSpec, error)
+	DataFromCompSpecs func([]compexp.ExpSpec) ([]CompSpec, error)
+	DataToExpRecs     func([]ExpRec) ([]compexp.ExpRec, error)
+	DataFromExpRecs   func([]compexp.ExpRec) ([]ExpRec, error)
 )

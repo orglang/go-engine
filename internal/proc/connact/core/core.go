@@ -35,7 +35,7 @@ type SubRec struct {
 	ActNr   seqnum.ADT
 	CompRef comproot.SemRef
 	ChnlID  identity.ADT
-	ContExp termexp.CompRec
+	ContExp compexp.ExpRec
 }
 
 func (r SubRec) act() identity.ADT       { return r.ChnlID }

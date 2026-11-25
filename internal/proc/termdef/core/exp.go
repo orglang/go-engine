@@ -9,7 +9,7 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 )
 
-// ExpSpec is the declarative expression stored as a Term Definition.
+// ExpSpec is one node in a Term Definition tree.
 type ExpSpec interface {
 	expSpec()
 }
@@ -113,7 +113,7 @@ func (ExpReleaseSpec) expSpec() {}
 
 // ExpRec is the recursive, content-addressed domain representation of a Definition.
 type ExpRec interface {
-	descRec()
+	expRec()
 	ContentKey() contkey.ADT
 }
 type ExpCloseRec struct {
@@ -121,7 +121,7 @@ type ExpCloseRec struct {
 	ContChnlPH symbol.ADT
 }
 
-func (ExpCloseRec) descRec()                  {}
+func (ExpCloseRec) expRec()                  {}
 func (r ExpCloseRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpWaitRec struct {
@@ -130,7 +130,7 @@ type ExpWaitRec struct {
 	ContExp    ExpRec
 }
 
-func (ExpWaitRec) descRec()                  {}
+func (ExpWaitRec) expRec()                  {}
 func (r ExpWaitRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpSendRec struct {
@@ -139,7 +139,7 @@ type ExpSendRec struct {
 	ValChnlPH  symbol.ADT
 }
 
-func (ExpSendRec) descRec()                  {}
+func (ExpSendRec) expRec()                  {}
 func (r ExpSendRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpRecvRec struct {
@@ -149,7 +149,7 @@ type ExpRecvRec struct {
 	ContExp    ExpRec
 }
 
-func (ExpRecvRec) descRec()                  {}
+func (ExpRecvRec) expRec()                  {}
 func (r ExpRecvRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpLabRec struct {
@@ -159,7 +159,7 @@ type ExpLabRec struct {
 	ContExp    ExpRec
 }
 
-func (ExpLabRec) descRec()                  {}
+func (ExpLabRec) expRec()                  {}
 func (r ExpLabRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpCaseRec struct {
@@ -168,7 +168,7 @@ type ExpCaseRec struct {
 	ContExps   map[uniqsym.ADT]ExpRec
 }
 
-func (ExpCaseRec) descRec()                  {}
+func (ExpCaseRec) expRec()                  {}
 func (r ExpCaseRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpLinkRec struct {
@@ -178,7 +178,7 @@ type ExpLinkRec struct {
 	Ys         []identity.ADT
 }
 
-func (ExpLinkRec) descRec()                  {}
+func (ExpLinkRec) expRec()                  {}
 func (r ExpLinkRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpFwdRec struct {
@@ -187,7 +187,7 @@ type ExpFwdRec struct {
 	ContChnlPH symbol.ADT
 }
 
-func (ExpFwdRec) descRec()                  {}
+func (ExpFwdRec) expRec()                  {}
 func (r ExpFwdRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpCallRec struct {
@@ -199,7 +199,7 @@ type ExpCallRec struct {
 	ContExp    ExpRec
 }
 
-func (ExpCallRec) descRec()                  {}
+func (ExpCallRec) expRec()                  {}
 func (r ExpCallRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpSpawnRec struct {
@@ -210,7 +210,7 @@ type ExpSpawnRec struct {
 	ContExp    ExpRec
 }
 
-func (ExpSpawnRec) descRec()                  {}
+func (ExpSpawnRec) expRec()                  {}
 func (r ExpSpawnRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpAcquireRec struct {
@@ -219,7 +219,7 @@ type ExpAcquireRec struct {
 	ContExp    ExpRec
 }
 
-func (ExpAcquireRec) descRec()                  {}
+func (ExpAcquireRec) expRec()                  {}
 func (r ExpAcquireRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpAcceptRec struct {
@@ -228,7 +228,7 @@ type ExpAcceptRec struct {
 	ContExp    ExpRec
 }
 
-func (ExpAcceptRec) descRec()                  {}
+func (ExpAcceptRec) expRec()                  {}
 func (r ExpAcceptRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpDetachRec struct {
@@ -236,7 +236,7 @@ type ExpDetachRec struct {
 	ConnChnlPH symbol.ADT
 }
 
-func (ExpDetachRec) descRec()                  {}
+func (ExpDetachRec) expRec()                  {}
 func (r ExpDetachRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpReleaseRec struct {
@@ -244,7 +244,7 @@ type ExpReleaseRec struct {
 	ConnChnlPH symbol.ADT
 }
 
-func (ExpReleaseRec) descRec()                  {}
+func (ExpReleaseRec) expRec()                  {}
 func (r ExpReleaseRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 // ConvertSpecToRec converts a declarative Definition into its content-addressed domain record.
@@ -319,7 +319,7 @@ func ConvertSpecToRec(spec ExpSpec) (ExpRec, error) {
 	case ExpReleaseSpec:
 		return ExpReleaseRec{key, s.ConnChnlPH}, nil
 	default:
-		return nil, fmt.Errorf("unexpected process Expription spec %T", spec)
+		return nil, fmt.Errorf("unexpected process Definition expression spec %T", spec)
 	}
 }
 
@@ -358,6 +358,6 @@ func ConvertRecToSpec(rec ExpRec) ExpSpec {
 	case ExpReleaseRec:
 		return ExpReleaseSpec{r.ConnChnlPH}
 	default:
-		panic(fmt.Sprintf("unexpected process Expription rec %T", rec))
+		panic(fmt.Sprintf("unexpected process Definition expression rec %T", rec))
 	}
 }

@@ -42,7 +42,7 @@ func expToGenerated(spec termdef.ExpSpec) (webapi.ProcTermDefinitionSpec, error)
 	case termdef.ExpCaseSpec:
 		branches := make(map[string]webapi.ProcTermDefinitionSpec, len(s.ContExps))
 		for label, child := range s.ContExps {
-			cont, err := DefinitionToGenerated(child)
+			cont, err := expToGenerated(child)
 			if err != nil {
 				return out, err
 			}

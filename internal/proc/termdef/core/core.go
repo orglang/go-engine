@@ -186,7 +186,9 @@ func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (
 			return DefSpec{}, DefinitionMissing(termID)
 		}
 		exp, err := s.termExpRepo.SelectSpecByCK(txCtx, conn, rec.ExpCK)
-		if err != nil { return DefSpec{}, err }
+		if err != nil {
+			return DefSpec{}, err
+		}
 		return DefSpec{Exp: exp}, nil
 	})
 }

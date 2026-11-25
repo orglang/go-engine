@@ -10,7 +10,6 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/pool/ent"
 	"orglang/go-engine/internal/pool/termdef/core"
-	termexp "orglang/go-engine/internal/pool/termexp/core"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 )
 
@@ -46,7 +45,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		termExpRepo, err := do.Invoke[termexp.Repo](i)
+		termExpRepo, err := do.Invoke[core.ExpRepo](i)
 		if err != nil {
 			return nil, err
 		}

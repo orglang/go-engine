@@ -1,14 +1,5 @@
 package core
 
-import (
-	"context"
+import termdef "orglang/go-engine/internal/pool/termdef/core"
 
-	"orglang/go-engine/internal/adt/contkey"
-	"orglang/go-engine/internal/lib/tx"
-)
-
-// Repo persists and retrieves declarative pool term-definition trees.
-type Repo interface {
-	InsertSpec(context.Context, tx.Conn, DescSpec) error
-	SelectSpecByCK(context.Context, tx.Conn, contkey.ADT) (DescSpec, error)
-}
+type Repo = termdef.ExpRepo

@@ -14,18 +14,21 @@ import (
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/uniqsym"
-	termexp "orglang/go-engine/internal/pool/termexp/core"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 )
 
 type API interface {
 	Create(context.Context, DecSpec) (termsem.SemRef, error)
-	RetrieveDefinition(context.Context, identity.ADT) (termexp.DescSpec, error)
+	RetrieveDefinition(context.Context, identity.ADT) (DefSpec, error)
 }
 
 // for compilation purposes
 func newAPI() API {
 	return new(service)
+}
+
+type DefSpec struct {
+	Exp ExpSpec
 }
 
 type DecSpec struct {
@@ -48,7 +51,7 @@ type DefRec struct {
 func NewService(
 	termDefRepo Repo,
 	defRepo DefRepo,
-	termExpRepo termexp.Repo,
+	termExpRepo ExpRepo,
 	descRootRepo descroot.Repo,
 	typeDefRepo typedef.Repo,
 	descSemRepo descsem.Repo,
@@ -61,7 +64,7 @@ func NewService(
 type service struct {
 	termDefRepo  Repo
 	defRepo      DefRepo
-	termExpRepo  termexp.Repo
+	termExpRepo  ExpRepo
 	descRootRepo descroot.Repo
 	typeDefRepo  typedef.Repo
 	descSemRepo  descsem.Repo
@@ -119,19 +122,23 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ termsem.SemRef, e
 	return newDef.TermRef, nil
 }
 
-func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (termexp.DescSpec, error) {
+func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (DefSpec, error) {
 	if s.termExpRepo == nil {
-		return nil, ErrTermExpRepositoryNotConfigured
+		return DefSpec{}, ErrTermExpRepositoryNotConfigured
 	}
-	return tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (termexp.DescSpec, error) {
+	return tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DefSpec, error) {
 		rec, err := s.defRepo.GetRecByID(txCtx, conn, termID)
 		if err != nil {
-			return nil, err
+			return DefSpec{}, err
 		}
 		if rec.ExpCK == 0 {
-			return nil, DefinitionMissing(termID)
+			return DefSpec{}, DefinitionMissing(termID)
 		}
-		return s.termExpRepo.SelectSpecByCK(txCtx, conn, rec.ExpCK)
+		exp, err := s.termExpRepo.SelectSpecByCK(txCtx, conn, rec.ExpCK)
+		if err != nil {
+			return DefSpec{}, err
+		}
+		return DefSpec{Exp: exp}, nil
 	})
 }
 

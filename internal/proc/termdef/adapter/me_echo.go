@@ -46,25 +46,17 @@ func (h *controllerEcho) GetProcessDeclaration(c *echo.Context, id string, param
 	return c.JSON(http.StatusOK, DecSnapToGenerated(snap))
 }
 
-func (h *controllerEcho) GetProcessDefinition(c *echo.Context, id string, params webapi.GetProcessDefinitionParams) error {
+func (h *controllerEcho) GetProcessDefinition(c *echo.Context, id string, _ webapi.GetProcessDefinitionParams) error {
 	termID, err := identity.ConvertFromString(id)
 	if err != nil {
 		h.log.Error("conversion failed", slog.Any("id", id), slog.Any("err", err))
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	var expectedRN *seqnum.ADT
-	if params.Rn != nil {
-		rn := seqnum.ConvertFromInt(*params.Rn)
-		expectedRN = &rn
-	}
-	spec, err := h.api.RetrieveDefinition(c.Request().Context(), termID, expectedRN)
+	spec, err := h.api.RetrieveDefinition(c.Request().Context(), termID)
 	if err != nil {
-		var missingErr termdef.DefinitionMissingError
 		switch {
-		case errors.As(err, &missingErr), errors.Is(err, termdef.ErrTermDoesNotExist):
+		case errors.Is(err, termdef.ErrDefinitionMissing), errors.Is(err, termdef.ErrTermDoesNotExist):
 			return echo.NewHTTPError(http.StatusNotFound, err.Error())
-		case errors.Is(err, termdef.ErrDefinitionRevisionMismatch):
-			return echo.NewHTTPError(http.StatusConflict, err.Error())
 		default:
 			return err
 		}

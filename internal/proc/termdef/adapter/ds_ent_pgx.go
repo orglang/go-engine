@@ -180,7 +180,11 @@ WHERE pd.term_id = $1
 	if err != nil {
 		return termdef.DefRec{}, err
 	}
-	return termdef.DefRec{TermRef: termsem.SemRef{TermID: termID, DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)}, ExpCK: contkey.ConvertFromInt(dto.ExpCK)}, nil
+	expCK, err := contkey.ConvertFromInt(dto.ExpCK)
+	if err != nil {
+		return termdef.DefRec{}, err
+	}
+	return termdef.DefRec{TermRef: termsem.SemRef{TermID: termID, DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)}, ExpCK: expCK}, nil
 }
 
 func (dao *daoEnt) GetRefs(ctx context.Context, conn tx.Conn) ([]termsem.SemRef, error) {

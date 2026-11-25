@@ -30,7 +30,8 @@ type API interface {
 }
 
 type DefSpec struct {
-	Exp ExpSpec
+	TermQN uniqsym.ADT
+	Exp    ExpSpec
 }
 
 type DecSpec struct {
@@ -49,8 +50,8 @@ type DecRec struct {
 }
 
 type DefRec struct {
-	TermRef termsem.SemRef
-	ExpCK   contkey.ADT
+	TermID identity.ADT
+	ExpCK  contkey.ADT
 }
 
 // aka ExpDec or ExpDecDef without expression
@@ -170,7 +171,7 @@ func (s *service) RetrieveSnap(ctx context.Context, ref termsem.SemRef) (snap De
 }
 
 func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (DefSpec, error) {
-		return tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DefSpec, error) {
+	return tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DefSpec, error) {
 		rec, err := s.termDefRepo.GetRecByID(txCtx, conn, termID)
 		if err != nil {
 			return DefSpec{}, err
@@ -178,11 +179,15 @@ func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (
 		if rec.ExpCK == 0 {
 			return DefSpec{}, DefinitionMissing(termID)
 		}
+		termQN, err := s.termDefRepo.GetQNByID(txCtx, conn, rec.TermID)
+		if err != nil {
+			return DefSpec{}, err
+		}
 		exp, err := s.termDefRepo.SelectSpecByCK(txCtx, conn, rec.ExpCK)
 		if err != nil {
 			return DefSpec{}, err
 		}
-		return DefSpec{Exp: exp}, nil
+		return DefSpec{TermQN: termQN, Exp: exp}, nil
 	})
 }
 

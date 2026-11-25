@@ -70,7 +70,7 @@ func ChnlPH(rec compvar.LinearRec) symbol.ADT { return rec.ChnlPH }
 type service struct {
 	compExecRepo Repo
 	connRepo     compconn.Repo
-	termDecRepo  termdef.Repo
+	termDefRepo  termdef.Repo
 	typeDefRepo  typedef.Repo
 	typeExpRepo  typeexp.Repo
 	transactor   tx.Transactor
@@ -85,7 +85,7 @@ func newAPI() API {
 func NewService(
 	compExecRepo Repo,
 	connRepo compconn.Repo,
-	termDecRepo termdef.Repo,
+	termDefRepo termdef.Repo,
 	typeDefRepo typedef.Repo,
 	typeExpRepo typeexp.Repo,
 	transactor tx.Transactor,
@@ -94,7 +94,7 @@ func NewService(
 	name := slog.String("name", reflect.TypeFor[service]().Name())
 	return &service{
 		compExecRepo, connRepo,
-		termDecRepo, typeDefRepo, typeExpRepo,
+		termDefRepo, typeDefRepo, typeExpRepo,
 		transactor, log.With(name),
 	}
 }
@@ -126,7 +126,7 @@ func (s *service) Take(ctx context.Context, spec compstep.StepSpec) (err error) 
 		}
 		decIDs := termexp.CollectEnv(expSpec)
 		procDecs, getErr2 := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[identity.ADT]termdef.DefRec, error) {
-			return s.termDecRepo.SelectEnv(txCtx, conn, decIDs)
+			return s.termDefRepo.SelectEnv(txCtx, conn, decIDs)
 		})
 		if getErr2 != nil {
 			s.log.Error("step taking failed", compAttr, slog.Any("decs", decIDs))

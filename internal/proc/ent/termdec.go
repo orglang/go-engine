@@ -13,7 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// TermDec is the model entity for the TermDec schema.
+// Deprecated: TermDec is the legacy declaration-shaped model for a Term.
 type TermDec struct {
 	config `json:"-"`
 	// ID of the ent.

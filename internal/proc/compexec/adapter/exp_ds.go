@@ -15,7 +15,7 @@ const (
 	FwdExp
 )
 
-type CompSpec struct {
+type ExpSpec struct {
 	K     ExpKind    `json:"k"`
 	Close *CloseSpec `json:"close,omitempty"`
 	Wait  *WaitSpec  `json:"wait,omitempty"`
@@ -46,11 +46,11 @@ type CloseRec struct {
 
 type WaitSpec struct {
 	X      string   `json:"x"`
-	ContES CompSpec `json:"cont"`
+	ContES ExpSpec `json:"cont"`
 }
 type WaitRec struct {
 	X      string   `json:"x"`
-	ContES CompSpec `json:"cont"`
+	ContES ExpSpec `json:"cont"`
 }
 
 type SendSpec struct {
@@ -68,19 +68,19 @@ type SendRec struct {
 type RecvSpec struct {
 	X      string   `json:"x"`
 	Y      string   `json:"y"`
-	ContES CompSpec `json:"cont"`
+	ContES ExpSpec `json:"cont"`
 }
 type RecvRec struct {
 	X      string   `json:"x"`
 	A      string   `json:"a"`
 	Y      string   `json:"y"`
-	ContES CompSpec `json:"cont"`
+	ContES ExpSpec `json:"cont"`
 }
 
 type LabSpec struct {
 	X      string   `json:"x"`
 	Label  string   `json:"lab"`
-	ContES CompSpec `json:"cont"`
+	ContES ExpSpec `json:"cont"`
 }
 type LabRec struct {
 	X     string `json:"x"`
@@ -102,11 +102,11 @@ type CaseRec struct {
 
 type BranchSpec struct {
 	Label  string   `json:"lab"`
-	ContES CompSpec `json:"cont"`
+	ContES ExpSpec `json:"cont"`
 }
 type BranchRec struct {
 	Label  string   `json:"lab"`
-	ContES CompSpec `json:"cont"`
+	ContES ExpSpec `json:"cont"`
 }
 
 type FwdSpec struct {

@@ -21,7 +21,7 @@ import (
 	termdef "orglang/go-engine/internal/pool/termdef/core"
 )
 
-type defRefDTO struct {
+type defRecDTO struct {
 	TermID string `db:"term_id"`
 	DescID string `db:"desc_id"`
 	DescRN int64  `db:"desc_rn"`
@@ -101,7 +101,7 @@ WHERE def.term_id = $1
 		return termdef.DefRec{}, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRefDTO])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRecDTO])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return termdef.DefRec{}, termdef.ErrTermMissing(termID)

@@ -45,10 +45,6 @@ type DefRec struct {
 	ExpCK   contkey.ADT
 }
 
-type DefSnap struct {
-	TermRef termsem.SemRef
-}
-
 func NewService(
 	termDefRepo Repo,
 	defRepo DefRepo,

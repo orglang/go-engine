@@ -119,17 +119,14 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ termsem.SemRef, e
 	return newDef.TermRef, nil
 }
 
-func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT, expectedRN *seqnum.ADT) (termexp.DescSpec, error) {
+func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (termexp.DescSpec, error) {
 	if s.termExpRepo == nil {
-		return nil, errors.New("term Definition repository is not configured")
+		return nil, ErrTermExpRepositoryNotConfigured
 	}
 	return tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (termexp.DescSpec, error) {
 		rec, err := s.termDefRepo.GetRecByID(txCtx, conn, termID)
 		if err != nil {
 			return nil, err
-		}
-		if expectedRN != nil && *expectedRN != rec.TermRef.DescRN {
-			return nil, fmt.Errorf("%w: expected %d, current %d", ErrDefinitionRevisionMismatch, *expectedRN, rec.TermRef.DescRN)
 		}
 		if rec.ExpCK == 0 {
 			return nil, ErrDefinitionMissing(termID)
@@ -138,21 +135,3 @@ func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT, e
 	})
 }
 
-var ErrDefinitionRevisionMismatch = errors.New("description revision mismatch")
-var ErrTermDoesNotExist = errors.New("pool term does not exist")
-
-func ErrTermMissing(termID identity.ADT) error {
-	return fmt.Errorf("%w: %v", ErrTermDoesNotExist, termID)
-}
-
-type DefinitionMissingError struct {
-	TermID identity.ADT
-}
-
-func (e DefinitionMissingError) Error() string {
-	return fmt.Sprintf("pool term %v has no Definition", e.TermID)
-}
-
-func ErrDefinitionMissing(termID identity.ADT) error {
-	return DefinitionMissingError{TermID: termID}
-}

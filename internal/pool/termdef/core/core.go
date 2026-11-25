@@ -50,21 +50,17 @@ type DefRec struct {
 
 func NewService(
 	termDefRepo Repo,
-	defRepo DefRepo,
-	termExpRepo ExpRepo,
 	descRootRepo descroot.Repo,
 	typeDefRepo typedef.Repo,
 	descSemRepo descsem.Repo,
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
-	return &service{termDefRepo: termDefRepo, defRepo: defRepo, termExpRepo: termExpRepo, descRootRepo: descRootRepo, typeDefRepo: typeDefRepo, descSemRepo: descSemRepo, transactor: transactor, log: log}
+	return &service{termDefRepo: termDefRepo, descRootRepo: descRootRepo, typeDefRepo: typeDefRepo, descSemRepo: descSemRepo, transactor: transactor, log: log}
 }
 
 type service struct {
 	termDefRepo  Repo
-	defRepo      DefRepo
-	termExpRepo  ExpRepo
 	descRootRepo descroot.Repo
 	typeDefRepo  typedef.Repo
 	descSemRepo  descsem.Repo
@@ -123,18 +119,15 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ termsem.SemRef, e
 }
 
 func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (DefSpec, error) {
-	if s.termExpRepo == nil {
-		return DefSpec{}, ErrTermExpRepositoryNotConfigured
-	}
-	return tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DefSpec, error) {
-		rec, err := s.defRepo.GetRecByID(txCtx, conn, termID)
+		return tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DefSpec, error) {
+		rec, err := s.termDefRepo.GetRecByID(txCtx, conn, termID)
 		if err != nil {
 			return DefSpec{}, err
 		}
 		if rec.ExpCK == 0 {
 			return DefSpec{}, DefinitionMissing(termID)
 		}
-		exp, err := s.termExpRepo.SelectSpecByCK(txCtx, conn, rec.ExpCK)
+		exp, err := s.termDefRepo.SelectSpecByCK(txCtx, conn, rec.ExpCK)
 		if err != nil {
 			return DefSpec{}, err
 		}

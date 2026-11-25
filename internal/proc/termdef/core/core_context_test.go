@@ -23,6 +23,7 @@ func TestServiceInceptPropagatesCallerCancellationToRepository(t *testing.T) {
 	repo := &contextRepo{entered: make(chan struct{})}
 	api := NewService(
 		repo,
+		repo,
 		nil,
 		contextDescRootRepo{},
 		contextDescSemRepo{},

@@ -9,26 +9,26 @@ import (
 	compexp "orglang/go-engine/internal/pool/compexec/exp"
 )
 
-func DataFromCompSpec(s compexp.ExpSpec) CompSpec {
+func DataFromExpSpec(s compexp.ExpSpec) ExpSpec {
 	switch spec := s.(type) {
 	case compexp.AcquireSpec:
-		return CompSpec{K: AcquireKind, Acquire: DataFromAcquireSpec(spec)}
+		return ExpSpec{K: AcquireKind, Acquire: DataFromAcquireSpec(spec)}
 	case compexp.AcceptSpec:
-		return CompSpec{K: AcceptKind, Accept: DataFromAcceptSpec(spec)}
+		return ExpSpec{K: AcceptKind, Accept: DataFromAcceptSpec(spec)}
 	case compexp.HireSpec:
-		return CompSpec{K: HireKind, Hire: DataFromHireSpec(spec)}
+		return ExpSpec{K: HireKind, Hire: DataFromHireSpec(spec)}
 	case compexp.ApplySpec:
-		return CompSpec{K: ApplyKind, Apply: DataFromApplySpec(spec)}
+		return ExpSpec{K: ApplyKind, Apply: DataFromApplySpec(spec)}
 	case compexp.ReleaseSpec:
-		return CompSpec{K: ReleaseKind, Release: DataFromReleaseSpec(spec)}
+		return ExpSpec{K: ReleaseKind, Release: DataFromReleaseSpec(spec)}
 	case compexp.DetachSpec:
-		return CompSpec{K: DetachKind, Detach: DataFromDetachSpec(spec)}
+		return ExpSpec{K: DetachKind, Detach: DataFromDetachSpec(spec)}
 	default:
 		panic(compexp.ErrSpecTypeUnexpected(s))
 	}
 }
 
-func DataToCompSpec(dto CompSpec) (compexp.ExpSpec, error) {
+func DataToExpSpec(dto ExpSpec) (compexp.ExpSpec, error) {
 	switch dto.K {
 	case AcquireKind:
 		return DataToAcquireSpec(dto.Acquire)

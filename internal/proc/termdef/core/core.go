@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"iter"
 	"log/slog"
@@ -27,7 +26,7 @@ type API interface {
 	Incept(context.Context, uniqsym.ADT) (termsem.SemRef, error)
 	Create(context.Context, DefSpec) (DefSnap, error)
 	RetrieveSnap(context.Context, termsem.SemRef) (DefSnap, error)
-	RetrieveDefinition(context.Context, identity.ADT, *seqnum.ADT) (termexp.DescSpec, error)
+	RetrieveDefinition(context.Context, identity.ADT) (termexp.DescSpec, error)
 	RetreiveRefs(context.Context) ([]termsem.SemRef, error)
 }
 
@@ -175,7 +174,7 @@ func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (
 			return nil, err
 		}
 		if rec.ExpCK == 0 {
-			return nil, ErrDefinitionMissing(termID)
+			return nil, DefinitionMissing(termID)
 		}
 		return s.termExpRepo.SelectSpecByCK(txCtx, conn, rec.ExpCK)
 	})

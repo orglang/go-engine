@@ -149,9 +149,9 @@ func (dao *daoEnt) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT
 	return DataToDecRecs(dtos)
 }
 
-func (dao *daoEnt) GetRecByID(ctx context.Context, conn tx.Conn, termID identity.ADT) (termdef.DefRef, error) {
+func (dao *daoEnt) GetRecByID(ctx context.Context, conn tx.Conn, termID identity.ADT) (termdef.DefRec, error) {
 	if termID.IsEmpty() {
-		return termdef.DefRef{}, identity.ErrEmpty
+		return termdef.DefRec{}, identity.ErrEmpty
 	}
 	const query = `
 SELECT
@@ -166,21 +166,21 @@ WHERE pd.term_id = $1
 `
 	rows, err := conn.Pgx.Query(ctx, query, termID.String())
 	if err != nil {
-		return termdef.DefRef{}, err
+		return termdef.DefRec{}, err
 	}
 	defer rows.Close()
 	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRefDTO])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return termdef.DefRef{}, termdef.ErrTermMissing(termID)
+			return termdef.DefRec{}, termdef.ErrTermMissing(termID)
 		}
-		return termdef.DefRef{}, err
+		return termdef.DefRec{}, err
 	}
 	descID, err := identity.ConvertFromString(dto.DescID)
 	if err != nil {
-		return termdef.DefRef{}, err
+		return termdef.DefRec{}, err
 	}
-	return termdef.DefRef{TermRef: termsem.SemRef{TermID: termID, DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)}, ExpCK: contkey.ConvertFromInt(dto.ExpCK)}, nil
+	return termdef.DefRec{TermRef: termsem.SemRef{TermID: termID, DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)}, ExpCK: contkey.ConvertFromInt(dto.ExpCK)}, nil
 }
 
 func (dao *daoEnt) GetRefs(ctx context.Context, conn tx.Conn) ([]termsem.SemRef, error) {

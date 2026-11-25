@@ -19,5 +19,5 @@ type Repo interface {
 
 type DefRepo interface {
 	SetExpCK(context.Context, tx.Conn, identity.ADT, contkey.ADT) error
-	GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRef, error)
+	GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRec, error)
 }

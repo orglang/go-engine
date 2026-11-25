@@ -86,7 +86,7 @@ func (s *service) Incept(ctx context.Context, termQN uniqsym.ADT) (_ termsem.Sem
 	qnAttr := slog.Any("qn", termQN)
 	s.log.Debug("inception started", qnAttr)
 	newRoot := descroot.New()
-	newDec := DefRec{TermRef: termsem.New(newRoot), TermQN: termQN}
+	newDec := DecRec{TermRef: termsem.New(newRoot), TermQN: termQN}
 	newBind := descsem.SemRec{DescQN: termQN, DescID: newDec.TermRef.TermID, Kind: descsem.TermKind}
 	err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		if err := s.descRootRepo.AddRef(txCtx, conn, newRoot); err != nil {
@@ -136,7 +136,7 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ DecSnap, err erro
 	providerRef := providerDef.TypeRef
 	expectedRoot := descroot.SemRef{DescID: providerRef.DescID, DescRN: providerRef.DescRN}
 	newRoot := descroot.SemRef{DescID: expectedRoot.DescID, DescRN: seqnum.Next(expectedRoot.DescRN)}
-	newDec := DefRec{TermRef: termsem.New(newRoot), TermQN: spec.TermQN, LiabVar: newLiabVar, AssetVars: newAssetVars}
+	newDec := DecRec{TermRef: termsem.New(newRoot), TermQN: spec.TermQN, LiabVar: newLiabVar, AssetVars: newAssetVars}
 	newBind := descsem.SemRec{DescQN: spec.TermQN, DescID: newDec.TermRef.TermID, Kind: descsem.TermKind}
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		if err := s.descRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil {
@@ -204,6 +204,7 @@ func ErrRootMissingInEnv(rid identity.ADT) error {
 // Compatibility aliases for callers that still use the former names.
 type DefSpec = DecSpec
 type DefSnap = DecSnap
+// DecRec contains the persisted Declaration data for a Term.
 type DecRec = DefRec
 
 func ErrDoesNotExist(want identity.ADT) error {

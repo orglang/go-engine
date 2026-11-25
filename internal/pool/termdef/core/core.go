@@ -98,7 +98,7 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ termsem.SemRef, e
 	providerRef := typeDefs[spec.LiabVar.TypeQN].TypeRef
 	expectedRoot := descroot.SemRef{DescID: providerRef.DescID, DescRN: providerRef.DescRN}
 	newRoot := descroot.SemRef{DescID: expectedRoot.DescID, DescRN: seqnum.Next(expectedRoot.DescRN)}
-	newDef := DefRec{TermRef: termsem.New(newRoot), LiabVar: newLiabVar, AssetVars: newAssetVars}
+	newDef := DecRec{TermRef: termsem.New(newRoot), LiabVar: newLiabVar, AssetVars: newAssetVars}
 	newBind := descsem.SemRec{DescQN: spec.TermQN, DescID: newDef.TermRef.TermID, Kind: descsem.TermKind}
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		err = s.descRootRepo.TouchRef(txCtx, conn, expectedRoot)

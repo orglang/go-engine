@@ -17,6 +17,7 @@ import (
 	"orglang/go-engine/internal/proc/ent"
 	termexpent "orglang/go-engine/internal/proc/ent/termexp"
 	termexp "orglang/go-engine/internal/proc/termexp/core"
+	termdef "orglang/go-engine/internal/proc/termdef/core"
 )
 
 type daoEnt struct {
@@ -24,19 +25,19 @@ type daoEnt struct {
 	log    *slog.Logger
 }
 
-func NewDaoEnt(client *ent.Client, log *slog.Logger) termexp.Repo {
+func NewDaoEnt(client *ent.Client, log *slog.Logger) termdef.ExpRepo {
 	name := slog.String("name", reflect.TypeFor[daoEnt]().Name())
 	return &daoEnt{client: client, log: log.With(name)}
 }
 
-func newRepo() termexp.Repo { return new(daoEnt) }
+func newRepo() termdef.ExpRepo { return new(daoEnt) }
 
 func (dao *daoEnt) Insert(ctx context.Context, conn tx.Conn, _ termexp.CompRec) error {
 	return nil
 }
 
-func (dao *daoEnt) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.DescSpec) error {
-	rec, err := termexp.ConvertSpecToRec(spec)
+func (dao *daoEnt) InsertSpec(ctx context.Context, conn tx.Conn, spec termdef.ExpSpec) error {
+	rec, err := termdef.ConvertSpecToRec(spec)
 	if err != nil {
 		return err
 	}
@@ -72,7 +73,7 @@ func (dao *daoEnt) InsertSpec(ctx context.Context, conn tx.Conn, spec termexp.De
 	return nil
 }
 
-func (dao *daoEnt) SelectSpecByCK(ctx context.Context, conn tx.Conn, key contkey.ADT) (termexp.DescSpec, error) {
+func (dao *daoEnt) SelectSpecByCK(ctx context.Context, conn tx.Conn, key contkey.ADT) (termdef.ExpSpec, error) {
 	rows, err := conn.Pgx.Query(ctx, selectTermExpTree, int64(key))
 	if err != nil {
 		return nil, err
@@ -89,7 +90,7 @@ func (dao *daoEnt) SelectSpecByCK(ctx context.Context, conn tx.Conn, key contkey
 	if err != nil {
 		return nil, err
 	}
-	return termexp.ConvertRecToSpec(rec), nil
+	return termdef.ConvertRecToSpec(rec), nil
 }
 
 func canonicalJSON(raw []byte) ([]byte, error) {

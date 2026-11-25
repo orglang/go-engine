@@ -47,6 +47,7 @@ type DefSnap struct {
 
 func NewService(
 	termDefRepo Repo,
+	defRepo DefRepo,
 	termExpRepo termexp.Repo,
 	descRootRepo descroot.Repo,
 	typeDefRepo typedef.Repo,
@@ -54,11 +55,12 @@ func NewService(
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
-	return &service{termDefRepo: termDefRepo, termExpRepo: termExpRepo, descRootRepo: descRootRepo, typeDefRepo: typeDefRepo, descSemRepo: descSemRepo, transactor: transactor, log: log}
+	return &service{termDefRepo: termDefRepo, defRepo: defRepo, termExpRepo: termExpRepo, descRootRepo: descRootRepo, typeDefRepo: typeDefRepo, descSemRepo: descSemRepo, transactor: transactor, log: log}
 }
 
 type service struct {
 	termDefRepo    Repo
+	defRepo        DefRepo
 	termExpRepo    termexp.Repo
 	descRootRepo descroot.Repo
 	typeDefRepo  typedef.Repo
@@ -122,7 +124,7 @@ func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (
 		return nil, ErrTermExpRepositoryNotConfigured
 	}
 	return tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (termexp.DescSpec, error) {
-		rec, err := s.termDefRepo.GetRecByID(txCtx, conn, termID)
+		rec, err := s.defRepo.GetRecByID(txCtx, conn, termID)
 		if err != nil {
 			return nil, err
 		}

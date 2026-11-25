@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/lib/tx"
 
 	"orglang/go-engine/internal/adt/identity"
@@ -14,6 +15,10 @@ type Repo interface {
 	GetRefs(context.Context, tx.Conn) ([]termsem.SemRef, error)
 	GetSnap(context.Context, tx.Conn, termsem.SemRef) (DefSnap, error)
 	GetRecs(context.Context, tx.Conn, []identity.ADT) ([]DefRec, error)
-	GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRec, error)
 	SelectEnv(context.Context, tx.Conn, []identity.ADT) (map[identity.ADT]DefRec, error)
+
+
+type DefRepo interface {
+	GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRec, error)
+}
 }

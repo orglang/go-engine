@@ -125,7 +125,7 @@ op getProcessTypeDefinition(
   @query rn?: int64,
 ): Ok<Proc.Type.DefSnap>;
 
-/** Get the current declarative term Definition; rn, when supplied, must match its Description revision. */
+/** Get the current declarative term Definition; rn is reserved and currently ignored. */
 @get
 @route("/processes/{id}/definition")
 op getProcessDefinition(

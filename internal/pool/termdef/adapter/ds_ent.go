@@ -11,8 +11,6 @@ import (
 
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
-	"orglang/go-engine/internal/adt/seqnum"
-	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/lf"
@@ -116,7 +114,20 @@ WHERE def.term_id = $1
 	if err != nil {
 		return termdef.DefRec{}, err
 	}
-	return termdef.DefRec{TermRef: termsem.SemRef{TermID: termID, DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)}, ExpCK: expCK}, nil
+	return termdef.DefRec{TermID: termID, ExpCK: expCK}, nil
+}
+
+func (dao *daoEnt) GetQNByID(ctx context.Context, conn tx.Conn, termID identity.ADT) (uniqsym.ADT, error) {
+	const query = `
+SELECT desc_qn
+FROM pool_desc_binds
+WHERE desc_id = $1
+`
+	var qn string
+	if err := conn.Pgx.QueryRow(ctx, query, termID.String()).Scan(&qn); err != nil {
+		return "", err
+	}
+	return uniqsym.ConvertFromString(qn)
 }
 
 func (dao *daoEnt) GetRecByQN(ctx context.Context, conn tx.Conn, qn uniqsym.ADT) (termdef.DecRec, error) {

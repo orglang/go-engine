@@ -15,6 +15,7 @@ type Repo interface {
 
 	SetExpCK(context.Context, tx.Conn, identity.ADT, contkey.ADT) error
 	GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRec, error)
+	GetQNByID(context.Context, tx.Conn, identity.ADT) (uniqsym.ADT, error)
 	InsertSpec(context.Context, tx.Conn, ExpSpec) error
 	SelectSpecByCK(context.Context, tx.Conn, contkey.ADT) (ExpSpec, error)
 }

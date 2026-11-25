@@ -9,7 +9,7 @@ import (
 	termvaradapter "orglang/go-engine/internal/adt/termvar/adapter"
 )
 
-// TermDec describes a persisted process term declaration.
+// Deprecated: TermDec is the legacy declaration-shaped model for a Term. Use the Term identity and Definition repositories.
 type TermDec struct {
 	ent.Schema
 }

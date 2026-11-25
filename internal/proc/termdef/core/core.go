@@ -171,14 +171,14 @@ func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (
 		return nil, ErrTermExpRepositoryNotConfigured
 	}
 	return tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (termexp.DescSpec, error) {
-		expCK, err := s.termDefRefRepo.GetExpCKByID(txCtx, conn, termID)
+		rec, err := s.termDefRefRepo.GetRecByID(txCtx, conn, termID)
 		if err != nil {
 			return nil, err
 		}
-		if expCK == 0 {
+		if rec.ExpCK == 0 {
 			return nil, DefinitionMissing(termID)
 		}
-		return s.termExpRepo.SelectSpecByCK(txCtx, conn, expCK)
+		return s.termExpRepo.SelectSpecByCK(txCtx, conn, rec.ExpCK)
 	})
 }
 

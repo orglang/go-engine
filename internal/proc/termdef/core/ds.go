@@ -4,7 +4,6 @@ import (
 	"context"
 	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/termsem"
 )
@@ -20,5 +19,5 @@ type Repo interface {
 }
 
 type DefRepo interface {
-	GetExpCKByID(context.Context, tx.Conn, identity.ADT) (contkey.ADT, error)
+	GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRec, error)
 }

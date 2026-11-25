@@ -59,25 +59,6 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdef.DefRec)
 	return nil
 }
 
-func (dao *daoEnt) GetExpCKByID(ctx context.Context, conn tx.Conn, termID identity.ADT) (contkey.ADT, error) {
-	if termID.IsEmpty() {
-		return 0, identity.ErrEmpty
-	}
-	const query = `
-SELECT COALESCE(exp_ck, 0)
-FROM pool_desc_terms
-WHERE term_id = $1
-`
-	var expCK int64
-	if err := conn.Pgx.QueryRow(ctx, query, termID.String()).Scan(&expCK); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return 0, termdef.ErrTermMissing(termID)
-		}
-		return 0, err
-	}
-	return contkey.ConvertFromInt(expCK)
-}
-
 func (dao *daoEnt) SetExpCK(ctx context.Context, conn tx.Conn, termID identity.ADT, expCK contkey.ADT) error {
 	const query = `
 UPDATE pool_desc_terms

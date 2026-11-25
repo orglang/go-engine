@@ -10,6 +10,3 @@ type DecRec struct {
 	LiabVar   termvaradapter.VarRec   `db:"liab_var" fieldopt:"noexpand"`
 	AssetVars []termvaradapter.VarRec `db:"asset_vars"`
 }
-
-// DefRec is retained for the currently generated mapper until Goverter is run again.
-type DefRec = DecRec

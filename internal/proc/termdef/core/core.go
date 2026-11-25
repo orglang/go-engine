@@ -38,12 +38,16 @@ type DecSpec struct {
 	AssetVars []termvar.VarSpec
 }
 
-type DefRec struct {
+type DecRec struct {
 	TermRef   termsem.SemRef
-	ExpCK     contkey.ADT
 	TermQN    uniqsym.ADT
 	LiabVar   termvar.VarRec
 	AssetVars []termvar.VarRec
+}
+
+type DefRec struct {
+	TermRef termsem.SemRef
+	ExpCK   contkey.ADT
 }
 
 // aka ExpDec or ExpDecDef without expression
@@ -200,13 +204,6 @@ func CollectEnv(recs iter.Seq[DecRec]) []uniqsym.ADT {
 func ErrRootMissingInEnv(rid identity.ADT) error {
 	return fmt.Errorf("root missing in env: %v", rid)
 }
-
-// Compatibility aliases for callers that still use the former names.
-type DefSpec = DecSpec
-type DefSnap = DecSnap
-
-// DecRec contains the persisted Declaration data for a Term.
-type DecRec = DefRec
 
 func ErrDoesNotExist(want identity.ADT) error {
 	return fmt.Errorf("rec doesn't exist: %v", want)

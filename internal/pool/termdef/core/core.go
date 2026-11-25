@@ -34,11 +34,15 @@ type DecSpec struct {
 	AssetVars []termvar.VarSpec
 }
 
-type DefRec struct {
+type DecRec struct {
 	TermRef   termsem.SemRef
-	ExpCK     contkey.ADT
 	LiabVar   termvar.VarRec
 	AssetVars []termvar.VarRec
+}
+
+type DefRec struct {
+	TermRef termsem.SemRef
+	ExpCK   contkey.ADT
 }
 
 type DefSnap struct {
@@ -135,8 +139,3 @@ func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (
 	})
 }
 
-// DecRec is the Declaration record; kept as an alias until the generated mappers are refreshed.
-type DecRec = DefRec
-
-// DefSpec is kept as a compatibility alias for existing callers.
-type DefSpec = DecSpec

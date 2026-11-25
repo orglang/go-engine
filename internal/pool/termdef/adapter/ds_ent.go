@@ -131,18 +131,18 @@ WHERE bind.desc_qn = $1
 	rows, err := conn.Pgx.Query(ctx, query, uniqsym.ConvertToString(qn))
 	if err != nil {
 		dao.log.Error("query execution failed", qnAttr)
-		return termdef.DefRec{}, err
+		return termdef.DecRec{}, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRec])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecRec])
 	if err != nil {
 		dao.log.Error("rows scanning failed", qnAttr)
-		return termdef.DefRec{}, err
+		return termdef.DecRec{}, err
 	}
 	rec, err := DataToDecRec(dto)
 	if err != nil {
 		dao.log.Error("model conversion failed", qnAttr)
-		return termdef.DefRec{}, err
+		return termdef.DecRec{}, err
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", qnAttr)
 	return rec, nil

@@ -19,7 +19,7 @@ import (
 )
 
 type API interface {
-	Create(context.Context, DefSpec) (termsem.SemRef, error)
+	Create(context.Context, DecSpec) (termsem.SemRef, error)
 	RetrieveDefinition(context.Context, identity.ADT) (termexp.DescSpec, error)
 }
 
@@ -28,7 +28,7 @@ func newAPI() API {
 	return new(service)
 }
 
-type DefSpec struct {
+type DecSpec struct {
 	TermQN    uniqsym.ADT
 	LiabVar   termvar.VarSpec
 	AssetVars []termvar.VarSpec
@@ -67,7 +67,7 @@ type service struct {
 	log          *slog.Logger
 }
 
-func (s *service) Create(ctx context.Context, spec DefSpec) (_ termsem.SemRef, err error) {
+func (s *service) Create(ctx context.Context, spec DecSpec) (_ termsem.SemRef, err error) {
 	qnAttr := slog.Any("qn", spec.TermQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	assetQNs := make([]uniqsym.ADT, 0, len(spec.AssetVars)+1)
@@ -133,3 +133,5 @@ func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (
 	})
 }
 
+// DefSpec is kept as a compatibility alias for existing callers.
+type DefSpec = DecSpec

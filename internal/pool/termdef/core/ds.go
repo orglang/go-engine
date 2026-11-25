@@ -15,3 +15,7 @@ type Repo interface {
 	GetRecByQN(context.Context, tx.Conn, uniqsym.ADT) (DefRec, error)
 	GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRec, error)
 }
+
+type DefRepo interface {
+	GetExpCKByID(context.Context, tx.Conn, identity.ADT) (contkey.ADT, error)
+}

@@ -47,6 +47,7 @@ type DefSnap struct {
 
 func NewService(
 	termDefRepo Repo,
+	termDefRefRepo DefRepo,
 	termExpRepo termexp.Repo,
 	descRootRepo descroot.Repo,
 	typeDefRepo typedef.Repo,
@@ -54,11 +55,12 @@ func NewService(
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
-	return &service{termDefRepo: termDefRepo, termExpRepo: termExpRepo, descRootRepo: descRootRepo, typeDefRepo: typeDefRepo, descSemRepo: descSemRepo, transactor: transactor, log: log}
+	return &service{termDefRepo: termDefRepo, termDefRefRepo: termDefRefRepo, termExpRepo: termExpRepo, descRootRepo: descRootRepo, typeDefRepo: typeDefRepo, descSemRepo: descSemRepo, transactor: transactor, log: log}
 }
 
 type service struct {
-	termDefRepo  Repo
+	termDefRepo    Repo
+	termDefRefRepo DefRepo
 	termExpRepo  termexp.Repo
 	descRootRepo descroot.Repo
 	typeDefRepo  typedef.Repo
@@ -122,14 +124,14 @@ func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (
 		return nil, ErrTermExpRepositoryNotConfigured
 	}
 	return tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (termexp.DescSpec, error) {
-		rec, err := s.termDefRepo.GetRecByID(txCtx, conn, termID)
+		expCK, err := s.termDefRefRepo.GetExpCKByID(txCtx, conn, termID)
 		if err != nil {
 			return nil, err
 		}
-		if rec.ExpCK == 0 {
+		if expCK == 0 {
 			return nil, DefinitionMissing(termID)
 		}
-		return s.termExpRepo.SelectSpecByCK(txCtx, conn, rec.ExpCK)
+		return s.termExpRepo.SelectSpecByCK(txCtx, conn, expCK)
 	})
 }
 

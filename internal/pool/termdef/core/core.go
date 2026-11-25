@@ -22,13 +22,9 @@ type API interface {
 	RetrieveDefinition(context.Context, identity.ADT) (DefSpec, error)
 }
 
-// for compilation purposes
-func newAPI() API {
-	return new(service)
-}
-
 type DefSpec struct {
-	Exp ExpSpec
+	TermQN uniqsym.ADT
+	Exp    ExpSpec
 }
 
 type DecSpec struct {
@@ -44,8 +40,8 @@ type DecRec struct {
 }
 
 type DefRec struct {
-	TermRef termsem.SemRef
-	ExpCK   contkey.ADT
+	TermID identity.ADT
+	ExpCK  contkey.ADT
 }
 
 func NewService(
@@ -97,25 +93,23 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ termsem.SemRef, e
 	providerRef := typeDefs[spec.LiabVar.TypeQN].TypeRef
 	expectedRoot := descroot.SemRef{DescID: providerRef.DescID, DescRN: providerRef.DescRN}
 	newRoot := descroot.SemRef{DescID: expectedRoot.DescID, DescRN: seqnum.Next(expectedRoot.DescRN)}
-	newDef := DecRec{TermRef: termsem.New(newRoot), LiabVar: newLiabVar, AssetVars: newAssetVars}
-	newBind := descsem.SemRec{DescQN: spec.TermQN, DescID: newDef.TermRef.TermID, Kind: descsem.TermKind}
+	newDec := DecRec{TermRef: termsem.New(newRoot), LiabVar: newLiabVar, AssetVars: newAssetVars}
+	newBind := descsem.SemRec{DescQN: spec.TermQN, DescID: newDec.TermRef.TermID, Kind: descsem.TermKind}
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		err = s.descRootRepo.TouchRef(txCtx, conn, expectedRoot)
-		if err != nil {
+		if err := s.descRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil {
 			return err
 		}
-		err = s.descSemRepo.AddRec(txCtx, conn, newBind)
-		if err != nil {
+		if err := s.descSemRepo.AddRec(txCtx, conn, newBind); err != nil {
 			return err
 		}
-		return s.termDefRepo.AddRec(txCtx, conn, newDef)
+		return s.termDefRepo.AddRec(txCtx, conn, newDec)
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", qnAttr)
 		return termsem.SemRef{}, transactErr
 	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", newDef.TermRef))
-	return newDef.TermRef, nil
+	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", newDec.TermRef))
+	return newDec.TermRef, nil
 }
 
 func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (DefSpec, error) {
@@ -127,11 +121,14 @@ func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (
 		if rec.ExpCK == 0 {
 			return DefSpec{}, DefinitionMissing(termID)
 		}
+		termQN, err := s.termDefRepo.GetQNByID(txCtx, conn, rec.TermID)
+		if err != nil {
+			return DefSpec{}, err
+		}
 		exp, err := s.termDefRepo.SelectSpecByCK(txCtx, conn, rec.ExpCK)
 		if err != nil {
 			return DefSpec{}, err
 		}
-		return DefSpec{Exp: exp}, nil
+		return DefSpec{TermQN: termQN, Exp: exp}, nil
 	})
 }
-

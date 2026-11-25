@@ -8,7 +8,7 @@ import (
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/lib/tx"
-	termexp "orglang/go-engine/internal/proc/termexp/core"
+	termdef "orglang/go-engine/internal/proc/termdef/core"
 )
 
 type definitionTestTransactor struct{}
@@ -35,7 +35,7 @@ func (r definitionTestDefRepo) GetRecByID(context.Context, tx.Conn, identity.ADT
 }
 
 type definitionTestTermExpRepo struct {
-	spec termexp.DescSpec
+	spec termdef.ExpSpec
 	key  contkey.ADT
 }
 
@@ -43,11 +43,11 @@ func (r *definitionTestTermExpRepo) Insert(context.Context, tx.Conn, termexp.Com
 	return nil
 }
 
-func (r *definitionTestTermExpRepo) InsertSpec(context.Context, tx.Conn, termexp.DescSpec) error {
+func (r *definitionTestTermExpRepo) InsertSpec(context.Context, tx.Conn, termdef.ExpSpec) error {
 	return nil
 }
 
-func (r *definitionTestTermExpRepo) SelectSpecByCK(_ context.Context, _ tx.Conn, key contkey.ADT) (termexp.DescSpec, error) {
+func (r *definitionTestTermExpRepo) SelectSpecByCK(_ context.Context, _ tx.Conn, key contkey.ADT) (termdef.ExpSpec, error) {
 	r.key = key
 	return r.spec, nil
 }
@@ -57,15 +57,15 @@ func TestRetrieveDefinition(t *testing.T) {
 	wantKey := contkey.ADT(42)
 
 	t.Run("returns current definition", func(t *testing.T) {
-		termExpRepo := &definitionTestTermExpRepo{spec: termexp.DescCloseSpec{}}
+		termExpRepo := &definitionTestTermExpRepo{spec: termdef.ExpCloseSpec{}}
 		service := NewService(nil, definitionTestDefRepo{rec: DefRec{ExpCK: wantKey}}, termExpRepo, nil, nil, nil, definitionTestTransactor{}, nil)
 
 		got, err := service.RetrieveDefinition(context.Background(), termID)
 		if err != nil {
 			t.Fatalf("RetrieveDefinition() error = %v", err)
 		}
-		if _, ok := got.(termexp.DescCloseSpec); !ok {
-			t.Fatalf("RetrieveDefinition() = %T, want termexp.DescCloseSpec", got)
+		if _, ok := got.Exp.(termdef.ExpCloseSpec); !ok {
+			t.Fatalf("RetrieveDefinition().Exp = %T, want termdef.ExpCloseSpec", got.Exp)
 		}
 		if termExpRepo.key != wantKey {
 			t.Fatalf("SelectSpecByCK() key = %v, want %v", termExpRepo.key, wantKey)

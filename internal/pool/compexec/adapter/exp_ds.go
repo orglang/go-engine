@@ -1,10 +1,10 @@
 package adapter
 
 import (
-	termexp "orglang/go-engine/internal/pool/compexec/exp"
+	compexp "orglang/go-engine/internal/pool/compexec/exp"
 )
 
-type CompSpec struct {
+type ExpSpec struct {
 	K       ExpKind     `json:"k"`
 	Acquire *GrantSpec  `json:"acquire,omitempty"`
 	Accept  *GrantSpec  `json:"accept,omitempty"`
@@ -16,13 +16,13 @@ type CompSpec struct {
 
 type GrantSpec struct {
 	ConnChnlPH string   `json:"ph"`
-	ContExp    CompSpec `json:"exp"`
+	ContExp    ExpSpec `json:"exp"`
 }
 
 type CoopSpec struct {
 	ConnChnlPH string   `json:"ph"`
 	ProcTermQN string   `json:"qn"`
-	ContExp    CompSpec `json:"exp"`
+	ContExp    ExpSpec `json:"exp"`
 }
 
 type RevokeSpec struct {
@@ -53,13 +53,13 @@ const (
 
 type GrantRec struct {
 	ContChnlPH string   `json:"ph"`
-	ContExp    CompSpec `json:"exp"`
+	ContExp    ExpSpec `json:"exp"`
 }
 
 type CoopRec struct {
 	ContChnlPH string   `json:"ph"`
 	ProcTermQN string   `json:"qn"`
-	ContExp    CompSpec `json:"exp"`
+	ContExp    ExpSpec `json:"exp"`
 }
 
 type RevokeRec struct {

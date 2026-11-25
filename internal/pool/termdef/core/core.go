@@ -119,7 +119,7 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ termsem.SemRef, e
 }
 
 func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (DefSpec, error) {
-		return tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DefSpec, error) {
+	return tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DefSpec, error) {
 		rec, err := s.termDefRepo.GetRecByID(txCtx, conn, termID)
 		if err != nil {
 			return DefSpec{}, err

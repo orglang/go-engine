@@ -21,12 +21,14 @@ import (
 	compstep "orglang/go-engine/internal/pool/compstep/core"
 	compvar "orglang/go-engine/internal/pool/compvar/core"
 	connact "orglang/go-engine/internal/pool/connact/core"
+	termdec "orglang/go-engine/internal/pool/termdec/core"
+	proctermdec "orglang/go-engine/internal/proc/termdec/core"
 	termdef "orglang/go-engine/internal/pool/termdef/core"
 	compexp "orglang/go-engine/internal/pool/compexec/exp"
 	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 
 	proccompexec "orglang/go-engine/internal/proc/compexec/core"
-	proctermdef "orglang/go-engine/internal/proc/termdef/core"
+	proctermdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
 type API interface {
@@ -92,7 +94,7 @@ type service struct {
 	connRepo       compconn.Repo
 	typeExpRepo    typeexp.Repo
 	procExecRepo   proccompexec.Repo
-	termDefRepo    termdef.Repo
+	termDecRepo    termdec.Repo
 	implSemRepo    implsem.Repo
 	compSemRepo    comproot.Repo
 	transactor     tx.Transactor
@@ -111,7 +113,7 @@ type ServiceDeps struct {
 	CompConnRepo   compconn.Repo
 	TypeExpRepo    typeexp.Repo
 	ProcExecRepo   proccompexec.Repo
-	TermDefRepo    termdef.Repo
+	TermDecRepo    termdec.Repo
 	ImplSemRepo    implsem.Repo
 	CompSemRepo    comproot.Repo
 	Transactor     tx.Transactor
@@ -122,7 +124,7 @@ func NewService(deps ServiceDeps) API {
 	name := slog.String("name", reflect.TypeFor[service]().Name())
 	return &service{
 		deps.CompExecRepo, deps.CompExecBroker, deps.CompVarRepo,
-		deps.CompConnRepo, deps.TypeExpRepo, deps.ProcExecRepo, deps.TermDefRepo,
+		deps.CompConnRepo, deps.TypeExpRepo, deps.ProcExecRepo, deps.TermDecRepo,
 		deps.ImplSemRepo, deps.CompSemRepo,
 		deps.Transactor, deps.Logger.With(name),
 	}
@@ -131,9 +133,9 @@ func NewService(deps ServiceDeps) API {
 func (s *service) Run(ctx context.Context, spec ExecSpec) (_ comproot.SemRef, err error) {
 	specAttr := slog.Any("spec", spec)
 	s.log.Debug("creation started", specAttr)
-	var termDec termdef.DecRec
+	var termDec termdec.DecRec
 	getErr1 := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		termDec, err = s.termDefRepo.GetRecByQN(txCtx, conn, spec.TermQN)
+		termDec, err = s.termDecRepo.GetRecByQN(txCtx, conn, spec.TermQN)
 		return err
 	})
 	if getErr1 != nil {

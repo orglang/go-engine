@@ -9,7 +9,7 @@ import (
 	compconn "orglang/go-engine/internal/proc/compconn/core"
 	"orglang/go-engine/internal/proc/compexec/core"
 	"orglang/go-engine/internal/proc/ent"
-	termdef "orglang/go-engine/internal/proc/termdef/core"
+	termdec "orglang/go-engine/internal/proc/termdec/core"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 	typeexp "orglang/go-engine/internal/proc/typeexp/core"
 )
@@ -36,7 +36,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		termDefRepo, err := do.Invoke[termdef.Repo](i)
+		termDecRepo, err := do.Invoke[termdec.Repo](i)
 		if err != nil {
 			return nil, err
 		}

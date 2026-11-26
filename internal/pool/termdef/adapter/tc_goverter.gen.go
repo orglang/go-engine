@@ -6,31 +6,11 @@ package adapter
 import (
 	identity "orglang/go-engine/internal/adt/identity"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
-	symbol "orglang/go-engine/internal/adt/symbol"
 	termsem "orglang/go-engine/internal/adt/termsem"
-	termvar "orglang/go-engine/internal/adt/termvar"
 	adapter "orglang/go-engine/internal/adt/termvar/adapter"
-	uniqsym "orglang/go-engine/internal/adt/uniqsym"
-	api "orglang/go-engine/internal/app/web/api"
 	core "orglang/go-engine/internal/pool/termdec/core"
 )
 
-func init() {
-	ConnVarFromGenerated = func(source api.AnyConnVarSpec) (termvar.VarSpec, error) {
-		var termvarVarSpec termvar.VarSpec
-		symbolADT, err := symbol.ConvertFromString(source.ConnPh)
-		if err != nil {
-			return termvarVarSpec, err
-		}
-		termvarVarSpec.ChnlPH = symbolADT
-		uniqsymADT, err := uniqsym.ConvertFromString(source.TypeQn)
-		if err != nil {
-			return termvarVarSpec, err
-		}
-		termvarVarSpec.TypeQN = uniqsymADT
-		return termvarVarSpec, nil
-	}
-}
 func init() {
 	DecSpecFromGenerated = func(source api.PoolDecSpec) (core.DecSpec, error) {
 		var coreDecSpec core.DecSpec

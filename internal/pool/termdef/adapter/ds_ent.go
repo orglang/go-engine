@@ -50,7 +50,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdec.DecRec)
 		return err
 	}
 
-	_, err = dao.client.TermDef.Create().
+	_, err = dao.client.TermDec.Create().
 		SetID(dto.TermID).
 		SetDescID(dto.DescID).
 		SetLiabVar(dto.LiabVar).

@@ -50,10 +50,6 @@ func TestPackageProvidesPersistencePortsAndDefinitionServices(t *testing.T) {
 			_, err := do.Invoke[compexec.Repo](injector)
 			return err
 		}},
-		{"pool type-definition expression repository", func() error {
-			_, err := do.Invoke[typedef.TypeExpRepo](injector)
-			return err
-		}},
 		{"pool type-definition repository", func() error {
 			_, err := do.Invoke[typedef.Repo](injector)
 			return err

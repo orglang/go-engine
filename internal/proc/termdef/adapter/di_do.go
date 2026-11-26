@@ -67,19 +67,24 @@ var Package = do.Package(
 		}
 		return core.NewService(termDecRepo, termDefRepo, descRootRepo, descSemRepo, typeDefRepo, transactor, logger), nil
 	}),
-	do.Lazy[webapi.ServerInterface](func(i do.Injector) (webapi.ServerInterface, error) {
+	do.Lazy[termdec.API](func(i do.Injector) (termdec.API, error) {
 		api, err := do.Invoke[core.API](i)
-		if err != nil {
-			return nil, err
-		}
+		if err != nil { return nil, err }
+		return api, nil
+	}),
+	do.Lazy[webapi.ServerInterface](func(i do.Injector) (webapi.ServerInterface, error) {
+		decAPI, err := do.Invoke[termdec.API](i)
+		if err != nil { return nil, err }
+		defAPI, err := do.Invoke[core.API](i)
+		if err != nil { return nil, err }
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil {
 			return nil, err
 		}
-		return newControllerEcho(api, logger), nil
+		return newControllerEcho(decAPI, defAPI, logger), nil
 	}),
 	do.Lazy[Presenter](func(i do.Injector) (Presenter, error) {
-		api, err := do.Invoke[core.API](i)
+		api, err := do.Invoke[termdec.API](i)
 		if err != nil {
 			return nil, err
 		}

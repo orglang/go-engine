@@ -12,21 +12,23 @@ import (
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/termsem"
 	webapi "orglang/go-engine/internal/app/web/api"
+	termdec "orglang/go-engine/internal/proc/termdec/core"
 	termdef "orglang/go-engine/internal/proc/termdef/core"
 )
 
 // controllerEcho is the generated HTTP adapter for process declarations.
 type controllerEcho struct {
 	webapi.ServerInterface
-	api termdef.API
+	decAPI termdec.API
+	defAPI termdef.API
 	log *slog.Logger
 }
 
 var _ webapi.ServerInterface = (*controllerEcho)(nil)
 
-func newControllerEcho(a termdef.API, l *slog.Logger) *controllerEcho {
+func newControllerEcho(decAPI termdec.API, defAPI termdef.API, l *slog.Logger) *controllerEcho {
 	name := slog.String("name", reflect.TypeFor[controllerEcho]().Name())
-	return &controllerEcho{api: a, log: l.With(name)}
+	return &controllerEcho{decAPI: decAPI, defAPI: defAPI, log: l.With(name)}
 }
 
 func (h *controllerEcho) GetProcessDeclaration(c *echo.Context, id string, params webapi.GetProcessDeclarationParams) error {
@@ -39,7 +41,7 @@ func (h *controllerEcho) GetProcessDeclaration(c *echo.Context, id string, param
 	if params.Rn != nil {
 		ref.DescRN = seqnum.ConvertFromInt(*params.Rn)
 	}
-	snap, err := h.api.RetrieveSnap(c.Request().Context(), ref)
+	snap, err := h.decAPI.RetrieveSnap(c.Request().Context(), ref)
 	if err != nil {
 		return err
 	}
@@ -52,7 +54,7 @@ func (h *controllerEcho) GetProcessDefinition(c *echo.Context, id string, _ weba
 		h.log.Error("conversion failed", slog.Any("id", id), slog.Any("err", err))
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	spec, err := h.api.RetrieveDefinition(c.Request().Context(), termID)
+	spec, err := h.defAPI.RetrieveDefinition(c.Request().Context(), termID)
 	if err != nil {
 		switch {
 		case errors.Is(err, termdef.ErrDefinitionMissing), errors.Is(err, termdef.ErrTermDoesNotExist):
@@ -79,7 +81,7 @@ func (h *controllerEcho) CreateProcessDeclaration(c *echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	snap, err := h.api.Create(c.Request().Context(), spec)
+	snap, err := h.decAPI.Create(c.Request().Context(), spec)
 	if err != nil {
 		return err
 	}

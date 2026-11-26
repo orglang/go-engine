@@ -16,7 +16,7 @@ import (
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/uniqsym"
 
-	termdef "orglang/go-engine/internal/proc/termdef/core"
+	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
 // Presenter is the server-rendered HTTP port implemented by the Echo adapter.
@@ -27,12 +27,12 @@ type Presenter interface {
 }
 
 type echoPresenter struct {
-	api termdef.API
+	api termdec.API
 	ssr te.Renderer
 	log *slog.Logger
 }
 
-func newEchoPresenter(a termdef.API, r te.Renderer, l *slog.Logger) *echoPresenter {
+func newEchoPresenter(a termdec.API, r te.Renderer, l *slog.Logger) *echoPresenter {
 	name := slog.String("name", reflect.TypeFor[echoPresenter]().Name())
 	return &echoPresenter{a, r, l.With(name)}
 }

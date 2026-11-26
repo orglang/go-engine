@@ -22,11 +22,8 @@ import (
 )
 
 type API interface {
-	Incept(context.Context, uniqsym.ADT) (termsem.SemRef, error)
-	Create(context.Context, DecSpec) (DecSnap, error)
-	RetrieveSnap(context.Context, termsem.SemRef) (DecSnap, error)
+	termdec.API
 	RetrieveDefinition(context.Context, identity.ADT) (DefSpec, error)
-	RetreiveRefs(context.Context) ([]termsem.SemRef, error)
 }
 
 type DefSpec struct {

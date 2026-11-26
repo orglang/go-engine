@@ -40,7 +40,7 @@ var Package = do.Package(
 		if err != nil { return nil, err }
 		return termdec.NewService(termDecRepo, descRootRepo, descSemRepo, typeDefRepo, transactor, logger), nil
 	}),
-	do.Lazy[Presenter](func(i do.Injector) (Presenter, error) {
+	do.Lazy[*Controller](func(i do.Injector) (*Controller, error) {\n\t\tapi, err := do.Invoke[termdec.API](i)\n\t\tif err != nil { return nil, err }\n\t\tlogger, err := do.Invoke[*slog.Logger](i)\n\t\tif err != nil { return nil, err }\n\t\treturn NewControllerEcho(api, logger), nil\n\t}),\n\tdo.Lazy[Presenter](func(i do.Injector) (Presenter, error) {
 		api, err := do.Invoke[termdec.API](i)
 		if err != nil { return nil, err }
 		logger, err := do.Invoke[*slog.Logger](i)

@@ -6,7 +6,7 @@ import (
 	webapi "orglang/go-engine/internal/app/web/api"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/ent"
-	termdec "orglang/go-engine/internal/proc/termdec/core"
+	termdecadapter "orglang/go-engine/internal/proc/termdec/adapter"
 	"orglang/go-engine/internal/proc/termdef/core"
 )
 
@@ -30,12 +30,12 @@ var Package = do.Package(
 		return core.NewService(termDecRepo, termDefRepo, transactor, logger), nil
 	}),
 	do.Lazy[webapi.ServerInterface](func(i do.Injector) (webapi.ServerInterface, error) {
-		decAPI, err := do.Invoke[termdec.API](i)
+		decController, err := do.Invoke[*termdecadapter.Controller](i)
 		if err != nil { return nil, err }
 		defAPI, err := do.Invoke[core.API](i)
 		if err != nil { return nil, err }
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil { return nil, err }
-		return newControllerEcho(decAPI, defAPI, logger), nil
+		return newControllerEcho(decController, defAPI, logger), nil
 	}),
 )

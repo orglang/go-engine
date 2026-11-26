@@ -16,10 +16,6 @@ type generatedControllerStub struct {
 	gotRN *int64
 }
 
-func (s *generatedControllerStub) CreatePoolDeclaration(c *echo.Context) error {
-	return c.NoContent(http.StatusCreated)
-}
-
 func (s *generatedControllerStub) GetPoolDefinition(c *echo.Context, id string, params webapi.GetPoolDefinitionParams) error {
 	s.gotID = id
 	s.gotRN = params.Rn

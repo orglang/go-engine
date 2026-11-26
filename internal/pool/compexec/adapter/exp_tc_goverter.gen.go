@@ -6,7 +6,7 @@ package adapter
 import (
 	symbol "orglang/go-engine/internal/adt/symbol"
 	uniqsym "orglang/go-engine/internal/adt/uniqsym"
-	exp "orglang/go-engine/internal/pool/compexec/exp"
+	exp "orglang/go-engine/internal/pool/compexec"
 )
 
 func init() {

@@ -3,7 +3,7 @@ package adapter
 import (
 	"fmt"
 
-	compexp "orglang/go-engine/internal/pool/compexec/core"
+	compexp "orglang/go-engine/internal/pool/compexec"
 )
 
 func DataFromExpSpec(s compexp.ExpSpec) ExpSpec {

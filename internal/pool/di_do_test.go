@@ -104,7 +104,7 @@ func TestPackageProvidesHTTPControllers(t *testing.T) {
 		call func() error
 	}{
 		{"computation-execution controller", func() error {
-			_, err := do.Invoke[compexec.Controller](injector)
+			_, err := do.Invoke[compexecadapter.Controller](injector)
 			return err
 		}},
 		{"generated type-definition controller", func() error {

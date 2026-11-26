@@ -12,7 +12,6 @@ import (
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
-	"orglang/go-engine/internal/pool/ent"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 )
 

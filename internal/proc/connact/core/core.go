@@ -6,7 +6,7 @@ import (
 	"orglang/go-engine/internal/adt/comproot"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
-	compexp "orglang/go-engine/internal/proc/compexec/exp"
+	compexp "orglang/go-engine/internal/proc/compexec/core"
 )
 
 // aka Sem

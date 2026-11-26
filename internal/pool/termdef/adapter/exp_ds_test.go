@@ -80,6 +80,12 @@ func TestDataToExpRecRejectsInvalidTreeStructure(t *testing.T) {
 		states []ExpState
 	}{
 		{
+			name: "missing root",
+			states: []ExpState{
+				{ExpCK: 2, K: ReleaseKind, Spec: ExpStateSpec{ConnChnlPH: "request"}},
+			},
+		},
+		{
 			name: "duplicate expression",
 			states: []ExpState{
 				{ExpCK: 1, K: ReleaseKind, Spec: ExpStateSpec{ConnChnlPH: "request"}},

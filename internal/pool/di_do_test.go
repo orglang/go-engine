@@ -12,6 +12,7 @@ import (
 	compexecadapter "orglang/go-engine/internal/pool/compexec/adapter"
 	compexec "orglang/go-engine/internal/pool/compexec/core"
 	compvar "orglang/go-engine/internal/pool/compvar/core"
+	termdecadapter "orglang/go-engine/internal/pool/termdec/adapter"
 	termdec "orglang/go-engine/internal/pool/termdec/core"
 	termdefadapter "orglang/go-engine/internal/pool/termdef/adapter"
 	termdef "orglang/go-engine/internal/pool/termdef/core"
@@ -70,6 +71,10 @@ func TestPackageProvidesPersistencePortsAndDefinitionServices(t *testing.T) {
 			_, err := do.Invoke[typedef.API](injector)
 			return err
 		}},
+		{"pool term-declaration service", func() error {
+			_, err := do.Invoke[termdec.API](injector)
+			return err
+		}},
 		{"pool term-definition service", func() error {
 			_, err := do.Invoke[termdef.API](injector)
 			return err
@@ -105,6 +110,10 @@ func TestPackageProvidesHTTPControllers(t *testing.T) {
 		}},
 		{"generated type-definition controller", func() error {
 			_, err := do.Invoke[typedefadapter.GeneratedController](injector)
+			return err
+		}},
+		{"generated term-declaration controller", func() error {
+			_, err := do.Invoke[termdecadapter.GeneratedController](injector)
 			return err
 		}},
 		{"generated term-definition controller", func() error {

@@ -11,8 +11,8 @@ import (
 	"github.com/labstack/echo/v5"
 
 	"orglang/go-engine/internal/adt/termsem"
+	termdec "orglang/go-engine/internal/proc/termdec/core"
 	"orglang/go-engine/internal/adt/uniqsym"
-	termdef "orglang/go-engine/internal/proc/termdef/core"
 )
 
 type requestContextKey struct{}
@@ -21,7 +21,7 @@ func TestCreateProcessDeclarationHandler(t *testing.T) {
 	t.Run("creates a declaration and returns its identity", func(t *testing.T) {
 		decAPI := &generatedDecAPIStub{}
 		e := echo.New()
-		h := &controllerEcho{api: decAPI}
+		h := &controllerEcho{decAPI: decAPI}
 		e.POST("/api/v1/processes/declarations", h.CreateProcessDeclaration)
 
 		const body = `{
@@ -97,13 +97,13 @@ func TestCreateProcessDeclarationHandler(t *testing.T) {
 }
 
 type generatedDecAPIStub struct {
-	termdef.API
+	termdec.API
 	called bool
-	spec   termdef.DecSpec
+	spec   termdec.DecSpec
 	ctx    context.Context
 }
 
-func (s *generatedDecAPIStub) Create(ctx context.Context, spec termdec.DecSpec) (termdef.DecSnap, error) {
+func (s *generatedDecAPIStub) Create(ctx context.Context, spec termdec.DecSpec) (termdec.DecSnap, error) {
 	s.called = true
 	s.spec = spec
 	s.ctx = ctx

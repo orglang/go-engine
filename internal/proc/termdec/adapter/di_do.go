@@ -2,9 +2,7 @@ package adapter
 
 import (
 	"log/slog"
-
 	"github.com/samber/do/v2"
-
 	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/descsem"
 	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
@@ -41,5 +39,14 @@ var Package = do.Package(
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil { return nil, err }
 		return termdec.NewService(termDecRepo, descRootRepo, descSemRepo, typeDefRepo, transactor, logger), nil
+	}),
+	do.Lazy[Presenter](func(i do.Injector) (Presenter, error) {
+		api, err := do.Invoke[termdec.API](i)
+		if err != nil { return nil, err }
+		logger, err := do.Invoke[*slog.Logger](i)
+		if err != nil { return nil, err }
+		renderer, err := newRendererStdlib(logger)
+		if err != nil { return nil, err }
+		return newEchoPresenter(api, renderer, logger), nil
 	}),
 )

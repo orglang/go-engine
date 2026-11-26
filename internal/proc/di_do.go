@@ -64,7 +64,7 @@ func RegisterRoutes(server *echo.Echo, i do.Injector) error {
 	if err != nil {
 		return err
 	}
-	termDefPresenter, err := do.Invoke[termdef.Presenter](i)
+	termDecPresenter, err := do.Invoke[termdec.Presenter](i)
 	if err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ func RegisterRoutes(server *echo.Echo, i do.Injector) error {
 	if err := termdef.RegisterGeneratedRoutes(server, termDefController); err != nil {
 		return err
 	}
-	if err := termdef.RegisterPresenterRoutes(server, termDefPresenter); err != nil {
+	if err := termdec.RegisterPresenterRoutes(server, termDecPresenter); err != nil {
 		return err
 	}
 	if err := typedef.RegisterGeneratedRoutes(server, typeDefController); err != nil {

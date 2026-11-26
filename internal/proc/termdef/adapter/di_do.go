@@ -2,9 +2,7 @@ package adapter
 
 import (
 	"log/slog"
-
 	"github.com/samber/do/v2"
-
 	webapi "orglang/go-engine/internal/app/web/api"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/ent"
@@ -12,7 +10,6 @@ import (
 	"orglang/go-engine/internal/proc/termdef/core"
 )
 
-// Package registers the process Definition service and its HTTP adapters.
 var Package = do.Package(
 	do.Lazy[core.Repo](func(i do.Injector) (core.Repo, error) {
 		logger, err := do.Invoke[*slog.Logger](i)
@@ -40,14 +37,5 @@ var Package = do.Package(
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil { return nil, err }
 		return newControllerEcho(decAPI, defAPI, logger), nil
-	}),
-	do.Lazy[Presenter](func(i do.Injector) (Presenter, error) {
-		api, err := do.Invoke[termdec.API](i)
-		if err != nil { return nil, err }
-		logger, err := do.Invoke[*slog.Logger](i)
-		if err != nil { return nil, err }
-		renderer, err := newRendererStdlib(logger)
-		if err != nil { return nil, err }
-		return newEchoPresenter(api, renderer, logger), nil
 	}),
 )

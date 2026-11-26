@@ -13,6 +13,7 @@ import (
 	"orglang/go-engine/internal/adt/termsem"
 	webapi "orglang/go-engine/internal/app/web/api"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
+	termdecadapter "orglang/go-engine/internal/proc/termdec/adapter"
 	termdef "orglang/go-engine/internal/proc/termdef/core"
 )
 
@@ -45,7 +46,7 @@ func (h *controllerEcho) GetProcessDeclaration(c *echo.Context, id string, param
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, DecSnapToGenerated(snap))
+	return c.JSON(http.StatusOK, termdecadapter.DecSnapToGenerated(snap))
 }
 
 func (h *controllerEcho) GetProcessDefinition(c *echo.Context, id string, _ webapi.GetProcessDefinitionParams) error {
@@ -76,7 +77,7 @@ func (h *controllerEcho) CreateProcessDeclaration(c *echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	spec, err := DecSpecFromGenerated(dto)
+	spec, err := termdecadapter.DecSpecFromGenerated(dto)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}

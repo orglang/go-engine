@@ -14,7 +14,6 @@ import (
 	compexecadapter "orglang/go-engine/internal/proc/compexec/adapter"
 	compexec "orglang/go-engine/internal/proc/compexec/core"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
-	termdefadapter "orglang/go-engine/internal/proc/termdef/adapter"
 	termdef "orglang/go-engine/internal/proc/termdef/core"
 	typedefadapter "orglang/go-engine/internal/proc/typedef/adapter"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
@@ -129,8 +128,8 @@ func TestPackageProvidesHTTPAdapters(t *testing.T) {
 			_, err := do.Invoke[webapi.ServerInterface](injector)
 			return err
 		}},
-		{"term-definition presenter", func() error {
-			_, err := do.Invoke[termdefadapter.Presenter](injector)
+		{"term-declaration presenter", func() error {
+			_, err := do.Invoke[termdecadapter.Presenter](injector)
 			return err
 		}},
 		{"generated type-definition controller", func() error {

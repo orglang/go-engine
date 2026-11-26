@@ -8,7 +8,6 @@ import (
 
 	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/typesem"
-	webapi "orglang/go-engine/internal/app/web/api"
 	"orglang/go-engine/internal/lib/entpgx"
 	compconn "orglang/go-engine/internal/proc/compconn/adapter"
 	compexec "orglang/go-engine/internal/proc/compexec/adapter"

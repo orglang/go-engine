@@ -6,6 +6,7 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/ent"
 	"orglang/go-engine/internal/proc/termdef/core"
+	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
 var Package = do.Package(

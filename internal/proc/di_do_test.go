@@ -7,7 +7,6 @@ import (
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/adt/typesem"
-	webapi "orglang/go-engine/internal/app/web/api"
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 	compconn "orglang/go-engine/internal/proc/compconn/core"
@@ -15,6 +14,7 @@ import (
 	compexec "orglang/go-engine/internal/proc/compexec/core"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 	termdecadapter "orglang/go-engine/internal/proc/termdec/adapter"
+	termdefadapter "orglang/go-engine/internal/proc/termdef/adapter"
 	termdef "orglang/go-engine/internal/proc/termdef/core"
 	typedefadapter "orglang/go-engine/internal/proc/typedef/adapter"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
@@ -126,7 +126,7 @@ func TestPackageProvidesHTTPAdapters(t *testing.T) {
 			return err
 		}},
 		{"term-definition controller", func() error {
-			_, err := do.Invoke[webapi.ServerInterface](injector)
+			_, err := do.Invoke[*termdefadapter.DefinitionController](injector)
 			return err
 		}},
 		{"term-declaration controller", func() error {

@@ -5,6 +5,7 @@ import (
 
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/termsem"
+	"orglang/go-engine/internal/adt/uniqsym"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 	termdef "orglang/go-engine/internal/proc/termdef/core"
 	"orglang/go-engine/internal/lib/tx"
@@ -37,4 +38,8 @@ func (r termDecRepo) SelectEnv(ctx context.Context, conn tx.Conn, ids []identity
 	out := make(map[identity.ADT]termdec.DecRec, len(recs))
 	for _, rec := range recs { out[rec.TermRef.TermID] = rec }
 	return out, nil
+}
+
+func (r termDecRepo) GetQNByID(ctx context.Context, conn tx.Conn, id identity.ADT) (uniqsym.ADT, error) {
+	return r.dao.GetQNByID(ctx, conn, id)
 }

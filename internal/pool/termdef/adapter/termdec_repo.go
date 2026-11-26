@@ -3,6 +3,7 @@ package adapter
 import (
 	"context"
 
+	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/tx"
 	termdec "orglang/go-engine/internal/pool/termdec/core"
@@ -19,4 +20,8 @@ func (r termDecRepo) AddRec(ctx context.Context, conn tx.Conn, rec termdec.DecRe
 func (r termDecRepo) GetRecByQN(ctx context.Context, conn tx.Conn, qn uniqsym.ADT) (termdec.DecRec, error) {
 	rec, err := r.dao.GetRecByQN(ctx, conn, qn)
 	return termdec.DecRec{TermRef:rec.TermRef, LiabVar:rec.LiabVar, AssetVars:rec.AssetVars}, err
+}
+
+func (r termDecRepo) GetQNByID(ctx context.Context, conn tx.Conn, id identity.ADT) (uniqsym.ADT, error) {
+	return r.dao.GetQNByID(ctx, conn, id)
 }

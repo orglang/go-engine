@@ -113,7 +113,7 @@ func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (
 		if rec.ExpCK == 0 {
 			return DefSpec{}, DefinitionMissing(termID)
 		}
-		termQN, err := s.termDefRepo.GetQNByID(txCtx, conn, rec.TermID)
+		termQN, err := s.termDecRepo.GetQNByID(txCtx, conn, rec.TermID)
 		if err != nil {
 			return DefSpec{}, err
 		}

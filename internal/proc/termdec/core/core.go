@@ -33,6 +33,7 @@ type DecSnap struct {
 type Repo interface {
 	AddRec(context.Context, tx.Conn, DecRec) error
 	GetRefs(context.Context, tx.Conn) ([]termsem.SemRef, error)
+	GetQNByID(context.Context, tx.Conn, identity.ADT) (uniqsym.ADT, error)
 	GetSnap(context.Context, tx.Conn, termsem.SemRef) (DecSnap, error)
 	GetRecs(context.Context, tx.Conn, []identity.ADT) ([]DecRec, error)
 	SelectEnv(context.Context, tx.Conn, []identity.ADT) (map[identity.ADT]DecRec, error)

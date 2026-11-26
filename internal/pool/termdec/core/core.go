@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 
+	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/uniqsym"
@@ -24,4 +25,5 @@ type DecRec struct {
 type Repo interface {
 	AddRec(context.Context, tx.Conn, DecRec) error
 	GetRecByQN(context.Context, tx.Conn, uniqsym.ADT) (DecRec, error)
+	GetQNByID(context.Context, tx.Conn, identity.ADT) (uniqsym.ADT, error)
 }

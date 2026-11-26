@@ -10,7 +10,7 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/ent"
 	"orglang/go-engine/internal/proc/typedef/core"
-	typeexp "orglang/go-engine/internal/proc/typeexp/core"
+	
 )
 
 // Package registers process type-definition persistence, service, and HTTP adapters.
@@ -42,7 +42,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		typeExpRepo, err := do.Invoke[typeexp.Repo](i)
+		typeExpRepo, err := do.Invoke[core.TypeExpRepo](i)
 		if err != nil {
 			return nil, err
 		}

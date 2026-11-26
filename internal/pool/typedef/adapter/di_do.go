@@ -10,7 +10,7 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/pool/ent"
 	"orglang/go-engine/internal/pool/typedef/core"
-	typeexp "orglang/go-engine/internal/pool/typeexp/core"
+	
 )
 
 var Package = do.Package(
@@ -34,7 +34,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		typeExpRepo, err := do.Invoke[typeexp.Repo](i)
+		typeExpRepo, err := do.Invoke[core.TypeExpRepo](i)
 		if err != nil {
 			return nil, err
 		}

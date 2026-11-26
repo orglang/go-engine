@@ -51,7 +51,7 @@ type Context struct {
 type service struct {
 	typeDefRepo  Repo
 	descRootRepo descroot.Repo
-	typeExpRepo  typeexp.Repo
+	typeExpRepo  TypeExpRepo
 	descSemRepo  DescSemRepo
 	transactor   tx.Transactor
 	log          *slog.Logger
@@ -65,7 +65,7 @@ func newAPI() API {
 func NewService(
 	typeDefRepo Repo,
 	descRootRepo descroot.Repo,
-	typeExpRepo typeexp.Repo,
+	typeExpRepo TypeExpRepo,
 	descSemRepo DescSemRepo,
 	transactor tx.Transactor,
 	log *slog.Logger,

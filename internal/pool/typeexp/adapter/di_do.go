@@ -7,6 +7,7 @@ import (
 
 	"orglang/go-engine/internal/pool/ent"
 	"orglang/go-engine/internal/pool/typeexp/core"
+	typedefcore "orglang/go-engine/internal/pool/typedef/core"
 )
 
 // Package registers the pool type-expression repository.
@@ -20,6 +21,13 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
+		return NewDaoEnt(client, logger), nil
+	}),
+	do.Lazy[typedefcore.TypeExpRepo](func(i do.Injector) (typedefcore.TypeExpRepo, error) {
+		client, err := do.Invoke[*ent.Client](i)
+		if err != nil { return nil, err }
+		logger, err := do.Invoke[*slog.Logger](i)
+		if err != nil { return nil, err }
 		return NewDaoEnt(client, logger), nil
 	}),
 )

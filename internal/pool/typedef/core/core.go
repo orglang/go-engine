@@ -38,7 +38,7 @@ type DefSnap struct {
 type service struct {
 	typeDefRepo  Repo
 	descRootRepo descroot.Repo
-	typeExpRepo  typeexp.Repo
+	typeExpRepo  TypeExpRepo
 	descSemRepo  descsem.Repo
 	transactor   tx.Transactor
 	log          *slog.Logger
@@ -52,7 +52,7 @@ func newAPI() API {
 func NewService(
 	typeDefRepo Repo,
 	descRootRepo descroot.Repo,
-	typeExpRepo typeexp.Repo,
+	typeExpRepo TypeExpRepo,
 	descSemRepo descsem.Repo,
 	transactor tx.Transactor,
 	log *slog.Logger,

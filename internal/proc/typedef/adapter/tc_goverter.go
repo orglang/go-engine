@@ -17,7 +17,6 @@ var (
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/contkey:Convert.*
-// goverter:extend orglang/go-engine/internal/proc/typeexp/adapter:Data.*
 var (
 	// goverter:map . TypeRef
 	DataToDefRec  func(DefRec) (typedef.DefRec, error)

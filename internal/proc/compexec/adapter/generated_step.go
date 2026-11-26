@@ -11,7 +11,7 @@ import (
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
 	webapi "orglang/go-engine/internal/app/web/api"
-	compexp "orglang/go-engine/internal/proc/compexec/exp"
+	compexp "orglang/go-engine/internal/proc/compexec/core"
 	compstepcore "orglang/go-engine/internal/proc/compstep/core"
 )
 

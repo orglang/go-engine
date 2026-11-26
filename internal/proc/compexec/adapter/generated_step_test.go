@@ -6,7 +6,7 @@ import (
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
 	webapi "orglang/go-engine/internal/app/web/api"
-	compexp "orglang/go-engine/internal/proc/compexec/exp"
+	compexp "orglang/go-engine/internal/proc/compexec/core"
 )
 
 const testExecutionID = "9m4e2mr0ui3e8a215n4g"

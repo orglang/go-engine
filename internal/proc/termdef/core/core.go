@@ -136,7 +136,7 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ DecSnap, err erro
 		if err := s.descSemRepo.AddRec(txCtx, conn, newBind); err != nil {
 			return err
 		}
-		return s.termDefRepo.AddRec(txCtx, conn, newDec)
+		return s.termDecRepo.AddRec(txCtx, conn, newDec)
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", qnAttr)

@@ -27,7 +27,7 @@ type DefRec struct {
 }
 
 type service struct {
-	termDecRepo Repo
+	termDecRepo termdec.Repo
 	termDefRepo Repo
 	transactor  tx.Transactor
 }

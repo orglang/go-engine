@@ -12,6 +12,7 @@ import (
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/termsem"
+	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/uniqsym"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 	termdec "orglang/go-engine/internal/pool/termdec/core"

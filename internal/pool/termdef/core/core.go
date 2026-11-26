@@ -57,6 +57,8 @@ type service struct {
 	log          *slog.Logger
 }
 
+var _ API = (*service)(nil)
+
 func (s *service) Create(ctx context.Context, spec termdec.DecSpec) (_ termsem.SemRef, err error) {
 	qnAttr := slog.Any("qn", spec.TermQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))

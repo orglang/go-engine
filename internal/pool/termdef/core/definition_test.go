@@ -89,7 +89,7 @@ func TestRetrieveDefinition(t *testing.T) {
 
 	t.Run("returns missing definition error", func(t *testing.T) {
 		repo := &definitionTestRepo{rec: DefRec{TermID: termID}}
-		service := NewService(definitionTestDecRepo{}, repo, definitionTestTransactor{}, nil)
+		service := NewService(definitionTestDecRepo{}, repo, definitionTestTransactor{})
 
 		_, err := service.RetrieveDefinition(context.Background(), termID)
 		if !errors.Is(err, ErrDefinitionMissing) {

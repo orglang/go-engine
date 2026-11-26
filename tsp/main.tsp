@@ -6,7 +6,7 @@ import "./models/any/type/link.tsp";
 import "./models/any/term.tsp";
 import "./models/any/comp.tsp";
 import "./models/any/conn/var.tsp";
-import "./models/any/exec.tsp";
+import "./models/any/eval.tsp";
 import "./models/proc/type/expr.tsp";
 import "./models/proc/type/def.tsp";
 import "./models/proc/term/def.tsp";
@@ -180,7 +180,7 @@ op listPoolExecutions(@path id: string): Ok<Any.CompRef[]>;
 /** Create a pool execution and return its identity. */
 @post
 @route("/pools/executions")
-op createPoolExecution(@body spec: Any.ExecSpec): Created<Any.CompRef>;
+op createPoolExecution(@body spec: Any.EvalSpec): Created<Any.CompRef>;
 
 /** Apply a batch of steps to pool executions. */
 @post

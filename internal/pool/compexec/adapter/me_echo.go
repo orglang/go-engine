@@ -51,9 +51,9 @@ func RegisterRoutes(server *echo.Echo, controller Controller) error {
 }
 
 func (c *controllerEcho) PostSpec(ctx *echo.Context) error {
-	var dto api.AnyExecSpec
+	var dto api.AnyEvalSpec
 	if err := ctx.Bind(&dto); err != nil {
-		c.log.Error("binding failed", slog.Any("dto", reflect.TypeFor[api.AnyExecSpec]()))
+		c.log.Error("binding failed", slog.Any("dto", reflect.TypeFor[api.AnyEvalSpec]()))
 		return err
 	}
 	spec, err := poolExecSpecToCore(dto)
@@ -68,7 +68,7 @@ func (c *controllerEcho) PostSpec(ctx *echo.Context) error {
 	return ctx.JSON(http.StatusCreated, compRefToAPI(ref))
 }
 
-func poolExecSpecToCore(dto api.AnyExecSpec) (compexec.ExecSpec, error) {
+func poolExecSpecToCore(dto api.AnyEvalSpec) (compexec.ExecSpec, error) {
 	termQN, err := uniqsym.ConvertFromString(dto.TermQn)
 	if err != nil {
 		return compexec.ExecSpec{}, err
@@ -87,7 +87,7 @@ func poolExecSpecToCore(dto api.AnyExecSpec) (compexec.ExecSpec, error) {
 	return compexec.ExecSpec{TermQN: termQN, LiabVar: liabVar, AssetVars: assetVars}, nil
 }
 
-func poolExecVarToCore(dto api.AnyExecVarSpec) (compvar.VarSpec, error) {
+func poolExecVarToCore(dto api.AnyEvalVarSpec) (compvar.VarSpec, error) {
 	if dto.ConnPh == "" {
 		return compvar.VarSpec{}, errors.New("conn_ph cannot be blank")
 	}

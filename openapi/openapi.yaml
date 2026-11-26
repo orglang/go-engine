@@ -39,7 +39,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Any.ExecSpec'
+              $ref: '#/components/schemas/Any.EvalSpec'
   /api/v1/pools/executions/spawns:
     post:
       operationId: spawnPoolExecution
@@ -485,7 +485,7 @@ components:
           type: string
         type_qn:
           type: string
-    Any.Exec.VarSpec:
+    Any.Eval.VarSpec:
       type: object
       required:
         - conn_ph
@@ -495,7 +495,7 @@ components:
           type: string
         term_qn:
           type: string
-    Any.ExecSpec:
+    Any.EvalSpec:
       type: object
       required:
         - term_qn
@@ -505,11 +505,11 @@ components:
         term_qn:
           type: string
         liab_var:
-          $ref: '#/components/schemas/Any.Exec.VarSpec'
+          $ref: '#/components/schemas/Any.Eval.VarSpec'
         asset_vars:
           type: array
           items:
-            $ref: '#/components/schemas/Any.Exec.VarSpec'
+            $ref: '#/components/schemas/Any.Eval.VarSpec'
     Any.TermRef:
       type: object
       required:

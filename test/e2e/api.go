@@ -42,7 +42,7 @@ func (c *generatedAPI) createPoolDeclaration(spec api.PoolDecSpec) (api.AnyTermR
 	return api.AnyTermRef{}, errors.New("create pool declaration: empty response")
 }
 
-func (c *generatedAPI) createPoolExecution(spec api.AnyExecSpec) (api.AnyCompRef, error) {
+func (c *generatedAPI) createPoolExecution(spec api.AnyEvalSpec) (api.AnyCompRef, error) {
 	r, err := c.client.CreatePoolExecutionWithResponse(context.Background(), spec)
 	if err != nil {
 		return api.AnyCompRef{}, err

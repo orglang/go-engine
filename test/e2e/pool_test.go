@@ -123,10 +123,10 @@ func (s *suite) waitClose(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	poolExecRef, err := s.api.createPoolExecution(api.AnyExecSpec{
+	poolExecRef, err := s.api.createPoolExecution(api.AnyEvalSpec{
 		TermQn:  poolTermQN,
-		LiabVar: api.AnyExecVarSpec{ConnPh: poolLiabPH, TermQn: poolCompQN},
-		AssetVars: []api.AnyExecVarSpec{
+		LiabVar: api.AnyEvalVarSpec{ConnPh: poolLiabPH, TermQn: poolCompQN},
+		AssetVars: []api.AnyEvalVarSpec{
 			{ConnPh: poolAssetPH, TermQn: poolCompQN},
 		},
 	})

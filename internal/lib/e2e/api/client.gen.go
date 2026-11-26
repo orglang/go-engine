@@ -29,16 +29,16 @@ type AnyConnVarSpec struct {
 	TypeQn string `json:"type_qn"`
 }
 
-// AnyExecVarSpec defines model for Any.Exec.VarSpec.
-type AnyExecVarSpec struct {
+// AnyEvalVarSpec defines model for Any.Eval.VarSpec.
+type AnyEvalVarSpec struct {
 	ConnPh string `json:"conn_ph"`
 	TermQn string `json:"term_qn"`
 }
 
-// AnyExecSpec defines model for Any.ExecSpec.
-type AnyExecSpec struct {
-	AssetVars []AnyExecVarSpec `json:"asset_vars"`
-	LiabVar   AnyExecVarSpec   `json:"liab_var"`
+// AnyEvalSpec defines model for Any.EvalSpec.
+type AnyEvalSpec struct {
+	AssetVars []AnyEvalVarSpec `json:"asset_vars"`
+	LiabVar   AnyEvalVarSpec   `json:"liab_var"`
 	TermQn    string           `json:"term_qn"`
 }
 
@@ -628,7 +628,7 @@ type CreateProgramTextBody = string
 type CreatePoolDeclarationJSONRequestBody = PoolDecSpec
 
 // CreatePoolExecutionJSONRequestBody defines body for CreatePoolExecution for application/json ContentType.
-type CreatePoolExecutionJSONRequestBody = AnyExecSpec
+type CreatePoolExecutionJSONRequestBody = AnyEvalSpec
 
 // SpawnPoolExecutionJSONRequestBody defines body for SpawnPoolExecution for application/json ContentType.
 type SpawnPoolExecutionJSONRequestBody = PoolStepSpec

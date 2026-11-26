@@ -14,6 +14,7 @@ import (
 	compexec "orglang/go-engine/internal/proc/compexec/adapter"
 	descrootadapter "orglang/go-engine/internal/proc/descroot/adapter"
 	"orglang/go-engine/internal/proc/ent"
+	termdec "orglang/go-engine/internal/proc/termdec/adapter"
 	termdef "orglang/go-engine/internal/proc/termdef/adapter"
 	typedef "orglang/go-engine/internal/proc/typedef/adapter"
 	typeexp "orglang/go-engine/internal/proc/typeexp/adapter"
@@ -38,6 +39,7 @@ var Package = do.Package(
 		return descrootadapter.NewDaoEnt(client, logger), nil
 	}),
 	compexec.Package,
+	termdec.Package,
 	termdef.Package,
 	typedef.Package,
 	typeexp.Package,

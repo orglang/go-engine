@@ -12,7 +12,6 @@ import (
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/termsem"
-	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/uniqsym"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 	termdec "orglang/go-engine/internal/pool/termdec/core"
@@ -28,11 +27,7 @@ type DefSpec struct {
 	Exp    ExpSpec
 }
 
-type DecRec struct {
-	TermRef   termsem.SemRef
-	LiabVar   termvar.VarRec
-	AssetVars []termvar.VarRec
-}
+type DecRec = termdec.DecRec
 
 type DefRec struct {
 	TermID identity.ADT

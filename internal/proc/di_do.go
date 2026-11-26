@@ -16,7 +16,6 @@ import (
 	termdec "orglang/go-engine/internal/proc/termdec/adapter"
 	termdef "orglang/go-engine/internal/proc/termdef/adapter"
 	typedef "orglang/go-engine/internal/proc/typedef/adapter"
-	typeexp "orglang/go-engine/internal/proc/typeexp/adapter"
 )
 
 // Package is the process-domain composition boundary. It registers the
@@ -41,7 +40,6 @@ var Package = do.Package(
 	termdec.Package,
 	termdef.Package,
 	typedef.Package,
-	typeexp.Package,
 	do.Lazy[typesem.Repo](func(i do.Injector) (typesem.Repo, error) {
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil {

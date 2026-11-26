@@ -19,7 +19,6 @@ import (
 	termdec "orglang/go-engine/internal/pool/termdec/adapter"
 	termdef "orglang/go-engine/internal/pool/termdef/adapter"
 	typedef "orglang/go-engine/internal/pool/typedef/adapter"
-	typeexp "orglang/go-engine/internal/pool/typeexp/adapter"
 )
 
 var Package = do.Package(
@@ -30,7 +29,6 @@ var Package = do.Package(
 	compconn.Package,
 	compvar.Package,
 	compexec.Package,
-	typeexp.Package,
 	typedef.Package,
 	termdec.Package,
 	termdef.Package,

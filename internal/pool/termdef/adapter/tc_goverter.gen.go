@@ -7,6 +7,7 @@ import (
 	identity "orglang/go-engine/internal/adt/identity"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
 	termsem "orglang/go-engine/internal/adt/termsem"
+	termvar "orglang/go-engine/internal/adt/termvar"
 	adapter "orglang/go-engine/internal/adt/termvar/adapter"
 	core "orglang/go-engine/internal/pool/termdec/core"
 )

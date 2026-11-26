@@ -41,11 +41,18 @@ func TestCfgGeneratedServerRegistersGeneratedRoutes(t *testing.T) {
 		t.Errorf("unexpected Definition rn: got %v, want 9", stub.gotDefinitionRN)
 	}
 
-	for _, route := range []string{"POST /api/v1/processes/declarations", "GET /api/v1/processes/declarations/:id"} {
-		for _, registered := range e.Routes() {
-			if registered.Method+" "+registered.Path == route {
-				t.Errorf("Declaration route %q was registered by termdef", route)
-			}
+	for _, route := range []struct {
+		method string
+		path   string
+	}{
+		{method: http.MethodPost, path: "/api/v1/processes/declarations"},
+		{method: http.MethodGet, path: "/api/v1/processes/declarations/dec-1"},
+	} {
+		req = httptest.NewRequestWithContext(context.Background(), route.method, route.path, nil)
+		rec = httptest.NewRecorder()
+		e.ServeHTTP(rec, req)
+		if rec.Code != http.StatusNotFound {
+			t.Errorf("Declaration route %s %s was registered by termdef: got %d, want %d", route.method, route.path, rec.Code, http.StatusNotFound)
 		}
 	}
 

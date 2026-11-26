@@ -36,26 +36,44 @@ var Package = do.Package(
 	termdef.Package,
 	do.LazyNamed[descroot.Repo]("pool-descroot", func(i do.Injector) (descroot.Repo, error) {
 		client, err := do.Invoke[*ent.Client](i)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		logger, err := do.Invoke[*slog.Logger](i)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		return descrootadapter.NewDaoEnt(client, logger), nil
 	}),
 	do.LazyNamed[descsem.Repo]("pool-descsem", func(i do.Injector) (descsem.Repo, error) {
 		logger, err := do.Invoke[*slog.Logger](i)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		return descsemadapter.NewDaoPgx("pool_desc_binds ")(logger), nil
 	}),
 )
 
 func RegisterRoutes(server *echo.Echo, i do.Injector) error {
 	execController, err := do.Invoke[compexec.Controller](i)
-	if err != nil { return err }
-	if err := compexec.RegisterRoutes(server, execController); err != nil { return err }
+	if err != nil {
+		return err
+	}
+	if err := compexec.RegisterRoutes(server, execController); err != nil {
+		return err
+	}
+
 	typeController, err := do.Invoke[typedef.GeneratedController](i)
-	if err != nil { return err }
-	if err := typedef.RegisterGeneratedRoutes(server, typeController); err != nil { return err }
+	if err != nil {
+		return err
+	}
+	if err := typedef.RegisterGeneratedRoutes(server, typeController); err != nil {
+		return err
+	}
+
 	termController, err := do.Invoke[termdef.GeneratedController](i)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	return termdef.RegisterGeneratedRoutes(server, termController)
 }

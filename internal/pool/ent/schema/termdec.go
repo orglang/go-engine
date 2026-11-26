@@ -9,13 +9,12 @@ import (
 	termvaradapter "orglang/go-engine/internal/adt/termvar/adapter"
 )
 
-// Deprecated: TermDef is the legacy declaration-shaped model for a Term. Use the Term identity and Definition repositories.
-type TermDef struct {
+type TermDec struct {
 	ent.Schema
 }
 
-// Fields of the TermDef.
-func (TermDef) Fields() []ent.Field {
+// Fields of the TermDec.
+func (TermDec) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("id").StorageKey("term_id").Immutable(),
 		field.String("desc_id"),
@@ -26,7 +25,7 @@ func (TermDef) Fields() []ent.Field {
 }
 
 // Annotations maps the schema to its owning Description's Term identity table.
-func (TermDef) Annotations() []schema.Annotation {
+func (TermDec) Annotations() []schema.Annotation {
 	return []schema.Annotation{
 		entsql.Annotation{Table: "pool_desc_terms"},
 	}

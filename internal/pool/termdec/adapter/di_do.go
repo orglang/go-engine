@@ -52,4 +52,15 @@ var Package = do.Package(
 		}
 		return core.NewService(repo, descRootRepo, typeDefRepo, descRepo, transactor, logger), nil
 	}),
+	do.Lazy[GeneratedController](func(i do.Injector) (GeneratedController, error) {
+		api, err := do.Invoke[core.API](i)
+		if err != nil {
+			return nil, err
+		}
+		logger, err := do.Invoke[*slog.Logger](i)
+		if err != nil {
+			return nil, err
+		}
+		return newControllerEcho(api, logger), nil
+	}),
 )

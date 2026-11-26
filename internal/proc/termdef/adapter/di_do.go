@@ -11,8 +11,8 @@ import (
 	webapi "orglang/go-engine/internal/app/web/api"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/ent"
-	"orglang/go-engine/internal/proc/termdef/core"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
+	"orglang/go-engine/internal/proc/termdef/core"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
@@ -38,14 +38,20 @@ var Package = do.Package(
 	}),
 	do.Lazy[termdec.Repo](func(i do.Injector) (termdec.Repo, error) {
 		client, err := do.Invoke[*ent.Client](i)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		logger, err := do.Invoke[*slog.Logger](i)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		return newTermDecRepo(NewDaoEnt(client, logger)), nil
 	}),
 	do.Lazy[core.API](func(i do.Injector) (core.API, error) {
 		termDecRepo, err := do.Invoke[termdec.Repo](i)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		termDefRepo, err := do.Invoke[core.Repo](i)
 		if err != nil {
 			return nil, err

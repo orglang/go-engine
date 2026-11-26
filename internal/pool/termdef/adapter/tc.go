@@ -10,7 +10,9 @@ import (
 )
 
 // DefinitionToGenerated converts a persisted pool Definition to its public TypeSpec DTO.
-func DefinitionToGenerated(def termdef.DefSpec) (webapi.PoolTermDefinitionSpec, error) { return expToGenerated(def.Exp) }
+func DefinitionToGenerated(def termdef.DefSpec) (webapi.PoolTermDefinitionSpec, error) {
+	return expToGenerated(def.Exp)
+}
 
 func expToGenerated(spec termdef.ExpSpec) (webapi.PoolTermDefinitionSpec, error) {
 	var out webapi.PoolTermDefinitionSpec

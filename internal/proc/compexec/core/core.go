@@ -20,11 +20,11 @@ import (
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
 	compconn "orglang/go-engine/internal/proc/compconn/core"
+	compexp "orglang/go-engine/internal/proc/compexec/exp"
 	compstep "orglang/go-engine/internal/proc/compstep/core"
 	connact "orglang/go-engine/internal/proc/connact/core"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 	termdef "orglang/go-engine/internal/proc/termdef/core"
-	compexp "orglang/go-engine/internal/proc/compexec/exp"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 	typeexp "orglang/go-engine/internal/proc/typeexp/core"
 )

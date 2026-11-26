@@ -29,8 +29,8 @@ type LabRec = compexp.LabRec
 type CaseRec = compexp.CaseRec
 type FwdRec = compexp.FwdRec
 
-func CollectEnv(spec ExpSpec) []identity.ADT { return compexp.CollectEnv(spec) }
-func ErrExpTypeUnexpected(got ExpSpec) error { return compexp.ErrExpTypeUnexpected(got) }
-func ErrRecTypeUnexpected(got ExpRec) error { return compexp.ErrRecTypeUnexpected(got) }
+func CollectEnv(spec ExpSpec) []identity.ADT     { return compexp.CollectEnv(spec) }
+func ErrExpTypeUnexpected(got ExpSpec) error     { return compexp.ErrExpTypeUnexpected(got) }
+func ErrRecTypeUnexpected(got ExpRec) error      { return compexp.ErrRecTypeUnexpected(got) }
 func ErrExpTypeMismatch(got, want ExpSpec) error { return compexp.ErrExpTypeMismatch(got, want) }
-func ErrExpValueNil(pid identity.ADT) error { return compexp.ErrExpValueNil(pid) }
+func ErrExpValueNil(pid identity.ADT) error      { return compexp.ErrExpValueNil(pid) }

@@ -18,12 +18,12 @@ import (
 
 type defRecDTO struct {
 	TermID string `db:"term_id"`
-	ExpCK int64 `db:"exp_ck"`
+	ExpCK  int64  `db:"exp_ck"`
 }
 
 type daoEnt struct {
 	client *ent.Client
-	log *slog.Logger
+	log    *slog.Logger
 }
 
 func NewDaoEnt(client *ent.Client, log *slog.Logger) *daoEnt {
@@ -41,8 +41,12 @@ SET exp_ck = $1
 WHERE term_id = $2
 `
 	result, err := conn.Pgx.Exec(ctx, query, int64(expCK), termID.String())
-	if err != nil { return err }
-	if result.RowsAffected() == 0 { return fmt.Errorf("pool term %v does not exist", termID) }
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected() == 0 {
+		return fmt.Errorf("pool term %v does not exist", termID)
+	}
 	return nil
 }
 
@@ -53,14 +57,20 @@ FROM pool_desc_terms AS def
 WHERE def.term_id = $1
 `
 	rows, err := conn.Pgx.Query(ctx, query, termID.String())
-	if err != nil { return termdef.DefRec{}, err }
+	if err != nil {
+		return termdef.DefRec{}, err
+	}
 	defer rows.Close()
 	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[defRecDTO])
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) { return termdef.DefRec{}, termdef.ErrTermMissing(termID) }
+		if errors.Is(err, pgx.ErrNoRows) {
+			return termdef.DefRec{}, termdef.ErrTermMissing(termID)
+		}
 		return termdef.DefRec{}, err
 	}
 	expCK, err := contkey.ConvertFromInt(dto.ExpCK)
-	if err != nil { return termdef.DefRec{}, err }
+	if err != nil {
+		return termdef.DefRec{}, err
+	}
 	return termdef.DefRec{TermID: termID, ExpCK: expCK}, nil
 }

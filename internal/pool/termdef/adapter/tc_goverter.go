@@ -39,5 +39,5 @@ var (
 	// goverter:autoMap TermRef
 	// goverter:ignore ExpCK
 	DataFromTermDecRec func(termdec.DecRec) (DecRec, error)
-	dataToTermRef  func(DecRec) (termsem.SemRef, error)
+	dataToTermRef      func(DecRec) (termsem.SemRef, error)
 )

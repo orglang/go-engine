@@ -15,8 +15,8 @@ import (
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/termvar"
-	termdec "orglang/go-engine/internal/proc/termdec/core"
 	"orglang/go-engine/internal/adt/uniqsym"
+	termdec "orglang/go-engine/internal/proc/termdec/core"
 
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 )

@@ -11,7 +11,9 @@ import (
 )
 
 // DefinitionToGenerated converts a persisted process Definition to its public TypeSpec DTO.
-func DefinitionToGenerated(def termdef.DefSpec) (webapi.ProcTermDefinitionSpec, error) { return expToGenerated(def.Exp) }
+func DefinitionToGenerated(def termdef.DefSpec) (webapi.ProcTermDefinitionSpec, error) {
+	return expToGenerated(def.Exp)
+}
 
 func expToGenerated(spec termdef.ExpSpec) (webapi.ProcTermDefinitionSpec, error) {
 	var out webapi.ProcTermDefinitionSpec

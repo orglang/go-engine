@@ -25,4 +25,4 @@ type QuitRec = compexp.QuitRec
 type SpawnRec = compexp.SpawnRec
 
 func ErrSpecTypeUnexpected(got ExpSpec) error { return compexp.ErrSpecTypeUnexpected(got) }
-func ErrRecTypeUnexpected(got ExpRec) error { return compexp.ErrRecTypeUnexpected(got) }
+func ErrRecTypeUnexpected(got ExpRec) error   { return compexp.ErrRecTypeUnexpected(got) }

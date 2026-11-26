@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	ErrTermDoesNotExist               = errors.New("process term does not exist")
-	ErrDefinitionMissing              = errors.New("process term has no Definition")
+	ErrTermDoesNotExist  = errors.New("process term does not exist")
+	ErrDefinitionMissing = errors.New("process term has no Definition")
 )
 
 func ErrTermMissing(termID identity.ADT) error {

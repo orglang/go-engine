@@ -5,33 +5,33 @@ package ent
 import (
 	"context"
 	"orglang/go-engine/internal/pool/ent/predicate"
-	"orglang/go-engine/internal/pool/ent/termdef"
+	"orglang/go-engine/internal/pool/ent/termdec"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 )
 
-// TermDefDelete is the builder for deleting a TermDef entity.
-type TermDefDelete struct {
+// TermDecDelete is the builder for deleting a TermDec entity.
+type TermDecDelete struct {
 	config
 	hooks    []Hook
-	mutation *TermDefMutation
+	mutation *TermDecMutation
 }
 
-// Where appends a list predicates to the TermDefDelete builder.
-func (_d *TermDefDelete) Where(ps ...predicate.TermDef) *TermDefDelete {
+// Where appends a list predicates to the TermDecDelete builder.
+func (_d *TermDecDelete) Where(ps ...predicate.TermDec) *TermDecDelete {
 	_d.mutation.Where(ps...)
 	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (_d *TermDefDelete) Exec(ctx context.Context) (int, error) {
+func (_d *TermDecDelete) Exec(ctx context.Context) (int, error) {
 	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_d *TermDefDelete) ExecX(ctx context.Context) int {
+func (_d *TermDecDelete) ExecX(ctx context.Context) int {
 	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
@@ -39,8 +39,8 @@ func (_d *TermDefDelete) ExecX(ctx context.Context) int {
 	return n
 }
 
-func (_d *TermDefDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(termdef.Table, sqlgraph.NewFieldSpec(termdef.FieldID, field.TypeString))
+func (_d *TermDecDelete) sqlExec(ctx context.Context) (int, error) {
+	_spec := sqlgraph.NewDeleteSpec(termdec.Table, sqlgraph.NewFieldSpec(termdec.FieldID, field.TypeString))
 	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -56,32 +56,32 @@ func (_d *TermDefDelete) sqlExec(ctx context.Context) (int, error) {
 	return affected, err
 }
 
-// TermDefDeleteOne is the builder for deleting a single TermDef entity.
-type TermDefDeleteOne struct {
-	_d *TermDefDelete
+// TermDecDeleteOne is the builder for deleting a single TermDec entity.
+type TermDecDeleteOne struct {
+	_d *TermDecDelete
 }
 
-// Where appends a list predicates to the TermDefDelete builder.
-func (_d *TermDefDeleteOne) Where(ps ...predicate.TermDef) *TermDefDeleteOne {
+// Where appends a list predicates to the TermDecDelete builder.
+func (_d *TermDecDeleteOne) Where(ps ...predicate.TermDec) *TermDecDeleteOne {
 	_d._d.mutation.Where(ps...)
 	return _d
 }
 
 // Exec executes the deletion query.
-func (_d *TermDefDeleteOne) Exec(ctx context.Context) error {
+func (_d *TermDecDeleteOne) Exec(ctx context.Context) error {
 	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
 	case n == 0:
-		return &NotFoundError{termdef.Label}
+		return &NotFoundError{termdec.Label}
 	default:
 		return nil
 	}
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_d *TermDefDeleteOne) ExecX(ctx context.Context) {
+func (_d *TermDecDeleteOne) ExecX(ctx context.Context) {
 	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}

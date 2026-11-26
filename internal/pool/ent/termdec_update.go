@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"orglang/go-engine/internal/adt/termvar/adapter"
 	"orglang/go-engine/internal/pool/ent/predicate"
-	"orglang/go-engine/internal/pool/ent/termdef"
+	"orglang/go-engine/internal/pool/ent/termdec"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -16,27 +16,27 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// TermDefUpdate is the builder for updating TermDef entities.
-type TermDefUpdate struct {
+// TermDecUpdate is the builder for updating TermDec entities.
+type TermDecUpdate struct {
 	config
 	hooks    []Hook
-	mutation *TermDefMutation
+	mutation *TermDecMutation
 }
 
-// Where appends a list predicates to the TermDefUpdate builder.
-func (_u *TermDefUpdate) Where(ps ...predicate.TermDef) *TermDefUpdate {
+// Where appends a list predicates to the TermDecUpdate builder.
+func (_u *TermDecUpdate) Where(ps ...predicate.TermDec) *TermDecUpdate {
 	_u.mutation.Where(ps...)
 	return _u
 }
 
 // SetDescID sets the "desc_id" field.
-func (_u *TermDefUpdate) SetDescID(v string) *TermDefUpdate {
+func (_u *TermDecUpdate) SetDescID(v string) *TermDecUpdate {
 	_u.mutation.SetDescID(v)
 	return _u
 }
 
 // SetNillableDescID sets the "desc_id" field if the given value is not nil.
-func (_u *TermDefUpdate) SetNillableDescID(v *string) *TermDefUpdate {
+func (_u *TermDecUpdate) SetNillableDescID(v *string) *TermDecUpdate {
 	if v != nil {
 		_u.SetDescID(*v)
 	}
@@ -44,14 +44,14 @@ func (_u *TermDefUpdate) SetNillableDescID(v *string) *TermDefUpdate {
 }
 
 // SetExpCk sets the "exp_ck" field.
-func (_u *TermDefUpdate) SetExpCk(v int64) *TermDefUpdate {
+func (_u *TermDecUpdate) SetExpCk(v int64) *TermDecUpdate {
 	_u.mutation.ResetExpCk()
 	_u.mutation.SetExpCk(v)
 	return _u
 }
 
 // SetNillableExpCk sets the "exp_ck" field if the given value is not nil.
-func (_u *TermDefUpdate) SetNillableExpCk(v *int64) *TermDefUpdate {
+func (_u *TermDecUpdate) SetNillableExpCk(v *int64) *TermDecUpdate {
 	if v != nil {
 		_u.SetExpCk(*v)
 	}
@@ -59,25 +59,25 @@ func (_u *TermDefUpdate) SetNillableExpCk(v *int64) *TermDefUpdate {
 }
 
 // AddExpCk adds value to the "exp_ck" field.
-func (_u *TermDefUpdate) AddExpCk(v int64) *TermDefUpdate {
+func (_u *TermDecUpdate) AddExpCk(v int64) *TermDecUpdate {
 	_u.mutation.AddExpCk(v)
 	return _u
 }
 
 // ClearExpCk clears the value of the "exp_ck" field.
-func (_u *TermDefUpdate) ClearExpCk() *TermDefUpdate {
+func (_u *TermDecUpdate) ClearExpCk() *TermDecUpdate {
 	_u.mutation.ClearExpCk()
 	return _u
 }
 
 // SetLiabVar sets the "liab_var" field.
-func (_u *TermDefUpdate) SetLiabVar(v adapter.VarRec) *TermDefUpdate {
+func (_u *TermDecUpdate) SetLiabVar(v adapter.VarRec) *TermDecUpdate {
 	_u.mutation.SetLiabVar(v)
 	return _u
 }
 
 // SetNillableLiabVar sets the "liab_var" field if the given value is not nil.
-func (_u *TermDefUpdate) SetNillableLiabVar(v *adapter.VarRec) *TermDefUpdate {
+func (_u *TermDecUpdate) SetNillableLiabVar(v *adapter.VarRec) *TermDecUpdate {
 	if v != nil {
 		_u.SetLiabVar(*v)
 	}
@@ -85,29 +85,29 @@ func (_u *TermDefUpdate) SetNillableLiabVar(v *adapter.VarRec) *TermDefUpdate {
 }
 
 // SetAssetVars sets the "asset_vars" field.
-func (_u *TermDefUpdate) SetAssetVars(v []adapter.VarRec) *TermDefUpdate {
+func (_u *TermDecUpdate) SetAssetVars(v []adapter.VarRec) *TermDecUpdate {
 	_u.mutation.SetAssetVars(v)
 	return _u
 }
 
 // AppendAssetVars appends value to the "asset_vars" field.
-func (_u *TermDefUpdate) AppendAssetVars(v []adapter.VarRec) *TermDefUpdate {
+func (_u *TermDecUpdate) AppendAssetVars(v []adapter.VarRec) *TermDecUpdate {
 	_u.mutation.AppendAssetVars(v)
 	return _u
 }
 
-// Mutation returns the TermDefMutation object of the builder.
-func (_u *TermDefUpdate) Mutation() *TermDefMutation {
+// Mutation returns the TermDecMutation object of the builder.
+func (_u *TermDecUpdate) Mutation() *TermDecMutation {
 	return _u.mutation
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (_u *TermDefUpdate) Save(ctx context.Context) (int, error) {
+func (_u *TermDecUpdate) Save(ctx context.Context) (int, error) {
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (_u *TermDefUpdate) SaveX(ctx context.Context) int {
+func (_u *TermDecUpdate) SaveX(ctx context.Context) int {
 	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -116,20 +116,20 @@ func (_u *TermDefUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (_u *TermDefUpdate) Exec(ctx context.Context) error {
+func (_u *TermDecUpdate) Exec(ctx context.Context) error {
 	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_u *TermDefUpdate) ExecX(ctx context.Context) {
+func (_u *TermDecUpdate) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (_u *TermDefUpdate) sqlSave(ctx context.Context) (_node int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(termdef.Table, termdef.Columns, sqlgraph.NewFieldSpec(termdef.FieldID, field.TypeString))
+func (_u *TermDecUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	_spec := sqlgraph.NewUpdateSpec(termdec.Table, termdec.Columns, sqlgraph.NewFieldSpec(termdec.FieldID, field.TypeString))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -138,31 +138,31 @@ func (_u *TermDefUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 	}
 	if value, ok := _u.mutation.DescID(); ok {
-		_spec.SetField(termdef.FieldDescID, field.TypeString, value)
+		_spec.SetField(termdec.FieldDescID, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.ExpCk(); ok {
-		_spec.SetField(termdef.FieldExpCk, field.TypeInt64, value)
+		_spec.SetField(termdec.FieldExpCk, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.AddedExpCk(); ok {
-		_spec.AddField(termdef.FieldExpCk, field.TypeInt64, value)
+		_spec.AddField(termdec.FieldExpCk, field.TypeInt64, value)
 	}
 	if _u.mutation.ExpCkCleared() {
-		_spec.ClearField(termdef.FieldExpCk, field.TypeInt64)
+		_spec.ClearField(termdec.FieldExpCk, field.TypeInt64)
 	}
 	if value, ok := _u.mutation.LiabVar(); ok {
-		_spec.SetField(termdef.FieldLiabVar, field.TypeJSON, value)
+		_spec.SetField(termdec.FieldLiabVar, field.TypeJSON, value)
 	}
 	if value, ok := _u.mutation.AssetVars(); ok {
-		_spec.SetField(termdef.FieldAssetVars, field.TypeJSON, value)
+		_spec.SetField(termdec.FieldAssetVars, field.TypeJSON, value)
 	}
 	if value, ok := _u.mutation.AppendedAssetVars(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, termdef.FieldAssetVars, value)
+			sqljson.Append(u, termdec.FieldAssetVars, value)
 		})
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
-			err = &NotFoundError{termdef.Label}
+			err = &NotFoundError{termdec.Label}
 		} else if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -172,22 +172,22 @@ func (_u *TermDefUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	return _node, nil
 }
 
-// TermDefUpdateOne is the builder for updating a single TermDef entity.
-type TermDefUpdateOne struct {
+// TermDecUpdateOne is the builder for updating a single TermDec entity.
+type TermDecUpdateOne struct {
 	config
 	fields   []string
 	hooks    []Hook
-	mutation *TermDefMutation
+	mutation *TermDecMutation
 }
 
 // SetDescID sets the "desc_id" field.
-func (_u *TermDefUpdateOne) SetDescID(v string) *TermDefUpdateOne {
+func (_u *TermDecUpdateOne) SetDescID(v string) *TermDecUpdateOne {
 	_u.mutation.SetDescID(v)
 	return _u
 }
 
 // SetNillableDescID sets the "desc_id" field if the given value is not nil.
-func (_u *TermDefUpdateOne) SetNillableDescID(v *string) *TermDefUpdateOne {
+func (_u *TermDecUpdateOne) SetNillableDescID(v *string) *TermDecUpdateOne {
 	if v != nil {
 		_u.SetDescID(*v)
 	}
@@ -195,14 +195,14 @@ func (_u *TermDefUpdateOne) SetNillableDescID(v *string) *TermDefUpdateOne {
 }
 
 // SetExpCk sets the "exp_ck" field.
-func (_u *TermDefUpdateOne) SetExpCk(v int64) *TermDefUpdateOne {
+func (_u *TermDecUpdateOne) SetExpCk(v int64) *TermDecUpdateOne {
 	_u.mutation.ResetExpCk()
 	_u.mutation.SetExpCk(v)
 	return _u
 }
 
 // SetNillableExpCk sets the "exp_ck" field if the given value is not nil.
-func (_u *TermDefUpdateOne) SetNillableExpCk(v *int64) *TermDefUpdateOne {
+func (_u *TermDecUpdateOne) SetNillableExpCk(v *int64) *TermDecUpdateOne {
 	if v != nil {
 		_u.SetExpCk(*v)
 	}
@@ -210,25 +210,25 @@ func (_u *TermDefUpdateOne) SetNillableExpCk(v *int64) *TermDefUpdateOne {
 }
 
 // AddExpCk adds value to the "exp_ck" field.
-func (_u *TermDefUpdateOne) AddExpCk(v int64) *TermDefUpdateOne {
+func (_u *TermDecUpdateOne) AddExpCk(v int64) *TermDecUpdateOne {
 	_u.mutation.AddExpCk(v)
 	return _u
 }
 
 // ClearExpCk clears the value of the "exp_ck" field.
-func (_u *TermDefUpdateOne) ClearExpCk() *TermDefUpdateOne {
+func (_u *TermDecUpdateOne) ClearExpCk() *TermDecUpdateOne {
 	_u.mutation.ClearExpCk()
 	return _u
 }
 
 // SetLiabVar sets the "liab_var" field.
-func (_u *TermDefUpdateOne) SetLiabVar(v adapter.VarRec) *TermDefUpdateOne {
+func (_u *TermDecUpdateOne) SetLiabVar(v adapter.VarRec) *TermDecUpdateOne {
 	_u.mutation.SetLiabVar(v)
 	return _u
 }
 
 // SetNillableLiabVar sets the "liab_var" field if the given value is not nil.
-func (_u *TermDefUpdateOne) SetNillableLiabVar(v *adapter.VarRec) *TermDefUpdateOne {
+func (_u *TermDecUpdateOne) SetNillableLiabVar(v *adapter.VarRec) *TermDecUpdateOne {
 	if v != nil {
 		_u.SetLiabVar(*v)
 	}
@@ -236,42 +236,42 @@ func (_u *TermDefUpdateOne) SetNillableLiabVar(v *adapter.VarRec) *TermDefUpdate
 }
 
 // SetAssetVars sets the "asset_vars" field.
-func (_u *TermDefUpdateOne) SetAssetVars(v []adapter.VarRec) *TermDefUpdateOne {
+func (_u *TermDecUpdateOne) SetAssetVars(v []adapter.VarRec) *TermDecUpdateOne {
 	_u.mutation.SetAssetVars(v)
 	return _u
 }
 
 // AppendAssetVars appends value to the "asset_vars" field.
-func (_u *TermDefUpdateOne) AppendAssetVars(v []adapter.VarRec) *TermDefUpdateOne {
+func (_u *TermDecUpdateOne) AppendAssetVars(v []adapter.VarRec) *TermDecUpdateOne {
 	_u.mutation.AppendAssetVars(v)
 	return _u
 }
 
-// Mutation returns the TermDefMutation object of the builder.
-func (_u *TermDefUpdateOne) Mutation() *TermDefMutation {
+// Mutation returns the TermDecMutation object of the builder.
+func (_u *TermDecUpdateOne) Mutation() *TermDecMutation {
 	return _u.mutation
 }
 
-// Where appends a list predicates to the TermDefUpdate builder.
-func (_u *TermDefUpdateOne) Where(ps ...predicate.TermDef) *TermDefUpdateOne {
+// Where appends a list predicates to the TermDecUpdate builder.
+func (_u *TermDecUpdateOne) Where(ps ...predicate.TermDec) *TermDecUpdateOne {
 	_u.mutation.Where(ps...)
 	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (_u *TermDefUpdateOne) Select(field string, fields ...string) *TermDefUpdateOne {
+func (_u *TermDecUpdateOne) Select(field string, fields ...string) *TermDecUpdateOne {
 	_u.fields = append([]string{field}, fields...)
 	return _u
 }
 
-// Save executes the query and returns the updated TermDef entity.
-func (_u *TermDefUpdateOne) Save(ctx context.Context) (*TermDef, error) {
+// Save executes the query and returns the updated TermDec entity.
+func (_u *TermDecUpdateOne) Save(ctx context.Context) (*TermDec, error) {
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (_u *TermDefUpdateOne) SaveX(ctx context.Context) *TermDef {
+func (_u *TermDecUpdateOne) SaveX(ctx context.Context) *TermDec {
 	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -280,33 +280,33 @@ func (_u *TermDefUpdateOne) SaveX(ctx context.Context) *TermDef {
 }
 
 // Exec executes the query on the entity.
-func (_u *TermDefUpdateOne) Exec(ctx context.Context) error {
+func (_u *TermDecUpdateOne) Exec(ctx context.Context) error {
 	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_u *TermDefUpdateOne) ExecX(ctx context.Context) {
+func (_u *TermDecUpdateOne) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (_u *TermDefUpdateOne) sqlSave(ctx context.Context) (_node *TermDef, err error) {
-	_spec := sqlgraph.NewUpdateSpec(termdef.Table, termdef.Columns, sqlgraph.NewFieldSpec(termdef.FieldID, field.TypeString))
+func (_u *TermDecUpdateOne) sqlSave(ctx context.Context) (_node *TermDec, err error) {
+	_spec := sqlgraph.NewUpdateSpec(termdec.Table, termdec.Columns, sqlgraph.NewFieldSpec(termdec.FieldID, field.TypeString))
 	id, ok := _u.mutation.ID()
 	if !ok {
-		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "TermDef.id" for update`)}
+		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "TermDec.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
 	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, termdef.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, termdec.FieldID)
 		for _, f := range fields {
-			if !termdef.ValidColumn(f) {
+			if !termdec.ValidColumn(f) {
 				return nil, &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 			}
-			if f != termdef.FieldID {
+			if f != termdec.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, f)
 			}
 		}
@@ -319,34 +319,34 @@ func (_u *TermDefUpdateOne) sqlSave(ctx context.Context) (_node *TermDef, err er
 		}
 	}
 	if value, ok := _u.mutation.DescID(); ok {
-		_spec.SetField(termdef.FieldDescID, field.TypeString, value)
+		_spec.SetField(termdec.FieldDescID, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.ExpCk(); ok {
-		_spec.SetField(termdef.FieldExpCk, field.TypeInt64, value)
+		_spec.SetField(termdec.FieldExpCk, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.AddedExpCk(); ok {
-		_spec.AddField(termdef.FieldExpCk, field.TypeInt64, value)
+		_spec.AddField(termdec.FieldExpCk, field.TypeInt64, value)
 	}
 	if _u.mutation.ExpCkCleared() {
-		_spec.ClearField(termdef.FieldExpCk, field.TypeInt64)
+		_spec.ClearField(termdec.FieldExpCk, field.TypeInt64)
 	}
 	if value, ok := _u.mutation.LiabVar(); ok {
-		_spec.SetField(termdef.FieldLiabVar, field.TypeJSON, value)
+		_spec.SetField(termdec.FieldLiabVar, field.TypeJSON, value)
 	}
 	if value, ok := _u.mutation.AssetVars(); ok {
-		_spec.SetField(termdef.FieldAssetVars, field.TypeJSON, value)
+		_spec.SetField(termdec.FieldAssetVars, field.TypeJSON, value)
 	}
 	if value, ok := _u.mutation.AppendedAssetVars(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, termdef.FieldAssetVars, value)
+			sqljson.Append(u, termdec.FieldAssetVars, value)
 		})
 	}
-	_node = &TermDef{config: _u.config}
+	_node = &TermDec{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
 	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
-			err = &NotFoundError{termdef.Label}
+			err = &NotFoundError{termdec.Label}
 		} else if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}

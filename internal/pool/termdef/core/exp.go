@@ -80,7 +80,7 @@ type ExpAcquireRec struct {
 	ContExp    ExpRec
 }
 
-func (ExpAcquireRec) expRec()                  {}
+func (ExpAcquireRec) expRec()                   {}
 func (r ExpAcquireRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpAcceptRec struct {
@@ -89,7 +89,7 @@ type ExpAcceptRec struct {
 	ContExp    ExpRec
 }
 
-func (ExpAcceptRec) expRec()                  {}
+func (ExpAcceptRec) expRec()                   {}
 func (r ExpAcceptRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpHireRec struct {
@@ -99,7 +99,7 @@ type ExpHireRec struct {
 	ContExp    ExpRec
 }
 
-func (ExpHireRec) expRec()                  {}
+func (ExpHireRec) expRec()                   {}
 func (r ExpHireRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpApplyRec struct {
@@ -109,7 +109,7 @@ type ExpApplyRec struct {
 	ContExp    ExpRec
 }
 
-func (ExpApplyRec) expRec()                  {}
+func (ExpApplyRec) expRec()                   {}
 func (r ExpApplyRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpReleaseRec struct {
@@ -117,7 +117,7 @@ type ExpReleaseRec struct {
 	ConnChnlPH symbol.ADT
 }
 
-func (ExpReleaseRec) expRec()                  {}
+func (ExpReleaseRec) expRec()                   {}
 func (r ExpReleaseRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpDetachRec struct {
@@ -125,7 +125,7 @@ type ExpDetachRec struct {
 	ConnChnlPH symbol.ADT
 }
 
-func (ExpDetachRec) expRec()                  {}
+func (ExpDetachRec) expRec()                   {}
 func (r ExpDetachRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpFireRec struct {
@@ -134,7 +134,7 @@ type ExpFireRec struct {
 	ProcTermQN uniqsym.ADT
 }
 
-func (ExpFireRec) expRec()                  {}
+func (ExpFireRec) expRec()                   {}
 func (r ExpFireRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpQuitRec struct {
@@ -143,7 +143,7 @@ type ExpQuitRec struct {
 	ProcTermQN uniqsym.ADT
 }
 
-func (ExpQuitRec) expRec()                  {}
+func (ExpQuitRec) expRec()                   {}
 func (r ExpQuitRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpSpawnRec struct {
@@ -152,7 +152,7 @@ type ExpSpawnRec struct {
 	ProcCompQNs []uniqsym.ADT
 }
 
-func (ExpSpawnRec) expRec()                  {}
+func (ExpSpawnRec) expRec()                   {}
 func (r ExpSpawnRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 func ConvertSpecToRec(spec ExpSpec) (ExpRec, error) {

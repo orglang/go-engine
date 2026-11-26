@@ -18,13 +18,13 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 
 	compconn "orglang/go-engine/internal/pool/compconn/core"
+	compexp "orglang/go-engine/internal/pool/compexec/exp"
 	compstep "orglang/go-engine/internal/pool/compstep/core"
 	compvar "orglang/go-engine/internal/pool/compvar/core"
 	connact "orglang/go-engine/internal/pool/connact/core"
 	termdec "orglang/go-engine/internal/pool/termdec/core"
-	proctermdef "orglang/go-engine/internal/proc/termdef/core"
-	compexp "orglang/go-engine/internal/pool/compexec/exp"
 	typeexp "orglang/go-engine/internal/pool/typeexp/core"
+	proctermdef "orglang/go-engine/internal/proc/termdef/core"
 
 	proccompexec "orglang/go-engine/internal/proc/compexec/core"
 )

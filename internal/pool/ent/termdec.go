@@ -6,15 +6,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"orglang/go-engine/internal/adt/termvar/adapter"
-	"orglang/go-engine/internal/pool/ent/termdef"
+	"orglang/go-engine/internal/pool/ent/termdec"
 	"strings"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 )
 
-// TermDef is the model entity for the TermDef schema.
-type TermDef struct {
+// TermDec is the model entity for the TermDec schema.
+type TermDec struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
@@ -30,15 +30,15 @@ type TermDef struct {
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*TermDef) scanValues(columns []string) ([]any, error) {
+func (*TermDec) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case termdef.FieldLiabVar, termdef.FieldAssetVars:
+		case termdec.FieldLiabVar, termdec.FieldAssetVars:
 			values[i] = new([]byte)
-		case termdef.FieldExpCk:
+		case termdec.FieldExpCk:
 			values[i] = new(sql.NullInt64)
-		case termdef.FieldID, termdef.FieldDescID:
+		case termdec.FieldID, termdec.FieldDescID:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -48,32 +48,32 @@ func (*TermDef) scanValues(columns []string) ([]any, error) {
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the TermDef fields.
-func (_m *TermDef) assignValues(columns []string, values []any) error {
+// to the TermDec fields.
+func (_m *TermDec) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case termdef.FieldID:
+		case termdec.FieldID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
 			}
-		case termdef.FieldDescID:
+		case termdec.FieldDescID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field desc_id", values[i])
 			} else if value.Valid {
 				_m.DescID = value.String
 			}
-		case termdef.FieldExpCk:
+		case termdec.FieldExpCk:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field exp_ck", values[i])
 			} else if value.Valid {
 				_m.ExpCk = value.Int64
 			}
-		case termdef.FieldLiabVar:
+		case termdec.FieldLiabVar:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field liab_var", values[i])
 			} else if value != nil && len(*value) > 0 {
@@ -81,7 +81,7 @@ func (_m *TermDef) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field liab_var: %w", err)
 				}
 			}
-		case termdef.FieldAssetVars:
+		case termdec.FieldAssetVars:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field asset_vars", values[i])
 			} else if value != nil && len(*value) > 0 {
@@ -96,34 +96,34 @@ func (_m *TermDef) assignValues(columns []string, values []any) error {
 	return nil
 }
 
-// Value returns the ent.Value that was dynamically selected and assigned to the TermDef.
+// Value returns the ent.Value that was dynamically selected and assigned to the TermDec.
 // This includes values selected through modifiers, order, etc.
-func (_m *TermDef) Value(name string) (ent.Value, error) {
+func (_m *TermDec) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// Update returns a builder for updating this TermDef.
-// Note that you need to call TermDef.Unwrap() before calling this method if this TermDef
+// Update returns a builder for updating this TermDec.
+// Note that you need to call TermDec.Unwrap() before calling this method if this TermDec
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (_m *TermDef) Update() *TermDefUpdateOne {
-	return NewTermDefClient(_m.config).UpdateOne(_m)
+func (_m *TermDec) Update() *TermDecUpdateOne {
+	return NewTermDecClient(_m.config).UpdateOne(_m)
 }
 
-// Unwrap unwraps the TermDef entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the TermDec entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (_m *TermDef) Unwrap() *TermDef {
+func (_m *TermDec) Unwrap() *TermDec {
 	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: TermDef is not a transactional entity")
+		panic("ent: TermDec is not a transactional entity")
 	}
 	_m.config.driver = _tx.drv
 	return _m
 }
 
 // String implements the fmt.Stringer.
-func (_m *TermDef) String() string {
+func (_m *TermDec) String() string {
 	var builder strings.Builder
-	builder.WriteString("TermDef(")
+	builder.WriteString("TermDec(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("desc_id=")
 	builder.WriteString(_m.DescID)
@@ -140,5 +140,5 @@ func (_m *TermDef) String() string {
 	return builder.String()
 }
 
-// TermDefs is a parsable slice of TermDef.
-type TermDefs []*TermDef
+// TermDecs is a parsable slice of TermDec.
+type TermDecs []*TermDec

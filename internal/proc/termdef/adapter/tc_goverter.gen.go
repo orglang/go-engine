@@ -4,7 +4,6 @@
 package adapter
 
 import (
-	contkey "orglang/go-engine/internal/adt/contkey"
 	identity "orglang/go-engine/internal/adt/identity"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
 	symbol "orglang/go-engine/internal/adt/symbol"
@@ -13,7 +12,7 @@ import (
 	adapter "orglang/go-engine/internal/adt/termvar/adapter"
 	uniqsym "orglang/go-engine/internal/adt/uniqsym"
 	api "orglang/go-engine/internal/app/web/api"
-	core "orglang/go-engine/internal/proc/termdef/core"
+	core "orglang/go-engine/internal/proc/termdec/core"
 )
 
 func init() {
@@ -24,7 +23,7 @@ func init() {
 	}
 }
 func init() {
-	DataFromDecRec = func(source core.DefRec) (DecRec, error) {
+	DataFromTermDecRec = func(source core.DecRec) (DecRec, error) {
 		var adapterDecRec DecRec
 		adapterDecRec.TermID = identity.ConvertToString(source.TermRef.TermID)
 		adapterDecRec.DescID = identity.ConvertToString(source.TermRef.DescID)
@@ -46,12 +45,12 @@ func init() {
 		}
 		return adapterDecRec, nil
 	}
-	DataFromDecRecs = func(source []core.DefRec) ([]DecRec, error) {
+	DataFromTermDecRecs = func(source []core.DecRec) ([]DecRec, error) {
 		var adapterDecRecList []DecRec
 		if source != nil {
 			adapterDecRecList = make([]DecRec, len(source))
 			for i := 0; i < len(source); i++ {
-				adapterDecRec, err := DataFromDecRec(source[i])
+				adapterDecRec, err := DataFromTermDecRec(source[i])
 				if err != nil {
 					return nil, err
 				}
@@ -60,7 +59,7 @@ func init() {
 		}
 		return adapterDecRecList, nil
 	}
-	DataFromDecSnap = func(source core.DecSnap) (DecSnap, error) {
+	DataFromTermDecSnap = func(source core.DecSnap) (DecSnap, error) {
 		var adapterDecSnap DecSnap
 		adapterDecSnap.TermID = identity.ConvertToString(source.TermRef.TermID)
 		adapterDecSnap.DescID = identity.ConvertToString(source.TermRef.DescID)
@@ -82,12 +81,12 @@ func init() {
 		}
 		return adapterDecSnap, nil
 	}
-	DataFromDecSnaps = func(source []core.DecSnap) ([]DecSnap, error) {
+	DataFromTermDecSnaps = func(source []core.DecSnap) ([]DecSnap, error) {
 		var adapterDecSnapList []DecSnap
 		if source != nil {
 			adapterDecSnapList = make([]DecSnap, len(source))
 			for i := 0; i < len(source); i++ {
-				adapterDecSnap, err := DataFromDecSnap(source[i])
+				adapterDecSnap, err := DataFromTermDecSnap(source[i])
 				if err != nil {
 					return nil, err
 				}
@@ -96,50 +95,45 @@ func init() {
 		}
 		return adapterDecSnapList, nil
 	}
-	DataToDecRec = func(source DecRec) (core.DefRec, error) {
-		var coreDefRec core.DefRec
+	DataToTermDecRec = func(source DecRec) (core.DecRec, error) {
+		var coreDecRec core.DecRec
 		termsemSemRef, err := adapterDecRecToTermsemSemRef(source)
 		if err != nil {
-			return coreDefRec, err
+			return coreDecRec, err
 		}
-		coreDefRec.TermRef = termsemSemRef
-		contkeyADT, err := contkey.ConvertFromInt(source.ExpCK)
-		if err != nil {
-			return coreDefRec, err
-		}
-		coreDefRec.ExpCK = contkeyADT
+		coreDecRec.TermRef = termsemSemRef
 		termvarVarRec, err := adapter.DataToVarRec(source.LiabVar)
 		if err != nil {
-			return coreDefRec, err
+			return coreDecRec, err
 		}
-		coreDefRec.LiabVar = termvarVarRec
+		coreDecRec.LiabVar = termvarVarRec
 		if source.AssetVars != nil {
-			coreDefRec.AssetVars = make([]termvar.VarRec, len(source.AssetVars))
+			coreDecRec.AssetVars = make([]termvar.VarRec, len(source.AssetVars))
 			for i := 0; i < len(source.AssetVars); i++ {
 				termvarVarRec2, err := adapter.DataToVarRec(source.AssetVars[i])
 				if err != nil {
-					return coreDefRec, err
+					return coreDecRec, err
 				}
-				coreDefRec.AssetVars[i] = termvarVarRec2
+				coreDecRec.AssetVars[i] = termvarVarRec2
 			}
 		}
-		return coreDefRec, nil
+		return coreDecRec, nil
 	}
-	DataToDecRecs = func(source []DecRec) ([]core.DefRec, error) {
-		var coreDefRecList []core.DefRec
+	DataToTermDecRecs = func(source []DecRec) ([]core.DecRec, error) {
+		var coreDecRecList []core.DecRec
 		if source != nil {
-			coreDefRecList = make([]core.DefRec, len(source))
+			coreDecRecList = make([]core.DecRec, len(source))
 			for i := 0; i < len(source); i++ {
-				coreDefRec, err := DataToDecRec(source[i])
+				coreDecRec, err := DataToTermDecRec(source[i])
 				if err != nil {
 					return nil, err
 				}
-				coreDefRecList[i] = coreDefRec
+				coreDecRecList[i] = coreDecRec
 			}
 		}
-		return coreDefRecList, nil
+		return coreDecRecList, nil
 	}
-	DataToDecSnap = func(source DecSnap) (core.DecSnap, error) {
+	DataToTermDecSnap = func(source DecSnap) (core.DecSnap, error) {
 		var coreDecSnap core.DecSnap
 		termsemSemRef, err := adapterDecSnapToTermsemSemRef(source)
 		if err != nil {
@@ -163,12 +157,12 @@ func init() {
 		}
 		return coreDecSnap, nil
 	}
-	DataToDecSnaps = func(source []DecSnap) ([]core.DecSnap, error) {
+	DataToTermDecSnaps = func(source []DecSnap) ([]core.DecSnap, error) {
 		var coreDecSnapList []core.DecSnap
 		if source != nil {
 			coreDecSnapList = make([]core.DecSnap, len(source))
 			for i := 0; i < len(source); i++ {
-				coreDecSnap, err := DataToDecSnap(source[i])
+				coreDecSnap, err := DataToTermDecSnap(source[i])
 				if err != nil {
 					return nil, err
 				}

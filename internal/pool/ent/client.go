@@ -14,7 +14,7 @@ import (
 	"orglang/go-engine/internal/pool/ent/compconn"
 	"orglang/go-engine/internal/pool/ent/compexec"
 	"orglang/go-engine/internal/pool/ent/descroot"
-	"orglang/go-engine/internal/pool/ent/termdef"
+	"orglang/go-engine/internal/pool/ent/termdec"
 	"orglang/go-engine/internal/pool/ent/termexp"
 	"orglang/go-engine/internal/pool/ent/typedef"
 	"orglang/go-engine/internal/pool/ent/typeexp"
@@ -35,8 +35,8 @@ type Client struct {
 	CompExec *CompExecClient
 	// DescRoot is the client for interacting with the DescRoot builders.
 	DescRoot *DescRootClient
-	// TermDef is the client for interacting with the TermDef builders.
-	TermDef *TermDefClient
+	// TermDec is the client for interacting with the TermDec builders.
+	TermDec *TermDecClient
 	// TermExp is the client for interacting with the TermExp builders.
 	TermExp *TermExpClient
 	// TypeDef is the client for interacting with the TypeDef builders.
@@ -57,7 +57,7 @@ func (c *Client) init() {
 	c.CompConn = NewCompConnClient(c.config)
 	c.CompExec = NewCompExecClient(c.config)
 	c.DescRoot = NewDescRootClient(c.config)
-	c.TermDef = NewTermDefClient(c.config)
+	c.TermDec = NewTermDecClient(c.config)
 	c.TermExp = NewTermExpClient(c.config)
 	c.TypeDef = NewTypeDefClient(c.config)
 	c.TypeExp = NewTypeExpClient(c.config)
@@ -156,7 +156,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		CompConn: NewCompConnClient(cfg),
 		CompExec: NewCompExecClient(cfg),
 		DescRoot: NewDescRootClient(cfg),
-		TermDef:  NewTermDefClient(cfg),
+		TermDec:  NewTermDecClient(cfg),
 		TermExp:  NewTermExpClient(cfg),
 		TypeDef:  NewTypeDefClient(cfg),
 		TypeExp:  NewTypeExpClient(cfg),
@@ -182,7 +182,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		CompConn: NewCompConnClient(cfg),
 		CompExec: NewCompExecClient(cfg),
 		DescRoot: NewDescRootClient(cfg),
-		TermDef:  NewTermDefClient(cfg),
+		TermDec:  NewTermDecClient(cfg),
 		TermExp:  NewTermExpClient(cfg),
 		TypeDef:  NewTypeDefClient(cfg),
 		TypeExp:  NewTypeExpClient(cfg),
@@ -215,7 +215,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.CompConn, c.CompExec, c.DescRoot, c.TermDef, c.TermExp, c.TypeDef, c.TypeExp,
+		c.CompConn, c.CompExec, c.DescRoot, c.TermDec, c.TermExp, c.TypeDef, c.TypeExp,
 	} {
 		n.Use(hooks...)
 	}
@@ -225,7 +225,7 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.CompConn, c.CompExec, c.DescRoot, c.TermDef, c.TermExp, c.TypeDef, c.TypeExp,
+		c.CompConn, c.CompExec, c.DescRoot, c.TermDec, c.TermExp, c.TypeDef, c.TypeExp,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -240,8 +240,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.CompExec.mutate(ctx, m)
 	case *DescRootMutation:
 		return c.DescRoot.mutate(ctx, m)
-	case *TermDefMutation:
-		return c.TermDef.mutate(ctx, m)
+	case *TermDecMutation:
+		return c.TermDec.mutate(ctx, m)
 	case *TermExpMutation:
 		return c.TermExp.mutate(ctx, m)
 	case *TypeDefMutation:
@@ -652,107 +652,107 @@ func (c *DescRootClient) mutate(ctx context.Context, m *DescRootMutation) (Value
 	}
 }
 
-// TermDefClient is a client for the TermDef schema.
-type TermDefClient struct {
+// TermDecClient is a client for the TermDec schema.
+type TermDecClient struct {
 	config
 }
 
-// NewTermDefClient returns a client for the TermDef from the given config.
-func NewTermDefClient(c config) *TermDefClient {
-	return &TermDefClient{config: c}
+// NewTermDecClient returns a client for the TermDec from the given config.
+func NewTermDecClient(c config) *TermDecClient {
+	return &TermDecClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `termdef.Hooks(f(g(h())))`.
-func (c *TermDefClient) Use(hooks ...Hook) {
-	c.hooks.TermDef = append(c.hooks.TermDef, hooks...)
+// A call to `Use(f, g, h)` equals to `termdec.Hooks(f(g(h())))`.
+func (c *TermDecClient) Use(hooks ...Hook) {
+	c.hooks.TermDec = append(c.hooks.TermDec, hooks...)
 }
 
 // Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `termdef.Intercept(f(g(h())))`.
-func (c *TermDefClient) Intercept(interceptors ...Interceptor) {
-	c.inters.TermDef = append(c.inters.TermDef, interceptors...)
+// A call to `Intercept(f, g, h)` equals to `termdec.Intercept(f(g(h())))`.
+func (c *TermDecClient) Intercept(interceptors ...Interceptor) {
+	c.inters.TermDec = append(c.inters.TermDec, interceptors...)
 }
 
-// Create returns a builder for creating a TermDef entity.
-func (c *TermDefClient) Create() *TermDefCreate {
-	mutation := newTermDefMutation(c.config, OpCreate)
-	return &TermDefCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a builder for creating a TermDec entity.
+func (c *TermDecClient) Create() *TermDecCreate {
+	mutation := newTermDecMutation(c.config, OpCreate)
+	return &TermDecCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// CreateBulk returns a builder for creating a bulk of TermDef entities.
-func (c *TermDefClient) CreateBulk(builders ...*TermDefCreate) *TermDefCreateBulk {
-	return &TermDefCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of TermDec entities.
+func (c *TermDecClient) CreateBulk(builders ...*TermDecCreate) *TermDecCreateBulk {
+	return &TermDecCreateBulk{config: c.config, builders: builders}
 }
 
 // MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
 // a builder and applies setFunc on it.
-func (c *TermDefClient) MapCreateBulk(slice any, setFunc func(*TermDefCreate, int)) *TermDefCreateBulk {
+func (c *TermDecClient) MapCreateBulk(slice any, setFunc func(*TermDecCreate, int)) *TermDecCreateBulk {
 	rv := reflect.ValueOf(slice)
 	if rv.Kind() != reflect.Slice {
-		return &TermDefCreateBulk{err: fmt.Errorf("calling to TermDefClient.MapCreateBulk with wrong type %T, need slice", slice)}
+		return &TermDecCreateBulk{err: fmt.Errorf("calling to TermDecClient.MapCreateBulk with wrong type %T, need slice", slice)}
 	}
-	builders := make([]*TermDefCreate, rv.Len())
+	builders := make([]*TermDecCreate, rv.Len())
 	for i := 0; i < rv.Len(); i++ {
 		builders[i] = c.Create()
 		setFunc(builders[i], i)
 	}
-	return &TermDefCreateBulk{config: c.config, builders: builders}
+	return &TermDecCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for TermDef.
-func (c *TermDefClient) Update() *TermDefUpdate {
-	mutation := newTermDefMutation(c.config, OpUpdate)
-	return &TermDefUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for TermDec.
+func (c *TermDecClient) Update() *TermDecUpdate {
+	mutation := newTermDecMutation(c.config, OpUpdate)
+	return &TermDecUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *TermDefClient) UpdateOne(_m *TermDef) *TermDefUpdateOne {
-	mutation := newTermDefMutation(c.config, OpUpdateOne, withTermDef(_m))
-	return &TermDefUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *TermDecClient) UpdateOne(_m *TermDec) *TermDecUpdateOne {
+	mutation := newTermDecMutation(c.config, OpUpdateOne, withTermDec(_m))
+	return &TermDecUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *TermDefClient) UpdateOneID(id string) *TermDefUpdateOne {
-	mutation := newTermDefMutation(c.config, OpUpdateOne, withTermDefID(id))
-	return &TermDefUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *TermDecClient) UpdateOneID(id string) *TermDecUpdateOne {
+	mutation := newTermDecMutation(c.config, OpUpdateOne, withTermDecID(id))
+	return &TermDecUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for TermDef.
-func (c *TermDefClient) Delete() *TermDefDelete {
-	mutation := newTermDefMutation(c.config, OpDelete)
-	return &TermDefDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for TermDec.
+func (c *TermDecClient) Delete() *TermDecDelete {
+	mutation := newTermDecMutation(c.config, OpDelete)
+	return &TermDecDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *TermDefClient) DeleteOne(_m *TermDef) *TermDefDeleteOne {
+func (c *TermDecClient) DeleteOne(_m *TermDec) *TermDecDeleteOne {
 	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *TermDefClient) DeleteOneID(id string) *TermDefDeleteOne {
-	builder := c.Delete().Where(termdef.ID(id))
+func (c *TermDecClient) DeleteOneID(id string) *TermDecDeleteOne {
+	builder := c.Delete().Where(termdec.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &TermDefDeleteOne{builder}
+	return &TermDecDeleteOne{builder}
 }
 
-// Query returns a query builder for TermDef.
-func (c *TermDefClient) Query() *TermDefQuery {
-	return &TermDefQuery{
+// Query returns a query builder for TermDec.
+func (c *TermDecClient) Query() *TermDecQuery {
+	return &TermDecQuery{
 		config: c.config,
-		ctx:    &QueryContext{Type: TypeTermDef},
+		ctx:    &QueryContext{Type: TypeTermDec},
 		inters: c.Interceptors(),
 	}
 }
 
-// Get returns a TermDef entity by its id.
-func (c *TermDefClient) Get(ctx context.Context, id string) (*TermDef, error) {
-	return c.Query().Where(termdef.ID(id)).Only(ctx)
+// Get returns a TermDec entity by its id.
+func (c *TermDecClient) Get(ctx context.Context, id string) (*TermDec, error) {
+	return c.Query().Where(termdec.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *TermDefClient) GetX(ctx context.Context, id string) *TermDef {
+func (c *TermDecClient) GetX(ctx context.Context, id string) *TermDec {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -761,27 +761,27 @@ func (c *TermDefClient) GetX(ctx context.Context, id string) *TermDef {
 }
 
 // Hooks returns the client hooks.
-func (c *TermDefClient) Hooks() []Hook {
-	return c.hooks.TermDef
+func (c *TermDecClient) Hooks() []Hook {
+	return c.hooks.TermDec
 }
 
 // Interceptors returns the client interceptors.
-func (c *TermDefClient) Interceptors() []Interceptor {
-	return c.inters.TermDef
+func (c *TermDecClient) Interceptors() []Interceptor {
+	return c.inters.TermDec
 }
 
-func (c *TermDefClient) mutate(ctx context.Context, m *TermDefMutation) (Value, error) {
+func (c *TermDecClient) mutate(ctx context.Context, m *TermDecMutation) (Value, error) {
 	switch m.Op() {
 	case OpCreate:
-		return (&TermDefCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&TermDecCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdate:
-		return (&TermDefUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&TermDecUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdateOne:
-		return (&TermDefUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&TermDecUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpDelete, OpDeleteOne:
-		return (&TermDefDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+		return (&TermDecDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
-		return nil, fmt.Errorf("ent: unknown TermDef mutation op: %q", m.Op())
+		return nil, fmt.Errorf("ent: unknown TermDec mutation op: %q", m.Op())
 	}
 }
 
@@ -1187,10 +1187,10 @@ func (c *TypeExpClient) mutate(ctx context.Context, m *TypeExpMutation) (Value, 
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		CompConn, CompExec, DescRoot, TermDef, TermExp, TypeDef, TypeExp []ent.Hook
+		CompConn, CompExec, DescRoot, TermDec, TermExp, TypeDef, TypeExp []ent.Hook
 	}
 	inters struct {
-		CompConn, CompExec, DescRoot, TermDef, TermExp, TypeDef,
+		CompConn, CompExec, DescRoot, TermDec, TermExp, TypeDef,
 		TypeExp []ent.Interceptor
 	}
 )

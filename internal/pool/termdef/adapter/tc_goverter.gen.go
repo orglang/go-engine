@@ -4,7 +4,6 @@
 package adapter
 
 import (
-	contkey "orglang/go-engine/internal/adt/contkey"
 	identity "orglang/go-engine/internal/adt/identity"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
 	symbol "orglang/go-engine/internal/adt/symbol"
@@ -13,7 +12,7 @@ import (
 	adapter "orglang/go-engine/internal/adt/termvar/adapter"
 	uniqsym "orglang/go-engine/internal/adt/uniqsym"
 	api "orglang/go-engine/internal/app/web/api"
-	core "orglang/go-engine/internal/pool/termdef/core"
+	core "orglang/go-engine/internal/pool/termdec/core"
 )
 
 func init() {
@@ -59,7 +58,7 @@ func init() {
 	}
 }
 func init() {
-	DataFromDecRec = func(source core.DefRec) (DecRec, error) {
+	DataFromTermDecRec = func(source core.DecRec) (DecRec, error) {
 		var adapterDecRec DecRec
 		adapterDecRec.TermID = identity.ConvertToString(source.TermRef.TermID)
 		adapterDecRec.DescID = identity.ConvertToString(source.TermRef.DescID)
@@ -81,34 +80,29 @@ func init() {
 		}
 		return adapterDecRec, nil
 	}
-	DataToDecRec = func(source DecRec) (core.DefRec, error) {
-		var coreDefRec core.DefRec
+	DataToTermDecRec = func(source DecRec) (core.DecRec, error) {
+		var coreDecRec core.DecRec
 		termsemSemRef, err := dataToTermRef(source)
 		if err != nil {
-			return coreDefRec, err
+			return coreDecRec, err
 		}
-		coreDefRec.TermRef = termsemSemRef
-		contkeyADT, err := contkey.ConvertFromInt(source.ExpCK)
-		if err != nil {
-			return coreDefRec, err
-		}
-		coreDefRec.ExpCK = contkeyADT
+		coreDecRec.TermRef = termsemSemRef
 		termvarVarRec, err := adapter.DataToVarRec(source.LiabVar)
 		if err != nil {
-			return coreDefRec, err
+			return coreDecRec, err
 		}
-		coreDefRec.LiabVar = termvarVarRec
+		coreDecRec.LiabVar = termvarVarRec
 		if source.AssetVars != nil {
-			coreDefRec.AssetVars = make([]termvar.VarRec, len(source.AssetVars))
+			coreDecRec.AssetVars = make([]termvar.VarRec, len(source.AssetVars))
 			for i := 0; i < len(source.AssetVars); i++ {
 				termvarVarRec2, err := adapter.DataToVarRec(source.AssetVars[i])
 				if err != nil {
-					return coreDefRec, err
+					return coreDecRec, err
 				}
-				coreDefRec.AssetVars[i] = termvarVarRec2
+				coreDecRec.AssetVars[i] = termvarVarRec2
 			}
 		}
-		return coreDefRec, nil
+		return coreDecRec, nil
 	}
 	dataToTermRef = func(source DecRec) (termsem.SemRef, error) {
 		var termsemSemRef termsem.SemRef

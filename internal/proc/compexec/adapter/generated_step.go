@@ -11,8 +11,8 @@ import (
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
 	webapi "orglang/go-engine/internal/app/web/api"
-	compstepcore "orglang/go-engine/internal/proc/compstep/core"
 	compexp "orglang/go-engine/internal/proc/compexec/exp"
+	compstepcore "orglang/go-engine/internal/proc/compstep/core"
 )
 
 func generatedStepToCore(id string, dto webapi.ProcStepSpec) (compstepcore.StepSpec, error) {

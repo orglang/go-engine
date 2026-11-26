@@ -6,224 +6,224 @@ package adapter
 import (
 	symbol "orglang/go-engine/internal/adt/symbol"
 	uniqsym "orglang/go-engine/internal/adt/uniqsym"
-	core "orglang/go-engine/internal/pool/compexec/exp"
+	exp "orglang/go-engine/internal/pool/compexec/exp"
 )
 
 func init() {
-	DataFromAcceptRec = func(source core.AcceptRec) *GrantRec {
+	DataFromAcceptRec = func(source exp.AcceptRec) *GrantRec {
 		var adapterGrantRec GrantRec
 		adapterGrantRec.ContChnlPH = string(source.ContChnlPH)
 		adapterGrantRec.ContExp = DataFromExpSpec(source.ContExp)
 		return &adapterGrantRec
 	}
-	DataFromAcceptSpec = func(source core.AcceptSpec) *GrantSpec {
+	DataFromAcceptSpec = func(source exp.AcceptSpec) *GrantSpec {
 		var adapterGrantSpec GrantSpec
 		adapterGrantSpec.ConnChnlPH = string(source.ConnChnlPH)
 		adapterGrantSpec.ContExp = DataFromExpSpec(source.ContExp)
 		return &adapterGrantSpec
 	}
-	DataFromAcquireRec = func(source core.AcquireRec) *GrantRec {
+	DataFromAcquireRec = func(source exp.AcquireRec) *GrantRec {
 		var adapterGrantRec GrantRec
 		adapterGrantRec.ContChnlPH = string(source.ContChnlPH)
 		adapterGrantRec.ContExp = DataFromExpSpec(source.ContExp)
 		return &adapterGrantRec
 	}
-	DataFromAcquireSpec = func(source core.AcquireSpec) *GrantSpec {
+	DataFromAcquireSpec = func(source exp.AcquireSpec) *GrantSpec {
 		var adapterGrantSpec GrantSpec
 		adapterGrantSpec.ConnChnlPH = string(source.ConnChnlPH)
 		adapterGrantSpec.ContExp = DataFromExpSpec(source.ContExp)
 		return &adapterGrantSpec
 	}
-	DataFromApplyRec = func(source core.ApplyRec) *CoopRec {
+	DataFromApplyRec = func(source exp.ApplyRec) *CoopRec {
 		var adapterCoopRec CoopRec
 		adapterCoopRec.ContChnlPH = string(source.ContChnlPH)
 		adapterCoopRec.ProcTermQN = uniqsym.ConvertToString(source.ProcTermQN)
 		adapterCoopRec.ContExp = DataFromExpSpec(source.ContExp)
 		return &adapterCoopRec
 	}
-	DataFromApplySpec = func(source core.ApplySpec) *CoopSpec {
+	DataFromApplySpec = func(source exp.ApplySpec) *CoopSpec {
 		var adapterCoopSpec CoopSpec
 		adapterCoopSpec.ConnChnlPH = string(source.ConnChnlPH)
 		adapterCoopSpec.ProcTermQN = uniqsym.ConvertToString(source.ProcTermQN)
 		adapterCoopSpec.ContExp = DataFromExpSpec(source.ContExp)
 		return &adapterCoopSpec
 	}
-	DataFromDetachRec = func(source core.DetachRec) *RevokeRec {
+	DataFromDetachRec = func(source exp.DetachRec) *RevokeRec {
 		var adapterRevokeRec RevokeRec
 		adapterRevokeRec.ContChnlPH = string(source.ContChnlPH)
 		return &adapterRevokeRec
 	}
-	DataFromDetachSpec = func(source core.DetachSpec) *RevokeSpec {
+	DataFromDetachSpec = func(source exp.DetachSpec) *RevokeSpec {
 		var adapterRevokeSpec RevokeSpec
 		adapterRevokeSpec.ConnChnlPH = string(source.ConnChnlPH)
 		return &adapterRevokeSpec
 	}
-	DataFromHireRec = func(source core.HireRec) *CoopRec {
+	DataFromHireRec = func(source exp.HireRec) *CoopRec {
 		var adapterCoopRec CoopRec
 		adapterCoopRec.ContChnlPH = string(source.ContChnlPH)
 		adapterCoopRec.ProcTermQN = uniqsym.ConvertToString(source.ProcTermQN)
 		adapterCoopRec.ContExp = DataFromExpSpec(source.ContExp)
 		return &adapterCoopRec
 	}
-	DataFromHireSpec = func(source core.HireSpec) *CoopSpec {
+	DataFromHireSpec = func(source exp.HireSpec) *CoopSpec {
 		var adapterCoopSpec CoopSpec
 		adapterCoopSpec.ConnChnlPH = string(source.ConnChnlPH)
 		adapterCoopSpec.ProcTermQN = uniqsym.ConvertToString(source.ProcTermQN)
 		adapterCoopSpec.ContExp = DataFromExpSpec(source.ContExp)
 		return &adapterCoopSpec
 	}
-	DataFromReleaseRec = func(source core.ReleaseRec) *RevokeRec {
+	DataFromReleaseRec = func(source exp.ReleaseRec) *RevokeRec {
 		var adapterRevokeRec RevokeRec
 		adapterRevokeRec.ContChnlPH = string(source.ContChnlPH)
 		return &adapterRevokeRec
 	}
-	DataFromReleaseSpec = func(source core.ReleaseSpec) *RevokeSpec {
+	DataFromReleaseSpec = func(source exp.ReleaseSpec) *RevokeSpec {
 		var adapterRevokeSpec RevokeSpec
 		adapterRevokeSpec.ConnChnlPH = string(source.ConnChnlPH)
 		return &adapterRevokeSpec
 	}
-	DataToAcceptRec = func(source *GrantRec) (core.AcceptRec, error) {
-		var coreAcceptRec core.AcceptRec
+	DataToAcceptRec = func(source *GrantRec) (exp.AcceptRec, error) {
+		var expAcceptRec exp.AcceptRec
 		if source != nil {
-			coreAcceptRec.ContChnlPH = symbol.ADT((*source).ContChnlPH)
-			coreExpSpec, err := DataToExpSpec((*source).ContExp)
+			expAcceptRec.ContChnlPH = symbol.ADT((*source).ContChnlPH)
+			expExpSpec, err := DataToExpSpec((*source).ContExp)
 			if err != nil {
-				return coreAcceptRec, err
+				return expAcceptRec, err
 			}
-			coreAcceptRec.ContExp = coreExpSpec
+			expAcceptRec.ContExp = expExpSpec
 		}
-		return coreAcceptRec, nil
+		return expAcceptRec, nil
 	}
-	DataToAcceptSpec = func(source *GrantSpec) (core.AcceptSpec, error) {
-		var coreAcceptSpec core.AcceptSpec
+	DataToAcceptSpec = func(source *GrantSpec) (exp.AcceptSpec, error) {
+		var expAcceptSpec exp.AcceptSpec
 		if source != nil {
-			coreAcceptSpec.ConnChnlPH = symbol.ADT((*source).ConnChnlPH)
-			coreExpSpec, err := DataToExpSpec((*source).ContExp)
+			expAcceptSpec.ConnChnlPH = symbol.ADT((*source).ConnChnlPH)
+			expExpSpec, err := DataToExpSpec((*source).ContExp)
 			if err != nil {
-				return coreAcceptSpec, err
+				return expAcceptSpec, err
 			}
-			coreAcceptSpec.ContExp = coreExpSpec
+			expAcceptSpec.ContExp = expExpSpec
 		}
-		return coreAcceptSpec, nil
+		return expAcceptSpec, nil
 	}
-	DataToAcquireRec = func(source *GrantRec) (core.AcquireRec, error) {
-		var coreAcquireRec core.AcquireRec
+	DataToAcquireRec = func(source *GrantRec) (exp.AcquireRec, error) {
+		var expAcquireRec exp.AcquireRec
 		if source != nil {
-			coreAcquireRec.ContChnlPH = symbol.ADT((*source).ContChnlPH)
-			coreExpSpec, err := DataToExpSpec((*source).ContExp)
+			expAcquireRec.ContChnlPH = symbol.ADT((*source).ContChnlPH)
+			expExpSpec, err := DataToExpSpec((*source).ContExp)
 			if err != nil {
-				return coreAcquireRec, err
+				return expAcquireRec, err
 			}
-			coreAcquireRec.ContExp = coreExpSpec
+			expAcquireRec.ContExp = expExpSpec
 		}
-		return coreAcquireRec, nil
+		return expAcquireRec, nil
 	}
-	DataToAcquireSpec = func(source *GrantSpec) (core.AcquireSpec, error) {
-		var coreAcquireSpec core.AcquireSpec
+	DataToAcquireSpec = func(source *GrantSpec) (exp.AcquireSpec, error) {
+		var expAcquireSpec exp.AcquireSpec
 		if source != nil {
-			coreAcquireSpec.ConnChnlPH = symbol.ADT((*source).ConnChnlPH)
-			coreExpSpec, err := DataToExpSpec((*source).ContExp)
+			expAcquireSpec.ConnChnlPH = symbol.ADT((*source).ConnChnlPH)
+			expExpSpec, err := DataToExpSpec((*source).ContExp)
 			if err != nil {
-				return coreAcquireSpec, err
+				return expAcquireSpec, err
 			}
-			coreAcquireSpec.ContExp = coreExpSpec
+			expAcquireSpec.ContExp = expExpSpec
 		}
-		return coreAcquireSpec, nil
+		return expAcquireSpec, nil
 	}
-	DataToApplyRec = func(source *CoopRec) (core.ApplyRec, error) {
-		var coreApplyRec core.ApplyRec
+	DataToApplyRec = func(source *CoopRec) (exp.ApplyRec, error) {
+		var expApplyRec exp.ApplyRec
 		if source != nil {
-			coreApplyRec.ContChnlPH = symbol.ADT((*source).ContChnlPH)
+			expApplyRec.ContChnlPH = symbol.ADT((*source).ContChnlPH)
 			uniqsymADT, err := uniqsym.ConvertFromString((*source).ProcTermQN)
 			if err != nil {
-				return coreApplyRec, err
+				return expApplyRec, err
 			}
-			coreApplyRec.ProcTermQN = uniqsymADT
-			coreExpSpec, err := DataToExpSpec((*source).ContExp)
+			expApplyRec.ProcTermQN = uniqsymADT
+			expExpSpec, err := DataToExpSpec((*source).ContExp)
 			if err != nil {
-				return coreApplyRec, err
+				return expApplyRec, err
 			}
-			coreApplyRec.ContExp = coreExpSpec
+			expApplyRec.ContExp = expExpSpec
 		}
-		return coreApplyRec, nil
+		return expApplyRec, nil
 	}
-	DataToApplySpec = func(source *CoopSpec) (core.ApplySpec, error) {
-		var coreApplySpec core.ApplySpec
+	DataToApplySpec = func(source *CoopSpec) (exp.ApplySpec, error) {
+		var expApplySpec exp.ApplySpec
 		if source != nil {
-			coreApplySpec.ConnChnlPH = symbol.ADT((*source).ConnChnlPH)
+			expApplySpec.ConnChnlPH = symbol.ADT((*source).ConnChnlPH)
 			uniqsymADT, err := uniqsym.ConvertFromString((*source).ProcTermQN)
 			if err != nil {
-				return coreApplySpec, err
+				return expApplySpec, err
 			}
-			coreApplySpec.ProcTermQN = uniqsymADT
-			coreExpSpec, err := DataToExpSpec((*source).ContExp)
+			expApplySpec.ProcTermQN = uniqsymADT
+			expExpSpec, err := DataToExpSpec((*source).ContExp)
 			if err != nil {
-				return coreApplySpec, err
+				return expApplySpec, err
 			}
-			coreApplySpec.ContExp = coreExpSpec
+			expApplySpec.ContExp = expExpSpec
 		}
-		return coreApplySpec, nil
+		return expApplySpec, nil
 	}
-	DataToDetachRec = func(source *RevokeRec) (core.DetachRec, error) {
-		var coreDetachRec core.DetachRec
+	DataToDetachRec = func(source *RevokeRec) (exp.DetachRec, error) {
+		var expDetachRec exp.DetachRec
 		if source != nil {
-			coreDetachRec.ContChnlPH = symbol.ADT((*source).ContChnlPH)
+			expDetachRec.ContChnlPH = symbol.ADT((*source).ContChnlPH)
 		}
-		return coreDetachRec, nil
+		return expDetachRec, nil
 	}
-	DataToDetachSpec = func(source *RevokeSpec) (core.DetachSpec, error) {
-		var coreDetachSpec core.DetachSpec
+	DataToDetachSpec = func(source *RevokeSpec) (exp.DetachSpec, error) {
+		var expDetachSpec exp.DetachSpec
 		if source != nil {
-			coreDetachSpec.ConnChnlPH = symbol.ADT((*source).ConnChnlPH)
+			expDetachSpec.ConnChnlPH = symbol.ADT((*source).ConnChnlPH)
 		}
-		return coreDetachSpec, nil
+		return expDetachSpec, nil
 	}
-	DataToHireRec = func(source *CoopRec) (core.HireRec, error) {
-		var coreHireRec core.HireRec
+	DataToHireRec = func(source *CoopRec) (exp.HireRec, error) {
+		var expHireRec exp.HireRec
 		if source != nil {
-			coreHireRec.ContChnlPH = symbol.ADT((*source).ContChnlPH)
+			expHireRec.ContChnlPH = symbol.ADT((*source).ContChnlPH)
 			uniqsymADT, err := uniqsym.ConvertFromString((*source).ProcTermQN)
 			if err != nil {
-				return coreHireRec, err
+				return expHireRec, err
 			}
-			coreHireRec.ProcTermQN = uniqsymADT
-			coreExpSpec, err := DataToExpSpec((*source).ContExp)
+			expHireRec.ProcTermQN = uniqsymADT
+			expExpSpec, err := DataToExpSpec((*source).ContExp)
 			if err != nil {
-				return coreHireRec, err
+				return expHireRec, err
 			}
-			coreHireRec.ContExp = coreExpSpec
+			expHireRec.ContExp = expExpSpec
 		}
-		return coreHireRec, nil
+		return expHireRec, nil
 	}
-	DataToHireSpec = func(source *CoopSpec) (core.HireSpec, error) {
-		var coreHireSpec core.HireSpec
+	DataToHireSpec = func(source *CoopSpec) (exp.HireSpec, error) {
+		var expHireSpec exp.HireSpec
 		if source != nil {
-			coreHireSpec.ConnChnlPH = symbol.ADT((*source).ConnChnlPH)
+			expHireSpec.ConnChnlPH = symbol.ADT((*source).ConnChnlPH)
 			uniqsymADT, err := uniqsym.ConvertFromString((*source).ProcTermQN)
 			if err != nil {
-				return coreHireSpec, err
+				return expHireSpec, err
 			}
-			coreHireSpec.ProcTermQN = uniqsymADT
-			coreExpSpec, err := DataToExpSpec((*source).ContExp)
+			expHireSpec.ProcTermQN = uniqsymADT
+			expExpSpec, err := DataToExpSpec((*source).ContExp)
 			if err != nil {
-				return coreHireSpec, err
+				return expHireSpec, err
 			}
-			coreHireSpec.ContExp = coreExpSpec
+			expHireSpec.ContExp = expExpSpec
 		}
-		return coreHireSpec, nil
+		return expHireSpec, nil
 	}
-	DataToReleaseRec = func(source *RevokeRec) (core.ReleaseRec, error) {
-		var coreReleaseRec core.ReleaseRec
+	DataToReleaseRec = func(source *RevokeRec) (exp.ReleaseRec, error) {
+		var expReleaseRec exp.ReleaseRec
 		if source != nil {
-			coreReleaseRec.ContChnlPH = symbol.ADT((*source).ContChnlPH)
+			expReleaseRec.ContChnlPH = symbol.ADT((*source).ContChnlPH)
 		}
-		return coreReleaseRec, nil
+		return expReleaseRec, nil
 	}
-	DataToReleaseSpec = func(source *RevokeSpec) (core.ReleaseSpec, error) {
-		var coreReleaseSpec core.ReleaseSpec
+	DataToReleaseSpec = func(source *RevokeSpec) (exp.ReleaseSpec, error) {
+		var expReleaseSpec exp.ReleaseSpec
 		if source != nil {
-			coreReleaseSpec.ConnChnlPH = symbol.ADT((*source).ConnChnlPH)
+			expReleaseSpec.ConnChnlPH = symbol.ADT((*source).ConnChnlPH)
 		}
-		return coreReleaseSpec, nil
+		return expReleaseSpec, nil
 	}
 }

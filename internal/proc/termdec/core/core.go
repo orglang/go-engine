@@ -12,21 +12,21 @@ import (
 )
 
 type DecSpec struct {
-	TermQN uniqsym.ADT
-	LiabVar termvar.VarSpec
+	TermQN    uniqsym.ADT
+	LiabVar   termvar.VarSpec
 	AssetVars []termvar.VarSpec
 }
 
 type DecRec struct {
-	TermRef termsem.SemRef
-	TermQN uniqsym.ADT
-	LiabVar termvar.VarRec
+	TermRef   termsem.SemRef
+	TermQN    uniqsym.ADT
+	LiabVar   termvar.VarRec
 	AssetVars []termvar.VarRec
 }
 
 type DecSnap struct {
-	TermRef termsem.SemRef
-	LiabVar termvar.VarRec
+	TermRef   termsem.SemRef
+	LiabVar   termvar.VarRec
 	AssetVars []termvar.VarRec
 }
 

@@ -75,8 +75,7 @@ func (dao *daoEnt) SelectSpecByCK(ctx context.Context, conn tx.Conn, key contkey
 	return termdef.ConvertRecToSpec(rec), nil
 }
 
-const selectTermExpTree =
-`
+const selectTermExpTree = `
 WITH RECURSIVE exp_tree AS (
     SELECT top.*
     FROM proc_term_exps AS top

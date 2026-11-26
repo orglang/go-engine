@@ -7,8 +7,8 @@ import (
 	comproot "orglang/go-engine/internal/adt/comproot"
 	identity "orglang/go-engine/internal/adt/identity"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
+	adapter "orglang/go-engine/internal/pool/compexec/adapter"
 	core "orglang/go-engine/internal/pool/connact/core"
-	compexec "orglang/go-engine/internal/pool/compexec/adapter"
 )
 
 func init() {
@@ -40,11 +40,11 @@ func init() {
 			return corePubRec, err
 		}
 		corePubRec.ChnlID = identityADT2
-		coreCompRec, err := compexec.DataToExpRec(source.Exp)
+		expExpRec, err := adapter.DataToExpRec(source.Exp)
 		if err != nil {
 			return corePubRec, err
 		}
-		corePubRec.ValExp = coreCompRec
+		corePubRec.ValExp = expExpRec
 		return corePubRec, nil
 	}
 	DataToSubRec = func(source ActRec) (core.SubRec, error) {
@@ -65,11 +65,11 @@ func init() {
 			return coreSubRec, err
 		}
 		coreSubRec.ChnlID = identityADT2
-		coreCompRec, err := compexec.DataToExpRec(source.Exp)
+		expExpRec, err := adapter.DataToExpRec(source.Exp)
 		if err != nil {
 			return coreSubRec, err
 		}
-		coreSubRec.ContExp = coreCompRec
+		coreSubRec.ContExp = expExpRec
 		return coreSubRec, nil
 	}
 }

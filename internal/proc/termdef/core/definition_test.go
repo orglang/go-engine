@@ -31,13 +31,27 @@ type definitionTestRepo struct {
 }
 
 func (r *definitionTestRepo) AddRec(context.Context, tx.Conn, DecRec) error { return nil }
-func (r *definitionTestRepo) GetRefs(context.Context, tx.Conn) ([]termsem.SemRef, error) { return nil, nil }
-func (r *definitionTestRepo) GetSnap(context.Context, tx.Conn, termsem.SemRef) (DecSnap, error) { return DecSnap{}, nil }
-func (r *definitionTestRepo) GetRecs(context.Context, tx.Conn, []identity.ADT) ([]DecRec, error) { return nil, nil }
-func (r *definitionTestRepo) SelectEnv(context.Context, tx.Conn, []identity.ADT) (map[identity.ADT]DecRec, error) { return nil, nil }
-func (r *definitionTestRepo) SetExpCK(context.Context, tx.Conn, identity.ADT, contkey.ADT) error { return nil }
-func (r *definitionTestRepo) GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRec, error) { return r.rec, r.err }
-func (r *definitionTestRepo) GetQNByID(context.Context, tx.Conn, identity.ADT) (uniqsym.ADT, error) { return r.qn, nil }
+func (r *definitionTestRepo) GetRefs(context.Context, tx.Conn) ([]termsem.SemRef, error) {
+	return nil, nil
+}
+func (r *definitionTestRepo) GetSnap(context.Context, tx.Conn, termsem.SemRef) (DecSnap, error) {
+	return DecSnap{}, nil
+}
+func (r *definitionTestRepo) GetRecs(context.Context, tx.Conn, []identity.ADT) ([]DecRec, error) {
+	return nil, nil
+}
+func (r *definitionTestRepo) SelectEnv(context.Context, tx.Conn, []identity.ADT) (map[identity.ADT]DecRec, error) {
+	return nil, nil
+}
+func (r *definitionTestRepo) SetExpCK(context.Context, tx.Conn, identity.ADT, contkey.ADT) error {
+	return nil
+}
+func (r *definitionTestRepo) GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRec, error) {
+	return r.rec, r.err
+}
+func (r *definitionTestRepo) GetQNByID(context.Context, tx.Conn, identity.ADT) (uniqsym.ADT, error) {
+	return r.qn, nil
+}
 func (r *definitionTestRepo) InsertSpec(context.Context, tx.Conn, ExpSpec) error { return nil }
 func (r *definitionTestRepo) SelectSpecByCK(_ context.Context, _ tx.Conn, key contkey.ADT) (ExpSpec, error) {
 	r.key = key

@@ -31,28 +31,28 @@ const (
 )
 
 type ExpData struct {
-	ExpCK int64 `db:"exp_ck"`
+	ExpCK  int64      `db:"exp_ck"`
 	States []ExpState `db:"states"`
 }
 type ExpState struct {
-	ExpCK int64 `db:"exp_ck"`
-	SupExpCK int64 `db:"sup_exp_ck"`
-	K int16 `db:"kind"`
-	Spec ExpStateSpec `db:"spec"`
+	ExpCK    int64        `db:"exp_ck"`
+	SupExpCK int64        `db:"sup_exp_ck"`
+	K        int16        `db:"kind"`
+	Spec     ExpStateSpec `db:"spec"`
 }
 type ExpStateSpec struct {
-	ContChnlPH string `json:"cont_chnl_ph,omitempty"`
-	ConnChnlPH string `json:"conn_chnl_ph,omitempty"`
-	ValChnlPH string `json:"val_chnl_ph,omitempty"`
-	ValLabQN string `json:"val_lab_qn,omitempty"`
-	NewChnlPH string `json:"new_chnl_ph,omitempty"`
-	ContExpCK int64 `json:"cont_exp_ck,omitempty"`
+	ContChnlPH string           `json:"cont_chnl_ph,omitempty"`
+	ConnChnlPH string           `json:"conn_chnl_ph,omitempty"`
+	ValChnlPH  string           `json:"val_chnl_ph,omitempty"`
+	ValLabQN   string           `json:"val_lab_qn,omitempty"`
+	NewChnlPH  string           `json:"new_chnl_ph,omitempty"`
+	ContExpCK  int64            `json:"cont_exp_ck,omitempty"`
 	ContExpCKs map[string]int64 `json:"cont_exp_cks,omitempty"`
-	ProcTermQN string `json:"proc_term_qn,omitempty"`
-	X string `json:"x,omitempty"`
-	Ys []string `json:"ys,omitempty"`
-	ValChnlPHs []string `json:"val_chnl_phs,omitempty"`
-	NewChnlPHs []string `json:"new_chnl_phs,omitempty"`
+	ProcTermQN string           `json:"proc_term_qn,omitempty"`
+	X          string           `json:"x,omitempty"`
+	Ys         []string         `json:"ys,omitempty"`
+	ValChnlPHs []string         `json:"val_chnl_phs,omitempty"`
+	NewChnlPHs []string         `json:"new_chnl_phs,omitempty"`
 }
 
 func dataFromExpRec(rec termdef.ExpRec) (ExpData, error) {

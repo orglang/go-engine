@@ -121,7 +121,7 @@ type ExpCloseRec struct {
 	ContChnlPH symbol.ADT
 }
 
-func (ExpCloseRec) expRec()                  {}
+func (ExpCloseRec) expRec()                   {}
 func (r ExpCloseRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpWaitRec struct {
@@ -130,7 +130,7 @@ type ExpWaitRec struct {
 	ContExp    ExpRec
 }
 
-func (ExpWaitRec) expRec()                  {}
+func (ExpWaitRec) expRec()                   {}
 func (r ExpWaitRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpSendRec struct {
@@ -139,7 +139,7 @@ type ExpSendRec struct {
 	ValChnlPH  symbol.ADT
 }
 
-func (ExpSendRec) expRec()                  {}
+func (ExpSendRec) expRec()                   {}
 func (r ExpSendRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpRecvRec struct {
@@ -149,7 +149,7 @@ type ExpRecvRec struct {
 	ContExp    ExpRec
 }
 
-func (ExpRecvRec) expRec()                  {}
+func (ExpRecvRec) expRec()                   {}
 func (r ExpRecvRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpLabRec struct {
@@ -159,7 +159,7 @@ type ExpLabRec struct {
 	ContExp    ExpRec
 }
 
-func (ExpLabRec) expRec()                  {}
+func (ExpLabRec) expRec()                   {}
 func (r ExpLabRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpCaseRec struct {
@@ -168,7 +168,7 @@ type ExpCaseRec struct {
 	ContExps   map[uniqsym.ADT]ExpRec
 }
 
-func (ExpCaseRec) expRec()                  {}
+func (ExpCaseRec) expRec()                   {}
 func (r ExpCaseRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpLinkRec struct {
@@ -178,7 +178,7 @@ type ExpLinkRec struct {
 	Ys         []identity.ADT
 }
 
-func (ExpLinkRec) expRec()                  {}
+func (ExpLinkRec) expRec()                   {}
 func (r ExpLinkRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpFwdRec struct {
@@ -187,7 +187,7 @@ type ExpFwdRec struct {
 	ContChnlPH symbol.ADT
 }
 
-func (ExpFwdRec) expRec()                  {}
+func (ExpFwdRec) expRec()                   {}
 func (r ExpFwdRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpCallRec struct {
@@ -199,7 +199,7 @@ type ExpCallRec struct {
 	ContExp    ExpRec
 }
 
-func (ExpCallRec) expRec()                  {}
+func (ExpCallRec) expRec()                   {}
 func (r ExpCallRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpSpawnRec struct {
@@ -210,7 +210,7 @@ type ExpSpawnRec struct {
 	ContExp    ExpRec
 }
 
-func (ExpSpawnRec) expRec()                  {}
+func (ExpSpawnRec) expRec()                   {}
 func (r ExpSpawnRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpAcquireRec struct {
@@ -219,7 +219,7 @@ type ExpAcquireRec struct {
 	ContExp    ExpRec
 }
 
-func (ExpAcquireRec) expRec()                  {}
+func (ExpAcquireRec) expRec()                   {}
 func (r ExpAcquireRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpAcceptRec struct {
@@ -228,7 +228,7 @@ type ExpAcceptRec struct {
 	ContExp    ExpRec
 }
 
-func (ExpAcceptRec) expRec()                  {}
+func (ExpAcceptRec) expRec()                   {}
 func (r ExpAcceptRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpDetachRec struct {
@@ -236,7 +236,7 @@ type ExpDetachRec struct {
 	ConnChnlPH symbol.ADT
 }
 
-func (ExpDetachRec) expRec()                  {}
+func (ExpDetachRec) expRec()                   {}
 func (r ExpDetachRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 type ExpReleaseRec struct {
@@ -244,7 +244,7 @@ type ExpReleaseRec struct {
 	ConnChnlPH symbol.ADT
 }
 
-func (ExpReleaseRec) expRec()                  {}
+func (ExpReleaseRec) expRec()                   {}
 func (r ExpReleaseRec) ContentKey() contkey.ADT { return r.ExpCK }
 
 // ConvertSpecToRec converts a declarative Definition into its content-addressed domain record.

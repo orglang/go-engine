@@ -391,4 +391,3 @@ func dataToExpSpec(dto ExpSpec) (compexp.ExpSpec, error) {
 func errUnexpectedExpKind(k ExpKind) error {
 	return fmt.Errorf("unexpected term kind: %v", k)
 }
-

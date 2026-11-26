@@ -3,19 +3,19 @@
 
 package adapter
 
-import core "orglang/go-engine/internal/proc/compexec/exp"
+import exp "orglang/go-engine/internal/proc/compexec/exp"
 
 func init() {
-	DataFromExpSpecs = func(source []core.ExpSpec) ([]ExpSpec, error) {
-		return DataFromExpSpecs(source)
-	}
-	DataFromExpRecs = func(source []core.ExpRec) ([]ExpRec, error) {
+	DataFromExpRecs = func(source []exp.ExpRec) ([]ExpRec, error) {
 		return DataFromExpRecs(source)
 	}
-	DataToExpSpecs = func(source []ExpSpec) ([]core.ExpSpec, error) {
-		return DataToExpSpecs(source)
+	DataFromExpSpecs = func(source []exp.ExpSpec) ([]ExpSpec, error) {
+		return DataFromExpSpecs(source)
 	}
-	DataToExpRecs = func(source []ExpRec) ([]core.ExpRec, error) {
+	DataToExpRecs = func(source []ExpRec) ([]exp.ExpRec, error) {
 		return DataToExpRecs(source)
+	}
+	DataToExpSpecs = func(source []ExpSpec) ([]exp.ExpSpec, error) {
+		return DataToExpSpecs(source)
 	}
 }

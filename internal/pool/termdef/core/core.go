@@ -14,8 +14,8 @@ import (
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/uniqsym"
-	typedef "orglang/go-engine/internal/pool/typedef/core"
 	termdec "orglang/go-engine/internal/pool/termdec/core"
+	typedef "orglang/go-engine/internal/pool/typedef/core"
 )
 
 type API interface {

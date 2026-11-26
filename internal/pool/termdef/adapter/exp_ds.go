@@ -23,22 +23,22 @@ const (
 )
 
 type ExpData struct {
-	ExpCK int64 `db:"exp_ck"`
+	ExpCK  int64      `db:"exp_ck"`
 	States []ExpState `db:"states"`
 }
 
 type ExpState struct {
-	ExpCK int64 `db:"exp_ck"`
-	SupExpCK int64 `db:"sup_exp_ck"`
-	K int16 `db:"kind"`
-	Spec ExpStateSpec `db:"spec"`
+	ExpCK    int64        `db:"exp_ck"`
+	SupExpCK int64        `db:"sup_exp_ck"`
+	K        int16        `db:"kind"`
+	Spec     ExpStateSpec `db:"spec"`
 }
 
 type ExpStateSpec struct {
-	ConnChnlPH string `json:"conn_chnl_ph,omitempty"`
-	ProcTermQN string `json:"proc_term_qn,omitempty"`
+	ConnChnlPH  string   `json:"conn_chnl_ph,omitempty"`
+	ProcTermQN  string   `json:"proc_term_qn,omitempty"`
 	ProcCompQNs []string `json:"proc_comp_qns,omitempty"`
-	ContExpCK int64 `json:"cont_exp_ck,omitempty"`
+	ContExpCK   int64    `json:"cont_exp_ck,omitempty"`
 }
 
 func dataFromExpRec(rec termdef.ExpRec) (ExpData, error) {

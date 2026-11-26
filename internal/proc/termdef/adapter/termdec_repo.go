@@ -6,11 +6,11 @@ import (
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/uniqsym"
-	termdec "orglang/go-engine/internal/proc/termdec/core"
 	"orglang/go-engine/internal/lib/tx"
+	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
-type termDecRepo struct { dao *daoEnt }
+type termDecRepo struct{ dao *daoEnt }
 
 func newTermDecRepo(dao *daoEnt) termdec.Repo { return termDecRepo{dao: dao} }
 

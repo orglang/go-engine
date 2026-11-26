@@ -9,7 +9,7 @@ import (
 	"orglang/go-engine/internal/pool/ent/compconn"
 	"orglang/go-engine/internal/pool/ent/compexec"
 	"orglang/go-engine/internal/pool/ent/descroot"
-	"orglang/go-engine/internal/pool/ent/termdef"
+	"orglang/go-engine/internal/pool/ent/termdec"
 	"orglang/go-engine/internal/pool/ent/termexp"
 	"orglang/go-engine/internal/pool/ent/typedef"
 	"orglang/go-engine/internal/pool/ent/typeexp"
@@ -82,7 +82,7 @@ func checkColumn(t, c string) error {
 			compconn.Table: compconn.ValidColumn,
 			compexec.Table: compexec.ValidColumn,
 			descroot.Table: descroot.ValidColumn,
-			termdef.Table:  termdef.ValidColumn,
+			termdec.Table:  termdec.ValidColumn,
 			termexp.Table:  termexp.ValidColumn,
 			typedef.Table:  typedef.ValidColumn,
 			typeexp.Table:  typeexp.ValidColumn,

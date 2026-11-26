@@ -30,10 +30,18 @@ type definitionTestRepo struct {
 }
 
 func (r *definitionTestRepo) AddRec(context.Context, tx.Conn, DecRec) error { return nil }
-func (r *definitionTestRepo) GetRecByQN(context.Context, tx.Conn, uniqsym.ADT) (DecRec, error) { return DecRec{}, nil }
-func (r *definitionTestRepo) SetExpCK(context.Context, tx.Conn, identity.ADT, contkey.ADT) error { return nil }
-func (r *definitionTestRepo) GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRec, error) { return r.rec, r.err }
-func (r *definitionTestRepo) GetQNByID(context.Context, tx.Conn, identity.ADT) (uniqsym.ADT, error) { return r.qn, nil }
+func (r *definitionTestRepo) GetRecByQN(context.Context, tx.Conn, uniqsym.ADT) (DecRec, error) {
+	return DecRec{}, nil
+}
+func (r *definitionTestRepo) SetExpCK(context.Context, tx.Conn, identity.ADT, contkey.ADT) error {
+	return nil
+}
+func (r *definitionTestRepo) GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRec, error) {
+	return r.rec, r.err
+}
+func (r *definitionTestRepo) GetQNByID(context.Context, tx.Conn, identity.ADT) (uniqsym.ADT, error) {
+	return r.qn, nil
+}
 func (r *definitionTestRepo) InsertSpec(context.Context, tx.Conn, ExpSpec) error { return nil }
 func (r *definitionTestRepo) SelectSpecByCK(_ context.Context, _ tx.Conn, key contkey.ADT) (ExpSpec, error) {
 	r.key = key

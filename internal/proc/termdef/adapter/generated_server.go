@@ -62,4 +62,3 @@ func cfgGeneratedServer(e *echo.Echo, h *controllerEcho) {
 func registerGeneratedServer(e *echo.Echo, h webapi.ServerInterface) {
 	webapi.RegisterHandlers(generatedRouteFilter{EchoRouter: e}, h)
 }
-

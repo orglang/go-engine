@@ -81,4 +81,3 @@ func DataToExpRec(dto ExpRec) (compexp.ExpRec, error) {
 		panic(fmt.Errorf("exp kind unexpected: %v", dto.K))
 	}
 }
-

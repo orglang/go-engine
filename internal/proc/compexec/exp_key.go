@@ -1,4 +1,4 @@
-package core
+package compexec
 
 import (
 	"orglang/go-engine/internal/adt/contkey"

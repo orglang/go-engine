@@ -1,4 +1,4 @@
-package core
+package compexec
 
 import (
 	"fmt"

@@ -3,7 +3,7 @@
 
 package adapter
 
-import exp "orglang/go-engine/internal/proc/compexec/core"
+import exp "orglang/go-engine/internal/proc/compexec"
 
 func init() {
 	DataFromExpRecs = func(source []exp.ExpRec) ([]ExpRec, error) {

@@ -6,7 +6,7 @@ import (
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
 	webapi "orglang/go-engine/internal/app/web/api"
-	compexp "orglang/go-engine/internal/proc/compexec/core"
+	connact "orglang/go-engine/internal/proc/connact/core"
 )
 
 const testExecutionID = "9m4e2mr0ui3e8a215n4g"
@@ -32,14 +32,14 @@ func TestGeneratedStepToCoreMapsNestedProcessExpression(t *testing.T) {
 	if got := identity.ConvertToString(spec.CompRef.CompID); got != testExecutionID {
 		t.Errorf("unexpected computation id: got %q", got)
 	}
-	wait, ok := spec.ProcExp.(compexp.WaitSpec)
+	wait, ok := spec.ProcExp.(connact.WaitSpec)
 	if !ok {
 		t.Fatalf("expected core wait expression, got %T", spec.ProcExp)
 	}
 	if got := symbol.ConvertToString(wait.ContChnlPH); got != "wait-channel" {
 		t.Errorf("unexpected wait channel: got %q", got)
 	}
-	closeSpec, ok := wait.ContExp.(compexp.CloseSpec)
+	closeSpec, ok := wait.ContExp.(connact.CloseSpec)
 	if !ok {
 		t.Fatalf("expected core close continuation, got %T", wait.ContExp)
 	}
@@ -63,7 +63,7 @@ func TestGeneratedStepToCoreMapsLinkExpression(t *testing.T) {
 	if err != nil {
 		t.Fatalf("convert generated link expression: %v", err)
 	}
-	link, ok := spec.ProcExp.(compexp.LinkSpec)
+	link, ok := spec.ProcExp.(connact.LinkSpec)
 	if !ok {
 		t.Fatalf("expected core link expression, got %T", spec.ProcExp)
 	}

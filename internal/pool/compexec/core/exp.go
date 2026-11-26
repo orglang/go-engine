@@ -8,6 +8,7 @@ import (
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/uniqsym"
+	connact "orglang/go-engine/internal/pool/connact/core"
 )
 
 // ExpKind identifies the kind of a persisted pool term expression.
@@ -164,9 +165,8 @@ func (s SpawnSpec2) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
 }
 
-type ExpRec interface {
-	IsExpRec()
-}
+// ExpRec is the expression-record contract carried by a connection action.
+type ExpRec = connact.ExpRec
 
 type AcquireRec struct {
 	ContChnlPH symbol.ADT

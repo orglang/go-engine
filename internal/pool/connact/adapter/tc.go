@@ -49,7 +49,3 @@ func DataToStepRec(dto ActRec) (connact.ActRec, error) {
 	}
 }
 
-// DataToConnactExpRec adapts a persisted expression record to the connection-action contract.
-func DataToConnactExpRec(dto compexec.ExpRec) (connact.ExpRec, error) {
-	return compexec.DataToExpRec(dto)
-}

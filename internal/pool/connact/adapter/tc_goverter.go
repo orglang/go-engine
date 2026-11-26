@@ -11,7 +11,6 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/internal/pool/compexec/adapter:Data.*
-// goverter:extend DataToConnactExpRec
 var (
 	DataToCompRef func(ActRec) (comproot.SemRef, error)
 	// goverter:map . CompRef

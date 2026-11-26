@@ -39,7 +39,7 @@ func init() {
 			return corePubRec, err
 		}
 		corePubRec.ChnlID = identityADT2
-		expExpRec, err := DataToConnactExpRec(source.Exp)
+		expExpRec, err := DataToExpRec(source.Exp)
 		if err != nil {
 			return corePubRec, err
 		}
@@ -64,7 +64,7 @@ func init() {
 			return coreSubRec, err
 		}
 		coreSubRec.ChnlID = identityADT2
-		expExpRec, err := DataToConnactExpRec(source.Exp)
+		expExpRec, err := DataToExpRec(source.Exp)
 		if err != nil {
 			return coreSubRec, err
 		}

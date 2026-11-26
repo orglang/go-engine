@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-	"log/slog"
 
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
@@ -25,15 +24,14 @@ type DefRec struct {
 	ExpCK  contkey.ADT
 }
 
-func NewService(termDecRepo termdec.Repo, termDefRepo Repo, transactor tx.Transactor, log *slog.Logger) API {
-	return &service{termDecRepo: termDecRepo, termDefRepo: termDefRepo, transactor: transactor, log: log}
+func NewService(termDecRepo termdec.Repo, termDefRepo Repo, transactor tx.Transactor) API {
+	return &service{termDecRepo: termDecRepo, termDefRepo: termDefRepo, transactor: transactor}
 }
 
 type service struct {
 	termDecRepo termdec.Repo
 	termDefRepo Repo
 	transactor  tx.Transactor
-	log         *slog.Logger
 }
 
 var _ API = (*service)(nil)

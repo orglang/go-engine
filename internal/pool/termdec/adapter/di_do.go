@@ -57,10 +57,6 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		logger, err := do.Invoke[*slog.Logger](i)
-		if err != nil {
-			return nil, err
-		}
-		return newControllerEcho(api, logger), nil
+		return newControllerEcho(api), nil
 	}),
 )

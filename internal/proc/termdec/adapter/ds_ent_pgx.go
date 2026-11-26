@@ -32,7 +32,7 @@ type daoEnt struct {
 	log    *slog.Logger
 }
 
-func NewDaoEnt(client *ent.Client, log *slog.Logger) *daoEnt {
+func NewDaoEnt(client *ent.Client, log *slog.Logger) termdec.Repo {
 	return &daoEnt{client: client, log: log}
 }
 

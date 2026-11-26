@@ -45,7 +45,7 @@ func TestRegisterGeneratedRoutesRegistersOnlyDeclarationRoutes(t *testing.T) {
 		{method: http.MethodGet, path: "/api/v1/processes/term-1/definition"},
 		{method: http.MethodPost, path: "/api/v1/programs"},
 	} {
-		req := httptest.NewRequest(route.method, route.path, nil)
+		req := httptest.NewRequestWithContext(context.Background(), route.method, route.path, nil)
 		rec := httptest.NewRecorder()
 		e.ServeHTTP(rec, req)
 		if rec.Code != http.StatusNotFound {

@@ -22,6 +22,10 @@ type DecRec struct {
 	AssetVars []termvar.VarRec
 }
 
+type API interface {
+	Create(context.Context, DecSpec) (termsem.SemRef, error)
+}
+
 type Repo interface {
 	AddRec(context.Context, tx.Conn, DecRec) error
 	GetRecByQN(context.Context, tx.Conn, uniqsym.ADT) (DecRec, error)

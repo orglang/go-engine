@@ -9,7 +9,7 @@ import (
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
 
-	compexp "orglang/go-engine/internal/proc/compexec"
+	connact "orglang/go-engine/internal/proc/compexec"
 )
 
 func TestExpRecRoundTripPreservesConnectionIDs(t *testing.T) {
@@ -21,31 +21,31 @@ func TestExpRecRoundTripPreservesConnectionIDs(t *testing.T) {
 	newChnl := symbol.ADT("new")
 	label := uniqsym.New(symbol.ADT("label"))
 
-	tests := []compexp.ExpRec{
-		compexp.SendRec{
+	tests := []connact.ExpRec{
+		connact.SendRec{
 			ConnChnlPH: connChnl,
 			ContChnlID: contID,
 			ValChnlID:  valueID,
 			ValExpCK:   contkey.ADT(7),
 			ConnID:     connID,
 		},
-		compexp.RecvRec{
+		connact.RecvRec{
 			ConnChnlPH: connChnl,
 			ContChnlID: contID,
 			NewChnlPH:  newChnl,
-			ContExp:    compexp.CloseSpec{ContChnlPH: contChnl},
+			ContExp:    connact.CloseSpec{ContChnlPH: contChnl},
 		},
-		compexp.LabRec{
+		connact.LabRec{
 			ConnChnlPH: connChnl,
 			ContChnlID: contID,
 			ValExpCK:   contkey.ADT(9),
 			ValLabQN:   label,
 		},
-		compexp.CaseRec{
+		connact.CaseRec{
 			ConnChnlPH: connChnl,
 			ContChnlID: contID,
-			ContExps: map[uniqsym.ADT]compexp.ExpSpec{
-				label: compexp.CloseSpec{ContChnlPH: contChnl},
+			ContExps: map[uniqsym.ADT]connact.ExpSpec{
+				label: connact.CloseSpec{ContChnlPH: contChnl},
 			},
 		},
 	}

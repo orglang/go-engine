@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	compexp "orglang/go-engine/internal/proc/compexec/core"
+	connact "orglang/go-engine/internal/proc/connact/core"
 )
 
 // goverter:variables
@@ -9,8 +9,8 @@ import (
 // goverter:extend Data.*
 // goverter:extend data.*
 var (
-	DataToExpSpecs   func([]ExpSpec) ([]compexp.ExpSpec, error)
-	DataFromExpSpecs func([]compexp.ExpSpec) ([]ExpSpec, error)
-	DataToExpRecs    func([]ExpRec) ([]compexp.ExpRec, error)
-	DataFromExpRecs  func([]compexp.ExpRec) ([]ExpRec, error)
+	DataToExpSpecs   func([]ExpSpec) ([]connact.ExpSpec, error)
+	DataFromExpSpecs func([]connact.ExpSpec) ([]ExpSpec, error)
+	DataToExpRecs    func([]ExpRec) ([]connact.ExpRec, error)
+	DataFromExpRecs  func([]connact.ExpRec) ([]ExpRec, error)
 )

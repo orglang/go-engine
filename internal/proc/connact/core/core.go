@@ -6,10 +6,17 @@ import (
 	"orglang/go-engine/internal/adt/comproot"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
+	"orglang/go-engine/internal/adt/symbol"
 )
 
-// ExpRec is the expression-record contract carried by a connection action.
+// ExpSpec is the process expression contract used by execution and connection actions.
+type ExpSpec interface {
+	Via() symbol.ADT
+}
+
+// ExpRec is a persisted process expression record carried by a connection action.
 type ExpRec interface {
+	ExpSpec
 	IsExpRec()
 }
 

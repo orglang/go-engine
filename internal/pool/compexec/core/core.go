@@ -24,7 +24,6 @@ import (
 	connact "orglang/go-engine/internal/pool/connact/core"
 	termdec "orglang/go-engine/internal/pool/termdec/core"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
-	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 	proctermdef "orglang/go-engine/internal/proc/termdef/core"
 
 	proccompexec "orglang/go-engine/internal/proc/compexec/core"
@@ -81,9 +80,9 @@ type ExecSnap2 struct {
 type ExecSnap3 struct {
 	CompRef    comproot.SemRef
 	StructVars map[symbol.ADT]compvar.StructRec
-	StructExps map[symbol.ADT]typeexp.ExpRec
+	StructExps map[symbol.ADT]typedef.ExpRec
 	LinearVars map[symbol.ADT]compvar.LinearRec
-	LinearExps map[symbol.ADT]typeexp.ExpRec
+	LinearExps map[symbol.ADT]typedef.ExpRec
 }
 
 type service struct {
@@ -349,7 +348,7 @@ func (s *service) takeStep(
 			s.log.Error("step taking failed", compAttr)
 			return execMod, execEff, connMod, proctermdef.ErrMissingInCtx(termExp.ConnChnlPH)
 		}
-		nextExpCK := typeExp.(typeexp.ProdRec).Next()
+		nextExpCK := typeExp.(typedef.ProdRec).Next()
 		// получаем снепшот соединения
 		var connSnap compconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
@@ -442,7 +441,7 @@ func (s *service) takeStep(
 			s.log.Error("step taking failed", compAttr)
 			return execMod, execEff, connMod, proctermdef.ErrMissingInCtx(termExp.ConnChnlPH)
 		}
-		nextExpCK := typeExp.(typeexp.ProdRec).Next()
+		nextExpCK := typeExp.(typedef.ProdRec).Next()
 		// получаем снепшот коммуникации
 		var connSnap compconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
@@ -535,7 +534,7 @@ func (s *service) takeStep(
 			s.log.Error("step taking failed", compAttr)
 			return execMod, execEff, connMod, proctermdef.ErrMissingInCtx(termExp.ConnChnlPH)
 		}
-		nextExpCK := typeExp.(typeexp.ProdRec).Next()
+		nextExpCK := typeExp.(typedef.ProdRec).Next()
 		// получаем снепшот коммуникации
 		var connSnap compconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
@@ -628,7 +627,7 @@ func (s *service) takeStep(
 			s.log.Error("step taking failed", compAttr)
 			return execMod, execEff, connMod, proctermdef.ErrMissingInCtx(termExp.ConnChnlPH)
 		}
-		nextExpCK := typeExp.(typeexp.ProdRec).Next()
+		nextExpCK := typeExp.(typedef.ProdRec).Next()
 		// получаем снепшот коммуникации
 		var connSnap compconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
@@ -721,7 +720,7 @@ func (s *service) takeStep(
 			s.log.Error("step taking failed", compAttr)
 			return execMod, execEff, connMod, proctermdef.ErrMissingInCtx(termExp.ConnChnlPH)
 		}
-		nextExpCK := typeExp.(typeexp.ProdRec).Next()
+		nextExpCK := typeExp.(typedef.ProdRec).Next()
 		// получаем снепшот коммуникации
 		var connSnap compconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
@@ -798,7 +797,7 @@ func (s *service) takeStep(
 			s.log.Error("step taking failed", compAttr)
 			return execMod, execEff, connMod, proctermdef.ErrMissingInCtx(termExp.ConnChnlPH)
 		}
-		nextExpCK := typeExp.(typeexp.ProdRec).Next()
+		nextExpCK := typeExp.(typedef.ProdRec).Next()
 		// получаем снепшот коммуникации
 		var connSnap compconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
@@ -876,8 +875,8 @@ func (s *service) retrieveSnap(ctx context.Context, ref comproot.SemRef) (_ Exec
 	if getErr1 != nil {
 		return ExecSnap3{}, getErr1
 	}
-	var structExps map[symbol.ADT]typeexp.ExpRec
-	var linearExps map[symbol.ADT]typeexp.ExpRec
+	var structExps map[symbol.ADT]typedef.ExpRec
+	var linearExps map[symbol.ADT]typedef.ExpRec
 	getErr2 := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		structExps, err = s.typeExpRepo.GetRecMap(txCtx, conn, ExtractExpCKs(execSnap.StructVars))
 		if err != nil {

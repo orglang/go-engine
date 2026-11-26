@@ -26,7 +26,6 @@ import (
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 	termdef "orglang/go-engine/internal/proc/termdef/core"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
-	typeexp "orglang/go-engine/internal/proc/typeexp/core"
 )
 
 type API interface {
@@ -62,7 +61,7 @@ type ExecSnap struct {
 
 type Env struct {
 	TypeDefs map[uniqsym.ADT]typedef.DefRec
-	TypeExps map[contkey.ADT]typeexp.ExpRec
+	TypeExps map[contkey.ADT]typedef.ExpRec
 	ProcDecs map[identity.ADT]termdec.DecRec
 }
 
@@ -143,7 +142,7 @@ func (s *service) Take(ctx context.Context, spec compstep.StepSpec) (err error) 
 		}
 		envIDs := typedef.CollectEnv(maps.Values(typeDefs))
 		ctxIDs := CollectCtx(maps.Values(execSnap.LinearVars))
-		typeExps, getErr4 := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[contkey.ADT]typeexp.ExpRec, error) {
+		typeExps, getErr4 := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[contkey.ADT]typedef.ExpRec, error) {
 			return s.typeExpRepo.SelectEnv(txCtx, conn, append(envIDs, ctxIDs...))
 		})
 		if getErr4 != nil {
@@ -394,7 +393,7 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, typedef.ErrMissingInEnv(connChnl.ExpCK)
 		}
-		nextExpCK := typeExp.(typeexp.ProdRec).Next()
+		nextExpCK := typeExp.(typedef.ProdRec).Next()
 		valChnl, ok := execSnap.LinearVars[termExp.ValChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", compAttr)
@@ -500,7 +499,7 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, typedef.ErrMissingInEnv(connChnl.ExpCK)
 		}
-		nextExpCK := typeExp.(typeexp.ProdRec).Next()
+		nextExpCK := typeExp.(typedef.ProdRec).Next()
 		// получаем снепшот соединения
 		var connSnap compconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
@@ -594,7 +593,7 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, typedef.ErrMissingInEnv(connChnl.ExpCK)
 		}
-		nextExpCK := typeExp.(typeexp.SumRec).Next(termExp.ValLabQN)
+		nextExpCK := typeExp.(typedef.SumRec).Next(termExp.ValLabQN)
 		// получаем снепшот соединения
 		var connSnap compconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
@@ -897,7 +896,7 @@ func (s *service) takeWith(
 				panic(connact.ErrActRecTypeUnexpected(act))
 			}
 		default:
-			panic(typeexp.ErrPolarityUnexpected(typeExp))
+			panic(typedef.ErrPolarityUnexpected(typeExp))
 		}
 	default:
 		panic(compexp.ErrExpTypeUnexpected(exp))
@@ -908,9 +907,9 @@ func CollectCtx(chnls iter.Seq[compvar.LinearRec]) []contkey.ADT {
 	return nil
 }
 
-func convertToCtx(chnlBinds iter.Seq[compvar.LinearRec], typeExps map[contkey.ADT]typeexp.ExpRec) typedef.Context {
-	assets := make(map[symbol.ADT]typeexp.ExpRec, 1)
-	liabs := make(map[symbol.ADT]typeexp.ExpRec, 1)
+func convertToCtx(chnlBinds iter.Seq[compvar.LinearRec], typeExps map[contkey.ADT]typedef.ExpRec) typedef.Context {
+	assets := make(map[symbol.ADT]typedef.ExpRec, 1)
+	liabs := make(map[symbol.ADT]typedef.ExpRec, 1)
 	for bind := range chnlBinds {
 		if bind.ChnlBS == compvar.LiabSide {
 			liabs[bind.ChnlPH] = typeExps[bind.ExpCK]
@@ -958,7 +957,7 @@ func (s *service) checkProvider(
 			s.log.Error("checking failed")
 			return err
 		}
-		err := typeexp.CheckRec(gotVia, typeexp.OneRec{})
+		err := typedef.CheckRec(gotVia, typedef.OneRec{})
 		if err != nil {
 			s.log.Error("checking failed")
 			return err
@@ -978,9 +977,9 @@ func (s *service) checkProvider(
 			s.log.Error("checking failed")
 			return err
 		}
-		wantVia, ok := gotVia.(typeexp.TensorRec)
+		wantVia, ok := gotVia.(typedef.TensorRec)
 		if !ok {
-			err := typeexp.ErrSnapTypeMismatch(gotVia, wantVia)
+			err := typedef.ErrSnapTypeMismatch(gotVia, wantVia)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -991,7 +990,7 @@ func (s *service) checkProvider(
 			s.log.Error("checking failed")
 			return err
 		}
-		err := typeexp.CheckRec(gotVal, wantVia.Val)
+		err := typedef.CheckRec(gotVal, wantVia.Val)
 		if err != nil {
 			s.log.Error("checking failed")
 			return err
@@ -1008,9 +1007,9 @@ func (s *service) checkProvider(
 			s.log.Error("checking failed")
 			return err
 		}
-		wantVia, ok := gotVia.(typeexp.LolliRec)
+		wantVia, ok := gotVia.(typedef.LolliRec)
 		if !ok {
-			err := typeexp.ErrSnapTypeMismatch(gotVia, wantVia)
+			err := typedef.ErrSnapTypeMismatch(gotVia, wantVia)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -1021,7 +1020,7 @@ func (s *service) checkProvider(
 			s.log.Error("checking failed")
 			return err
 		}
-		err := typeexp.CheckRec(gotVal, wantVia.Val)
+		err := typedef.CheckRec(gotVal, wantVia.Val)
 		if err != nil {
 			s.log.Error("checking failed")
 			return err
@@ -1038,9 +1037,9 @@ func (s *service) checkProvider(
 			s.log.Error("checking failed")
 			return err
 		}
-		wantVia, ok := gotVia.(typeexp.PlusRec)
+		wantVia, ok := gotVia.(typedef.PlusRec)
 		if !ok {
-			err := typeexp.ErrSnapTypeMismatch(gotVia, wantVia)
+			err := typedef.ErrSnapTypeMismatch(gotVia, wantVia)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -1062,9 +1061,9 @@ func (s *service) checkProvider(
 			s.log.Error("checking failed")
 			return err
 		}
-		wantVia, ok := gotVia.(typeexp.WithRec)
+		wantVia, ok := gotVia.(typedef.WithRec)
 		if !ok {
-			err := typeexp.ErrSnapTypeMismatch(gotVia, wantVia)
+			err := typedef.ErrSnapTypeMismatch(gotVia, wantVia)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -1108,11 +1107,11 @@ func (s *service) checkProvider(
 			return err
 		}
 		if fwdSt.Pol() != viaSt.Pol() {
-			err := typeexp.ErrPolarityMismatch(fwdSt, viaSt)
+			err := typedef.ErrPolarityMismatch(fwdSt, viaSt)
 			s.log.Error("checking failed")
 			return err
 		}
-		err := typeexp.CheckRec(fwdSt, viaSt)
+		err := typedef.CheckRec(fwdSt, viaSt)
 		if err != nil {
 			s.log.Error("checking failed")
 			return err
@@ -1144,9 +1143,9 @@ func (s *service) checkClient(
 			s.log.Error("checking failed")
 			return err
 		}
-		wantVia, ok := gotVia.(typeexp.OneRec)
+		wantVia, ok := gotVia.(typedef.OneRec)
 		if !ok {
-			err := typeexp.ErrSnapTypeMismatch(gotVia, wantVia)
+			err := typedef.ErrSnapTypeMismatch(gotVia, wantVia)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -1161,9 +1160,9 @@ func (s *service) checkClient(
 			s.log.Error("checking failed")
 			return err
 		}
-		wantVia, ok := gotVia.(typeexp.LolliRec)
+		wantVia, ok := gotVia.(typedef.LolliRec)
 		if !ok {
-			err := typeexp.ErrSnapTypeMismatch(gotVia, wantVia)
+			err := typedef.ErrSnapTypeMismatch(gotVia, wantVia)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -1174,7 +1173,7 @@ func (s *service) checkClient(
 			s.log.Error("checking failed")
 			return err
 		}
-		err := typeexp.CheckRec(gotVal, wantVia.Val)
+		err := typedef.CheckRec(gotVal, wantVia.Val)
 		if err != nil {
 			s.log.Error("checking failed")
 			return err
@@ -1190,9 +1189,9 @@ func (s *service) checkClient(
 			s.log.Error("checking failed")
 			return err
 		}
-		wantVia, ok := gotVia.(typeexp.TensorRec)
+		wantVia, ok := gotVia.(typedef.TensorRec)
 		if !ok {
-			err := typeexp.ErrSnapTypeMismatch(gotVia, wantVia)
+			err := typedef.ErrSnapTypeMismatch(gotVia, wantVia)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -1203,7 +1202,7 @@ func (s *service) checkClient(
 			s.log.Error("checking failed")
 			return err
 		}
-		err := typeexp.CheckRec(gotVal, wantVia.Val)
+		err := typedef.CheckRec(gotVal, wantVia.Val)
 		if err != nil {
 			s.log.Error("checking failed")
 			return err
@@ -1220,9 +1219,9 @@ func (s *service) checkClient(
 			s.log.Error("checking failed")
 			return err
 		}
-		wantVia, ok := gotVia.(typeexp.WithRec)
+		wantVia, ok := gotVia.(typedef.WithRec)
 		if !ok {
-			err := typeexp.ErrSnapTypeMismatch(gotVia, wantVia)
+			err := typedef.ErrSnapTypeMismatch(gotVia, wantVia)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -1243,9 +1242,9 @@ func (s *service) checkClient(
 			s.log.Error("checking failed")
 			return err
 		}
-		wantVia, ok := gotVia.(typeexp.PlusRec)
+		wantVia, ok := gotVia.(typedef.PlusRec)
 		if !ok {
-			err := typeexp.ErrSnapTypeMismatch(gotVia, wantVia)
+			err := typedef.ErrSnapTypeMismatch(gotVia, wantVia)
 			s.log.Error("checking failed")
 			return err
 		}
@@ -1305,7 +1304,7 @@ func (s *service) checkClient(
 	// 			s.log.Error("checking failed")
 	// 			return err
 	// 		}
-	// 		err := typeexp.CheckRec(gotVal, wantVal)
+	// 		err := typedef.CheckRec(gotVal, wantVal)
 	// 		if err != nil {
 	// 			s.log.Error("checking failed", slog.Any("want", wantVal), slog.Any("got", gotVal))
 	// 			return err

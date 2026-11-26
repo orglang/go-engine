@@ -9,7 +9,7 @@ import (
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
 
-	connact "orglang/go-engine/internal/proc/compexec"
+	connact "orglang/go-engine/internal/proc/connact/core"
 )
 
 func TestExpRecRoundTripPreservesConnectionIDs(t *testing.T) {

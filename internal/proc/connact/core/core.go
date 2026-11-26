@@ -6,8 +6,14 @@ import (
 	"orglang/go-engine/internal/adt/comproot"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
-	compexp "orglang/go-engine/internal/proc/compexec/core"
+	"orglang/go-engine/internal/adt/symbol"
 )
+
+// ExpRec is the expression contract persisted as part of a connection action.
+// The concrete expression model belongs to the process execution capability.
+type ExpRec interface {
+	Via() symbol.ADT
+}
 
 // aka Sem
 type ActRec interface {
@@ -23,7 +29,7 @@ type PubRec struct {
 	ActNr   seqnum.ADT
 	CompRef comproot.SemRef
 	ChnlID  identity.ADT
-	ValExp  compexp.ExpRec
+	ValExp  ExpRec
 }
 
 func (r PubRec) act() identity.ADT       { return r.ChnlID }
@@ -35,7 +41,7 @@ type SubRec struct {
 	ActNr   seqnum.ADT
 	CompRef comproot.SemRef
 	ChnlID  identity.ADT
-	ContExp compexp.ExpRec
+	ContExp ExpRec
 }
 
 func (r SubRec) act() identity.ADT       { return r.ChnlID }

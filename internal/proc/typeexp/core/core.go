@@ -1,10 +1,14 @@
 package core
 
 import (
+ "fmt"
  "orglang/go-engine/internal/adt/contkey"
+ "orglang/go-engine/internal/adt/seqnum"
+ "orglang/go-engine/internal/adt/uniqsym"
  typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
+type Context = typedef.Context
 type ExpSpec = typedef.ExpSpec
 type OneSpec = typedef.OneSpec
 type LinkSpec = typedef.LinkSpec

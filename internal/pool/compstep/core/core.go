@@ -2,7 +2,7 @@ package core
 
 import (
 	"orglang/go-engine/internal/adt/comproot"
-	compexp "orglang/go-engine/internal/pool/compexec/exp"
+	compexp "orglang/go-engine/internal/pool/compexec/core"
 )
 
 type StepSpec struct {

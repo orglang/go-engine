@@ -9,14 +9,11 @@ import (
 	"github.com/labstack/echo/v5"
 
 	"orglang/go-engine/internal/adt/identity"
-	"orglang/go-engine/internal/adt/seqnum"
 	webapi "orglang/go-engine/internal/app/web/api"
 	termdef "orglang/go-engine/internal/pool/termdef/core"
 )
 
-// GeneratedController is the inbound HTTP port for pool term definitions.
 type GeneratedController interface {
-	CreatePoolDeclaration(*echo.Context) error
 	GetPoolDefinition(*echo.Context, string, webapi.GetPoolDefinitionParams) error
 }
 
@@ -52,23 +49,4 @@ func (h *controllerEcho) GetPoolDefinition(c *echo.Context, id string, _ webapi.
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(http.StatusOK, dto)
-}
-
-func (h *controllerEcho) CreatePoolDeclaration(c *echo.Context) error {
-	var dto webapi.PoolDecSpec
-	if err := c.Bind(&dto); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-	spec, err := DecSpecFromGenerated(dto)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-	ref, err := h.api.Create(c.Request().Context(), spec)
-	if err != nil {
-		return err
-	}
-	return c.JSON(http.StatusCreated, webapi.AnyTermRef{
-		TermId: identity.ConvertToString(ref.TermID),
-		DescRn: seqnum.ConvertToInt(ref.DescRN),
-	})
 }

@@ -73,3 +73,40 @@ func TestDataToExpRecRejectsMissingContinuation(t *testing.T) {
 		t.Fatal("dataToExpRec() error = nil, want missing continuation error")
 	}
 }
+
+func TestDataToExpRecRejectsInvalidTreeStructure(t *testing.T) {
+	tests := []struct {
+		name   string
+		states []ExpState
+	}{
+		{
+			name: "duplicate expression",
+			states: []ExpState{
+				{ExpCK: 1, K: ReleaseKind, Spec: ExpStateSpec{ConnChnlPH: "request"}},
+				{ExpCK: 1, K: ReleaseKind, Spec: ExpStateSpec{ConnChnlPH: "request"}},
+			},
+		},
+		{
+			name: "root has parent",
+			states: []ExpState{
+				{ExpCK: 1, SupExpCK: 2, K: ReleaseKind, Spec: ExpStateSpec{ConnChnlPH: "request"}},
+			},
+		},
+		{
+			name: "unreachable expression",
+			states: []ExpState{
+				{ExpCK: 1, K: ReleaseKind, Spec: ExpStateSpec{ConnChnlPH: "request"}},
+				{ExpCK: 2, K: ReleaseKind, Spec: ExpStateSpec{ConnChnlPH: "worker"}},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := dataToExpRec(ExpData{ExpCK: 1, States: tt.states})
+			if err == nil {
+				t.Fatal("dataToExpRec() error = nil, want invalid tree error")
+			}
+		})
+	}
+}

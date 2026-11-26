@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	compexp "orglang/go-engine/internal/proc/compexec"
+	compexp "orglang/go-engine/internal/proc/compexec/core"
 )
 
 // goverter:variables

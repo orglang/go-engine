@@ -96,7 +96,7 @@ func (dao *daoEnt) GetSnap(ctx context.Context, conn tx.Conn, ref termsem.SemRef
 	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecSnap])
 	if err != nil {
 		dao.log.Error("row scanning failed", refAttr)
-		return termdef.DecSnap{}, err
+		return termdec.DecSnap{}, err
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "entity selection succeed", slog.Any("dto", dto))
 	return DataToTermDecSnap(dto)

@@ -16,6 +16,7 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/pool/ent"
+	termdec "orglang/go-engine/internal/pool/termdec/core"
 	termdef "orglang/go-engine/internal/pool/termdef/core"
 )
 
@@ -39,11 +40,11 @@ func newRepo() termdef.Repo {
 	return new(daoEnt)
 }
 
-func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdef.DecRec) error {
+func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdec.DecRec) error {
 	refAttr := slog.Any("ref", rec.TermRef)
 	dao.log.Log(ctx, lf.LevelTrace, "addition started", refAttr)
 
-	dto, err := DataFromDecRec(rec)
+	dto, err := DataFromTermDecRec(rec)
 	if err != nil {
 		dao.log.Error("model conversion failed", refAttr)
 		return err
@@ -118,7 +119,7 @@ WHERE desc_id = $1
 	return uniqsym.ConvertFromString(qn)
 }
 
-func (dao *daoEnt) GetRecByQN(ctx context.Context, conn tx.Conn, qn uniqsym.ADT) (termdef.DecRec, error) {
+func (dao *daoEnt) GetRecByQN(ctx context.Context, conn tx.Conn, qn uniqsym.ADT) (termdec.DecRec, error) {
 	qnAttr := slog.Any("qn", qn)
 	const query = `
 SELECT def.term_id, def.desc_id, root.desc_rn, COALESCE(def.exp_ck, 0) AS exp_ck, def.liab_var, def.asset_vars
@@ -130,7 +131,7 @@ WHERE bind.desc_qn = $1
 	rows, err := conn.Pgx.Query(ctx, query, uniqsym.ConvertToString(qn))
 	if err != nil {
 		dao.log.Error("query execution failed", qnAttr)
-		return termdef.DecRec{}, err
+		return termdec.DecRec{}, err
 	}
 	defer rows.Close()
 	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecRec])
@@ -138,7 +139,7 @@ WHERE bind.desc_qn = $1
 		dao.log.Error("rows scanning failed", qnAttr)
 		return termdef.DecRec{}, err
 	}
-	rec, err := DataToDecRec(dto)
+	rec, err := DataToTermDecRec(dto)
 	if err != nil {
 		dao.log.Error("model conversion failed", qnAttr)
 		return termdef.DecRec{}, err

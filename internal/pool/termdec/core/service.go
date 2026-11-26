@@ -54,15 +54,15 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ termsem.SemRef, e
 	}
 	newLiabVar := termvar.VarRec{
 		TypeRef: typeDefs[spec.LiabVar.TypeQN].TypeRef,
-		ChnlPH: spec.LiabVar.ChnlPH,
-		ExpCK: typeDefs[spec.LiabVar.TypeQN].ExpCK,
+		ChnlPH:  spec.LiabVar.ChnlPH,
+		ExpCK:   typeDefs[spec.LiabVar.TypeQN].ExpCK,
 	}
 	newAssetVars := make([]termvar.VarRec, 0, len(spec.AssetVars))
 	for _, varSpec := range spec.AssetVars {
 		newAssetVars = append(newAssetVars, termvar.VarRec{
 			TypeRef: typeDefs[varSpec.TypeQN].TypeRef,
-			ChnlPH: varSpec.ChnlPH,
-			ExpCK: typeDefs[varSpec.TypeQN].ExpCK,
+			ChnlPH:  varSpec.ChnlPH,
+			ExpCK:   typeDefs[varSpec.TypeQN].ExpCK,
 		})
 	}
 	providerRef := typeDefs[spec.LiabVar.TypeQN].TypeRef

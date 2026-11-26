@@ -33,12 +33,12 @@ func NewService(
 	log *slog.Logger,
 ) API {
 	return &service{
-		termDecRepo: termDecRepo,
+		termDecRepo:  termDecRepo,
 		descRootRepo: descRootRepo,
-		descSemRepo: descSemRepo,
-		typeDefRepo: typeDefRepo,
-		transactor: transactor,
-		log: log,
+		descSemRepo:  descSemRepo,
+		typeDefRepo:  typeDefRepo,
+		transactor:   transactor,
+		log:          log,
 	}
 }
 

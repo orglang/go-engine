@@ -13,7 +13,7 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 	webapi "orglang/go-engine/internal/app/web/api"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
-	typeexp "orglang/go-engine/internal/pool/typeexp/core"
+	typedef "orglang/go-engine/internal/pool/typedef/core"
 )
 
 type GeneratedController interface {
@@ -55,14 +55,14 @@ func (h *controllerEcho) CreatePoolTypeDefinition(c *echo.Context) error {
 	})
 }
 
-func poolTypeExprToCore(dto webapi.PoolTypeExprSpec) (typeexp.ExpSpec, error) {
+func poolTypeExprToCore(dto webapi.PoolTypeExprSpec) (typedef.ExpSpec, error) {
 	kind, err := dto.Discriminator()
 	if err != nil {
 		return nil, fmt.Errorf("read pool type expression kind: %w", err)
 	}
 	switch kind {
 	case "one":
-		return typeexp.OneSpec{}, nil
+		return typedef.OneSpec{}, nil
 	case "link":
 		spec, err := dto.AsPoolTypeLinkSpec()
 		if err != nil {
@@ -72,7 +72,7 @@ func poolTypeExprToCore(dto webapi.PoolTypeExprSpec) (typeexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return typeexp.LinkSpec{TypeQN: qn}, nil
+		return typedef.LinkSpec{TypeQN: qn}, nil
 	case "plus":
 		spec, err := dto.AsPoolTypePlusSpec()
 		if err != nil {
@@ -86,7 +86,7 @@ func poolTypeExprToCore(dto webapi.PoolTypeExprSpec) (typeexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return typeexp.PlusSpec{ProcQNs: qns, ContExp: cont}, nil
+		return typedef.PlusSpec{ProcQNs: qns, ContExp: cont}, nil
 	case "with":
 		spec, err := dto.AsPoolTypeWithSpec()
 		if err != nil {
@@ -100,7 +100,7 @@ func poolTypeExprToCore(dto webapi.PoolTypeExprSpec) (typeexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return typeexp.WithSpec{ProcQNs: qns, ContExp: cont}, nil
+		return typedef.WithSpec{ProcQNs: qns, ContExp: cont}, nil
 	case "up":
 		spec, err := dto.AsPoolTypeUpSpec()
 		if err != nil {
@@ -110,7 +110,7 @@ func poolTypeExprToCore(dto webapi.PoolTypeExprSpec) (typeexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return typeexp.UpSpec{ContExp: cont}, nil
+		return typedef.UpSpec{ContExp: cont}, nil
 	case "down":
 		spec, err := dto.AsPoolTypeDownSpec()
 		if err != nil {
@@ -120,7 +120,7 @@ func poolTypeExprToCore(dto webapi.PoolTypeExprSpec) (typeexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return typeexp.DownSpec{ContExp: cont}, nil
+		return typedef.DownSpec{ContExp: cont}, nil
 	default:
 		return nil, fmt.Errorf("unsupported pool type expression kind %q", kind)
 	}

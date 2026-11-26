@@ -5,7 +5,7 @@ import (
 
 	"orglang/go-engine/internal/adt/uniqsym"
 	webapi "orglang/go-engine/internal/app/web/api"
-	typeexp "orglang/go-engine/internal/proc/typeexp/core"
+	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
 func TestExpSpecFromGenerated(t *testing.T) {
@@ -76,29 +76,29 @@ func TestExpSpecFromGenerated(t *testing.T) {
 			}
 			switch tt.want {
 			case "one":
-				if _, ok := got.(typeexp.OneSpec); !ok {
+				if _, ok := got.(typedef.OneSpec); !ok {
 					t.Fatalf("unexpected expression type %T", got)
 				}
 			case "link":
-				value, ok := got.(typeexp.LinkSpec)
+				value, ok := got.(typedef.LinkSpec)
 				if !ok || uniqsym.ConvertToString(value.TypeQN) != "domain.type" {
 					t.Fatalf("unexpected link expression: %#v", got)
 				}
 			case "tensor":
-				if _, ok := got.(typeexp.TensorSpec); !ok {
+				if _, ok := got.(typedef.TensorSpec); !ok {
 					t.Fatalf("unexpected expression type %T", got)
 				}
 			case "plus":
-				value, ok := got.(typeexp.PlusSpec)
+				value, ok := got.(typedef.PlusSpec)
 				if !ok || len(value.Choices) != 1 {
 					t.Fatalf("unexpected plus expression: %#v", got)
 				}
 			case "up":
-				if _, ok := got.(typeexp.UpSpec); !ok {
+				if _, ok := got.(typedef.UpSpec); !ok {
 					t.Fatalf("unexpected expression type %T", got)
 				}
 			case "down":
-				if _, ok := got.(typeexp.DownSpec); !ok {
+				if _, ok := got.(typedef.DownSpec); !ok {
 					t.Fatalf("unexpected expression type %T", got)
 				}
 			default:

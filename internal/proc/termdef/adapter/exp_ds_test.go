@@ -31,6 +31,19 @@ func TestDataToExpRecRejectsMalformedTree(t *testing.T) {
 				{ExpCK: 2, K: CloseKind, Spec: ExpStateSpec{ContChnlPH: "other"}},
 			},
 		},
+		{
+			name: "child has unexpected parent",
+			states: []ExpState{
+				{ExpCK: 1, K: WaitKind, Spec: ExpStateSpec{ContChnlPH: "done", ContExpCK: 2}},
+				{ExpCK: 2, SupExpCK: 3, K: CloseKind, Spec: ExpStateSpec{ContChnlPH: "done"}},
+			},
+		},
+		{
+			name: "unknown expression kind",
+			states: []ExpState{
+				{ExpCK: 1, K: 99},
+			},
+		},
 	}
 
 	for _, tt := range tests {

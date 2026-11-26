@@ -35,3 +35,9 @@ jobs:
 
       - name: Run Binaries gate
         run: mise run binaries:gate
+
+      - name: Report generated source drift
+        if: failure()
+        run: |
+          git status --short -- ':(glob)**/*.gen.go' ':(glob)**/ent/**'
+          git diff -- ':(glob)**/*.gen.go' ':(glob)**/ent/**'

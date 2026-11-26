@@ -1,8 +1,6 @@
 package adapter
 
 import (
-	"net/http"
-
 	"github.com/labstack/echo/v5"
 
 	webapi "orglang/go-engine/internal/app/web/api"

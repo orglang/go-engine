@@ -288,7 +288,7 @@ func (s *service) takeWith(
 			s.log.Debug("step taking succeed", compAttr, connAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 		default:
-			panic(ErrRecTypeUnexpected(observation.ContExp))
+			panic(connact.ErrRecTypeUnexpected(observation.ContExp))
 		}
 	case connact.WaitSpec:
 		connChnl, ok := execSnap.LinearVars[termExp.ContChnlPH]
@@ -378,7 +378,7 @@ func (s *service) takeWith(
 			s.log.Debug("step taking succeed", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 		default:
-			panic(ErrRecTypeUnexpected(closage.ContExp))
+			panic(connact.ErrRecTypeUnexpected(closage.ContExp))
 		}
 	case connact.SendSpec:
 		connChnl, ok := execSnap.LinearVars[termExp.ConnChnlPH]
@@ -485,7 +485,7 @@ func (s *service) takeWith(
 			s.log.Debug("step taking succeed", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 		default:
-			panic(ErrRecTypeUnexpected(receival.ContExp))
+			panic(connact.ErrRecTypeUnexpected(receival.ContExp))
 		}
 	case connact.RecvSpec:
 		connChnl, ok := execSnap.LinearVars[termExp.ConnChnlPH]
@@ -578,7 +578,7 @@ func (s *service) takeWith(
 			s.log.Debug("step taking succeed", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 		default:
-			panic(ErrRecTypeUnexpected(sending.ValExp))
+			panic(connact.ErrRecTypeUnexpected(sending.ValExp))
 		}
 	case connact.LabSpec:
 		connChnl, ok := execSnap.LinearVars[termExp.ConnChnlPH]
@@ -667,7 +667,7 @@ func (s *service) takeWith(
 			s.log.Debug("step taking succeed", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 		default:
-			panic(ErrRecTypeUnexpected(following.ContExp))
+			panic(connact.ErrRecTypeUnexpected(following.ContExp))
 		}
 	case connact.CaseSpec:
 		connChnl, ok := execSnap.LinearVars[termExp.ConnChnlPH]
@@ -736,7 +736,7 @@ func (s *service) takeWith(
 			s.log.Debug("step taking succeed", compAttr)
 			return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, nil
 		default:
-			panic(ErrRecTypeUnexpected(decision.ValExp))
+			panic(connact.ErrRecTypeUnexpected(decision.ValExp))
 		}
 	case connact.FwdSpec:
 		connChnl, ok := execSnap.LinearVars[termExp.ConnChnlPH]
@@ -900,6 +900,7 @@ func (s *service) takeWith(
 	default:
 		panic(connact.ErrExpTypeUnexpected(exp))
 	}
+	return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, connact.ErrExpTypeUnexpected(exp)
 }
 
 func CollectCtx(chnls iter.Seq[compvar.LinearRec]) []contkey.ADT {

@@ -19,19 +19,9 @@ type generatedServerStub struct {
 	gotDefinitionRN *int64
 }
 
-func (s *generatedServerStub) CreateProcessDeclaration(c *echo.Context) error {
-	return c.NoContent(http.StatusCreated)
-}
-
 func (s *generatedServerStub) GetProcessDefinition(c *echo.Context, id string, params webapi.GetProcessDefinitionParams) error {
 	s.gotDefinitionID = id
 	s.gotDefinitionRN = params.Rn
-	return c.NoContent(http.StatusOK)
-}
-
-func (s *generatedServerStub) GetProcessDeclaration(c *echo.Context, id string, params webapi.GetProcessDeclarationParams) error {
-	s.gotID = id
-	s.gotRN = params.Rn
 	return c.NoContent(http.StatusOK)
 }
 
@@ -40,28 +30,8 @@ func TestCfgGeneratedServerRegistersGeneratedRoutes(t *testing.T) {
 	stub := &generatedServerStub{}
 	registerGeneratedServer(e, stub)
 
-	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, processDeclarationRoute, nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/v1/processes/proc-2/definition?rn=9", nil)
 	rec := httptest.NewRecorder()
-	e.ServeHTTP(rec, req)
-	if rec.Code != http.StatusCreated {
-		t.Fatalf("unexpected POST status: got %d, want %d", rec.Code, http.StatusCreated)
-	}
-
-	req = httptest.NewRequestWithContext(context.Background(), http.MethodGet, processDeclarationRoute+"/proc-1?rn=7", nil)
-	rec = httptest.NewRecorder()
-	e.ServeHTTP(rec, req)
-	if rec.Code != http.StatusOK {
-		t.Fatalf("unexpected GET status: got %d, want %d; body: %s", rec.Code, http.StatusOK, rec.Body.String())
-	}
-	if stub.gotID != "proc-1" {
-		t.Errorf("unexpected id: got %q, want %q", stub.gotID, "proc-1")
-	}
-	if stub.gotRN == nil || *stub.gotRN != 7 {
-		t.Errorf("unexpected rn: got %v, want 7", stub.gotRN)
-	}
-
-	req = httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/v1/processes/proc-2/definition?rn=9", nil)
-	rec = httptest.NewRecorder()
 	e.ServeHTTP(rec, req)
 	if rec.Code != http.StatusOK {
 		t.Fatalf("unexpected Definition GET status: got %d, want %d; body: %s", rec.Code, http.StatusOK, rec.Body.String())
@@ -72,6 +42,7 @@ func TestCfgGeneratedServerRegistersGeneratedRoutes(t *testing.T) {
 	if stub.gotDefinitionRN == nil || *stub.gotDefinitionRN != 9 {
 		t.Errorf("unexpected Definition rn: got %v, want 9", stub.gotDefinitionRN)
 	}
+
 
 	req = httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/v1/programs", nil)
 	rec = httptest.NewRecorder()

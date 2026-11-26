@@ -6,7 +6,6 @@ import (
 	webapi "orglang/go-engine/internal/app/web/api"
 )
 
-const processDeclarationRoute = "/api/v1/processes/declarations"
 
 // generatedRouteFilter limits generated registration to the operations migrated
 // so far. Other contract operations remain available for later migrations.
@@ -21,7 +20,7 @@ func (r generatedRouteFilter) DELETE(string, echo.HandlerFunc, ...echo.Middlewar
 	return echo.RouteInfo{}
 }
 func (r generatedRouteFilter) GET(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) echo.RouteInfo {
-	if path != processDeclarationRoute+"/:id" && path != "/api/v1/processes/:id/definition" {
+	if path != "/api/v1/processes/:id/definition" {
 		return echo.RouteInfo{}
 	}
 	return r.EchoRouter.GET(path, h, m...)
@@ -36,7 +35,7 @@ func (r generatedRouteFilter) PATCH(string, echo.HandlerFunc, ...echo.Middleware
 	return echo.RouteInfo{}
 }
 func (r generatedRouteFilter) POST(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) echo.RouteInfo {
-	if path != processDeclarationRoute {
+	if path != "" {
 		return echo.RouteInfo{}
 	}
 	return r.EchoRouter.POST(path, h, m...)

@@ -12,32 +12,6 @@ import (
 )
 
 func init() {
-	DecSpecFromGenerated = func(source api.PoolDecSpec) (core.DecSpec, error) {
-		var coreDecSpec core.DecSpec
-		uniqsymADT, err := uniqsym.ConvertFromString(source.DescQn)
-		if err != nil {
-			return coreDecSpec, err
-		}
-		coreDecSpec.TermQN = uniqsymADT
-		termvarVarSpec, err := ConnVarFromGenerated(source.LiabVar)
-		if err != nil {
-			return coreDecSpec, err
-		}
-		coreDecSpec.LiabVar = termvarVarSpec
-		if source.AssetVars != nil {
-			coreDecSpec.AssetVars = make([]termvar.VarSpec, len(source.AssetVars))
-			for i := 0; i < len(source.AssetVars); i++ {
-				termvarVarSpec2, err := ConnVarFromGenerated(source.AssetVars[i])
-				if err != nil {
-					return coreDecSpec, err
-				}
-				coreDecSpec.AssetVars[i] = termvarVarSpec2
-			}
-		}
-		return coreDecSpec, nil
-	}
-}
-func init() {
 	DataFromTermDecRec = func(source core.DecRec) (DecRec, error) {
 		var adapterDecRec DecRec
 		adapterDecRec.TermID = identity.ConvertToString(source.TermRef.TermID)

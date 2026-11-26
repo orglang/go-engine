@@ -18,7 +18,6 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/app/web/api"
 	compexec "orglang/go-engine/internal/pool/compexec/core"
-	compexp "orglang/go-engine/internal/pool/compexec/exp"
 	compstep "orglang/go-engine/internal/pool/compstep/core"
 	compvar "orglang/go-engine/internal/pool/compvar/core"
 )
@@ -172,7 +171,7 @@ func termRefFromAPI(dto api.AnyTermRef) (termsem.SemRef, error) {
 	return termsem.SemRef{TermID: id, DescRN: seqnum.ConvertFromInt(dto.DescRn)}, nil
 }
 
-func poolTermExprToCore(dto api.PoolTermExprSpec) (compexp.ExpSpec, error) {
+func poolTermExprToCore(dto api.PoolTermExprSpec) (compexec.ExpSpec, error) {
 	data, err := json.Marshal(dto)
 	if err != nil {
 		return nil, err
@@ -204,7 +203,7 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (compexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return compexp.AcquireSpec{ConnChnlPH: ph, ContExp: cont}, nil
+		return compexec.AcquireSpec{ConnChnlPH: ph, ContExp: cont}, nil
 	case "accept":
 		value, err := dto.AsPoolTermAcceptSpec()
 		if err != nil {
@@ -218,7 +217,7 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (compexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return compexp.AcceptSpec{ConnChnlPH: ph, ContExp: cont}, nil
+		return compexec.AcceptSpec{ConnChnlPH: ph, ContExp: cont}, nil
 	case "hire":
 		value, err := dto.AsPoolTermHireSpec()
 		if err != nil {
@@ -236,7 +235,7 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (compexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return compexp.HireSpec{ConnChnlPH: ph, ProcTermQN: qn, ContExp: cont}, nil
+		return compexec.HireSpec{ConnChnlPH: ph, ProcTermQN: qn, ContExp: cont}, nil
 	case "apply":
 		value, err := dto.AsPoolTermApplySpec()
 		if err != nil {
@@ -254,7 +253,7 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (compexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return compexp.ApplySpec{ConnChnlPH: ph, ProcTermQN: qn, ContExp: cont}, nil
+		return compexec.ApplySpec{ConnChnlPH: ph, ProcTermQN: qn, ContExp: cont}, nil
 	case "release":
 		value, err := dto.AsPoolTermReleaseSpec()
 		if err != nil {
@@ -264,7 +263,7 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (compexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return compexp.ReleaseSpec{ConnChnlPH: ph}, nil
+		return compexec.ReleaseSpec{ConnChnlPH: ph}, nil
 	case "detach":
 		value, err := dto.AsPoolTermDetachSpec()
 		if err != nil {
@@ -274,7 +273,7 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (compexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return compexp.DetachSpec{ConnChnlPH: ph}, nil
+		return compexec.DetachSpec{ConnChnlPH: ph}, nil
 	case "fire":
 		value, err := dto.AsPoolTermFireSpec()
 		if err != nil {
@@ -284,7 +283,7 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (compexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return compexp.FireSpec{ConnChnlPH: ph}, nil
+		return compexec.FireSpec{ConnChnlPH: ph}, nil
 	case "quit":
 		value, err := dto.AsPoolTermQuitSpec()
 		if err != nil {
@@ -298,7 +297,7 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (compexp.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return compexp.QuitSpec{ConnChnlPH: ph, ProcTermQN: qn}, nil
+		return compexec.QuitSpec{ConnChnlPH: ph, ProcTermQN: qn}, nil
 	case "spawn":
 		value, err := dto.AsPoolTermSpawnSpec()
 		if err != nil {
@@ -315,7 +314,7 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (compexp.ExpSpec, error) {
 				return nil, fmt.Errorf("proc_irs[%d]: %w", i, err)
 			}
 		}
-		return compexp.SpawnSpec2{ProcTermRef: termRef, ProcCompRefs: compRefs}, nil
+		return compexec.SpawnSpec2{ProcTermRef: termRef, ProcCompRefs: compRefs}, nil
 	default:
 		return nil, fmt.Errorf("pool_expr: unsupported kind %q", discriminator.Kind)
 	}

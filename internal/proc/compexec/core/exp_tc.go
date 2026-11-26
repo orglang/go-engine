@@ -1,4 +1,4 @@
-package compexec
+package core
 
 import (
 	"encoding/json/jsontext"

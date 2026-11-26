@@ -73,7 +73,7 @@ func TestCreateProcessDeclarationHandler(t *testing.T) {
 	t.Run("rejects invalid qualified names before creating", func(t *testing.T) {
 		decAPI := &generatedDecAPIStub{}
 		e := echo.New()
-		h := &controllerEcho{api: decAPI}
+		h := &controllerEcho{decAPI: decAPI}
 		e.POST("/api/v1/processes/declarations", h.CreateProcessDeclaration)
 
 		const body = `{

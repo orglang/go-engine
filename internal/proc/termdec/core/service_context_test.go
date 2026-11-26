@@ -13,7 +13,6 @@ import (
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/tx"
-	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
 func TestServiceInceptPropagatesCallerCancellationToRepository(t *testing.T) {
@@ -21,7 +20,7 @@ func TestServiceInceptPropagatesCallerCancellationToRepository(t *testing.T) {
 	defer cancel()
 
 	repo := &contextRepo{entered: make(chan struct{})}
-	api := termdec.NewService(repo, contextDescRootRepo{}, contextDescSemRepo{}, nil,
+	api := NewService(repo, contextDescRootRepo{}, contextDescSemRepo{}, nil,
 		contextTransactor{}, slog.New(slog.NewTextHandler(io.Discard, nil)))
 
 	result := make(chan error, 1)
@@ -45,7 +44,7 @@ type contextRepo struct {
 	ctxErr error
 }
 
-func (r *contextRepo) AddRec(ctx context.Context, _ tx.Conn, _ termdec.DecRec) error {
+func (r *contextRepo) AddRec(ctx context.Context, _ tx.Conn, _ DecRec) error {
 	close(r.entered)
 	<-ctx.Done()
 	r.ctxErr = ctx.Err()
@@ -55,13 +54,13 @@ func (*contextRepo) GetRefs(context.Context, tx.Conn) ([]termsem.SemRef, error) 
 func (*contextRepo) GetQNByID(context.Context, tx.Conn, identity.ADT) (uniqsym.ADT, error) {
 	return uniqsym.ADT{}, nil
 }
-func (*contextRepo) GetSnap(context.Context, tx.Conn, termsem.SemRef) (termdec.DecSnap, error) {
-	return termdec.DecSnap{}, nil
+func (*contextRepo) GetSnap(context.Context, tx.Conn, termsem.SemRef) (DecSnap, error) {
+	return DecSnap{}, nil
 }
-func (*contextRepo) GetRecs(context.Context, tx.Conn, []identity.ADT) ([]termdec.DecRec, error) {
+func (*contextRepo) GetRecs(context.Context, tx.Conn, []identity.ADT) ([]DecRec, error) {
 	return nil, nil
 }
-func (*contextRepo) SelectEnv(context.Context, tx.Conn, []identity.ADT) (map[identity.ADT]termdec.DecRec, error) {
+func (*contextRepo) SelectEnv(context.Context, tx.Conn, []identity.ADT) (map[identity.ADT]DecRec, error) {
 	return nil, nil
 }
 
@@ -80,7 +79,7 @@ func (contextTransactor) ImplicitTx(ctx context.Context, fn func(context.Context
 	return fn(ctx, tx.Conn{})
 }
 
-var _ termdec.Repo = (*contextRepo)(nil)
+var _ Repo = (*contextRepo)(nil)
 var _ descroot.Repo = contextDescRootRepo{}
 var _ descsem.Repo = contextDescSemRepo{}
 var _ tx.Transactor = contextTransactor{}

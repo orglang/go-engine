@@ -14,6 +14,7 @@ import (
 	compexecadapter "orglang/go-engine/internal/proc/compexec/adapter"
 	compexec "orglang/go-engine/internal/proc/compexec/core"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
+	termdecadapter "orglang/go-engine/internal/proc/termdec/adapter"
 	termdef "orglang/go-engine/internal/proc/termdef/core"
 	typedefadapter "orglang/go-engine/internal/proc/typedef/adapter"
 	typedef "orglang/go-engine/internal/proc/typedef/core"

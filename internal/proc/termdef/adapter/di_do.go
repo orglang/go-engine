@@ -36,11 +36,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		logger, err := do.Invoke[*slog.Logger](i)
-		if err != nil {
-			return nil, err
-		}
-		return core.NewService(termDecRepo, termDefRepo, transactor, logger), nil
+		return core.NewService(termDecRepo, termDefRepo, transactor), nil
 	}),
 	do.Lazy[*DefinitionController](func(i do.Injector) (*DefinitionController, error) {
 		defAPI, err := do.Invoke[core.API](i)

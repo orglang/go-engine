@@ -56,7 +56,7 @@ func TestRetrieveDefinition(t *testing.T) {
 	t.Run("returns current definition", func(t *testing.T) {
 		repo := &definitionTestRepo{rec: DefRec{TermID: termID, ExpCK: wantKey}, spec: ExpCloseSpec{}}
 		decRepo := &definitionTestDecRepo{qn: wantQN}
-		service := NewService(decRepo, repo, definitionTestTransactor{}, nil)
+		service := NewService(decRepo, repo, definitionTestTransactor{})
 		got, err := service.RetrieveDefinition(context.Background(), termID)
 		if err != nil { t.Fatalf("RetrieveDefinition() error = %v", err) }
 		if got.TermQN != wantQN { t.Fatalf("RetrieveDefinition().TermQN = %v, want %v", got.TermQN, wantQN) }
@@ -65,7 +65,7 @@ func TestRetrieveDefinition(t *testing.T) {
 	})
 	t.Run("returns missing term error", func(t *testing.T) {
 		repo := &definitionTestRepo{err: ErrTermMissing(termID)}
-		service := NewService(&definitionTestDecRepo{}, repo, definitionTestTransactor{}, nil)
+		service := NewService(&definitionTestDecRepo{}, repo, definitionTestTransactor{})
 		_, err := service.RetrieveDefinition(context.Background(), termID)
 		if !errors.Is(err, ErrTermDoesNotExist) { t.Fatalf("RetrieveDefinition() error = %v, want ErrTermDoesNotExist", err) }
 	})

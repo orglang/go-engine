@@ -3,7 +3,6 @@ package core
 import (
 	"context"
 	"fmt"
-	"log/slog"
 
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
@@ -28,20 +27,20 @@ type DefRec struct {
 }
 
 type service struct {
-	termDecRepo termdec.Repo
+	termDecRepo Repo
 	termDefRepo Repo
-	transactor tx.Transactor
-	log *slog.Logger
+	transactor  tx.Transactor
 }
 
-// for compilation purposes
-func newAPI() API {
-	return new(service)
+func NewService(termDecRepo termdec.Repo, termDefRepo Repo, transactor tx.Transactor) API {
+	return &service{
+		termDecRepo: termDecRepo,
+		termDefRepo: termDefRepo,
+		transactor:  transactor,
+	}
 }
 
-func NewService(termDecRepo termdec.Repo, termDefRepo Repo, transactor tx.Transactor, log *slog.Logger) API {
-	return &service{termDecRepo: termDecRepo, termDefRepo: termDefRepo, transactor: transactor, log: log}
-}
+var _ API = (*service)(nil)
 
 func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (DefSpec, error) {
 	return tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DefSpec, error) {

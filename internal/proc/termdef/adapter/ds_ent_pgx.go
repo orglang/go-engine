@@ -19,6 +19,7 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 
 	"orglang/go-engine/internal/proc/ent"
+	termdec "orglang/go-engine/internal/proc/termdec/core"
 	termdef "orglang/go-engine/internal/proc/termdef/core"
 )
 
@@ -48,9 +49,9 @@ func newRepo() termdef.Repo {
 	return new(daoEnt)
 }
 
-func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdef.DecRec) error {
+func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdec.DecRec) error {
 	refAttr := slog.Any("ref", rec.TermRef)
-	dto, err := DataFromDecRec(rec)
+	dto, err := DataFromTermDecRec(rec)
 	if err != nil {
 		dao.log.Error("model conversion failed", refAttr)
 		return err
@@ -84,12 +85,12 @@ WHERE term_id = $2
 	return nil
 }
 
-func (dao *daoEnt) GetSnap(ctx context.Context, conn tx.Conn, ref termsem.SemRef) (termdef.DecSnap, error) {
+func (dao *daoEnt) GetSnap(ctx context.Context, conn tx.Conn, ref termsem.SemRef) (termdec.DecSnap, error) {
 	refAttr := slog.Any("ref", ref)
 	rows, err := conn.Pgx.Query(ctx, selectByRef, ref.TermID.String())
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)
-		return termdef.DecSnap{}, err
+		return termdec.DecSnap{}, err
 	}
 	defer rows.Close()
 	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecSnap])
@@ -98,24 +99,24 @@ func (dao *daoEnt) GetSnap(ctx context.Context, conn tx.Conn, ref termsem.SemRef
 		return termdef.DecSnap{}, err
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "entity selection succeed", slog.Any("dto", dto))
-	return DataToDecSnap(dto)
+	return DataToTermDecSnap(dto)
 }
 
-func (dao *daoEnt) SelectEnv(ctx context.Context, conn tx.Conn, ids []identity.ADT) (map[identity.ADT]termdef.DecRec, error) {
+func (dao *daoEnt) SelectEnv(ctx context.Context, conn tx.Conn, ids []identity.ADT) (map[identity.ADT]termdec.DecRec, error) {
 	decs, err := dao.GetRecs(ctx, conn, ids)
 	if err != nil {
 		return nil, err
 	}
-	env := make(map[identity.ADT]termdef.DecRec, len(decs))
+	env := make(map[identity.ADT]termdec.DecRec, len(decs))
 	for _, dec := range decs {
 		env[dec.TermRef.TermID] = dec
 	}
 	return env, nil
 }
 
-func (dao *daoEnt) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT) (_ []termdef.DecRec, err error) {
+func (dao *daoEnt) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT) (_ []termdec.DecRec, err error) {
 	if len(ids) == 0 {
-		return []termdef.DecRec{}, nil
+		return []termdec.DecRec{}, nil
 	}
 	batch := pgx.Batch{}
 	for _, rid := range ids {
@@ -145,7 +146,7 @@ func (dao *daoEnt) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT
 		dtos = append(dtos, dto)
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "selection succeed", slog.Any("dtos", dtos))
-	return DataToDecRecs(dtos)
+	return DataToTermDecRecs(dtos)
 }
 
 func (dao *daoEnt) GetRecByID(ctx context.Context, conn tx.Conn, termID identity.ADT) (termdef.DefRec, error) {

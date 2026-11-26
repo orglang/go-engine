@@ -100,8 +100,9 @@ func dataToExpRec(dto ExpData) (termdef.ExpRec, error) {
 	if root.SupExpCK != 0 {
 		return nil, fmt.Errorf("pool Definition root %d has unexpected parent %d", root.ExpCK, root.SupExpCK)
 	}
+	visiting := make(map[int64]struct{}, len(states))
 	visited := make(map[int64]struct{}, len(states))
-	rec, err := statesToExpRec(states, root, visited)
+	rec, err := statesToExpRec(states, root, visiting, visited)
 	if err != nil {
 		return nil, err
 	}
@@ -111,11 +112,13 @@ func dataToExpRec(dto ExpData) (termdef.ExpRec, error) {
 	return rec, nil
 }
 
-func statesToExpRec(states map[int64]ExpState, state ExpState, visited map[int64]struct{}) (termdef.ExpRec, error) {
-	if _, exists := visited[state.ExpCK]; exists {
+func statesToExpRec(states map[int64]ExpState, state ExpState, visiting, visited map[int64]struct{}) (termdef.ExpRec, error) {
+	if _, exists := visiting[state.ExpCK]; exists {
 		return nil, fmt.Errorf("pool Definition contains cyclic expression %d", state.ExpCK)
 	}
+	visiting[state.ExpCK] = struct{}{}
 	visited[state.ExpCK] = struct{}{}
+	defer delete(visiting, state.ExpCK)
 	key, err := contkey.ConvertFromInt(state.ExpCK)
 	if err != nil {
 		return nil, err
@@ -129,7 +132,7 @@ func statesToExpRec(states map[int64]ExpState, state ExpState, visited map[int64
 		if child.SupExpCK != state.ExpCK {
 			return nil, fmt.Errorf("pool Definition child %d has unexpected parent", child.ExpCK)
 		}
-		return statesToExpRec(states, child, visited)
+		return statesToExpRec(states, child, visiting, visited)
 	}
 	ph := func() (symbol.ADT, error) { return symbol.ConvertFromString(spec.ConnChnlPH) }
 	switch state.K {

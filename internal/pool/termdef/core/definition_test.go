@@ -5,7 +5,6 @@ import (
 	"errors"
 	"testing"
 
-	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/tx"
@@ -23,46 +22,39 @@ func (definitionTestTransactor) ImplicitTx(ctx context.Context, fn func(context.
 }
 
 type definitionTestRepo struct {
-	rec  DefRec
-	spec ExpSpec
-	err  error
-	key  contkey.ADT
+	rec DefRec
+	err error
 }
 
-func (r *definitionTestRepo) SetExpCK(context.Context, tx.Conn, identity.ADT, contkey.ADT) error {
-	return nil
-}
-func (r *definitionTestRepo) GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRec, error) {
+func (r *definitionTestRepo) GetByTermID(context.Context, tx.Conn, identity.ADT) (DefRec, error) {
 	return r.rec, r.err
-}
-func (r *definitionTestRepo) InsertSpec(context.Context, tx.Conn, ExpSpec) error { return nil }
-func (r *definitionTestRepo) SelectSpecByCK(_ context.Context, _ tx.Conn, key contkey.ADT) (ExpSpec, error) {
-	r.key = key
-	return r.spec, nil
 }
 
 type definitionTestDecRepo struct {
 	qn uniqsym.ADT
 }
 
-func (r definitionTestDecRepo) AddRec(context.Context, tx.Conn, termdec.DecRec) error { return nil }
-func (r definitionTestDecRepo) GetRecByQN(context.Context, tx.Conn, uniqsym.ADT) (termdec.DecRec, error) {
+func (definitionTestDecRepo) AddRec(context.Context, tx.Conn, termdec.DecRec) error {
+	return nil
+}
+
+func (definitionTestDecRepo) GetRecByQN(context.Context, tx.Conn, uniqsym.ADT) (termdec.DecRec, error) {
 	return termdec.DecRec{}, nil
 }
+
 func (r definitionTestDecRepo) GetQNByID(context.Context, tx.Conn, identity.ADT) (uniqsym.ADT, error) {
 	return r.qn, nil
 }
 
 func TestRetrieveDefinition(t *testing.T) {
 	termID := identity.New()
-	wantKey := contkey.ADT(42)
 	wantQN, err := uniqsym.ConvertFromString("example.term")
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	t.Run("returns current definition", func(t *testing.T) {
-		repo := &definitionTestRepo{rec: DefRec{TermID: termID, ExpCK: wantKey}, spec: ExpReleaseSpec{}}
+		repo := &definitionTestRepo{rec: DefRec{TermID: termID, Exp: ExpReleaseSpec{}}}
 		service := NewService(definitionTestDecRepo{qn: wantQN}, repo, definitionTestTransactor{})
 
 		got, err := service.RetrieveDefinition(context.Background(), termID)
@@ -74,9 +66,6 @@ func TestRetrieveDefinition(t *testing.T) {
 		}
 		if _, ok := got.Exp.(ExpReleaseSpec); !ok {
 			t.Fatalf("RetrieveDefinition().Exp = %T, want ExpReleaseSpec", got.Exp)
-		}
-		if repo.key != wantKey {
-			t.Fatalf("SelectSpecByCK() key = %v, want %v", repo.key, wantKey)
 		}
 	})
 

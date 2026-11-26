@@ -1,4 +1,4 @@
-package exp
+package core
 
 import (
 	"strings"

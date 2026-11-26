@@ -214,7 +214,7 @@ func ErrExpTypeUnexpected(got ExpSpec) error {
 	return fmt.Errorf("exp spec unexpected: %T", got)
 }
 
-func ErrRecTypeUnexpected(got ExpRec) error {
+func ErrRecTypeUnexpected(got any) error {
 	return fmt.Errorf("exp rec unexpected: %T", got)
 }
 

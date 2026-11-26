@@ -31,14 +31,21 @@ func TestExpDataRoundTripPreservesNestedDefinition(t *testing.T) {
 	if len(data.States) != 3 {
 		t.Fatalf("stored states = %d, want 3", len(data.States))
 	}
-	if data.States[0].SupExpCK != 0 {
-		t.Errorf("root parent key = %d, want 0", data.States[0].SupExpCK)
+	states := make(map[int64]ExpState, len(data.States))
+	for _, state := range data.States {
+		states[state.ExpCK] = state
 	}
-	if data.States[1].SupExpCK != data.States[0].ExpCK {
-		t.Errorf("middle parent key = %d, want %d", data.States[1].SupExpCK, data.States[0].ExpCK)
+	root := states[data.ExpCK]
+	if root.SupExpCK != 0 {
+		t.Errorf("root parent key = %d, want 0", root.SupExpCK)
 	}
-	if data.States[2].SupExpCK != data.States[1].ExpCK {
-		t.Errorf("leaf parent key = %d, want %d", data.States[2].SupExpCK, data.States[1].ExpCK)
+	middle := states[root.Spec.ContExpCK]
+	if middle.SupExpCK != root.ExpCK {
+		t.Errorf("middle parent key = %d, want %d", middle.SupExpCK, root.ExpCK)
+	}
+	leaf := states[middle.Spec.ContExpCK]
+	if leaf.SupExpCK != middle.ExpCK {
+		t.Errorf("leaf parent key = %d, want %d", leaf.SupExpCK, middle.ExpCK)
 	}
 
 	gotRec, err := dataToExpRec(data)

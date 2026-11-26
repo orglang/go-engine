@@ -5,17 +5,22 @@ import (
 	"testing"
 
 	"orglang/go-engine/internal/adt/symbol"
+	"orglang/go-engine/internal/adt/uniqsym"
 	termdef "orglang/go-engine/internal/pool/termdef/core"
 )
 
 func TestExpDataRoundTripPreservesNestedDefinition(t *testing.T) {
+	workerQN, err := uniqsym.ConvertFromString("example.worker")
+	if err != nil {
+		t.Fatal(err)
+	}
 	spec := termdef.ExpAcquireSpec{
 		ConnChnlPH: symbol.ADT("request"),
 		ContExp: termdef.ExpHireSpec{
 			ConnChnlPH: symbol.ADT("worker"),
-			ProcTermQN: "example.worker",
+			ProcTermQN: workerQN,
 			ContExp: termdef.ExpSpawnSpec{
-				ProcTermQN: "example.worker",
+				ProcTermQN: workerQN,
 			},
 		},
 	}

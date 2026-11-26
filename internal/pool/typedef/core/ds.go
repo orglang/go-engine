@@ -3,19 +3,18 @@ package core
 import (
 	"context"
 
-	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/typesem"
-	typeexp "orglang/go-engine/internal/pool/typeexp/core"
+	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/tx"
+	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 )
 
 type Repo interface {
 	AddRec(context.Context, tx.Conn, DefRec) error
 	GetRecsByQNs(context.Context, tx.Conn, []uniqsym.ADT) (map[uniqsym.ADT]DefRec, error)
 }
-
 
 // TypeExpRepo stores and retrieves the AST belonging to a type definition.
 type TypeExpRepo interface {

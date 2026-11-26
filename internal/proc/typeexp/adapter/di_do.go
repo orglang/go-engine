@@ -25,7 +25,9 @@ var Package = do.Package(
 	}),
 	do.Lazy[typedefcore.TypeExpRepo](func(i do.Injector) (typedefcore.TypeExpRepo, error) {
 		client, err := do.Invoke[*ent.Client](i)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil { return nil, err }
 		return NewDaoEnt(client, logger), nil

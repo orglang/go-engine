@@ -10,7 +10,6 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/ent"
 	"orglang/go-engine/internal/proc/typedef/core"
-	
 )
 
 // Package registers process type-definition persistence, service, and HTTP adapters.

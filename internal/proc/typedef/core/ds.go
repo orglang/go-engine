@@ -3,12 +3,12 @@ package core
 import (
 	"context"
 
-	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/adt/contkey"
-	typeexp "orglang/go-engine/internal/proc/typeexp/core"
+	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/adt/typesem"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/tx"
+	typeexp "orglang/go-engine/internal/proc/typeexp/core"
 )
 
 type DescSemRepo interface {
@@ -25,7 +25,6 @@ type Repo interface {
 	GetRecsByQNs(context.Context, tx.Conn, []uniqsym.ADT) ([]DefRec, error)
 	SelectEnv(context.Context, tx.Conn, []uniqsym.ADT) (map[uniqsym.ADT]DefRec, error)
 }
-
 
 // TypeExpRepo stores and retrieves the AST belonging to a type definition.
 type TypeExpRepo interface {

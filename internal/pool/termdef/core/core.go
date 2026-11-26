@@ -15,22 +15,17 @@ import (
 	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/uniqsym"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
+	termdec "orglang/go-engine/internal/pool/termdec/core"
 )
 
 type API interface {
-	Create(context.Context, DecSpec) (termsem.SemRef, error)
+	Create(context.Context, termdec.DecSpec) (termsem.SemRef, error)
 	RetrieveDefinition(context.Context, identity.ADT) (DefSpec, error)
 }
 
 type DefSpec struct {
 	TermQN uniqsym.ADT
 	Exp    ExpSpec
-}
-
-type DecSpec struct {
-	TermQN    uniqsym.ADT
-	LiabVar   termvar.VarSpec
-	AssetVars []termvar.VarSpec
 }
 
 type DecRec struct {
@@ -45,6 +40,7 @@ type DefRec struct {
 }
 
 func NewService(
+	termDecRepo termdec.Repo,
 	termDefRepo Repo,
 	descRootRepo descroot.Repo,
 	typeDefRepo typedef.Repo,
@@ -52,10 +48,11 @@ func NewService(
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
-	return &service{termDefRepo: termDefRepo, descRootRepo: descRootRepo, typeDefRepo: typeDefRepo, descSemRepo: descSemRepo, transactor: transactor, log: log}
+	return &service{termDecRepo: termDecRepo, termDefRepo: termDefRepo, descRootRepo: descRootRepo, typeDefRepo: typeDefRepo, descSemRepo: descSemRepo, transactor: transactor, log: log}
 }
 
 type service struct {
+	termDecRepo  termdec.Repo
 	termDefRepo  Repo
 	descRootRepo descroot.Repo
 	typeDefRepo  typedef.Repo
@@ -64,7 +61,7 @@ type service struct {
 	log          *slog.Logger
 }
 
-func (s *service) Create(ctx context.Context, spec DecSpec) (_ termsem.SemRef, err error) {
+func (s *service) Create(ctx context.Context, spec termdec.DecSpec) (_ termsem.SemRef, err error) {
 	qnAttr := slog.Any("qn", spec.TermQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	assetQNs := make([]uniqsym.ADT, 0, len(spec.AssetVars)+1)
@@ -102,7 +99,7 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ termsem.SemRef, e
 		if err := s.descSemRepo.AddRec(txCtx, conn, newBind); err != nil {
 			return err
 		}
-		return s.termDefRepo.AddRec(txCtx, conn, newDec)
+		return s.termDecRepo.AddRec(txCtx, conn, newDec)
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", qnAttr)

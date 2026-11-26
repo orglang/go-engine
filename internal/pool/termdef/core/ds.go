@@ -10,9 +10,6 @@ import (
 )
 
 type Repo interface {
-	AddRec(context.Context, tx.Conn, DecRec) error
-	GetRecByQN(context.Context, tx.Conn, uniqsym.ADT) (DecRec, error)
-
 	SetExpCK(context.Context, tx.Conn, identity.ADT, contkey.ADT) error
 	GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRec, error)
 	GetQNByID(context.Context, tx.Conn, identity.ADT) (uniqsym.ADT, error)

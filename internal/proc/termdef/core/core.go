@@ -3,7 +3,6 @@ package core
 import (
 	"context"
 	"fmt"
-	"iter"
 	"log/slog"
 
 	"orglang/go-engine/internal/lib/tx"
@@ -16,6 +15,7 @@ import (
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/termvar"
+	termdec "orglang/go-engine/internal/proc/termdec/core"
 	"orglang/go-engine/internal/adt/uniqsym"
 
 	typedef "orglang/go-engine/internal/proc/typedef/core"
@@ -34,20 +34,9 @@ type DefSpec struct {
 	Exp    ExpSpec
 }
 
-type DecSpec struct {
-	TermQN uniqsym.ADT
-	// endpoint where process acts as a provider
-	LiabVar termvar.VarSpec
-	// endpoints where process acts as a client
-	AssetVars []termvar.VarSpec
-}
+type DecSpec = termdec.DecSpec
 
-type DecRec struct {
-	TermRef   termsem.SemRef
-	TermQN    uniqsym.ADT
-	LiabVar   termvar.VarRec
-	AssetVars []termvar.VarRec
-}
+type DecRec = termdec.DecRec
 
 type DefRec struct {
 	TermID identity.ADT
@@ -55,13 +44,10 @@ type DefRec struct {
 }
 
 // aka ExpDec or ExpDecDef without expression
-type DecSnap struct {
-	TermRef   termsem.SemRef
-	LiabVar   termvar.VarRec
-	AssetVars []termvar.VarRec
-}
+type DecSnap = termdec.DecSnap
 
 type service struct {
+	termDecRepo  termdec.Repo
 	termDefRepo  Repo
 	descRootRepo descroot.Repo
 	descSemRepo  descsem.Repo
@@ -76,6 +62,7 @@ func newAPI() API {
 }
 
 func NewService(
+	termDecRepo termdec.Repo,
 	termDefRepo Repo,
 	descRootRepo descroot.Repo,
 	descSemRepo descsem.Repo,
@@ -83,7 +70,7 @@ func NewService(
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
-	return &service{termDefRepo: termDefRepo, descRootRepo: descRootRepo, descSemRepo: descSemRepo, typeDefRepo: typeDefRepo, transactor: transactor, log: log}
+	return &service{termDecRepo: termDecRepo, termDefRepo: termDefRepo, descRootRepo: descRootRepo, descSemRepo: descSemRepo, typeDefRepo: typeDefRepo, transactor: transactor, log: log}
 }
 
 func (s *service) Incept(ctx context.Context, termQN uniqsym.ADT) (_ termsem.SemRef, err error) {
@@ -99,7 +86,7 @@ func (s *service) Incept(ctx context.Context, termQN uniqsym.ADT) (_ termsem.Sem
 		if err := s.descSemRepo.AddRec(txCtx, conn, newBind); err != nil {
 			return err
 		}
-		return s.termDefRepo.AddRec(txCtx, conn, newDec)
+		return s.termDecRepo.AddRec(txCtx, conn, newDec)
 	})
 	if err != nil {
 		s.log.Error("inception failed", qnAttr)
@@ -161,7 +148,7 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ DecSnap, err erro
 
 func (s *service) RetrieveSnap(ctx context.Context, ref termsem.SemRef) (snap DecSnap, err error) {
 	snap, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DecSnap, error) {
-		return s.termDefRepo.GetSnap(txCtx, conn, ref)
+		return s.termDecRepo.GetSnap(txCtx, conn, ref)
 	})
 	if err != nil {
 		s.log.Error("retrieval failed", slog.Any("ref", ref))
@@ -193,17 +180,13 @@ func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (
 
 func (s *service) RetreiveRefs(ctx context.Context) (refs []termsem.SemRef, err error) {
 	refs, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) ([]termsem.SemRef, error) {
-		return s.termDefRepo.GetRefs(txCtx, conn)
+		return s.termDecRepo.GetRefs(txCtx, conn)
 	})
 	if err != nil {
 		s.log.Error("retrieval failed")
 		return nil, err
 	}
 	return refs, nil
-}
-
-func CollectEnv(recs iter.Seq[DecRec]) []uniqsym.ADT {
-	return []uniqsym.ADT{}
 }
 
 func ErrRootMissingInEnv(rid identity.ADT) error {

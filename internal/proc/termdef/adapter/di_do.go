@@ -44,6 +44,8 @@ var Package = do.Package(
 		return newTermDecRepo(NewDaoEnt(client, logger)), nil
 	}),
 	do.Lazy[core.API](func(i do.Injector) (core.API, error) {
+		termDecRepo, err := do.Invoke[termdec.Repo](i)
+		if err != nil { return nil, err }
 		termDefRepo, err := do.Invoke[core.Repo](i)
 		if err != nil {
 			return nil, err
@@ -68,7 +70,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return core.NewService(termDefRepo, descRootRepo, descSemRepo, typeDefRepo, transactor, logger), nil
+		return core.NewService(termDecRepo, termDefRepo, descRootRepo, descSemRepo, typeDefRepo, transactor, logger), nil
 	}),
 	do.Lazy[webapi.ServerInterface](func(i do.Injector) (webapi.ServerInterface, error) {
 		api, err := do.Invoke[core.API](i)

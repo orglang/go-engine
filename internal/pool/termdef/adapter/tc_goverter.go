@@ -5,6 +5,7 @@ import (
 	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/app/web/api"
 
+	termdec "orglang/go-engine/internal/pool/termdec/core"
 	termdef "orglang/go-engine/internal/pool/termdef/core"
 )
 
@@ -24,7 +25,7 @@ var (
 // goverter:extend ConnVarFromGenerated
 var (
 	// goverter:map DescQn TermQN
-	DecSpecFromGenerated func(api.PoolDecSpec) (termdef.DecSpec, error)
+	DecSpecFromGenerated func(api.PoolDecSpec) (termdec.DecSpec, error)
 )
 
 // goverter:variables

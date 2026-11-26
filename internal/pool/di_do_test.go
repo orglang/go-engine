@@ -12,6 +12,7 @@ import (
 	compexecadapter "orglang/go-engine/internal/pool/compexec/adapter"
 	compexec "orglang/go-engine/internal/pool/compexec/core"
 	compvar "orglang/go-engine/internal/pool/compvar/core"
+	termdec "orglang/go-engine/internal/pool/termdec/core"
 	termdefadapter "orglang/go-engine/internal/pool/termdef/adapter"
 	termdef "orglang/go-engine/internal/pool/termdef/core"
 	typedefadapter "orglang/go-engine/internal/pool/typedef/adapter"
@@ -55,6 +56,10 @@ func TestPackageProvidesPersistencePortsAndDefinitionServices(t *testing.T) {
 		}},
 		{"pool type-definition repository", func() error {
 			_, err := do.Invoke[typedef.Repo](injector)
+			return err
+		}},
+		{"pool term-declaration repository", func() error {
+			_, err := do.Invoke[termdec.Repo](injector)
 			return err
 		}},
 		{"pool term-definition repository", func() error {

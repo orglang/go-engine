@@ -1,6 +1,10 @@
 package adapter
 
-import "testing"
+import (
+	"testing"
+
+	termdef "orglang/go-engine/internal/proc/termdef/core"
+)
 
 func TestDataToExpRecRejectsMalformedTree(t *testing.T) {
 	tests := []struct {
@@ -62,8 +66,11 @@ func TestDataToExpRecAllowsSharedCaseContinuation(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dataToExpRec() error = %v", err)
 	}
-	caseRec, ok := rec.(interface{ })
-	if !ok || caseRec == nil {
-		t.Fatalf("dataToExpRec() = %T, want non-nil case record", rec)
+	caseRec, ok := rec.(termdef.ExpCaseRec)
+	if !ok {
+		t.Fatalf("dataToExpRec() = %T, want ExpCaseRec", rec)
+	}
+	if len(caseRec.ContExps) != 2 {
+		t.Fatalf("case branches = %d, want 2", len(caseRec.ContExps))
 	}
 }

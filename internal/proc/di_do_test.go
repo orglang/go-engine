@@ -18,7 +18,6 @@ import (
 	termdef "orglang/go-engine/internal/proc/termdef/core"
 	typedefadapter "orglang/go-engine/internal/proc/typedef/adapter"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
-	typeexp "orglang/go-engine/internal/proc/typeexp/core"
 )
 
 type testTransactor struct{}
@@ -57,8 +56,8 @@ func TestPackageProvidesPersistencePorts(t *testing.T) {
 			_, err := do.Invoke[typedef.Repo](injector)
 			return err
 		}},
-		{"type-expression repository", func() error {
-			_, err := do.Invoke[typeexp.Repo](injector)
+		{"type-definition expression repository", func() error {
+			_, err := do.Invoke[typedef.TypeExpRepo](injector)
 			return err
 		}},
 		{"shared type-semantic repository", func() error {

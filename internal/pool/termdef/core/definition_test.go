@@ -9,6 +9,7 @@ import (
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/tx"
+	termdec "orglang/go-engine/internal/pool/termdec/core"
 )
 
 type definitionTestTransactor struct{}
@@ -29,23 +30,28 @@ type definitionTestRepo struct {
 	key  contkey.ADT
 }
 
-func (r *definitionTestRepo) AddRec(context.Context, tx.Conn, DecRec) error { return nil }
-func (r *definitionTestRepo) GetRecByQN(context.Context, tx.Conn, uniqsym.ADT) (DecRec, error) {
-	return DecRec{}, nil
-}
 func (r *definitionTestRepo) SetExpCK(context.Context, tx.Conn, identity.ADT, contkey.ADT) error {
 	return nil
 }
 func (r *definitionTestRepo) GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRec, error) {
 	return r.rec, r.err
 }
-func (r *definitionTestRepo) GetQNByID(context.Context, tx.Conn, identity.ADT) (uniqsym.ADT, error) {
-	return r.qn, nil
-}
 func (r *definitionTestRepo) InsertSpec(context.Context, tx.Conn, ExpSpec) error { return nil }
 func (r *definitionTestRepo) SelectSpecByCK(_ context.Context, _ tx.Conn, key contkey.ADT) (ExpSpec, error) {
 	r.key = key
 	return r.spec, nil
+}
+
+type definitionTestDecRepo struct {
+	qn uniqsym.ADT
+}
+
+func (r definitionTestDecRepo) AddRec(context.Context, tx.Conn, termdec.DecRec) error { return nil }
+func (r definitionTestDecRepo) GetRecByQN(context.Context, tx.Conn, uniqsym.ADT) (termdec.DecRec, error) {
+	return termdec.DecRec{}, nil
+}
+func (r definitionTestDecRepo) GetQNByID(context.Context, tx.Conn, identity.ADT) (uniqsym.ADT, error) {
+	return r.qn, nil
 }
 
 func TestRetrieveDefinition(t *testing.T) {
@@ -55,7 +61,7 @@ func TestRetrieveDefinition(t *testing.T) {
 
 	t.Run("returns current definition", func(t *testing.T) {
 		repo := &definitionTestRepo{rec: DefRec{TermID: termID, ExpCK: wantKey}, spec: ExpReleaseSpec{}, qn: wantQN}
-		service := NewService(repo, nil, nil, nil, definitionTestTransactor{}, nil)
+		service := NewService(definitionTestDecRepo{qn: wantQN}, repo, definitionTestTransactor{}, nil)
 
 		got, err := service.RetrieveDefinition(context.Background(), termID)
 		if err != nil {
@@ -74,7 +80,7 @@ func TestRetrieveDefinition(t *testing.T) {
 
 	t.Run("returns missing term error", func(t *testing.T) {
 		repo := &definitionTestRepo{err: ErrTermMissing(termID)}
-		service := NewService(repo, nil, nil, nil, definitionTestTransactor{}, nil)
+		service := NewService(definitionTestDecRepo{}, repo, definitionTestTransactor{}, nil)
 
 		_, err := service.RetrieveDefinition(context.Background(), termID)
 		if !errors.Is(err, ErrTermDoesNotExist) {

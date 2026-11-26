@@ -25,7 +25,6 @@ func (definitionTestTransactor) ImplicitTx(ctx context.Context, fn func(context.
 type definitionTestRepo struct {
 	rec  DefRec
 	spec ExpSpec
-	qn   uniqsym.ADT
 	err  error
 	key  contkey.ADT
 }
@@ -60,7 +59,7 @@ func TestRetrieveDefinition(t *testing.T) {
 	wantQN := uniqsym.ADT("example.term")
 
 	t.Run("returns current definition", func(t *testing.T) {
-		repo := &definitionTestRepo{rec: DefRec{TermID: termID, ExpCK: wantKey}, spec: ExpReleaseSpec{}, qn: wantQN}
+		repo := &definitionTestRepo{rec: DefRec{TermID: termID, ExpCK: wantKey}, spec: ExpReleaseSpec{}}
 		service := NewService(definitionTestDecRepo{qn: wantQN}, repo, definitionTestTransactor{}, nil)
 
 		got, err := service.RetrieveDefinition(context.Background(), termID)
@@ -90,7 +89,7 @@ func TestRetrieveDefinition(t *testing.T) {
 
 	t.Run("returns missing definition error", func(t *testing.T) {
 		repo := &definitionTestRepo{rec: DefRec{TermID: termID}}
-		service := NewService(repo, nil, nil, nil, definitionTestTransactor{}, nil)
+		service := NewService(definitionTestDecRepo{}, repo, definitionTestTransactor{}, nil)
 
 		_, err := service.RetrieveDefinition(context.Background(), termID)
 		if !errors.Is(err, ErrDefinitionMissing) {

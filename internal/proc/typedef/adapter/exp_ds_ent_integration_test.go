@@ -48,7 +48,7 @@ func TestIntegrationProcTypeExpAddRecIsIdempotent(t *testing.T) {
 		}
 	})
 
-	repo := typedefadapter.NewExpDaoEnt(client, slog.Default())
+	repo := NewExpDaoEnt(client, slog.Default())
 	transactor := dbadapter.NewTransactorPgx(pool)
 	want := typedef.TensorRec{
 		ExpCK: contkey.Three,

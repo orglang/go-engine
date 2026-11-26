@@ -73,7 +73,7 @@ type service struct {
 	connRepo     compconn.Repo
 	termDecRepo  termdec.Repo
 	typeDefRepo  typedef.Repo
-	typeExpRepo  typeexp.Repo
+	typeExpRepo  typedef.TypeExpRepo
 	transactor   tx.Transactor
 	log          *slog.Logger
 }
@@ -88,7 +88,7 @@ func NewService(
 	connRepo compconn.Repo,
 	termDecRepo termdec.Repo,
 	typeDefRepo typedef.Repo,
-	typeExpRepo typeexp.Repo,
+	typeExpRepo typedef.TypeExpRepo,
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {

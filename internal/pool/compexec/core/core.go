@@ -23,6 +23,7 @@ import (
 	compvar "orglang/go-engine/internal/pool/compvar/core"
 	connact "orglang/go-engine/internal/pool/connact/core"
 	termdec "orglang/go-engine/internal/pool/termdec/core"
+	typedef "orglang/go-engine/internal/pool/typedef/core"
 	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 	proctermdef "orglang/go-engine/internal/proc/termdef/core"
 
@@ -90,7 +91,7 @@ type service struct {
 	compExecBroker Broker
 	compVarRepo    compvar.Repo
 	connRepo       compconn.Repo
-	typeExpRepo    typeexp.Repo
+	typeExpRepo    typedef.TypeExpRepo
 	procExecRepo   proccompexec.Repo
 	termDecRepo    termdec.Repo
 	implSemRepo    implsem.Repo
@@ -109,7 +110,7 @@ type ServiceDeps struct {
 	CompExecBroker Broker
 	CompVarRepo    compvar.Repo
 	CompConnRepo   compconn.Repo
-	TypeExpRepo    typeexp.Repo
+	TypeExpRepo    typedef.TypeExpRepo
 	ProcExecRepo   proccompexec.Repo
 	TermDecRepo    termdec.Repo
 	ImplSemRepo    implsem.Repo

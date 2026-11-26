@@ -16,7 +16,7 @@ import (
 	compvar "orglang/go-engine/internal/pool/compvar/core"
 	"orglang/go-engine/internal/pool/ent"
 	termdec "orglang/go-engine/internal/pool/termdec/core"
-	typeexp "orglang/go-engine/internal/pool/typeexp/core"
+	typedef "orglang/go-engine/internal/pool/typedef/core"
 	proccompexec "orglang/go-engine/internal/proc/compexec/core"
 )
 
@@ -67,7 +67,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		typeRepo, err := do.Invoke[typeexp.Repo](i)
+		typeRepo, err := do.Invoke[typedef.TypeExpRepo](i)
 		if err != nil {
 			return nil, err
 		}

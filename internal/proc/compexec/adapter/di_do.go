@@ -11,7 +11,7 @@ import (
 	"orglang/go-engine/internal/proc/ent"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
-	typeexp "orglang/go-engine/internal/proc/typeexp/core"
+	
 )
 
 // Package registers the process computation-execution repository, service, and HTTP controller.
@@ -44,7 +44,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		typeExpRepo, err := do.Invoke[typeexp.Repo](i)
+		typeExpRepo, err := do.Invoke[typedef.TypeExpRepo](i)
 		if err != nil {
 			return nil, err
 		}

@@ -900,7 +900,6 @@ func (s *service) takeWith(
 	default:
 		panic(connact.ErrExpTypeUnexpected(exp))
 	}
-	return takeResult{Mod: execMod, Effects: execEff, Connection: connMod}, connact.ErrExpTypeUnexpected(exp)
 }
 
 func CollectCtx(chnls iter.Seq[compvar.LinearRec]) []contkey.ADT {

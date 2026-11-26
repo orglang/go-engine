@@ -16,7 +16,6 @@ import (
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/typesem"
 	"orglang/go-engine/internal/adt/uniqsym"
-	typeexp "orglang/go-engine/internal/proc/typeexp/core"
 )
 
 type API interface {
@@ -29,7 +28,7 @@ type API interface {
 
 type DefSpec struct {
 	TypeQN  uniqsym.ADT
-	TypeExp typeexp.ExpSpec
+	TypeExp ExpSpec
 }
 
 // aka TpDef
@@ -44,8 +43,8 @@ type DefSnap struct {
 }
 
 type Context struct {
-	Assets map[symbol.ADT]typeexp.ExpRec
-	Liabs  map[symbol.ADT]typeexp.ExpRec
+	Assets map[symbol.ADT]ExpRec
+	Liabs  map[symbol.ADT]ExpRec
 }
 
 type service struct {
@@ -76,7 +75,7 @@ func NewService(
 func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err error) {
 	qnAttr := slog.Any("qn", spec.TypeQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
-	newExp, err := typeexp.ConvertSpecToRec(spec.TypeExp)
+	newExp, err := ConvertSpecToRec(spec.TypeExp)
 	if err != nil {
 		return DefSnap{}, err
 	}
@@ -128,10 +127,10 @@ func (s *service) Modify(ctx context.Context, snap DefSnap) (_ DefSnap, err erro
 		s.log.Error("modification failed", refAttr)
 		return DefSnap{}, err
 	}
-	if typeexp.CheckSpec(snap.DefSpec.TypeExp, curSnap.DefSpec.TypeExp) == nil {
+	if CheckSpec(snap.DefSpec.TypeExp, curSnap.DefSpec.TypeExp) == nil {
 		return curSnap, nil
 	}
-	newExp, err := typeexp.ConvertSpecToRec(snap.DefSpec.TypeExp)
+	newExp, err := ConvertSpecToRec(snap.DefSpec.TypeExp)
 	if err != nil {
 		return DefSnap{}, err
 	}
@@ -167,7 +166,7 @@ func (s *service) RetrieveSnap(ctx context.Context, ref typesem.SemRef) (_ DefSn
 }
 
 func (s *service) retrieveSnap(ctx context.Context, rec DefRec) (_ DefSnap, err error) { // revive:disable-line:confusing-naming
-	expRec, err := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (typeexp.ExpRec, error) {
+	expRec, err := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (ExpRec, error) {
 		return s.typeExpRepo.SelectRecByCK(txCtx, conn, rec.ExpCK)
 	})
 	if err != nil {
@@ -176,7 +175,7 @@ func (s *service) retrieveSnap(ctx context.Context, rec DefRec) (_ DefSnap, err 
 	}
 	return DefSnap{
 		TypeRef: rec.TypeRef,
-		DefSpec: DefSpec{TypeExp: typeexp.ConvertRecToSpec(expRec)},
+		DefSpec: DefSpec{TypeExp: ConvertRecToSpec(expRec)},
 	}, nil
 }
 

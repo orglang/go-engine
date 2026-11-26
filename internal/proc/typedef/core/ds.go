@@ -8,7 +8,6 @@ import (
 	"orglang/go-engine/internal/adt/typesem"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/tx"
-	typeexp "orglang/go-engine/internal/proc/typeexp/core"
 )
 
 type DescSemRepo interface {
@@ -28,8 +27,8 @@ type Repo interface {
 
 // TypeExpRepo stores and retrieves the AST belonging to a type definition.
 type TypeExpRepo interface {
-	AddRec(context.Context, tx.Conn, typeexp.ExpRec) error
-	SelectRecByCK(context.Context, tx.Conn, contkey.ADT) (typeexp.ExpRec, error)
-	SelectRecsByCKs(context.Context, tx.Conn, []contkey.ADT) ([]typeexp.ExpRec, error)
-	SelectEnv(context.Context, tx.Conn, []contkey.ADT) (map[contkey.ADT]typeexp.ExpRec, error)
+	AddRec(context.Context, tx.Conn, ExpRec) error
+	SelectRecByCK(context.Context, tx.Conn, contkey.ADT) (ExpRec, error)
+	SelectRecsByCKs(context.Context, tx.Conn, []contkey.ADT) ([]ExpRec, error)
+	SelectEnv(context.Context, tx.Conn, []contkey.ADT) (map[contkey.ADT]ExpRec, error)
 }

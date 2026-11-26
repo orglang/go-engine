@@ -63,12 +63,10 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 	})
 
 	typeDefRepo := NewDaoEnt(entClient, logger)
-	typeExpRepo := NewExpDaoEnt(entClient, logger)
 	descSemRepo := descsemadapter.NewDaoPgx("pool_desc_binds")(logger)
 	service := typedef.NewService(
 		typeDefRepo,
 		descrootadapter.NewDaoEnt(entClient, logger),
-		typeExpRepo,
 		descSemRepo,
 		dbadapter.NewTransactorPgx(pool),
 		logger,
@@ -150,7 +148,6 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 	service := typedef.NewService(
 		NewDaoEnt(entClient, logger),
 		descrootadapter.NewDaoEnt(entClient, logger),
-		NewExpDaoEnt(entClient, logger),
 		descsemadapter.NewDaoPgx("pool_desc_binds")(logger),
 		dbadapter.NewTransactorPgx(pool),
 		logger,

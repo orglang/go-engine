@@ -26,6 +26,7 @@ type DefSpec struct {
 type DefRec struct {
 	TypeRef typesem.SemRef
 	ExpCK   contkey.ADT
+	TypeExp ExpRec
 }
 
 type DefSnap struct {
@@ -36,7 +37,6 @@ type DefSnap struct {
 type service struct {
 	typeDefRepo  Repo
 	descRootRepo descroot.Repo
-	typeExpRepo  TypeExpRepo
 	descSemRepo  descsem.Repo
 	transactor   tx.Transactor
 	log          *slog.Logger
@@ -50,12 +50,11 @@ func newAPI() API {
 func NewService(
 	typeDefRepo Repo,
 	descRootRepo descroot.Repo,
-	typeExpRepo TypeExpRepo,
 	descSemRepo descsem.Repo,
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
-	return &service{typeDefRepo: typeDefRepo, descRootRepo: descRootRepo, typeExpRepo: typeExpRepo, descSemRepo: descSemRepo, transactor: transactor, log: log}
+	return &service{typeDefRepo: typeDefRepo, descRootRepo: descRootRepo, descSemRepo: descSemRepo, transactor: transactor, log: log}
 }
 
 func (s *service) Create(ctx context.Context, spec DefSpec) (_ typesem.SemRef, err error) {
@@ -65,7 +64,7 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ typesem.SemRef, e
 	if convErr != nil {
 		return typesem.SemRef{}, convErr
 	}
-	newDef := DefRec{TypeRef: typesem.New(), ExpCK: newExp.Key()}
+	newDef := DefRec{TypeRef: typesem.New(), ExpCK: newExp.Key(), TypeExp: newExp}
 	newRoot := descroot.SemRef{DescID: newDef.TypeRef.DescID, DescRN: newDef.TypeRef.DescRN}
 	newBind := descsem.SemRec{DescQN: spec.TypeQN, DescID: newDef.TypeRef.TypeID, Kind: descsem.TypeKind}
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
@@ -74,10 +73,6 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ typesem.SemRef, e
 			return err
 		}
 		err = s.descSemRepo.AddRec(txCtx, conn, newBind)
-		if err != nil {
-			return err
-		}
-		err = s.typeExpRepo.AddRec(txCtx, conn, newExp, newDef.TypeRef)
 		if err != nil {
 			return err
 		}

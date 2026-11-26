@@ -27,6 +27,9 @@ func NewDaoEnt(client *ent.Client, log *slog.Logger) typedef.Repo {
 }
 
 func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec) error {
+	if err := dao.addExpRec(ctx, conn, rec.TypeExp); err != nil {
+		return err
+	}
 	refAttr := slog.Any("ref", rec.TypeRef)
 	dao.log.Log(ctx, lf.LevelTrace, "addition started", refAttr)
 

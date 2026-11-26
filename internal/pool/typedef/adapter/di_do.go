@@ -13,17 +13,6 @@ import (
 )
 
 var Package = do.Package(
-	do.Lazy[core.TypeExpRepo](func(i do.Injector) (core.TypeExpRepo, error) {
-		client, err := do.Invoke[*ent.Client](i)
-		if err != nil {
-			return nil, err
-		}
-		logger, err := do.Invoke[*slog.Logger](i)
-		if err != nil {
-			return nil, err
-		}
-		return NewExpDaoEnt(client, logger), nil
-	}),
 	do.Lazy[core.Repo](func(i do.Injector) (core.Repo, error) {
 		client, err := do.Invoke[*ent.Client](i)
 		if err != nil {
@@ -44,10 +33,6 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		typeExpRepo, err := do.Invoke[core.TypeExpRepo](i)
-		if err != nil {
-			return nil, err
-		}
 		descRepo, err := do.InvokeNamed[descsem.Repo](i, "pool-descsem")
 		if err != nil {
 			return nil, err
@@ -60,7 +45,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return core.NewService(repo, descRootRepo, typeExpRepo, descRepo, transactor, logger), nil
+		return core.NewService(repo, descRootRepo, descRepo, transactor, logger), nil
 	}),
 	do.Lazy[GeneratedController](func(i do.Injector) (GeneratedController, error) {
 		api, err := do.Invoke[core.API](i)

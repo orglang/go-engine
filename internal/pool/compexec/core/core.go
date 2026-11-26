@@ -89,7 +89,7 @@ type service struct {
 	compExecBroker Broker
 	compVarRepo    compvar.Repo
 	connRepo       compconn.Repo
-	typeExpRepo    typedef.TypeExpRepo
+	typeDefRepo    typedef.Repo
 	procExecRepo   proccompexec.Repo
 	termDecRepo    termdec.Repo
 	implSemRepo    implsem.Repo
@@ -108,7 +108,7 @@ type ServiceDeps struct {
 	CompExecBroker Broker
 	CompVarRepo    compvar.Repo
 	CompConnRepo   compconn.Repo
-	TypeExpRepo    typedef.TypeExpRepo
+	TypeDefRepo    typedef.Repo
 	ProcExecRepo   proccompexec.Repo
 	TermDecRepo    termdec.Repo
 	ImplSemRepo    implsem.Repo
@@ -121,7 +121,7 @@ func NewService(deps ServiceDeps) API {
 	name := slog.String("name", reflect.TypeFor[service]().Name())
 	return &service{
 		deps.CompExecRepo, deps.CompExecBroker, deps.CompVarRepo,
-		deps.CompConnRepo, deps.TypeExpRepo, deps.ProcExecRepo, deps.TermDecRepo,
+		deps.CompConnRepo, deps.TypeDefRepo, deps.ProcExecRepo, deps.TermDecRepo,
 		deps.ImplSemRepo, deps.CompSemRepo,
 		deps.Transactor, deps.Logger.With(name),
 	}
@@ -877,11 +877,11 @@ func (s *service) retrieveSnap(ctx context.Context, ref comproot.SemRef) (_ Exec
 	var structExps map[symbol.ADT]typedef.ExpRec
 	var linearExps map[symbol.ADT]typedef.ExpRec
 	getErr2 := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		structExps, err = s.typeExpRepo.GetRecMap(txCtx, conn, ExtractExpCKs(execSnap.StructVars))
+		structExps, err = s.typeDefRepo.GetTypeMap(txCtx, conn, ExtractExpCKs(execSnap.StructVars))
 		if err != nil {
 			return err
 		}
-		linearExps, err = s.typeExpRepo.GetRecMap(txCtx, conn, ExtractExpCKs(execSnap.LinearVars))
+		linearExps, err = s.typeDefRepo.GetTypeMap(txCtx, conn, ExtractExpCKs(execSnap.LinearVars))
 		return err
 	})
 	if getErr2 != nil {

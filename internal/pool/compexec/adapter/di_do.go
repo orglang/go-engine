@@ -67,7 +67,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		typeRepo, err := do.Invoke[typedef.TypeExpRepo](i)
+		typeRepo, err := do.Invoke[typedef.Repo](i)
 		if err != nil {
 			return nil, err
 		}
@@ -100,7 +100,7 @@ var Package = do.Package(
 			CompExecBroker: broker,
 			CompVarRepo:    varRepo,
 			CompConnRepo:   connRepo,
-			TypeExpRepo:    typeRepo,
+			TypeDefRepo:    typeRepo,
 			ProcExecRepo:   procRepo,
 			TermDecRepo:    termDecRepo,
 			ImplSemRepo:    implRepo,

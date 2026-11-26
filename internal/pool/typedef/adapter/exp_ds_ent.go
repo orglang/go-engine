@@ -4,13 +4,11 @@ import (
 	"context"
 	"errors"
 	"log/slog"
-	"reflect"
 
 	"github.com/jackc/pgx/v5"
 
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/symbol"
-	"orglang/go-engine/internal/adt/typesem"
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
@@ -18,22 +16,7 @@ import (
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 )
 
-type expDaoEnt struct {
-	client *ent.Client
-	log    *slog.Logger
-}
-
-func NewExpDaoEnt(client *ent.Client, log *slog.Logger) typedef.TypeExpRepo {
-	name := slog.String("name", reflect.TypeFor[expDaoEnt]().Name())
-	return &expDaoEnt{client: client, log: log.With(name)}
-}
-
-// for compilation purposes
-func newExpRepo() typedef.TypeExpRepo {
-	return new(expDaoEnt)
-}
-
-func (dao *expDaoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.ExpRec, _ typesem.SemRef) error {
+func (dao *daoEnt) addExpRec(ctx context.Context, conn tx.Conn, rec typedef.ExpRec) error {
 	ckAttr := slog.Any("ck", rec.Key())
 	dao.log.Log(ctx, lf.LevelTrace, "insertion started", ckAttr)
 	dto := dataFromExpRec(rec)
@@ -54,7 +37,7 @@ func (dao *expDaoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.ExpR
 	return nil
 }
 
-func (dao *expDaoEnt) GetRecByCK(ctx context.Context, conn tx.Conn, expCK contkey.ADT) (typedef.ExpRec, error) {
+func (dao *daoEnt) getRecByCK(ctx context.Context, conn tx.Conn, expCK contkey.ADT) (typedef.ExpRec, error) {
 	ckAttr := slog.Any("ck", expCK)
 	sql := selectRecByCK
 	rows, err := conn.Pgx.Query(ctx, sql, contkey.ConvertToInt(expCK))
@@ -80,7 +63,7 @@ func (dao *expDaoEnt) GetRecByCK(ctx context.Context, conn tx.Conn, expCK contke
 	return statesToExpRec(states, states[contkey.ConvertToInt(expCK)])
 }
 
-func (dao *expDaoEnt) GetRecsByCKs(ctx context.Context, conn tx.Conn, expCKs []contkey.ADT) (_ []typedef.ExpRec, err error) {
+func (dao *daoEnt) getRecsByCKs(ctx context.Context, conn tx.Conn, expCKs []contkey.ADT) (_ []typedef.ExpRec, err error) {
 	batch := pgx.Batch{}
 	sql := selectRecByCK
 	for _, expCK := range expCKs {
@@ -116,7 +99,7 @@ func (dao *expDaoEnt) GetRecsByCKs(ctx context.Context, conn tx.Conn, expCKs []c
 	return recs, err
 }
 
-func (dao *expDaoEnt) GetRecMap(ctx context.Context, conn tx.Conn, expCKs map[symbol.ADT]contkey.ADT) (_ map[symbol.ADT]typedef.ExpRec, err error) {
+func (dao *daoEnt) GetTypeMap(ctx context.Context, conn tx.Conn, expCKs map[symbol.ADT]contkey.ADT) (_ map[symbol.ADT]typedef.ExpRec, err error) {
 	batch := pgx.Batch{}
 	sql := selectRecByCK
 	for _, expCK := range expCKs {

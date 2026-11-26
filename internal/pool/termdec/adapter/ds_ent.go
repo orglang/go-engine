@@ -10,19 +10,18 @@ import (
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/termsem"
-	"orglang/go-engine/internal/adt/termvar"
-	termvaradapter "orglang/go-engine/internal/adt/termvar/adapter"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/pool/ent"
 	termdec "orglang/go-engine/internal/pool/termdec/core"
+	termvaradapter "orglang/go-engine/internal/adt/termvar/adapter"
 )
 
 type daoEnt struct {
 	client *ent.Client
-	log    *slog.Logger
+	log *slog.Logger
 }
 
 func NewDaoEnt(client *ent.Client, log *slog.Logger) *daoEnt {
@@ -33,15 +32,11 @@ func NewDaoEnt(client *ent.Client, log *slog.Logger) *daoEnt {
 func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdec.DecRec) error {
 	refAttr := slog.Any("ref", rec.TermRef)
 	liabVar, err := termvaradapter.DataFromVarRec(rec.LiabVar)
-	if err != nil {
-		return err
-	}
+	if err != nil { return err }
 	assetVars := make([]termvaradapter.VarRec, len(rec.AssetVars))
 	for i, variable := range rec.AssetVars {
 		assetVars[i], err = termvaradapter.DataFromVarRec(variable)
-		if err != nil {
-			return err
-		}
+		if err != nil { return err }
 	}
 	_, err = dao.client.TermDec.Create().
 		SetID(rec.TermRef.TermID.String()).
@@ -66,36 +61,24 @@ JOIN pool_desc_binds AS bind ON bind.desc_id = def.term_id
 WHERE bind.desc_qn = $1
 `
 	rows, err := conn.Pgx.Query(ctx, query, uniqsym.ConvertToString(qn))
-	if err != nil {
-		return termdec.DecRec{}, err
-	}
+	if err != nil { return termdec.DecRec{}, err }
 	defer rows.Close()
 	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecRec])
-	if err != nil {
-		return termdec.DecRec{}, err
-	}
+	if err != nil { return termdec.DecRec{}, err }
 	termID, err := identity.ConvertFromString(dto.TermID)
-	if err != nil {
-		return termdec.DecRec{}, err
-	}
+	if err != nil { return termdec.DecRec{}, err }
 	descID, err := identity.ConvertFromString(dto.DescID)
-	if err != nil {
-		return termdec.DecRec{}, err
-	}
+	if err != nil { return termdec.DecRec{}, err }
 	liabVar, err := termvaradapter.DataToVarRec(dto.LiabVar)
-	if err != nil {
-		return termdec.DecRec{}, err
-	}
+	if err != nil { return termdec.DecRec{}, err }
 	assetVars := make([]termvar.VarRec, len(dto.AssetVars))
 	for i, variable := range dto.AssetVars {
 		assetVars[i], err = termvaradapter.DataToVarRec(variable)
-		if err != nil {
-			return termdec.DecRec{}, err
-		}
+		if err != nil { return termdec.DecRec{}, err }
 	}
 	return termdec.DecRec{
-		TermRef:   termsem.SemRef{TermID: termID, DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)},
-		LiabVar:   liabVar,
+		TermRef: termsem.SemRef{TermID: termID, DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)},
+		LiabVar: liabVar,
 		AssetVars: assetVars,
 	}, nil
 }
@@ -106,15 +89,8 @@ SELECT desc_qn
 FROM pool_desc_binds
 WHERE desc_id = $1
 `
-	rows, err := conn.Pgx.Query(ctx, query, termID.String())
-	if err != nil {
-		return uniqsym.ADT{}, err
-	}
-	defer rows.Close()
-	qn, err := pgx.CollectExactlyOneRow(rows, pgx.RowTo[string])
-	if err != nil {
-		return uniqsym.ADT{}, err
-	}
+	var qn string
+	if err := conn.Pgx.QueryRow(ctx, query, termID.String()).Scan(&qn); err != nil { return "", err }
 	return uniqsym.ConvertFromString(qn)
 }
 

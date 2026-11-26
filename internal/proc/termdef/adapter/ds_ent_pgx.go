@@ -183,9 +183,14 @@ SELECT desc_qn
 FROM proc_desc_binds
 WHERE desc_id = $1
 `
-	var qn string
-	if err := conn.Pgx.QueryRow(ctx, query, termID.String()).Scan(&qn); err != nil {
-		return "", err
+	rows, err := conn.Pgx.Query(ctx, query, termID.String())
+	if err != nil {
+		return uniqsym.ADT{}, err
+	}
+	defer rows.Close()
+	qn, err := pgx.CollectExactlyOneRow(rows, pgx.RowTo[string])
+	if err != nil {
+		return uniqsym.ADT{}, err
 	}
 	return uniqsym.ConvertFromString(qn)
 }

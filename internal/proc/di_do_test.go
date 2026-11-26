@@ -129,6 +129,10 @@ func TestPackageProvidesHTTPAdapters(t *testing.T) {
 			_, err := do.Invoke[webapi.ServerInterface](injector)
 			return err
 		}},
+		{"term-declaration controller", func() error {
+			_, err := do.Invoke[*termdecadapter.Controller](injector)
+			return err
+		}},
 		{"term-declaration presenter", func() error {
 			_, err := do.Invoke[termdecadapter.Presenter](injector)
 			return err

@@ -4,7 +4,6 @@ import (
 	"orglang/go-engine/internal/adt/termvar"
 	webapi "orglang/go-engine/internal/app/web/api"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
-	termdef "orglang/go-engine/internal/proc/termdef/core"
 )
 
 // goverter:variables

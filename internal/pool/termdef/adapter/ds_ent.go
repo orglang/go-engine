@@ -137,12 +137,12 @@ WHERE bind.desc_qn = $1
 	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DecRec])
 	if err != nil {
 		dao.log.Error("rows scanning failed", qnAttr)
-		return termdef.DecRec{}, err
+		return termdec.DecRec{}, err
 	}
 	rec, err := DataToTermDecRec(dto)
 	if err != nil {
 		dao.log.Error("model conversion failed", qnAttr)
-		return termdef.DecRec{}, err
+		return termdec.DecRec{}, err
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", qnAttr)
 	return rec, nil

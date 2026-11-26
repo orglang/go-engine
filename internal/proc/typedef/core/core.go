@@ -225,3 +225,11 @@ func ErrMissingInCfg(want identity.ADT) error {
 func ErrMissingInCtx(want symbol.ADT) error {
 	return fmt.Errorf("root missing in ctx: %v", want)
 }
+
+func ErrPolarityUnexpected(got ExpRec) error {
+	return fmt.Errorf("root polarity unexpected: %v", got.Pol())
+}
+
+func ErrPolarityMismatch(a, b ExpRec) error {
+	return fmt.Errorf("root polarity mismatch: %v != %v", a.Pol(), b.Pol())
+}

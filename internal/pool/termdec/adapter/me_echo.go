@@ -1,9 +1,7 @@
 package adapter
 
 import (
-	"log/slog"
 	"net/http"
-	"reflect"
 
 	"github.com/labstack/echo/v5"
 
@@ -22,14 +20,12 @@ type GeneratedController interface {
 
 type controllerEcho struct {
 	api core.API
-	log *slog.Logger
 }
 
 var _ GeneratedController = (*controllerEcho)(nil)
 
-func newControllerEcho(api core.API, log *slog.Logger) *controllerEcho {
-	name := slog.String("name", reflect.TypeFor[controllerEcho]().Name())
-	return &controllerEcho{api: api, log: log.With(name)}
+func newControllerEcho(api core.API) *controllerEcho {
+	return &controllerEcho{api: api}
 }
 
 func (h *controllerEcho) CreatePoolDeclaration(c *echo.Context) error {

@@ -3,7 +3,6 @@ package core
 import (
 	"context"
 
-	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/tx"
@@ -21,7 +20,7 @@ type DefSpec struct {
 
 type DefRec struct {
 	TermID identity.ADT
-	ExpCK  contkey.ADT
+	Exp    ExpSpec
 }
 
 func NewService(termDecRepo termdec.Repo, termDefRepo Repo, transactor tx.Transactor) API {
@@ -38,21 +37,17 @@ var _ API = (*service)(nil)
 
 func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (DefSpec, error) {
 	return tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DefSpec, error) {
-		rec, err := s.termDefRepo.GetRecByID(txCtx, conn, termID)
+		rec, err := s.termDefRepo.GetByTermID(txCtx, conn, termID)
 		if err != nil {
 			return DefSpec{}, err
 		}
-		if rec.ExpCK == 0 {
+		if rec.Exp == nil {
 			return DefSpec{}, DefinitionMissing(termID)
 		}
 		termQN, err := s.termDecRepo.GetQNByID(txCtx, conn, rec.TermID)
 		if err != nil {
 			return DefSpec{}, err
 		}
-		exp, err := s.termDefRepo.SelectSpecByCK(txCtx, conn, rec.ExpCK)
-		if err != nil {
-			return DefSpec{}, err
-		}
-		return DefSpec{TermQN: termQN, Exp: exp}, nil
+		return DefSpec{TermQN: termQN, Exp: rec.Exp}, nil
 	})
 }

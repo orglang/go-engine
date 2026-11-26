@@ -3,7 +3,6 @@ package adapter
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"reflect"
 
@@ -33,23 +32,7 @@ func NewDaoEnt(client *ent.Client, log *slog.Logger) termdef.Repo {
 
 var _ termdef.Repo = (*daoEnt)(nil)
 
-func (dao *daoEnt) SetExpCK(ctx context.Context, conn tx.Conn, termID identity.ADT, expCK contkey.ADT) error {
-	const query = `
-UPDATE pool_desc_terms
-SET exp_ck = $1
-WHERE term_id = $2
-`
-	result, err := conn.Pgx.Exec(ctx, query, int64(expCK), termID.String())
-	if err != nil {
-		return err
-	}
-	if result.RowsAffected() == 0 {
-		return fmt.Errorf("pool term %v does not exist", termID)
-	}
-	return nil
-}
-
-func (dao *daoEnt) GetRecByID(ctx context.Context, conn tx.Conn, termID identity.ADT) (termdef.DefRec, error) {
+func (dao *daoEnt) GetByTermID(ctx context.Context, conn tx.Conn, termID identity.ADT) (termdef.DefRec, error) {
 	if termID.IsEmpty() {
 		return termdef.DefRec{}, identity.ErrEmpty
 	}
@@ -74,5 +57,12 @@ WHERE def.term_id = $1
 	if err != nil {
 		return termdef.DefRec{}, err
 	}
-	return termdef.DefRec{TermID: termID, ExpCK: expCK}, nil
+	if expCK == 0 {
+		return termdef.DefRec{TermID: termID}, nil
+	}
+	exp, err := dao.selectSpecByCK(ctx, conn, expCK)
+	if err != nil {
+		return termdef.DefRec{}, err
+	}
+	return termdef.DefRec{TermID: termID, Exp: exp}, nil
 }

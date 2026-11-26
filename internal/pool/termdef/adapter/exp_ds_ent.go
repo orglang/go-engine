@@ -18,7 +18,7 @@ import (
 	termdef "orglang/go-engine/internal/pool/termdef/core"
 )
 
-func (dao *daoEnt) InsertSpec(ctx context.Context, conn tx.Conn, spec termdef.ExpSpec) error {
+func (dao *daoEnt) insertSpec(ctx context.Context, conn tx.Conn, spec termdef.ExpSpec) error {
 	rec, err := termdef.ConvertSpecToRec(spec)
 	if err != nil {
 		return err
@@ -54,7 +54,7 @@ func (dao *daoEnt) InsertSpec(ctx context.Context, conn tx.Conn, spec termdef.Ex
 	return nil
 }
 
-func (dao *daoEnt) SelectSpecByCK(ctx context.Context, conn tx.Conn, key contkey.ADT) (termdef.ExpSpec, error) {
+func (dao *daoEnt) selectSpecByCK(ctx context.Context, conn tx.Conn, key contkey.ADT) (termdef.ExpSpec, error) {
 	rows, err := conn.Pgx.Query(ctx, selectTermExpTree, int64(key))
 	if err != nil {
 		return nil, err

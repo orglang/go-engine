@@ -43,7 +43,6 @@ func CollectEnv(recs iter.Seq[DecRec]) []uniqsym.ADT {
 	return []uniqsym.ADT{}
 }
 
-
 // API exposes the process Declaration application operations.
 type API interface {
 	Incept(context.Context, uniqsym.ADT) (termsem.SemRef, error)

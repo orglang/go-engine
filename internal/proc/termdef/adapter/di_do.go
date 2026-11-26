@@ -69,7 +69,9 @@ var Package = do.Package(
 	}),
 	do.Lazy[termdec.API](func(i do.Injector) (termdec.API, error) {
 		api, err := do.Invoke[core.API](i)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		return api, nil
 	}),
 	do.Lazy[webapi.ServerInterface](func(i do.Injector) (webapi.ServerInterface, error) {

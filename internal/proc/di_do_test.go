@@ -91,7 +91,11 @@ func TestPackageProvidesApplicationServices(t *testing.T) {
 			_, err := do.Invoke[compexec.API](injector)
 			return err
 		}},
-		{"unified term lifecycle service", func() error {
+		{"term-declaration service port", func() error {
+			_, err := do.Invoke[termdec.API](injector)
+			return err
+		}},
+		{"term-definition service", func() error {
 			_, err := do.Invoke[termdef.API](injector)
 			return err
 		}},

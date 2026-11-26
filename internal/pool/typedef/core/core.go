@@ -13,7 +13,6 @@ import (
 	"orglang/go-engine/internal/adt/typesem"
 	"orglang/go-engine/internal/adt/uniqsym"
 
-	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 )
 
 type API interface {
@@ -22,7 +21,7 @@ type API interface {
 
 type DefSpec struct {
 	TypeQN  uniqsym.ADT
-	TypeExp typeexp.ExpSpec
+	TypeExp ExpSpec
 }
 
 type DefRec struct {
@@ -32,7 +31,7 @@ type DefRec struct {
 
 type DefSnap struct {
 	TypeRef typesem.SemRef
-	TypeExp typeexp.ExpSpec
+	TypeExp ExpSpec
 }
 
 type service struct {
@@ -63,7 +62,7 @@ func NewService(
 func (s *service) Create(ctx context.Context, spec DefSpec) (_ typesem.SemRef, err error) {
 	qnAttr := slog.Any("qn", spec.TypeQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
-	newExp, convErr := typeexp.ConvertSpecToRec(spec.TypeExp)
+	newExp, convErr := ConvertSpecToRec(spec.TypeExp)
 	if convErr != nil {
 		return typesem.SemRef{}, convErr
 	}

@@ -8,7 +8,6 @@ import (
 	"orglang/go-engine/internal/adt/typesem"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/tx"
-	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 )
 
 type Repo interface {
@@ -18,8 +17,8 @@ type Repo interface {
 
 // TypeExpRepo stores and retrieves the AST belonging to a type definition.
 type TypeExpRepo interface {
-	AddRec(context.Context, tx.Conn, typeexp.ExpRec, typesem.SemRef) error
-	GetRecByCK(context.Context, tx.Conn, contkey.ADT) (typeexp.ExpRec, error)
-	GetRecsByCKs(context.Context, tx.Conn, []contkey.ADT) ([]typeexp.ExpRec, error)
-	GetRecMap(context.Context, tx.Conn, map[symbol.ADT]contkey.ADT) (map[symbol.ADT]typeexp.ExpRec, error)
+	AddRec(context.Context, tx.Conn, ExpRec, typesem.SemRef) error
+	GetRecByCK(context.Context, tx.Conn, contkey.ADT) (ExpRec, error)
+	GetRecsByCKs(context.Context, tx.Conn, []contkey.ADT) ([]ExpRec, error)
+	GetRecMap(context.Context, tx.Conn, map[symbol.ADT]contkey.ADT) (map[symbol.ADT]ExpRec, error)
 }

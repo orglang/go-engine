@@ -7,6 +7,7 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/ent"
 	termdecadapter "orglang/go-engine/internal/proc/termdec/adapter"
+	termdec "orglang/go-engine/internal/proc/termdec/core"
 	"orglang/go-engine/internal/proc/termdef/core"
 )
 

@@ -3,6 +3,8 @@ package adapter
 import (
 	"context"
 	"encoding/json"
+	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -21,7 +23,7 @@ func TestCreateProcessDeclarationHandler(t *testing.T) {
 	t.Run("creates a declaration and returns its identity", func(t *testing.T) {
 		decAPI := &generatedDecAPIStub{}
 		e := echo.New()
-		h := NewControllerEcho(decAPI, nil)
+		h := NewControllerEcho(decAPI, slog.New(slog.NewTextHandler(io.Discard, nil)))
 		e.POST("/api/v1/processes/declarations", h.CreateProcessDeclaration)
 
 		const body = `{
@@ -73,7 +75,7 @@ func TestCreateProcessDeclarationHandler(t *testing.T) {
 	t.Run("rejects invalid qualified names before creating", func(t *testing.T) {
 		decAPI := &generatedDecAPIStub{}
 		e := echo.New()
-		h := &controllerEcho{decAPI: decAPI}
+		h := NewControllerEcho(decAPI, slog.New(slog.NewTextHandler(io.Discard, nil)))
 		e.POST("/api/v1/processes/declarations", h.CreateProcessDeclaration)
 
 		const body = `{

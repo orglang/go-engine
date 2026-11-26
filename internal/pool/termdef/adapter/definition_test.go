@@ -4,14 +4,14 @@ import (
 	"testing"
 
 	"orglang/go-engine/internal/adt/symbol"
-	termexp "orglang/go-engine/internal/pool/termexp/core"
+	termdef "orglang/go-engine/internal/pool/termdef/core"
 )
 
 func TestDefinitionToGeneratedPreservesNestedContinuation(t *testing.T) {
-	dto, err := DefinitionToGenerated(termexp.DescAcquireSpec{
+	dto, err := DefinitionToGenerated(termdef.DefSpec{Exp: termdef.ExpAcquireSpec{
 		ConnChnlPH: symbol.ADT("request"),
-		ContExp:    termexp.DescReleaseSpec{ConnChnlPH: symbol.ADT("release")},
-	})
+		ContExp:    termdef.ExpReleaseSpec{ConnChnlPH: symbol.ADT("release")},
+	}})
 	if err != nil {
 		t.Fatal(err)
 	}

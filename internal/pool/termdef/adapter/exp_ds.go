@@ -88,16 +88,34 @@ func statesFromExpRec(parent int64, rec termdef.ExpRec, dto *ExpData) int64 {
 func dataToExpRec(dto ExpData) (termdef.ExpRec, error) {
 	states := make(map[int64]ExpState, len(dto.States))
 	for _, state := range dto.States {
+		if _, exists := states[state.ExpCK]; exists {
+			return nil, fmt.Errorf("pool Definition contains duplicate expression %d", state.ExpCK)
+		}
 		states[state.ExpCK] = state
 	}
 	root, ok := states[dto.ExpCK]
 	if !ok {
 		return nil, fmt.Errorf("pool Definition root %d is missing", dto.ExpCK)
 	}
-	return statesToExpRec(states, root)
+	if root.SupExpCK != 0 {
+		return nil, fmt.Errorf("pool Definition root %d has unexpected parent %d", root.ExpCK, root.SupExpCK)
+	}
+	visited := make(map[int64]struct{}, len(states))
+	rec, err := statesToExpRec(states, root, visited)
+	if err != nil {
+		return nil, err
+	}
+	if len(visited) != len(states) {
+		return nil, fmt.Errorf("pool Definition contains %d unreachable expressions", len(states)-len(visited))
+	}
+	return rec, nil
 }
 
-func statesToExpRec(states map[int64]ExpState, state ExpState) (termdef.ExpRec, error) {
+func statesToExpRec(states map[int64]ExpState, state ExpState, visited map[int64]struct{}) (termdef.ExpRec, error) {
+	if _, exists := visited[state.ExpCK]; exists {
+		return nil, fmt.Errorf("pool Definition contains cyclic expression %d", state.ExpCK)
+	}
+	visited[state.ExpCK] = struct{}{}
 	key, err := contkey.ConvertFromInt(state.ExpCK)
 	if err != nil {
 		return nil, err
@@ -111,7 +129,7 @@ func statesToExpRec(states map[int64]ExpState, state ExpState) (termdef.ExpRec, 
 		if child.SupExpCK != state.ExpCK {
 			return nil, fmt.Errorf("pool Definition child %d has unexpected parent", child.ExpCK)
 		}
-		return statesToExpRec(states, child)
+		return statesToExpRec(states, child, visited)
 	}
 	ph := func() (symbol.ADT, error) { return symbol.ConvertFromString(spec.ConnChnlPH) }
 	switch state.K {

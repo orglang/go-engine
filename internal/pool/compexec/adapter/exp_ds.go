@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	compexp "orglang/go-engine/internal/pool/compexec/exp"
+	compexp "orglang/go-engine/internal/pool/compexec/core"
 )
 
 type ExpSpec struct {

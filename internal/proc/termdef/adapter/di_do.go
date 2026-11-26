@@ -3,11 +3,8 @@ package adapter
 import (
 	"log/slog"
 	"github.com/samber/do/v2"
-	webapi "orglang/go-engine/internal/app/web/api"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/ent"
-	termdecadapter "orglang/go-engine/internal/proc/termdec/adapter"
-	termdec "orglang/go-engine/internal/proc/termdec/core"
 	"orglang/go-engine/internal/proc/termdef/core"
 )
 
@@ -30,13 +27,11 @@ var Package = do.Package(
 		if err != nil { return nil, err }
 		return core.NewService(termDecRepo, termDefRepo, transactor, logger), nil
 	}),
-	do.Lazy[webapi.ServerInterface](func(i do.Injector) (webapi.ServerInterface, error) {
-		decController, err := do.Invoke[*termdecadapter.Controller](i)
-		if err != nil { return nil, err }
+	do.Lazy[*DefinitionController](func(i do.Injector) (*DefinitionController, error) {
 		defAPI, err := do.Invoke[core.API](i)
 		if err != nil { return nil, err }
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil { return nil, err }
-		return newControllerEcho(decController, defAPI, logger), nil
+		return NewDefinitionController(defAPI, logger), nil
 	}),
 )

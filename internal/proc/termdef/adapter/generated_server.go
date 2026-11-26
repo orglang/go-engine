@@ -43,16 +43,22 @@ func (r generatedRouteFilter) TRACE(string, echo.HandlerFunc, ...echo.Middleware
 	return echo.RouteInfo{}
 }
 
+type generatedServer struct {
+	webapi.ServerInterface
+	controller *DefinitionController
+}
+
+func (h generatedServer) GetProcessDefinition(c *echo.Context, id string, params webapi.GetProcessDefinitionParams) error {
+	return h.controller.GetProcessDefinition(c, id, params)
+}
+
 // RegisterGeneratedRoutes mounts the generated process Definition-read operation.
-func RegisterGeneratedRoutes(e *echo.Echo, h webapi.ServerInterface) error {
-	registerGeneratedServer(e, h)
+func RegisterGeneratedRoutes(e *echo.Echo, h *DefinitionController) error {
+	webapi.RegisterHandlers(generatedRouteFilter{EchoRouter: e}, generatedServer{controller: h})
 	return nil
 }
 
-func cfgGeneratedServer(e *echo.Echo, h *controllerEcho) {
-	registerGeneratedServer(e, h)
-}
-
+// registerGeneratedServer is retained for focused generated-router contract tests.
 func registerGeneratedServer(e *echo.Echo, h webapi.ServerInterface) {
 	webapi.RegisterHandlers(generatedRouteFilter{EchoRouter: e}, h)
 }

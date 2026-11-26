@@ -60,7 +60,7 @@ func RegisterRoutes(server *echo.Echo, i do.Injector) error {
 	if err != nil {
 		return err
 	}
-	termDefController, err := do.Invoke[webapi.ServerInterface](i)
+	termDefController, err := do.Invoke[*termdef.DefinitionController](i)
 	if err != nil {
 		return err
 	}

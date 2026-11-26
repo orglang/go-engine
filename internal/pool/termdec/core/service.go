@@ -14,10 +14,6 @@ import (
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 )
 
-type API interface {
-	Create(context.Context, DecSpec) (termsem.SemRef, error)
-}
-
 type service struct {
 	repo         Repo
 	descRootRepo descroot.Repo

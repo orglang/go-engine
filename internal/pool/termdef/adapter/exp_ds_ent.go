@@ -80,7 +80,7 @@ WITH RECURSIVE exp_tree AS (
     SELECT top.*
     FROM pool_term_exps AS top
     WHERE top.exp_ck = $1
-    UNION ALL
+    UNION
     SELECT sub.*
     FROM pool_term_exps AS sub
     JOIN exp_tree AS sup ON sub.sup_exp_ck = sup.exp_ck

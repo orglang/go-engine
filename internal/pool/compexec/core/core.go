@@ -18,7 +18,6 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 
 	compconn "orglang/go-engine/internal/pool/compconn/core"
-	compexp "orglang/go-engine/internal/pool/compexec/exp"
 	compstep "orglang/go-engine/internal/pool/compstep/core"
 	compvar "orglang/go-engine/internal/pool/compvar/core"
 	connact "orglang/go-engine/internal/pool/connact/core"
@@ -327,7 +326,7 @@ func (s *service) Take(ctx context.Context, spec compstep.StepSpec) (err error) 
 func (s *service) takeStep(
 	ctx context.Context,
 	execSnap ExecSnap3,
-	exp compexp.ExpSpec,
+	exp ExpSpec,
 ) (
 	execMod ExecMod,
 	execEff ExecEff,
@@ -336,7 +335,7 @@ func (s *service) takeStep(
 ) {
 	compAttr := slog.Any("compRef", execSnap.CompRef)
 	switch termExp := exp.(type) {
-	case compexp.AcceptSpec:
+	case AcceptSpec:
 		connChnl, ok := execSnap.StructVars[termExp.ConnChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", compAttr)
@@ -376,7 +375,7 @@ func (s *service) takeStep(
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
-				ContExp: compexp.AcceptRec{
+				ContExp: AcceptRec{
 					ContChnlPH: connChnl.ChnlPH,
 					ContExp:    termExp.ContExp,
 				},
@@ -406,7 +405,7 @@ func (s *service) takeStep(
 			})
 		}
 		switch expRec := acquisition.ContExp.(type) {
-		case compexp.AcquireRec:
+		case AcquireRec:
 			// сдвигаем офсет коммуникации
 			// вяжем продолжение доступополучателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
@@ -425,11 +424,11 @@ func (s *service) takeStep(
 				})
 			}
 		default:
-			panic(compexp.ErrRecTypeUnexpected(acquisition.ContExp))
+			panic(ErrRecTypeUnexpected(acquisition.ContExp))
 		}
 		s.log.Debug("step taking succeed", compAttr, connAttr)
 		return execMod, execEff, connMod, nil
-	case compexp.AcquireSpec:
+	case AcquireSpec:
 		connChnl, ok := execSnap.StructVars[termExp.ConnChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", compAttr)
@@ -469,7 +468,7 @@ func (s *service) takeStep(
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
-				ContExp: compexp.AcquireRec{
+				ContExp: AcquireRec{
 					ContChnlPH: connChnl.ChnlPH,
 					ContExp:    termExp.ContExp,
 				},
@@ -499,7 +498,7 @@ func (s *service) takeStep(
 			})
 		}
 		switch expRec := acception.ContExp.(type) {
-		case compexp.AcceptRec:
+		case AcceptRec:
 			// сдвигаем офсет коммуникации
 			// вяжем продолжение доступодателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
@@ -518,11 +517,11 @@ func (s *service) takeStep(
 				})
 			}
 		default:
-			panic(compexp.ErrRecTypeUnexpected(acception.ContExp))
+			panic(ErrRecTypeUnexpected(acception.ContExp))
 		}
 		s.log.Debug("step taking succeed", compAttr, connAttr)
 		return execMod, execEff, connMod, nil
-	case compexp.ApplySpec:
+	case ApplySpec:
 		connChnl, ok := execSnap.LinearVars[termExp.ConnChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", compAttr)
@@ -562,7 +561,7 @@ func (s *service) takeStep(
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
-				ContExp: compexp.ApplyRec{
+				ContExp: ApplyRec{
 					ContChnlPH: connChnl.ChnlPH,
 					ProcTermQN: termExp.ProcTermQN,
 					ContExp:    termExp.ContExp,
@@ -593,7 +592,7 @@ func (s *service) takeStep(
 			})
 		}
 		switch expRec := hiring.ContExp.(type) {
-		case compexp.HireRec:
+		case HireRec:
 			// вяжем продолжение нанимателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 				CompRef: hiring.CompRef,
@@ -611,11 +610,11 @@ func (s *service) takeStep(
 				})
 			}
 		default:
-			panic(compexp.ErrRecTypeUnexpected(hiring.ContExp))
+			panic(ErrRecTypeUnexpected(hiring.ContExp))
 		}
 		s.log.Debug("step taking succeed", compAttr, connAttr)
 		return execMod, execEff, connMod, nil
-	case compexp.HireSpec:
+	case HireSpec:
 		connChnl, ok := execSnap.LinearVars[termExp.ConnChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", compAttr)
@@ -655,7 +654,7 @@ func (s *service) takeStep(
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
-				ContExp: compexp.HireRec{
+				ContExp: HireRec{
 					ContChnlPH: connChnl.ChnlPH,
 					ProcTermQN: termExp.ProcTermQN,
 					ContExp:    termExp.ContExp,
@@ -686,7 +685,7 @@ func (s *service) takeStep(
 			})
 		}
 		switch expRec := application.ContExp.(type) {
-		case compexp.ApplyRec:
+		case ApplyRec:
 			// вяжем продолжение соискателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 				CompRef: application.CompRef,
@@ -704,11 +703,11 @@ func (s *service) takeStep(
 				})
 			}
 		default:
-			panic(compexp.ErrRecTypeUnexpected(application.ContExp))
+			panic(ErrRecTypeUnexpected(application.ContExp))
 		}
 		s.log.Debug("step taking succeed", compAttr, connAttr)
 		return execMod, execEff, connMod, nil
-	case compexp.ReleaseSpec:
+	case ReleaseSpec:
 		connChnl, ok := execSnap.LinearVars[termExp.ConnChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", compAttr)
@@ -748,7 +747,7 @@ func (s *service) takeStep(
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
-				ContExp: compexp.ReleaseRec{
+				ContExp: ReleaseRec{
 					ContChnlPH: connChnl.ChnlPH,
 				},
 			})
@@ -770,7 +769,7 @@ func (s *service) takeStep(
 			ExpCK:   nextExpCK,
 		})
 		switch expRec := detaching.ContExp.(type) {
-		case compexp.DetachRec:
+		case DetachRec:
 			// вяжем продолжение доступопринимателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 				CompRef: detaching.CompRef,
@@ -781,11 +780,11 @@ func (s *service) takeStep(
 				ExpCK:   nextExpCK,
 			})
 		default:
-			panic(compexp.ErrRecTypeUnexpected(detaching.ContExp))
+			panic(ErrRecTypeUnexpected(detaching.ContExp))
 		}
 		s.log.Debug("step taking succeed", compAttr, connAttr)
 		return execMod, execEff, connMod, nil
-	case compexp.DetachSpec:
+	case DetachSpec:
 		connChnl, ok := execSnap.LinearVars[termExp.ConnChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", compAttr)
@@ -825,7 +824,7 @@ func (s *service) takeStep(
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
-				ContExp: compexp.DetachRec{
+				ContExp: DetachRec{
 					ContChnlPH: connChnl.ChnlPH,
 				},
 			})
@@ -846,7 +845,7 @@ func (s *service) takeStep(
 			ExpCK:   nextExpCK,
 		})
 		switch expRec := releasing.ContExp.(type) {
-		case compexp.ReleaseRec:
+		case ReleaseRec:
 			// вяжем продолжение доступовозвращателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 				CompRef: releasing.CompRef,
@@ -857,12 +856,12 @@ func (s *service) takeStep(
 				ExpCK:   nextExpCK,
 			})
 		default:
-			panic(compexp.ErrRecTypeUnexpected(releasing.ContExp))
+			panic(ErrRecTypeUnexpected(releasing.ContExp))
 		}
 		s.log.Debug("step taking succeed", compAttr, connAttr)
 		return execMod, execEff, connMod, nil
 	default:
-		panic(compexp.ErrSpecTypeUnexpected(exp))
+		panic(ErrSpecTypeUnexpected(exp))
 	}
 }
 

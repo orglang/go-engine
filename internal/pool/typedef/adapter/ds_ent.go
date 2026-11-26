@@ -84,6 +84,18 @@ WHERE db.desc_qn = $1
 		}
 		dtos[qn] = dto
 	}
-	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("dtos", dtos))
-	return DataToDefRecMap(dtos)
+	recs, err := DataToDefRecMap(dtos)
+	if err != nil {
+		return nil, err
+	}
+	for qn, rec := range recs {
+		exp, err := dao.getRecByCK(ctx, conn, rec.ExpCK)
+		if err != nil {
+			return nil, err
+		}
+		rec.TypeExp = exp
+		recs[qn] = rec
+	}
+	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("recs", recs))
+	return recs, nil
 }

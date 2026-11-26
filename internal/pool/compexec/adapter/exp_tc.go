@@ -3,9 +3,6 @@ package adapter
 import (
 	"fmt"
 
-	"orglang/go-engine/internal/adt/symbol"
-	"orglang/go-engine/internal/adt/uniqsym"
-
 	compexp "orglang/go-engine/internal/pool/compexec/exp"
 )
 

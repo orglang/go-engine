@@ -31,8 +31,7 @@ func NewDaoEnt(client *ent.Client, log *slog.Logger) *daoEnt {
 	return &daoEnt{client: client, log: log.With(name)}
 }
 
-// for compilation purposes
-func newRepo() termdef.Repo { return new(daoEnt) }
+var _ termdef.Repo = (*daoEnt)(nil)
 
 func (dao *daoEnt) SetExpCK(ctx context.Context, conn tx.Conn, termID identity.ADT, expCK contkey.ADT) error {
 	const query = `

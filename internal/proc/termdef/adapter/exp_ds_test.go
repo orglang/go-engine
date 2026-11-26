@@ -12,6 +12,12 @@ func TestDataToExpRecRejectsMalformedTree(t *testing.T) {
 		states []ExpState
 	}{
 		{
+			name: "missing root",
+			states: []ExpState{
+				{ExpCK: 2, K: CloseKind, Spec: ExpStateSpec{ContChnlPH: "done"}},
+			},
+		},
+		{
 			name: "duplicate expression",
 			states: []ExpState{
 				{ExpCK: 1, K: CloseKind, Spec: ExpStateSpec{ContChnlPH: "done"}},

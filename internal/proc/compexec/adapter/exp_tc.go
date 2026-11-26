@@ -10,7 +10,7 @@ import (
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
 
-	compexp "orglang/go-engine/internal/proc/compexec/exp"
+	compexp "orglang/go-engine/internal/proc/compexec/core"
 )
 
 func DataFromExpRec(r compexp.ExpRec) (ExpRec, error) {

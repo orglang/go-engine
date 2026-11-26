@@ -119,7 +119,7 @@ func (s ReleaseSpec) Via() symbol.ADT { return s.ConnChnlPH }
 
 type ExpRec interface {
 	ExpSpec
-	impl()
+	IsExpRec()
 }
 
 type CloseRec struct {
@@ -128,7 +128,7 @@ type CloseRec struct {
 
 func (r CloseRec) Via() symbol.ADT { return r.ContChnlPH }
 
-func (CloseRec) impl() {}
+func (CloseRec) IsExpRec() {}
 
 type WaitRec struct {
 	ContChnlPH symbol.ADT
@@ -137,7 +137,7 @@ type WaitRec struct {
 
 func (r WaitRec) Via() symbol.ADT { return r.ContChnlPH }
 
-func (WaitRec) impl() {}
+func (WaitRec) IsExpRec() {}
 
 type SendRec struct {
 	ConnChnlPH symbol.ADT
@@ -149,7 +149,7 @@ type SendRec struct {
 
 func (r SendRec) Via() symbol.ADT { return r.ConnChnlPH }
 
-func (SendRec) impl() {}
+func (SendRec) IsExpRec() {}
 
 type RecvRec struct {
 	ConnChnlPH symbol.ADT
@@ -160,7 +160,7 @@ type RecvRec struct {
 
 func (r RecvRec) Via() symbol.ADT { return r.ConnChnlPH }
 
-func (RecvRec) impl() {}
+func (RecvRec) IsExpRec() {}
 
 type LabRec struct {
 	ConnChnlPH symbol.ADT
@@ -171,7 +171,7 @@ type LabRec struct {
 
 func (r LabRec) Via() symbol.ADT { return r.ConnChnlPH }
 
-func (LabRec) impl() {}
+func (LabRec) IsExpRec() {}
 
 type CaseRec struct {
 	ConnChnlPH symbol.ADT
@@ -181,7 +181,7 @@ type CaseRec struct {
 
 func (r CaseRec) Via() symbol.ADT { return r.ConnChnlPH }
 
-func (CaseRec) impl() {}
+func (CaseRec) IsExpRec() {}
 
 type FwdRec struct {
 	ConnChnlPH symbol.ADT
@@ -190,7 +190,7 @@ type FwdRec struct {
 
 func (r FwdRec) Via() symbol.ADT { return r.ConnChnlPH }
 
-func (FwdRec) impl() {}
+func (FwdRec) IsExpRec() {}
 
 func CollectEnv(spec ExpSpec) []identity.ADT {
 	return collectEnvRec(spec, []identity.ADT{})

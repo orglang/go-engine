@@ -13,6 +13,7 @@ import (
 // The concrete expression model belongs to the process execution capability.
 type ExpRec interface {
 	Via() symbol.ADT
+	IsExpRec()
 }
 
 // aka Sem
@@ -32,7 +33,7 @@ type PubRec struct {
 	ValExp  ExpRec
 }
 
-func (r PubRec) act() identity.ADT       { return r.ChnlID }
+func (r PubRec) act() identity.ADT      { return r.ChnlID }
 func (r PubRec) GetConnID() identity.ADT { return r.ConnID }
 func (r PubRec) GetActNr() seqnum.ADT    { return r.ActNr }
 
@@ -44,7 +45,7 @@ type SubRec struct {
 	ContExp ExpRec
 }
 
-func (r SubRec) act() identity.ADT       { return r.ChnlID }
+func (r SubRec) act() identity.ADT      { return r.ChnlID }
 func (r SubRec) GetConnID() identity.ADT { return r.ConnID }
 func (r SubRec) GetActNr() seqnum.ADT    { return r.ActNr }
 

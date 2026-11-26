@@ -158,16 +158,37 @@ func statesFromExpRec(parent int64, rec termdef.ExpRec, dto *ExpData) int64 {
 
 func dataToExpRec(dto ExpData) (termdef.ExpRec, error) {
 	states := make(map[int64]ExpState, len(dto.States))
-	for _, s := range dto.States {
-		states[s.ExpCK] = s
+	for _, state := range dto.States {
+		if _, exists := states[state.ExpCK]; exists {
+			return nil, fmt.Errorf("process Definition contains duplicate expression %d", state.ExpCK)
+		}
+		states[state.ExpCK] = state
 	}
 	root, ok := states[dto.ExpCK]
 	if !ok {
 		return nil, fmt.Errorf("process Definition root %d is missing", dto.ExpCK)
 	}
-	return statesToExpRec(states, root)
+	if root.SupExpCK != 0 {
+		return nil, fmt.Errorf("process Definition root %d has unexpected parent %d", root.ExpCK, root.SupExpCK)
+	}
+	visiting := make(map[int64]struct{}, len(states))
+	visited := make(map[int64]struct{}, len(states))
+	rec, err := statesToExpRec(states, root, visiting, visited)
+	if err != nil {
+		return nil, err
+	}
+	if len(visited) != len(states) {
+		return nil, fmt.Errorf("process Definition contains %d unreachable expressions", len(states)-len(visited))
+	}
+	return rec, nil
 }
-func statesToExpRec(states map[int64]ExpState, st ExpState) (termdef.ExpRec, error) {
+func statesToExpRec(states map[int64]ExpState, st ExpState, visiting, visited map[int64]struct{}) (termdef.ExpRec, error) {
+	if _, exists := visiting[st.ExpCK]; exists {
+		return nil, fmt.Errorf("process Definition contains cyclic expression %d", st.ExpCK)
+	}
+	visiting[st.ExpCK] = struct{}{}
+	visited[st.ExpCK] = struct{}{}
+	defer delete(visiting, st.ExpCK)
 	key, err := contkey.ConvertFromInt(st.ExpCK)
 	if err != nil {
 		return nil, err
@@ -181,7 +202,7 @@ func statesToExpRec(states map[int64]ExpState, st ExpState) (termdef.ExpRec, err
 		if s.SupExpCK != st.ExpCK {
 			return nil, fmt.Errorf("process Definition child %d has unexpected parent", ck)
 		}
-		return statesToExpRec(states, s)
+		return statesToExpRec(states, s, visiting, visited)
 	}
 	ph := symbol.ConvertFromString
 	switch st.K {

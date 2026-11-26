@@ -50,6 +50,9 @@ WHERE term_id = $2
 }
 
 func (dao *daoEnt) GetRecByID(ctx context.Context, conn tx.Conn, termID identity.ADT) (termdef.DefRec, error) {
+	if termID.IsEmpty() {
+		return termdef.DefRec{}, identity.ErrEmpty
+	}
 	const query = `
 SELECT def.term_id, COALESCE(def.exp_ck, 0) AS exp_ck
 FROM pool_desc_terms AS def

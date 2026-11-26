@@ -8,7 +8,6 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 	webapi "orglang/go-engine/internal/app/web/api"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
-	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
 func DefSpecFromGenerated(dto webapi.ProcTypeDefSpec) (typedef.DefSpec, error) {

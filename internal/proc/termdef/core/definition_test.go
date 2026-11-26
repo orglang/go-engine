@@ -63,7 +63,10 @@ func (*definitionTestDecRepo) SelectEnv(context.Context, tx.Conn, []identity.ADT
 func TestRetrieveDefinition(t *testing.T) {
 	termID := identity.New()
 	wantKey := contkey.ADT(42)
-	wantQN := uniqsym.ADT("example.term")
+	wantQN, err := uniqsym.ConvertFromString("example.term")
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	t.Run("returns current definition", func(t *testing.T) {
 		repo := &definitionTestRepo{rec: DefRec{TermID: termID, ExpCK: wantKey}, spec: ExpCloseSpec{}}

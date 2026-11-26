@@ -13,7 +13,7 @@ import (
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/ent"
-	typeexp "orglang/go-engine/internal/proc/typeexp/core"
+	typedef "orglang/go-engine/internal/proc/typedef/core"
 	"orglang/go-engine/internal/testutil/pgxtest"
 )
 
@@ -48,12 +48,12 @@ func TestIntegrationProcTypeExpAddRecIsIdempotent(t *testing.T) {
 		}
 	})
 
-	repo := NewDaoEnt(client, slog.Default())
+	repo := typedefadapter.NewExpDaoEnt(client, slog.Default())
 	transactor := dbadapter.NewTransactorPgx(pool)
-	want := typeexp.TensorRec{
+	want := typedef.TensorRec{
 		ExpCK: contkey.Three,
-		Val:   typeexp.OneRec{ExpCK: contkey.One},
-		Cont:  typeexp.OneRec{ExpCK: contkey.Two},
+		Val:   typedef.OneRec{ExpCK: contkey.One},
+		Cont:  typedef.OneRec{ExpCK: contkey.Two},
 	}
 
 	for range 2 {

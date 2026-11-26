@@ -6,9 +6,8 @@ import (
 	webapi "orglang/go-engine/internal/app/web/api"
 )
 
-
-// generatedRouteFilter limits generated registration to the operations migrated
-// so far. Other contract operations remain available for later migrations.
+// generatedRouteFilter limits generated registration to the Definition read
+// operation. Other contract operations remain available for later migrations.
 type generatedRouteFilter struct {
 	webapi.EchoRouter
 }
@@ -34,11 +33,8 @@ func (r generatedRouteFilter) OPTIONS(string, echo.HandlerFunc, ...echo.Middlewa
 func (r generatedRouteFilter) PATCH(string, echo.HandlerFunc, ...echo.MiddlewareFunc) echo.RouteInfo {
 	return echo.RouteInfo{}
 }
-func (r generatedRouteFilter) POST(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) echo.RouteInfo {
-	if path != "" {
-		return echo.RouteInfo{}
-	}
-	return r.EchoRouter.POST(path, h, m...)
+func (generatedRouteFilter) POST(string, echo.HandlerFunc, ...echo.MiddlewareFunc) echo.RouteInfo {
+	return echo.RouteInfo{}
 }
 func (r generatedRouteFilter) PUT(string, echo.HandlerFunc, ...echo.MiddlewareFunc) echo.RouteInfo {
 	return echo.RouteInfo{}
@@ -47,8 +43,7 @@ func (r generatedRouteFilter) TRACE(string, echo.HandlerFunc, ...echo.Middleware
 	return echo.RouteInfo{}
 }
 
-// RegisterGeneratedRoutes mounts the migrated generated process
-// declaration and Definition-read operations on the application's existing Echo server.
+// RegisterGeneratedRoutes mounts the generated process Definition-read operation.
 func RegisterGeneratedRoutes(e *echo.Echo, h webapi.ServerInterface) error {
 	registerGeneratedServer(e, h)
 	return nil

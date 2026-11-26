@@ -2,6 +2,8 @@ package adapter
 
 import (
 	"context"
+	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -30,7 +32,8 @@ func (generatedDeclarationAPIStub) RetreiveRefs(context.Context) ([]termsem.SemR
 
 func TestRegisterGeneratedRoutesRegistersOnlyDeclarationRoutes(t *testing.T) {
 	e := echo.New()
-	controller := NewControllerEcho(generatedDeclarationAPIStub{}, nil)
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	controller := NewControllerEcho(generatedDeclarationAPIStub{}, logger)
 	if err := RegisterGeneratedRoutes(e, controller); err != nil {
 		t.Fatalf("RegisterGeneratedRoutes() error = %v", err)
 	}

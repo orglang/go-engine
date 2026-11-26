@@ -7,6 +7,7 @@ import (
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
+	connact "orglang/go-engine/internal/proc/connact/core"
 )
 
 type ExpSpec interface {
@@ -119,7 +120,7 @@ func (s ReleaseSpec) Via() symbol.ADT { return s.ConnChnlPH }
 
 type ExpRec interface {
 	ExpSpec
-	IsExpRec()
+	connact.ExpRec
 }
 
 type CloseRec struct {

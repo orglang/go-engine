@@ -150,7 +150,7 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 	service := typedef.NewService(
 		NewDaoEnt(entClient, logger),
 		descrootadapter.NewDaoEnt(entClient, logger),
-		typeexpadapter.NewDaoEnt(entClient, logger),
+		NewExpDaoEnt(entClient, logger),
 		descsemadapter.NewDaoPgx("pool_desc_binds")(logger),
 		dbadapter.NewTransactorPgx(pool),
 		logger,
@@ -162,7 +162,7 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 	}
 	ref, err := service.Create(ctx, typedef.DefSpec{
 		TypeQN:  typeQN,
-		TypeExp: typeexp.OneSpec{},
+		TypeExp: typedef.OneSpec{},
 	})
 	if err != nil {
 		t.Fatalf("Create() error = %v, want nil", err)

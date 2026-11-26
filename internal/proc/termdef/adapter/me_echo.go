@@ -46,7 +46,7 @@ func (h *controllerEcho) GetProcessDeclaration(c *echo.Context, id string, param
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, termdecadapter.DecSnapToGenerated(snap))
+	return c.JSON(http.StatusOK, termdecadapter.termdecadapter.DecSnapToGenerated(snap))
 }
 
 func (h *controllerEcho) GetProcessDefinition(c *echo.Context, id string, _ webapi.GetProcessDefinitionParams) error {
@@ -87,5 +87,5 @@ func (h *controllerEcho) CreateProcessDeclaration(c *echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusCreated, DecSnapToGenerated(snap))
+	return c.JSON(http.StatusCreated, termdecadapter.DecSnapToGenerated(snap))
 }

@@ -22,13 +22,11 @@ import (
 	compvar "orglang/go-engine/internal/pool/compvar/core"
 	connact "orglang/go-engine/internal/pool/connact/core"
 	termdec "orglang/go-engine/internal/pool/termdec/core"
-	proctermdec "orglang/go-engine/internal/proc/termdec/core"
-	termdef "orglang/go-engine/internal/pool/termdef/core"
+	proctermdef "orglang/go-engine/internal/proc/termdef/core"
 	compexp "orglang/go-engine/internal/pool/compexec/exp"
 	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 
 	proccompexec "orglang/go-engine/internal/proc/compexec/core"
-	proctermdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
 type API interface {

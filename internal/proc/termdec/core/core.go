@@ -2,8 +2,10 @@ package core
 
 import (
 	"context"
+	"iter"
 
 	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/uniqsym"
@@ -35,4 +37,8 @@ type Repo interface {
 	GetSnap(context.Context, tx.Conn, termsem.SemRef) (DecSnap, error)
 	GetRecs(context.Context, tx.Conn, []identity.ADT) ([]DecRec, error)
 	SelectEnv(context.Context, tx.Conn, []identity.ADT) (map[identity.ADT]DecRec, error)
+}
+
+func CollectEnv(recs iter.Seq[DecRec]) []uniqsym.ADT {
+	return []uniqsym.ADT{}
 }

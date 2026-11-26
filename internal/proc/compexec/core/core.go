@@ -22,7 +22,7 @@ import (
 	compconn "orglang/go-engine/internal/proc/compconn/core"
 	compstep "orglang/go-engine/internal/proc/compstep/core"
 	connact "orglang/go-engine/internal/proc/connact/core"
-	termdef "orglang/go-engine/internal/proc/termdec/core"
+	termdec "orglang/go-engine/internal/proc/termdec/core"
 	termdef "orglang/go-engine/internal/proc/termdef/core"
 	compexp "orglang/go-engine/internal/proc/compexec/exp"
 	typedef "orglang/go-engine/internal/proc/typedef/core"

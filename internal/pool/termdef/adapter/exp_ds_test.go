@@ -99,6 +99,19 @@ func TestDataToExpRecRejectsInvalidTreeStructure(t *testing.T) {
 				{ExpCK: 2, K: ReleaseKind, Spec: ExpStateSpec{ConnChnlPH: "worker"}},
 			},
 		},
+		{
+			name: "child has unexpected parent",
+			states: []ExpState{
+				{ExpCK: 1, K: AcquireKind, Spec: ExpStateSpec{ConnChnlPH: "request", ContExpCK: 2}},
+				{ExpCK: 2, SupExpCK: 3, K: ReleaseKind, Spec: ExpStateSpec{ConnChnlPH: "worker"}},
+			},
+		},
+		{
+			name: "unknown expression kind",
+			states: []ExpState{
+				{ExpCK: 1, K: 99},
+			},
+		},
 	}
 
 	for _, tt := range tests {

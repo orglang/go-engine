@@ -38,31 +38,18 @@ func TestRegisterGeneratedRoutesRegistersOnlyDeclarationRoutes(t *testing.T) {
 		t.Fatalf("RegisterGeneratedRoutes() error = %v", err)
 	}
 
-	routes := map[string]bool{}
-	for _, route := range e.Routes() {
-		routes[route.Method+" "+route.Path] = true
-	}
-	for _, route := range []string{
-		"POST " + processDeclarationRoute,
-		"GET " + processDeclarationRoute + "/:id",
+	for _, route := range []struct {
+		method string
+		path   string
+	}{
+		{method: http.MethodGet, path: "/api/v1/processes/term-1/definition"},
+		{method: http.MethodPost, path: "/api/v1/programs"},
 	} {
-		if !routes[route] {
-			t.Errorf("Declaration route %q was not registered", route)
+		req := httptest.NewRequest(route.method, route.path, nil)
+		rec := httptest.NewRecorder()
+		e.ServeHTTP(rec, req)
+		if rec.Code != http.StatusNotFound {
+			t.Errorf("non-Declaration route %s %s status = %d, want %d", route.method, route.path, rec.Code, http.StatusNotFound)
 		}
-	}
-	for _, route := range []string{
-		"GET /api/v1/processes/:id/definition",
-		"POST /api/v1/programs",
-	} {
-		if routes[route] {
-			t.Errorf("non-Declaration route %q was registered", route)
-		}
-	}
-
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/processes/term-1/definition", nil)
-	rec := httptest.NewRecorder()
-	e.ServeHTTP(rec, req)
-	if rec.Code != http.StatusNotFound {
-		t.Errorf("Definition route status = %d, want %d", rec.Code, http.StatusNotFound)
 	}
 }

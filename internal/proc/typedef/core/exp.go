@@ -1,10 +1,10 @@
 package core
 
 import (
- "fmt"
- "orglang/go-engine/internal/adt/contkey"
- "orglang/go-engine/internal/adt/polarity"
- "orglang/go-engine/internal/adt/uniqsym"
+	"fmt"
+	"orglang/go-engine/internal/adt/contkey"
+	"orglang/go-engine/internal/adt/polarity"
+	"orglang/go-engine/internal/adt/uniqsym"
 )
 
 type ExpSpec interface {
@@ -228,7 +228,6 @@ func (r DownRec) Key() contkey.ADT { return r.ExpCK }
 
 func (DownRec) Pol() polarity.ADT { return polarity.Zero }
 
-
 // aka eqtp
 func CheckSpec(got, want ExpSpec) error {
 	switch wantSpec := want.(type) {
@@ -300,7 +299,6 @@ func CheckSpec(got, want ExpSpec) error {
 		panic(ErrSpecTypeUnexpected(want))
 	}
 }
-
 
 // aka eqtp
 func CheckRec(got, want ExpRec) error {
@@ -374,7 +372,6 @@ func CheckRec(got, want ExpRec) error {
 	}
 }
 
-
 func ErrSpecTypeUnexpected(got ExpSpec) error {
 	return fmt.Errorf("spec type unexpected: %T", got)
 }
@@ -386,7 +383,6 @@ func ErrRefTypeUnexpected(got ExpRef) error {
 func ErrRecTypeUnexpected(got ExpRec) error {
 	return fmt.Errorf("rec type unexpected: %T", got)
 }
-
 
 func ErrSpecTypeMismatch(got, want ExpSpec) error {
 	return fmt.Errorf("spec type mismatch: want %T, got %T", want, got)

@@ -12,7 +12,6 @@ import (
 	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/adt/typesem"
 	"orglang/go-engine/internal/adt/uniqsym"
-
 )
 
 type API interface {

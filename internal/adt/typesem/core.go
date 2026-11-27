@@ -14,11 +14,3 @@ type SemRef struct {
 func New() SemRef {
 	return SemRef{TypeID: identity.New(), DescID: identity.New(), DescRN: seqnum.New()}
 }
-
-type typeKind int16
-
-const (
-	unkKind typeKind = iota
-	PoolKind
-	ProcKind
-)

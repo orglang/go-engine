@@ -11,6 +11,6 @@ import (
 type Repo interface {
 	AddRec(context.Context, tx.Conn, EvalRec) error
 	ModifyRec(context.Context, tx.Conn, EvalMod) error
-	GetSnapByRef(context.Context, tx.Conn, comproot.SemRef) (EvalSnap2, error)
+	GetSnapByRef(context.Context, tx.Conn, comproot.RootRef) (EvalSnap2, error)
 	GetSnapMapByQNs(context.Context, tx.Conn, []uniqsym.ADT) (map[uniqsym.ADT]EvalSnap1, error)
 }

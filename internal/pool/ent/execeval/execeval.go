@@ -10,9 +10,9 @@ const (
 	// Label holds the string label denoting the execeval type in the database.
 	Label = "exec_eval"
 	// FieldID holds the string denoting the id field in the database.
-	FieldID = "comp_id"
+	FieldID = "exec_id"
 	// FieldCompRn holds the string denoting the comp_rn field in the database.
-	FieldCompRn = "comp_rn"
+	FieldCompRn = "exec_rn"
 	// FieldLiabMode holds the string denoting the liab_mode field in the database.
 	FieldLiabMode = "liab_mode"
 	// Table holds the table name of the execeval in the database.

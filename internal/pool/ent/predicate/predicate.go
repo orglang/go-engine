@@ -9,11 +9,11 @@ import (
 // CompConn is the predicate function for compconn builders.
 type CompConn func(*sql.Selector)
 
-// ExecEval is the predicate function for execeval builders.
-type ExecEval func(*sql.Selector)
-
 // DescRoot is the predicate function for descroot builders.
 type DescRoot func(*sql.Selector)
+
+// ExecEval is the predicate function for execeval builders.
+type ExecEval func(*sql.Selector)
 
 // TermDec is the predicate function for termdec builders.
 type TermDec func(*sql.Selector)

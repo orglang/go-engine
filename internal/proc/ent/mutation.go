@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"orglang/go-engine/internal/adt/termvar/adapter"
 	"orglang/go-engine/internal/proc/ent/compconn"
-	"orglang/go-engine/internal/proc/ent/execeval"
 	"orglang/go-engine/internal/proc/ent/descroot"
+	"orglang/go-engine/internal/proc/ent/execeval"
 	"orglang/go-engine/internal/proc/ent/predicate"
 	"orglang/go-engine/internal/proc/ent/schema"
 	"orglang/go-engine/internal/proc/ent/termdec"
@@ -33,8 +33,8 @@ const (
 
 	// Node types.
 	TypeCompConn = "CompConn"
-	TypeExecEval = "ExecEval"
 	TypeDescRoot = "DescRoot"
+	TypeExecEval = "ExecEval"
 	TypeTermDec  = "TermDec"
 	TypeTermExp  = "TermExp"
 	TypeTypeDef  = "TypeDef"
@@ -821,33 +821,31 @@ func (m *CompConnMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown CompConn edge %s", name)
 }
 
-// ExecEvalMutation represents an operation that mutates the ExecEval nodes in the graph.
-type ExecEvalMutation struct {
+// DescRootMutation represents an operation that mutates the DescRoot nodes in the graph.
+type DescRootMutation struct {
 	config
 	op            Op
 	typ           string
 	id            *string
-	comp_rn       *int64
-	addcomp_rn    *int64
-	liab_mode     *int16
-	addliab_mode  *int16
+	desc_rn       *int64
+	adddesc_rn    *int64
 	clearedFields map[string]struct{}
 	done          bool
-	oldValue      func(context.Context) (*ExecEval, error)
-	predicates    []predicate.ExecEval
+	oldValue      func(context.Context) (*DescRoot, error)
+	predicates    []predicate.DescRoot
 }
 
-var _ ent.Mutation = (*ExecEvalMutation)(nil)
+var _ ent.Mutation = (*DescRootMutation)(nil)
 
-// execevalOption allows management of the mutation configuration using functional options.
-type execevalOption func(*ExecEvalMutation)
+// descrootOption allows management of the mutation configuration using functional options.
+type descrootOption func(*DescRootMutation)
 
-// newExecEvalMutation creates new mutation for the ExecEval entity.
-func newExecEvalMutation(c config, op Op, opts ...execevalOption) *ExecEvalMutation {
-	m := &ExecEvalMutation{
+// newDescRootMutation creates new mutation for the DescRoot entity.
+func newDescRootMutation(c config, op Op, opts ...descrootOption) *DescRootMutation {
+	m := &DescRootMutation{
 		config:        c,
 		op:            op,
-		typ:           TypeExecEval,
+		typ:           TypeDescRoot,
 		clearedFields: make(map[string]struct{}),
 	}
 	for _, opt := range opts {
@@ -1175,132 +1173,124 @@ func (m *ExecEvalMutation) AddedField(name string) (ent.Value, bool) {
 // AddField adds the value to the field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
-func (m *ExecEvalMutation) AddField(name string, value ent.Value) error {
+func (m *DescRootMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case execeval.FieldCompRn:
+	case descroot.FieldDescRn:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.AddCompRn(v)
-		return nil
-	case execeval.FieldLiabMode:
-		v, ok := value.(int16)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddLiabMode(v)
+		m.AddDescRn(v)
 		return nil
 	}
-	return fmt.Errorf("unknown ExecEval numeric field %s", name)
+	return fmt.Errorf("unknown DescRoot numeric field %s", name)
 }
 
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
-func (m *ExecEvalMutation) ClearedFields() []string {
+func (m *DescRootMutation) ClearedFields() []string {
 	return nil
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
 // cleared in this mutation.
-func (m *ExecEvalMutation) FieldCleared(name string) bool {
+func (m *DescRootMutation) FieldCleared(name string) bool {
 	_, ok := m.clearedFields[name]
 	return ok
 }
 
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
-func (m *ExecEvalMutation) ClearField(name string) error {
-	return fmt.Errorf("unknown ExecEval nullable field %s", name)
+func (m *DescRootMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown DescRoot nullable field %s", name)
 }
 
 // ResetField resets all changes in the mutation for the field with the given name.
 // It returns an error if the field is not defined in the schema.
-func (m *ExecEvalMutation) ResetField(name string) error {
+func (m *DescRootMutation) ResetField(name string) error {
 	switch name {
-	case execeval.FieldCompRn:
-		m.ResetCompRn()
-		return nil
-	case execeval.FieldLiabMode:
-		m.ResetLiabMode()
+	case descroot.FieldDescRn:
+		m.ResetDescRn()
 		return nil
 	}
-	return fmt.Errorf("unknown ExecEval field %s", name)
+	return fmt.Errorf("unknown DescRoot field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
-func (m *ExecEvalMutation) AddedEdges() []string {
+func (m *DescRootMutation) AddedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
-func (m *ExecEvalMutation) AddedIDs(name string) []ent.Value {
+func (m *DescRootMutation) AddedIDs(name string) []ent.Value {
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
-func (m *ExecEvalMutation) RemovedEdges() []string {
+func (m *DescRootMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
-func (m *ExecEvalMutation) RemovedIDs(name string) []ent.Value {
+func (m *DescRootMutation) RemovedIDs(name string) []ent.Value {
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *ExecEvalMutation) ClearedEdges() []string {
+func (m *DescRootMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
-func (m *ExecEvalMutation) EdgeCleared(name string) bool {
+func (m *DescRootMutation) EdgeCleared(name string) bool {
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
-func (m *ExecEvalMutation) ClearEdge(name string) error {
-	return fmt.Errorf("unknown ExecEval unique edge %s", name)
+func (m *DescRootMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown DescRoot unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
-func (m *ExecEvalMutation) ResetEdge(name string) error {
-	return fmt.Errorf("unknown ExecEval edge %s", name)
+func (m *DescRootMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown DescRoot edge %s", name)
 }
 
-// DescRootMutation represents an operation that mutates the DescRoot nodes in the graph.
-type DescRootMutation struct {
+// ExecEvalMutation represents an operation that mutates the ExecEval nodes in the graph.
+type ExecEvalMutation struct {
 	config
 	op            Op
 	typ           string
 	id            *string
-	desc_rn       *int64
-	adddesc_rn    *int64
+	comp_rn       *int64
+	addcomp_rn    *int64
+	liab_mode     *int16
+	addliab_mode  *int16
 	clearedFields map[string]struct{}
 	done          bool
-	oldValue      func(context.Context) (*DescRoot, error)
-	predicates    []predicate.DescRoot
+	oldValue      func(context.Context) (*ExecEval, error)
+	predicates    []predicate.ExecEval
 }
 
-var _ ent.Mutation = (*DescRootMutation)(nil)
+var _ ent.Mutation = (*ExecEvalMutation)(nil)
 
-// descrootOption allows management of the mutation configuration using functional options.
-type descrootOption func(*DescRootMutation)
+// execevalOption allows management of the mutation configuration using functional options.
+type execevalOption func(*ExecEvalMutation)
 
-// newDescRootMutation creates new mutation for the DescRoot entity.
-func newDescRootMutation(c config, op Op, opts ...descrootOption) *DescRootMutation {
-	m := &DescRootMutation{
+// newExecEvalMutation creates new mutation for the ExecEval entity.
+func newExecEvalMutation(c config, op Op, opts ...execevalOption) *ExecEvalMutation {
+	m := &ExecEvalMutation{
 		config:        c,
 		op:            op,
-		typ:           TypeDescRoot,
+		typ:           TypeExecEval,
 		clearedFields: make(map[string]struct{}),
 	}
 	for _, opt := range opts {
@@ -1553,95 +1543,105 @@ func (m *DescRootMutation) AddedField(name string) (ent.Value, bool) {
 // AddField adds the value to the field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
-func (m *DescRootMutation) AddField(name string, value ent.Value) error {
+func (m *ExecEvalMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case descroot.FieldDescRn:
+	case execeval.FieldCompRn:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.AddDescRn(v)
+		m.AddCompRn(v)
+		return nil
+	case execeval.FieldLiabMode:
+		v, ok := value.(int16)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddLiabMode(v)
 		return nil
 	}
-	return fmt.Errorf("unknown DescRoot numeric field %s", name)
+	return fmt.Errorf("unknown ExecEval numeric field %s", name)
 }
 
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
-func (m *DescRootMutation) ClearedFields() []string {
+func (m *ExecEvalMutation) ClearedFields() []string {
 	return nil
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
 // cleared in this mutation.
-func (m *DescRootMutation) FieldCleared(name string) bool {
+func (m *ExecEvalMutation) FieldCleared(name string) bool {
 	_, ok := m.clearedFields[name]
 	return ok
 }
 
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
-func (m *DescRootMutation) ClearField(name string) error {
-	return fmt.Errorf("unknown DescRoot nullable field %s", name)
+func (m *ExecEvalMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown ExecEval nullable field %s", name)
 }
 
 // ResetField resets all changes in the mutation for the field with the given name.
 // It returns an error if the field is not defined in the schema.
-func (m *DescRootMutation) ResetField(name string) error {
+func (m *ExecEvalMutation) ResetField(name string) error {
 	switch name {
-	case descroot.FieldDescRn:
-		m.ResetDescRn()
+	case execeval.FieldCompRn:
+		m.ResetCompRn()
+		return nil
+	case execeval.FieldLiabMode:
+		m.ResetLiabMode()
 		return nil
 	}
-	return fmt.Errorf("unknown DescRoot field %s", name)
+	return fmt.Errorf("unknown ExecEval field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
-func (m *DescRootMutation) AddedEdges() []string {
+func (m *ExecEvalMutation) AddedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
-func (m *DescRootMutation) AddedIDs(name string) []ent.Value {
+func (m *ExecEvalMutation) AddedIDs(name string) []ent.Value {
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
-func (m *DescRootMutation) RemovedEdges() []string {
+func (m *ExecEvalMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
-func (m *DescRootMutation) RemovedIDs(name string) []ent.Value {
+func (m *ExecEvalMutation) RemovedIDs(name string) []ent.Value {
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *DescRootMutation) ClearedEdges() []string {
+func (m *ExecEvalMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
-func (m *DescRootMutation) EdgeCleared(name string) bool {
+func (m *ExecEvalMutation) EdgeCleared(name string) bool {
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
-func (m *DescRootMutation) ClearEdge(name string) error {
-	return fmt.Errorf("unknown DescRoot unique edge %s", name)
+func (m *ExecEvalMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown ExecEval unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
-func (m *DescRootMutation) ResetEdge(name string) error {
-	return fmt.Errorf("unknown DescRoot edge %s", name)
+func (m *ExecEvalMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown ExecEval edge %s", name)
 }
 
 // TermDecMutation represents an operation that mutates the TermDec nodes in the graph.

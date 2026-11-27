@@ -25,6 +25,17 @@ var (
 		Columns:    PoolCompConnsColumns,
 		PrimaryKey: []*schema.Column{PoolCompConnsColumns[0]},
 	}
+	// PoolDescRootsColumns holds the columns for the "pool_desc_roots" table.
+	PoolDescRootsColumns = []*schema.Column{
+		{Name: "desc_id", Type: field.TypeString, Unique: true},
+		{Name: "desc_rn", Type: field.TypeInt64},
+	}
+	// PoolDescRootsTable holds the schema information for the "pool_desc_roots" table.
+	PoolDescRootsTable = &schema.Table{
+		Name:       "pool_desc_roots",
+		Columns:    PoolDescRootsColumns,
+		PrimaryKey: []*schema.Column{PoolDescRootsColumns[0]},
+	}
 	// PoolExecEvalsColumns holds the columns for the "pool_exec_evals" table.
 	PoolExecEvalsColumns = []*schema.Column{
 		{Name: "comp_id", Type: field.TypeString, Unique: true},
@@ -36,17 +47,6 @@ var (
 		Name:       "pool_exec_evals",
 		Columns:    PoolExecEvalsColumns,
 		PrimaryKey: []*schema.Column{PoolExecEvalsColumns[0]},
-	}
-	// PoolDescRootsColumns holds the columns for the "pool_desc_roots" table.
-	PoolDescRootsColumns = []*schema.Column{
-		{Name: "desc_id", Type: field.TypeString, Unique: true},
-		{Name: "desc_rn", Type: field.TypeInt64},
-	}
-	// PoolDescRootsTable holds the schema information for the "pool_desc_roots" table.
-	PoolDescRootsTable = &schema.Table{
-		Name:       "pool_desc_roots",
-		Columns:    PoolDescRootsColumns,
-		PrimaryKey: []*schema.Column{PoolDescRootsColumns[0]},
 	}
 	// PoolDescTermsColumns holds the columns for the "pool_desc_terms" table.
 	PoolDescTermsColumns = []*schema.Column{
@@ -103,8 +103,8 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		PoolCompConnsTable,
-		PoolExecEvalsTable,
 		PoolDescRootsTable,
+		PoolExecEvalsTable,
 		PoolDescTermsTable,
 		PoolTermExpsTable,
 		PoolTypeDefsTable,
@@ -116,11 +116,11 @@ func init() {
 	PoolCompConnsTable.Annotation = &entsql.Annotation{
 		Table: "pool_comp_conns",
 	}
-	PoolExecEvalsTable.Annotation = &entsql.Annotation{
-		Table: "pool_exec_evals",
-	}
 	PoolDescRootsTable.Annotation = &entsql.Annotation{
 		Table: "pool_desc_roots",
+	}
+	PoolExecEvalsTable.Annotation = &entsql.Annotation{
+		Table: "pool_exec_evals",
 	}
 	PoolDescTermsTable.Annotation = &entsql.Annotation{
 		Table: "pool_desc_terms",

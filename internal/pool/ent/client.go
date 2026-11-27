@@ -12,8 +12,8 @@ import (
 	"orglang/go-engine/internal/pool/ent/migrate"
 
 	"orglang/go-engine/internal/pool/ent/compconn"
-	"orglang/go-engine/internal/pool/ent/execeval"
 	"orglang/go-engine/internal/pool/ent/descroot"
+	"orglang/go-engine/internal/pool/ent/execeval"
 	"orglang/go-engine/internal/pool/ent/termdec"
 	"orglang/go-engine/internal/pool/ent/termexp"
 	"orglang/go-engine/internal/pool/ent/typedef"
@@ -31,10 +31,10 @@ type Client struct {
 	Schema *migrate.Schema
 	// CompConn is the client for interacting with the CompConn builders.
 	CompConn *CompConnClient
-	// ExecEval is the client for interacting with the ExecEval builders.
-	ExecEval *ExecEvalClient
 	// DescRoot is the client for interacting with the DescRoot builders.
 	DescRoot *DescRootClient
+	// ExecEval is the client for interacting with the ExecEval builders.
+	ExecEval *ExecEvalClient
 	// TermDec is the client for interacting with the TermDec builders.
 	TermDec *TermDecClient
 	// TermExp is the client for interacting with the TermExp builders.
@@ -55,8 +55,8 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.CompConn = NewCompConnClient(c.config)
-	c.ExecEval = NewExecEvalClient(c.config)
 	c.DescRoot = NewDescRootClient(c.config)
+	c.ExecEval = NewExecEvalClient(c.config)
 	c.TermDec = NewTermDecClient(c.config)
 	c.TermExp = NewTermExpClient(c.config)
 	c.TypeDef = NewTypeDefClient(c.config)
@@ -154,8 +154,8 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:      ctx,
 		config:   cfg,
 		CompConn: NewCompConnClient(cfg),
-		ExecEval: NewExecEvalClient(cfg),
 		DescRoot: NewDescRootClient(cfg),
+		ExecEval: NewExecEvalClient(cfg),
 		TermDec:  NewTermDecClient(cfg),
 		TermExp:  NewTermExpClient(cfg),
 		TypeDef:  NewTypeDefClient(cfg),
@@ -180,8 +180,8 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ctx:      ctx,
 		config:   cfg,
 		CompConn: NewCompConnClient(cfg),
-		ExecEval: NewExecEvalClient(cfg),
 		DescRoot: NewDescRootClient(cfg),
+		ExecEval: NewExecEvalClient(cfg),
 		TermDec:  NewTermDecClient(cfg),
 		TermExp:  NewTermExpClient(cfg),
 		TypeDef:  NewTypeDefClient(cfg),
@@ -215,7 +215,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.CompConn, c.ExecEval, c.DescRoot, c.TermDec, c.TermExp, c.TypeDef, c.TypeExp,
+		c.CompConn, c.DescRoot, c.ExecEval, c.TermDec, c.TermExp, c.TypeDef, c.TypeExp,
 	} {
 		n.Use(hooks...)
 	}
@@ -225,7 +225,7 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.CompConn, c.ExecEval, c.DescRoot, c.TermDec, c.TermExp, c.TypeDef, c.TypeExp,
+		c.CompConn, c.DescRoot, c.ExecEval, c.TermDec, c.TermExp, c.TypeDef, c.TypeExp,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -236,10 +236,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *CompConnMutation:
 		return c.CompConn.mutate(ctx, m)
-	case *ExecEvalMutation:
-		return c.ExecEval.mutate(ctx, m)
 	case *DescRootMutation:
 		return c.DescRoot.mutate(ctx, m)
+	case *ExecEvalMutation:
+		return c.ExecEval.mutate(ctx, m)
 	case *TermDecMutation:
 		return c.TermDec.mutate(ctx, m)
 	case *TermExpMutation:
@@ -386,139 +386,6 @@ func (c *CompConnClient) mutate(ctx context.Context, m *CompConnMutation) (Value
 	}
 }
 
-// ExecEvalClient is a client for the ExecEval schema.
-type ExecEvalClient struct {
-	config
-}
-
-// NewExecEvalClient returns a client for the ExecEval from the given config.
-func NewExecEvalClient(c config) *ExecEvalClient {
-	return &ExecEvalClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `execeval.Hooks(f(g(h())))`.
-func (c *ExecEvalClient) Use(hooks ...Hook) {
-	c.hooks.ExecEval = append(c.hooks.ExecEval, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `execeval.Intercept(f(g(h())))`.
-func (c *ExecEvalClient) Intercept(interceptors ...Interceptor) {
-	c.inters.ExecEval = append(c.inters.ExecEval, interceptors...)
-}
-
-// Create returns a builder for creating a ExecEval entity.
-func (c *ExecEvalClient) Create() *ExecEvalCreate {
-	mutation := newExecEvalMutation(c.config, OpCreate)
-	return &ExecEvalCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of ExecEval entities.
-func (c *ExecEvalClient) CreateBulk(builders ...*ExecEvalCreate) *ExecEvalCreateBulk {
-	return &ExecEvalCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *ExecEvalClient) MapCreateBulk(slice any, setFunc func(*ExecEvalCreate, int)) *ExecEvalCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &ExecEvalCreateBulk{err: fmt.Errorf("calling to ExecEvalClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*ExecEvalCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &ExecEvalCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for ExecEval.
-func (c *ExecEvalClient) Update() *ExecEvalUpdate {
-	mutation := newExecEvalMutation(c.config, OpUpdate)
-	return &ExecEvalUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *ExecEvalClient) UpdateOne(_m *ExecEval) *ExecEvalUpdateOne {
-	mutation := newExecEvalMutation(c.config, OpUpdateOne, withExecEval(_m))
-	return &ExecEvalUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *ExecEvalClient) UpdateOneID(id string) *ExecEvalUpdateOne {
-	mutation := newExecEvalMutation(c.config, OpUpdateOne, withExecEvalID(id))
-	return &ExecEvalUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for ExecEval.
-func (c *ExecEvalClient) Delete() *ExecEvalDelete {
-	mutation := newExecEvalMutation(c.config, OpDelete)
-	return &ExecEvalDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *ExecEvalClient) DeleteOne(_m *ExecEval) *ExecEvalDeleteOne {
-	return c.DeleteOneID(_m.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *ExecEvalClient) DeleteOneID(id string) *ExecEvalDeleteOne {
-	builder := c.Delete().Where(execeval.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &ExecEvalDeleteOne{builder}
-}
-
-// Query returns a query builder for ExecEval.
-func (c *ExecEvalClient) Query() *ExecEvalQuery {
-	return &ExecEvalQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeExecEval},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a ExecEval entity by its id.
-func (c *ExecEvalClient) Get(ctx context.Context, id string) (*ExecEval, error) {
-	return c.Query().Where(execeval.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *ExecEvalClient) GetX(ctx context.Context, id string) *ExecEval {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// Hooks returns the client hooks.
-func (c *ExecEvalClient) Hooks() []Hook {
-	return c.hooks.ExecEval
-}
-
-// Interceptors returns the client interceptors.
-func (c *ExecEvalClient) Interceptors() []Interceptor {
-	return c.inters.ExecEval
-}
-
-func (c *ExecEvalClient) mutate(ctx context.Context, m *ExecEvalMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&ExecEvalCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&ExecEvalUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&ExecEvalUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&ExecEvalDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown ExecEval mutation op: %q", m.Op())
-	}
-}
-
 // DescRootClient is a client for the DescRoot schema.
 type DescRootClient struct {
 	config
@@ -620,6 +487,139 @@ func (c *DescRootClient) Get(ctx context.Context, id string) (*DescRoot, error) 
 
 // GetX is like Get, but panics if an error occurs.
 func (c *DescRootClient) GetX(ctx context.Context, id string) *DescRoot {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *ExecEvalClient) Hooks() []Hook {
+	return c.hooks.ExecEval
+}
+
+// Interceptors returns the client interceptors.
+func (c *ExecEvalClient) Interceptors() []Interceptor {
+	return c.inters.ExecEval
+}
+
+func (c *ExecEvalClient) mutate(ctx context.Context, m *ExecEvalMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ExecEvalCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ExecEvalUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ExecEvalUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ExecEvalDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ExecEval mutation op: %q", m.Op())
+	}
+}
+
+// ExecEvalClient is a client for the ExecEval schema.
+type ExecEvalClient struct {
+	config
+}
+
+// NewExecEvalClient returns a client for the ExecEval from the given config.
+func NewExecEvalClient(c config) *ExecEvalClient {
+	return &ExecEvalClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `execeval.Hooks(f(g(h())))`.
+func (c *ExecEvalClient) Use(hooks ...Hook) {
+	c.hooks.ExecEval = append(c.hooks.ExecEval, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `execeval.Intercept(f(g(h())))`.
+func (c *ExecEvalClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ExecEval = append(c.inters.ExecEval, interceptors...)
+}
+
+// Create returns a builder for creating a ExecEval entity.
+func (c *ExecEvalClient) Create() *ExecEvalCreate {
+	mutation := newExecEvalMutation(c.config, OpCreate)
+	return &ExecEvalCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ExecEval entities.
+func (c *ExecEvalClient) CreateBulk(builders ...*ExecEvalCreate) *ExecEvalCreateBulk {
+	return &ExecEvalCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ExecEvalClient) MapCreateBulk(slice any, setFunc func(*ExecEvalCreate, int)) *ExecEvalCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ExecEvalCreateBulk{err: fmt.Errorf("calling to ExecEvalClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ExecEvalCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ExecEvalCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ExecEval.
+func (c *ExecEvalClient) Update() *ExecEvalUpdate {
+	mutation := newExecEvalMutation(c.config, OpUpdate)
+	return &ExecEvalUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ExecEvalClient) UpdateOne(_m *ExecEval) *ExecEvalUpdateOne {
+	mutation := newExecEvalMutation(c.config, OpUpdateOne, withExecEval(_m))
+	return &ExecEvalUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ExecEvalClient) UpdateOneID(id string) *ExecEvalUpdateOne {
+	mutation := newExecEvalMutation(c.config, OpUpdateOne, withExecEvalID(id))
+	return &ExecEvalUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ExecEval.
+func (c *ExecEvalClient) Delete() *ExecEvalDelete {
+	mutation := newExecEvalMutation(c.config, OpDelete)
+	return &ExecEvalDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ExecEvalClient) DeleteOne(_m *ExecEval) *ExecEvalDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ExecEvalClient) DeleteOneID(id string) *ExecEvalDeleteOne {
+	builder := c.Delete().Where(execeval.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ExecEvalDeleteOne{builder}
+}
+
+// Query returns a query builder for ExecEval.
+func (c *ExecEvalClient) Query() *ExecEvalQuery {
+	return &ExecEvalQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeExecEval},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ExecEval entity by its id.
+func (c *ExecEvalClient) Get(ctx context.Context, id string) (*ExecEval, error) {
+	return c.Query().Where(execeval.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ExecEvalClient) GetX(ctx context.Context, id string) *ExecEval {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -1187,10 +1187,10 @@ func (c *TypeExpClient) mutate(ctx context.Context, m *TypeExpMutation) (Value, 
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		CompConn, ExecEval, DescRoot, TermDec, TermExp, TypeDef, TypeExp []ent.Hook
+		CompConn, DescRoot, ExecEval, TermDec, TermExp, TypeDef, TypeExp []ent.Hook
 	}
 	inters struct {
-		CompConn, ExecEval, DescRoot, TermDec, TermExp, TypeDef,
+		CompConn, DescRoot, ExecEval, TermDec, TermExp, TypeDef,
 		TypeExp []ent.Interceptor
 	}
 )

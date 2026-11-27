@@ -25,6 +25,17 @@ var (
 		Columns:    ProcCompConnsColumns,
 		PrimaryKey: []*schema.Column{ProcCompConnsColumns[0]},
 	}
+	// ProcDescRootsColumns holds the columns for the "proc_desc_roots" table.
+	ProcDescRootsColumns = []*schema.Column{
+		{Name: "desc_id", Type: field.TypeString, Unique: true},
+		{Name: "desc_rn", Type: field.TypeInt64},
+	}
+	// ProcDescRootsTable holds the schema information for the "proc_desc_roots" table.
+	ProcDescRootsTable = &schema.Table{
+		Name:       "proc_desc_roots",
+		Columns:    ProcDescRootsColumns,
+		PrimaryKey: []*schema.Column{ProcDescRootsColumns[0]},
+	}
 	// ProcExecEvalsColumns holds the columns for the "proc_exec_evals" table.
 	ProcExecEvalsColumns = []*schema.Column{
 		{Name: "comp_id", Type: field.TypeString, Unique: true},
@@ -36,17 +47,6 @@ var (
 		Name:       "proc_exec_evals",
 		Columns:    ProcExecEvalsColumns,
 		PrimaryKey: []*schema.Column{ProcExecEvalsColumns[0]},
-	}
-	// ProcDescRootsColumns holds the columns for the "proc_desc_roots" table.
-	ProcDescRootsColumns = []*schema.Column{
-		{Name: "desc_id", Type: field.TypeString, Unique: true},
-		{Name: "desc_rn", Type: field.TypeInt64},
-	}
-	// ProcDescRootsTable holds the schema information for the "proc_desc_roots" table.
-	ProcDescRootsTable = &schema.Table{
-		Name:       "proc_desc_roots",
-		Columns:    ProcDescRootsColumns,
-		PrimaryKey: []*schema.Column{ProcDescRootsColumns[0]},
 	}
 	// ProcDescTermsColumns holds the columns for the "proc_desc_terms" table.
 	ProcDescTermsColumns = []*schema.Column{
@@ -103,8 +103,8 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		ProcCompConnsTable,
-		ProcExecEvalsTable,
 		ProcDescRootsTable,
+		ProcExecEvalsTable,
 		ProcDescTermsTable,
 		ProcTermExpsTable,
 		ProcTypeDefsTable,
@@ -116,11 +116,11 @@ func init() {
 	ProcCompConnsTable.Annotation = &entsql.Annotation{
 		Table: "proc_comp_conns",
 	}
-	ProcExecEvalsTable.Annotation = &entsql.Annotation{
-		Table: "proc_exec_evals",
-	}
 	ProcDescRootsTable.Annotation = &entsql.Annotation{
 		Table: "proc_desc_roots",
+	}
+	ProcExecEvalsTable.Annotation = &entsql.Annotation{
+		Table: "proc_exec_evals",
 	}
 	ProcDescTermsTable.Annotation = &entsql.Annotation{
 		Table: "proc_desc_terms",

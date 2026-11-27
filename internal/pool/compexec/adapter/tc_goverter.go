@@ -9,6 +9,7 @@ import (
 // goverter:variables
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/compvar/adapter:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/compvar/adapter:Data.*
 // goverter:extend DataToExecSnap1

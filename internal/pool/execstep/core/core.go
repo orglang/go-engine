@@ -8,6 +8,6 @@ type ExpSpec interface {
 }
 
 type StepSpec struct {
-	CompRef comproot.SemRef
+	CompRef comproot.RootRef
 	PoolExp ExpSpec
 }

@@ -14,7 +14,7 @@ import (
 var (
 	// goverter:map ExecID CompID
 	// goverter:map ExecRN CompRN
-	DataToCompRef func(ActRec) (comproot.SemRef, error)
+	DataToCompRef func(ActRec) (comproot.RootRef, error)
 	// goverter:map . CompRef
 	// goverter:map Exp ValExp
 	DataToPubRec func(ActRec) (connact.PubRec, error)

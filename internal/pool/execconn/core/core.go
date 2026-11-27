@@ -13,8 +13,8 @@ import (
 
 type ConnRec struct {
 	ConnID          identity.ADT
-	ProviderCompRef comproot.SemRef
-	ClientCompRef   comproot.SemRef
+	ProviderExecRef comproot.SemRef
+	ClientExecRef   comproot.SemRef
 	OffsetNr        seqnum.ADT
 	ActNr           seqnum.ADT
 }

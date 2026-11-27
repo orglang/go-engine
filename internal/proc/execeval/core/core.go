@@ -29,16 +29,16 @@ import (
 
 type API interface {
 	Take(context.Context, execstep.StepSpec) error
-	RetrieveSnap(comproot.SemRef) (EvalSnap, error)
+	RetrieveSnap(comproot.RootRef) (EvalSnap, error)
 }
 
 type EvalRec struct {
-	CompRef  comproot.SemRef
+	CompRef  comproot.RootRef
 	LiabMode execvar.Mode
 }
 
 type EvalMod struct {
-	CompRefs   []comproot.SemRef
+	CompRefs   []comproot.RootRef
 	LinearVars []execvar.LinearRec
 }
 
@@ -54,7 +54,7 @@ type takeResult struct {
 
 // aka Configuration
 type EvalSnap struct {
-	CompRef    comproot.SemRef
+	CompRef    comproot.RootRef
 	LinearVars map[symbol.ADT]execvar.LinearRec
 }
 
@@ -98,7 +98,7 @@ func NewService(
 	}
 }
 
-func (s *service) RetrieveSnap(ref comproot.SemRef) (_ EvalSnap, err error) {
+func (s *service) RetrieveSnap(ref comproot.RootRef) (_ EvalSnap, err error) {
 	return EvalSnap{}, nil
 }
 
@@ -163,7 +163,7 @@ func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) 
 			return err
 		}
 		if len(result.Connection.Acts) > 0 || (result.Connection.OffsetNr != nil && !result.Connection.OffsetNr.IsEmpty()) {
-			providerRef := comproot.SemRef{CompID: result.Connection.ProviderExecID, CompRN: result.Connection.ProviderExecRN}
+			providerRef := comproot.RootRef{CompID: result.Connection.ProviderExecID, CompRN: result.Connection.ProviderExecRN}
 			if providerRef.CompID == evalSnap.CompRef.CompID {
 				if providerRef.CompRN != evalSnap.CompRef.CompRN {
 					return fmt.Errorf("provider computation snapshot changed: expected revision %v, got %v", providerRef.CompRN, evalSnap.CompRef.CompRN)

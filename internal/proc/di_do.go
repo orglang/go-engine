@@ -7,7 +7,6 @@ import (
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/adt/descroot"
-	"orglang/go-engine/internal/adt/typesem"
 	"orglang/go-engine/internal/lib/entpgx"
 	compconn "orglang/go-engine/internal/proc/compconn/adapter"
 	compexec "orglang/go-engine/internal/proc/compexec/adapter"
@@ -40,13 +39,6 @@ var Package = do.Package(
 	termdec.Package,
 	termdef.Package,
 	typedef.Package,
-	do.Lazy[typesem.Repo](func(i do.Injector) (typesem.Repo, error) {
-		logger, err := do.Invoke[*slog.Logger](i)
-		if err != nil {
-			return nil, err
-		}
-		return typedef.NewTypeSemDaoPgx(logger), nil
-	}),
 )
 
 // RegisterRoutes resolves the process HTTP adapters and mounts the currently

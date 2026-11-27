@@ -15,87 +15,87 @@ import (
 
 func init() {
 	DataFromExecRec = func(source core.EvalRec) EvalRec {
-		var adapterExecRec EvalRec
-		adapterExecRec.CompID = identity.ConvertToString(source.CompRef.CompID)
-		adapterExecRec.CompRN = int64(source.CompRef.CompRN)
-		adapterExecRec.TermQN = uniqsym.ConvertToString(source.TermQN)
-		adapterExecRec.LiabMode = int16(source.LiabMode)
-		return adapterExecRec
+		var adapterEvalRec EvalRec
+		adapterEvalRec.CompID = identity.ConvertToString(source.CompRef.CompID)
+		adapterEvalRec.CompRN = int64(source.CompRef.CompRN)
+		adapterEvalRec.TermQN = uniqsym.ConvertToString(source.TermQN)
+		adapterEvalRec.LiabMode = int16(source.LiabMode)
+		return adapterEvalRec
 	}
 	DataFromExecSnap2 = func(source core.EvalSnap2) EvalSnap2 {
-		var adapterExecSnap2 EvalSnap2
-		adapterExecSnap2.CompID = identity.ConvertToString(source.CompRef.CompID)
-		adapterExecSnap2.CompRN = int64(source.CompRef.CompRN)
-		adapterExecSnap2.LiabMode = int16(source.LiabMode)
-		adapterExecSnap2.StructVars = adapter.DataFromStructRecs(source.StructVars)
-		adapterExecSnap2.LinearVars = adapter.DataFromLinearRecs(source.LinearVars)
-		return adapterExecSnap2
+		var adapterEvalSnap2 EvalSnap2
+		adapterEvalSnap2.CompID = identity.ConvertToString(source.CompRef.CompID)
+		adapterEvalSnap2.CompRN = int64(source.CompRef.CompRN)
+		adapterEvalSnap2.LiabMode = int16(source.LiabMode)
+		adapterEvalSnap2.StructVars = adapter.DataFromStructRecs(source.StructVars)
+		adapterEvalSnap2.LinearVars = adapter.DataFromLinearRecs(source.LinearVars)
+		return adapterEvalSnap2
 	}
 	DataToExecRec = func(source EvalRec) (core.EvalRec, error) {
-		var coreExecRec core.EvalRec
-		comprootSemRef, err := adapterExecRecToComprootSemRef(source)
+		var coreEvalRec core.EvalRec
+		comprootSemRef, err := adapterEvalRecToComprootSemRef(source)
 		if err != nil {
-			return coreExecRec, err
+			return coreEvalRec, err
 		}
-		coreExecRec.CompRef = comprootSemRef
+		coreEvalRec.CompRef = comprootSemRef
 		uniqsymADT, err := uniqsym.ConvertFromString(source.TermQN)
 		if err != nil {
-			return coreExecRec, err
+			return coreEvalRec, err
 		}
-		coreExecRec.TermQN = uniqsymADT
-		coreExecRec.LiabMode = compvar.Mode(source.LiabMode)
-		return coreExecRec, nil
+		coreEvalRec.TermQN = uniqsymADT
+		coreEvalRec.LiabMode = compvar.Mode(source.LiabMode)
+		return coreEvalRec, nil
 	}
 	DataToExecSnap2 = func(source EvalSnap2) (core.EvalSnap2, error) {
-		var coreExecSnap2 core.EvalSnap2
-		comprootSemRef, err := adapterExecSnap2ToComprootSemRef(source)
+		var coreEvalSnap2 core.EvalSnap2
+		comprootSemRef, err := adapterEvalSnap2ToComprootSemRef(source)
 		if err != nil {
-			return coreExecSnap2, err
+			return coreEvalSnap2, err
 		}
-		coreExecSnap2.CompRef = comprootSemRef
-		coreExecSnap2.LiabMode = compvar.Mode(source.LiabMode)
+		coreEvalSnap2.CompRef = comprootSemRef
+		coreEvalSnap2.LiabMode = compvar.Mode(source.LiabMode)
 		compvarStructRecList, err := adapter.DataToStructRecs(source.StructVars)
 		if err != nil {
-			return coreExecSnap2, err
+			return coreEvalSnap2, err
 		}
-		coreExecSnap2.StructVars = compvarStructRecList
+		coreEvalSnap2.StructVars = compvarStructRecList
 		compvarLinearRecList, err := adapter.DataToLinearRecs(source.LinearVars)
 		if err != nil {
-			return coreExecSnap2, err
+			return coreEvalSnap2, err
 		}
-		coreExecSnap2.LinearVars = compvarLinearRecList
-		return coreExecSnap2, nil
+		coreEvalSnap2.LinearVars = compvarLinearRecList
+		return coreEvalSnap2, nil
 	}
 	DataToRefMap = func(source map[uniqsym.ADT]EvalSnap2) (map[uniqsym.ADT]core.EvalSnap2, error) {
-		var mapUniqsymADTCoreExecSnap2 map[uniqsym.ADT]core.EvalSnap2
+		var mapUniqsymADTCoreEvalSnap2 map[uniqsym.ADT]core.EvalSnap2
 		if source != nil {
-			mapUniqsymADTCoreExecSnap2 = make(map[uniqsym.ADT]core.EvalSnap2, len(source))
+			mapUniqsymADTCoreEvalSnap2 = make(map[uniqsym.ADT]core.EvalSnap2, len(source))
 			for key, value := range source {
-				coreExecSnap2, err := DataToExecSnap2(value)
+				coreEvalSnap2, err := DataToExecSnap2(value)
 				if err != nil {
 					return nil, err
 				}
-				mapUniqsymADTCoreExecSnap2[key] = coreExecSnap2
+				mapUniqsymADTCoreEvalSnap2[key] = coreEvalSnap2
 			}
 		}
-		return mapUniqsymADTCoreExecSnap2, nil
+		return mapUniqsymADTCoreEvalSnap2, nil
 	}
 	DataToSnapMap = func(source map[uniqsym.ADT]EvalSnap1) (map[uniqsym.ADT]core.EvalSnap1, error) {
-		var mapUniqsymADTCoreExecSnap1 map[uniqsym.ADT]core.EvalSnap1
+		var mapUniqsymADTCoreEvalSnap1 map[uniqsym.ADT]core.EvalSnap1
 		if source != nil {
-			mapUniqsymADTCoreExecSnap1 = make(map[uniqsym.ADT]core.EvalSnap1, len(source))
+			mapUniqsymADTCoreEvalSnap1 = make(map[uniqsym.ADT]core.EvalSnap1, len(source))
 			for key, value := range source {
-				coreExecSnap1, err := DataToExecSnap1(value)
+				coreEvalSnap1, err := DataToExecSnap1(value)
 				if err != nil {
 					return nil, err
 				}
-				mapUniqsymADTCoreExecSnap1[key] = coreExecSnap1
+				mapUniqsymADTCoreEvalSnap1[key] = coreEvalSnap1
 			}
 		}
-		return mapUniqsymADTCoreExecSnap1, nil
+		return mapUniqsymADTCoreEvalSnap1, nil
 	}
 }
-func adapterExecRecToComprootSemRef(source EvalRec) (comproot.SemRef, error) {
+func adapterEvalRecToComprootSemRef(source EvalRec) (comproot.SemRef, error) {
 	var comprootSemRef comproot.SemRef
 	identityADT, err := identity.ConvertFromString(source.CompID)
 	if err != nil {
@@ -105,7 +105,7 @@ func adapterExecRecToComprootSemRef(source EvalRec) (comproot.SemRef, error) {
 	comprootSemRef.CompRN = seqnum.ADT(source.CompRN)
 	return comprootSemRef, nil
 }
-func adapterExecSnap2ToComprootSemRef(source EvalSnap2) (comproot.SemRef, error) {
+func adapterEvalSnap2ToComprootSemRef(source EvalSnap2) (comproot.SemRef, error) {
 	var comprootSemRef comproot.SemRef
 	identityADT, err := identity.ConvertFromString(source.CompID)
 	if err != nil {

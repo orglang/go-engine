@@ -12,21 +12,21 @@ import (
 
 func init() {
 	DataFromExecRec = func(source core.EvalRec) EvalRec {
-		var adapterExecRec EvalRec
-		adapterExecRec.CompID = identity.ConvertToString(source.CompRef.CompID)
-		adapterExecRec.CompRN = int64(source.CompRef.CompRN)
-		adapterExecRec.LiabMode = int16(source.LiabMode)
-		return adapterExecRec
+		var adapterEvalRec EvalRec
+		adapterEvalRec.CompID = identity.ConvertToString(source.CompRef.CompID)
+		adapterEvalRec.CompRN = int64(source.CompRef.CompRN)
+		adapterEvalRec.LiabMode = int16(source.LiabMode)
+		return adapterEvalRec
 	}
 	DataToExecRec = func(source EvalRec) (core.EvalRec, error) {
-		var coreExecRec core.EvalRec
+		var coreEvalRec core.EvalRec
 		comprootSemRef, err := dataToSemRef(source)
 		if err != nil {
-			return coreExecRec, err
+			return coreEvalRec, err
 		}
-		coreExecRec.CompRef = comprootSemRef
-		coreExecRec.LiabMode = compvar.Mode(source.LiabMode)
-		return coreExecRec, nil
+		coreEvalRec.CompRef = comprootSemRef
+		coreEvalRec.LiabMode = compvar.Mode(source.LiabMode)
+		return coreEvalRec, nil
 	}
 	dataToSemRef = func(source EvalRec) (comproot.SemRef, error) {
 		var comprootSemRef comproot.SemRef

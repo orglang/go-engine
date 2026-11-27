@@ -6,7 +6,7 @@ import (
 )
 
 func ConvertRecToRef(rec LinearRec) comproot.SemRef {
-	return rec.ExecRef
+	return rec.RootRef
 }
 
 func ConvertRecsToRefs(recs []LinearRec) []comproot.SemRef {

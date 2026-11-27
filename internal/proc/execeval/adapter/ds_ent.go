@@ -52,7 +52,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec execeval.EvalRe
 	return nil
 }
 
-func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref comproot.SemRef) (execeval.EvalSnap, error) {
+func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref comproot.RootRef) (execeval.EvalSnap, error) {
 	refAttr := slog.Any("ref", ref)
 	chnlRows, err := conn.Pgx.Query(ctx, selectChnls, ref.CompID.String())
 	if err != nil {

@@ -19,6 +19,7 @@ func init() {
 		adapterDefRec.DescID = identity.ConvertToString(source.TypeRef.DescID)
 		adapterDefRec.DescRN = seqnum.ConvertToInt(source.TypeRef.DescRN)
 		adapterDefRec.ExpCK = contkey.ConvertToInt(source.ExpCK)
+		adapterDefRec.TypeQN = uniqsym.ConvertToString(source.TypeQN)
 		return adapterDefRec, nil
 	}
 	DataFromDefRecs = func(source []core.DefRec) ([]DefRec, error) {
@@ -42,6 +43,11 @@ func init() {
 			return coreDefRec, err
 		}
 		coreDefRec.TypeRef = typesemSemRef
+		uniqsymADT, err := uniqsym.ConvertFromString(source.TypeQN)
+		if err != nil {
+			return coreDefRec, err
+		}
+		coreDefRec.TypeQN = uniqsymADT
 		contkeyADT, err := contkey.ConvertFromInt(source.ExpCK)
 		if err != nil {
 			return coreDefRec, err

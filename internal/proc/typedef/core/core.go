@@ -32,6 +32,7 @@ type DefSpec struct {
 
 // aka TpDef
 type DefRec struct {
+	TypeQN  uniqsym.ADT
 	TypeRef typesem.SemRef
 	ExpCK   contkey.ADT
 }

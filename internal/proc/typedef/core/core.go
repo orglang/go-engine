@@ -168,7 +168,7 @@ func (s *service) retrieveSnap(ctx context.Context, rec DefRec) (_ DefSnap, err 
 	}
 	return DefSnap{
 		TypeRef: rec.TypeRef,
-		DefSpec: DefSpec{TypeExp: ConvertRecToSpec(expRec)},
+		DefSpec: DefSpec{TypeQN: rec.TypeQN, TypeExp: ConvertRecToSpec(expRec)},
 	}, nil
 }
 

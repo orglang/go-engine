@@ -124,11 +124,11 @@ VALUES ($1, $2, 0)
 
 	selectSnapByRef = `
 WITH struct_vars AS (
-    SELECT var.exec_id, var.exec_rn, var.conn_id, var.chnl_id, var.chnl_ph, var.exp_ck, var.side
-    FROM pool_struct_vars var WHERE exec_id = $1
+    SELECT var.comp_id, var.comp_rn, var.conn_id, var.chnl_id, var.chnl_ph, var.exp_ck, var.side
+    FROM pool_struct_vars var WHERE comp_id = $1
 ), linear_vars AS (
-    SELECT var.exec_id, var.exec_rn, var.conn_id, var.chnl_id, var.chnl_ph, var.exp_ck, var.side
-    FROM pool_linear_vars var WHERE exec_id = $2
+    SELECT var.comp_id, var.comp_rn, var.conn_id, var.chnl_id, var.chnl_ph, var.exp_ck, var.side
+    FROM pool_linear_vars var WHERE comp_id = $2
 )
 SELECT exec.exec_id, exec.exec_rn, exec.liab_mode,
     (SELECT array_agg(row(r.*)) FROM struct_vars r) AS struct_vars,
@@ -138,17 +138,17 @@ FROM pool_exec_evals exec WHERE exec.exec_id = $3
 
 	selectSnapByQN = `
 SELECT sem.exec_id, sem.exec_rn, exec.liab_mode,
-    struct_var.exec_id, struct_var.exec_rn, struct_var.conn_id, struct_var.chnl_id,
+    struct_var.comp_id, struct_var.comp_rn, struct_var.conn_id, struct_var.chnl_id,
     struct_var.chnl_ph, struct_var.exp_ck, struct_var.side,
-    linear_var.exec_id, linear_var.exec_rn, linear_var.conn_id, linear_var.chnl_id,
+    linear_var.comp_id, linear_var.comp_rn, linear_var.conn_id, linear_var.chnl_id,
     linear_var.chnl_ph, linear_var.exp_ck, linear_var.side
 FROM pool_exec_evals sem
 JOIN pool_exec_evals exec ON exec.exec_id = sem.exec_id
-JOIN pool_struct_vars struct_var ON struct_var.exec_id = sem.exec_id AND struct_var.side = 1 AND exec.liab_mode = 1
-JOIN pool_linear_vars linear_var ON linear_var.exec_id = sem.exec_id AND linear_var.side = 1 AND exec.liab_mode = 2
+JOIN pool_struct_vars struct_var ON struct_var.comp_id = sem.exec_id AND struct_var.side = 1 AND exec.liab_mode = 1
+JOIN pool_linear_vars linear_var ON linear_var.comp_id = sem.exec_id AND linear_var.side = 1 AND exec.liab_mode = 2
 JOIN pool_impl_binds bind ON bind.impl_id = sem.exec_id
 WHERE bind.impl_qn = $1
-ORDER BY struct_var.exec_rn DESC, linear_var.exec_rn DESC
+ORDER BY struct_var.comp_rn DESC, linear_var.comp_rn DESC
 LIMIT 1
 `
 )

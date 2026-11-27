@@ -66,23 +66,23 @@ func (c *controllerEcho) PostSpec(ctx *echo.Context) error {
 	return ctx.JSON(http.StatusCreated, compRefToAPI(ref))
 }
 
-func poolExecSpecToCore(dto api.AnyEvalSpec) (compexec.ExecSpec, error) {
+func poolExecSpecToCore(dto api.AnyEvalSpec) (compexec.EvalSpec, error) {
 	termQN, err := uniqsym.ConvertFromString(dto.TermQn)
 	if err != nil {
-		return compexec.ExecSpec{}, err
+		return compexec.EvalSpec{}, err
 	}
 	liabVar, err := poolExecVarToCore(dto.LiabVar)
 	if err != nil {
-		return compexec.ExecSpec{}, err
+		return compexec.EvalSpec{}, err
 	}
 	assetVars := make([]compvar.VarSpec, len(dto.AssetVars))
 	for i, assetVar := range dto.AssetVars {
 		assetVars[i], err = poolExecVarToCore(assetVar)
 		if err != nil {
-			return compexec.ExecSpec{}, fmt.Errorf("asset_vars[%d]: %w", i, err)
+			return compexec.EvalSpec{}, fmt.Errorf("asset_vars[%d]: %w", i, err)
 		}
 	}
-	return compexec.ExecSpec{TermQN: termQN, LiabVar: liabVar, AssetVars: assetVars}, nil
+	return compexec.EvalSpec{TermQN: termQN, LiabVar: liabVar, AssetVars: assetVars}, nil
 }
 
 func poolExecVarToCore(dto api.AnyEvalVarSpec) (compvar.VarSpec, error) {

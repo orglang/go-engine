@@ -1,9 +1,9 @@
 package adapter
 
 import (
-	termdec "orglang/go-engine/internal/proc/termdec/core"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
+	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
 type DecSpecVP struct { TermQN string `form:"qn" json:"qn"` }

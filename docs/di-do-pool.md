@@ -14,7 +14,7 @@ The following repository ports are registered through `samber/do` v2:
 - `typeexp.Repo` backed by Ent.
 - `typedef.Repo` backed by Ent.
 - `termdef.Repo` backed by Ent.
-- The shared `descsem.Repo` used by the definition and execution services.
+- Description-qualified names are stored by the existing `typedef.Repo` and `termdef.Repo` adapters.
 - `compexec.API` with its process execution and ADT repository dependencies.
 - The asynchronous `compexec.Broker` backed by the shared pond worker pool.
 

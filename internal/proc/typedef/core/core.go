@@ -10,20 +10,17 @@ import (
 
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/descroot"
-	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/symbol"
-	"orglang/go-engine/internal/adt/typesem"
 	"orglang/go-engine/internal/adt/uniqsym"
 )
 
 type API interface {
 	Create(context.Context, DefSpec) (DefSnap, error)
 	Modify(context.Context, DefSnap) (DefSnap, error)
-	RetrieveSnap(context.Context, typesem.SemRef) (DefSnap, error)
-	retrieveSnap(context.Context, DefRec) (DefSnap, error)
-	RetreiveRefs(context.Context) ([]typesem.SemRef, error)
+	RetrieveSnap(context.Context, identity.ADT) (DefSnap, error)
+	RetreiveRefs(context.Context) ([]identity.ADT, error)
 }
 
 type DefSpec struct {
@@ -31,14 +28,16 @@ type DefSpec struct {
 	TypeExp ExpSpec
 }
 
-// aka TpDef
 type DefRec struct {
-	TypeRef typesem.SemRef
+	TypeQN  uniqsym.ADT
+	TypeID  identity.ADT
+	DescRef descroot.SemRef
 	ExpCK   contkey.ADT
 }
 
 type DefSnap struct {
-	TypeRef typesem.SemRef
+	TypeID  identity.ADT
+	DescRef descroot.SemRef
 	DefSpec DefSpec
 }
 
@@ -51,99 +50,63 @@ type service struct {
 	typeDefRepo  Repo
 	descRootRepo descroot.Repo
 	typeExpRepo  TypeExpRepo
-	descSemRepo  DescSemRepo
 	transactor   tx.Transactor
 	log          *slog.Logger
 }
 
-// for compilation purposes
-func newAPI() API {
-	return new(service)
-}
+func newAPI() API { return new(service) }
 
-func NewService(
-	typeDefRepo Repo,
-	descRootRepo descroot.Repo,
-	typeExpRepo TypeExpRepo,
-	descSemRepo DescSemRepo,
-	transactor tx.Transactor,
-	log *slog.Logger,
-) API {
-	return &service{typeDefRepo: typeDefRepo, descRootRepo: descRootRepo, typeExpRepo: typeExpRepo, descSemRepo: descSemRepo, transactor: transactor, log: log}
+func NewService(typeDefRepo Repo, descRootRepo descroot.Repo, typeExpRepo TypeExpRepo, transactor tx.Transactor, log *slog.Logger) API {
+	return &service{typeDefRepo: typeDefRepo, descRootRepo: descRootRepo, typeExpRepo: typeExpRepo, transactor: transactor, log: log}
 }
 
 func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err error) {
 	qnAttr := slog.Any("qn", spec.TypeQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	newExp, err := ConvertSpecToRec(spec.TypeExp)
-	if err != nil {
-		return DefSnap{}, err
-	}
-	newDef := DefRec{TypeRef: typesem.New(), ExpCK: newExp.Key()}
-	newRoot := descroot.SemRef{DescID: newDef.TypeRef.DescID, DescRN: newDef.TypeRef.DescRN}
-	newDesc := descsem.SemRec{DescQN: spec.TypeQN, DescID: newDef.TypeRef.TypeID, Kind: descsem.TypeKind}
+	if err != nil { return DefSnap{}, err }
+	newDef := DefRec{TypeID: identity.New(), DescRef: descroot.New(), TypeQN: spec.TypeQN, ExpCK: newExp.Key()}
 	err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		err = s.descRootRepo.AddRef(txCtx, conn, newRoot)
-		if err != nil {
-			return err
-		}
-		err = s.descSemRepo.AddRec(txCtx, conn, newDesc)
-		if err != nil {
-			return err
-		}
-		err = s.typeExpRepo.AddRec(txCtx, conn, newExp)
-		if err != nil {
-			return err
-		}
+		if err := s.descRootRepo.AddRef(txCtx, conn, newDef.DescRef); err != nil { return err }
+		if err := s.typeExpRepo.AddRec(txCtx, conn, newExp); err != nil { return err }
 		return s.typeDefRepo.AddRec(txCtx, conn, newDef)
 	})
 	if err != nil {
 		s.log.Error("creation failed", qnAttr)
 		return DefSnap{}, err
 	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", newDef.TypeRef))
-	return DefSnap{
-		TypeRef: newDef.TypeRef,
-		DefSpec: spec,
-	}, nil
+	s.log.Debug("creation succeed", qnAttr, slog.Any("typeID", newDef.TypeID), slog.Any("descRef", newDef.DescRef))
+	return DefSnap{TypeID: newDef.TypeID, DescRef: newDef.DescRef, DefSpec: spec}, nil
 }
 
 func (s *service) Modify(ctx context.Context, snap DefSnap) (_ DefSnap, err error) {
-	refAttr := slog.Any("defRef", snap.TypeRef)
+	refAttr := slog.Any("typeID", snap.TypeID)
 	s.log.Debug("modification started", refAttr)
 	rec, err := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DefRec, error) {
-		return s.typeDefRepo.GetRecByRef(txCtx, conn, snap.TypeRef)
+		return s.typeDefRepo.GetRecByID(txCtx, conn, snap.TypeID)
 	})
 	if err != nil {
 		s.log.Error("modification failed", refAttr)
 		return DefSnap{}, err
 	}
-	if snap.TypeRef.DescRN != rec.TypeRef.DescRN {
+	if snap.DescRef.DescRN != rec.DescRef.DescRN {
 		s.log.Error("modification failed", refAttr)
-		return DefSnap{}, errConcurrentModification(snap.TypeRef.DescRN, rec.TypeRef.DescRN)
+		return DefSnap{}, errConcurrentModification(snap.DescRef.DescRN, rec.DescRef.DescRN)
 	}
-	curSnap, err := s.retrieveSnap(ctx, rec)
+	curSnap, err := s.snapFromRec(ctx, rec)
 	if err != nil {
 		s.log.Error("modification failed", refAttr)
 		return DefSnap{}, err
 	}
-	if CheckSpec(snap.DefSpec.TypeExp, curSnap.DefSpec.TypeExp) == nil {
-		return curSnap, nil
-	}
+	if CheckSpec(snap.DefSpec.TypeExp, curSnap.DefSpec.TypeExp) == nil { return curSnap, nil }
 	newExp, err := ConvertSpecToRec(snap.DefSpec.TypeExp)
-	if err != nil {
-		return DefSnap{}, err
-	}
-	expectedRoot := descroot.SemRef{DescID: rec.TypeRef.DescID, DescRN: snap.TypeRef.DescRN}
-	snap.TypeRef.DescRN = seqnum.Next(snap.TypeRef.DescRN)
+	if err != nil { return DefSnap{}, err }
+	expectedRoot := descroot.SemRef{DescID: rec.DescRef.DescID, DescRN: snap.DescRef.DescRN}
+	snap.DescRef.DescRN = seqnum.Next(snap.DescRef.DescRN)
 	rec.ExpCK = newExp.Key()
 	err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		if err := s.descRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil {
-			return err
-		}
-		if err := s.typeExpRepo.AddRec(txCtx, conn, newExp); err != nil {
-			return err
-		}
+		if err := s.descRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil { return err }
+		if err := s.typeExpRepo.AddRec(txCtx, conn, newExp); err != nil { return err }
 		return s.typeDefRepo.ModifyRec(txCtx, conn, rec)
 	})
 	if err != nil {
@@ -154,34 +117,31 @@ func (s *service) Modify(ctx context.Context, snap DefSnap) (_ DefSnap, err erro
 	return snap, nil
 }
 
-func (s *service) RetrieveSnap(ctx context.Context, ref typesem.SemRef) (_ DefSnap, err error) {
+func (s *service) RetrieveSnap(ctx context.Context, id identity.ADT) (_ DefSnap, err error) {
 	rec, getErr := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DefRec, error) {
-		return s.typeDefRepo.GetRecByRef(txCtx, conn, ref)
+		return s.typeDefRepo.GetRecByID(txCtx, conn, id)
 	})
 	if getErr != nil {
-		s.log.Error("retrieval failed", slog.Any("ref", ref))
+		s.log.Error("retrieval failed", slog.Any("typeID", id))
 		return DefSnap{}, getErr
 	}
-	return s.retrieveSnap(ctx, rec)
+	return s.snapFromRec(ctx, rec)
 }
 
-func (s *service) retrieveSnap(ctx context.Context, rec DefRec) (_ DefSnap, err error) { // revive:disable-line:confusing-naming
+func (s *service) snapFromRec(ctx context.Context, rec DefRec) (_ DefSnap, err error) {
 	expRec, err := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (ExpRec, error) {
 		return s.typeExpRepo.SelectRecByCK(txCtx, conn, rec.ExpCK)
 	})
 	if err != nil {
-		s.log.Error("retrieval failed", slog.Any("ref", rec.TypeRef))
+		s.log.Error("retrieval failed", slog.Any("typeID", rec.TypeID))
 		return DefSnap{}, err
 	}
-	return DefSnap{
-		TypeRef: rec.TypeRef,
-		DefSpec: DefSpec{TypeExp: ConvertRecToSpec(expRec)},
-	}, nil
+	return DefSnap{TypeID: rec.TypeID, DescRef: rec.DescRef, DefSpec: DefSpec{TypeQN: rec.TypeQN, TypeExp: ConvertRecToSpec(expRec)}}, nil
 }
 
-func (s *service) RetreiveRefs(ctx context.Context) (refs []typesem.SemRef, err error) {
-	refs, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) ([]typesem.SemRef, error) {
-		return s.typeDefRepo.GetRefs(txCtx, conn)
+func (s *service) RetreiveRefs(ctx context.Context) (refs []identity.ADT, err error) {
+	refs, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) ([]identity.ADT, error) {
+		return s.typeDefRepo.GetIDs(txCtx, conn)
 	})
 	if err != nil {
 		s.log.Error("retrieval failed")
@@ -192,44 +152,18 @@ func (s *service) RetreiveRefs(ctx context.Context) (refs []typesem.SemRef, err 
 
 func CollectEnv(recs iter.Seq[DefRec]) []contkey.ADT {
 	expIDs := []contkey.ADT{}
-	for r := range recs {
-		expIDs = append(expIDs, r.ExpCK)
-	}
+	for r := range recs { expIDs = append(expIDs, r.ExpCK) }
 	return expIDs
 }
 
-func ErrSymMissingInEnv(want uniqsym.ADT) error {
-	return fmt.Errorf("root missing in env: %v", want)
-}
-
-func errConcurrentModification(got seqnum.ADT, want seqnum.ADT) error {
+func ErrSymMissingInEnv(want uniqsym.ADT) error { return fmt.Errorf("root missing in env: %v", want) }
+func errConcurrentModification(got, want seqnum.ADT) error {
 	return fmt.Errorf("entity concurrent modification: want revision %v, got revision %v", want, got)
 }
-
-func ErrOptimisticUpdate(got seqnum.ADT) error {
-	return fmt.Errorf("entity concurrent modification: got revision %v", got)
-}
-
-func ErrDoesNotExist(want identity.ADT) error {
-	return fmt.Errorf("root doesn't exist: %v", want)
-}
-
-func ErrMissingInEnv(want contkey.ADT) error {
-	return fmt.Errorf("exp missing in env: %v", want)
-}
-
-func ErrMissingInCfg(want identity.ADT) error {
-	return fmt.Errorf("root missing in cfg: %v", want)
-}
-
-func ErrMissingInCtx(want symbol.ADT) error {
-	return fmt.Errorf("root missing in ctx: %v", want)
-}
-
-func ErrPolarityUnexpected(got ExpRec) error {
-	return fmt.Errorf("root polarity unexpected: %v", got.Pol())
-}
-
-func ErrPolarityMismatch(a, b ExpRec) error {
-	return fmt.Errorf("root polarity mismatch: %v != %v", a.Pol(), b.Pol())
-}
+func ErrOptimisticUpdate(got seqnum.ADT) error { return fmt.Errorf("entity concurrent modification: got revision %v", got) }
+func ErrDoesNotExist(want identity.ADT) error { return fmt.Errorf("root doesn't exist: %v", want) }
+func ErrMissingInEnv(want contkey.ADT) error { return fmt.Errorf("exp missing in env: %v", want) }
+func ErrMissingInCfg(want identity.ADT) error { return fmt.Errorf("root missing in cfg: %v", want) }
+func ErrMissingInCtx(want symbol.ADT) error { return fmt.Errorf("root missing in ctx: %v", want) }
+func ErrPolarityUnexpected(got ExpRec) error { return fmt.Errorf("root polarity unexpected: %v", got.Pol()) }
+func ErrPolarityMismatch(a, b ExpRec) error { return fmt.Errorf("root polarity mismatch: %v != %v", a.Pol(), b.Pol()) }

@@ -8,25 +8,25 @@ import (
 	compexec "orglang/go-engine/internal/pool/compexec/core"
 )
 
-func DataToExecSnap1(dto ExecSnap1) (compexec.ExecSnap1, error) {
+func DataToExecSnap1(dto EvalSnap1) (compexec.EvalSnap1, error) {
 	ref, err := comprootadapter.DataToRef(dto.CompRef)
 	if err != nil {
-		return compexec.ExecSnap1{}, err
+		return compexec.EvalSnap1{}, err
 	}
 	mode := compvar.Mode(dto.LiabMode)
 	switch mode {
 	case compvar.StructMode:
 		rec, err := compvaradapter.DataToStructRec(*dto.StructVar)
 		if err != nil {
-			return compexec.ExecSnap1{}, err
+			return compexec.EvalSnap1{}, err
 		}
-		return compexec.ExecSnap1{CompRef: ref, LiabVar: rec}, nil
+		return compexec.EvalSnap1{CompRef: ref, LiabVar: rec}, nil
 	case compvar.LinearMode:
 		rec, err := compvaradapter.DataToLinearRec(*dto.LinearVar)
 		if err != nil {
-			return compexec.ExecSnap1{}, err
+			return compexec.EvalSnap1{}, err
 		}
-		return compexec.ExecSnap1{CompRef: ref, LiabVar: rec}, nil
+		return compexec.EvalSnap1{CompRef: ref, LiabVar: rec}, nil
 	default:
 		panic(compvar.ErrUnexpectedMode(mode))
 	}

@@ -11,24 +11,24 @@ import (
 )
 
 func init() {
-	DataFromExecRec = func(source core.ExecRec) ExecRec {
-		var adapterExecRec ExecRec
-		adapterExecRec.CompID = identity.ConvertToString(source.CompRef.CompID)
-		adapterExecRec.CompRN = int64(source.CompRef.CompRN)
-		adapterExecRec.LiabMode = int16(source.LiabMode)
-		return adapterExecRec
+	DataFromExecRec = func(source core.EvalRec) EvalRec {
+		var adapterEvalRec EvalRec
+		adapterEvalRec.CompID = identity.ConvertToString(source.CompRef.CompID)
+		adapterEvalRec.CompRN = int64(source.CompRef.CompRN)
+		adapterEvalRec.LiabMode = int16(source.LiabMode)
+		return adapterEvalRec
 	}
-	DataToExecRec = func(source ExecRec) (core.ExecRec, error) {
-		var coreExecRec core.ExecRec
+	DataToExecRec = func(source EvalRec) (core.EvalRec, error) {
+		var coreEvalRec core.EvalRec
 		comprootSemRef, err := dataToSemRef(source)
 		if err != nil {
-			return coreExecRec, err
+			return coreEvalRec, err
 		}
-		coreExecRec.CompRef = comprootSemRef
-		coreExecRec.LiabMode = compvar.Mode(source.LiabMode)
-		return coreExecRec, nil
+		coreEvalRec.CompRef = comprootSemRef
+		coreEvalRec.LiabMode = compvar.Mode(source.LiabMode)
+		return coreEvalRec, nil
 	}
-	dataToSemRef = func(source ExecRec) (comproot.SemRef, error) {
+	dataToSemRef = func(source EvalRec) (comproot.SemRef, error) {
 		var comprootSemRef comproot.SemRef
 		identityADT, err := identity.ConvertFromString(source.CompID)
 		if err != nil {

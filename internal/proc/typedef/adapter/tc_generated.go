@@ -25,8 +25,8 @@ func DefSpecFromGenerated(dto webapi.ProcTypeDefSpec) (typedef.DefSpec, error) {
 func DefSnapToGenerated(snap typedef.DefSnap) webapi.ProcTypeDefSnap {
 	return webapi.ProcTypeDefSnap{
 		Ref: webapi.AnyTypeRef{
-			TypeId: identity.ConvertToString(snap.TypeRef.TypeID),
-			DescRn: seqnum.ConvertToInt(snap.TypeRef.DescRN),
+			TypeId: identity.ConvertToString(snap.TypeID),
+			DescRn: seqnum.ConvertToInt(snap.DescRef.DescRN),
 		},
 		Spec: webapi.ProcTypeDefSpec{
 			TypeQn:   uniqsym.ConvertToString(snap.DefSpec.TypeQN),

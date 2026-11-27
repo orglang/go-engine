@@ -44,13 +44,13 @@ func (h *controllerEcho) CreatePoolTypeDefinition(c *echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	ref, err := h.api.Create(c.Request().Context(), typedef.DefSpec{TypeQN: qn, TypeExp: expr})
+	typeID, descRef, err := h.api.Create(c.Request().Context(), typedef.DefSpec{TypeQN: qn, TypeExp: expr})
 	if err != nil {
 		return err
 	}
 	return c.JSON(http.StatusCreated, webapi.AnyTypeRef{
-		TypeId: identity.ConvertToString(ref.TypeID),
-		DescRn: seqnum.ConvertToInt(ref.DescRN),
+		TypeId: identity.ConvertToString(typeID),
+		DescRn: seqnum.ConvertToInt(descRef.DescRN),
 	})
 }
 
@@ -64,61 +64,37 @@ func poolTypeExprToCore(dto webapi.PoolTypeExprSpec) (typedef.ExpSpec, error) {
 		return typedef.OneSpec{}, nil
 	case "link":
 		spec, err := dto.AsPoolTypeLinkSpec()
-		if err != nil {
-			return nil, err
-		}
+		if err != nil { return nil, err }
 		qn, err := uniqsym.ConvertFromString(spec.Link.TypeQn)
-		if err != nil {
-			return nil, err
-		}
+		if err != nil { return nil, err }
 		return typedef.LinkSpec{TypeQN: qn}, nil
 	case "plus":
 		spec, err := dto.AsPoolTypePlusSpec()
-		if err != nil {
-			return nil, err
-		}
+		if err != nil { return nil, err }
 		qns, err := poolTypeQNsToCore(spec.ProcQns)
-		if err != nil {
-			return nil, err
-		}
+		if err != nil { return nil, err }
 		cont, err := poolTypeExprToCore(spec.ContExpr)
-		if err != nil {
-			return nil, err
-		}
+		if err != nil { return nil, err }
 		return typedef.PlusSpec{ProcQNs: qns, ContExp: cont}, nil
 	case "with":
 		spec, err := dto.AsPoolTypeWithSpec()
-		if err != nil {
-			return nil, err
-		}
+		if err != nil { return nil, err }
 		qns, err := poolTypeQNsToCore(spec.ProcQns)
-		if err != nil {
-			return nil, err
-		}
+		if err != nil { return nil, err }
 		cont, err := poolTypeExprToCore(spec.ContExpr)
-		if err != nil {
-			return nil, err
-		}
+		if err != nil { return nil, err }
 		return typedef.WithSpec{ProcQNs: qns, ContExp: cont}, nil
 	case "up":
 		spec, err := dto.AsPoolTypeUpSpec()
-		if err != nil {
-			return nil, err
-		}
+		if err != nil { return nil, err }
 		cont, err := poolTypeExprToCore(spec.ContExpr)
-		if err != nil {
-			return nil, err
-		}
+		if err != nil { return nil, err }
 		return typedef.UpSpec{ContExp: cont}, nil
 	case "down":
 		spec, err := dto.AsPoolTypeDownSpec()
-		if err != nil {
-			return nil, err
-		}
+		if err != nil { return nil, err }
 		cont, err := poolTypeExprToCore(spec.ContExpr)
-		if err != nil {
-			return nil, err
-		}
+		if err != nil { return nil, err }
 		return typedef.DownSpec{ContExp: cont}, nil
 	default:
 		return nil, fmt.Errorf("unsupported pool type expression kind %q", kind)
@@ -129,9 +105,7 @@ func poolTypeQNsToCore(values []string) ([]uniqsym.ADT, error) {
 	result := make([]uniqsym.ADT, len(values))
 	for i, value := range values {
 		qn, err := uniqsym.ConvertFromString(value)
-		if err != nil {
-			return nil, err
-		}
+		if err != nil { return nil, err }
 		result[i] = qn
 	}
 	return result, nil

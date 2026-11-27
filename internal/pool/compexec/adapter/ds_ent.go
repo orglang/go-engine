@@ -33,7 +33,7 @@ func NewDaoEnt(client *ent.Client, log *slog.Logger) compexec.Repo {
 // for compilation purposes
 func newRepo() compexec.Repo { return new(daoEnt) }
 
-func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec compexec.ExecRec) error {
+func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec compexec.EvalRec) error {
 	dto := DataFromExecRec(rec)
 	refAttr := slog.Any("ref", rec.CompRef)
 	_, err := dao.client.CompExec.Create().
@@ -53,11 +53,11 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec compexec.ExecRe
 	return nil
 }
 
-func (dao *daoEnt) ModifyRec(context.Context, tx.Conn, compexec.ExecMod) error {
+func (dao *daoEnt) ModifyRec(context.Context, tx.Conn, compexec.EvalMod) error {
 	panic("unimplemented")
 }
 
-func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref comproot.SemRef) (compexec.ExecSnap2, error) {
+func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref comproot.SemRef) (compexec.EvalSnap2, error) {
 	refAttr := slog.Any("ref", ref)
 	rows, err := conn.Pgx.Query(ctx, selectSnapByRef,
 		comprootadapter.DataFromRef(ref).CompID,
@@ -66,27 +66,27 @@ func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref comproot.
 	)
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", selectSnapByRef))
-		return compexec.ExecSnap2{}, err
+		return compexec.EvalSnap2{}, err
 	}
 	defer rows.Close()
-	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[ExecSnap2])
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[EvalSnap2])
 	if err != nil {
 		dao.log.Error("rows scanning failed", refAttr, slog.Any("dto", dto))
-		return compexec.ExecSnap2{}, err
+		return compexec.EvalSnap2{}, err
 	}
 	rec, err := DataToExecSnap2(dto)
 	if err != nil {
 		dao.log.Error("model conversion failed", refAttr)
-		return compexec.ExecSnap2{}, err
+		return compexec.EvalSnap2{}, err
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("dto", dto))
 	return rec, nil
 }
 
-func (dao *daoEnt) GetSnapMapByQNs(ctx context.Context, conn tx.Conn, termQNs []uniqsym.ADT) (_ map[uniqsym.ADT]compexec.ExecSnap1, err error) {
+func (dao *daoEnt) GetSnapMapByQNs(ctx context.Context, conn tx.Conn, termQNs []uniqsym.ADT) (_ map[uniqsym.ADT]compexec.EvalSnap1, err error) {
 	dao.log.Log(ctx, lf.LevelTrace, "getting started", slog.Any("qns", termQNs))
 	if len(termQNs) == 0 {
-		return map[uniqsym.ADT]compexec.ExecSnap1{}, nil
+		return map[uniqsym.ADT]compexec.EvalSnap1{}, nil
 	}
 	batch := pgx.Batch{}
 	for _, termQN := range termQNs {
@@ -96,7 +96,7 @@ func (dao *daoEnt) GetSnapMapByQNs(ctx context.Context, conn tx.Conn, termQNs []
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	dtos := make(map[uniqsym.ADT]ExecSnap1, len(termQNs))
+	dtos := make(map[uniqsym.ADT]EvalSnap1, len(termQNs))
 	for _, termQN := range termQNs {
 		qnAttr := slog.Any("qn", termQN)
 		rows, readErr := br.Query()
@@ -104,7 +104,7 @@ func (dao *daoEnt) GetSnapMapByQNs(ctx context.Context, conn tx.Conn, termQNs []
 			dao.log.Error("query execution failed", qnAttr)
 			return nil, readErr
 		}
-		var dto ExecSnap1
+		var dto EvalSnap1
 		scanErr := pgxscan.ScanOne(&dto, rows)
 		if scanErr != nil {
 			dao.log.Error("row scanning failed", qnAttr)

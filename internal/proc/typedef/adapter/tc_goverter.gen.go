@@ -5,32 +5,20 @@ package adapter
 
 import (
 	contkey "orglang/go-engine/internal/adt/contkey"
+	descroot "orglang/go-engine/internal/adt/descroot"
 	identity "orglang/go-engine/internal/adt/identity"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
-	typesem "orglang/go-engine/internal/adt/typesem"
 	uniqsym "orglang/go-engine/internal/adt/uniqsym"
 	core "orglang/go-engine/internal/proc/typedef/core"
 )
 
 func init() {
-	ViewFromDefSnap = func(source core.DefSnap) DefSnapVP {
-		var adapterDefSnapVP DefSnapVP
-		adapterDefSnapVP.TypeRef = source.TypeRef
-		adapterDefSnapVP.DefSpec = coreDefSpecToAdapterDefSpecVP(source.DefSpec)
-		return adapterDefSnapVP
-	}
-}
-func coreDefSpecToAdapterDefSpecVP(source core.DefSpec) DefSpecVP {
-	var adapterDefSpecVP DefSpecVP
-	adapterDefSpecVP.TypeQN = uniqsym.ConvertToString(source.TypeQN)
-	return adapterDefSpecVP
-}
-func init() {
 	DataFromDefRec = func(source core.DefRec) (DefRec, error) {
 		var adapterDefRec DefRec
-		adapterDefRec.TypeID = identity.ConvertToString(source.TypeRef.TypeID)
-		adapterDefRec.DescID = identity.ConvertToString(source.TypeRef.DescID)
-		adapterDefRec.DescRN = seqnum.ConvertToInt(source.TypeRef.DescRN)
+		adapterDefRec.TypeQN = uniqsym.ConvertToString(source.TypeQN)
+		adapterDefRec.TypeID = identity.ConvertToString(source.TypeID)
+		adapterDefRec.DescID = identity.ConvertToString(source.DescRef.DescID)
+		adapterDefRec.DescRN = seqnum.ConvertToInt(source.DescRef.DescRN)
 		adapterDefRec.ExpCK = contkey.ConvertToInt(source.ExpCK)
 		return adapterDefRec, nil
 	}
@@ -50,11 +38,21 @@ func init() {
 	}
 	DataToDefRec = func(source DefRec) (core.DefRec, error) {
 		var coreDefRec core.DefRec
-		typesemSemRef, err := adapterDefRecToTypesemSemRef(source)
+		uniqsymADT, err := uniqsym.ConvertFromString(source.TypeQN)
 		if err != nil {
 			return coreDefRec, err
 		}
-		coreDefRec.TypeRef = typesemSemRef
+		coreDefRec.TypeQN = uniqsymADT
+		identityADT, err := identity.ConvertFromString(source.TypeID)
+		if err != nil {
+			return coreDefRec, err
+		}
+		coreDefRec.TypeID = identityADT
+		descrootSemRef, err := adapterDefRecToDescrootSemRef(source)
+		if err != nil {
+			return coreDefRec, err
+		}
+		coreDefRec.DescRef = descrootSemRef
 		contkeyADT, err := contkey.ConvertFromInt(source.ExpCK)
 		if err != nil {
 			return coreDefRec, err
@@ -77,18 +75,13 @@ func init() {
 		return coreDefRecList, nil
 	}
 }
-func adapterDefRecToTypesemSemRef(source DefRec) (typesem.SemRef, error) {
-	var typesemSemRef typesem.SemRef
-	identityADT, err := identity.ConvertFromString(source.TypeID)
+func adapterDefRecToDescrootSemRef(source DefRec) (descroot.SemRef, error) {
+	var descrootSemRef descroot.SemRef
+	identityADT, err := identity.ConvertFromString(source.DescID)
 	if err != nil {
-		return typesemSemRef, err
+		return descrootSemRef, err
 	}
-	typesemSemRef.TypeID = identityADT
-	identityADT2, err := identity.ConvertFromString(source.DescID)
-	if err != nil {
-		return typesemSemRef, err
-	}
-	typesemSemRef.DescID = identityADT2
-	typesemSemRef.DescRN = seqnum.ConvertFromInt(source.DescRN)
-	return typesemSemRef, nil
+	descrootSemRef.DescID = identityADT
+	descrootSemRef.DescRN = seqnum.ConvertFromInt(source.DescRN)
+	return descrootSemRef, nil
 }

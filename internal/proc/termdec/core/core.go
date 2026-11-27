@@ -4,8 +4,8 @@ import (
 	"context"
 	"iter"
 
+	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/identity"
-	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/tx"
@@ -18,35 +18,34 @@ type DecSpec struct {
 }
 
 type DecRec struct {
-	TermRef   termsem.SemRef
+	TermID    identity.ADT
+	DescRef   descroot.SemRef
 	TermQN    uniqsym.ADT
 	LiabVar   termvar.VarRec
 	AssetVars []termvar.VarRec
 }
 
 type DecSnap struct {
-	TermRef   termsem.SemRef
+	TermID    identity.ADT
+	DescRef   descroot.SemRef
 	LiabVar   termvar.VarRec
 	AssetVars []termvar.VarRec
 }
 
 type Repo interface {
 	AddRec(context.Context, tx.Conn, DecRec) error
-	GetRefs(context.Context, tx.Conn) ([]termsem.SemRef, error)
+	GetIDs(context.Context, tx.Conn) ([]identity.ADT, error)
 	GetQNByID(context.Context, tx.Conn, identity.ADT) (uniqsym.ADT, error)
-	GetSnap(context.Context, tx.Conn, termsem.SemRef) (DecSnap, error)
+	GetSnap(context.Context, tx.Conn, identity.ADT) (DecSnap, error)
 	GetRecs(context.Context, tx.Conn, []identity.ADT) ([]DecRec, error)
 	SelectEnv(context.Context, tx.Conn, []identity.ADT) (map[identity.ADT]DecRec, error)
 }
 
-func CollectEnv(recs iter.Seq[DecRec]) []uniqsym.ADT {
-	return []uniqsym.ADT{}
-}
+func CollectEnv(recs iter.Seq[DecRec]) []uniqsym.ADT { return []uniqsym.ADT{} }
 
-// API exposes the process Declaration application operations.
 type API interface {
-	Incept(context.Context, uniqsym.ADT) (termsem.SemRef, error)
+	Incept(context.Context, uniqsym.ADT) (identity.ADT, descroot.SemRef, error)
 	Create(context.Context, DecSpec) (DecSnap, error)
-	RetrieveSnap(context.Context, termsem.SemRef) (DecSnap, error)
-	RetreiveRefs(context.Context) ([]termsem.SemRef, error)
+	RetrieveSnap(context.Context, identity.ADT) (DecSnap, error)
+	RetreiveRefs(context.Context) ([]identity.ADT, error)
 }

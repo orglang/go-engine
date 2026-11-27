@@ -48,13 +48,13 @@ func (h *controllerEcho) CreatePoolDeclaration(c *echo.Context) error {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 	}
-	ref, err := h.api.Create(c.Request().Context(), core.DecSpec{TermQN: qn, LiabVar: liabVar, AssetVars: assetVars})
+	termID, descRef, err := h.api.Create(c.Request().Context(), core.DecSpec{TermQN: qn, LiabVar: liabVar, AssetVars: assetVars})
 	if err != nil {
 		return err
 	}
 	return c.JSON(http.StatusCreated, webapi.AnyTermRef{
-		TermId: identity.ConvertToString(ref.TermID),
-		DescRn: seqnum.ConvertToInt(ref.DescRN),
+		TermId: identity.ConvertToString(termID),
+		DescRn: seqnum.ConvertToInt(descRef.DescRN),
 	})
 }
 

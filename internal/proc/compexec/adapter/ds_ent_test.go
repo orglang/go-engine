@@ -20,7 +20,7 @@ type batchExecErrorPgx struct {
 }
 
 func (p batchExecErrorPgx) Exec(context.Context, string, ...any) (pgconn.CommandTag, error) {
-	panic("unexpected Exec")
+	panic("unexpected Eval")
 }
 
 func (p batchExecErrorPgx) Query(context.Context, string, ...any) (pgx.Rows, error) {
@@ -65,7 +65,7 @@ func TestModifyRecReturnsBatchExecError(t *testing.T) {
 	}
 	conn := tx.Conn{Pgx: batchExecErrorPgx{batch: batch}}
 
-	err := dao.ModifyRec(context.Background(), conn, compexec.ExecMod{
+	err := dao.ModifyRec(context.Background(), conn, compexec.EvalMod{
 		CompRefs: []comproot.SemRef{comproot.New()},
 	})
 	if !errors.Is(err, execErr) {

@@ -14,7 +14,6 @@ import (
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/symbol"
-	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/app/web/api"
 	compexec "orglang/go-engine/internal/pool/compexec/core"
@@ -67,23 +66,23 @@ func (c *controllerEcho) PostSpec(ctx *echo.Context) error {
 	return ctx.JSON(http.StatusCreated, compRefToAPI(ref))
 }
 
-func poolExecSpecToCore(dto api.AnyEvalSpec) (compexec.ExecSpec, error) {
+func poolExecSpecToCore(dto api.AnyEvalSpec) (compexec.EvalSpec, error) {
 	termQN, err := uniqsym.ConvertFromString(dto.TermQn)
 	if err != nil {
-		return compexec.ExecSpec{}, err
+		return compexec.EvalSpec{}, err
 	}
 	liabVar, err := poolExecVarToCore(dto.LiabVar)
 	if err != nil {
-		return compexec.ExecSpec{}, err
+		return compexec.EvalSpec{}, err
 	}
 	assetVars := make([]compvar.VarSpec, len(dto.AssetVars))
 	for i, assetVar := range dto.AssetVars {
 		assetVars[i], err = poolExecVarToCore(assetVar)
 		if err != nil {
-			return compexec.ExecSpec{}, fmt.Errorf("asset_vars[%d]: %w", i, err)
+			return compexec.EvalSpec{}, fmt.Errorf("asset_vars[%d]: %w", i, err)
 		}
 	}
-	return compexec.ExecSpec{TermQN: termQN, LiabVar: liabVar, AssetVars: assetVars}, nil
+	return compexec.EvalSpec{TermQN: termQN, LiabVar: liabVar, AssetVars: assetVars}, nil
 }
 
 func poolExecVarToCore(dto api.AnyEvalVarSpec) (compvar.VarSpec, error) {
@@ -163,12 +162,12 @@ func compRefToAPI(ref comproot.SemRef) api.AnyCompRef {
 	}
 }
 
-func termRefFromAPI(dto api.AnyTermRef) (termsem.SemRef, error) {
+func termRefFromAPI(dto api.AnyTermRef) (identity.ADT, seqnum.ADT, error) {
 	id, err := identity.ConvertFromString(dto.TermId)
 	if err != nil {
-		return termsem.SemRef{}, err
+		return identity.ADT{}, 0, err
 	}
-	return termsem.SemRef{TermID: id, DescRN: seqnum.ConvertFromInt(dto.DescRn)}, nil
+	return id, seqnum.ConvertFromInt(dto.DescRn), nil
 }
 
 func poolTermExprToCore(dto api.PoolTermExprSpec) (compexec.ExpSpec, error) {
@@ -303,7 +302,7 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (compexec.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		termRef, err := termRefFromAPI(value.ProcDr)
+		termID, termRN, err := termRefFromAPI(value.ProcDr)
 		if err != nil {
 			return nil, err
 		}
@@ -314,7 +313,7 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (compexec.ExpSpec, error) {
 				return nil, fmt.Errorf("proc_irs[%d]: %w", i, err)
 			}
 		}
-		return compexec.SpawnSpec2{ProcTermRef: termRef, ProcCompRefs: compRefs}, nil
+		return compexec.SpawnSpec2{ProcTermID: termID, ProcTermRN: termRN, ProcCompRefs: compRefs}, nil
 	default:
 		return nil, fmt.Errorf("pool_expr: unsupported kind %q", discriminator.Kind)
 	}

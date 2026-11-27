@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"orglang/go-engine/internal/adt/identity"
-	"orglang/go-engine/internal/adt/termsem"
+	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/tx"
@@ -17,13 +17,15 @@ type DecSpec struct {
 }
 
 type DecRec struct {
-	TermRef   termsem.SemRef
+	TermQN    uniqsym.ADT
+	TermID    identity.ADT
+	DescRef   descroot.SemRef
 	LiabVar   termvar.VarRec
 	AssetVars []termvar.VarRec
 }
 
 type API interface {
-	Create(context.Context, DecSpec) (termsem.SemRef, error)
+	Create(context.Context, DecSpec) (identity.ADT, descroot.SemRef, error)
 }
 
 type Repo interface {

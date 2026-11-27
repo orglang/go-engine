@@ -46,5 +46,5 @@ func (h *controllerEcho) GetProcessExecution(c *echo.Context, id string, params 
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, ExecSnapToGenerated(snap))
+	return c.JSON(http.StatusOK, EvalSnapToGenerated(snap))
 }

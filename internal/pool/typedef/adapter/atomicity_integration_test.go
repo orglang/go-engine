@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
 	"orglang/go-engine/internal/adt/uniqsym"
 	dbadapter "orglang/go-engine/internal/lib/db/adapter"
 	"orglang/go-engine/internal/lib/entpgx"
@@ -63,11 +62,9 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 	})
 
 	typeDefRepo := NewDaoEnt(entClient, logger)
-	descSemRepo := descsemadapter.NewDaoPgx("pool_desc_binds")(logger)
 	service := typedef.NewService(
 		typeDefRepo,
 		descrootadapter.NewDaoEnt(entClient, logger),
-		descSemRepo,
 		dbadapter.NewTransactorPgx(pool),
 		logger,
 	)
@@ -76,7 +73,7 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 	if err != nil {
 		t.Fatalf("create type qualified name: %v", err)
 	}
-	_, err = service.Create(ctx, typedef.DefSpec{
+	_, _, err = service.Create(ctx, typedef.DefSpec{
 		TypeQN:  typeQN,
 		TypeExp: typedef.OneSpec{},
 	})
@@ -148,7 +145,6 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 	service := typedef.NewService(
 		NewDaoEnt(entClient, logger),
 		descrootadapter.NewDaoEnt(entClient, logger),
-		descsemadapter.NewDaoPgx("pool_desc_binds")(logger),
 		dbadapter.NewTransactorPgx(pool),
 		logger,
 	)
@@ -157,14 +153,14 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 	if err != nil {
 		t.Fatalf("create type qualified name: %v", err)
 	}
-	ref, err := service.Create(ctx, typedef.DefSpec{
+	typeID, descRef, err := service.Create(ctx, typedef.DefSpec{
 		TypeQN:  typeQN,
 		TypeExp: typedef.OneSpec{},
 	})
 	if err != nil {
 		t.Fatalf("Create() error = %v, want nil", err)
 	}
-	if ref.TypeID.IsEmpty() {
+	if typeID.IsEmpty() {
 		t.Fatal("Create() returned an empty type ID")
 	}
 
@@ -176,12 +172,12 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 
 	var descBindCount, descRootCount, typeExpCount, typeDefCount int
 	err = verifyConn.QueryRow(ctx,
-		"SELECT count(*) FROM pool_desc_binds WHERE desc_id = $1", ref.TypeID.String(),
+		"SELECT count(*) FROM pool_desc_binds WHERE desc_id = $1", typeID.String(),
 	).Scan(&descBindCount)
 	if err != nil {
 		t.Fatalf("count descriptor bindings: %v", err)
 	}
-	err = verifyConn.QueryRow(ctx, "SELECT count(*) FROM pool_desc_roots WHERE desc_id = $1", ref.DescID.String()).Scan(&descRootCount)
+	err = verifyConn.QueryRow(ctx, "SELECT count(*) FROM pool_desc_roots WHERE desc_id = $1", descRef.DescID.String()).Scan(&descRootCount)
 	if err != nil {
 		t.Fatalf("count Description roots: %v", err)
 	}
@@ -190,7 +186,7 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 		t.Fatalf("count type expressions: %v", err)
 	}
 	err = verifyConn.QueryRow(ctx,
-		"SELECT count(*) FROM pool_type_defs WHERE type_id = $1 AND desc_id = $2", ref.TypeID.String(), ref.DescID.String(),
+		"SELECT count(*) FROM pool_type_defs WHERE type_id = $1 AND desc_id = $2", typeID.String(), descRef.DescID.String(),
 	).Scan(&typeDefCount)
 	if err != nil {
 		t.Fatalf("count type definitions: %v", err)

@@ -7,8 +7,6 @@ import (
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/adt/descroot"
-	"orglang/go-engine/internal/adt/descsem"
-	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/wp"
 	compconn "orglang/go-engine/internal/pool/compconn/adapter"
@@ -42,13 +40,6 @@ var Package = do.Package(
 			return nil, err
 		}
 		return descrootadapter.NewDaoEnt(client, logger), nil
-	}),
-	do.LazyNamed[descsem.Repo]("pool-descsem", func(i do.Injector) (descsem.Repo, error) {
-		logger, err := do.Invoke[*slog.Logger](i)
-		if err != nil {
-			return nil, err
-		}
-		return descsemadapter.NewDaoPgx("pool_desc_binds ")(logger), nil
 	}),
 )
 

@@ -10,23 +10,24 @@ import (
 
 	"github.com/labstack/echo/v5"
 
-	"orglang/go-engine/internal/adt/termsem"
+	"orglang/go-engine/internal/adt/descroot"
+	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/uniqsym"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
 type generatedDeclarationAPIStub struct{}
 
-func (generatedDeclarationAPIStub) Incept(context.Context, uniqsym.ADT) (termsem.SemRef, error) {
-	return termsem.SemRef{}, nil
+func (generatedDeclarationAPIStub) Incept(context.Context, uniqsym.ADT) (identity.ADT, descroot.SemRef, error) {
+	return identity.ADT{}, descroot.SemRef{}, nil
 }
 func (generatedDeclarationAPIStub) Create(context.Context, termdec.DecSpec) (termdec.DecSnap, error) {
 	return termdec.DecSnap{}, nil
 }
-func (generatedDeclarationAPIStub) RetrieveSnap(context.Context, termsem.SemRef) (termdec.DecSnap, error) {
+func (generatedDeclarationAPIStub) RetrieveSnap(context.Context, identity.ADT) (termdec.DecSnap, error) {
 	return termdec.DecSnap{}, nil
 }
-func (generatedDeclarationAPIStub) RetreiveRefs(context.Context) ([]termsem.SemRef, error) {
+func (generatedDeclarationAPIStub) RetreiveRefs(context.Context) ([]identity.ADT, error) {
 	return nil, nil
 }
 

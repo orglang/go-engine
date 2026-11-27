@@ -8,24 +8,23 @@ import (
 	identity "orglang/go-engine/internal/adt/identity"
 	symbol "orglang/go-engine/internal/adt/symbol"
 	termvar "orglang/go-engine/internal/adt/termvar"
-	typesem "orglang/go-engine/internal/adt/typesem"
 )
 
 func init() {
 	DataFromVarRec = func(source termvar.VarRec) (VarRec, error) {
 		var adapterVarRec VarRec
-		adapterVarRec.TypeID = identity.ConvertToString(source.TypeRef.TypeID)
+		adapterVarRec.TypeID = identity.ConvertToString(source.TypeID)
 		adapterVarRec.ChnlPH = symbol.ConvertToString(source.ChnlPH)
 		adapterVarRec.ExpCK = int64(source.ExpCK)
 		return adapterVarRec, nil
 	}
 	DataToVarRec = func(source VarRec) (termvar.VarRec, error) {
 		var termvarVarRec termvar.VarRec
-		typesemSemRef, err := dataToTypeRef(source)
+		identityADT, err := identity.ConvertFromString(source.TypeID)
 		if err != nil {
 			return termvarVarRec, err
 		}
-		termvarVarRec.TypeRef = typesemSemRef
+		termvarVarRec.TypeID = identityADT
 		symbolADT, err := symbol.ConvertFromString(source.ChnlPH)
 		if err != nil {
 			return termvarVarRec, err
@@ -33,14 +32,5 @@ func init() {
 		termvarVarRec.ChnlPH = symbolADT
 		termvarVarRec.ExpCK = contkey.ADT(source.ExpCK)
 		return termvarVarRec, nil
-	}
-	dataToTypeRef = func(source VarRec) (typesem.SemRef, error) {
-		var typesemSemRef typesem.SemRef
-		identityADT, err := identity.ConvertFromString(source.TypeID)
-		if err != nil {
-			return typesemSemRef, err
-		}
-		typesemSemRef.TypeID = identityADT
-		return typesemSemRef, nil
 	}
 }

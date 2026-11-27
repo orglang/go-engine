@@ -8,7 +8,7 @@ import (
 )
 
 type Repo interface {
-	AddRec(context.Context, tx.Conn, ExecRec) error
-	ModifyRec(context.Context, tx.Conn, ExecMod) error
-	GetSnapByRef(context.Context, tx.Conn, comproot.SemRef) (ExecSnap, error)
+	AddRec(context.Context, tx.Conn, EvalRec) error
+	ModifyRec(context.Context, tx.Conn, EvalMod) error
+	GetSnapByRef(context.Context, tx.Conn, comproot.SemRef) (EvalSnap, error)
 }

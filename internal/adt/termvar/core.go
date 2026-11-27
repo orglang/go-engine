@@ -2,8 +2,8 @@ package termvar
 
 import (
 	"orglang/go-engine/internal/adt/contkey"
+	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
-	"orglang/go-engine/internal/adt/typesem"
 	"orglang/go-engine/internal/adt/uniqsym"
 )
 
@@ -19,7 +19,7 @@ type VarSpec struct {
 // machine-readable record of term variable
 // машиночитаемая запись переменной терма
 type VarRec struct {
-	TypeRef typesem.SemRef
-	ChnlPH  symbol.ADT
-	ExpCK   contkey.ADT
+	TypeID identity.ADT
+	ChnlPH symbol.ADT
+	ExpCK  contkey.ADT
 }

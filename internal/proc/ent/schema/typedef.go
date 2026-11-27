@@ -5,8 +5,6 @@ import (
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
-
-	"orglang/go-engine/internal/adt/typesem/adapter/entschema"
 )
 
 type TypeDef struct {
@@ -14,15 +12,11 @@ type TypeDef struct {
 }
 
 // Mixin of the TypeDef.
-func (TypeDef) Mixin() []ent.Mixin {
-	return []ent.Mixin{
-		entschema.TypeSemMixin{},
-	}
-}
-
 // Fields of the TypeDef.
 func (TypeDef) Fields() []ent.Field {
 	return []ent.Field{
+		field.String("id").StorageKey("type_id").Immutable(),
+		field.String("desc_id"),
 		field.Int64("exp_ck"),
 	}
 }

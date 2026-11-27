@@ -34,6 +34,7 @@ description = "Verify generated sources, formatting, lint, and analysis"
 depends = ["specs:gate"]
 run = [
   { task = "sources:prepare" },
+  "git status --short -- ':(glob)**/*.gen.go' ':(glob)**/ent/**'",
   "test -z \"$(git status --porcelain -- ':(glob)**/*.gen.go' ':(glob)**/ent/**')\"",
   "golangci-lint fmt --diff",
   { task = "sources:lint" },

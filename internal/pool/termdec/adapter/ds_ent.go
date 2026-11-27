@@ -9,7 +9,7 @@ import (
 
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
-	"orglang/go-engine/internal/adt/termsem"
+	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/termvar"
 	termvaradapter "orglang/go-engine/internal/adt/termvar/adapter"
 	"orglang/go-engine/internal/adt/uniqsym"
@@ -31,7 +31,7 @@ func NewDaoEnt(client *ent.Client, log *slog.Logger) termdec.Repo {
 }
 
 func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdec.DecRec) error {
-	refAttr := slog.Any("ref", rec.TermRef)
+	refAttr := slog.Any("termID", rec.TermID)
 	liabVar, err := termvaradapter.DataFromVarRec(rec.LiabVar)
 	if err != nil {
 		return err
@@ -44,13 +44,21 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdec.DecRec)
 		}
 	}
 	_, err = dao.client.TermDec.Create().
-		SetID(rec.TermRef.TermID.String()).
-		SetDescID(rec.TermRef.DescID.String()).
+		SetID(rec.TermID.String()).
+		SetDescID(rec.DescRef.DescID.String()).
 		SetLiabVar(liabVar).
 		SetAssetVars(assetVars).
 		Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)
+		return err
+	}
+	const bindQuery = `
+INSERT INTO pool_desc_binds (desc_qn, desc_id, kind)
+VALUES ($1, $2, 2)
+`
+	if _, err := conn.Pgx.Exec(ctx, bindQuery, uniqsym.ConvertToString(rec.TermQN), rec.TermID.String()); err != nil {
+		dao.log.Error("description binding insertion failed", refAttr, slog.Any("error", err))
 		return err
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "declaration addition succeeded", refAttr)
@@ -94,7 +102,9 @@ WHERE bind.desc_qn = $1
 		}
 	}
 	return termdec.DecRec{
-		TermRef:   termsem.SemRef{TermID: termID, DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)},
+		TermQN:    qn,
+		TermID: termID,
+		DescRef: descroot.SemRef{DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)},
 		LiabVar:   liabVar,
 		AssetVars: assetVars,
 	}, nil

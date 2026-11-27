@@ -30,7 +30,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec)
 	if err := dao.addExpRec(ctx, conn, rec.TypeExp); err != nil {
 		return err
 	}
-	refAttr := slog.Any("ref", rec.TypeRef)
+	refAttr := slog.Any("typeID", rec.TypeID)
 	dao.log.Log(ctx, lf.LevelTrace, "addition started", refAttr)
 
 	dto, err := DataFromDefRec(rec)
@@ -49,6 +49,15 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec)
 		return err
 	}
 
+	const bindQuery = `
+INSERT INTO pool_desc_binds (desc_qn, desc_id, kind)
+VALUES ($1, $2, 1)
+`
+	if _, err := conn.Pgx.Exec(ctx, bindQuery, uniqsym.ConvertToString(rec.TypeQN), rec.TypeID.String()); err != nil {
+		dao.log.Error("description binding insertion failed", refAttr, slog.Any("error", err))
+		return err
+	}
+
 	dao.log.Log(ctx, lf.LevelTrace, "addition succeed", refAttr)
 	return nil
 }
@@ -58,7 +67,7 @@ func (dao *daoEnt) GetRecsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 		return map[uniqsym.ADT]typedef.DefRec{}, nil
 	}
 	const query = `
-SELECT td.type_id, td.desc_id, dr.desc_rn AS desc_rn, td.exp_ck
+SELECT db.desc_qn AS type_qn, td.type_id, td.desc_id, dr.desc_rn AS desc_rn, td.exp_ck
 FROM pool_type_defs AS td
 JOIN pool_desc_roots AS dr
     ON dr.desc_id = td.desc_id
@@ -91,6 +100,7 @@ WHERE db.desc_qn = $1
 		return nil, err
 	}
 	for qn, rec := range recs {
+		rec.TypeQN = qn
 		exp, err := dao.getRecByCK(ctx, conn, rec.ExpCK)
 		if err != nil {
 			return nil, err

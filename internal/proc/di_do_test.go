@@ -6,7 +6,6 @@ import (
 
 	"github.com/samber/do/v2"
 
-	"orglang/go-engine/internal/adt/typesem"
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 	compconn "orglang/go-engine/internal/proc/compconn/core"
@@ -58,14 +57,6 @@ func TestPackageProvidesPersistencePorts(t *testing.T) {
 		}},
 		{"type-definition expression repository", func() error {
 			_, err := do.Invoke[typedef.TypeExpRepo](injector)
-			return err
-		}},
-		{"shared type-semantic repository", func() error {
-			_, err := do.Invoke[typesem.Repo](injector)
-			return err
-		}},
-		{"process description-semantic repository", func() error {
-			_, err := do.Invoke[typedef.DescSemRepo](injector)
 			return err
 		}},
 	}

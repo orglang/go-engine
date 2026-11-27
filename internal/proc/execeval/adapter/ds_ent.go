@@ -115,8 +115,8 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execeval.Eva
 	execReq := pgx.Batch{}
 	for _, dto := range dto.CompRefs {
 		args := pgx.NamedArgs{
-			"comp_id": dto.CompID,
-			"comp_rn": dto.CompRN,
+			"exec_id": dto.CompID,
+			"exec_rn": dto.CompRN,
 		}
 		execReq.Queue(updateExec, args)
 	}
@@ -150,9 +150,9 @@ INSERT INTO proc_binds (
 
 	updateExec = `
 UPDATE proc_exec_evals
-SET comp_rn = @comp_rn + 1
-WHERE comp_id = @comp_id
-    AND comp_rn = @comp_rn
+SET exec_rn = @exec_rn + 1
+WHERE exec_id = @exec_id
+    AND exec_rn = @exec_rn
 `
 
 	selectChnls = `

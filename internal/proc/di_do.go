@@ -8,7 +8,7 @@ import (
 
 	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/lib/entpgx"
-	compconn "orglang/go-engine/internal/proc/compconn/adapter"
+	execconn "orglang/go-engine/internal/proc/execconn/adapter"
 	descrootadapter "orglang/go-engine/internal/proc/descroot/adapter"
 	"orglang/go-engine/internal/proc/ent"
 	execeval "orglang/go-engine/internal/proc/execeval/adapter"
@@ -23,7 +23,7 @@ var Package = do.Package(
 	do.Lazy[*ent.Client](func(do.Injector) (*ent.Client, error) {
 		return ent.NewClient(ent.Driver(entpgx.New())), nil
 	}),
-	compconn.Package,
+	execconn.Package,
 	do.LazyNamed[descroot.Repo]("proc-descroot", func(i do.Injector) (descroot.Repo, error) {
 		client, err := do.Invoke[*ent.Client](i)
 		if err != nil {

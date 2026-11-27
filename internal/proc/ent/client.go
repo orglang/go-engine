@@ -11,7 +11,7 @@ import (
 
 	"orglang/go-engine/internal/proc/ent/migrate"
 
-	"orglang/go-engine/internal/proc/ent/compconn"
+	"orglang/go-engine/internal/proc/ent/execconn"
 	"orglang/go-engine/internal/proc/ent/descroot"
 	"orglang/go-engine/internal/proc/ent/execeval"
 	"orglang/go-engine/internal/proc/ent/termdec"
@@ -29,8 +29,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
-	// CompConn is the client for interacting with the CompConn builders.
-	CompConn *CompConnClient
+	// ExecConn is the client for interacting with the ExecConn builders.
+	ExecConn *ExecConnClient
 	// DescRoot is the client for interacting with the DescRoot builders.
 	DescRoot *DescRootClient
 	// ExecEval is the client for interacting with the ExecEval builders.
@@ -54,7 +54,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
-	c.CompConn = NewCompConnClient(c.config)
+	c.ExecConn = NewExecConnClient(c.config)
 	c.DescRoot = NewDescRootClient(c.config)
 	c.ExecEval = NewExecEvalClient(c.config)
 	c.TermDec = NewTermDecClient(c.config)
@@ -153,7 +153,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:      ctx,
 		config:   cfg,
-		CompConn: NewCompConnClient(cfg),
+		ExecConn: NewExecConnClient(cfg),
 		DescRoot: NewDescRootClient(cfg),
 		ExecEval: NewExecEvalClient(cfg),
 		TermDec:  NewTermDecClient(cfg),
@@ -179,7 +179,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:      ctx,
 		config:   cfg,
-		CompConn: NewCompConnClient(cfg),
+		ExecConn: NewExecConnClient(cfg),
 		DescRoot: NewDescRootClient(cfg),
 		ExecEval: NewExecEvalClient(cfg),
 		TermDec:  NewTermDecClient(cfg),
@@ -192,7 +192,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		CompConn.
+//		ExecConn.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -215,7 +215,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.CompConn, c.DescRoot, c.ExecEval, c.TermDec, c.TermExp, c.TypeDef, c.TypeExp,
+		c.ExecConn, c.DescRoot, c.ExecEval, c.TermDec, c.TermExp, c.TypeDef, c.TypeExp,
 	} {
 		n.Use(hooks...)
 	}
@@ -225,7 +225,7 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.CompConn, c.DescRoot, c.ExecEval, c.TermDec, c.TermExp, c.TypeDef, c.TypeExp,
+		c.ExecConn, c.DescRoot, c.ExecEval, c.TermDec, c.TermExp, c.TypeDef, c.TypeExp,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -234,8 +234,8 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
-	case *CompConnMutation:
-		return c.CompConn.mutate(ctx, m)
+	case *ExecConnMutation:
+		return c.ExecConn.mutate(ctx, m)
 	case *DescRootMutation:
 		return c.DescRoot.mutate(ctx, m)
 	case *ExecEvalMutation:
@@ -253,107 +253,107 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	}
 }
 
-// CompConnClient is a client for the CompConn schema.
-type CompConnClient struct {
+// ExecConnClient is a client for the ExecConn schema.
+type ExecConnClient struct {
 	config
 }
 
-// NewCompConnClient returns a client for the CompConn from the given config.
-func NewCompConnClient(c config) *CompConnClient {
-	return &CompConnClient{config: c}
+// NewExecConnClient returns a client for the ExecConn from the given config.
+func NewExecConnClient(c config) *ExecConnClient {
+	return &ExecConnClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `compconn.Hooks(f(g(h())))`.
-func (c *CompConnClient) Use(hooks ...Hook) {
-	c.hooks.CompConn = append(c.hooks.CompConn, hooks...)
+// A call to `Use(f, g, h)` equals to `execconn.Hooks(f(g(h())))`.
+func (c *ExecConnClient) Use(hooks ...Hook) {
+	c.hooks.ExecConn = append(c.hooks.ExecConn, hooks...)
 }
 
 // Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `compconn.Intercept(f(g(h())))`.
-func (c *CompConnClient) Intercept(interceptors ...Interceptor) {
-	c.inters.CompConn = append(c.inters.CompConn, interceptors...)
+// A call to `Intercept(f, g, h)` equals to `execconn.Intercept(f(g(h())))`.
+func (c *ExecConnClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ExecConn = append(c.inters.ExecConn, interceptors...)
 }
 
-// Create returns a builder for creating a CompConn entity.
-func (c *CompConnClient) Create() *CompConnCreate {
-	mutation := newCompConnMutation(c.config, OpCreate)
-	return &CompConnCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a builder for creating a ExecConn entity.
+func (c *ExecConnClient) Create() *ExecConnCreate {
+	mutation := newExecConnMutation(c.config, OpCreate)
+	return &ExecConnCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// CreateBulk returns a builder for creating a bulk of CompConn entities.
-func (c *CompConnClient) CreateBulk(builders ...*CompConnCreate) *CompConnCreateBulk {
-	return &CompConnCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of ExecConn entities.
+func (c *ExecConnClient) CreateBulk(builders ...*ExecConnCreate) *ExecConnCreateBulk {
+	return &ExecConnCreateBulk{config: c.config, builders: builders}
 }
 
 // MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
 // a builder and applies setFunc on it.
-func (c *CompConnClient) MapCreateBulk(slice any, setFunc func(*CompConnCreate, int)) *CompConnCreateBulk {
+func (c *ExecConnClient) MapCreateBulk(slice any, setFunc func(*ExecConnCreate, int)) *ExecConnCreateBulk {
 	rv := reflect.ValueOf(slice)
 	if rv.Kind() != reflect.Slice {
-		return &CompConnCreateBulk{err: fmt.Errorf("calling to CompConnClient.MapCreateBulk with wrong type %T, need slice", slice)}
+		return &ExecConnCreateBulk{err: fmt.Errorf("calling to ExecConnClient.MapCreateBulk with wrong type %T, need slice", slice)}
 	}
-	builders := make([]*CompConnCreate, rv.Len())
+	builders := make([]*ExecConnCreate, rv.Len())
 	for i := 0; i < rv.Len(); i++ {
 		builders[i] = c.Create()
 		setFunc(builders[i], i)
 	}
-	return &CompConnCreateBulk{config: c.config, builders: builders}
+	return &ExecConnCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for CompConn.
-func (c *CompConnClient) Update() *CompConnUpdate {
-	mutation := newCompConnMutation(c.config, OpUpdate)
-	return &CompConnUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for ExecConn.
+func (c *ExecConnClient) Update() *ExecConnUpdate {
+	mutation := newExecConnMutation(c.config, OpUpdate)
+	return &ExecConnUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *CompConnClient) UpdateOne(_m *CompConn) *CompConnUpdateOne {
-	mutation := newCompConnMutation(c.config, OpUpdateOne, withCompConn(_m))
-	return &CompConnUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *ExecConnClient) UpdateOne(_m *ExecConn) *ExecConnUpdateOne {
+	mutation := newExecConnMutation(c.config, OpUpdateOne, withExecConn(_m))
+	return &ExecConnUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *CompConnClient) UpdateOneID(id string) *CompConnUpdateOne {
-	mutation := newCompConnMutation(c.config, OpUpdateOne, withCompConnID(id))
-	return &CompConnUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *ExecConnClient) UpdateOneID(id string) *ExecConnUpdateOne {
+	mutation := newExecConnMutation(c.config, OpUpdateOne, withExecConnID(id))
+	return &ExecConnUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for CompConn.
-func (c *CompConnClient) Delete() *CompConnDelete {
-	mutation := newCompConnMutation(c.config, OpDelete)
-	return &CompConnDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for ExecConn.
+func (c *ExecConnClient) Delete() *ExecConnDelete {
+	mutation := newExecConnMutation(c.config, OpDelete)
+	return &ExecConnDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *CompConnClient) DeleteOne(_m *CompConn) *CompConnDeleteOne {
+func (c *ExecConnClient) DeleteOne(_m *ExecConn) *ExecConnDeleteOne {
 	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *CompConnClient) DeleteOneID(id string) *CompConnDeleteOne {
-	builder := c.Delete().Where(compconn.ID(id))
+func (c *ExecConnClient) DeleteOneID(id string) *ExecConnDeleteOne {
+	builder := c.Delete().Where(execconn.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &CompConnDeleteOne{builder}
+	return &ExecConnDeleteOne{builder}
 }
 
-// Query returns a query builder for CompConn.
-func (c *CompConnClient) Query() *CompConnQuery {
-	return &CompConnQuery{
+// Query returns a query builder for ExecConn.
+func (c *ExecConnClient) Query() *ExecConnQuery {
+	return &ExecConnQuery{
 		config: c.config,
-		ctx:    &QueryContext{Type: TypeCompConn},
+		ctx:    &QueryContext{Type: TypeExecConn},
 		inters: c.Interceptors(),
 	}
 }
 
-// Get returns a CompConn entity by its id.
-func (c *CompConnClient) Get(ctx context.Context, id string) (*CompConn, error) {
-	return c.Query().Where(compconn.ID(id)).Only(ctx)
+// Get returns a ExecConn entity by its id.
+func (c *ExecConnClient) Get(ctx context.Context, id string) (*ExecConn, error) {
+	return c.Query().Where(execconn.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *CompConnClient) GetX(ctx context.Context, id string) *CompConn {
+func (c *ExecConnClient) GetX(ctx context.Context, id string) *ExecConn {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -362,27 +362,27 @@ func (c *CompConnClient) GetX(ctx context.Context, id string) *CompConn {
 }
 
 // Hooks returns the client hooks.
-func (c *CompConnClient) Hooks() []Hook {
-	return c.hooks.CompConn
+func (c *ExecConnClient) Hooks() []Hook {
+	return c.hooks.ExecConn
 }
 
 // Interceptors returns the client interceptors.
-func (c *CompConnClient) Interceptors() []Interceptor {
-	return c.inters.CompConn
+func (c *ExecConnClient) Interceptors() []Interceptor {
+	return c.inters.ExecConn
 }
 
-func (c *CompConnClient) mutate(ctx context.Context, m *CompConnMutation) (Value, error) {
+func (c *ExecConnClient) mutate(ctx context.Context, m *ExecConnMutation) (Value, error) {
 	switch m.Op() {
 	case OpCreate:
-		return (&CompConnCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&ExecConnCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdate:
-		return (&CompConnUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&ExecConnUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdateOne:
-		return (&CompConnUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&ExecConnUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpDelete, OpDeleteOne:
-		return (&CompConnDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+		return (&ExecConnDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
-		return nil, fmt.Errorf("ent: unknown CompConn mutation op: %q", m.Op())
+		return nil, fmt.Errorf("ent: unknown ExecConn mutation op: %q", m.Op())
 	}
 }
 
@@ -1187,10 +1187,10 @@ func (c *TypeExpClient) mutate(ctx context.Context, m *TypeExpMutation) (Value, 
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		CompConn, DescRoot, ExecEval, TermDec, TermExp, TypeDef, TypeExp []ent.Hook
+		ExecConn, DescRoot, ExecEval, TermDec, TermExp, TypeDef, TypeExp []ent.Hook
 	}
 	inters struct {
-		CompConn, DescRoot, ExecEval, TermDec, TermExp, TypeDef,
+		ExecConn, DescRoot, ExecEval, TermDec, TermExp, TypeDef,
 		TypeExp []ent.Interceptor
 	}
 )

@@ -102,7 +102,7 @@ WHERE bind.desc_qn = $1
 		}
 	}
 	return termdec.DecRec{
-		TermQN: qn,
+		TermQN:    qn,
 		TermRef:   termsem.SemRef{TermID: termID, DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)},
 		LiabVar:   liabVar,
 		AssetVars: assetVars,

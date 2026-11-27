@@ -16,15 +16,6 @@ import (
 )
 
 func init() {
-	ViewFromDecSnap = func(source core.DecSnap) DecSnapVP {
-		var result DecSnapVP
-		result.TermRef.TermID = source.TermID
-		result.TermRef.DescID = source.DescRef.DescID
-		result.TermRef.DescRN = source.DescRef.DescRN
-		return result
-	}
-}
-func init() {
 	DataFromTermDecRec = func(source core.DecRec) (DecRec, error) {
 		var result DecRec
 		result.TermID = identity.ConvertToString(source.TermID)

@@ -174,24 +174,24 @@ func (s *service) Run(ctx context.Context, spec EvalSpec) (_ comproot.SemRef, er
 		var connID identity.ADT
 		var chnlID identity.ADT
 		var expCK contkey.ADT
-		var providerCompRef comproot.SemRef
+		var providerExecRef comproot.SemRef
 		assetExec, ok := assetEvals[assetVar.TermQN]
 		if !ok && assetVar.TermQN == spec.LiabVar.TermQN {
 			connID = newConnID
 			chnlID = newLiabVar.ChnlID
 			expCK = newLiabVar.ExpCK
-			providerCompRef = newEval.CompRef
+			providerExecRef = newEval.CompRef
 		} else {
 			connID = assetExec.LiabVar.GetConnID()
-			providerCompRef = assetExec.CompRef
+			providerExecRef = assetExec.CompRef
 			chnlID = assetExec.LiabVar.GetChnlID()
 			expCK = assetExec.LiabVar.GetExpCK()
 		}
 		if ok || assetVar.TermQN == spec.LiabVar.TermQN {
 			newConns = append(newConns, execconn.ConnRec{
 				ConnID:          connID,
-				ProviderCompRef: providerCompRef,
-				ClientCompRef:   newEval.CompRef,
+				ProviderExecRef: providerExecRef,
+				ClientExecRef:   newEval.CompRef,
 				OffsetNr:        seqnum.Zero,
 			})
 		}

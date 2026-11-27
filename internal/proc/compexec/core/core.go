@@ -29,31 +29,31 @@ import (
 
 type API interface {
 	Take(context.Context, compstep.StepSpec) error
-	RetrieveSnap(comproot.SemRef) (ExecSnap, error)
+	RetrieveSnap(comproot.SemRef) (EvalSnap, error)
 }
 
-type ExecRec struct {
+type EvalRec struct {
 	CompRef  comproot.SemRef
 	LiabMode compvar.Mode
 }
 
-type ExecMod struct {
+type EvalMod struct {
 	CompRefs   []comproot.SemRef
 	LinearVars []compvar.LinearRec
 }
 
-type ExecEff struct {
+type EvalEff struct {
 	Steps []compstep.StepSpec
 }
 
 type takeResult struct {
-	Mod        ExecMod
-	Effects    ExecEff
+	Mod        EvalMod
+	Effects    EvalEff
 	Connection compconn.ConnMod
 }
 
 // aka Configuration
-type ExecSnap struct {
+type EvalSnap struct {
 	CompRef    comproot.SemRef
 	LinearVars map[symbol.ADT]compvar.LinearRec
 }
@@ -98,8 +98,8 @@ func NewService(
 	}
 }
 
-func (s *service) RetrieveSnap(ref comproot.SemRef) (_ ExecSnap, err error) {
-	return ExecSnap{}, nil
+func (s *service) RetrieveSnap(ref comproot.SemRef) (_ EvalSnap, err error) {
+	return EvalSnap{}, nil
 }
 
 func ErrMissingChnl(want symbol.ADT) error {
@@ -113,7 +113,7 @@ func (s *service) Take(ctx context.Context, spec compstep.StepSpec) (err error) 
 	compRef := spec.CompRef
 	expSpec := spec.ProcExp
 	for expSpec != nil {
-		execSnap, getErr1 := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (ExecSnap, error) {
+		execSnap, getErr1 := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (EvalSnap, error) {
 			return s.compExecRepo.GetSnapByRef(txCtx, conn, compRef)
 		})
 		if getErr1 != nil {
@@ -204,11 +204,11 @@ func (s *service) Take(ctx context.Context, spec compstep.StepSpec) (err error) 
 func (s *service) takeWith(
 	ctx context.Context,
 	procEnv Env,
-	execSnap ExecSnap,
+	execSnap EvalSnap,
 	exp connact.ExpSpec,
 ) (takeResult, error) {
-	var execMod ExecMod
-	var execEff ExecEff
+	var execMod EvalMod
+	var execEff EvalEff
 	var connMod compconn.ConnMod
 	var err error
 	compAttr := slog.Any("compRef", execSnap.CompRef)
@@ -922,7 +922,7 @@ func convertToCtx(chnlBinds iter.Seq[compvar.LinearRec], typeExps map[contkey.AD
 func (s *service) checkType(
 	procEnv Env,
 	procCtx typedef.Context,
-	execSnap ExecSnap,
+	execSnap EvalSnap,
 	expSpec connact.ExpSpec,
 ) error {
 	chnlBR, ok := execSnap.LinearVars[expSpec.Via()]
@@ -938,7 +938,7 @@ func (s *service) checkType(
 func (s *service) checkProvider(
 	procEnv Env,
 	procCtx typedef.Context,
-	procCfg ExecSnap,
+	procCfg EvalSnap,
 	es connact.ExpSpec,
 ) error {
 	switch expSpec := es.(type) {
@@ -1126,7 +1126,7 @@ func (s *service) checkProvider(
 func (s *service) checkClient(
 	procEnv Env,
 	procCtx typedef.Context,
-	procCfg ExecSnap,
+	procCfg EvalSnap,
 	es connact.ExpSpec,
 ) error {
 	switch expSpec := es.(type) {

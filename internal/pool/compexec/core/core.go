@@ -28,7 +28,7 @@ import (
 )
 
 type API interface {
-	Run(context.Context, ExecSpec) (comproot.SemRef, error) // aka Create
+	Run(context.Context, EvalSpec) (comproot.SemRef, error) // aka Create
 	Take(context.Context, compstep.StepSpec) error
 	Spawn(context.Context, compstep.StepSpec) (comproot.SemRef, error)
 }
@@ -38,7 +38,7 @@ type Broker interface {
 	SendSpec(compstep.StepSpec) error
 }
 
-type ExecSpec struct {
+type EvalSpec struct {
 	// ссылка на декларацию вновь создаваемого пула
 	TermQN uniqsym.ADT
 	// внутренняя и внешняя ссылки на вновь создаваемый пул
@@ -47,36 +47,36 @@ type ExecSpec struct {
 	AssetVars []compvar.VarSpec
 }
 
-type ExecRec struct {
+type EvalRec struct {
 	CompRef  comproot.SemRef
 	TermQN   uniqsym.ADT
 	LiabMode compvar.Mode
 }
 
-type ExecMod struct {
+type EvalMod struct {
 	CompRef comproot.SemRef
 	Vars    []compvar.VarRec
 }
 
-func (mod ExecMod) isEmpty() bool { return len(mod.Vars) == 0 }
+func (mod EvalMod) isEmpty() bool { return len(mod.Vars) == 0 }
 
-type ExecEff struct {
+type EvalEff struct {
 	Steps []compstep.StepSpec
 }
 
-type ExecSnap1 struct {
+type EvalSnap1 struct {
 	CompRef comproot.SemRef
 	LiabVar compvar.VarRec
 }
 
-type ExecSnap2 struct {
+type EvalSnap2 struct {
 	CompRef    comproot.SemRef
 	LiabMode   compvar.Mode
 	StructVars []compvar.StructRec
 	LinearVars []compvar.LinearRec
 }
 
-type ExecSnap3 struct {
+type EvalSnap3 struct {
 	CompRef    comproot.SemRef
 	StructVars map[symbol.ADT]compvar.StructRec
 	StructExps map[symbol.ADT]typedef.ExpRec
@@ -125,7 +125,7 @@ func NewService(deps ServiceDeps) API {
 	}
 }
 
-func (s *service) Run(ctx context.Context, spec ExecSpec) (_ comproot.SemRef, err error) {
+func (s *service) Run(ctx context.Context, spec EvalSpec) (_ comproot.SemRef, err error) {
 	specAttr := slog.Any("spec", spec)
 	s.log.Debug("creation started", specAttr)
 	var termDec termdec.DecRec
@@ -144,7 +144,7 @@ func (s *service) Run(ctx context.Context, spec ExecSpec) (_ comproot.SemRef, er
 		}
 		assetQNs = append(assetQNs, assetVar.TermQN)
 	}
-	var assetExecs map[uniqsym.ADT]ExecSnap1
+	var assetExecs map[uniqsym.ADT]EvalSnap1
 	getErr2 := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		assetExecs, err = s.compExecRepo.GetSnapMapByQNs(txCtx, conn, assetQNs)
 		return err
@@ -153,7 +153,7 @@ func (s *service) Run(ctx context.Context, spec ExecSpec) (_ comproot.SemRef, er
 		s.log.Error("creation failed", specAttr)
 		return comproot.SemRef{}, getErr2
 	}
-	newExec := ExecRec{CompRef: comproot.New(), TermQN: spec.TermQN, LiabMode: compvar.StructMode}
+	newExec := EvalRec{CompRef: comproot.New(), TermQN: spec.TermQN, LiabMode: compvar.StructMode}
 	// Reserve the provider-side connection identity in its liability variable.
 	// The Connection record itself is created when a client Computation attaches.
 	newConnID := identity.New()
@@ -231,7 +231,7 @@ func (s *service) Run(ctx context.Context, spec ExecSpec) (_ comproot.SemRef, er
 func (s *service) Spawn(ctx context.Context, spec compstep.StepSpec) (_ comproot.SemRef, err error) {
 	refAttr := slog.Any("ref", spec.CompRef)
 	s.log.Debug("proc spawning started", refAttr, slog.Any("exp", spec.PoolExp))
-	newExec := proccompexec.ExecRec{CompRef: comproot.New(), LiabMode: compvar.LinearMode}
+	newExec := proccompexec.EvalRec{CompRef: comproot.New(), LiabMode: compvar.LinearMode}
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		return s.procExecRepo.AddRec(txCtx, conn, newExec)
 	})
@@ -318,11 +318,11 @@ func (s *service) Take(ctx context.Context, spec compstep.StepSpec) (err error) 
 
 func (s *service) takeStep(
 	ctx context.Context,
-	execSnap ExecSnap3,
+	execSnap EvalSnap3,
 	exp ExpSpec,
 ) (
-	execMod ExecMod,
-	execEff ExecEff,
+	execMod EvalMod,
+	execEff EvalEff,
 	connMod compconn.ConnMod,
 	err error,
 ) {
@@ -858,14 +858,14 @@ func (s *service) takeStep(
 	}
 }
 
-func (s *service) retrieveSnap(ctx context.Context, ref comproot.SemRef) (_ ExecSnap3, err error) {
-	var execSnap ExecSnap2
+func (s *service) retrieveSnap(ctx context.Context, ref comproot.SemRef) (_ EvalSnap3, err error) {
+	var execSnap EvalSnap2
 	getErr1 := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		execSnap, err = s.compExecRepo.GetSnapByRef(txCtx, conn, ref)
 		return err
 	})
 	if getErr1 != nil {
-		return ExecSnap3{}, getErr1
+		return EvalSnap3{}, getErr1
 	}
 	var structExps map[symbol.ADT]typedef.ExpRec
 	var linearExps map[symbol.ADT]typedef.ExpRec
@@ -878,9 +878,9 @@ func (s *service) retrieveSnap(ctx context.Context, ref comproot.SemRef) (_ Exec
 		return err
 	})
 	if getErr2 != nil {
-		return ExecSnap3{}, getErr2
+		return EvalSnap3{}, getErr2
 	}
-	return ExecSnap3{
+	return EvalSnap3{
 		CompRef:    execSnap.CompRef,
 		StructVars: compvar.ConvertRecsToRecMap(execSnap.StructVars),
 		StructExps: structExps,

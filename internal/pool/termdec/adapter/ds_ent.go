@@ -7,9 +7,9 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
-	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/termvar"
 	termvaradapter "orglang/go-engine/internal/adt/termvar/adapter"
 	"orglang/go-engine/internal/adt/uniqsym"
@@ -103,8 +103,8 @@ WHERE bind.desc_qn = $1
 	}
 	return termdec.DecRec{
 		TermQN:    qn,
-		TermID: termID,
-		DescRef: descroot.SemRef{DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)},
+		TermID:    termID,
+		DescRef:   descroot.SemRef{DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)},
 		LiabVar:   liabVar,
 		AssetVars: assetVars,
 	}, nil

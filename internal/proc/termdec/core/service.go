@@ -31,7 +31,9 @@ func (s *service) Incept(ctx context.Context, termQN uniqsym.ADT) (_ identity.AD
 	termID, newRoot := identity.New(), descroot.New()
 	newDec := DecRec{TermID: termID, DescRef: newRoot, TermQN: termQN}
 	err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		if err := s.descRootRepo.AddRef(txCtx, conn, newRoot); err != nil { return err }
+		if err := s.descRootRepo.AddRef(txCtx, conn, newRoot); err != nil {
+			return err
+		}
 		return s.termDecRepo.AddRec(txCtx, conn, newDec)
 	})
 	if err != nil {
@@ -46,11 +48,15 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ DecSnap, err erro
 	qnAttr := slog.Any("qn", spec.TermQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	assetQNs := make([]uniqsym.ADT, 0, len(spec.AssetVars)+1)
-	for _, assetVar := range spec.AssetVars { assetQNs = append(assetQNs, assetVar.TypeQN) }
+	for _, assetVar := range spec.AssetVars {
+		assetQNs = append(assetQNs, assetVar.TypeQN)
+	}
 	typeDefs, getErr := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[uniqsym.ADT]typedef.DefRec, error) {
 		return s.typeDefRepo.SelectEnv(txCtx, conn, append(assetQNs, spec.LiabVar.TypeQN))
 	})
-	if getErr != nil { return DecSnap{}, getErr }
+	if getErr != nil {
+		return DecSnap{}, getErr
+	}
 	providerDef := typeDefs[spec.LiabVar.TypeQN]
 	newLiabVar := termvar.VarRec{TypeID: providerDef.TypeID, ChnlPH: spec.LiabVar.ChnlPH, ExpCK: providerDef.ExpCK}
 	newAssetVars := make([]termvar.VarRec, 0, len(spec.AssetVars))
@@ -63,10 +69,15 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ DecSnap, err erro
 	termID := identity.New()
 	newDec := DecRec{TermID: termID, DescRef: newRoot, TermQN: spec.TermQN, LiabVar: newLiabVar, AssetVars: newAssetVars}
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		if err := s.descRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil { return err }
+		if err := s.descRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil {
+			return err
+		}
 		return s.termDecRepo.AddRec(txCtx, conn, newDec)
 	})
-	if transactErr != nil { s.log.Error("creation failed", qnAttr); return DecSnap{}, transactErr }
+	if transactErr != nil {
+		s.log.Error("creation failed", qnAttr)
+		return DecSnap{}, transactErr
+	}
 	s.log.Debug("creation succeed", qnAttr, slog.Any("termID", termID), slog.Any("descRef", newRoot))
 	return DecSnap{TermID: termID, DescRef: newRoot, LiabVar: newLiabVar, AssetVars: newAssetVars}, nil
 }
@@ -75,7 +86,10 @@ func (s *service) RetrieveSnap(ctx context.Context, id identity.ADT) (snap DecSn
 	snap, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DecSnap, error) {
 		return s.termDecRepo.GetSnap(txCtx, conn, id)
 	})
-	if err != nil { s.log.Error("retrieval failed", slog.Any("termID", id)); return DecSnap{}, err }
+	if err != nil {
+		s.log.Error("retrieval failed", slog.Any("termID", id))
+		return DecSnap{}, err
+	}
 	return snap, nil
 }
 
@@ -83,6 +97,9 @@ func (s *service) RetreiveRefs(ctx context.Context) (refs []identity.ADT, err er
 	refs, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) ([]identity.ADT, error) {
 		return s.termDecRepo.GetIDs(txCtx, conn)
 	})
-	if err != nil { s.log.Error("retrieval failed"); return nil, err }
+	if err != nil {
+		s.log.Error("retrieval failed")
+		return nil, err
+	}
 	return refs, nil
 }

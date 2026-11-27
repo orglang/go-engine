@@ -5,9 +5,9 @@ import (
 	"log/slog"
 
 	"orglang/go-engine/internal/adt/comproot"
-	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
+	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
 	connact "orglang/go-engine/internal/pool/connact/core"
 )

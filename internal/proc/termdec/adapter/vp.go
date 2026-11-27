@@ -6,7 +6,9 @@ import (
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
-type DecSpecVP struct { TermQN string `form:"qn" json:"qn"` }
+type DecSpecVP struct {
+	TermQN string `form:"qn" json:"qn"`
+}
 
 type TermRefVP struct {
 	TermID identity.ADT `json:"TermID"`

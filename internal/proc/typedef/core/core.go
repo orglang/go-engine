@@ -64,11 +64,17 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err erro
 	qnAttr := slog.Any("qn", spec.TypeQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	newExp, err := ConvertSpecToRec(spec.TypeExp)
-	if err != nil { return DefSnap{}, err }
+	if err != nil {
+		return DefSnap{}, err
+	}
 	newDef := DefRec{TypeID: identity.New(), DescRef: descroot.New(), TypeQN: spec.TypeQN, ExpCK: newExp.Key()}
 	err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		if err := s.descRootRepo.AddRef(txCtx, conn, newDef.DescRef); err != nil { return err }
-		if err := s.typeExpRepo.AddRec(txCtx, conn, newExp); err != nil { return err }
+		if err := s.descRootRepo.AddRef(txCtx, conn, newDef.DescRef); err != nil {
+			return err
+		}
+		if err := s.typeExpRepo.AddRec(txCtx, conn, newExp); err != nil {
+			return err
+		}
 		return s.typeDefRepo.AddRec(txCtx, conn, newDef)
 	})
 	if err != nil {
@@ -98,15 +104,23 @@ func (s *service) Modify(ctx context.Context, snap DefSnap) (_ DefSnap, err erro
 		s.log.Error("modification failed", refAttr)
 		return DefSnap{}, err
 	}
-	if CheckSpec(snap.DefSpec.TypeExp, curSnap.DefSpec.TypeExp) == nil { return curSnap, nil }
+	if CheckSpec(snap.DefSpec.TypeExp, curSnap.DefSpec.TypeExp) == nil {
+		return curSnap, nil
+	}
 	newExp, err := ConvertSpecToRec(snap.DefSpec.TypeExp)
-	if err != nil { return DefSnap{}, err }
+	if err != nil {
+		return DefSnap{}, err
+	}
 	expectedRoot := descroot.SemRef{DescID: rec.DescRef.DescID, DescRN: snap.DescRef.DescRN}
 	snap.DescRef.DescRN = seqnum.Next(snap.DescRef.DescRN)
 	rec.ExpCK = newExp.Key()
 	err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		if err := s.descRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil { return err }
-		if err := s.typeExpRepo.AddRec(txCtx, conn, newExp); err != nil { return err }
+		if err := s.descRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil {
+			return err
+		}
+		if err := s.typeExpRepo.AddRec(txCtx, conn, newExp); err != nil {
+			return err
+		}
 		return s.typeDefRepo.ModifyRec(txCtx, conn, rec)
 	})
 	if err != nil {
@@ -152,7 +166,9 @@ func (s *service) RetreiveRefs(ctx context.Context) (refs []identity.ADT, err er
 
 func CollectEnv(recs iter.Seq[DefRec]) []contkey.ADT {
 	expIDs := []contkey.ADT{}
-	for r := range recs { expIDs = append(expIDs, r.ExpCK) }
+	for r := range recs {
+		expIDs = append(expIDs, r.ExpCK)
+	}
 	return expIDs
 }
 
@@ -160,10 +176,16 @@ func ErrSymMissingInEnv(want uniqsym.ADT) error { return fmt.Errorf("root missin
 func errConcurrentModification(got, want seqnum.ADT) error {
 	return fmt.Errorf("entity concurrent modification: want revision %v, got revision %v", want, got)
 }
-func ErrOptimisticUpdate(got seqnum.ADT) error { return fmt.Errorf("entity concurrent modification: got revision %v", got) }
+func ErrOptimisticUpdate(got seqnum.ADT) error {
+	return fmt.Errorf("entity concurrent modification: got revision %v", got)
+}
 func ErrDoesNotExist(want identity.ADT) error { return fmt.Errorf("root doesn't exist: %v", want) }
-func ErrMissingInEnv(want contkey.ADT) error { return fmt.Errorf("exp missing in env: %v", want) }
+func ErrMissingInEnv(want contkey.ADT) error  { return fmt.Errorf("exp missing in env: %v", want) }
 func ErrMissingInCfg(want identity.ADT) error { return fmt.Errorf("root missing in cfg: %v", want) }
-func ErrMissingInCtx(want symbol.ADT) error { return fmt.Errorf("root missing in ctx: %v", want) }
-func ErrPolarityUnexpected(got ExpRec) error { return fmt.Errorf("root polarity unexpected: %v", got.Pol()) }
-func ErrPolarityMismatch(a, b ExpRec) error { return fmt.Errorf("root polarity mismatch: %v != %v", a.Pol(), b.Pol()) }
+func ErrMissingInCtx(want symbol.ADT) error   { return fmt.Errorf("root missing in ctx: %v", want) }
+func ErrPolarityUnexpected(got ExpRec) error {
+	return fmt.Errorf("root polarity unexpected: %v", got.Pol())
+}
+func ErrPolarityMismatch(a, b ExpRec) error {
+	return fmt.Errorf("root polarity mismatch: %v != %v", a.Pol(), b.Pol())
+}

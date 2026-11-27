@@ -8,8 +8,8 @@ import (
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 
-	execeval "orglang/go-engine/internal/proc/execeval/adapter"
 	connact "orglang/go-engine/internal/proc/connact/core"
+	execeval "orglang/go-engine/internal/proc/execeval/adapter"
 )
 
 func DataFromStepRec(r connact.ActRec) (ActRec, error) {

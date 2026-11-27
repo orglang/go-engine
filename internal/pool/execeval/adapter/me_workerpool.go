@@ -7,8 +7,8 @@ import (
 
 	"github.com/gammazero/workerpool"
 
-	execeval "orglang/go-engine/internal/pool/execeval/core"
 	compstep "orglang/go-engine/internal/pool/compstep/core"
+	execeval "orglang/go-engine/internal/pool/execeval/core"
 )
 
 type workerPoolBroker struct {

@@ -7,8 +7,8 @@ import (
 
 	"orglang/go-engine/internal/lib/tx"
 	compconn "orglang/go-engine/internal/proc/compconn/core"
-	"orglang/go-engine/internal/proc/execeval/core"
 	"orglang/go-engine/internal/proc/ent"
+	"orglang/go-engine/internal/proc/execeval/core"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 )

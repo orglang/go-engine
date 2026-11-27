@@ -17,7 +17,10 @@ type GeneratedController interface {
 	GetProcessTypeDefinition(*echo.Context, string, webapi.GetProcessTypeDefinitionParams) error
 }
 
-type controllerEcho struct { api typedef.API; log *slog.Logger }
+type controllerEcho struct {
+	api typedef.API
+	log *slog.Logger
+}
 
 var _ GeneratedController = (*controllerEcho)(nil)
 
@@ -28,19 +31,31 @@ func newControllerEcho(a typedef.API, l *slog.Logger) *controllerEcho {
 
 func (h *controllerEcho) CreateProcessTypeDefinition(c *echo.Context) error {
 	var dto webapi.ProcTypeDefSpec
-	if err := c.Bind(&dto); err != nil { return echo.NewHTTPError(http.StatusBadRequest, err.Error()) }
-	if err := (DefSpecVP{TypeQN: dto.TypeQn}).Validate(); err != nil { return echo.NewHTTPError(http.StatusBadRequest, err.Error()) }
+	if err := c.Bind(&dto); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if err := (DefSpecVP{TypeQN: dto.TypeQn}).Validate(); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 	spec, err := DefSpecFromGenerated(dto)
-	if err != nil { return echo.NewHTTPError(http.StatusBadRequest, err.Error()) }
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 	snap, err := h.api.Create(c.Request().Context(), spec)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	return c.JSON(http.StatusCreated, DefSnapToGenerated(snap).Ref)
 }
 
 func (h *controllerEcho) GetProcessTypeDefinition(c *echo.Context, id string, _ webapi.GetProcessTypeDefinitionParams) error {
 	typeID, err := identity.ConvertFromString(id)
-	if err != nil { return echo.NewHTTPError(http.StatusBadRequest, err.Error()) }
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 	snap, err := h.api.RetrieveSnap(c.Request().Context(), typeID)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	return c.JSON(http.StatusOK, DefSnapToGenerated(snap))
 }

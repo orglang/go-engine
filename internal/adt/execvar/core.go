@@ -22,7 +22,7 @@ type VarSpec struct {
 // machine-readable record of execution variable
 // машиночитаемая запись переменной исполнения
 type VarRec interface {
-	GetExecRef() comproot.SemRef
+	GetRootRef() comproot.SemRef
 	GetConnID() identity.ADT
 	GetChnlID() identity.ADT
 	GetChnlPH() symbol.ADT
@@ -30,7 +30,7 @@ type VarRec interface {
 }
 
 type LinearRec struct {
-	ExecRef comproot.SemRef
+	RootRef comproot.SemRef
 	ConnID  identity.ADT
 	ChnlID  identity.ADT
 	ChnlPH  symbol.ADT
@@ -44,7 +44,7 @@ type LinearRec struct {
 	ExpCK contkey.ADT
 }
 
-func (r LinearRec) GetExecRef() comproot.SemRef { return r.ExecRef }
+func (r LinearRec) GetRootRef() comproot.SemRef { return r.RootRef }
 
 func (r LinearRec) GetConnID() identity.ADT { return r.ConnID }
 
@@ -55,7 +55,7 @@ func (r LinearRec) GetChnlPH() symbol.ADT { return r.ChnlPH }
 func (r LinearRec) GetExpCK() contkey.ADT { return r.ExpCK }
 
 type StructRec struct {
-	ExecRef comproot.SemRef
+	RootRef comproot.SemRef
 	ConnID  identity.ADT
 	ChnlID  identity.ADT
 	ChnlPH  symbol.ADT
@@ -69,7 +69,7 @@ type StructRec struct {
 	ExpCK contkey.ADT
 }
 
-func (r StructRec) GetExecRef() comproot.SemRef { return r.ExecRef }
+func (r StructRec) GetRootRef() comproot.SemRef { return r.RootRef }
 
 func (r StructRec) GetConnID() identity.ADT { return r.ConnID }
 

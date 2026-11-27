@@ -14,7 +14,7 @@ import (
 )
 
 func init() {
-	DataFromExecRec = func(source core.EvalRec) EvalRec {
+	DataFromEvalRec = func(source core.EvalRec) EvalRec {
 		var adapterEvalRec EvalRec
 		adapterEvalRec.CompID = identity.ConvertToString(source.CompRef.CompID)
 		adapterEvalRec.CompRN = int64(source.CompRef.CompRN)
@@ -22,7 +22,7 @@ func init() {
 		adapterEvalRec.LiabMode = int16(source.LiabMode)
 		return adapterEvalRec
 	}
-	DataFromExecSnap2 = func(source core.EvalSnap2) EvalSnap2 {
+	DataFromEvalSnap2 = func(source core.EvalSnap2) EvalSnap2 {
 		var adapterEvalSnap2 EvalSnap2
 		adapterEvalSnap2.CompID = identity.ConvertToString(source.CompRef.CompID)
 		adapterEvalSnap2.CompRN = int64(source.CompRef.CompRN)
@@ -31,7 +31,7 @@ func init() {
 		adapterEvalSnap2.LinearVars = adapter.DataFromLinearRecs(source.LinearVars)
 		return adapterEvalSnap2
 	}
-	DataToExecRec = func(source EvalRec) (core.EvalRec, error) {
+	DataToEvalRec = func(source EvalRec) (core.EvalRec, error) {
 		var coreEvalRec core.EvalRec
 		comprootSemRef, err := adapterEvalRecToComprootSemRef(source)
 		if err != nil {
@@ -46,7 +46,7 @@ func init() {
 		coreEvalRec.LiabMode = compvar.Mode(source.LiabMode)
 		return coreEvalRec, nil
 	}
-	DataToExecSnap2 = func(source EvalSnap2) (core.EvalSnap2, error) {
+	DataToEvalSnap2 = func(source EvalSnap2) (core.EvalSnap2, error) {
 		var coreEvalSnap2 core.EvalSnap2
 		comprootSemRef, err := adapterEvalSnap2ToComprootSemRef(source)
 		if err != nil {
@@ -71,7 +71,7 @@ func init() {
 		if source != nil {
 			mapUniqsymADTCoreEvalSnap2 = make(map[uniqsym.ADT]core.EvalSnap2, len(source))
 			for key, value := range source {
-				coreEvalSnap2, err := DataToExecSnap2(value)
+				coreEvalSnap2, err := DataToEvalSnap2(value)
 				if err != nil {
 					return nil, err
 				}
@@ -85,7 +85,7 @@ func init() {
 		if source != nil {
 			mapUniqsymADTCoreEvalSnap1 = make(map[uniqsym.ADT]core.EvalSnap1, len(source))
 			for key, value := range source {
-				coreEvalSnap1, err := DataToExecSnap1(value)
+				coreEvalSnap1, err := DataToEvalSnap1(value)
 				if err != nil {
 					return nil, err
 				}

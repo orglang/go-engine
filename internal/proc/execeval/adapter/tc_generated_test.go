@@ -9,7 +9,7 @@ import (
 	execeval "orglang/go-engine/internal/proc/execeval/core"
 )
 
-func TestExecSnapToGenerated(t *testing.T) {
+func TestEvalSnapToGenerated(t *testing.T) {
 	id := identity.New()
 	got := EvalSnapToGenerated(execeval.EvalSnap{
 		CompRef: comproot.SemRef{CompID: id, CompRN: seqnum.ADT(7)},

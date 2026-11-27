@@ -5,7 +5,7 @@ package adapter
 
 import (
 	comproot "orglang/go-engine/internal/adt/comproot"
-	compvar "orglang/go-engine/internal/adt/compvar"
+	execvar "orglang/go-engine/internal/adt/execvar"
 	identity "orglang/go-engine/internal/adt/identity"
 	core "orglang/go-engine/internal/proc/execeval/core"
 )
@@ -20,21 +20,21 @@ func init() {
 	}
 	DataToEvalRec = func(source EvalRec) (core.EvalRec, error) {
 		var coreEvalRec core.EvalRec
-		comprootSemRef, err := dataToSemRef(source)
+		comprootRootRef, err := dataToSemRef(source)
 		if err != nil {
 			return coreEvalRec, err
 		}
-		coreEvalRec.CompRef = comprootSemRef
-		coreEvalRec.LiabMode = compvar.Mode(source.LiabMode)
+		coreEvalRec.CompRef = comprootRootRef
+		coreEvalRec.LiabMode = execvar.Mode(source.LiabMode)
 		return coreEvalRec, nil
 	}
-	dataToSemRef = func(source EvalRec) (comproot.SemRef, error) {
-		var comprootSemRef comproot.SemRef
+	dataToSemRef = func(source EvalRec) (comproot.RootRef, error) {
+		var comprootRootRef comproot.RootRef
 		identityADT, err := identity.ConvertFromString(source.CompID)
 		if err != nil {
-			return comprootSemRef, err
+			return comprootRootRef, err
 		}
-		comprootSemRef.CompID = identityADT
-		return comprootSemRef, nil
+		comprootRootRef.CompID = identityADT
+		return comprootRootRef, nil
 	}
 }

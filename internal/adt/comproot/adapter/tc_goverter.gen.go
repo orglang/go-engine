@@ -11,58 +11,58 @@ import (
 )
 
 func init() {
-	DataFromRef = func(source comproot.SemRef) SemRef {
-		var adapterSemRef SemRef
-		adapterSemRef.CompID = identity.ConvertToString(source.CompID)
-		adapterSemRef.CompRN = seqnum.ConvertToInt(source.CompRN)
-		return adapterSemRef
+	DataFromRef = func(source comproot.RootRef) RootRef {
+		var adapterRootRef RootRef
+		adapterRootRef.CompID = identity.ConvertToString(source.CompID)
+		adapterRootRef.CompRN = seqnum.ConvertToInt(source.CompRN)
+		return adapterRootRef
 	}
-	DataFromRefs = func(source []comproot.SemRef) ([]SemRef, error) {
-		var adapterSemRefList []SemRef
+	DataFromRefs = func(source []comproot.RootRef) ([]RootRef, error) {
+		var adapterRootRefList []RootRef
 		if source != nil {
-			adapterSemRefList = make([]SemRef, len(source))
+			adapterRootRefList = make([]RootRef, len(source))
 			for i := 0; i < len(source); i++ {
-				adapterSemRefList[i] = DataFromRef(source[i])
+				adapterRootRefList[i] = DataFromRef(source[i])
 			}
 		}
-		return adapterSemRefList, nil
+		return adapterRootRefList, nil
 	}
-	DataToRef = func(source SemRef) (comproot.SemRef, error) {
-		var comprootSemRef comproot.SemRef
+	DataToRef = func(source RootRef) (comproot.RootRef, error) {
+		var comprootRootRef comproot.RootRef
 		identityADT, err := identity.ConvertFromString(source.CompID)
 		if err != nil {
-			return comprootSemRef, err
+			return comprootRootRef, err
 		}
-		comprootSemRef.CompID = identityADT
-		comprootSemRef.CompRN = seqnum.ConvertFromInt(source.CompRN)
-		return comprootSemRef, nil
+		comprootRootRef.CompID = identityADT
+		comprootRootRef.CompRN = seqnum.ConvertFromInt(source.CompRN)
+		return comprootRootRef, nil
 	}
-	DataToRefMap = func(source map[uniqsym.ADT]SemRef) (map[uniqsym.ADT]comproot.SemRef, error) {
-		var mapUniqsymADTComprootSemRef map[uniqsym.ADT]comproot.SemRef
+	DataToRefMap = func(source map[uniqsym.ADT]RootRef) (map[uniqsym.ADT]comproot.RootRef, error) {
+		var mapUniqsymADTComprootRootRef map[uniqsym.ADT]comproot.RootRef
 		if source != nil {
-			mapUniqsymADTComprootSemRef = make(map[uniqsym.ADT]comproot.SemRef, len(source))
+			mapUniqsymADTComprootRootRef = make(map[uniqsym.ADT]comproot.RootRef, len(source))
 			for key, value := range source {
-				comprootSemRef, err := DataToRef(value)
+				comprootRootRef, err := DataToRef(value)
 				if err != nil {
 					return nil, err
 				}
-				mapUniqsymADTComprootSemRef[key] = comprootSemRef
+				mapUniqsymADTComprootRootRef[key] = comprootRootRef
 			}
 		}
-		return mapUniqsymADTComprootSemRef, nil
+		return mapUniqsymADTComprootRootRef, nil
 	}
-	DataToRefs = func(source []SemRef) ([]comproot.SemRef, error) {
-		var comprootSemRefList []comproot.SemRef
+	DataToRefs = func(source []RootRef) ([]comproot.RootRef, error) {
+		var comprootRootRefList []comproot.RootRef
 		if source != nil {
-			comprootSemRefList = make([]comproot.SemRef, len(source))
+			comprootRootRefList = make([]comproot.RootRef, len(source))
 			for i := 0; i < len(source); i++ {
-				comprootSemRef, err := DataToRef(source[i])
+				comprootRootRef, err := DataToRef(source[i])
 				if err != nil {
 					return nil, err
 				}
-				comprootSemRefList[i] = comprootSemRef
+				comprootRootRefList[i] = comprootRootRef
 			}
 		}
-		return comprootSemRefList, nil
+		return comprootRootRefList, nil
 	}
 }

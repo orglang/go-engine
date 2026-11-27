@@ -12,15 +12,15 @@ import (
 )
 
 func init() {
-	DataToCompRef = func(source ActRec) (comproot.SemRef, error) {
-		var comprootSemRef comproot.SemRef
+	DataToCompRef = func(source ActRec) (comproot.RootRef, error) {
+		var comprootRootRef comproot.RootRef
 		identityADT, err := identity.ConvertFromString(source.ExecID)
 		if err != nil {
-			return comprootSemRef, err
+			return comprootRootRef, err
 		}
-		comprootSemRef.CompID = identityADT
-		comprootSemRef.CompRN = seqnum.ConvertFromInt(source.ExecRN)
-		return comprootSemRef, nil
+		comprootRootRef.CompID = identityADT
+		comprootRootRef.CompRN = seqnum.ConvertFromInt(source.ExecRN)
+		return comprootRootRef, nil
 	}
 	DataToPubRec = func(source ActRec) (core.PubRec, error) {
 		var corePubRec core.PubRec
@@ -30,11 +30,11 @@ func init() {
 		}
 		corePubRec.ConnID = identityADT
 		corePubRec.ActNr = seqnum.ConvertFromInt(source.ActNr)
-		comprootSemRef, err := DataToCompRef(source)
+		comprootRootRef, err := DataToCompRef(source)
 		if err != nil {
 			return corePubRec, err
 		}
-		corePubRec.CompRef = comprootSemRef
+		corePubRec.CompRef = comprootRootRef
 		identityADT2, err := identity.ConvertFromString(source.ChnlID)
 		if err != nil {
 			return corePubRec, err
@@ -55,11 +55,11 @@ func init() {
 		}
 		coreSubRec.ConnID = identityADT
 		coreSubRec.ActNr = seqnum.ConvertFromInt(source.ActNr)
-		comprootSemRef, err := DataToCompRef(source)
+		comprootRootRef, err := DataToCompRef(source)
 		if err != nil {
 			return coreSubRec, err
 		}
-		coreSubRec.CompRef = comprootSemRef
+		coreSubRec.CompRef = comprootRootRef
 		identityADT2, err := identity.ConvertFromString(source.ChnlID)
 		if err != nil {
 			return coreSubRec, err

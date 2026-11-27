@@ -14,9 +14,9 @@ type EvalRec struct {
 
 type EvalSnap1 struct {
 	CompRef   comprootadapter.RootRef `db:"sem"`
-	LiabMode  int16                  `db:"exec.liab_mode"`
-	StructVar *execvaradapter.VarRec `db:"struct_var"`
-	LinearVar *execvaradapter.VarRec `db:"linear_var"`
+	LiabMode  int16                   `db:"exec.liab_mode"`
+	StructVar *execvaradapter.VarRec  `db:"struct_var"`
+	LinearVar *execvaradapter.VarRec  `db:"linear_var"`
 }
 
 type EvalSnap2 struct {

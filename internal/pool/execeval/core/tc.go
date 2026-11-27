@@ -2,8 +2,8 @@ package core
 
 import (
 	"orglang/go-engine/internal/adt/comproot"
-	"orglang/go-engine/internal/adt/execvar"
 	"orglang/go-engine/internal/adt/contkey"
+	"orglang/go-engine/internal/adt/execvar"
 	"orglang/go-engine/internal/adt/symbol"
 )
 

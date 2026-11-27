@@ -53,7 +53,6 @@ linters:
             - {pkg: orglang/go-engine/internal/pool/typedef/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/typeexp/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/adt/comproot/adapter, desc: *adapterBoundary}
-            - {pkg: orglang/go-engine/internal/adt/descsem/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/adt/typesem/adapter, desc: *adapterBoundary}
             - {pkg: github.com/jackc/pgx, desc: "Use lib/tx contracts; keep pgx in infrastructure adapters."}
         ProcCore:

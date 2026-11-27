@@ -38,8 +38,8 @@ var (
 	}
 	// ProcExecEvalsColumns holds the columns for the "proc_exec_evals" table.
 	ProcExecEvalsColumns = []*schema.Column{
-		{Name: "comp_id", Type: field.TypeString, Unique: true},
-		{Name: "comp_rn", Type: field.TypeInt64},
+		{Name: "exec_id", Type: field.TypeString, Unique: true},
+		{Name: "exec_rn", Type: field.TypeInt64},
 		{Name: "liab_mode", Type: field.TypeInt16},
 	}
 	// ProcExecEvalsTable holds the schema information for the "proc_exec_evals" table.

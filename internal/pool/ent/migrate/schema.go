@@ -38,8 +38,8 @@ var (
 	}
 	// PoolExecEvalsColumns holds the columns for the "pool_exec_evals" table.
 	PoolExecEvalsColumns = []*schema.Column{
-		{Name: "comp_id", Type: field.TypeString, Unique: true},
-		{Name: "comp_rn", Type: field.TypeInt64},
+		{Name: "exec_id", Type: field.TypeString, Unique: true},
+		{Name: "exec_rn", Type: field.TypeInt64},
 		{Name: "liab_mode", Type: field.TypeInt16},
 	}
 	// PoolExecEvalsTable holds the schema information for the "pool_exec_evals" table.

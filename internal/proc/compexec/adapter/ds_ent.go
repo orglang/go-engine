@@ -36,7 +36,7 @@ func newDaoEnt(client *ent.Client, log *slog.Logger) *daoEnt {
 	return &daoEnt{client: client, log: log.With(name)}
 }
 
-func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec compexec.ExecRec) error {
+func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec compexec.EvalRec) error {
 	dto := DataFromExecRec(rec)
 	refAttr := slog.Any("ref", rec.CompRef)
 	_, err := dao.client.CompExec.Create().
@@ -52,31 +52,31 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec compexec.ExecRe
 	return nil
 }
 
-func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref comproot.SemRef) (compexec.ExecSnap, error) {
+func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref comproot.SemRef) (compexec.EvalSnap, error) {
 	refAttr := slog.Any("ref", ref)
 	chnlRows, err := conn.Pgx.Query(ctx, selectChnls, ref.CompID.String())
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)
-		return compexec.ExecSnap{}, err
+		return compexec.EvalSnap{}, err
 	}
 	defer chnlRows.Close()
 	chnlDtos, err := pgx.CollectRows(chnlRows, pgx.RowToStructByName[compvaradapter.VarRec])
 	if err != nil {
 		dao.log.Error("row scanning failed", refAttr, slog.Any("t", reflect.TypeOf(chnlDtos)))
-		return compexec.ExecSnap{}, err
+		return compexec.EvalSnap{}, err
 	}
 	chnls, err := compvaradapter.DataToLinearRecs(chnlDtos)
 	if err != nil {
 		dao.log.Error("model conversion failed", refAttr)
-		return compexec.ExecSnap{}, err
+		return compexec.EvalSnap{}, err
 	}
 	dao.log.Debug("snap selection succeed", refAttr)
-	return compexec.ExecSnap{
+	return compexec.EvalSnap{
 		LinearVars: compvar.IndexBy(compexec.ChnlPH, chnls),
 	}, nil
 }
 
-func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod compexec.ExecMod) (err error) {
+func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod compexec.EvalMod) (err error) {
 	if len(mod.CompRefs) == 0 {
 		panic("empty locks")
 	}
@@ -102,7 +102,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod compexec.Exe
 			err = errors.Join(err, bindRes.Close())
 		}()
 		for _, dto := range dto.LinearVars {
-			_, err = bindRes.Exec()
+			_, err = bindRes.Eval()
 			if err != nil {
 				dao.log.Error("execution failed", slog.Any("dto", dto))
 			}
@@ -125,7 +125,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod compexec.Exe
 		err = errors.Join(err, execRes.Close())
 	}()
 	for _, dto := range dto.CompRefs {
-		ct, execErr := execRes.Exec()
+		ct, execErr := execRes.Eval()
 		if execErr != nil {
 			dao.log.Error("execution failed", slog.Any("dto", dto))
 			return execErr

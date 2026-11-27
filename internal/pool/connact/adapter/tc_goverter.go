@@ -12,6 +12,8 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/internal/pool/execeval/adapter:Data.*
 var (
+	// goverter:map ExecID CompID
+	// goverter:map ExecRN CompRN
 	DataToCompRef func(ActRec) (comproot.SemRef, error)
 	// goverter:map . CompRef
 	// goverter:map Exp ValExp

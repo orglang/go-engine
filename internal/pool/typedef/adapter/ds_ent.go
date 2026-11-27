@@ -71,7 +71,6 @@ WHERE db.desc_qn = $1
 		batch.Queue(query, uniqsym.ConvertToString(qn))
 	}
 	br := conn.Pgx.SendBatch(ctx, &batch)
-	defer func() { err = errors.Join(err, br.Close()) }()
 	dtos := make(map[uniqsym.ADT]DefRec, len(typeQNs))
 	for _, qn := range typeQNs {
 		rows, readErr := br.Query()
@@ -83,6 +82,9 @@ WHERE db.desc_qn = $1
 			return nil, scanErr
 		}
 		dtos[qn] = dto
+	}
+	if closeErr := br.Close(); closeErr != nil {
+		return nil, closeErr
 	}
 	recs, err := DataToDefRecMap(dtos)
 	if err != nil {

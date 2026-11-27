@@ -152,7 +152,7 @@ SELECT conn.conn_id, conn.provider_comp_id, exec.comp_rn AS provider_comp_rn,
     conn.offset_nr, conn.act_nr,
     (SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM acts t WHERE t.act_nr > conn.offset_nr) AS acts
 FROM pool_comp_conns conn
-JOIN pool_comp_execs exec ON exec.comp_id = conn.provider_comp_id
+JOIN pool_exec_evals exec ON exec.comp_id = conn.provider_comp_id
 WHERE conn.conn_id = $1
 `
 
@@ -165,7 +165,7 @@ SELECT conn.conn_id, conn.provider_comp_id, exec.comp_rn AS provider_comp_rn,
     conn.offset_nr, conn.act_nr,
     (SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM acts t WHERE t.act_nr > conn.offset_nr) AS acts
 FROM pool_comp_conns conn
-JOIN pool_comp_execs exec ON exec.comp_id = conn.provider_comp_id
+JOIN pool_exec_evals exec ON exec.comp_id = conn.provider_comp_id
 WHERE conn.conn_id = $1
 `
 )

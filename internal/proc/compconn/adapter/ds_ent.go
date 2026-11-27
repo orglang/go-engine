@@ -108,7 +108,7 @@ SELECT
     conn.act_nr,
     (SELECT array_agg(row(t.*) ORDER BY t.act_nr) FROM acts t WHERE t.act_nr > conn.offset_nr) AS acts
 FROM proc_comp_conns conn
-JOIN proc_comp_execs exec ON exec.comp_id = conn.provider_comp_id
+JOIN proc_exec_evals exec ON exec.comp_id = conn.provider_comp_id
 WHERE conn.conn_id = $1
 `
 	rows, err := conn.Pgx.Query(ctx, query, args...)

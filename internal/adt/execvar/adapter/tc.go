@@ -25,8 +25,8 @@ func DataFromVarRec(rec execvar.VarRec) VarRec {
 
 func DataFromStructRec(rec execvar.StructRec) VarRec {
 	return VarRec{
-		ExecID: identityadapter.ConvertToNullString(rec.ExecRef.CompID),
-		ExecRN: seqnumadapter.ConvertToNullInt(rec.ExecRef.CompRN),
+		ExecID: identityadapter.ConvertToNullString(rec.RootRef.CompID),
+		ExecRN: seqnumadapter.ConvertToNullInt(rec.RootRef.CompRN),
 		ConnID: identityadapter.ConvertToNullString(rec.ConnID),
 		ChnlID: identityadapter.ConvertToNullString(rec.ChnlID),
 		ChnlPH: symboladapter.ConvertToNullString(rec.ChnlPH),
@@ -37,8 +37,8 @@ func DataFromStructRec(rec execvar.StructRec) VarRec {
 
 func DataFromLinearRec(rec execvar.LinearRec) VarRec {
 	return VarRec{
-		ExecID: identityadapter.ConvertToNullString(rec.ExecRef.CompID),
-		ExecRN: seqnumadapter.ConvertToNullInt(rec.ExecRef.CompRN),
+		ExecID: identityadapter.ConvertToNullString(rec.RootRef.CompID),
+		ExecRN: seqnumadapter.ConvertToNullInt(rec.RootRef.CompRN),
 		ConnID: identityadapter.ConvertToNullString(rec.ConnID),
 		ChnlID: identityadapter.ConvertToNullString(rec.ChnlID),
 		ChnlPH: symboladapter.ConvertToNullString(rec.ChnlPH),
@@ -88,7 +88,7 @@ func DataToLinearMap(dtos []VarRec) (map[symbol.ADT]execvar.LinearRec, error) {
 }
 
 func DataToStructRec(dto VarRec) (execvar.StructRec, error) {
-	ref, err := dataToExecRef(dto)
+	ref, err := dataToRootRef(dto)
 	if err != nil {
 		return execvar.StructRec{}, err
 	}
@@ -105,7 +105,7 @@ func DataToStructRec(dto VarRec) (execvar.StructRec, error) {
 		return execvar.StructRec{}, err
 	}
 	return execvar.StructRec{
-		ExecRef: ref,
+		RootRef: ref,
 		ConnID:  connID,
 		ChnlID:  chnlID,
 		ChnlPH:  chnlPH,
@@ -115,7 +115,7 @@ func DataToStructRec(dto VarRec) (execvar.StructRec, error) {
 }
 
 func DataToLinearRec(dto VarRec) (execvar.LinearRec, error) {
-	ref, err := dataToExecRef(dto)
+	ref, err := dataToRootRef(dto)
 	if err != nil {
 		return execvar.LinearRec{}, err
 	}
@@ -132,7 +132,7 @@ func DataToLinearRec(dto VarRec) (execvar.LinearRec, error) {
 		return execvar.LinearRec{}, err
 	}
 	return execvar.LinearRec{
-		ExecRef: ref,
+		RootRef: ref,
 		ConnID:  connID,
 		ChnlID:  chnlID,
 		ChnlPH:  chnlPH,
@@ -193,7 +193,7 @@ func DataToLinearRecs(dtos []VarRec) ([]execvar.LinearRec, error) {
 	return recs, nil
 }
 
-func dataToExecRef(dto VarRec) (comproot.SemRef, error) {
+func dataToRootRef(dto VarRec) (comproot.SemRef, error) {
 	execID, err := identityadapter.ConvertFromNullString(dto.ExecID)
 	if err != nil {
 		return comproot.SemRef{}, err

@@ -23,16 +23,16 @@ var (
 // goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/termvar/adapter:Data.*
 var (
-	// goverter:map . TermRef
-	// goverter:ignore TermQN
+	// goverter:map . DescRef
+	// goverter:ignore TermID TermQN
 	DataToTermDecRec func(DecRec) (termdec.DecRec, error)
-	// goverter:autoMap TermRef
+	// goverter:autoMap DescRef
 	DataFromTermDecRec  func(termdec.DecRec) (DecRec, error)
 	DataToTermDecRecs   func([]DecRec) ([]termdec.DecRec, error)
 	DataFromTermDecRecs func([]termdec.DecRec) ([]DecRec, error)
-	// goverter:map . TermRef
+	// goverter:map . DescRef
 	DataToTermDecSnap func(DecSnap) (termdec.DecSnap, error)
-	// goverter:autoMap TermRef
+	// goverter:autoMap DescRef
 	DataFromTermDecSnap  func(termdec.DecSnap) (DecSnap, error)
 	DataToTermDecSnaps   func([]DecSnap) ([]termdec.DecSnap, error)
 	DataFromTermDecSnaps func([]termdec.DecSnap) ([]DecSnap, error)
@@ -48,11 +48,9 @@ var (
 	// goverter:map ConnPh ChnlPH
 	// goverter:map TypeQn TypeQN
 	ConnVarFromGenerated func(webapi.AnyConnVarSpec) (termvar.VarSpec, error)
-
 	// goverter:map TermQn TermQN
 	DecSpecFromGenerated func(webapi.ProcDecSpec) (termdec.DecSpec, error)
-
-	// goverter:map TermRef.TermID TermId
-	// goverter:map TermRef.DescRN DescRn
+	// goverter:map TermID TermId
+	// goverter:map DescRef.DescRN DescRn
 	DecSnapToGenerated func(termdec.DecSnap) webapi.AnyTermRef
 )

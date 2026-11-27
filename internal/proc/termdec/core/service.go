@@ -5,15 +5,14 @@ import (
 	"log/slog"
 
 	"orglang/go-engine/internal/adt/descroot"
+	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
-	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/tx"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
-// service implements the process Declaration application operations.
 type service struct {
 	termDecRepo  Repo
 	descRootRepo descroot.Repo
@@ -26,18 +25,21 @@ func NewService(termDecRepo Repo, descRootRepo descroot.Repo, typeDefRepo typede
 	return &service{termDecRepo: termDecRepo, descRootRepo: descRootRepo, typeDefRepo: typeDefRepo, transactor: transactor, log: log}
 }
 
-func (s *service) Incept(ctx context.Context, termQN uniqsym.ADT) (_ termsem.SemRef, err error) {
+func (s *service) Incept(ctx context.Context, termQN uniqsym.ADT) (_ identity.ADT, _ descroot.SemRef, err error) {
 	qnAttr := slog.Any("qn", termQN)
 	s.log.Debug("inception started", qnAttr)
-	newRoot := descroot.New()
-	newDec := DecRec{TermRef: termsem.New(newRoot), TermQN: termQN}
+	termID, newRoot := identity.New(), descroot.New()
+	newDec := DecRec{TermID: termID, DescRef: newRoot, TermQN: termQN}
 	err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		if err := s.descRootRepo.AddRef(txCtx, conn, newRoot); err != nil { return err }
 		return s.termDecRepo.AddRec(txCtx, conn, newDec)
 	})
-	if err != nil { s.log.Error("inception failed", qnAttr); return termsem.SemRef{}, err }
-	s.log.Debug("inception succeed", qnAttr, slog.Any("ref", newDec.TermRef))
-	return newDec.TermRef, nil
+	if err != nil {
+		s.log.Error("inception failed", qnAttr)
+		return identity.ADT{}, descroot.SemRef{}, err
+	}
+	s.log.Debug("inception succeed", qnAttr, slog.Any("termID", termID), slog.Any("descRef", newRoot))
+	return termID, newRoot, nil
 }
 
 func (s *service) Create(ctx context.Context, spec DecSpec) (_ DecSnap, err error) {
@@ -58,27 +60,28 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ DecSnap, err erro
 	}
 	expectedRoot := providerDef.DescRef
 	newRoot := descroot.SemRef{DescID: expectedRoot.DescID, DescRN: seqnum.Next(expectedRoot.DescRN)}
-	newDec := DecRec{TermRef: termsem.New(newRoot), TermQN: spec.TermQN, LiabVar: newLiabVar, AssetVars: newAssetVars}
+	termID := identity.New()
+	newDec := DecRec{TermID: termID, DescRef: newRoot, TermQN: spec.TermQN, LiabVar: newLiabVar, AssetVars: newAssetVars}
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		if err := s.descRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil { return err }
 		return s.termDecRepo.AddRec(txCtx, conn, newDec)
 	})
 	if transactErr != nil { s.log.Error("creation failed", qnAttr); return DecSnap{}, transactErr }
-	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", newDec.TermRef))
-	return DecSnap{TermRef: newDec.TermRef, LiabVar: newLiabVar, AssetVars: newAssetVars}, nil
+	s.log.Debug("creation succeed", qnAttr, slog.Any("termID", termID), slog.Any("descRef", newRoot))
+	return DecSnap{TermID: termID, DescRef: newRoot, LiabVar: newLiabVar, AssetVars: newAssetVars}, nil
 }
 
-func (s *service) RetrieveSnap(ctx context.Context, ref termsem.SemRef) (snap DecSnap, err error) {
+func (s *service) RetrieveSnap(ctx context.Context, id identity.ADT) (snap DecSnap, err error) {
 	snap, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DecSnap, error) {
-		return s.termDecRepo.GetSnap(txCtx, conn, ref)
+		return s.termDecRepo.GetSnap(txCtx, conn, id)
 	})
-	if err != nil { s.log.Error("retrieval failed", slog.Any("ref", ref)); return DecSnap{}, err }
+	if err != nil { s.log.Error("retrieval failed", slog.Any("termID", id)); return DecSnap{}, err }
 	return snap, nil
 }
 
-func (s *service) RetreiveRefs(ctx context.Context) (refs []termsem.SemRef, err error) {
-	refs, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) ([]termsem.SemRef, error) {
-		return s.termDecRepo.GetRefs(txCtx, conn)
+func (s *service) RetreiveRefs(ctx context.Context) (refs []identity.ADT, err error) {
+	refs, err = tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) ([]identity.ADT, error) {
+		return s.termDecRepo.GetIDs(txCtx, conn)
 	})
 	if err != nil { s.log.Error("retrieval failed"); return nil, err }
 	return refs, nil

@@ -24,7 +24,7 @@ type ActRec interface {
 type PubRec struct {
 	ConnID  identity.ADT
 	ActNr   seqnum.ADT
-	CompRef comproot.SemRef
+	CompRef comproot.RootRef
 	ChnlID  identity.ADT
 	ValExp  ExpRec
 }
@@ -37,7 +37,7 @@ func (r PubRec) GetActNr() seqnum.ADT    { return r.ActNr }
 type SubRec struct {
 	ConnID  identity.ADT
 	ActNr   seqnum.ADT
-	CompRef comproot.SemRef
+	CompRef comproot.RootRef
 	ChnlID  identity.ADT
 	ContExp ExpRec
 }

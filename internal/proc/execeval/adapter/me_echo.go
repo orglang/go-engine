@@ -38,7 +38,7 @@ func (h *controllerEcho) GetProcessExecution(c *echo.Context, id string, params 
 		h.log.Error("conversion failed", slog.Any("id", id), slog.Any("err", err))
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	ref := comproot.SemRef{CompID: compID}
+	ref := comproot.RootRef{CompID: compID}
 	if params.Rn != nil {
 		ref.CompRN = seqnum.ConvertFromInt(*params.Rn)
 	}

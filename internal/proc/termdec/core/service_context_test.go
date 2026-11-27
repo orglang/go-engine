@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"orglang/go-engine/internal/adt/descroot"
-	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/uniqsym"
@@ -69,10 +68,6 @@ type contextDescRootRepo struct{}
 func (contextDescRootRepo) AddRef(context.Context, tx.Conn, descroot.SemRef) error   { return nil }
 func (contextDescRootRepo) TouchRef(context.Context, tx.Conn, descroot.SemRef) error { return nil }
 
-type contextDescSemRepo struct{}
-
-func (contextDescSemRepo) AddRec(context.Context, tx.Conn, descsem.SemRec) error { return nil }
-
 type contextTransactor struct{}
 
 func (contextTransactor) ExplicitTx(ctx context.Context, fn func(context.Context, tx.Conn) error) error {
@@ -84,5 +79,4 @@ func (contextTransactor) ImplicitTx(ctx context.Context, fn func(context.Context
 
 var _ Repo = (*contextRepo)(nil)
 var _ descroot.Repo = contextDescRootRepo{}
-var _ descsem.Repo = contextDescSemRepo{}
 var _ tx.Transactor = contextTransactor{}

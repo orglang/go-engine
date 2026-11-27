@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	descsemadapter "orglang/go-engine/internal/adt/descsem/adapter"
 	"orglang/go-engine/internal/adt/uniqsym"
 	dbadapter "orglang/go-engine/internal/lib/db/adapter"
 	"orglang/go-engine/internal/lib/entpgx"
@@ -63,11 +62,9 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 	})
 
 	typeDefRepo := NewDaoEnt(entClient, logger)
-	descSemRepo := descsemadapter.NewDaoPgx("pool_desc_binds")(logger)
 	service := typedef.NewService(
 		typeDefRepo,
 		descrootadapter.NewDaoEnt(entClient, logger),
-		descSemRepo,
 		dbadapter.NewTransactorPgx(pool),
 		logger,
 	)
@@ -148,7 +145,6 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 	service := typedef.NewService(
 		NewDaoEnt(entClient, logger),
 		descrootadapter.NewDaoEnt(entClient, logger),
-		descsemadapter.NewDaoPgx("pool_desc_binds")(logger),
 		dbadapter.NewTransactorPgx(pool),
 		logger,
 	)

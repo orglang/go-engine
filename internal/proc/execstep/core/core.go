@@ -6,6 +6,6 @@ import (
 )
 
 type StepSpec struct {
-	CompRef comproot.SemRef
+	CompRef comproot.RootRef
 	ProcExp connact.ExpSpec
 }

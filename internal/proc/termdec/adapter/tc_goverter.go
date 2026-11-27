@@ -24,7 +24,7 @@ var (
 // goverter:extend orglang/go-engine/internal/adt/termvar/adapter:Data.*
 var (
 	// goverter:map . DescRef
-	// goverter:ignore TermID TermQN
+	// goverter:ignore TermQN
 	DataToTermDecRec func(DecRec) (termdec.DecRec, error)
 	// goverter:autoMap DescRef
 	DataFromTermDecRec  func(termdec.DecRec) (DecRec, error)

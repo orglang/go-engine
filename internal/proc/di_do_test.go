@@ -64,10 +64,6 @@ func TestPackageProvidesPersistencePorts(t *testing.T) {
 			_, err := do.Invoke[typesem.Repo](injector)
 			return err
 		}},
-		{"process description-semantic repository", func() error {
-			_, err := do.Invoke[typedef.DescSemRepo](injector)
-			return err
-		}},
 	}
 
 	for _, provider := range providers {

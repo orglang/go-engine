@@ -6,14 +6,14 @@ import (
 	"orglang/go-engine/internal/adt/seqnum"
 )
 
-// SemRef identifies a Computation aggregate at a specific OCC revision.
+// RootRef identifies a Computation aggregate at a specific OCC revision.
 // Execution and Connections are owned by this aggregate.
-type SemRef struct {
+type RootRef struct {
 	CompID identity.ADT
 	CompRN seqnum.ADT
 }
 
 // New creates a reference for a new Computation aggregate.
-func New() SemRef {
-	return SemRef{CompID: identity.New(), CompRN: seqnum.New()}
+func New() RootRef {
+	return RootRef{CompID: identity.New(), CompRN: seqnum.New()}
 }

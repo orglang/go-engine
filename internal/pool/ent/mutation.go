@@ -854,20 +854,20 @@ func newDescRootMutation(c config, op Op, opts ...descrootOption) *DescRootMutat
 	return m
 }
 
-// withExecEvalID sets the ID field of the mutation.
-func withExecEvalID(id string) execevalOption {
-	return func(m *ExecEvalMutation) {
+// withDescRootID sets the ID field of the mutation.
+func withDescRootID(id string) descrootOption {
+	return func(m *DescRootMutation) {
 		var (
 			err   error
 			once  sync.Once
-			value *ExecEval
+			value *DescRoot
 		)
-		m.oldValue = func(ctx context.Context) (*ExecEval, error) {
+		m.oldValue = func(ctx context.Context) (*DescRoot, error) {
 			once.Do(func() {
 				if m.done {
 					err = errors.New("querying old values post mutation is not allowed")
 				} else {
-					value, err = m.Client().ExecEval.Get(ctx, id)
+					value, err = m.Client().DescRoot.Get(ctx, id)
 				}
 			})
 			return value, err
@@ -888,7 +888,7 @@ func withExecEval(node *ExecEval) execevalOption {
 
 // Client returns a new `ent.Client` from the mutation. If the mutation was
 // executed in a transaction (ent.Tx), a transactional client is returned.
-func (m ExecEvalMutation) Client() *Client {
+func (m DescRootMutation) Client() *Client {
 	client := &Client{config: m.config}
 	client.init()
 	return client
@@ -906,14 +906,14 @@ func (m ExecEvalMutation) Tx() (*Tx, error) {
 }
 
 // SetID sets the value of the id field. Note that this
-// operation is only accepted on creation of ExecEval entities.
-func (m *ExecEvalMutation) SetID(id string) {
+// operation is only accepted on creation of DescRoot entities.
+func (m *DescRootMutation) SetID(id string) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *ExecEvalMutation) ID() (id string, exists bool) {
+func (m *DescRootMutation) ID() (id string, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -933,133 +933,77 @@ func (m *ExecEvalMutation) IDs(ctx context.Context) ([]string, error) {
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().ExecEval.Query().Where(m.predicates...).IDs(ctx)
+		return m.Client().DescRoot.Query().Where(m.predicates...).IDs(ctx)
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
 }
 
-// SetCompRn sets the "comp_rn" field.
-func (m *ExecEvalMutation) SetCompRn(i int64) {
-	m.comp_rn = &i
-	m.addcomp_rn = nil
+// SetDescRn sets the "desc_rn" field.
+func (m *DescRootMutation) SetDescRn(i int64) {
+	m.desc_rn = &i
+	m.adddesc_rn = nil
 }
 
-// CompRn returns the value of the "comp_rn" field in the mutation.
-func (m *ExecEvalMutation) CompRn() (r int64, exists bool) {
-	v := m.comp_rn
+// DescRn returns the value of the "desc_rn" field in the mutation.
+func (m *DescRootMutation) DescRn() (r int64, exists bool) {
+	v := m.desc_rn
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldCompRn returns the old "comp_rn" field's value of the ExecEval entity.
-// If the ExecEval object wasn't provided to the builder, the object is fetched from the database.
+// OldDescRn returns the old "desc_rn" field's value of the DescRoot entity.
+// If the DescRoot object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ExecEvalMutation) OldCompRn(ctx context.Context) (v int64, err error) {
+func (m *DescRootMutation) OldDescRn(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCompRn is only allowed on UpdateOne operations")
+		return v, errors.New("OldDescRn is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCompRn requires an ID field in the mutation")
+		return v, errors.New("OldDescRn requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCompRn: %w", err)
+		return v, fmt.Errorf("querying old value for OldDescRn: %w", err)
 	}
-	return oldValue.CompRn, nil
+	return oldValue.DescRn, nil
 }
 
-// AddCompRn adds i to the "comp_rn" field.
-func (m *ExecEvalMutation) AddCompRn(i int64) {
-	if m.addcomp_rn != nil {
-		*m.addcomp_rn += i
+// AddDescRn adds i to the "desc_rn" field.
+func (m *DescRootMutation) AddDescRn(i int64) {
+	if m.adddesc_rn != nil {
+		*m.adddesc_rn += i
 	} else {
-		m.addcomp_rn = &i
+		m.adddesc_rn = &i
 	}
 }
 
-// AddedCompRn returns the value that was added to the "comp_rn" field in this mutation.
-func (m *ExecEvalMutation) AddedCompRn() (r int64, exists bool) {
-	v := m.addcomp_rn
+// AddedDescRn returns the value that was added to the "desc_rn" field in this mutation.
+func (m *DescRootMutation) AddedDescRn() (r int64, exists bool) {
+	v := m.adddesc_rn
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ResetCompRn resets all changes to the "comp_rn" field.
-func (m *ExecEvalMutation) ResetCompRn() {
-	m.comp_rn = nil
-	m.addcomp_rn = nil
+// ResetDescRn resets all changes to the "desc_rn" field.
+func (m *DescRootMutation) ResetDescRn() {
+	m.desc_rn = nil
+	m.adddesc_rn = nil
 }
 
-// SetLiabMode sets the "liab_mode" field.
-func (m *ExecEvalMutation) SetLiabMode(i int16) {
-	m.liab_mode = &i
-	m.addliab_mode = nil
-}
-
-// LiabMode returns the value of the "liab_mode" field in the mutation.
-func (m *ExecEvalMutation) LiabMode() (r int16, exists bool) {
-	v := m.liab_mode
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldLiabMode returns the old "liab_mode" field's value of the ExecEval entity.
-// If the ExecEval object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ExecEvalMutation) OldLiabMode(ctx context.Context) (v int16, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldLiabMode is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldLiabMode requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldLiabMode: %w", err)
-	}
-	return oldValue.LiabMode, nil
-}
-
-// AddLiabMode adds i to the "liab_mode" field.
-func (m *ExecEvalMutation) AddLiabMode(i int16) {
-	if m.addliab_mode != nil {
-		*m.addliab_mode += i
-	} else {
-		m.addliab_mode = &i
-	}
-}
-
-// AddedLiabMode returns the value that was added to the "liab_mode" field in this mutation.
-func (m *ExecEvalMutation) AddedLiabMode() (r int16, exists bool) {
-	v := m.addliab_mode
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetLiabMode resets all changes to the "liab_mode" field.
-func (m *ExecEvalMutation) ResetLiabMode() {
-	m.liab_mode = nil
-	m.addliab_mode = nil
-}
-
-// Where appends a list predicates to the ExecEvalMutation builder.
-func (m *ExecEvalMutation) Where(ps ...predicate.ExecEval) {
+// Where appends a list predicates to the DescRootMutation builder.
+func (m *DescRootMutation) Where(ps ...predicate.DescRoot) {
 	m.predicates = append(m.predicates, ps...)
 }
 
-// WhereP appends storage-level predicates to the ExecEvalMutation builder. Using this method,
+// WhereP appends storage-level predicates to the DescRootMutation builder. Using this method,
 // users can use type-assertion to append predicates that do not depend on any generated package.
-func (m *ExecEvalMutation) WhereP(ps ...func(*sql.Selector)) {
-	p := make([]predicate.ExecEval, len(ps))
+func (m *DescRootMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.DescRoot, len(ps))
 	for i := range ps {
 		p[i] = ps[i]
 	}
@@ -1098,12 +1042,10 @@ func (m *ExecEvalMutation) Fields() []string {
 // Field returns the value of a field with the given name. The second boolean
 // return value indicates that this field was not set, or was not defined in the
 // schema.
-func (m *ExecEvalMutation) Field(name string) (ent.Value, bool) {
+func (m *DescRootMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case execeval.FieldCompRn:
-		return m.CompRn()
-	case execeval.FieldLiabMode:
-		return m.LiabMode()
+	case descroot.FieldDescRn:
+		return m.DescRn()
 	}
 	return nil, false
 }
@@ -1160,12 +1102,10 @@ func (m *ExecEvalMutation) AddedFields() []string {
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
-func (m *ExecEvalMutation) AddedField(name string) (ent.Value, bool) {
+func (m *DescRootMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
-	case execeval.FieldCompRn:
-		return m.AddedCompRn()
-	case execeval.FieldLiabMode:
-		return m.AddedLiabMode()
+	case descroot.FieldDescRn:
+		return m.AddedDescRn()
 	}
 	return nil, false
 }
@@ -1321,10 +1261,10 @@ func withDescRootID(id string) descrootOption {
 	}
 }
 
-// withDescRoot sets the old DescRoot of the mutation.
-func withDescRoot(node *DescRoot) descrootOption {
-	return func(m *DescRootMutation) {
-		m.oldValue = func(context.Context) (*DescRoot, error) {
+// withExecEval sets the old ExecEval of the mutation.
+func withExecEval(node *ExecEval) execevalOption {
+	return func(m *ExecEvalMutation) {
+		m.oldValue = func(context.Context) (*ExecEval, error) {
 			return node, nil
 		}
 		m.id = &node.ID
@@ -1341,7 +1281,7 @@ func (m DescRootMutation) Client() *Client {
 
 // Tx returns an `ent.Tx` for mutations that were executed in transactions;
 // it returns an error otherwise.
-func (m DescRootMutation) Tx() (*Tx, error) {
+func (m ExecEvalMutation) Tx() (*Tx, error) {
 	if _, ok := m.driver.(*txDriver); !ok {
 		return nil, errors.New("ent: mutation is not running in a transaction")
 	}
@@ -1369,7 +1309,7 @@ func (m *DescRootMutation) ID() (id string, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *DescRootMutation) IDs(ctx context.Context) ([]string, error) {
+func (m *ExecEvalMutation) IDs(ctx context.Context) ([]string, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
@@ -1456,27 +1396,30 @@ func (m *DescRootMutation) WhereP(ps ...func(*sql.Selector)) {
 }
 
 // Op returns the operation name.
-func (m *DescRootMutation) Op() Op {
+func (m *ExecEvalMutation) Op() Op {
 	return m.op
 }
 
 // SetOp allows setting the mutation operation.
-func (m *DescRootMutation) SetOp(op Op) {
+func (m *ExecEvalMutation) SetOp(op Op) {
 	m.op = op
 }
 
-// Type returns the node type of this mutation (DescRoot).
-func (m *DescRootMutation) Type() string {
+// Type returns the node type of this mutation (ExecEval).
+func (m *ExecEvalMutation) Type() string {
 	return m.typ
 }
 
 // Fields returns all fields that were changed during this mutation. Note that in
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
-func (m *DescRootMutation) Fields() []string {
-	fields := make([]string, 0, 1)
-	if m.desc_rn != nil {
-		fields = append(fields, descroot.FieldDescRn)
+func (m *ExecEvalMutation) Fields() []string {
+	fields := make([]string, 0, 2)
+	if m.comp_rn != nil {
+		fields = append(fields, execeval.FieldCompRn)
+	}
+	if m.liab_mode != nil {
+		fields = append(fields, execeval.FieldLiabMode)
 	}
 	return fields
 }
@@ -1495,36 +1438,48 @@ func (m *DescRootMutation) Field(name string) (ent.Value, bool) {
 // OldField returns the old value of the field from the database. An error is
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
-func (m *DescRootMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+func (m *ExecEvalMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case descroot.FieldDescRn:
-		return m.OldDescRn(ctx)
+	case execeval.FieldCompRn:
+		return m.OldCompRn(ctx)
+	case execeval.FieldLiabMode:
+		return m.OldLiabMode(ctx)
 	}
-	return nil, fmt.Errorf("unknown DescRoot field %s", name)
+	return nil, fmt.Errorf("unknown ExecEval field %s", name)
 }
 
 // SetField sets the value of a field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
-func (m *DescRootMutation) SetField(name string, value ent.Value) error {
+func (m *ExecEvalMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case descroot.FieldDescRn:
+	case execeval.FieldCompRn:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetDescRn(v)
+		m.SetCompRn(v)
+		return nil
+	case execeval.FieldLiabMode:
+		v, ok := value.(int16)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLiabMode(v)
 		return nil
 	}
-	return fmt.Errorf("unknown DescRoot field %s", name)
+	return fmt.Errorf("unknown ExecEval field %s", name)
 }
 
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
-func (m *DescRootMutation) AddedFields() []string {
+func (m *ExecEvalMutation) AddedFields() []string {
 	var fields []string
-	if m.adddesc_rn != nil {
-		fields = append(fields, descroot.FieldDescRn)
+	if m.addcomp_rn != nil {
+		fields = append(fields, execeval.FieldCompRn)
+	}
+	if m.addliab_mode != nil {
+		fields = append(fields, execeval.FieldLiabMode)
 	}
 	return fields
 }

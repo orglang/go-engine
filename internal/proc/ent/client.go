@@ -495,27 +495,27 @@ func (c *DescRootClient) GetX(ctx context.Context, id string) *DescRoot {
 }
 
 // Hooks returns the client hooks.
-func (c *ExecEvalClient) Hooks() []Hook {
-	return c.hooks.ExecEval
+func (c *DescRootClient) Hooks() []Hook {
+	return c.hooks.DescRoot
 }
 
 // Interceptors returns the client interceptors.
-func (c *ExecEvalClient) Interceptors() []Interceptor {
-	return c.inters.ExecEval
+func (c *DescRootClient) Interceptors() []Interceptor {
+	return c.inters.DescRoot
 }
 
-func (c *ExecEvalClient) mutate(ctx context.Context, m *ExecEvalMutation) (Value, error) {
+func (c *DescRootClient) mutate(ctx context.Context, m *DescRootMutation) (Value, error) {
 	switch m.Op() {
 	case OpCreate:
-		return (&ExecEvalCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&DescRootCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdate:
-		return (&ExecEvalUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&DescRootUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdateOne:
-		return (&ExecEvalUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&DescRootUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpDelete, OpDeleteOne:
-		return (&ExecEvalDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+		return (&DescRootDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
-		return nil, fmt.Errorf("ent: unknown ExecEval mutation op: %q", m.Op())
+		return nil, fmt.Errorf("ent: unknown DescRoot mutation op: %q", m.Op())
 	}
 }
 

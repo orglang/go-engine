@@ -186,7 +186,7 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 		t.Fatalf("count type expressions: %v", err)
 	}
 	err = verifyConn.QueryRow(ctx,
-		"SELECT count(*) FROM pool_type_defs WHERE type_id = $1 AND desc_id = $2", ref.TypeID.String(), ref.DescID.String(),
+		"SELECT count(*) FROM pool_type_defs WHERE type_id = $1 AND desc_id = $2", typeID.String(), descRef.DescID.String(),
 	).Scan(&typeDefCount)
 	if err != nil {
 		t.Fatalf("count type definitions: %v", err)

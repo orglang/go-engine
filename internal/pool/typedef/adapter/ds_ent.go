@@ -30,7 +30,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec)
 	if err := dao.addExpRec(ctx, conn, rec.TypeExp); err != nil {
 		return err
 	}
-	refAttr := slog.Any("ref", rec.TypeRef)
+	refAttr := slog.Any("typeID", rec.TypeID)
 	dao.log.Log(ctx, lf.LevelTrace, "addition started", refAttr)
 
 	dto, err := DataFromDefRec(rec)
@@ -53,7 +53,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec)
 INSERT INTO pool_desc_binds (desc_qn, desc_id, kind)
 VALUES ($1, $2, 1)
 `
-	if _, err := conn.Pgx.Exec(ctx, bindQuery, uniqsym.ConvertToString(rec.TypeQN), rec.TypeRef.TypeID.String()); err != nil {
+	if _, err := conn.Pgx.Exec(ctx, bindQuery, uniqsym.ConvertToString(rec.TypeQN), rec.TypeID.String()); err != nil {
 		dao.log.Error("description binding insertion failed", refAttr, slog.Any("error", err))
 		return err
 	}

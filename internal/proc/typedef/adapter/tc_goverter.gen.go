@@ -13,21 +13,6 @@ import (
 )
 
 func init() {
-	ViewFromDefSnap = func(source core.DefSnap) DefSnapVP {
-		var result DefSnapVP
-		result.TypeRef.TypeID = source.TypeID
-		result.TypeRef.DescID = source.DescRef.DescID
-		result.TypeRef.DescRN = source.DescRef.DescRN
-		result.DefSpec = coreDefSpecToAdapterDefSpecVP(source.DefSpec)
-		return result
-	}
-}
-func coreDefSpecToAdapterDefSpecVP(source core.DefSpec) DefSpecVP {
-	var result DefSpecVP
-	result.TypeQN = uniqsym.ConvertToString(source.TypeQN)
-	return result
-}
-func init() {
 	DataFromDefRec = func(source core.DefRec) (DefRec, error) {
 		var result DefRec
 		result.TypeQN = uniqsym.ConvertToString(source.TypeQN)

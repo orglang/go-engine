@@ -87,7 +87,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execconn.Con
 		dto := connactadapter.DataFromStepRec(act)
 		dto.ActNr = int64(mod.ProviderExecRN) + 1
 		_, err := conn.Pgx.Exec(ctx, insertActRec,
-			dto.ConnID, dto.ActNr, dto.CompID, dto.CompRN, dto.ChnlID, dto.K, dto.Exp,
+			dto.ConnID, dto.ActNr, dto.ExecID, dto.ExecRN, dto.ChnlID, dto.K, dto.Exp,
 		)
 		if err != nil {
 			dao.log.Error("Act insertion failed", refAttr)

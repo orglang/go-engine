@@ -5,9 +5,9 @@ package adapter
 
 import (
 	contkey "orglang/go-engine/internal/adt/contkey"
+	descroot "orglang/go-engine/internal/adt/descroot"
 	identity "orglang/go-engine/internal/adt/identity"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
-	typesem "orglang/go-engine/internal/adt/typesem"
 	uniqsym "orglang/go-engine/internal/adt/uniqsym"
 	core "orglang/go-engine/internal/pool/typedef/core"
 )
@@ -16,9 +16,9 @@ func init() {
 	DataFromDefRec = func(source core.DefRec) (DefRec, error) {
 		var adapterDefRec DefRec
 		adapterDefRec.TypeQN = uniqsym.ConvertToString(source.TypeQN)
-		adapterDefRec.TypeID = identity.ConvertToString(source.TypeRef.TypeID)
-		adapterDefRec.DescID = identity.ConvertToString(source.TypeRef.DescID)
-		adapterDefRec.DescRN = seqnum.ConvertToInt(source.TypeRef.DescRN)
+		adapterDefRec.TypeID = identity.ConvertToString(source.TypeID)
+		adapterDefRec.DescID = identity.ConvertToString(source.DescRef.DescID)
+		adapterDefRec.DescRN = seqnum.ConvertToInt(source.DescRef.DescRN)
 		adapterDefRec.ExpCK = contkey.ConvertToInt(source.ExpCK)
 		return adapterDefRec, nil
 	}
@@ -43,11 +43,16 @@ func init() {
 			return coreDefRec, err
 		}
 		coreDefRec.TypeQN = uniqsymADT
-		typesemSemRef, err := adapterDefRecToTypesemSemRef(source)
+		typeID, err := identity.ConvertFromString(source.TypeID)
 		if err != nil {
 			return coreDefRec, err
 		}
-		coreDefRec.TypeRef = typesemSemRef
+		descID, err := identity.ConvertFromString(source.DescID)
+		if err != nil {
+			return coreDefRec, err
+		}
+		coreDefRec.TypeID = typeID
+		coreDefRec.DescRef = descroot.SemRef{DescID: descID, DescRN: seqnum.ConvertFromInt(source.DescRN)}
 		contkeyADT, err := contkey.ConvertFromInt(source.ExpCK)
 		if err != nil {
 			return coreDefRec, err
@@ -56,46 +61,31 @@ func init() {
 		return coreDefRec, nil
 	}
 	DataToDefRecMap = func(source map[uniqsym.ADT]DefRec) (map[uniqsym.ADT]core.DefRec, error) {
-		var mapUniqsymADTCoreDefRec map[uniqsym.ADT]core.DefRec
+		var result map[uniqsym.ADT]core.DefRec
 		if source != nil {
-			mapUniqsymADTCoreDefRec = make(map[uniqsym.ADT]core.DefRec, len(source))
+			result = make(map[uniqsym.ADT]core.DefRec, len(source))
 			for key, value := range source {
-				coreDefRec, err := DataToDefRec(value)
+				rec, err := DataToDefRec(value)
 				if err != nil {
 					return nil, err
 				}
-				mapUniqsymADTCoreDefRec[key] = coreDefRec
+				result[key] = rec
 			}
 		}
-		return mapUniqsymADTCoreDefRec, nil
+		return result, nil
 	}
 	DataToDefRecs = func(source []DefRec) ([]core.DefRec, error) {
-		var coreDefRecList []core.DefRec
+		var result []core.DefRec
 		if source != nil {
-			coreDefRecList = make([]core.DefRec, len(source))
-			for i := 0; i < len(source); i++ {
-				coreDefRec, err := DataToDefRec(source[i])
+			result = make([]core.DefRec, len(source))
+			for i := range source {
+				rec, err := DataToDefRec(source[i])
 				if err != nil {
 					return nil, err
 				}
-				coreDefRecList[i] = coreDefRec
+				result[i] = rec
 			}
 		}
-		return coreDefRecList, nil
+		return result, nil
 	}
-}
-func adapterDefRecToTypesemSemRef(source DefRec) (typesem.SemRef, error) {
-	var typesemSemRef typesem.SemRef
-	identityADT, err := identity.ConvertFromString(source.TypeID)
-	if err != nil {
-		return typesemSemRef, err
-	}
-	typesemSemRef.TypeID = identityADT
-	identityADT2, err := identity.ConvertFromString(source.DescID)
-	if err != nil {
-		return typesemSemRef, err
-	}
-	typesemSemRef.DescID = identityADT2
-	typesemSemRef.DescRN = seqnum.ConvertFromInt(source.DescRN)
-	return typesemSemRef, nil
 }

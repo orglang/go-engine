@@ -9,12 +9,12 @@ import (
 
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/descroot"
-	"orglang/go-engine/internal/adt/typesem"
+	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/uniqsym"
 )
 
 type API interface {
-	Create(context.Context, DefSpec) (typesem.SemRef, error)
+	Create(context.Context, DefSpec) (identity.ADT, descroot.SemRef, error)
 }
 
 type DefSpec struct {
@@ -24,13 +24,15 @@ type DefSpec struct {
 
 type DefRec struct {
 	TypeQN  uniqsym.ADT
-	TypeRef typesem.SemRef
+	TypeID  identity.ADT
+	DescRef descroot.SemRef
 	ExpCK   contkey.ADT
 	TypeExp ExpRec
 }
 
 type DefSnap struct {
-	TypeRef typesem.SemRef
+	TypeID  identity.ADT
+	DescRef descroot.SemRef
 	TypeExp ExpSpec
 }
 
@@ -55,28 +57,28 @@ func NewService(
 	return &service{typeDefRepo: typeDefRepo, descRootRepo: descRootRepo, transactor: transactor, log: log}
 }
 
-func (s *service) Create(ctx context.Context, spec DefSpec) (_ typesem.SemRef, err error) {
+func (s *service) Create(ctx context.Context, spec DefSpec) (_ identity.ADT, _ descroot.SemRef, err error) {
 	qnAttr := slog.Any("qn", spec.TypeQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	newExp, convErr := ConvertSpecToRec(spec.TypeExp)
 	if convErr != nil {
-		return typesem.SemRef{}, convErr
+		return identity.ADT{}, descroot.SemRef{}, convErr
 	}
-	newDef := DefRec{TypeQN: spec.TypeQN, TypeRef: typesem.New(), ExpCK: newExp.Key(), TypeExp: newExp}
-	newRoot := descroot.SemRef{DescID: newDef.TypeRef.DescID, DescRN: newDef.TypeRef.DescRN}
+	typeID := identity.New()
+	descRef := descroot.New()
+	newDef := DefRec{TypeID: typeID, DescRef: descRef, TypeQN: spec.TypeQN, ExpCK: newExp.Key(), TypeExp: newExp}
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		err = s.descRootRepo.AddRef(txCtx, conn, newRoot)
-		if err != nil {
+		if err := s.descRootRepo.AddRef(txCtx, conn, descRef); err != nil {
 			return err
 		}
 		return s.typeDefRepo.AddRec(txCtx, conn, newDef)
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", qnAttr)
-		return typesem.SemRef{}, transactErr
+		return identity.ADT{}, descroot.SemRef{}, transactErr
 	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", newDef.TypeRef))
-	return newDef.TypeRef, nil
+	s.log.Debug("creation succeed", qnAttr, slog.Any("typeID", typeID), slog.Any("descRef", descRef))
+	return typeID, descRef, nil
 }
 
 func ErrMissingInEnv(want contkey.ADT) error {

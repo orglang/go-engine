@@ -11,14 +11,14 @@ import (
 )
 
 func init() {
-	DataFromExecRec = func(source core.EvalRec) EvalRec {
+	DataFromEvalRec = func(source core.EvalRec) EvalRec {
 		var adapterEvalRec EvalRec
 		adapterEvalRec.CompID = identity.ConvertToString(source.CompRef.CompID)
 		adapterEvalRec.CompRN = int64(source.CompRef.CompRN)
 		adapterEvalRec.LiabMode = int16(source.LiabMode)
 		return adapterEvalRec
 	}
-	DataToExecRec = func(source EvalRec) (core.EvalRec, error) {
+	DataToEvalRec = func(source EvalRec) (core.EvalRec, error) {
 		var coreEvalRec core.EvalRec
 		comprootSemRef, err := dataToSemRef(source)
 		if err != nil {

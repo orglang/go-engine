@@ -147,15 +147,15 @@ func poolStepSpecToCore(dto api.PoolStepSpec) (execstep.StepSpec, error) {
 	return execstep.StepSpec{CompRef: ref, PoolExp: exp}, nil
 }
 
-func compRefFromAPI(dto api.AnyCompRef) (comproot.SemRef, error) {
+func compRefFromAPI(dto api.AnyCompRef) (comproot.RootRef, error) {
 	id, err := identity.ConvertFromString(dto.CompId)
 	if err != nil {
-		return comproot.SemRef{}, err
+		return comproot.RootRef{}, err
 	}
-	return comproot.SemRef{CompID: id, CompRN: seqnum.ConvertFromInt(dto.CompRn)}, nil
+	return comproot.RootRef{CompID: id, CompRN: seqnum.ConvertFromInt(dto.CompRn)}, nil
 }
 
-func compRefToAPI(ref comproot.SemRef) api.AnyCompRef {
+func compRefToAPI(ref comproot.RootRef) api.AnyCompRef {
 	return api.AnyCompRef{
 		CompId: identity.ConvertToString(ref.CompID),
 		CompRn: seqnum.ConvertToInt(ref.CompRN),
@@ -306,7 +306,7 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (execeval.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		compRefs := make([]comproot.SemRef, len(value.ProcIrs))
+		compRefs := make([]comproot.RootRef, len(value.ProcIrs))
 		for i, item := range value.ProcIrs {
 			compRefs[i], err = compRefFromAPI(item)
 			if err != nil {

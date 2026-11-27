@@ -220,6 +220,7 @@ func (dao *daoEnt) GetRecsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 const (
 	selectRecByQN = `
 SELECT
+    db.desc_qn AS type_qn,
     td.type_id,
     td.desc_id,
     td.exp_ck,
@@ -234,6 +235,7 @@ WHERE db.desc_qn = $1
 
 	selectRecByID = `
 SELECT
+    db.desc_qn AS type_qn,
     td.type_id,
     td.desc_id,
     td.exp_ck,
@@ -241,6 +243,8 @@ SELECT
 FROM proc_type_defs AS td
 JOIN proc_desc_roots AS dr
     ON dr.desc_id = td.desc_id
+JOIN proc_desc_binds AS db
+    ON db.desc_id = td.type_id
 WHERE td.type_id = $1
 `
 

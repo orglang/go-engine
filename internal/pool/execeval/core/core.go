@@ -28,9 +28,9 @@ import (
 )
 
 type API interface {
-	Run(context.Context, EvalSpec) (comproot.SemRef, error) // aka Create
+	Run(context.Context, EvalSpec) (comproot.RootRef, error) // aka Create
 	Take(context.Context, execstep.StepSpec) error
-	Spawn(context.Context, execstep.StepSpec) (comproot.SemRef, error)
+	Spawn(context.Context, execstep.StepSpec) (comproot.RootRef, error)
 }
 
 type Broker interface {
@@ -48,13 +48,13 @@ type EvalSpec struct {
 }
 
 type EvalRec struct {
-	CompRef  comproot.SemRef
+	CompRef  comproot.RootRef
 	TermQN   uniqsym.ADT
 	LiabMode execvar.Mode
 }
 
 type EvalMod struct {
-	CompRef comproot.SemRef
+	CompRef comproot.RootRef
 	Vars    []execvar.VarRec
 }
 
@@ -65,19 +65,19 @@ type EvalEff struct {
 }
 
 type EvalSnap1 struct {
-	CompRef comproot.SemRef
+	CompRef comproot.RootRef
 	LiabVar execvar.VarRec
 }
 
 type EvalSnap2 struct {
-	CompRef    comproot.SemRef
+	CompRef    comproot.RootRef
 	LiabMode   execvar.Mode
 	StructVars []execvar.StructRec
 	LinearVars []execvar.LinearRec
 }
 
 type EvalSnap3 struct {
-	CompRef    comproot.SemRef
+	CompRef    comproot.RootRef
 	StructVars map[symbol.ADT]execvar.StructRec
 	StructExps map[symbol.ADT]typedef.ExpRec
 	LinearVars map[symbol.ADT]execvar.LinearRec
@@ -125,7 +125,7 @@ func NewService(deps ServiceDeps) API {
 	}
 }
 
-func (s *service) Run(ctx context.Context, spec EvalSpec) (_ comproot.SemRef, err error) {
+func (s *service) Run(ctx context.Context, spec EvalSpec) (_ comproot.RootRef, err error) {
 	specAttr := slog.Any("spec", spec)
 	s.log.Debug("creation started", specAttr)
 	var termDec termdec.DecRec
@@ -135,7 +135,7 @@ func (s *service) Run(ctx context.Context, spec EvalSpec) (_ comproot.SemRef, er
 	})
 	if getErr1 != nil {
 		s.log.Error("creation failed", specAttr)
-		return comproot.SemRef{}, getErr1
+		return comproot.RootRef{}, getErr1
 	}
 	assetQNs := make([]uniqsym.ADT, 0, len(spec.AssetVars))
 	for _, assetVar := range spec.AssetVars {
@@ -151,7 +151,7 @@ func (s *service) Run(ctx context.Context, spec EvalSpec) (_ comproot.SemRef, er
 	})
 	if getErr2 != nil {
 		s.log.Error("creation failed", specAttr)
-		return comproot.SemRef{}, getErr2
+		return comproot.RootRef{}, getErr2
 	}
 	newEval := EvalRec{CompRef: comproot.New(), TermQN: spec.TermQN, LiabMode: execvar.StructMode}
 	// Reserve the provider-side connection identity in its liability variable.
@@ -174,7 +174,7 @@ func (s *service) Run(ctx context.Context, spec EvalSpec) (_ comproot.SemRef, er
 		var connID identity.ADT
 		var chnlID identity.ADT
 		var expCK contkey.ADT
-		var providerExecRef comproot.SemRef
+		var providerExecRef comproot.RootRef
 		assetExec, ok := assetEvals[assetVar.TermQN]
 		if !ok && assetVar.TermQN == spec.LiabVar.TermQN {
 			connID = newConnID
@@ -222,13 +222,13 @@ func (s *service) Run(ctx context.Context, spec EvalSpec) (_ comproot.SemRef, er
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", specAttr)
-		return comproot.SemRef{}, transactErr
+		return comproot.RootRef{}, transactErr
 	}
 	s.log.Debug("creation succeed", slog.Any("ref", newEval.CompRef))
 	return newEval.CompRef, nil
 }
 
-func (s *service) Spawn(ctx context.Context, spec execstep.StepSpec) (_ comproot.SemRef, err error) {
+func (s *service) Spawn(ctx context.Context, spec execstep.StepSpec) (_ comproot.RootRef, err error) {
 	refAttr := slog.Any("ref", spec.CompRef)
 	s.log.Debug("proc spawning started", refAttr, slog.Any("exp", spec.PoolExp))
 	newEval := procexeceval.EvalRec{CompRef: comproot.New(), LiabMode: execvar.LinearMode}
@@ -237,7 +237,7 @@ func (s *service) Spawn(ctx context.Context, spec execstep.StepSpec) (_ comproot
 	})
 	if transactErr != nil {
 		s.log.Error("proc spawning failed", refAttr)
-		return comproot.SemRef{}, transactErr
+		return comproot.RootRef{}, transactErr
 	}
 	s.log.Debug("proc spawning succeed", refAttr, slog.Any("proc", newEval.CompRef))
 	return newEval.CompRef, nil
@@ -259,14 +259,14 @@ func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) 
 	// Every changed Computation aggregate is guarded by its observed root revision.
 	// Connection changes always include the provider aggregate, regardless of
 	// which endpoint initiated the step.
-	compRefs := map[string]comproot.SemRef{}
+	compRefs := map[string]comproot.RootRef{}
 	if connMod.ProviderExecID.IsEmpty() {
 		// Non-connection steps still mutate the executing Computation root.
 		compRefs[evalSnap.CompRef.CompID.String()] = evalSnap.CompRef
 	} else {
 		// A connection step always mutates the provider aggregate. The
 		// initiating client root is added only if its own variables change.
-		providerRef := comproot.SemRef{
+		providerRef := comproot.RootRef{
 			CompID: connMod.ProviderExecID,
 			CompRN: connMod.ProviderExecRN,
 		}
@@ -858,7 +858,7 @@ func (s *service) takeStep(
 	}
 }
 
-func (s *service) retrieveSnap(ctx context.Context, ref comproot.SemRef) (_ EvalSnap3, err error) {
+func (s *service) retrieveSnap(ctx context.Context, ref comproot.RootRef) (_ EvalSnap3, err error) {
 	var evalSnap EvalSnap2
 	getErr1 := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		evalSnap, err = s.execEvalRepo.GetSnapByRef(txCtx, conn, ref)

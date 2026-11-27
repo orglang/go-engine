@@ -5,15 +5,15 @@ import (
 	"orglang/go-engine/internal/adt/symbol"
 )
 
-func ConvertRecToRef(rec LinearRec) comproot.SemRef {
+func ConvertRecToRef(rec LinearRec) comproot.RootRef {
 	return rec.RootRef
 }
 
-func ConvertRecsToRefs(recs []LinearRec) []comproot.SemRef {
+func ConvertRecsToRefs(recs []LinearRec) []comproot.RootRef {
 	if recs == nil {
 		return nil
 	}
-	refs := make([]comproot.SemRef, len(recs))
+	refs := make([]comproot.RootRef, len(recs))
 	for i, rec := range recs {
 		refs[i] = ConvertRecToRef(rec)
 	}

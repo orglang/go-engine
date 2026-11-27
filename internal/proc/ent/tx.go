@@ -14,8 +14,8 @@ type Tx struct {
 	config
 	// CompConn is the client for interacting with the CompConn builders.
 	CompConn *CompConnClient
-	// CompExec is the client for interacting with the CompExec builders.
-	CompExec *CompExecClient
+	// ExecEval is the client for interacting with the ExecEval builders.
+	ExecEval *ExecEvalClient
 	// DescRoot is the client for interacting with the DescRoot builders.
 	DescRoot *DescRootClient
 	// TermDec is the client for interacting with the TermDec builders.
@@ -158,7 +158,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.CompConn = NewCompConnClient(tx.config)
-	tx.CompExec = NewCompExecClient(tx.config)
+	tx.ExecEval = NewExecEvalClient(tx.config)
 	tx.DescRoot = NewDescRootClient(tx.config)
 	tx.TermDec = NewTermDecClient(tx.config)
 	tx.TermExp = NewTermExpClient(tx.config)

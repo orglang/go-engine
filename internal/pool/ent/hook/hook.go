@@ -20,16 +20,16 @@ func (f CompConnFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CompConnMutation", m)
 }
 
-// The CompExecFunc type is an adapter to allow the use of ordinary
-// function as CompExec mutator.
-type CompExecFunc func(context.Context, *ent.CompExecMutation) (ent.Value, error)
+// The ExecEvalFunc type is an adapter to allow the use of ordinary
+// function as ExecEval mutator.
+type ExecEvalFunc func(context.Context, *ent.ExecEvalMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f CompExecFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.CompExecMutation); ok {
+func (f ExecEvalFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ExecEvalMutation); ok {
 		return f(ctx, mv)
 	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CompExecMutation", m)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ExecEvalMutation", m)
 }
 
 // The DescRootFunc type is an adapter to allow the use of ordinary

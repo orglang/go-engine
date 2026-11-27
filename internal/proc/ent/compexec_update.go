@@ -6,7 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"orglang/go-engine/internal/proc/ent/compexec"
+	"orglang/go-engine/internal/proc/ent/execeval"
 	"orglang/go-engine/internal/proc/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
@@ -14,28 +14,28 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// CompExecUpdate is the builder for updating CompExec entities.
-type CompExecUpdate struct {
+// ExecEvalUpdate is the builder for updating ExecEval entities.
+type ExecEvalUpdate struct {
 	config
 	hooks    []Hook
-	mutation *CompExecMutation
+	mutation *ExecEvalMutation
 }
 
-// Where appends a list predicates to the CompExecUpdate builder.
-func (_u *CompExecUpdate) Where(ps ...predicate.CompExec) *CompExecUpdate {
+// Where appends a list predicates to the ExecEvalUpdate builder.
+func (_u *ExecEvalUpdate) Where(ps ...predicate.ExecEval) *ExecEvalUpdate {
 	_u.mutation.Where(ps...)
 	return _u
 }
 
 // SetCompRn sets the "comp_rn" field.
-func (_u *CompExecUpdate) SetCompRn(v int64) *CompExecUpdate {
+func (_u *ExecEvalUpdate) SetCompRn(v int64) *ExecEvalUpdate {
 	_u.mutation.ResetCompRn()
 	_u.mutation.SetCompRn(v)
 	return _u
 }
 
 // SetNillableCompRn sets the "comp_rn" field if the given value is not nil.
-func (_u *CompExecUpdate) SetNillableCompRn(v *int64) *CompExecUpdate {
+func (_u *ExecEvalUpdate) SetNillableCompRn(v *int64) *ExecEvalUpdate {
 	if v != nil {
 		_u.SetCompRn(*v)
 	}
@@ -43,20 +43,20 @@ func (_u *CompExecUpdate) SetNillableCompRn(v *int64) *CompExecUpdate {
 }
 
 // AddCompRn adds value to the "comp_rn" field.
-func (_u *CompExecUpdate) AddCompRn(v int64) *CompExecUpdate {
+func (_u *ExecEvalUpdate) AddCompRn(v int64) *ExecEvalUpdate {
 	_u.mutation.AddCompRn(v)
 	return _u
 }
 
 // SetLiabMode sets the "liab_mode" field.
-func (_u *CompExecUpdate) SetLiabMode(v int16) *CompExecUpdate {
+func (_u *ExecEvalUpdate) SetLiabMode(v int16) *ExecEvalUpdate {
 	_u.mutation.ResetLiabMode()
 	_u.mutation.SetLiabMode(v)
 	return _u
 }
 
 // SetNillableLiabMode sets the "liab_mode" field if the given value is not nil.
-func (_u *CompExecUpdate) SetNillableLiabMode(v *int16) *CompExecUpdate {
+func (_u *ExecEvalUpdate) SetNillableLiabMode(v *int16) *ExecEvalUpdate {
 	if v != nil {
 		_u.SetLiabMode(*v)
 	}
@@ -64,23 +64,23 @@ func (_u *CompExecUpdate) SetNillableLiabMode(v *int16) *CompExecUpdate {
 }
 
 // AddLiabMode adds value to the "liab_mode" field.
-func (_u *CompExecUpdate) AddLiabMode(v int16) *CompExecUpdate {
+func (_u *ExecEvalUpdate) AddLiabMode(v int16) *ExecEvalUpdate {
 	_u.mutation.AddLiabMode(v)
 	return _u
 }
 
-// Mutation returns the CompExecMutation object of the builder.
-func (_u *CompExecUpdate) Mutation() *CompExecMutation {
+// Mutation returns the ExecEvalMutation object of the builder.
+func (_u *ExecEvalUpdate) Mutation() *ExecEvalMutation {
 	return _u.mutation
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (_u *CompExecUpdate) Save(ctx context.Context) (int, error) {
+func (_u *ExecEvalUpdate) Save(ctx context.Context) (int, error) {
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (_u *CompExecUpdate) SaveX(ctx context.Context) int {
+func (_u *ExecEvalUpdate) SaveX(ctx context.Context) int {
 	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -89,20 +89,20 @@ func (_u *CompExecUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (_u *CompExecUpdate) Exec(ctx context.Context) error {
+func (_u *ExecEvalUpdate) Exec(ctx context.Context) error {
 	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_u *CompExecUpdate) ExecX(ctx context.Context) {
+func (_u *ExecEvalUpdate) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (_u *CompExecUpdate) sqlSave(ctx context.Context) (_node int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(compexec.Table, compexec.Columns, sqlgraph.NewFieldSpec(compexec.FieldID, field.TypeString))
+func (_u *ExecEvalUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	_spec := sqlgraph.NewUpdateSpec(execeval.Table, execeval.Columns, sqlgraph.NewFieldSpec(execeval.FieldID, field.TypeString))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -111,20 +111,20 @@ func (_u *CompExecUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 	}
 	if value, ok := _u.mutation.CompRn(); ok {
-		_spec.SetField(compexec.FieldCompRn, field.TypeInt64, value)
+		_spec.SetField(execeval.FieldCompRn, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.AddedCompRn(); ok {
-		_spec.AddField(compexec.FieldCompRn, field.TypeInt64, value)
+		_spec.AddField(execeval.FieldCompRn, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.LiabMode(); ok {
-		_spec.SetField(compexec.FieldLiabMode, field.TypeInt16, value)
+		_spec.SetField(execeval.FieldLiabMode, field.TypeInt16, value)
 	}
 	if value, ok := _u.mutation.AddedLiabMode(); ok {
-		_spec.AddField(compexec.FieldLiabMode, field.TypeInt16, value)
+		_spec.AddField(execeval.FieldLiabMode, field.TypeInt16, value)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
-			err = &NotFoundError{compexec.Label}
+			err = &NotFoundError{execeval.Label}
 		} else if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -134,23 +134,23 @@ func (_u *CompExecUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	return _node, nil
 }
 
-// CompExecUpdateOne is the builder for updating a single CompExec entity.
-type CompExecUpdateOne struct {
+// ExecEvalUpdateOne is the builder for updating a single ExecEval entity.
+type ExecEvalUpdateOne struct {
 	config
 	fields   []string
 	hooks    []Hook
-	mutation *CompExecMutation
+	mutation *ExecEvalMutation
 }
 
 // SetCompRn sets the "comp_rn" field.
-func (_u *CompExecUpdateOne) SetCompRn(v int64) *CompExecUpdateOne {
+func (_u *ExecEvalUpdateOne) SetCompRn(v int64) *ExecEvalUpdateOne {
 	_u.mutation.ResetCompRn()
 	_u.mutation.SetCompRn(v)
 	return _u
 }
 
 // SetNillableCompRn sets the "comp_rn" field if the given value is not nil.
-func (_u *CompExecUpdateOne) SetNillableCompRn(v *int64) *CompExecUpdateOne {
+func (_u *ExecEvalUpdateOne) SetNillableCompRn(v *int64) *ExecEvalUpdateOne {
 	if v != nil {
 		_u.SetCompRn(*v)
 	}
@@ -158,20 +158,20 @@ func (_u *CompExecUpdateOne) SetNillableCompRn(v *int64) *CompExecUpdateOne {
 }
 
 // AddCompRn adds value to the "comp_rn" field.
-func (_u *CompExecUpdateOne) AddCompRn(v int64) *CompExecUpdateOne {
+func (_u *ExecEvalUpdateOne) AddCompRn(v int64) *ExecEvalUpdateOne {
 	_u.mutation.AddCompRn(v)
 	return _u
 }
 
 // SetLiabMode sets the "liab_mode" field.
-func (_u *CompExecUpdateOne) SetLiabMode(v int16) *CompExecUpdateOne {
+func (_u *ExecEvalUpdateOne) SetLiabMode(v int16) *ExecEvalUpdateOne {
 	_u.mutation.ResetLiabMode()
 	_u.mutation.SetLiabMode(v)
 	return _u
 }
 
 // SetNillableLiabMode sets the "liab_mode" field if the given value is not nil.
-func (_u *CompExecUpdateOne) SetNillableLiabMode(v *int16) *CompExecUpdateOne {
+func (_u *ExecEvalUpdateOne) SetNillableLiabMode(v *int16) *ExecEvalUpdateOne {
 	if v != nil {
 		_u.SetLiabMode(*v)
 	}
@@ -179,36 +179,36 @@ func (_u *CompExecUpdateOne) SetNillableLiabMode(v *int16) *CompExecUpdateOne {
 }
 
 // AddLiabMode adds value to the "liab_mode" field.
-func (_u *CompExecUpdateOne) AddLiabMode(v int16) *CompExecUpdateOne {
+func (_u *ExecEvalUpdateOne) AddLiabMode(v int16) *ExecEvalUpdateOne {
 	_u.mutation.AddLiabMode(v)
 	return _u
 }
 
-// Mutation returns the CompExecMutation object of the builder.
-func (_u *CompExecUpdateOne) Mutation() *CompExecMutation {
+// Mutation returns the ExecEvalMutation object of the builder.
+func (_u *ExecEvalUpdateOne) Mutation() *ExecEvalMutation {
 	return _u.mutation
 }
 
-// Where appends a list predicates to the CompExecUpdate builder.
-func (_u *CompExecUpdateOne) Where(ps ...predicate.CompExec) *CompExecUpdateOne {
+// Where appends a list predicates to the ExecEvalUpdate builder.
+func (_u *ExecEvalUpdateOne) Where(ps ...predicate.ExecEval) *ExecEvalUpdateOne {
 	_u.mutation.Where(ps...)
 	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (_u *CompExecUpdateOne) Select(field string, fields ...string) *CompExecUpdateOne {
+func (_u *ExecEvalUpdateOne) Select(field string, fields ...string) *ExecEvalUpdateOne {
 	_u.fields = append([]string{field}, fields...)
 	return _u
 }
 
-// Save executes the query and returns the updated CompExec entity.
-func (_u *CompExecUpdateOne) Save(ctx context.Context) (*CompExec, error) {
+// Save executes the query and returns the updated ExecEval entity.
+func (_u *ExecEvalUpdateOne) Save(ctx context.Context) (*ExecEval, error) {
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (_u *CompExecUpdateOne) SaveX(ctx context.Context) *CompExec {
+func (_u *ExecEvalUpdateOne) SaveX(ctx context.Context) *ExecEval {
 	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -217,33 +217,33 @@ func (_u *CompExecUpdateOne) SaveX(ctx context.Context) *CompExec {
 }
 
 // Exec executes the query on the entity.
-func (_u *CompExecUpdateOne) Exec(ctx context.Context) error {
+func (_u *ExecEvalUpdateOne) Exec(ctx context.Context) error {
 	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_u *CompExecUpdateOne) ExecX(ctx context.Context) {
+func (_u *ExecEvalUpdateOne) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (_u *CompExecUpdateOne) sqlSave(ctx context.Context) (_node *CompExec, err error) {
-	_spec := sqlgraph.NewUpdateSpec(compexec.Table, compexec.Columns, sqlgraph.NewFieldSpec(compexec.FieldID, field.TypeString))
+func (_u *ExecEvalUpdateOne) sqlSave(ctx context.Context) (_node *ExecEval, err error) {
+	_spec := sqlgraph.NewUpdateSpec(execeval.Table, execeval.Columns, sqlgraph.NewFieldSpec(execeval.FieldID, field.TypeString))
 	id, ok := _u.mutation.ID()
 	if !ok {
-		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "CompExec.id" for update`)}
+		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "ExecEval.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
 	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, compexec.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, execeval.FieldID)
 		for _, f := range fields {
-			if !compexec.ValidColumn(f) {
+			if !execeval.ValidColumn(f) {
 				return nil, &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 			}
-			if f != compexec.FieldID {
+			if f != execeval.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, f)
 			}
 		}
@@ -256,23 +256,23 @@ func (_u *CompExecUpdateOne) sqlSave(ctx context.Context) (_node *CompExec, err 
 		}
 	}
 	if value, ok := _u.mutation.CompRn(); ok {
-		_spec.SetField(compexec.FieldCompRn, field.TypeInt64, value)
+		_spec.SetField(execeval.FieldCompRn, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.AddedCompRn(); ok {
-		_spec.AddField(compexec.FieldCompRn, field.TypeInt64, value)
+		_spec.AddField(execeval.FieldCompRn, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.LiabMode(); ok {
-		_spec.SetField(compexec.FieldLiabMode, field.TypeInt16, value)
+		_spec.SetField(execeval.FieldLiabMode, field.TypeInt16, value)
 	}
 	if value, ok := _u.mutation.AddedLiabMode(); ok {
-		_spec.AddField(compexec.FieldLiabMode, field.TypeInt16, value)
+		_spec.AddField(execeval.FieldLiabMode, field.TypeInt16, value)
 	}
-	_node = &CompExec{config: _u.config}
+	_node = &ExecEval{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
 	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
-			err = &NotFoundError{compexec.Label}
+			err = &NotFoundError{execeval.Label}
 		} else if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}

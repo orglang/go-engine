@@ -10,7 +10,7 @@ import (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
-// goverter:extend orglang/go-engine/internal/pool/compexec/adapter:Data.*
+// goverter:extend orglang/go-engine/internal/pool/execeval/adapter:Data.*
 var (
 	DataToCompRef func(ActRec) (comproot.SemRef, error)
 	// goverter:map . CompRef

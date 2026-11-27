@@ -10,7 +10,7 @@ import (
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/wp"
 	compconn "orglang/go-engine/internal/pool/compconn/adapter"
-	compexec "orglang/go-engine/internal/pool/compexec/adapter"
+	execeval "orglang/go-engine/internal/pool/execeval/adapter"
 	compvar "orglang/go-engine/internal/pool/compvar/adapter"
 	descrootadapter "orglang/go-engine/internal/pool/descroot/adapter"
 	"orglang/go-engine/internal/pool/ent"
@@ -26,7 +26,7 @@ var Package = do.Package(
 	wp.Package,
 	compconn.Package,
 	compvar.Package,
-	compexec.Package,
+	execeval.Package,
 	typedef.Package,
 	termdec.Package,
 	termdef.Package,
@@ -44,11 +44,11 @@ var Package = do.Package(
 )
 
 func RegisterRoutes(server *echo.Echo, i do.Injector) error {
-	execController, err := do.Invoke[compexec.Controller](i)
+	execController, err := do.Invoke[execeval.Controller](i)
 	if err != nil {
 		return err
 	}
-	if err := compexec.RegisterRoutes(server, execController); err != nil {
+	if err := execeval.RegisterRoutes(server, execController); err != nil {
 		return err
 	}
 

@@ -8,14 +8,14 @@ import (
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 
-	compexec "orglang/go-engine/internal/proc/compexec/adapter"
+	execeval "orglang/go-engine/internal/proc/execeval/adapter"
 	connact "orglang/go-engine/internal/proc/connact/core"
 )
 
 func DataFromStepRec(r connact.ActRec) (ActRec, error) {
 	switch rec := r.(type) {
 	case connact.PubRec:
-		exp, err := compexec.DataFromExpRec(rec.ValExp)
+		exp, err := execeval.DataFromExpRec(rec.ValExp)
 		if err != nil {
 			return ActRec{}, err
 		}
@@ -30,7 +30,7 @@ func DataFromStepRec(r connact.ActRec) (ActRec, error) {
 			Exp:    exp,
 		}, nil
 	case connact.SubRec:
-		exp, err := compexec.DataFromExpRec(rec.ContExp)
+		exp, err := execeval.DataFromExpRec(rec.ContExp)
 		if err != nil {
 			return ActRec{}, err
 		}
@@ -62,7 +62,7 @@ func DataToStepRec(dto ActRec) (connact.ActRec, error) {
 	if err != nil {
 		return nil, err
 	}
-	exp, err := compexec.DataToExpRec(dto.Exp)
+	exp, err := execeval.DataToExpRec(dto.Exp)
 	if err != nil {
 		return nil, err
 	}

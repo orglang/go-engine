@@ -15,7 +15,7 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/lib/ws"
 	"orglang/go-engine/internal/pool"
-	poolcompexecadapter "orglang/go-engine/internal/pool/compexec/adapter"
+	poolexecevaladapter "orglang/go-engine/internal/pool/execeval/adapter"
 	"orglang/go-engine/internal/proc"
 	progadapter "orglang/go-engine/internal/prog/adapter"
 )
@@ -73,7 +73,7 @@ func NewWithPackages(packages ...func(do.Injector)) (*app.App, error) {
 		return stopAfterError(application, err)
 	}
 
-	if err := poolcompexecadapter.SubscribeBroker(injector); err != nil {
+	if err := poolexecevaladapter.SubscribeBroker(injector); err != nil {
 		return stopAfterError(application, err)
 	}
 

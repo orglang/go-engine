@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 	"math"
-	"orglang/go-engine/internal/proc/ent/compexec"
+	"orglang/go-engine/internal/proc/ent/execeval"
 	"orglang/go-engine/internal/proc/ent/predicate"
 
 	"entgo.io/ent"
@@ -15,64 +15,64 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// CompExecQuery is the builder for querying CompExec entities.
-type CompExecQuery struct {
+// ExecEvalQuery is the builder for querying ExecEval entities.
+type ExecEvalQuery struct {
 	config
 	ctx        *QueryContext
-	order      []compexec.OrderOption
+	order      []execeval.OrderOption
 	inters     []Interceptor
-	predicates []predicate.CompExec
+	predicates []predicate.ExecEval
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
-// Where adds a new predicate for the CompExecQuery builder.
-func (_q *CompExecQuery) Where(ps ...predicate.CompExec) *CompExecQuery {
+// Where adds a new predicate for the ExecEvalQuery builder.
+func (_q *ExecEvalQuery) Where(ps ...predicate.ExecEval) *ExecEvalQuery {
 	_q.predicates = append(_q.predicates, ps...)
 	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (_q *CompExecQuery) Limit(limit int) *CompExecQuery {
+func (_q *ExecEvalQuery) Limit(limit int) *ExecEvalQuery {
 	_q.ctx.Limit = &limit
 	return _q
 }
 
 // Offset to start from.
-func (_q *CompExecQuery) Offset(offset int) *CompExecQuery {
+func (_q *ExecEvalQuery) Offset(offset int) *ExecEvalQuery {
 	_q.ctx.Offset = &offset
 	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (_q *CompExecQuery) Unique(unique bool) *CompExecQuery {
+func (_q *ExecEvalQuery) Unique(unique bool) *ExecEvalQuery {
 	_q.ctx.Unique = &unique
 	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (_q *CompExecQuery) Order(o ...compexec.OrderOption) *CompExecQuery {
+func (_q *ExecEvalQuery) Order(o ...execeval.OrderOption) *ExecEvalQuery {
 	_q.order = append(_q.order, o...)
 	return _q
 }
 
-// First returns the first CompExec entity from the query.
-// Returns a *NotFoundError when no CompExec was found.
-func (_q *CompExecQuery) First(ctx context.Context) (*CompExec, error) {
+// First returns the first ExecEval entity from the query.
+// Returns a *NotFoundError when no ExecEval was found.
+func (_q *ExecEvalQuery) First(ctx context.Context) (*ExecEval, error) {
 	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
-		return nil, &NotFoundError{compexec.Label}
+		return nil, &NotFoundError{execeval.Label}
 	}
 	return nodes[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (_q *CompExecQuery) FirstX(ctx context.Context) *CompExec {
+func (_q *ExecEvalQuery) FirstX(ctx context.Context) *ExecEval {
 	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -80,22 +80,22 @@ func (_q *CompExecQuery) FirstX(ctx context.Context) *CompExec {
 	return node
 }
 
-// FirstID returns the first CompExec ID from the query.
-// Returns a *NotFoundError when no CompExec ID was found.
-func (_q *CompExecQuery) FirstID(ctx context.Context) (id string, err error) {
+// FirstID returns the first ExecEval ID from the query.
+// Returns a *NotFoundError when no ExecEval ID was found.
+func (_q *ExecEvalQuery) FirstID(ctx context.Context) (id string, err error) {
 	var ids []string
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
-		err = &NotFoundError{compexec.Label}
+		err = &NotFoundError{execeval.Label}
 		return
 	}
 	return ids[0], nil
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *CompExecQuery) FirstIDX(ctx context.Context) string {
+func (_q *ExecEvalQuery) FirstIDX(ctx context.Context) string {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -103,10 +103,10 @@ func (_q *CompExecQuery) FirstIDX(ctx context.Context) string {
 	return id
 }
 
-// Only returns a single CompExec entity found by the query, ensuring it only returns one.
-// Returns a *NotSingularError when more than one CompExec entity is found.
-// Returns a *NotFoundError when no CompExec entities are found.
-func (_q *CompExecQuery) Only(ctx context.Context) (*CompExec, error) {
+// Only returns a single ExecEval entity found by the query, ensuring it only returns one.
+// Returns a *NotSingularError when more than one ExecEval entity is found.
+// Returns a *NotFoundError when no ExecEval entities are found.
+func (_q *ExecEvalQuery) Only(ctx context.Context) (*ExecEval, error) {
 	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
@@ -115,14 +115,14 @@ func (_q *CompExecQuery) Only(ctx context.Context) (*CompExec, error) {
 	case 1:
 		return nodes[0], nil
 	case 0:
-		return nil, &NotFoundError{compexec.Label}
+		return nil, &NotFoundError{execeval.Label}
 	default:
-		return nil, &NotSingularError{compexec.Label}
+		return nil, &NotSingularError{execeval.Label}
 	}
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (_q *CompExecQuery) OnlyX(ctx context.Context) *CompExec {
+func (_q *ExecEvalQuery) OnlyX(ctx context.Context) *ExecEval {
 	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
@@ -130,10 +130,10 @@ func (_q *CompExecQuery) OnlyX(ctx context.Context) *CompExec {
 	return node
 }
 
-// OnlyID is like Only, but returns the only CompExec ID in the query.
-// Returns a *NotSingularError when more than one CompExec ID is found.
+// OnlyID is like Only, but returns the only ExecEval ID in the query.
+// Returns a *NotSingularError when more than one ExecEval ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *CompExecQuery) OnlyID(ctx context.Context) (id string, err error) {
+func (_q *ExecEvalQuery) OnlyID(ctx context.Context) (id string, err error) {
 	var ids []string
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
@@ -142,15 +142,15 @@ func (_q *CompExecQuery) OnlyID(ctx context.Context) (id string, err error) {
 	case 1:
 		id = ids[0]
 	case 0:
-		err = &NotFoundError{compexec.Label}
+		err = &NotFoundError{execeval.Label}
 	default:
-		err = &NotSingularError{compexec.Label}
+		err = &NotSingularError{execeval.Label}
 	}
 	return
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *CompExecQuery) OnlyIDX(ctx context.Context) string {
+func (_q *ExecEvalQuery) OnlyIDX(ctx context.Context) string {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -158,18 +158,18 @@ func (_q *CompExecQuery) OnlyIDX(ctx context.Context) string {
 	return id
 }
 
-// All executes the query and returns a list of CompExecs.
-func (_q *CompExecQuery) All(ctx context.Context) ([]*CompExec, error) {
+// All executes the query and returns a list of ExecEvals.
+func (_q *ExecEvalQuery) All(ctx context.Context) ([]*ExecEval, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	qr := querierAll[[]*CompExec, *CompExecQuery]()
-	return withInterceptors[[]*CompExec](ctx, _q, qr, _q.inters)
+	qr := querierAll[[]*ExecEval, *ExecEvalQuery]()
+	return withInterceptors[[]*ExecEval](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (_q *CompExecQuery) AllX(ctx context.Context) []*CompExec {
+func (_q *ExecEvalQuery) AllX(ctx context.Context) []*ExecEval {
 	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
@@ -177,20 +177,20 @@ func (_q *CompExecQuery) AllX(ctx context.Context) []*CompExec {
 	return nodes
 }
 
-// IDs executes the query and returns a list of CompExec IDs.
-func (_q *CompExecQuery) IDs(ctx context.Context) (ids []string, err error) {
+// IDs executes the query and returns a list of ExecEval IDs.
+func (_q *ExecEvalQuery) IDs(ctx context.Context) (ids []string, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
-	if err = _q.Select(compexec.FieldID).Scan(ctx, &ids); err != nil {
+	if err = _q.Select(execeval.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *CompExecQuery) IDsX(ctx context.Context) []string {
+func (_q *ExecEvalQuery) IDsX(ctx context.Context) []string {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -199,16 +199,16 @@ func (_q *CompExecQuery) IDsX(ctx context.Context) []string {
 }
 
 // Count returns the count of the given query.
-func (_q *CompExecQuery) Count(ctx context.Context) (int, error) {
+func (_q *ExecEvalQuery) Count(ctx context.Context) (int, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, _q, querierCount[*CompExecQuery](), _q.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*ExecEvalQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (_q *CompExecQuery) CountX(ctx context.Context) int {
+func (_q *ExecEvalQuery) CountX(ctx context.Context) int {
 	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
@@ -217,7 +217,7 @@ func (_q *CompExecQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (_q *CompExecQuery) Exist(ctx context.Context) (bool, error) {
+func (_q *ExecEvalQuery) Exist(ctx context.Context) (bool, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
 	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
@@ -230,7 +230,7 @@ func (_q *CompExecQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (_q *CompExecQuery) ExistX(ctx context.Context) bool {
+func (_q *ExecEvalQuery) ExistX(ctx context.Context) bool {
 	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
@@ -238,18 +238,18 @@ func (_q *CompExecQuery) ExistX(ctx context.Context) bool {
 	return exist
 }
 
-// Clone returns a duplicate of the CompExecQuery builder, including all associated steps. It can be
+// Clone returns a duplicate of the ExecEvalQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (_q *CompExecQuery) Clone() *CompExecQuery {
+func (_q *ExecEvalQuery) Clone() *ExecEvalQuery {
 	if _q == nil {
 		return nil
 	}
-	return &CompExecQuery{
+	return &ExecEvalQuery{
 		config:     _q.config,
 		ctx:        _q.ctx.Clone(),
-		order:      append([]compexec.OrderOption{}, _q.order...),
+		order:      append([]execeval.OrderOption{}, _q.order...),
 		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.CompExec{}, _q.predicates...),
+		predicates: append([]predicate.ExecEval{}, _q.predicates...),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -266,15 +266,15 @@ func (_q *CompExecQuery) Clone() *CompExecQuery {
 //		Count int `json:"count,omitempty"`
 //	}
 //
-//	client.CompExec.Query().
-//		GroupBy(compexec.FieldCompRn).
+//	client.ExecEval.Query().
+//		GroupBy(execeval.FieldCompRn).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (_q *CompExecQuery) GroupBy(field string, fields ...string) *CompExecGroupBy {
+func (_q *ExecEvalQuery) GroupBy(field string, fields ...string) *ExecEvalGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &CompExecGroupBy{build: _q}
+	grbuild := &ExecEvalGroupBy{build: _q}
 	grbuild.flds = &_q.ctx.Fields
-	grbuild.label = compexec.Label
+	grbuild.label = execeval.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
 }
@@ -288,23 +288,23 @@ func (_q *CompExecQuery) GroupBy(field string, fields ...string) *CompExecGroupB
 //		CompRn int64 `json:"comp_rn,omitempty"`
 //	}
 //
-//	client.CompExec.Query().
-//		Select(compexec.FieldCompRn).
+//	client.ExecEval.Query().
+//		Select(execeval.FieldCompRn).
 //		Scan(ctx, &v)
-func (_q *CompExecQuery) Select(fields ...string) *CompExecSelect {
+func (_q *ExecEvalQuery) Select(fields ...string) *ExecEvalSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
-	sbuild := &CompExecSelect{CompExecQuery: _q}
-	sbuild.label = compexec.Label
+	sbuild := &ExecEvalSelect{ExecEvalQuery: _q}
+	sbuild.label = execeval.Label
 	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
-// Aggregate returns a CompExecSelect configured with the given aggregations.
-func (_q *CompExecQuery) Aggregate(fns ...AggregateFunc) *CompExecSelect {
+// Aggregate returns a ExecEvalSelect configured with the given aggregations.
+func (_q *ExecEvalQuery) Aggregate(fns ...AggregateFunc) *ExecEvalSelect {
 	return _q.Select().Aggregate(fns...)
 }
 
-func (_q *CompExecQuery) prepareQuery(ctx context.Context) error {
+func (_q *ExecEvalQuery) prepareQuery(ctx context.Context) error {
 	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
@@ -316,7 +316,7 @@ func (_q *CompExecQuery) prepareQuery(ctx context.Context) error {
 		}
 	}
 	for _, f := range _q.ctx.Fields {
-		if !compexec.ValidColumn(f) {
+		if !execeval.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
@@ -330,16 +330,16 @@ func (_q *CompExecQuery) prepareQuery(ctx context.Context) error {
 	return nil
 }
 
-func (_q *CompExecQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*CompExec, error) {
+func (_q *ExecEvalQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*ExecEval, error) {
 	var (
-		nodes = []*CompExec{}
+		nodes = []*ExecEval{}
 		_spec = _q.querySpec()
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
-		return (*CompExec).scanValues(nil, columns)
+		return (*ExecEval).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &CompExec{config: _q.config}
+		node := &ExecEval{config: _q.config}
 		nodes = append(nodes, node)
 		return node.assignValues(columns, values)
 	}
@@ -355,7 +355,7 @@ func (_q *CompExecQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Com
 	return nodes, nil
 }
 
-func (_q *CompExecQuery) sqlCount(ctx context.Context) (int, error) {
+func (_q *ExecEvalQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
@@ -364,8 +364,8 @@ func (_q *CompExecQuery) sqlCount(ctx context.Context) (int, error) {
 	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (_q *CompExecQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(compexec.Table, compexec.Columns, sqlgraph.NewFieldSpec(compexec.FieldID, field.TypeString))
+func (_q *ExecEvalQuery) querySpec() *sqlgraph.QuerySpec {
+	_spec := sqlgraph.NewQuerySpec(execeval.Table, execeval.Columns, sqlgraph.NewFieldSpec(execeval.FieldID, field.TypeString))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -374,9 +374,9 @@ func (_q *CompExecQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, compexec.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, execeval.FieldID)
 		for i := range fields {
-			if fields[i] != compexec.FieldID {
+			if fields[i] != execeval.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
@@ -404,12 +404,12 @@ func (_q *CompExecQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (_q *CompExecQuery) sqlQuery(ctx context.Context) *sql.Selector {
+func (_q *ExecEvalQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(_q.driver.Dialect())
-	t1 := builder.Table(compexec.Table)
+	t1 := builder.Table(execeval.Table)
 	columns := _q.ctx.Fields
 	if len(columns) == 0 {
-		columns = compexec.Columns
+		columns = execeval.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if _q.sql != nil {
@@ -436,28 +436,28 @@ func (_q *CompExecQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	return selector
 }
 
-// CompExecGroupBy is the group-by builder for CompExec entities.
-type CompExecGroupBy struct {
+// ExecEvalGroupBy is the group-by builder for ExecEval entities.
+type ExecEvalGroupBy struct {
 	selector
-	build *CompExecQuery
+	build *ExecEvalQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (_g *CompExecGroupBy) Aggregate(fns ...AggregateFunc) *CompExecGroupBy {
+func (_g *ExecEvalGroupBy) Aggregate(fns ...AggregateFunc) *ExecEvalGroupBy {
 	_g.fns = append(_g.fns, fns...)
 	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_g *CompExecGroupBy) Scan(ctx context.Context, v any) error {
+func (_g *ExecEvalGroupBy) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
 	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*CompExecQuery, *CompExecGroupBy](ctx, _g.build, _g, _g.build.inters, v)
+	return scanWithInterceptors[*ExecEvalQuery, *ExecEvalGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (_g *CompExecGroupBy) sqlScan(ctx context.Context, root *CompExecQuery, v any) error {
+func (_g *ExecEvalGroupBy) sqlScan(ctx context.Context, root *ExecEvalQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
 	aggregation := make([]string, 0, len(_g.fns))
 	for _, fn := range _g.fns {
@@ -484,28 +484,28 @@ func (_g *CompExecGroupBy) sqlScan(ctx context.Context, root *CompExecQuery, v a
 	return sql.ScanSlice(rows, v)
 }
 
-// CompExecSelect is the builder for selecting fields of CompExec entities.
-type CompExecSelect struct {
-	*CompExecQuery
+// ExecEvalSelect is the builder for selecting fields of ExecEval entities.
+type ExecEvalSelect struct {
+	*ExecEvalQuery
 	selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (_s *CompExecSelect) Aggregate(fns ...AggregateFunc) *CompExecSelect {
+func (_s *ExecEvalSelect) Aggregate(fns ...AggregateFunc) *ExecEvalSelect {
 	_s.fns = append(_s.fns, fns...)
 	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_s *CompExecSelect) Scan(ctx context.Context, v any) error {
+func (_s *ExecEvalSelect) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
 	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*CompExecQuery, *CompExecSelect](ctx, _s.CompExecQuery, _s, _s.inters, v)
+	return scanWithInterceptors[*ExecEvalQuery, *ExecEvalSelect](ctx, _s.ExecEvalQuery, _s, _s.inters, v)
 }
 
-func (_s *CompExecSelect) sqlScan(ctx context.Context, root *CompExecQuery, v any) error {
+func (_s *ExecEvalSelect) sqlScan(ctx context.Context, root *ExecEvalQuery, v any) error {
 	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(_s.fns))
 	for _, fn := range _s.fns {

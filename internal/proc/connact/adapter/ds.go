@@ -1,6 +1,6 @@
 package adapter
 
-import compexec "orglang/go-engine/internal/proc/compexec/adapter"
+import execeval "orglang/go-engine/internal/proc/execeval/adapter"
 
 type ActRec struct {
 	ConnID string          `db:"conn_id"`
@@ -9,7 +9,7 @@ type ActRec struct {
 	CompRN int64           `db:"comp_rn"`
 	ChnlID string          `db:"chnl_id"`
 	K      StepKind        `db:"kind"`
-	Exp    compexec.ExpRec `db:"exp" fieldopt:"noexpand"`
+	Exp    execeval.ExpRec `db:"exp" fieldopt:"noexpand"`
 }
 
 type StepKind int16

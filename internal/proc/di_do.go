@@ -9,7 +9,7 @@ import (
 	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/lib/entpgx"
 	compconn "orglang/go-engine/internal/proc/compconn/adapter"
-	compexec "orglang/go-engine/internal/proc/compexec/adapter"
+	execeval "orglang/go-engine/internal/proc/execeval/adapter"
 	descrootadapter "orglang/go-engine/internal/proc/descroot/adapter"
 	"orglang/go-engine/internal/proc/ent"
 	termdec "orglang/go-engine/internal/proc/termdec/adapter"
@@ -35,7 +35,7 @@ var Package = do.Package(
 		}
 		return descrootadapter.NewDaoEnt(client, logger), nil
 	}),
-	compexec.Package,
+	execeval.Package,
 	termdec.Package,
 	termdef.Package,
 	typedef.Package,
@@ -45,7 +45,7 @@ var Package = do.Package(
 // migrated API and server-rendered routes on the application's Echo server.
 // It is an explicit composition function; it does not start an HTTP listener.
 func RegisterRoutes(server *echo.Echo, i do.Injector) error {
-	execController, err := do.Invoke[compexec.GeneratedController](i)
+	execController, err := do.Invoke[execeval.GeneratedController](i)
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func RegisterRoutes(server *echo.Echo, i do.Injector) error {
 		return err
 	}
 
-	if err := compexec.RegisterGeneratedRoutes(server, execController); err != nil {
+	if err := execeval.RegisterGeneratedRoutes(server, execController); err != nil {
 		return err
 	}
 	if err := termdec.RegisterGeneratedRoutes(server, termDecController); err != nil {

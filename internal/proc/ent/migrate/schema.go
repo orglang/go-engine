@@ -25,17 +25,17 @@ var (
 		Columns:    ProcCompConnsColumns,
 		PrimaryKey: []*schema.Column{ProcCompConnsColumns[0]},
 	}
-	// ProcCompExecsColumns holds the columns for the "proc_comp_execs" table.
-	ProcCompExecsColumns = []*schema.Column{
+	// ProcExecEvalsColumns holds the columns for the "proc_exec_evals" table.
+	ProcExecEvalsColumns = []*schema.Column{
 		{Name: "comp_id", Type: field.TypeString, Unique: true},
 		{Name: "comp_rn", Type: field.TypeInt64},
 		{Name: "liab_mode", Type: field.TypeInt16},
 	}
-	// ProcCompExecsTable holds the schema information for the "proc_comp_execs" table.
-	ProcCompExecsTable = &schema.Table{
-		Name:       "proc_comp_execs",
-		Columns:    ProcCompExecsColumns,
-		PrimaryKey: []*schema.Column{ProcCompExecsColumns[0]},
+	// ProcExecEvalsTable holds the schema information for the "proc_exec_evals" table.
+	ProcExecEvalsTable = &schema.Table{
+		Name:       "proc_exec_evals",
+		Columns:    ProcExecEvalsColumns,
+		PrimaryKey: []*schema.Column{ProcExecEvalsColumns[0]},
 	}
 	// ProcDescRootsColumns holds the columns for the "proc_desc_roots" table.
 	ProcDescRootsColumns = []*schema.Column{
@@ -103,7 +103,7 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		ProcCompConnsTable,
-		ProcCompExecsTable,
+		ProcExecEvalsTable,
 		ProcDescRootsTable,
 		ProcDescTermsTable,
 		ProcTermExpsTable,
@@ -116,8 +116,8 @@ func init() {
 	ProcCompConnsTable.Annotation = &entsql.Annotation{
 		Table: "proc_comp_conns",
 	}
-	ProcCompExecsTable.Annotation = &entsql.Annotation{
-		Table: "proc_comp_execs",
+	ProcExecEvalsTable.Annotation = &entsql.Annotation{
+		Table: "proc_exec_evals",
 	}
 	ProcDescRootsTable.Annotation = &entsql.Annotation{
 		Table: "proc_desc_roots",

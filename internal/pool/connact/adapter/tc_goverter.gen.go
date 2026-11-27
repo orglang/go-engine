@@ -7,7 +7,7 @@ import (
 	comproot "orglang/go-engine/internal/adt/comproot"
 	identity "orglang/go-engine/internal/adt/identity"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
-	adapter "orglang/go-engine/internal/pool/compexec/adapter"
+	adapter "orglang/go-engine/internal/pool/execeval/adapter"
 	core "orglang/go-engine/internal/pool/connact/core"
 )
 

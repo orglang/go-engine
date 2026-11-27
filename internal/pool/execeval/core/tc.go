@@ -7,7 +7,7 @@ import (
 	"orglang/go-engine/internal/adt/symbol"
 )
 
-func ConvertRecToRef(rec EvalSnap2) comproot.SemRef {
+func ConvertRecToRef(rec EvalSnap2) comproot.RootRef {
 	return rec.CompRef
 }
 

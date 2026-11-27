@@ -193,12 +193,12 @@ func DataToLinearRecs(dtos []VarRec) ([]execvar.LinearRec, error) {
 	return recs, nil
 }
 
-func dataToRootRef(dto VarRec) (comproot.SemRef, error) {
+func dataToRootRef(dto VarRec) (comproot.RootRef, error) {
 	execID, err := identityadapter.ConvertFromNullString(dto.ExecID)
 	if err != nil {
-		return comproot.SemRef{}, err
+		return comproot.RootRef{}, err
 	}
-	return comproot.SemRef{
+	return comproot.RootRef{
 		CompID: execID,
 		CompRN: seqnumadapter.ConvertFromNullInt(dto.ExecRN),
 	}, nil

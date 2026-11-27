@@ -8,12 +8,14 @@ import (
 
 type DecSpecVP struct { TermQN string `form:"qn" json:"qn"` }
 
+type TermRefVP struct {
+	TermID identity.ADT `json:"TermID"`
+	DescID identity.ADT `json:"DescID"`
+	DescRN seqnum.ADT   `json:"DescRN"`
+}
+
 type DecSnapVP struct {
-	TermRef struct {
-		TermID identity.ADT `json:"TermID"`
-		DescID identity.ADT `json:"DescID"`
-		DescRN seqnum.ADT   `json:"DescRN"`
-	} `json:"ref"`
+	TermRef TermRefVP `json:"ref"`
 }
 
 func ViewFromDecSnap(snap termdec.DecSnap) DecSnapVP {

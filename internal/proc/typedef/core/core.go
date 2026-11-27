@@ -20,7 +20,6 @@ type API interface {
 	Create(context.Context, DefSpec) (DefSnap, error)
 	Modify(context.Context, DefSnap) (DefSnap, error)
 	RetrieveSnap(context.Context, identity.ADT) (DefSnap, error)
-	retrieveSnap(context.Context, DefRec) (DefSnap, error)
 	RetreiveRefs(context.Context) ([]identity.ADT, error)
 }
 

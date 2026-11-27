@@ -52,7 +52,10 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdec.DecRec)
 		dao.log.Error("query execution failed", slog.Any("ref", rec.TermRef))
 		return err
 	}
-	const bindQuery = `INSERT INTO proc_desc_binds (desc_qn, desc_id, kind) VALUES ($1, $2, 2)`
+	const bindQuery = `
+INSERT INTO proc_desc_binds (desc_qn, desc_id, kind)
+VALUES ($1, $2, 2)
+`
 	if _, err := conn.Pgx.Exec(ctx, bindQuery, uniqsym.ConvertToString(rec.TermQN), rec.TermRef.TermID.String()); err != nil {
 		dao.log.Error("description binding insertion failed", slog.Any("ref", rec.TermRef))
 		return err

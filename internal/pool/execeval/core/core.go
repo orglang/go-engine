@@ -158,7 +158,7 @@ func (s *service) Run(ctx context.Context, spec EvalSpec) (_ comproot.SemRef, er
 	// The Connection record itself is created when a client Computation attaches.
 	newConnID := identity.New()
 	newLiabVar := execvar.StructRec{
-		ExecRef: newEval.CompRef,
+		RootRef: newEval.CompRef,
 		ConnID:  newConnID,
 		ChnlID:  identity.New(),
 		ChnlPH:  spec.LiabVar.ChnlPH,
@@ -190,13 +190,13 @@ func (s *service) Run(ctx context.Context, spec EvalSpec) (_ comproot.SemRef, er
 		if ok || assetVar.TermQN == spec.LiabVar.TermQN {
 			newConns = append(newConns, execconn.ConnRec{
 				ConnID:          connID,
-				ProviderExecRef: providerExecRef,
-				ClientExecRef:   newEval.CompRef,
+				ProviderRootRef: providerExecRef,
+				ClientRootRef:   newEval.CompRef,
 				OffsetNr:        seqnum.Zero,
 			})
 		}
 		newAssetVars = append(newAssetVars, execvar.StructRec{
-			ExecRef: newEval.CompRef,
+			RootRef: newEval.CompRef,
 			ConnID:  connID,
 			ChnlID:  chnlID,
 			ChnlPH:  assetVar.ChnlPH,
@@ -273,7 +273,7 @@ func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) 
 		compRefs[providerRef.CompID.String()] = providerRef
 	}
 	for _, variable := range evalMod.Vars {
-		ref := variable.GetExecRef()
+		ref := variable.GetRootRef()
 		// The Act's CompRef records the revision that produced the Act. For
 		// provider-side writes, use the live provider revision captured with
 		// the Connection snapshot instead of that historical Act revision.
@@ -383,7 +383,7 @@ func (s *service) takeStep(
 		newChnlID := identity.New()
 		// вяжем продолжение доступодателя
 		evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-			ExecRef: connChnl.CompRef,
+			RootRef: connChnl.CompRef,
 			ConnID:  connChnl.ConnID,
 			ChnlID:  newChnlID,
 			ChnlPH:  connChnl.ChnlPH,
@@ -402,7 +402,7 @@ func (s *service) takeStep(
 			// сдвигаем офсет коммуникации
 			// вяжем продолжение доступополучателя
 			evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-				ExecRef: acquisition.CompRef,
+				RootRef: acquisition.CompRef,
 				ConnID:  acquisition.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
@@ -476,7 +476,7 @@ func (s *service) takeStep(
 		newChnlID := identity.New()
 		// вяжем продолжение доступополучателя
 		evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-			ExecRef: connChnl.CompRef,
+			RootRef: connChnl.CompRef,
 			ConnID:  connChnl.ConnID,
 			ChnlID:  newChnlID,
 			ChnlPH:  connChnl.ChnlPH,
@@ -495,7 +495,7 @@ func (s *service) takeStep(
 			// сдвигаем офсет коммуникации
 			// вяжем продолжение доступодателя
 			evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-				ExecRef: acception.CompRef,
+				RootRef: acception.CompRef,
 				ConnID:  acception.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
@@ -570,7 +570,7 @@ func (s *service) takeStep(
 		newChnlID := identity.New()
 		// вяжем продолжение соискателя
 		evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-			ExecRef: connChnl.CompRef,
+			RootRef: connChnl.CompRef,
 			ConnID:  connChnl.ConnID,
 			ChnlID:  newChnlID,
 			ChnlPH:  connChnl.ChnlPH,
@@ -588,7 +588,7 @@ func (s *service) takeStep(
 		case HireRec:
 			// вяжем продолжение нанимателя
 			evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-				ExecRef: hiring.CompRef,
+				RootRef: hiring.CompRef,
 				ConnID:  hiring.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
@@ -663,7 +663,7 @@ func (s *service) takeStep(
 		newChnlID := identity.New()
 		// вяжем продолжение нанимателя
 		evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-			ExecRef: connChnl.CompRef,
+			RootRef: connChnl.CompRef,
 			ConnID:  connChnl.ConnID,
 			ChnlID:  newChnlID,
 			ChnlPH:  connChnl.ChnlPH,
@@ -681,7 +681,7 @@ func (s *service) takeStep(
 		case ApplyRec:
 			// вяжем продолжение соискателя
 			evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-				ExecRef: application.CompRef,
+				RootRef: application.CompRef,
 				ConnID:  application.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
@@ -754,7 +754,7 @@ func (s *service) takeStep(
 		newChnlID := identity.New()
 		// вяжем продолжение доступовозвращателя
 		evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-			ExecRef: connChnl.CompRef,
+			RootRef: connChnl.CompRef,
 			ConnID:  connChnl.ConnID,
 			ChnlID:  newChnlID,
 			ChnlPH:  connChnl.ChnlPH,
@@ -765,7 +765,7 @@ func (s *service) takeStep(
 		case DetachRec:
 			// вяжем продолжение доступопринимателя
 			evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-				ExecRef: detaching.CompRef,
+				RootRef: detaching.CompRef,
 				ConnID:  detaching.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
@@ -830,7 +830,7 @@ func (s *service) takeStep(
 		}
 		newChnlID := identity.New()
 		evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-			ExecRef: connChnl.CompRef,
+			RootRef: connChnl.CompRef,
 			ConnID:  connChnl.ConnID,
 			ChnlID:  newChnlID,
 			ChnlPH:  connChnl.ChnlPH,
@@ -841,7 +841,7 @@ func (s *service) takeStep(
 		case ReleaseRec:
 			// вяжем продолжение доступовозвращателя
 			evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-				ExecRef: releasing.CompRef,
+				RootRef: releasing.CompRef,
 				ConnID:  releasing.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,

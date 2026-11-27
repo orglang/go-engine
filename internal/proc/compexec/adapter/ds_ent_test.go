@@ -19,7 +19,7 @@ type batchExecErrorPgx struct {
 	batch pgx.BatchResults
 }
 
-func (p batchExecErrorPgx) Eval(context.Context, string, ...any) (pgconn.CommandTag, error) {
+func (p batchExecErrorPgx) Exec(context.Context, string, ...any) (pgconn.CommandTag, error) {
 	panic("unexpected Eval")
 }
 
@@ -36,7 +36,7 @@ type batchExecErrorResults struct {
 	closed  bool
 }
 
-func (r *batchExecErrorResults) Eval() (pgconn.CommandTag, error) {
+func (r *batchExecErrorResults) Exec() (pgconn.CommandTag, error) {
 	return pgconn.CommandTag{}, r.execErr
 }
 

@@ -1,7 +1,8 @@
 package adapter
 
 import (
-	"orglang/go-engine/internal/adt/typesem"
+	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/seqnum"
 )
 
 type DefSpecVP struct {
@@ -9,6 +10,10 @@ type DefSpecVP struct {
 }
 
 type DefSnapVP struct {
-	TypeRef typesem.SemRef `json:"ref"`
-	DefSpec DefSpecVP      `json:"spec"`
+	TypeRef struct {
+		TypeID identity.ADT `json:"TypeID"`
+		DescID identity.ADT `json:"DescID"`
+		DescRN seqnum.ADT   `json:"DescRN"`
+	} `json:"ref"`
+	DefSpec DefSpecVP `json:"spec"`
 }

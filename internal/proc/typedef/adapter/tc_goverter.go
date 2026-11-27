@@ -19,10 +19,11 @@ var (
 // goverter:extend orglang/go-engine/internal/adt/contkey:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
 var (
-	// goverter:map . TypeRef
+	// goverter:map . DescRef
+	// goverter:ignore TypeExp
 	DataToDefRec  func(DefRec) (typedef.DefRec, error)
 	DataToDefRecs func([]DefRec) ([]typedef.DefRec, error)
-	// goverter:autoMap TypeRef
+	// goverter:autoMap DescRef
 	DataFromDefRec  func(typedef.DefRec) (DefRec, error)
 	DataFromDefRecs func([]typedef.DefRec) ([]DefRec, error)
 )

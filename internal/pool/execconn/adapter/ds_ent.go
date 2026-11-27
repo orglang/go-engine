@@ -16,8 +16,8 @@ import (
 	"orglang/go-engine/internal/pool/ent"
 	entexecconn "orglang/go-engine/internal/pool/ent/execconn"
 
-	execconn "orglang/go-engine/internal/pool/execconn/core"
 	connactadapter "orglang/go-engine/internal/pool/connact/adapter"
+	execconn "orglang/go-engine/internal/pool/execconn/core"
 )
 
 type daoEnt struct {

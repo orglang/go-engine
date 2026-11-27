@@ -9,6 +9,17 @@ import (
 )
 
 var (
+	// PoolDescRootsColumns holds the columns for the "pool_desc_roots" table.
+	PoolDescRootsColumns = []*schema.Column{
+		{Name: "desc_id", Type: field.TypeString, Unique: true},
+		{Name: "desc_rn", Type: field.TypeInt64},
+	}
+	// PoolDescRootsTable holds the schema information for the "pool_desc_roots" table.
+	PoolDescRootsTable = &schema.Table{
+		Name:       "pool_desc_roots",
+		Columns:    PoolDescRootsColumns,
+		PrimaryKey: []*schema.Column{PoolDescRootsColumns[0]},
+	}
 	// PoolExecConnsColumns holds the columns for the "pool_exec_conns" table.
 	PoolExecConnsColumns = []*schema.Column{
 		{Name: "conn_id", Type: field.TypeString, Unique: true},
@@ -24,17 +35,6 @@ var (
 		Name:       "pool_exec_conns",
 		Columns:    PoolExecConnsColumns,
 		PrimaryKey: []*schema.Column{PoolExecConnsColumns[0]},
-	}
-	// PoolDescRootsColumns holds the columns for the "pool_desc_roots" table.
-	PoolDescRootsColumns = []*schema.Column{
-		{Name: "desc_id", Type: field.TypeString, Unique: true},
-		{Name: "desc_rn", Type: field.TypeInt64},
-	}
-	// PoolDescRootsTable holds the schema information for the "pool_desc_roots" table.
-	PoolDescRootsTable = &schema.Table{
-		Name:       "pool_desc_roots",
-		Columns:    PoolDescRootsColumns,
-		PrimaryKey: []*schema.Column{PoolDescRootsColumns[0]},
 	}
 	// PoolExecEvalsColumns holds the columns for the "pool_exec_evals" table.
 	PoolExecEvalsColumns = []*schema.Column{
@@ -102,8 +102,8 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		PoolExecConnsTable,
 		PoolDescRootsTable,
+		PoolExecConnsTable,
 		PoolExecEvalsTable,
 		PoolDescTermsTable,
 		PoolTermExpsTable,
@@ -113,11 +113,11 @@ var (
 )
 
 func init() {
-	PoolExecConnsTable.Annotation = &entsql.Annotation{
-		Table: "pool_exec_conns",
-	}
 	PoolDescRootsTable.Annotation = &entsql.Annotation{
 		Table: "pool_desc_roots",
+	}
+	PoolExecConnsTable.Annotation = &entsql.Annotation{
+		Table: "pool_exec_conns",
 	}
 	PoolExecEvalsTable.Annotation = &entsql.Annotation{
 		Table: "pool_exec_evals",

@@ -5,8 +5,8 @@ import (
 
 	"github.com/samber/do/v2"
 
-	"orglang/go-engine/internal/proc/execconn/core"
 	"orglang/go-engine/internal/proc/ent"
+	"orglang/go-engine/internal/proc/execconn/core"
 )
 
 // Package registers the process connection repository.

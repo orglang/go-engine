@@ -8,9 +8,9 @@ import (
 	adapter1 "orglang/go-engine/internal/adt/identity/adapter"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
 	adapter "orglang/go-engine/internal/adt/seqnum/adapter"
-	core "orglang/go-engine/internal/pool/execconn/core"
 	adapter2 "orglang/go-engine/internal/pool/connact/adapter"
 	core1 "orglang/go-engine/internal/pool/connact/core"
+	core "orglang/go-engine/internal/pool/execconn/core"
 )
 
 func init() {

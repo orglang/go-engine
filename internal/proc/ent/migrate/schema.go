@@ -9,6 +9,17 @@ import (
 )
 
 var (
+	// ProcDescRootsColumns holds the columns for the "proc_desc_roots" table.
+	ProcDescRootsColumns = []*schema.Column{
+		{Name: "desc_id", Type: field.TypeString, Unique: true},
+		{Name: "desc_rn", Type: field.TypeInt64},
+	}
+	// ProcDescRootsTable holds the schema information for the "proc_desc_roots" table.
+	ProcDescRootsTable = &schema.Table{
+		Name:       "proc_desc_roots",
+		Columns:    ProcDescRootsColumns,
+		PrimaryKey: []*schema.Column{ProcDescRootsColumns[0]},
+	}
 	// ProcExecConnsColumns holds the columns for the "proc_exec_conns" table.
 	ProcExecConnsColumns = []*schema.Column{
 		{Name: "conn_id", Type: field.TypeString, Unique: true},
@@ -24,17 +35,6 @@ var (
 		Name:       "proc_exec_conns",
 		Columns:    ProcExecConnsColumns,
 		PrimaryKey: []*schema.Column{ProcExecConnsColumns[0]},
-	}
-	// ProcDescRootsColumns holds the columns for the "proc_desc_roots" table.
-	ProcDescRootsColumns = []*schema.Column{
-		{Name: "desc_id", Type: field.TypeString, Unique: true},
-		{Name: "desc_rn", Type: field.TypeInt64},
-	}
-	// ProcDescRootsTable holds the schema information for the "proc_desc_roots" table.
-	ProcDescRootsTable = &schema.Table{
-		Name:       "proc_desc_roots",
-		Columns:    ProcDescRootsColumns,
-		PrimaryKey: []*schema.Column{ProcDescRootsColumns[0]},
 	}
 	// ProcExecEvalsColumns holds the columns for the "proc_exec_evals" table.
 	ProcExecEvalsColumns = []*schema.Column{
@@ -102,8 +102,8 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		ProcExecConnsTable,
 		ProcDescRootsTable,
+		ProcExecConnsTable,
 		ProcExecEvalsTable,
 		ProcDescTermsTable,
 		ProcTermExpsTable,
@@ -113,11 +113,11 @@ var (
 )
 
 func init() {
-	ProcExecConnsTable.Annotation = &entsql.Annotation{
-		Table: "proc_exec_conns",
-	}
 	ProcDescRootsTable.Annotation = &entsql.Annotation{
 		Table: "proc_desc_roots",
+	}
+	ProcExecConnsTable.Annotation = &entsql.Annotation{
+		Table: "proc_exec_conns",
 	}
 	ProcExecEvalsTable.Annotation = &entsql.Annotation{
 		Table: "proc_exec_evals",

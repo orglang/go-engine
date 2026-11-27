@@ -8,9 +8,9 @@ import (
 
 	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/lib/entpgx"
-	execconn "orglang/go-engine/internal/proc/execconn/adapter"
 	descrootadapter "orglang/go-engine/internal/proc/descroot/adapter"
 	"orglang/go-engine/internal/proc/ent"
+	execconn "orglang/go-engine/internal/proc/execconn/adapter"
 	execeval "orglang/go-engine/internal/proc/execeval/adapter"
 	termdec "orglang/go-engine/internal/proc/termdec/adapter"
 	termdef "orglang/go-engine/internal/proc/termdef/adapter"

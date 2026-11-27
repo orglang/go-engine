@@ -16,10 +16,10 @@ import (
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
 
-	execconn "orglang/go-engine/internal/pool/execconn/core"
 	compstep "orglang/go-engine/internal/pool/compstep/core"
 	compvar "orglang/go-engine/internal/pool/compvar/core"
 	connact "orglang/go-engine/internal/pool/connact/core"
+	execconn "orglang/go-engine/internal/pool/execconn/core"
 	termdec "orglang/go-engine/internal/pool/termdec/core"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 	proctermdef "orglang/go-engine/internal/proc/termdef/core"

@@ -8,18 +8,6 @@ import (
 	"orglang/go-engine/internal/pool/ent"
 )
 
-// The ExecConnFunc type is an adapter to allow the use of ordinary
-// function as ExecConn mutator.
-type ExecConnFunc func(context.Context, *ent.ExecConnMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f ExecConnFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.ExecConnMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ExecConnMutation", m)
-}
-
 // The DescRootFunc type is an adapter to allow the use of ordinary
 // function as DescRoot mutator.
 type DescRootFunc func(context.Context, *ent.DescRootMutation) (ent.Value, error)
@@ -30,6 +18,18 @@ func (f DescRootFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DescRootMutation", m)
+}
+
+// The ExecConnFunc type is an adapter to allow the use of ordinary
+// function as ExecConn mutator.
+type ExecConnFunc func(context.Context, *ent.ExecConnMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ExecConnFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ExecConnMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ExecConnMutation", m)
 }
 
 // The ExecEvalFunc type is an adapter to allow the use of ordinary

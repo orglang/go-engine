@@ -14,11 +14,11 @@ import (
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
-	"orglang/go-engine/internal/proc/execconn/core"
 	connactadapter "orglang/go-engine/internal/proc/connact/adapter"
 	connact "orglang/go-engine/internal/proc/connact/core"
 	"orglang/go-engine/internal/proc/ent"
 	entexecconn "orglang/go-engine/internal/proc/ent/execconn"
+	"orglang/go-engine/internal/proc/execconn/core"
 )
 
 type daoEnt struct {

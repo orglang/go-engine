@@ -13,8 +13,6 @@ import (
 	descrootadapter "orglang/go-engine/internal/pool/descroot/adapter"
 	"orglang/go-engine/internal/pool/ent"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
-	typeexpadapter "orglang/go-engine/internal/pool/typeexp/adapter"
-	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 	"orglang/go-engine/internal/testutil/pgxtest"
 )
 
@@ -65,12 +63,10 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 	})
 
 	typeDefRepo := NewDaoEnt(entClient, logger)
-	typeExpRepo := typeexpadapter.NewDaoEnt(entClient, logger)
 	descSemRepo := descsemadapter.NewDaoPgx("pool_desc_binds")(logger)
 	service := typedef.NewService(
 		typeDefRepo,
 		descrootadapter.NewDaoEnt(entClient, logger),
-		typeExpRepo,
 		descSemRepo,
 		dbadapter.NewTransactorPgx(pool),
 		logger,
@@ -82,7 +78,7 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 	}
 	_, err = service.Create(ctx, typedef.DefSpec{
 		TypeQN:  typeQN,
-		TypeExp: typeexp.OneSpec{},
+		TypeExp: typedef.OneSpec{},
 	})
 	if err == nil {
 		t.Fatal("Create() error = nil, want deferred constraint failure at commit")
@@ -152,7 +148,6 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 	service := typedef.NewService(
 		NewDaoEnt(entClient, logger),
 		descrootadapter.NewDaoEnt(entClient, logger),
-		typeexpadapter.NewDaoEnt(entClient, logger),
 		descsemadapter.NewDaoPgx("pool_desc_binds")(logger),
 		dbadapter.NewTransactorPgx(pool),
 		logger,
@@ -164,7 +159,7 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 	}
 	ref, err := service.Create(ctx, typedef.DefSpec{
 		TypeQN:  typeQN,
-		TypeExp: typeexp.OneSpec{},
+		TypeExp: typedef.OneSpec{},
 	})
 	if err != nil {
 		t.Fatalf("Create() error = %v, want nil", err)

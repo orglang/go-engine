@@ -10,11 +10,21 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/ent"
 	"orglang/go-engine/internal/proc/typedef/core"
-	typeexp "orglang/go-engine/internal/proc/typeexp/core"
 )
 
 // Package registers process type-definition persistence, service, and HTTP adapters.
 var Package = do.Package(
+	do.Lazy[core.TypeExpRepo](func(i do.Injector) (core.TypeExpRepo, error) {
+		client, err := do.Invoke[*ent.Client](i)
+		if err != nil {
+			return nil, err
+		}
+		logger, err := do.Invoke[*slog.Logger](i)
+		if err != nil {
+			return nil, err
+		}
+		return NewExpDaoEnt(client, logger), nil
+	}),
 	do.Lazy[core.Repo](func(i do.Injector) (core.Repo, error) {
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil {
@@ -42,7 +52,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		typeExpRepo, err := do.Invoke[typeexp.Repo](i)
+		typeExpRepo, err := do.Invoke[core.TypeExpRepo](i)
 		if err != nil {
 			return nil, err
 		}

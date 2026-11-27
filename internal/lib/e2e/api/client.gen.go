@@ -29,16 +29,16 @@ type AnyConnVarSpec struct {
 	TypeQn string `json:"type_qn"`
 }
 
-// AnyExecVarSpec defines model for Any.Exec.VarSpec.
-type AnyExecVarSpec struct {
+// AnyEvalVarSpec defines model for Any.Eval.VarSpec.
+type AnyEvalVarSpec struct {
 	ConnPh string `json:"conn_ph"`
 	TermQn string `json:"term_qn"`
 }
 
-// AnyExecSpec defines model for Any.ExecSpec.
-type AnyExecSpec struct {
-	AssetVars []AnyExecVarSpec `json:"asset_vars"`
-	LiabVar   AnyExecVarSpec   `json:"liab_var"`
+// AnyEvalSpec defines model for Any.EvalSpec.
+type AnyEvalSpec struct {
+	AssetVars []AnyEvalVarSpec `json:"asset_vars"`
+	LiabVar   AnyEvalVarSpec   `json:"liab_var"`
 	TermQn    string           `json:"term_qn"`
 }
 
@@ -628,7 +628,7 @@ type CreateProgramTextBody = string
 type CreatePoolDeclarationJSONRequestBody = PoolDecSpec
 
 // CreatePoolExecutionJSONRequestBody defines body for CreatePoolExecution for application/json ContentType.
-type CreatePoolExecutionJSONRequestBody = AnyExecSpec
+type CreatePoolExecutionJSONRequestBody = AnyEvalSpec
 
 // SpawnPoolExecutionJSONRequestBody defines body for SpawnPoolExecution for application/json ContentType.
 type SpawnPoolExecutionJSONRequestBody = PoolStepSpec
@@ -3029,7 +3029,7 @@ type ClientInterface interface {
 
 	// GetPoolDefinition performs a GET /api/v1/pools/{id}/definition (the `GetPoolDefinition` operationId) request.
 	//
-	// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
+	// Get the current declarative term Definition; rn is reserved and currently ignored.
 	GetPoolDefinition(ctx context.Context, id string, params *GetPoolDefinitionParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ExtendPoolDefinitionWithBody performs a PATCH /api/v1/pools/{id}/definition (the `ExtendPoolDefinition` operationId) request,
@@ -3107,7 +3107,7 @@ type ClientInterface interface {
 
 	// GetProcessDefinition performs a GET /api/v1/processes/{id}/definition (the `GetProcessDefinition` operationId) request.
 	//
-	// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
+	// Get the current declarative term Definition; rn is reserved and currently ignored.
 	GetProcessDefinition(ctx context.Context, id string, params *GetProcessDefinitionParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ExtendProcessDefinitionWithBody performs a PATCH /api/v1/processes/{id}/definition (the `ExtendProcessDefinition` operationId) request,
@@ -3332,7 +3332,7 @@ func (c *Client) GetPoolAssociatedDeclaration(ctx context.Context, id string, pa
 
 // GetPoolDefinition performs a GET /api/v1/pools/{id}/definition (the `GetPoolDefinition` operationId) request.
 //
-// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
+// Get the current declarative term Definition; rn is reserved and currently ignored.
 func (c *Client) GetPoolDefinition(ctx context.Context, id string, params *GetPoolDefinitionParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetPoolDefinitionRequest(c.Server, id, params)
 	if err != nil {
@@ -3550,7 +3550,7 @@ func (c *Client) GetProcessAssociatedDeclaration(ctx context.Context, id string,
 
 // GetProcessDefinition performs a GET /api/v1/processes/{id}/definition (the `GetProcessDefinition` operationId) request.
 //
-// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
+// Get the current declarative term Definition; rn is reserved and currently ignored.
 func (c *Client) GetProcessDefinition(ctx context.Context, id string, params *GetProcessDefinitionParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetProcessDefinitionRequest(c.Server, id, params)
 	if err != nil {
@@ -4835,7 +4835,7 @@ type ClientWithResponsesInterface interface {
 
 	// GetPoolDefinitionWithResponse performs a GET /api/v1/pools/{id}/definition (the `GetPoolDefinition` operationId) request.
 	//
-	// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
+	// Get the current declarative term Definition; rn is reserved and currently ignored.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	GetPoolDefinitionWithResponse(ctx context.Context, id string, params *GetPoolDefinitionParams, reqEditors ...RequestEditorFn) (*GetPoolDefinitionResponse, error)
@@ -4933,7 +4933,7 @@ type ClientWithResponsesInterface interface {
 
 	// GetProcessDefinitionWithResponse performs a GET /api/v1/processes/{id}/definition (the `GetProcessDefinition` operationId) request.
 	//
-	// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
+	// Get the current declarative term Definition; rn is reserved and currently ignored.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	GetProcessDefinitionWithResponse(ctx context.Context, id string, params *GetProcessDefinitionParams, reqEditors ...RequestEditorFn) (*GetProcessDefinitionResponse, error)
@@ -5972,7 +5972,7 @@ func (c *ClientWithResponses) GetPoolAssociatedDeclarationWithResponse(ctx conte
 
 // GetPoolDefinitionWithResponse performs a GET /api/v1/pools/{id}/definition (the `GetPoolDefinition` operationId) request.
 //
-// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
+// Get the current declarative term Definition; rn is reserved and currently ignored.
 //
 // Returns a wrapper object for the known response body format(s).
 func (c *ClientWithResponses) GetPoolDefinitionWithResponse(ctx context.Context, id string, params *GetPoolDefinitionParams, reqEditors ...RequestEditorFn) (*GetPoolDefinitionResponse, error) {
@@ -6154,7 +6154,7 @@ func (c *ClientWithResponses) GetProcessAssociatedDeclarationWithResponse(ctx co
 
 // GetProcessDefinitionWithResponse performs a GET /api/v1/processes/{id}/definition (the `GetProcessDefinition` operationId) request.
 //
-// Get the current declarative term Definition; rn, when supplied, must match its Description revision.
+// Get the current declarative term Definition; rn is reserved and currently ignored.
 //
 // Returns a wrapper object for the known response body format(s).
 func (c *ClientWithResponses) GetProcessDefinitionWithResponse(ctx context.Context, id string, params *GetProcessDefinitionParams, reqEditors ...RequestEditorFn) (*GetProcessDefinitionResponse, error) {

@@ -27,6 +27,9 @@ func NewDaoEnt(client *ent.Client, log *slog.Logger) typedef.Repo {
 }
 
 func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec) error {
+	if err := dao.addExpRec(ctx, conn, rec.TypeExp); err != nil {
+		return err
+	}
 	refAttr := slog.Any("ref", rec.TypeRef)
 	dao.log.Log(ctx, lf.LevelTrace, "addition started", refAttr)
 
@@ -68,19 +71,33 @@ WHERE db.desc_qn = $1
 		batch.Queue(query, uniqsym.ConvertToString(qn))
 	}
 	br := conn.Pgx.SendBatch(ctx, &batch)
-	defer func() { err = errors.Join(err, br.Close()) }()
 	dtos := make(map[uniqsym.ADT]DefRec, len(typeQNs))
 	for _, qn := range typeQNs {
 		rows, readErr := br.Query()
 		if readErr != nil {
-			return nil, readErr
+			return nil, errors.Join(readErr, br.Close())
 		}
 		dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRec])
 		if scanErr != nil {
-			return nil, scanErr
+			return nil, errors.Join(scanErr, br.Close())
 		}
 		dtos[qn] = dto
 	}
-	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("dtos", dtos))
-	return DataToDefRecMap(dtos)
+	if closeErr := br.Close(); closeErr != nil {
+		return nil, closeErr
+	}
+	recs, err := DataToDefRecMap(dtos)
+	if err != nil {
+		return nil, err
+	}
+	for qn, rec := range recs {
+		exp, err := dao.getRecByCK(ctx, conn, rec.ExpCK)
+		if err != nil {
+			return nil, err
+		}
+		rec.TypeExp = exp
+		recs[qn] = rec
+	}
+	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("recs", recs))
+	return recs, nil
 }

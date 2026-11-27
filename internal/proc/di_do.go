@@ -8,16 +8,14 @@ import (
 
 	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/typesem"
-	webapi "orglang/go-engine/internal/app/web/api"
 	"orglang/go-engine/internal/lib/entpgx"
 	compconn "orglang/go-engine/internal/proc/compconn/adapter"
 	compexec "orglang/go-engine/internal/proc/compexec/adapter"
 	descrootadapter "orglang/go-engine/internal/proc/descroot/adapter"
 	"orglang/go-engine/internal/proc/ent"
+	termdec "orglang/go-engine/internal/proc/termdec/adapter"
 	termdef "orglang/go-engine/internal/proc/termdef/adapter"
-	termexp "orglang/go-engine/internal/proc/termexp/adapter"
 	typedef "orglang/go-engine/internal/proc/typedef/adapter"
-	typeexp "orglang/go-engine/internal/proc/typeexp/adapter"
 )
 
 // Package is the process-domain composition boundary. It registers the
@@ -39,10 +37,9 @@ var Package = do.Package(
 		return descrootadapter.NewDaoEnt(client, logger), nil
 	}),
 	compexec.Package,
+	termdec.Package,
 	termdef.Package,
-	termexp.Package,
 	typedef.Package,
-	typeexp.Package,
 	do.Lazy[typesem.Repo](func(i do.Injector) (typesem.Repo, error) {
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil {
@@ -60,11 +57,15 @@ func RegisterRoutes(server *echo.Echo, i do.Injector) error {
 	if err != nil {
 		return err
 	}
-	termDefController, err := do.Invoke[webapi.ServerInterface](i)
+	termDefController, err := do.Invoke[*termdef.DefinitionController](i)
 	if err != nil {
 		return err
 	}
-	termDefPresenter, err := do.Invoke[termdef.Presenter](i)
+	termDecPresenter, err := do.Invoke[termdec.Presenter](i)
+	if err != nil {
+		return err
+	}
+	termDecController, err := do.Invoke[*termdec.Controller](i)
 	if err != nil {
 		return err
 	}
@@ -80,10 +81,13 @@ func RegisterRoutes(server *echo.Echo, i do.Injector) error {
 	if err := compexec.RegisterGeneratedRoutes(server, execController); err != nil {
 		return err
 	}
+	if err := termdec.RegisterGeneratedRoutes(server, termDecController); err != nil {
+		return err
+	}
 	if err := termdef.RegisterGeneratedRoutes(server, termDefController); err != nil {
 		return err
 	}
-	if err := termdef.RegisterPresenterRoutes(server, termDefPresenter); err != nil {
+	if err := termdec.RegisterPresenterRoutes(server, termDecPresenter); err != nil {
 		return err
 	}
 	if err := typedef.RegisterGeneratedRoutes(server, typeDefController); err != nil {

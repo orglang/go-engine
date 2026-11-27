@@ -14,6 +14,7 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/contkey:Convert.*
 var (
 	// goverter:map . TypeRef
+	// goverter:ignore TypeExp
 	DataToDefRec    func(DefRec) (typedef.DefRec, error)
 	DataToDefRecs   func([]DefRec) ([]typedef.DefRec, error)
 	DataToDefRecMap func(map[uniqsym.ADT]DefRec) (map[uniqsym.ADT]typedef.DefRec, error)

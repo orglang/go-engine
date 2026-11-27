@@ -16,7 +16,6 @@ import (
 	"orglang/go-engine/internal/adt/typesem"
 	"orglang/go-engine/internal/adt/uniqsym"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
-	typeexp "orglang/go-engine/internal/proc/typeexp/core"
 )
 
 // Presenter is the server-rendered HTTP port implemented by the Echo adapter.
@@ -69,7 +68,7 @@ func (p *echoPresenter) PostOne(c *echo.Context) error {
 		p.log.Error("conversion failed", slog.Any("dto", dto))
 		return convErr
 	}
-	snap, createErr := p.api.Create(ctx, typedef.DefSpec{TypeQN: qn, TypeExp: typeexp.OneSpec{}})
+	snap, createErr := p.api.Create(ctx, typedef.DefSpec{TypeQN: qn, TypeExp: typedef.OneSpec{}})
 	if createErr != nil {
 		return createErr
 	}

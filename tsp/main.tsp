@@ -6,7 +6,7 @@ import "./models/any/type/link.tsp";
 import "./models/any/term.tsp";
 import "./models/any/comp.tsp";
 import "./models/any/conn/var.tsp";
-import "./models/any/exec.tsp";
+import "./models/any/eval.tsp";
 import "./models/proc/type/expr.tsp";
 import "./models/proc/type/def.tsp";
 import "./models/proc/term/expr.tsp";
@@ -125,7 +125,7 @@ op getProcessTypeDefinition(
   @query rn?: int64,
 ): Ok<Proc.Type.DefSnap>;
 
-/** Get the current declarative term Definition; rn, when supplied, must match its Description revision. */
+/** Get the current declarative term Definition; rn is reserved and currently ignored. */
 @get
 @route("/processes/{id}/definition")
 op getProcessDefinition(
@@ -157,7 +157,7 @@ op getPoolAssociatedDeclaration(
   @query rn?: int64,
 ): Ok<Pool.DecSnap>;
 
-/** Get the current declarative term Definition; rn, when supplied, must match its Description revision. */
+/** Get the current declarative term Definition; rn is reserved and currently ignored. */
 @get
 @route("/pools/{id}/definition")
 op getPoolDefinition(
@@ -182,7 +182,7 @@ op listPoolExecutions(@path id: string): Ok<Any.CompRef[]>;
 /** Create a pool execution and return its identity. */
 @post
 @route("/pools/executions")
-op createPoolExecution(@body spec: Any.ExecSpec): Created<Any.CompRef>;
+op createPoolExecution(@body spec: Any.EvalSpec): Created<Any.CompRef>;
 
 /** Apply a batch of steps to pool executions. */
 @post

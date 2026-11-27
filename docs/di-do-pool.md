@@ -37,5 +37,6 @@ is migrated in a later step. A focused adapter test verifies all three routes.
 
 The production entrypoint remains on Fx during this incremental migration.
 
-`termexp` remains intentionally unwired because its repository has no
-production consumer. Translation/model-only packages do not receive DI modules.
+Runtime expression DTOs and their bidirectional mapping live in `compexec/adapter`;
+the former `termexp` application package has been removed. Translation/model-only
+packages do not receive DI modules.

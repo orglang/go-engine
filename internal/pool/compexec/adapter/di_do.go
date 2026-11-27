@@ -15,8 +15,8 @@ import (
 	compexec "orglang/go-engine/internal/pool/compexec/core"
 	compvar "orglang/go-engine/internal/pool/compvar/core"
 	"orglang/go-engine/internal/pool/ent"
-	termdef "orglang/go-engine/internal/pool/termdef/core"
-	typeexp "orglang/go-engine/internal/pool/typeexp/core"
+	termdec "orglang/go-engine/internal/pool/termdec/core"
+	typedef "orglang/go-engine/internal/pool/typedef/core"
 	proccompexec "orglang/go-engine/internal/proc/compexec/core"
 )
 
@@ -67,7 +67,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		typeRepo, err := do.Invoke[typeexp.Repo](i)
+		typeRepo, err := do.Invoke[typedef.Repo](i)
 		if err != nil {
 			return nil, err
 		}
@@ -75,7 +75,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		termRepo, err := do.Invoke[termdef.Repo](i)
+		termDecRepo, err := do.Invoke[termdec.Repo](i)
 		if err != nil {
 			return nil, err
 		}
@@ -100,9 +100,9 @@ var Package = do.Package(
 			CompExecBroker: broker,
 			CompVarRepo:    varRepo,
 			CompConnRepo:   connRepo,
-			TypeExpRepo:    typeRepo,
+			TypeDefRepo:    typeRepo,
 			ProcExecRepo:   procRepo,
-			TermDefRepo:    termRepo,
+			TermDecRepo:    termDecRepo,
 			ImplSemRepo:    implRepo,
 			CompSemRepo:    compRepo,
 			Transactor:     transactor,

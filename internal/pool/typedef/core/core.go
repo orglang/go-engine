@@ -12,8 +12,6 @@ import (
 	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/adt/typesem"
 	"orglang/go-engine/internal/adt/uniqsym"
-
-	typeexp "orglang/go-engine/internal/pool/typeexp/core"
 )
 
 type API interface {
@@ -22,23 +20,23 @@ type API interface {
 
 type DefSpec struct {
 	TypeQN  uniqsym.ADT
-	TypeExp typeexp.ExpSpec
+	TypeExp ExpSpec
 }
 
 type DefRec struct {
 	TypeRef typesem.SemRef
 	ExpCK   contkey.ADT
+	TypeExp ExpRec
 }
 
 type DefSnap struct {
 	TypeRef typesem.SemRef
-	TypeExp typeexp.ExpSpec
+	TypeExp ExpSpec
 }
 
 type service struct {
 	typeDefRepo  Repo
 	descRootRepo descroot.Repo
-	typeExpRepo  typeexp.Repo
 	descSemRepo  descsem.Repo
 	transactor   tx.Transactor
 	log          *slog.Logger
@@ -52,22 +50,21 @@ func newAPI() API {
 func NewService(
 	typeDefRepo Repo,
 	descRootRepo descroot.Repo,
-	typeExpRepo typeexp.Repo,
 	descSemRepo descsem.Repo,
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
-	return &service{typeDefRepo: typeDefRepo, descRootRepo: descRootRepo, typeExpRepo: typeExpRepo, descSemRepo: descSemRepo, transactor: transactor, log: log}
+	return &service{typeDefRepo: typeDefRepo, descRootRepo: descRootRepo, descSemRepo: descSemRepo, transactor: transactor, log: log}
 }
 
 func (s *service) Create(ctx context.Context, spec DefSpec) (_ typesem.SemRef, err error) {
 	qnAttr := slog.Any("qn", spec.TypeQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
-	newExp, convErr := typeexp.ConvertSpecToRec(spec.TypeExp)
+	newExp, convErr := ConvertSpecToRec(spec.TypeExp)
 	if convErr != nil {
 		return typesem.SemRef{}, convErr
 	}
-	newDef := DefRec{TypeRef: typesem.New(), ExpCK: newExp.Key()}
+	newDef := DefRec{TypeRef: typesem.New(), ExpCK: newExp.Key(), TypeExp: newExp}
 	newRoot := descroot.SemRef{DescID: newDef.TypeRef.DescID, DescRN: newDef.TypeRef.DescRN}
 	newBind := descsem.SemRec{DescQN: spec.TypeQN, DescID: newDef.TypeRef.TypeID, Kind: descsem.TypeKind}
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
@@ -76,10 +73,6 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ typesem.SemRef, e
 			return err
 		}
 		err = s.descSemRepo.AddRec(txCtx, conn, newBind)
-		if err != nil {
-			return err
-		}
-		err = s.typeExpRepo.AddRec(txCtx, conn, newExp, newDef.TypeRef)
 		if err != nil {
 			return err
 		}

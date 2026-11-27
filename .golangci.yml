@@ -42,7 +42,6 @@ linters:
             - {pkg: orglang/go-engine/internal/proc/connact/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc/compexec/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc/termdef/adapter, desc: *adapterBoundary}
-            - {pkg: orglang/go-engine/internal/proc/termexp/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc/typedef/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc/typeexp/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/compstep/adapter, desc: *adapterBoundary}
@@ -51,7 +50,6 @@ linters:
             - {pkg: orglang/go-engine/internal/pool/compexec/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/compvar/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/termdef/adapter, desc: *adapterBoundary}
-            - {pkg: orglang/go-engine/internal/pool/termexp/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/typedef/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/typeexp/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/adt/comproot/adapter, desc: *adapterBoundary}

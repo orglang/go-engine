@@ -6,7 +6,6 @@ import (
 	"orglang/go-engine/internal/adt/comproot"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
-	termexp "orglang/go-engine/internal/proc/termexp/core"
 )
 
 // aka Sem
@@ -23,10 +22,10 @@ type PubRec struct {
 	ActNr   seqnum.ADT
 	CompRef comproot.SemRef
 	ChnlID  identity.ADT
-	ValExp  termexp.CompRec
+	ValExp  ExpRec
 }
 
-func (r PubRec) act() identity.ADT       { return r.ChnlID }
+func (r PubRec) act() identity.ADT      { return r.ChnlID }
 func (r PubRec) GetConnID() identity.ADT { return r.ConnID }
 func (r PubRec) GetActNr() seqnum.ADT    { return r.ActNr }
 
@@ -35,10 +34,10 @@ type SubRec struct {
 	ActNr   seqnum.ADT
 	CompRef comproot.SemRef
 	ChnlID  identity.ADT
-	ContExp termexp.CompRec
+	ContExp ExpRec
 }
 
-func (r SubRec) act() identity.ADT       { return r.ChnlID }
+func (r SubRec) act() identity.ADT      { return r.ChnlID }
 func (r SubRec) GetConnID() identity.ADT { return r.ConnID }
 func (r SubRec) GetActNr() seqnum.ADT    { return r.ActNr }
 

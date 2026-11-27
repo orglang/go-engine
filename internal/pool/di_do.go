@@ -16,10 +16,9 @@ import (
 	compvar "orglang/go-engine/internal/pool/compvar/adapter"
 	descrootadapter "orglang/go-engine/internal/pool/descroot/adapter"
 	"orglang/go-engine/internal/pool/ent"
+	termdec "orglang/go-engine/internal/pool/termdec/adapter"
 	termdef "orglang/go-engine/internal/pool/termdef/adapter"
-	termexp "orglang/go-engine/internal/pool/termexp/adapter"
 	typedef "orglang/go-engine/internal/pool/typedef/adapter"
-	typeexp "orglang/go-engine/internal/pool/typeexp/adapter"
 )
 
 var Package = do.Package(
@@ -30,9 +29,8 @@ var Package = do.Package(
 	compconn.Package,
 	compvar.Package,
 	compexec.Package,
-	typeexp.Package,
-	termexp.Package,
 	typedef.Package,
+	termdec.Package,
 	termdef.Package,
 	do.LazyNamed[descroot.Repo]("pool-descroot", func(i do.Injector) (descroot.Repo, error) {
 		client, err := do.Invoke[*ent.Client](i)
@@ -71,9 +69,17 @@ func RegisterRoutes(server *echo.Echo, i do.Injector) error {
 		return err
 	}
 
-	termController, err := do.Invoke[termdef.GeneratedController](i)
+	termDecController, err := do.Invoke[termdec.GeneratedController](i)
 	if err != nil {
 		return err
 	}
-	return termdef.RegisterGeneratedRoutes(server, termController)
+	if err := termdec.RegisterGeneratedRoutes(server, termDecController); err != nil {
+		return err
+	}
+
+	termDefController, err := do.Invoke[termdef.GeneratedController](i)
+	if err != nil {
+		return err
+	}
+	return termdef.RegisterGeneratedRoutes(server, termDefController)
 }

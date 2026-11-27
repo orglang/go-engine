@@ -9,9 +9,7 @@ import (
 
 	"orglang/go-engine/internal/adt/uniqsym"
 	pooltypedef "orglang/go-engine/internal/pool/typedef/core"
-	pooltypeexp "orglang/go-engine/internal/pool/typeexp/core"
 	proctypedef "orglang/go-engine/internal/proc/typedef/core"
-	proctypexp "orglang/go-engine/internal/proc/typeexp/core"
 	coreprog "orglang/go-engine/internal/prog/core"
 )
 
@@ -150,16 +148,16 @@ func programASTToCore(ast programAST) (coreprog.Spec, error) {
 	return result, nil
 }
 
-func poolExpToCore(ast poolExpAST) (pooltypeexp.ExpSpec, error) {
+func poolExpToCore(ast poolExpAST) (pooltypedef.ExpSpec, error) {
 	switch ast.Kind {
 	case "one":
-		return pooltypeexp.OneSpec{}, nil
+		return pooltypedef.OneSpec{}, nil
 	case "link":
 		qn, err := uniqsym.ConvertFromString(ast.Link.TypeQN)
 		if err != nil {
 			return nil, err
 		}
-		return pooltypeexp.LinkSpec{TypeQN: qn}, nil
+		return pooltypedef.LinkSpec{TypeQN: qn}, nil
 	case "plus", "with":
 		labor := ast.PlusOrWith()
 		qns := make([]uniqsym.ADT, len(labor.ProcQNs))
@@ -175,18 +173,18 @@ func poolExpToCore(ast poolExpAST) (pooltypeexp.ExpSpec, error) {
 			return nil, err
 		}
 		if ast.Kind == "plus" {
-			return pooltypeexp.PlusSpec{ProcQNs: qns, ContExp: cont}, nil
+			return pooltypedef.PlusSpec{ProcQNs: qns, ContExp: cont}, nil
 		}
-		return pooltypeexp.WithSpec{ProcQNs: qns, ContExp: cont}, nil
+		return pooltypedef.WithSpec{ProcQNs: qns, ContExp: cont}, nil
 	case "up", "down":
 		cont, err := poolExpToCore(ast.Shift().Cont)
 		if err != nil {
 			return nil, err
 		}
 		if ast.Kind == "up" {
-			return pooltypeexp.UpSpec{ContExp: cont}, nil
+			return pooltypedef.UpSpec{ContExp: cont}, nil
 		}
-		return pooltypeexp.DownSpec{ContExp: cont}, nil
+		return pooltypedef.DownSpec{ContExp: cont}, nil
 	default:
 		return nil, fmt.Errorf("unsupported pool type expression kind %q", ast.Kind)
 	}
@@ -206,16 +204,16 @@ func (a poolExpAST) Shift() *shiftAST {
 	return a.Down
 }
 
-func procExpToCore(ast procExpAST) (proctypexp.ExpSpec, error) {
+func procExpToCore(ast procExpAST) (proctypedef.ExpSpec, error) {
 	switch ast.Kind {
 	case "one":
-		return proctypexp.OneSpec{}, nil
+		return proctypedef.OneSpec{}, nil
 	case "link":
 		qn, err := uniqsym.ConvertFromString(ast.Link.TypeQN)
 		if err != nil {
 			return nil, err
 		}
-		return proctypexp.LinkSpec{TypeQN: qn}, nil
+		return proctypedef.LinkSpec{TypeQN: qn}, nil
 	case "tensor", "lolli":
 		prod := ast.TensorOrLolli()
 		val, err := procExpToCore(prod.Val)
@@ -227,12 +225,12 @@ func procExpToCore(ast procExpAST) (proctypexp.ExpSpec, error) {
 			return nil, err
 		}
 		if ast.Kind == "tensor" {
-			return proctypexp.TensorSpec{Val: val, Cont: cont}, nil
+			return proctypedef.TensorSpec{Val: val, Cont: cont}, nil
 		}
-		return proctypexp.LolliSpec{Val: val, Cont: cont}, nil
+		return proctypedef.LolliSpec{Val: val, Cont: cont}, nil
 	case "plus", "with":
 		sum := ast.Sum()
-		choices := make(map[uniqsym.ADT]proctypexp.ExpSpec, len(sum.Choices))
+		choices := make(map[uniqsym.ADT]proctypedef.ExpSpec, len(sum.Choices))
 		for _, choice := range sum.Choices {
 			label, err := uniqsym.ConvertFromString(choice.Label)
 			if err != nil {
@@ -245,9 +243,9 @@ func procExpToCore(ast procExpAST) (proctypexp.ExpSpec, error) {
 			choices[label] = cont
 		}
 		if ast.Kind == "plus" {
-			return proctypexp.PlusSpec{Choices: choices}, nil
+			return proctypedef.PlusSpec{Choices: choices}, nil
 		}
-		return proctypexp.WithSpec{Choices: choices}, nil
+		return proctypedef.WithSpec{Choices: choices}, nil
 	default:
 		return nil, fmt.Errorf("unsupported process type expression kind %q", ast.Kind)
 	}

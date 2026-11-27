@@ -39,7 +39,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Any.ExecSpec'
+              $ref: '#/components/schemas/Any.EvalSpec'
   /api/v1/pools/executions/spawns:
     post:
       operationId: spawnPoolExecution
@@ -141,7 +141,7 @@ paths:
   /api/v1/pools/{id}/definition:
     get:
       operationId: getPoolDefinition
-      description: Get the current declarative term Definition; rn, when supplied, must match its Description revision.
+      description: Get the current declarative term Definition; rn is reserved and currently ignored.
       parameters:
         - name: id
           in: path
@@ -364,7 +364,7 @@ paths:
   /api/v1/processes/{id}/definition:
     get:
       operationId: getProcessDefinition
-      description: Get the current declarative term Definition; rn, when supplied, must match its Description revision.
+      description: Get the current declarative term Definition; rn is reserved and currently ignored.
       parameters:
         - name: id
           in: path
@@ -485,7 +485,7 @@ components:
           type: string
         type_qn:
           type: string
-    Any.Exec.VarSpec:
+    Any.Eval.VarSpec:
       type: object
       required:
         - conn_ph
@@ -495,7 +495,7 @@ components:
           type: string
         term_qn:
           type: string
-    Any.ExecSpec:
+    Any.EvalSpec:
       type: object
       required:
         - term_qn
@@ -505,11 +505,11 @@ components:
         term_qn:
           type: string
         liab_var:
-          $ref: '#/components/schemas/Any.Exec.VarSpec'
+          $ref: '#/components/schemas/Any.Eval.VarSpec'
         asset_vars:
           type: array
           items:
-            $ref: '#/components/schemas/Any.Exec.VarSpec'
+            $ref: '#/components/schemas/Any.Eval.VarSpec'
     Any.TermRef:
       type: object
       required:

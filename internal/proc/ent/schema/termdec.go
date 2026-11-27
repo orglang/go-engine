@@ -9,7 +9,6 @@ import (
 	termvaradapter "orglang/go-engine/internal/adt/termvar/adapter"
 )
 
-// TermDec describes a persisted process term declaration.
 type TermDec struct {
 	ent.Schema
 }

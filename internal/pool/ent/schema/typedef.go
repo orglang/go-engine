@@ -9,7 +9,6 @@ import (
 	"orglang/go-engine/internal/adt/typesem/adapter/entschema"
 )
 
-// TypeDef describes a persisted pool type definition.
 type TypeDef struct {
 	ent.Schema
 }

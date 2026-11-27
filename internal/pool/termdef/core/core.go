@@ -2,112 +2,52 @@ package core
 
 import (
 	"context"
-	"log/slog"
 
-	"orglang/go-engine/internal/lib/tx"
-
-	"orglang/go-engine/internal/adt/contkey"
-	"orglang/go-engine/internal/adt/descroot"
-	"orglang/go-engine/internal/adt/descsem"
-	"orglang/go-engine/internal/adt/seqnum"
-	"orglang/go-engine/internal/adt/termsem"
-	"orglang/go-engine/internal/adt/termvar"
+	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/uniqsym"
-	typedef "orglang/go-engine/internal/pool/typedef/core"
+	"orglang/go-engine/internal/lib/tx"
+	termdec "orglang/go-engine/internal/pool/termdec/core"
 )
 
 type API interface {
-	Create(context.Context, DefSpec) (termsem.SemRef, error)
-}
-
-// for compilation purposes
-func newAPI() API {
-	return new(service)
+	RetrieveDefinition(context.Context, identity.ADT) (DefSpec, error)
 }
 
 type DefSpec struct {
-	TermQN    uniqsym.ADT
-	LiabVar   termvar.VarSpec
-	AssetVars []termvar.VarSpec
+	TermQN uniqsym.ADT
+	Exp    ExpSpec
 }
 
 type DefRec struct {
-	TermRef   termsem.SemRef
-	ExpCK     contkey.ADT
-	LiabVar   termvar.VarRec
-	AssetVars []termvar.VarRec
+	TermID identity.ADT
+	Exp    ExpSpec
 }
 
-type DefSnap struct {
-	TermRef termsem.SemRef
-}
-
-func NewService(
-	termDefRepo Repo,
-	descRootRepo descroot.Repo,
-	typeDefRepo typedef.Repo,
-	descSemRepo descsem.Repo,
-	transactor tx.Transactor,
-	log *slog.Logger,
-) API {
-	return &service{termDefRepo, descRootRepo, typeDefRepo, descSemRepo, transactor, log}
+func NewService(termDecRepo termdec.Repo, termDefRepo Repo, transactor tx.Transactor) API {
+	return &service{termDecRepo: termDecRepo, termDefRepo: termDefRepo, transactor: transactor}
 }
 
 type service struct {
-	termDefRepo  Repo
-	descRootRepo descroot.Repo
-	typeDefRepo  typedef.Repo
-	descSemRepo  descsem.Repo
-	transactor   tx.Transactor
-	log          *slog.Logger
+	termDecRepo termdec.Repo
+	termDefRepo Repo
+	transactor  tx.Transactor
 }
 
-func (s *service) Create(ctx context.Context, spec DefSpec) (_ termsem.SemRef, err error) {
-	qnAttr := slog.Any("qn", spec.TermQN)
-	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
-	assetQNs := make([]uniqsym.ADT, 0, len(spec.AssetVars)+1)
-	for _, varSpec := range spec.AssetVars {
-		assetQNs = append(assetQNs, varSpec.TypeQN)
-	}
-	typeDefs, getErr := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[uniqsym.ADT]typedef.DefRec, error) {
-		return s.typeDefRepo.GetRecsByQNs(txCtx, conn, append(assetQNs, spec.LiabVar.TypeQN))
-	})
-	if getErr != nil {
-		return termsem.SemRef{}, getErr
-	}
-	newLiabVar := termvar.VarRec{
-		TypeRef: typeDefs[spec.LiabVar.TypeQN].TypeRef,
-		ChnlPH:  spec.LiabVar.ChnlPH,
-		ExpCK:   typeDefs[spec.LiabVar.TypeQN].ExpCK,
-	}
-	newAssetVars := make([]termvar.VarRec, 0, len(spec.AssetVars))
-	for _, varSpec := range spec.AssetVars {
-		newAssetVars = append(newAssetVars, termvar.VarRec{
-			TypeRef: typeDefs[varSpec.TypeQN].TypeRef,
-			ChnlPH:  varSpec.ChnlPH,
-			ExpCK:   typeDefs[varSpec.TypeQN].ExpCK,
-		})
-	}
-	providerRef := typeDefs[spec.LiabVar.TypeQN].TypeRef
-	expectedRoot := descroot.SemRef{DescID: providerRef.DescID, DescRN: providerRef.DescRN}
-	newRoot := descroot.SemRef{DescID: expectedRoot.DescID, DescRN: seqnum.Next(expectedRoot.DescRN)}
-	newDef := DefRec{TermRef: termsem.New(newRoot), LiabVar: newLiabVar, AssetVars: newAssetVars}
-	newBind := descsem.SemRec{DescQN: spec.TermQN, DescID: newDef.TermRef.TermID, Kind: descsem.TermKind}
-	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		err = s.descRootRepo.TouchRef(txCtx, conn, expectedRoot)
+var _ API = (*service)(nil)
+
+func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (DefSpec, error) {
+	return tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (DefSpec, error) {
+		rec, err := s.termDefRepo.GetByTermID(txCtx, conn, termID)
 		if err != nil {
-			return err
+			return DefSpec{}, err
 		}
-		err = s.descSemRepo.AddRec(txCtx, conn, newBind)
+		if rec.Exp == nil {
+			return DefSpec{}, DefinitionMissing(termID)
+		}
+		termQN, err := s.termDecRepo.GetQNByID(txCtx, conn, rec.TermID)
 		if err != nil {
-			return err
+			return DefSpec{}, err
 		}
-		return s.termDefRepo.AddRec(txCtx, conn, newDef)
+		return DefSpec{TermQN: termQN, Exp: rec.Exp}, nil
 	})
-	if transactErr != nil {
-		s.log.Error("creation failed", qnAttr)
-		return termsem.SemRef{}, transactErr
-	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", newDef.TermRef))
-	return newDef.TermRef, nil
 }

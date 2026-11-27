@@ -21,12 +21,11 @@ import (
 	compstep "orglang/go-engine/internal/pool/compstep/core"
 	compvar "orglang/go-engine/internal/pool/compvar/core"
 	connact "orglang/go-engine/internal/pool/connact/core"
-	termdef "orglang/go-engine/internal/pool/termdef/core"
-	termexp "orglang/go-engine/internal/pool/termexp/core"
-	typeexp "orglang/go-engine/internal/pool/typeexp/core"
+	termdec "orglang/go-engine/internal/pool/termdec/core"
+	typedef "orglang/go-engine/internal/pool/typedef/core"
+	proctermdef "orglang/go-engine/internal/proc/termdef/core"
 
 	proccompexec "orglang/go-engine/internal/proc/compexec/core"
-	proctermdef "orglang/go-engine/internal/proc/termdef/core"
 )
 
 type API interface {
@@ -80,9 +79,9 @@ type ExecSnap2 struct {
 type ExecSnap3 struct {
 	CompRef    comproot.SemRef
 	StructVars map[symbol.ADT]compvar.StructRec
-	StructExps map[symbol.ADT]typeexp.ExpRec
+	StructExps map[symbol.ADT]typedef.ExpRec
 	LinearVars map[symbol.ADT]compvar.LinearRec
-	LinearExps map[symbol.ADT]typeexp.ExpRec
+	LinearExps map[symbol.ADT]typedef.ExpRec
 }
 
 type service struct {
@@ -90,9 +89,9 @@ type service struct {
 	compExecBroker Broker
 	compVarRepo    compvar.Repo
 	connRepo       compconn.Repo
-	typeExpRepo    typeexp.Repo
+	typeDefRepo    typedef.Repo
 	procExecRepo   proccompexec.Repo
-	termDefRepo    termdef.Repo
+	termDecRepo    termdec.Repo
 	implSemRepo    implsem.Repo
 	compSemRepo    comproot.Repo
 	transactor     tx.Transactor
@@ -109,9 +108,9 @@ type ServiceDeps struct {
 	CompExecBroker Broker
 	CompVarRepo    compvar.Repo
 	CompConnRepo   compconn.Repo
-	TypeExpRepo    typeexp.Repo
+	TypeDefRepo    typedef.Repo
 	ProcExecRepo   proccompexec.Repo
-	TermDefRepo    termdef.Repo
+	TermDecRepo    termdec.Repo
 	ImplSemRepo    implsem.Repo
 	CompSemRepo    comproot.Repo
 	Transactor     tx.Transactor
@@ -122,7 +121,7 @@ func NewService(deps ServiceDeps) API {
 	name := slog.String("name", reflect.TypeFor[service]().Name())
 	return &service{
 		deps.CompExecRepo, deps.CompExecBroker, deps.CompVarRepo,
-		deps.CompConnRepo, deps.TypeExpRepo, deps.ProcExecRepo, deps.TermDefRepo,
+		deps.CompConnRepo, deps.TypeDefRepo, deps.ProcExecRepo, deps.TermDecRepo,
 		deps.ImplSemRepo, deps.CompSemRepo,
 		deps.Transactor, deps.Logger.With(name),
 	}
@@ -131,9 +130,9 @@ func NewService(deps ServiceDeps) API {
 func (s *service) Run(ctx context.Context, spec ExecSpec) (_ comproot.SemRef, err error) {
 	specAttr := slog.Any("spec", spec)
 	s.log.Debug("creation started", specAttr)
-	var termDec termdef.DefRec
+	var termDec termdec.DecRec
 	getErr1 := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		termDec, err = s.termDefRepo.GetRecByQN(txCtx, conn, spec.TermQN)
+		termDec, err = s.termDecRepo.GetRecByQN(txCtx, conn, spec.TermQN)
 		return err
 	})
 	if getErr1 != nil {
@@ -327,7 +326,7 @@ func (s *service) Take(ctx context.Context, spec compstep.StepSpec) (err error) 
 func (s *service) takeStep(
 	ctx context.Context,
 	execSnap ExecSnap3,
-	exp termexp.CompSpec,
+	exp ExpSpec,
 ) (
 	execMod ExecMod,
 	execEff ExecEff,
@@ -336,7 +335,7 @@ func (s *service) takeStep(
 ) {
 	compAttr := slog.Any("compRef", execSnap.CompRef)
 	switch termExp := exp.(type) {
-	case termexp.AcceptSpec:
+	case AcceptSpec:
 		connChnl, ok := execSnap.StructVars[termExp.ConnChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", compAttr)
@@ -348,7 +347,7 @@ func (s *service) takeStep(
 			s.log.Error("step taking failed", compAttr)
 			return execMod, execEff, connMod, proctermdef.ErrMissingInCtx(termExp.ConnChnlPH)
 		}
-		nextExpCK := typeExp.(typeexp.ProdRec).Next()
+		nextExpCK := typeExp.(typedef.ProdRec).Next()
 		// получаем снепшот соединения
 		var connSnap compconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
@@ -376,7 +375,7 @@ func (s *service) takeStep(
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
-				ContExp: termexp.AcceptRec{
+				ContExp: AcceptRec{
 					ContChnlPH: connChnl.ChnlPH,
 					ContExp:    termExp.ContExp,
 				},
@@ -406,7 +405,7 @@ func (s *service) takeStep(
 			})
 		}
 		switch expRec := acquisition.ContExp.(type) {
-		case termexp.AcquireRec:
+		case AcquireRec:
 			// сдвигаем офсет коммуникации
 			// вяжем продолжение доступополучателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
@@ -425,11 +424,11 @@ func (s *service) takeStep(
 				})
 			}
 		default:
-			panic(termexp.ErrRecTypeUnexpected(acquisition.ContExp))
+			panic(ErrRecTypeUnexpected(acquisition.ContExp))
 		}
 		s.log.Debug("step taking succeed", compAttr, connAttr)
 		return execMod, execEff, connMod, nil
-	case termexp.AcquireSpec:
+	case AcquireSpec:
 		connChnl, ok := execSnap.StructVars[termExp.ConnChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", compAttr)
@@ -441,7 +440,7 @@ func (s *service) takeStep(
 			s.log.Error("step taking failed", compAttr)
 			return execMod, execEff, connMod, proctermdef.ErrMissingInCtx(termExp.ConnChnlPH)
 		}
-		nextExpCK := typeExp.(typeexp.ProdRec).Next()
+		nextExpCK := typeExp.(typedef.ProdRec).Next()
 		// получаем снепшот коммуникации
 		var connSnap compconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
@@ -469,7 +468,7 @@ func (s *service) takeStep(
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
-				ContExp: termexp.AcquireRec{
+				ContExp: AcquireRec{
 					ContChnlPH: connChnl.ChnlPH,
 					ContExp:    termExp.ContExp,
 				},
@@ -499,7 +498,7 @@ func (s *service) takeStep(
 			})
 		}
 		switch expRec := acception.ContExp.(type) {
-		case termexp.AcceptRec:
+		case AcceptRec:
 			// сдвигаем офсет коммуникации
 			// вяжем продолжение доступодателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
@@ -518,11 +517,11 @@ func (s *service) takeStep(
 				})
 			}
 		default:
-			panic(termexp.ErrRecTypeUnexpected(acception.ContExp))
+			panic(ErrRecTypeUnexpected(acception.ContExp))
 		}
 		s.log.Debug("step taking succeed", compAttr, connAttr)
 		return execMod, execEff, connMod, nil
-	case termexp.ApplySpec:
+	case ApplySpec:
 		connChnl, ok := execSnap.LinearVars[termExp.ConnChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", compAttr)
@@ -534,7 +533,7 @@ func (s *service) takeStep(
 			s.log.Error("step taking failed", compAttr)
 			return execMod, execEff, connMod, proctermdef.ErrMissingInCtx(termExp.ConnChnlPH)
 		}
-		nextExpCK := typeExp.(typeexp.ProdRec).Next()
+		nextExpCK := typeExp.(typedef.ProdRec).Next()
 		// получаем снепшот коммуникации
 		var connSnap compconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
@@ -562,7 +561,7 @@ func (s *service) takeStep(
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
-				ContExp: termexp.ApplyRec{
+				ContExp: ApplyRec{
 					ContChnlPH: connChnl.ChnlPH,
 					ProcTermQN: termExp.ProcTermQN,
 					ContExp:    termExp.ContExp,
@@ -593,7 +592,7 @@ func (s *service) takeStep(
 			})
 		}
 		switch expRec := hiring.ContExp.(type) {
-		case termexp.HireRec:
+		case HireRec:
 			// вяжем продолжение нанимателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 				CompRef: hiring.CompRef,
@@ -611,11 +610,11 @@ func (s *service) takeStep(
 				})
 			}
 		default:
-			panic(termexp.ErrRecTypeUnexpected(hiring.ContExp))
+			panic(ErrRecTypeUnexpected(hiring.ContExp))
 		}
 		s.log.Debug("step taking succeed", compAttr, connAttr)
 		return execMod, execEff, connMod, nil
-	case termexp.HireSpec:
+	case HireSpec:
 		connChnl, ok := execSnap.LinearVars[termExp.ConnChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", compAttr)
@@ -627,7 +626,7 @@ func (s *service) takeStep(
 			s.log.Error("step taking failed", compAttr)
 			return execMod, execEff, connMod, proctermdef.ErrMissingInCtx(termExp.ConnChnlPH)
 		}
-		nextExpCK := typeExp.(typeexp.ProdRec).Next()
+		nextExpCK := typeExp.(typedef.ProdRec).Next()
 		// получаем снепшот коммуникации
 		var connSnap compconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
@@ -655,7 +654,7 @@ func (s *service) takeStep(
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
-				ContExp: termexp.HireRec{
+				ContExp: HireRec{
 					ContChnlPH: connChnl.ChnlPH,
 					ProcTermQN: termExp.ProcTermQN,
 					ContExp:    termExp.ContExp,
@@ -686,7 +685,7 @@ func (s *service) takeStep(
 			})
 		}
 		switch expRec := application.ContExp.(type) {
-		case termexp.ApplyRec:
+		case ApplyRec:
 			// вяжем продолжение соискателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 				CompRef: application.CompRef,
@@ -704,11 +703,11 @@ func (s *service) takeStep(
 				})
 			}
 		default:
-			panic(termexp.ErrRecTypeUnexpected(application.ContExp))
+			panic(ErrRecTypeUnexpected(application.ContExp))
 		}
 		s.log.Debug("step taking succeed", compAttr, connAttr)
 		return execMod, execEff, connMod, nil
-	case termexp.ReleaseSpec:
+	case ReleaseSpec:
 		connChnl, ok := execSnap.LinearVars[termExp.ConnChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", compAttr)
@@ -720,7 +719,7 @@ func (s *service) takeStep(
 			s.log.Error("step taking failed", compAttr)
 			return execMod, execEff, connMod, proctermdef.ErrMissingInCtx(termExp.ConnChnlPH)
 		}
-		nextExpCK := typeExp.(typeexp.ProdRec).Next()
+		nextExpCK := typeExp.(typedef.ProdRec).Next()
 		// получаем снепшот коммуникации
 		var connSnap compconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
@@ -748,7 +747,7 @@ func (s *service) takeStep(
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
-				ContExp: termexp.ReleaseRec{
+				ContExp: ReleaseRec{
 					ContChnlPH: connChnl.ChnlPH,
 				},
 			})
@@ -770,7 +769,7 @@ func (s *service) takeStep(
 			ExpCK:   nextExpCK,
 		})
 		switch expRec := detaching.ContExp.(type) {
-		case termexp.DetachRec:
+		case DetachRec:
 			// вяжем продолжение доступопринимателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 				CompRef: detaching.CompRef,
@@ -781,11 +780,11 @@ func (s *service) takeStep(
 				ExpCK:   nextExpCK,
 			})
 		default:
-			panic(termexp.ErrRecTypeUnexpected(detaching.ContExp))
+			panic(ErrRecTypeUnexpected(detaching.ContExp))
 		}
 		s.log.Debug("step taking succeed", compAttr, connAttr)
 		return execMod, execEff, connMod, nil
-	case termexp.DetachSpec:
+	case DetachSpec:
 		connChnl, ok := execSnap.LinearVars[termExp.ConnChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", compAttr)
@@ -797,7 +796,7 @@ func (s *service) takeStep(
 			s.log.Error("step taking failed", compAttr)
 			return execMod, execEff, connMod, proctermdef.ErrMissingInCtx(termExp.ConnChnlPH)
 		}
-		nextExpCK := typeExp.(typeexp.ProdRec).Next()
+		nextExpCK := typeExp.(typedef.ProdRec).Next()
 		// получаем снепшот коммуникации
 		var connSnap compconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
@@ -825,7 +824,7 @@ func (s *service) takeStep(
 				ConnID:  connSnap.ConnID,
 				CompRef: execSnap.CompRef,
 				ChnlID:  connChnl.ChnlID,
-				ContExp: termexp.DetachRec{
+				ContExp: DetachRec{
 					ContChnlPH: connChnl.ChnlPH,
 				},
 			})
@@ -846,7 +845,7 @@ func (s *service) takeStep(
 			ExpCK:   nextExpCK,
 		})
 		switch expRec := releasing.ContExp.(type) {
-		case termexp.ReleaseRec:
+		case ReleaseRec:
 			// вяжем продолжение доступовозвращателя
 			execMod.Vars = append(execMod.Vars, compvar.LinearRec{
 				CompRef: releasing.CompRef,
@@ -857,12 +856,12 @@ func (s *service) takeStep(
 				ExpCK:   nextExpCK,
 			})
 		default:
-			panic(termexp.ErrRecTypeUnexpected(releasing.ContExp))
+			panic(ErrRecTypeUnexpected(releasing.ContExp))
 		}
 		s.log.Debug("step taking succeed", compAttr, connAttr)
 		return execMod, execEff, connMod, nil
 	default:
-		panic(termexp.ErrSpecTypeUnexpected(exp))
+		panic(ErrSpecTypeUnexpected(exp))
 	}
 }
 
@@ -875,14 +874,14 @@ func (s *service) retrieveSnap(ctx context.Context, ref comproot.SemRef) (_ Exec
 	if getErr1 != nil {
 		return ExecSnap3{}, getErr1
 	}
-	var structExps map[symbol.ADT]typeexp.ExpRec
-	var linearExps map[symbol.ADT]typeexp.ExpRec
+	var structExps map[symbol.ADT]typedef.ExpRec
+	var linearExps map[symbol.ADT]typedef.ExpRec
 	getErr2 := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		structExps, err = s.typeExpRepo.GetRecMap(txCtx, conn, ExtractExpCKs(execSnap.StructVars))
+		structExps, err = s.typeDefRepo.GetTypeMap(txCtx, conn, ExtractExpCKs(execSnap.StructVars))
 		if err != nil {
 			return err
 		}
-		linearExps, err = s.typeExpRepo.GetRecMap(txCtx, conn, ExtractExpCKs(execSnap.LinearVars))
+		linearExps, err = s.typeDefRepo.GetTypeMap(txCtx, conn, ExtractExpCKs(execSnap.LinearVars))
 		return err
 	})
 	if getErr2 != nil {

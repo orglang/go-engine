@@ -2,25 +2,22 @@ package proc
 
 import (
 	"context"
-	"slices"
 	"testing"
 
-	"github.com/labstack/echo/v5"
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/adt/typesem"
-	webapi "orglang/go-engine/internal/app/web/api"
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 	compconn "orglang/go-engine/internal/proc/compconn/core"
 	compexecadapter "orglang/go-engine/internal/proc/compexec/adapter"
 	compexec "orglang/go-engine/internal/proc/compexec/core"
+	termdecadapter "orglang/go-engine/internal/proc/termdec/adapter"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 	termdefadapter "orglang/go-engine/internal/proc/termdef/adapter"
 	termdef "orglang/go-engine/internal/proc/termdef/core"
 	typedefadapter "orglang/go-engine/internal/proc/typedef/adapter"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
-	typeexp "orglang/go-engine/internal/proc/typeexp/core"
 )
 
 type testTransactor struct{}
@@ -59,8 +56,8 @@ func TestPackageProvidesPersistencePorts(t *testing.T) {
 			_, err := do.Invoke[typedef.Repo](injector)
 			return err
 		}},
-		{"type-expression repository", func() error {
-			_, err := do.Invoke[typeexp.Repo](injector)
+		{"type-definition expression repository", func() error {
+			_, err := do.Invoke[typedef.TypeExpRepo](injector)
 			return err
 		}},
 		{"shared type-semantic repository", func() error {
@@ -93,7 +90,11 @@ func TestPackageProvidesApplicationServices(t *testing.T) {
 			_, err := do.Invoke[compexec.API](injector)
 			return err
 		}},
-		{"unified term lifecycle service", func() error {
+		{"term-declaration service port", func() error {
+			_, err := do.Invoke[termdec.API](injector)
+			return err
+		}},
+		{"term-definition service", func() error {
 			_, err := do.Invoke[termdef.API](injector)
 			return err
 		}},
@@ -124,11 +125,15 @@ func TestPackageProvidesHTTPAdapters(t *testing.T) {
 			return err
 		}},
 		{"term-definition controller", func() error {
-			_, err := do.Invoke[webapi.ServerInterface](injector)
+			_, err := do.Invoke[*termdefadapter.DefinitionController](injector)
 			return err
 		}},
-		{"term-definition presenter", func() error {
-			_, err := do.Invoke[termdefadapter.Presenter](injector)
+		{"term-declaration controller", func() error {
+			_, err := do.Invoke[*termdecadapter.Controller](injector)
+			return err
+		}},
+		{"term-declaration presenter", func() error {
+			_, err := do.Invoke[termdecadapter.Presenter](injector)
 			return err
 		}},
 		{"generated type-definition controller", func() error {
@@ -147,39 +152,6 @@ func TestPackageProvidesHTTPAdapters(t *testing.T) {
 				t.Fatalf("resolve provider: %v", err)
 			}
 		})
-	}
-}
-
-func TestRegisterRoutes(t *testing.T) {
-	injector := newTestInjector()
-	server := echo.New()
-
-	if err := RegisterRoutes(server, injector); err != nil {
-		t.Fatalf("register process routes: %v", err)
-	}
-
-	got := make([]string, 0, len(server.Router().Routes()))
-	for _, route := range server.Router().Routes() {
-		got = append(got, route.Method+" "+route.Path)
-	}
-	want := []string{
-		"GET /api/v1/processes/executions/:id",
-		"POST /api/v1/processes/executions/:id/steps",
-		"POST /api/v1/processes/declarations",
-		"GET /api/v1/processes/declarations/:id",
-		"POST /api/v1/processes/types",
-		"GET /api/v1/processes/types/:id",
-		"POST /ssr/decs",
-		"GET /ssr/decs",
-		"GET /ssr/decs/:id",
-		"POST /ssr/types",
-		"GET /ssr/types",
-		"GET /ssr/types/:id",
-	}
-	slices.Sort(got)
-	slices.Sort(want)
-	if !slices.Equal(got, want) {
-		t.Fatalf("unexpected process routes: got %v, want %v", got, want)
 	}
 }
 

@@ -3,8 +3,8 @@ package adapter
 import (
 	"testing"
 
-	pooltypeexp "orglang/go-engine/internal/pool/typeexp/core"
-	proctypexp "orglang/go-engine/internal/proc/typeexp/core"
+	pooltypedef "orglang/go-engine/internal/pool/typedef/core"
+	proctypedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
 func TestParseProgramAndConvertToCore(t *testing.T) {
@@ -22,14 +22,14 @@ proc type ProcA { tensor { one } { plus { @ok { one } @fail { link PoolA } } } }
 	if len(spec.Pools) != 1 || len(spec.Procs) != 1 {
 		t.Fatalf("unexpected definition counts: pools=%d procs=%d", len(spec.Pools), len(spec.Procs))
 	}
-	if _, ok := spec.Pools[0].TypeExp.(pooltypeexp.PlusSpec); !ok {
+	if _, ok := spec.Pools[0].TypeExp.(pooltypedef.PlusSpec); !ok {
 		t.Fatalf("unexpected pool expression type: %T", spec.Pools[0].TypeExp)
 	}
-	procExp, ok := spec.Procs[0].TypeExp.(proctypexp.TensorSpec)
+	procExp, ok := spec.Procs[0].TypeExp.(proctypedef.TensorSpec)
 	if !ok {
 		t.Fatalf("unexpected process expression type: %T", spec.Procs[0].TypeExp)
 	}
-	if _, ok := procExp.Cont.(proctypexp.PlusSpec); !ok {
+	if _, ok := procExp.Cont.(proctypedef.PlusSpec); !ok {
 		t.Fatalf("unexpected process continuation type: %T", procExp.Cont)
 	}
 }

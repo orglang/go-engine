@@ -49,6 +49,15 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec)
 		return err
 	}
 
+	const bindQuery = `
+INSERT INTO pool_desc_binds (desc_qn, desc_id, kind)
+VALUES ($1, $2, 1)
+`
+	if _, err := conn.Pgx.Exec(ctx, bindQuery, uniqsym.ConvertToString(rec.TypeQN), rec.TypeRef.TypeID.String()); err != nil {
+		dao.log.Error("description binding insertion failed", refAttr, slog.Any("error", err))
+		return err
+	}
+
 	dao.log.Log(ctx, lf.LevelTrace, "addition succeed", refAttr)
 	return nil
 }

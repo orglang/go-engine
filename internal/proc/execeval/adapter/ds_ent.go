@@ -89,7 +89,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execeval.Eva
 	bindReq := pgx.Batch{}
 	for _, dto := range dto.LinearVars {
 		args := pgx.NamedArgs{
-			"impl_id":  dto.CompID,
+			"impl_id":  dto.ExecID,
 			"chnl_ph":  dto.ChnlPH,
 			"chnl_id":  dto.ChnlID,
 			"state_id": dto.ExpCK,

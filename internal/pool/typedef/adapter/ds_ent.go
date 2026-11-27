@@ -75,11 +75,11 @@ WHERE db.desc_qn = $1
 	for _, qn := range typeQNs {
 		rows, readErr := br.Query()
 		if readErr != nil {
-			return nil, readErr
+			return nil, errors.Join(readErr, br.Close())
 		}
 		dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRec])
 		if scanErr != nil {
-			return nil, scanErr
+			return nil, errors.Join(scanErr, br.Close())
 		}
 		dtos[qn] = dto
 	}

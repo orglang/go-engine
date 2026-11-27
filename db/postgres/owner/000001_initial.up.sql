@@ -55,9 +55,9 @@ CREATE TABLE pool_exec_evals (
     liab_mode smallint
 );
 
-CREATE TABLE pool_exec_vars (
-    exec_id varchar,
-    exec_rn bigint,
+CREATE TABLE pool_comp_vars (
+    comp_id varchar,
+    comp_rn bigint,
     conn_id varchar,
     chnl_id varchar,
     chnl_ph varchar,
@@ -66,17 +66,17 @@ CREATE TABLE pool_exec_vars (
 );
 
 CREATE TABLE pool_struct_vars (
-) INHERITS (pool_exec_vars);
+) INHERITS (pool_comp_vars);
 
 CREATE TABLE pool_linear_vars (
-) INHERITS (pool_exec_vars);
+) INHERITS (pool_comp_vars);
 
-CREATE TABLE pool_exec_conns (
+CREATE TABLE pool_comp_conns (
     conn_id varchar UNIQUE,
-    provider_exec_id varchar NOT NULL,
-    provider_exec_rn bigint NOT NULL,
-    client_exec_id varchar NOT NULL,
-    client_exec_rn bigint NOT NULL,
+    provider_comp_id varchar NOT NULL,
+    provider_comp_rn bigint NOT NULL,
+    client_comp_id varchar NOT NULL,
+    client_comp_rn bigint NOT NULL,
     offset_nr bigint,
     act_nr bigint
 );
@@ -84,8 +84,8 @@ CREATE TABLE pool_exec_conns (
 CREATE TABLE pool_conn_acts (
     conn_id varchar,
     act_nr bigint,
-    exec_id varchar,
-    exec_rn bigint,
+    comp_id varchar,
+    comp_rn bigint,
     chnl_id varchar,
     kind smallint,
     exp jsonb
@@ -146,9 +146,9 @@ CREATE TABLE proc_exec_evals (
     liab_mode smallint
 );
 
-CREATE TABLE proc_exec_vars (
-    exec_id varchar,
-    exec_rn bigint,
+CREATE TABLE proc_comp_vars (
+    comp_id varchar,
+    comp_rn bigint,
     conn_id varchar,
     chnl_id varchar,
     chnl_ph varchar,
@@ -157,17 +157,17 @@ CREATE TABLE proc_exec_vars (
 );
 
 CREATE TABLE proc_struct_vars (
-) INHERITS (proc_exec_vars);
+) INHERITS (proc_comp_vars);
 
 CREATE TABLE proc_linear_vars (
-) INHERITS (proc_exec_vars);
+) INHERITS (proc_comp_vars);
 
-CREATE TABLE proc_exec_conns (
+CREATE TABLE proc_comp_conns (
     conn_id varchar UNIQUE,
-    provider_exec_id varchar NOT NULL,
-    provider_exec_rn bigint NOT NULL,
-    client_exec_id varchar NOT NULL,
-    client_exec_rn bigint NOT NULL,
+    provider_comp_id varchar NOT NULL,
+    provider_comp_rn bigint NOT NULL,
+    client_comp_id varchar NOT NULL,
+    client_comp_rn bigint NOT NULL,
     offset_nr bigint,
     act_nr bigint
 );
@@ -175,8 +175,8 @@ CREATE TABLE proc_exec_conns (
 CREATE TABLE proc_conn_acts (
     conn_id varchar,
     act_nr bigint,
-    exec_id varchar,
-    exec_rn bigint,
+    comp_id varchar,
+    comp_rn bigint,
     chnl_id varchar,
     kind smallint,
     exp jsonb

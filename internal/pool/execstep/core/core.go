@@ -2,7 +2,7 @@ package core
 
 import "orglang/go-engine/internal/adt/comproot"
 
-// ExpSpec is the expression contract required to schedule a execution step.
+// ExpSpec is the expression contract required to schedule an execution step.
 type ExpSpec interface {
 	IsPoolExp()
 }

@@ -15,5 +15,5 @@ var (
 	// goverter:autoMap CompRef
 	DataFromEvalRec func(execeval.EvalRec) EvalRec
 	// goverter:ignore CompRN
-	dataToSemRef func(EvalRec) (comproot.SemRef, error)
+	dataToSemRef func(EvalRec) (comproot.RootRef, error)
 )

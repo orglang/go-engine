@@ -165,7 +165,7 @@ func compRefToAPI(ref comproot.SemRef) api.AnyCompRef {
 func termRefFromAPI(dto api.AnyTermRef) (identity.ADT, seqnum.ADT, error) {
 	id, err := identity.ConvertFromString(dto.TermId)
 	if err != nil {
-		return identity.ADT{}, seqnum.ADT{}, err
+		return identity.ADT{}, 0, err
 	}
 	return id, seqnum.ConvertFromInt(dto.DescRn), nil
 }

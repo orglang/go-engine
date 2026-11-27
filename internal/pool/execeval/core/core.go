@@ -190,8 +190,8 @@ func (s *service) Run(ctx context.Context, spec EvalSpec) (_ comproot.RootRef, e
 		if ok || assetVar.TermQN == spec.LiabVar.TermQN {
 			newConns = append(newConns, execconn.ConnRec{
 				ConnID:          connID,
-				ProviderRootRef: providerExecRef,
-				ClientRootRef:   newEval.CompRef,
+				ProviderExecRef: providerExecRef,
+				ClientExecRef:   newEval.CompRef,
 				OffsetNr:        seqnum.Zero,
 			})
 		}

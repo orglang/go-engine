@@ -10,7 +10,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"orglang/go-engine/internal/adt/comproot"
-	compsemadapter "orglang/go-engine/internal/adt/comproot/adapter"
+	comprootadapter "orglang/go-engine/internal/adt/comproot/adapter"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/lf"
@@ -45,6 +45,10 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec compexec.ExecRe
 		dao.log.Error("query execution failed", refAttr)
 		return err
 	}
+	if _, err := conn.Pgx.Exec(ctx, insertImplBind, dto.TermQN, dto.CompID); err != nil {
+		dao.log.Error("implementation binding insertion failed", refAttr, slog.String("sql", insertImplBind))
+		return err
+	}
 	dao.log.Log(ctx, lf.LevelTrace, "addition succeed", slog.Any("dto", dto))
 	return nil
 }
@@ -56,9 +60,9 @@ func (dao *daoEnt) ModifyRec(context.Context, tx.Conn, compexec.ExecMod) error {
 func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref comproot.SemRef) (compexec.ExecSnap2, error) {
 	refAttr := slog.Any("ref", ref)
 	rows, err := conn.Pgx.Query(ctx, selectSnapByRef,
-		compsemadapter.DataFromRef(ref).CompID,
-		compsemadapter.DataFromRef(ref).CompID,
-		compsemadapter.DataFromRef(ref).CompID,
+		comprootadapter.DataFromRef(ref).CompID,
+		comprootadapter.DataFromRef(ref).CompID,
+		comprootadapter.DataFromRef(ref).CompID,
 	)
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", selectSnapByRef))
@@ -113,6 +117,11 @@ func (dao *daoEnt) GetSnapMapByQNs(ctx context.Context, conn tx.Conn, termQNs []
 }
 
 const (
+	insertImplBind = `
+INSERT INTO pool_impl_binds (impl_qn, impl_id, kind)
+VALUES ($1, $2, 0)
+`
+
 	selectSnapByRef = `
 WITH struct_vars AS (
     SELECT var.comp_id, var.comp_rn, var.conn_id, var.chnl_id, var.chnl_ph, var.exp_ck, var.side

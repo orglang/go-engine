@@ -11,7 +11,6 @@ import (
 	"orglang/go-engine/internal/adt/comproot"
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
-	"orglang/go-engine/internal/adt/implsem"
 	"orglang/go-engine/internal/adt/option"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/symbol"
@@ -50,6 +49,7 @@ type ExecSpec struct {
 
 type ExecRec struct {
 	CompRef  comproot.SemRef
+	TermQN   uniqsym.ADT
 	LiabMode compvar.Mode
 }
 
@@ -92,8 +92,7 @@ type service struct {
 	typeDefRepo    typedef.Repo
 	procExecRepo   proccompexec.Repo
 	termDecRepo    termdec.Repo
-	implSemRepo    implsem.Repo
-	compSemRepo    comproot.Repo
+	compRootRepo   comproot.Repo
 	transactor     tx.Transactor
 	log            *slog.Logger
 }
@@ -111,8 +110,7 @@ type ServiceDeps struct {
 	TypeDefRepo    typedef.Repo
 	ProcExecRepo   proccompexec.Repo
 	TermDecRepo    termdec.Repo
-	ImplSemRepo    implsem.Repo
-	CompSemRepo    comproot.Repo
+	CompRootRepo   comproot.Repo
 	Transactor     tx.Transactor
 	Logger         *slog.Logger
 }
@@ -122,7 +120,7 @@ func NewService(deps ServiceDeps) API {
 	return &service{
 		deps.CompExecRepo, deps.CompExecBroker, deps.CompVarRepo,
 		deps.CompConnRepo, deps.TypeDefRepo, deps.ProcExecRepo, deps.TermDecRepo,
-		deps.ImplSemRepo, deps.CompSemRepo,
+		deps.CompRootRepo,
 		deps.Transactor, deps.Logger.With(name),
 	}
 }
@@ -155,11 +153,10 @@ func (s *service) Run(ctx context.Context, spec ExecSpec) (_ comproot.SemRef, er
 		s.log.Error("creation failed", specAttr)
 		return comproot.SemRef{}, getErr2
 	}
-	newExec := ExecRec{CompRef: comproot.New(), LiabMode: compvar.StructMode}
+	newExec := ExecRec{CompRef: comproot.New(), TermQN: spec.TermQN, LiabMode: compvar.StructMode}
 	// Reserve the provider-side connection identity in its liability variable.
 	// The Connection record itself is created when a client Computation attaches.
 	newConnID := identity.New()
-	newImpl := implsem.SemRec{ImplQN: spec.TermQN, ImplID: newExec.CompRef.CompID}
 	newLiabVar := compvar.StructRec{
 		CompRef: newExec.CompRef,
 		ConnID:  newConnID,
@@ -208,10 +205,6 @@ func (s *service) Run(ctx context.Context, spec ExecSpec) (_ comproot.SemRef, er
 		})
 	}
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		err = s.implSemRepo.AddRec(txCtx, conn, newImpl)
-		if err != nil {
-			return err
-		}
 		err = s.compExecRepo.AddRec(txCtx, conn, newExec)
 		if err != nil {
 			return err
@@ -300,7 +293,7 @@ func (s *service) Take(ctx context.Context, spec compstep.StepSpec) (err error) 
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		// CAS all affected aggregate roots before writing any child state.
 		for _, key := range compKeys {
-			if touchErr := s.compSemRepo.TouchRef(txCtx, conn, compRefs[key]); touchErr != nil {
+			if touchErr := s.compRootRepo.TouchRef(txCtx, conn, compRefs[key]); touchErr != nil {
 				return touchErr
 			}
 		}

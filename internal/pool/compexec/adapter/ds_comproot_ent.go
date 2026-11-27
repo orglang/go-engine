@@ -15,17 +15,17 @@ import (
 	"orglang/go-engine/internal/pool/ent/compexec"
 )
 
-type compSemDaoEnt struct {
+type compRootDaoEnt struct {
 	client *ent.Client
 	log    *slog.Logger
 }
 
-func NewCompSemDaoEnt(client *ent.Client, log *slog.Logger) comproot.Repo {
-	name := slog.String("name", reflect.TypeFor[compSemDaoEnt]().Name())
-	return &compSemDaoEnt{client: client, log: log.With(name)}
+func NewCompRootDaoEnt(client *ent.Client, log *slog.Logger) comproot.Repo {
+	name := slog.String("name", reflect.TypeFor[compRootDaoEnt]().Name())
+	return &compRootDaoEnt{client: client, log: log.With(name)}
 }
 
-func (dao *compSemDaoEnt) TouchRef(ctx context.Context, conn tx.Conn, ref comproot.SemRef) error {
+func (dao *compRootDaoEnt) TouchRef(ctx context.Context, conn tx.Conn, ref comproot.SemRef) error {
 	dto := comprootadapter.DataFromRef(ref)
 	refAttr := slog.Any("ref", ref)
 	updated, err := dao.client.CompExec.Update().

@@ -2,7 +2,7 @@ package adapter
 
 import (
 	"orglang/go-engine/internal/adt/comproot/adapter"
-	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
+	execvaradapter "orglang/go-engine/internal/adt/execvar/adapter"
 	execeval "orglang/go-engine/internal/proc/execeval/core"
 )
 
@@ -13,6 +13,6 @@ func DataFromMod(source execeval.EvalMod) (EvalMod, error) {
 	}
 	return EvalMod{
 		CompRefs:   compRefs,
-		LinearVars: compvaradapter.DataFromLinearRecs(source.LinearVars),
+		LinearVars: execvaradapter.DataFromLinearRecs(source.LinearVars),
 	}, nil
 }

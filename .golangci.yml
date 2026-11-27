@@ -48,7 +48,7 @@ linters:
             - {pkg: orglang/go-engine/internal/pool/execconn/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/connact/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/execeval/adapter, desc: *adapterBoundary}
-            - {pkg: orglang/go-engine/internal/pool/compvar/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/pool/execvar/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/termdef/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/typedef/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/typeexp/adapter, desc: *adapterBoundary}

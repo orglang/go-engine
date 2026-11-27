@@ -2,7 +2,7 @@ package adapter
 
 import (
 	comprootadapter "orglang/go-engine/internal/adt/comproot/adapter"
-	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
+	execvaradapter "orglang/go-engine/internal/adt/execvar/adapter"
 )
 
 type EvalRec struct {
@@ -13,5 +13,5 @@ type EvalRec struct {
 
 type EvalMod struct {
 	CompRefs   []comprootadapter.SemRef
-	LinearVars []compvaradapter.VarRec
+	LinearVars []execvaradapter.VarRec
 }

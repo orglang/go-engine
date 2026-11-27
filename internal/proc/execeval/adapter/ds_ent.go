@@ -10,8 +10,8 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"orglang/go-engine/internal/adt/comproot"
-	"orglang/go-engine/internal/adt/compvar"
-	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
+	"orglang/go-engine/internal/adt/execvar"
+	execvaradapter "orglang/go-engine/internal/adt/execvar/adapter"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/lf"
@@ -60,19 +60,19 @@ func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref comproot.
 		return execeval.EvalSnap{}, err
 	}
 	defer chnlRows.Close()
-	chnlDtos, err := pgx.CollectRows(chnlRows, pgx.RowToStructByName[compvaradapter.VarRec])
+	chnlDtos, err := pgx.CollectRows(chnlRows, pgx.RowToStructByName[execvaradapter.VarRec])
 	if err != nil {
 		dao.log.Error("row scanning failed", refAttr, slog.Any("t", reflect.TypeOf(chnlDtos)))
 		return execeval.EvalSnap{}, err
 	}
-	chnls, err := compvaradapter.DataToLinearRecs(chnlDtos)
+	chnls, err := execvaradapter.DataToLinearRecs(chnlDtos)
 	if err != nil {
 		dao.log.Error("model conversion failed", refAttr)
 		return execeval.EvalSnap{}, err
 	}
 	dao.log.Debug("snap selection succeed", refAttr)
 	return execeval.EvalSnap{
-		LinearVars: compvar.IndexBy(execeval.ChnlPH, chnls),
+		LinearVars: execvar.IndexBy(execeval.ChnlPH, chnls),
 	}, nil
 }
 

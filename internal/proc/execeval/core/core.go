@@ -11,7 +11,7 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 
 	"orglang/go-engine/internal/adt/comproot"
-	"orglang/go-engine/internal/adt/compvar"
+	"orglang/go-engine/internal/adt/execvar"
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/option"
@@ -34,12 +34,12 @@ type API interface {
 
 type EvalRec struct {
 	CompRef  comproot.SemRef
-	LiabMode compvar.Mode
+	LiabMode execvar.Mode
 }
 
 type EvalMod struct {
 	CompRefs   []comproot.SemRef
-	LinearVars []compvar.LinearRec
+	LinearVars []execvar.LinearRec
 }
 
 type EvalEff struct {
@@ -55,7 +55,7 @@ type takeResult struct {
 // aka Configuration
 type EvalSnap struct {
 	CompRef    comproot.SemRef
-	LinearVars map[symbol.ADT]compvar.LinearRec
+	LinearVars map[symbol.ADT]execvar.LinearRec
 }
 
 type Env struct {
@@ -64,7 +64,7 @@ type Env struct {
 	ProcDecs map[identity.ADT]termdec.DecRec
 }
 
-func ChnlPH(rec compvar.LinearRec) symbol.ADT { return rec.ChnlPH }
+func ChnlPH(rec execvar.LinearRec) symbol.ADT { return rec.ChnlPH }
 
 type service struct {
 	execEvalRepo Repo
@@ -261,8 +261,8 @@ func (s *service) takeWith(
 		switch expRec := observation.ContExp.(type) {
 		case connact.WaitRec:
 			// лишаем продолжения закрывателя
-			evalMod.LinearVars = append(evalMod.LinearVars, compvar.LinearRec{
-				CompRef: connChnl.CompRef,
+			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
+				ExecRef: connChnl.CompRef,
 				ConnID:  connChnl.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  connChnl.ChnlPH,
@@ -270,8 +270,8 @@ func (s *service) takeWith(
 				ExpCK:   nextExpCK,
 			})
 			// лишаем продолжения наблюдателя
-			evalMod.LinearVars = append(evalMod.LinearVars, compvar.LinearRec{
-				CompRef: observation.CompRef,
+			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
+				ExecRef: observation.CompRef,
 				ConnID:  observation.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
@@ -336,8 +336,8 @@ func (s *service) takeWith(
 		switch expRec := closage.ContExp.(type) {
 		case connact.CloseRec:
 			// лишаем продолжения наблюдателя
-			evalMod.LinearVars = append(evalMod.LinearVars, compvar.LinearRec{
-				CompRef: connChnl.CompRef,
+			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
+				ExecRef: connChnl.CompRef,
 				ConnID:  connChnl.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  connChnl.ChnlPH,
@@ -345,8 +345,8 @@ func (s *service) takeWith(
 				ExpCK:   nextExpCK,
 			})
 			// лишаем продолжения закрывателя
-			evalMod.LinearVars = append(evalMod.LinearVars, compvar.LinearRec{
-				CompRef: closage.CompRef,
+			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
+				ExecRef: closage.CompRef,
 				ConnID:  closage.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
@@ -363,8 +363,8 @@ func (s *service) takeWith(
 			return takeResult{Mod: evalMod, Effects: evalEff, Connection: connMod}, nil
 		case connact.FwdRec:
 			// перенаправляем продолжение наблюдателя
-			evalMod.LinearVars = append(evalMod.LinearVars, compvar.LinearRec{
-				CompRef: evalSnap.CompRef,
+			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
+				ExecRef: evalSnap.CompRef,
 				ConnID:  connSnap.ConnID,
 				ChnlID:  expRec.ContChnlID,
 				ChnlPH:  connChnl.ChnlPH,
@@ -439,8 +439,8 @@ func (s *service) takeWith(
 		}
 		newChnlID := identity.New()
 		// вяжем продолжение отправителя
-		evalMod.LinearVars = append(evalMod.LinearVars, compvar.LinearRec{
-			CompRef: connChnl.CompRef,
+		evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
+			ExecRef: connChnl.CompRef,
 			ConnID:  connChnl.ConnID,
 			ChnlID:  newChnlID,
 			ChnlPH:  connChnl.ChnlPH,
@@ -448,8 +448,8 @@ func (s *service) takeWith(
 			ExpCK:   nextExpCK,
 		})
 		// лишаем значения отправителя
-		evalMod.LinearVars = append(evalMod.LinearVars, compvar.LinearRec{
-			CompRef: connChnl.CompRef,
+		evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
+			ExecRef: connChnl.CompRef,
 			ConnID:  connChnl.ConnID,
 			ChnlID:  identity.New(),
 			ChnlPH:  valChnl.ChnlPH,
@@ -459,8 +459,8 @@ func (s *service) takeWith(
 		switch expRec := receival.ContExp.(type) {
 		case connact.RecvRec:
 			// вяжем продолжение принимателя
-			evalMod.LinearVars = append(evalMod.LinearVars, compvar.LinearRec{
-				CompRef: receival.CompRef,
+			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
+				ExecRef: receival.CompRef,
 				ConnID:  receival.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ConnChnlPH,
@@ -468,8 +468,8 @@ func (s *service) takeWith(
 				ExpCK:   nextExpCK,
 			})
 			// вяжем значение принимателя
-			evalMod.LinearVars = append(evalMod.LinearVars, compvar.LinearRec{
-				CompRef: receival.CompRef,
+			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
+				ExecRef: receival.CompRef,
 				ConnID:  valChnl.ConnID,
 				ChnlID:  valChnl.ChnlID,
 				ChnlPH:  expRec.NewChnlPH,
@@ -522,8 +522,8 @@ func (s *service) takeWith(
 		if publication == nil {
 			newChnlID := identity.New()
 			// вяжем продолжение принимателя
-			evalMod.LinearVars = append(evalMod.LinearVars, compvar.LinearRec{
-				CompRef: connChnl.CompRef,
+			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
+				ExecRef: connChnl.CompRef,
 				ConnID:  connChnl.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  connChnl.ChnlPH,
@@ -552,8 +552,8 @@ func (s *service) takeWith(
 		switch valExp := sending.ValExp.(type) {
 		case connact.SendRec:
 			// вяжем продолжение принимателя
-			evalMod.LinearVars = append(evalMod.LinearVars, compvar.LinearRec{
-				CompRef: connChnl.CompRef,
+			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
+				ExecRef: connChnl.CompRef,
 				ConnID:  connChnl.ConnID,
 				ChnlID:  valExp.ContChnlID,
 				ChnlPH:  connChnl.ChnlPH,
@@ -561,12 +561,12 @@ func (s *service) takeWith(
 				ExpCK:   nextExpCK,
 			})
 			// вяжем значение принимателя
-			evalMod.LinearVars = append(evalMod.LinearVars, compvar.LinearRec{
-				CompRef: connChnl.CompRef,
+			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
+				ExecRef: connChnl.CompRef,
 				ConnID:  valExp.ConnID,
 				ChnlID:  valExp.ValChnlID,
 				ChnlPH:  termExp.NewChnlPH,
-				ChnlBS:  compvar.AssetSide,
+				ChnlBS:  execvar.AssetSide,
 				ExpCK:   valExp.ValExpCK,
 			})
 			if termExp.ContExp != nil {
@@ -612,8 +612,8 @@ func (s *service) takeWith(
 		if subscription == nil {
 			newChnlID := identity.New()
 			// вяжем продолжение решателя
-			evalMod.LinearVars = append(evalMod.LinearVars, compvar.LinearRec{
-				CompRef: connChnl.CompRef,
+			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
+				ExecRef: connChnl.CompRef,
 				ConnID:  connChnl.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  connChnl.ChnlPH,
@@ -641,8 +641,8 @@ func (s *service) takeWith(
 		switch contExp := following.ContExp.(type) {
 		case connact.CaseRec:
 			// вяжем продолжение решателя
-			evalMod.LinearVars = append(evalMod.LinearVars, compvar.LinearRec{
-				CompRef: connChnl.CompRef,
+			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
+				ExecRef: connChnl.CompRef,
 				ConnID:  connChnl.ConnID,
 				ChnlID:  contExp.ContChnlID,
 				ChnlPH:  connChnl.ChnlPH,
@@ -650,8 +650,8 @@ func (s *service) takeWith(
 				ExpCK:   nextExpCK,
 			})
 			// вяжем продолжение последователя
-			evalMod.LinearVars = append(evalMod.LinearVars, compvar.LinearRec{
-				CompRef: following.CompRef,
+			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
+				ExecRef: following.CompRef,
 				ConnID:  following.ConnID,
 				ChnlID:  contExp.ContChnlID,
 				ChnlPH:  contExp.ConnChnlPH,
@@ -719,8 +719,8 @@ func (s *service) takeWith(
 		switch valExp := decision.ValExp.(type) {
 		case connact.LabRec:
 			// вяжем продолжение последователя
-			evalMod.LinearVars = append(evalMod.LinearVars, compvar.LinearRec{
-				CompRef: connChnl.CompRef,
+			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
+				ExecRef: connChnl.CompRef,
 				ConnID:  connChnl.ConnID,
 				ChnlID:  valExp.ContChnlID,
 				ChnlPH:  connChnl.ChnlPH,
@@ -779,8 +779,8 @@ func (s *service) takeWith(
 			switch forwardable := act.(type) {
 			case connact.SubRec:
 				// перенаправляем подписчика
-				evalMod.LinearVars = append(evalMod.LinearVars, compvar.LinearRec{
-					CompRef: forwardable.CompRef,
+				evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
+					ExecRef: forwardable.CompRef,
 					ConnID:  forwardable.ConnID,
 					ChnlID:  connChnl.ChnlID,
 					ChnlPH:  forwardable.ContExp.Via(),
@@ -797,8 +797,8 @@ func (s *service) takeWith(
 				return takeResult{Mod: evalMod, Effects: evalEff, Connection: connMod}, nil
 			case connact.PubRec:
 				// перенаправляем публикатора
-				evalMod.LinearVars = append(evalMod.LinearVars, compvar.LinearRec{
-					CompRef: forwardable.CompRef,
+				evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
+					ExecRef: forwardable.CompRef,
 					ConnID:  forwardable.ConnID,
 					ChnlID:  contChnl.ChnlID,
 					ChnlPH:  forwardable.ValExp.Via(),
@@ -813,16 +813,16 @@ func (s *service) takeWith(
 				return takeResult{Mod: evalMod, Effects: evalEff, Connection: connMod}, nil
 			case nil:
 				// лишаем значений схлопывающегося
-				evalMod.LinearVars = append(evalMod.LinearVars, compvar.LinearRec{
-					CompRef: connChnl.CompRef,
+				evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
+					ExecRef: connChnl.CompRef,
 					ConnID:  connChnl.ConnID,
 					ChnlID:  connChnl.ChnlID,
 					ChnlPH:  termExp.ConnChnlPH,
 					ChnlBS:  connChnl.ChnlBS,
 					ExpCK:   connChnl.ExpCK.Invert(),
 				})
-				evalMod.LinearVars = append(evalMod.LinearVars, compvar.LinearRec{
-					CompRef: connChnl.CompRef,
+				evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
+					ExecRef: connChnl.CompRef,
 					// TODO значение ConnID
 					ChnlID: contChnl.ChnlID,
 					ChnlPH: termExp.ContChnlPH,
@@ -847,8 +847,8 @@ func (s *service) takeWith(
 			switch forwardable := act.(type) {
 			case connact.SubRec:
 				// перенаправляем подписчика
-				evalMod.LinearVars = append(evalMod.LinearVars, compvar.LinearRec{
-					CompRef: forwardable.CompRef,
+				evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
+					ExecRef: forwardable.CompRef,
 					ConnID:  forwardable.ConnID,
 					ChnlID:  contChnl.ChnlID,
 					ChnlPH:  forwardable.ContExp.Via(),
@@ -865,8 +865,8 @@ func (s *service) takeWith(
 				return takeResult{Mod: evalMod, Effects: evalEff, Connection: connMod}, nil
 			case connact.PubRec:
 				// перенаправляем публикатора
-				evalMod.LinearVars = append(evalMod.LinearVars, compvar.LinearRec{
-					CompRef: forwardable.CompRef,
+				evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
+					ExecRef: forwardable.CompRef,
 					ConnID:  forwardable.ConnID,
 					ChnlID:  connChnl.ChnlID,
 					ChnlPH:  forwardable.ValExp.Via(),
@@ -902,15 +902,15 @@ func (s *service) takeWith(
 	}
 }
 
-func CollectCtx(chnls iter.Seq[compvar.LinearRec]) []contkey.ADT {
+func CollectCtx(chnls iter.Seq[execvar.LinearRec]) []contkey.ADT {
 	return nil
 }
 
-func convertToCtx(chnlBinds iter.Seq[compvar.LinearRec], typeExps map[contkey.ADT]typedef.ExpRec) typedef.Context {
+func convertToCtx(chnlBinds iter.Seq[execvar.LinearRec], typeExps map[contkey.ADT]typedef.ExpRec) typedef.Context {
 	assets := make(map[symbol.ADT]typedef.ExpRec, 1)
 	liabs := make(map[symbol.ADT]typedef.ExpRec, 1)
 	for bind := range chnlBinds {
-		if bind.ChnlBS == compvar.LiabSide {
+		if bind.ChnlBS == execvar.LiabSide {
 			liabs[bind.ChnlPH] = typeExps[bind.ExpCK]
 		} else {
 			assets[bind.ChnlPH] = typeExps[bind.ExpCK]
@@ -929,7 +929,7 @@ func (s *service) checkType(
 	if !ok {
 		panic("no comm chnl in proc snap")
 	}
-	if chnlBR.ChnlBS == compvar.LiabSide {
+	if chnlBR.ChnlBS == execvar.LiabSide {
 		return s.checkProvider(procEnv, procCtx, evalSnap, expSpec)
 	}
 	return s.checkClient(procEnv, procCtx, evalSnap, expSpec)

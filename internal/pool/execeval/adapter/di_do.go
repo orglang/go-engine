@@ -9,7 +9,7 @@ import (
 
 	"orglang/go-engine/internal/adt/comproot"
 	"orglang/go-engine/internal/lib/tx"
-	compvar "orglang/go-engine/internal/pool/compvar/core"
+	execvar "orglang/go-engine/internal/pool/execvar/core"
 	"orglang/go-engine/internal/pool/ent"
 	execconn "orglang/go-engine/internal/pool/execconn/core"
 	execeval "orglang/go-engine/internal/pool/execeval/core"
@@ -57,7 +57,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		varRepo, err := do.Invoke[compvar.Repo](i)
+		varRepo, err := do.Invoke[execvar.Repo](i)
 		if err != nil {
 			return nil, err
 		}
@@ -92,7 +92,7 @@ var Package = do.Package(
 		return execeval.NewService(execeval.ServiceDeps{
 			ExecEvalRepo:   evalRepo,
 			ExecEvalBroker: broker,
-			CompVarRepo:    varRepo,
+			ExecVarRepo:    varRepo,
 			ExecConnRepo:   connRepo,
 			TypeDefRepo:    typeRepo,
 			ProcEvalRepo:   procRepo,

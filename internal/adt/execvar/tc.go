@@ -1,4 +1,4 @@
-package compvar
+package execvar
 
 import (
 	"orglang/go-engine/internal/adt/comproot"
@@ -6,7 +6,7 @@ import (
 )
 
 func ConvertRecToRef(rec LinearRec) comproot.SemRef {
-	return rec.CompRef
+	return rec.ExecRef
 }
 
 func ConvertRecsToRefs(recs []LinearRec) []comproot.SemRef {

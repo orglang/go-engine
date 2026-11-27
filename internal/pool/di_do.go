@@ -9,7 +9,7 @@ import (
 	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/wp"
-	compvar "orglang/go-engine/internal/pool/compvar/adapter"
+	execvar "orglang/go-engine/internal/pool/execvar/adapter"
 	descrootadapter "orglang/go-engine/internal/pool/descroot/adapter"
 	"orglang/go-engine/internal/pool/ent"
 	execconn "orglang/go-engine/internal/pool/execconn/adapter"
@@ -25,7 +25,7 @@ var Package = do.Package(
 	}),
 	wp.Package,
 	execconn.Package,
-	compvar.Package,
+	execvar.Package,
 	execeval.Package,
 	typedef.Package,
 	termdec.Package,

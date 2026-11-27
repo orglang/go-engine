@@ -5,12 +5,12 @@ import (
 
 	"github.com/samber/do/v2"
 
-	compvar "orglang/go-engine/internal/pool/compvar/core"
+	execvar "orglang/go-engine/internal/pool/execvar/core"
 )
 
-// Package registers the pool component-variable repository.
+// Package registers the pool execution-variable repository.
 var Package = do.Package(
-	do.Lazy[compvar.Repo](func(i do.Injector) (compvar.Repo, error) {
+	do.Lazy[execvar.Repo](func(i do.Injector) (execvar.Repo, error) {
 		logger, err := do.Invoke[*slog.Logger](i)
 		if err != nil {
 			return nil, err

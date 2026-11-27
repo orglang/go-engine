@@ -11,31 +11,31 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 
-	adtcompvar "orglang/go-engine/internal/adt/compvar"
-	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
+	adtexecvar "orglang/go-engine/internal/adt/execvar"
+	execvaradapter "orglang/go-engine/internal/adt/execvar/adapter"
 
-	compvar "orglang/go-engine/internal/pool/compvar/core"
+	execvar "orglang/go-engine/internal/pool/execvar/core"
 )
 
 type daoPgx struct {
 	log *slog.Logger
 }
 
-func NewDaoPgx(log *slog.Logger) compvar.Repo {
+func NewDaoPgx(log *slog.Logger) execvar.Repo {
 	name := slog.String("name", reflect.TypeFor[daoPgx]().Name())
 	return &daoPgx{log.With(name)}
 }
 
 // for compilation purposes
-func newRepo() compvar.Repo {
+func newRepo() execvar.Repo {
 	return new(daoPgx)
 }
 
-func (dao *daoPgx) AddRecs(ctx context.Context, conn tx.Conn, recs []adtcompvar.VarRec) (err error) {
+func (dao *daoPgx) AddRecs(ctx context.Context, conn tx.Conn, recs []adtexecvar.VarRec) (err error) {
 	batch := pgx.Batch{}
 	for _, rec := range recs {
-		dto := compvaradapter.DataFromVarRec(rec)
-		batch.Queue(insertRec(getTableName(rec)), dto.CompID, dto.CompRN, dto.ConnID, dto.ChnlID, dto.ChnlPH, dto.ExpCK, dto.ChnlBS)
+		dto := execvaradapter.DataFromVarRec(rec)
+		batch.Queue(insertRec(getTableName(rec)), dto.ExecID, dto.ExecRN, dto.ConnID, dto.ChnlID, dto.ChnlPH, dto.ExpCK, dto.ChnlBS)
 	}
 	br := conn.Pgx.SendBatch(ctx, &batch)
 	defer func() {
@@ -52,14 +52,14 @@ func (dao *daoPgx) AddRecs(ctx context.Context, conn tx.Conn, recs []adtcompvar.
 	return nil
 }
 
-func getTableName(rec adtcompvar.VarRec) string {
+func getTableName(rec adtexecvar.VarRec) string {
 	switch rec.(type) {
-	case adtcompvar.StructRec:
+	case adtexecvar.StructRec:
 		return poolStructVars
-	case adtcompvar.LinearRec:
+	case adtexecvar.LinearRec:
 		return poolLinearVars
 	default:
-		panic(adtcompvar.ErrUnexpectedRecType(rec))
+		panic(adtexecvar.ErrUnexpectedRecType(rec))
 	}
 }
 
@@ -70,7 +70,7 @@ func insertRec(table string) string {
 	case poolLinearVars:
 		return insertLinearVar
 	default:
-		panic("unexpected component-variable table")
+		panic("unexpected execution-variable table")
 	}
 }
 
@@ -78,6 +78,6 @@ const (
 	poolStructVars = "pool_struct_vars"
 	poolLinearVars = "pool_linear_vars"
 
-	insertStructVar = `INSERT INTO pool_struct_vars (comp_id, comp_rn, conn_id, chnl_id, chnl_ph, exp_ck, side) VALUES ($1, $2, $3, $4, $5, $6, $7)`
-	insertLinearVar = `INSERT INTO pool_linear_vars (comp_id, comp_rn, conn_id, chnl_id, chnl_ph, exp_ck, side) VALUES ($1, $2, $3, $4, $5, $6, $7)`
+	insertStructVar = `INSERT INTO pool_struct_vars (exec_id, exec_rn, conn_id, chnl_id, chnl_ph, exp_ck, side) VALUES ($1, $2, $3, $4, $5, $6, $7)`
+	insertLinearVar = `INSERT INTO pool_linear_vars (exec_id, exec_rn, conn_id, chnl_id, chnl_ph, exp_ck, side) VALUES ($1, $2, $3, $4, $5, $6, $7)`
 )

@@ -10,8 +10,8 @@ import (
 // goverter:output:format assign-variable
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
-// goverter:extend orglang/go-engine/internal/adt/compvar/adapter:Convert.*
-// goverter:extend orglang/go-engine/internal/adt/compvar/adapter:Data.*
+// goverter:extend orglang/go-engine/internal/adt/execvar/adapter:Convert.*
+// goverter:extend orglang/go-engine/internal/adt/execvar/adapter:Data.*
 // goverter:extend DataToEvalSnap1
 var (
 	// goverter:map . CompRef

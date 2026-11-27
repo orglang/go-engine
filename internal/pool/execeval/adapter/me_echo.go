@@ -17,7 +17,7 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/app/web/api"
 	execstep "orglang/go-engine/internal/pool/execstep/core"
-	compvar "orglang/go-engine/internal/pool/compvar/core"
+	execvar "orglang/go-engine/internal/pool/execvar/core"
 	execeval "orglang/go-engine/internal/pool/execeval/core"
 )
 
@@ -39,7 +39,7 @@ func newControllerEcho(evalAPI execeval.API, log *slog.Logger) *controllerEcho {
 	return &controllerEcho{evalAPI, log.With(name)}
 }
 
-// RegisterRoutes attaches the pool computation-execution HTTP endpoints to an
+// RegisterRoutes attaches the pool execution HTTP endpoints to an
 // Echo server. Controller construction is owned by the application container.
 func RegisterRoutes(server *echo.Echo, controller Controller) error {
 	server.POST("/api/v1/pools/executions", controller.PostSpec)
@@ -75,7 +75,7 @@ func poolExecSpecToCore(dto api.AnyEvalSpec) (execeval.EvalSpec, error) {
 	if err != nil {
 		return execeval.EvalSpec{}, err
 	}
-	assetVars := make([]compvar.VarSpec, len(dto.AssetVars))
+	assetVars := make([]execvar.VarSpec, len(dto.AssetVars))
 	for i, assetVar := range dto.AssetVars {
 		assetVars[i], err = poolExecVarToCore(assetVar)
 		if err != nil {
@@ -85,19 +85,19 @@ func poolExecSpecToCore(dto api.AnyEvalSpec) (execeval.EvalSpec, error) {
 	return execeval.EvalSpec{TermQN: termQN, LiabVar: liabVar, AssetVars: assetVars}, nil
 }
 
-func poolExecVarToCore(dto api.AnyEvalVarSpec) (compvar.VarSpec, error) {
+func poolExecVarToCore(dto api.AnyEvalVarSpec) (execvar.VarSpec, error) {
 	if dto.ConnPh == "" {
-		return compvar.VarSpec{}, errors.New("conn_ph cannot be blank")
+		return execvar.VarSpec{}, errors.New("conn_ph cannot be blank")
 	}
 	connPH, err := symbol.ConvertFromString(dto.ConnPh)
 	if err != nil {
-		return compvar.VarSpec{}, err
+		return execvar.VarSpec{}, err
 	}
 	termQN, err := uniqsym.ConvertFromString(dto.TermQn)
 	if err != nil {
-		return compvar.VarSpec{}, err
+		return execvar.VarSpec{}, err
 	}
-	return compvar.VarSpec{ChnlPH: connPH, TermQN: termQN}, nil
+	return execvar.VarSpec{ChnlPH: connPH, TermQN: termQN}, nil
 }
 
 func (c *controllerEcho) PostSpec2(ctx *echo.Context) error {

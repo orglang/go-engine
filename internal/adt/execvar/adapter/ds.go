@@ -3,8 +3,8 @@ package adapter
 import "database/sql"
 
 type VarRec struct {
-	CompID sql.NullString `db:"comp_id"`
-	CompRN sql.NullInt64  `db:"comp_rn"`
+	ExecID sql.NullString `db:"exec_id"`
+	ExecRN sql.NullInt64  `db:"exec_rn"`
 	ConnID sql.NullString `db:"conn_id"`
 	ChnlID sql.NullString `db:"chnl_id"`
 	ChnlPH sql.NullString `db:"chnl_ph"`

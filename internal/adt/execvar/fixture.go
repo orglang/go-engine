@@ -1,4 +1,4 @@
-package compvar
+package execvar
 
 import (
 	"orglang/go-engine/internal/adt/comproot"
@@ -7,7 +7,7 @@ import (
 
 func SampleVarRec() LinearRec {
 	return LinearRec{
-		CompRef: comproot.New(),
+		ExecRef: comproot.New(),
 		ConnID:  identity.New(),
 		ChnlID:  identity.New(),
 		ChnlPH:  "chnl-1",

@@ -4,7 +4,7 @@ import (
 	"database/sql"
 
 	"orglang/go-engine/internal/adt/comproot"
-	"orglang/go-engine/internal/adt/compvar"
+	"orglang/go-engine/internal/adt/execvar"
 	contkeyadapter "orglang/go-engine/internal/adt/contkey/adapter"
 	identityadapter "orglang/go-engine/internal/adt/identity/adapter"
 	seqnumadapter "orglang/go-engine/internal/adt/seqnum/adapter"
@@ -12,21 +12,21 @@ import (
 	symboladapter "orglang/go-engine/internal/adt/symbol/adapter"
 )
 
-func DataFromVarRec(rec compvar.VarRec) VarRec {
+func DataFromVarRec(rec execvar.VarRec) VarRec {
 	switch value := rec.(type) {
-	case compvar.StructRec:
+	case execvar.StructRec:
 		return DataFromStructRec(value)
-	case compvar.LinearRec:
+	case execvar.LinearRec:
 		return DataFromLinearRec(value)
 	default:
-		panic(compvar.ErrUnexpectedRecType(rec))
+		panic(execvar.ErrUnexpectedRecType(rec))
 	}
 }
 
-func DataFromStructRec(rec compvar.StructRec) VarRec {
+func DataFromStructRec(rec execvar.StructRec) VarRec {
 	return VarRec{
-		CompID: identityadapter.ConvertToNullString(rec.CompRef.CompID),
-		CompRN: seqnumadapter.ConvertToNullInt(rec.CompRef.CompRN),
+		ExecID: identityadapter.ConvertToNullString(rec.ExecRef.ExecID),
+		ExecRN: seqnumadapter.ConvertToNullInt(rec.ExecRef.ExecRN),
 		ConnID: identityadapter.ConvertToNullString(rec.ConnID),
 		ChnlID: identityadapter.ConvertToNullString(rec.ChnlID),
 		ChnlPH: symboladapter.ConvertToNullString(rec.ChnlPH),
@@ -35,10 +35,10 @@ func DataFromStructRec(rec compvar.StructRec) VarRec {
 	}
 }
 
-func DataFromLinearRec(rec compvar.LinearRec) VarRec {
+func DataFromLinearRec(rec execvar.LinearRec) VarRec {
 	return VarRec{
-		CompID: identityadapter.ConvertToNullString(rec.CompRef.CompID),
-		CompRN: seqnumadapter.ConvertToNullInt(rec.CompRef.CompRN),
+		ExecID: identityadapter.ConvertToNullString(rec.ExecRef.ExecID),
+		ExecRN: seqnumadapter.ConvertToNullInt(rec.ExecRef.ExecRN),
 		ConnID: identityadapter.ConvertToNullString(rec.ConnID),
 		ChnlID: identityadapter.ConvertToNullString(rec.ChnlID),
 		ChnlPH: symboladapter.ConvertToNullString(rec.ChnlPH),
@@ -47,7 +47,7 @@ func DataFromLinearRec(rec compvar.LinearRec) VarRec {
 	}
 }
 
-func DataFromStructMap(recMap map[symbol.ADT]compvar.StructRec) []VarRec {
+func DataFromStructMap(recMap map[symbol.ADT]execvar.StructRec) []VarRec {
 	dtos := make([]VarRec, 0, len(recMap))
 	for _, rec := range recMap {
 		dtos = append(dtos, DataFromStructRec(rec))
@@ -55,8 +55,8 @@ func DataFromStructMap(recMap map[symbol.ADT]compvar.StructRec) []VarRec {
 	return dtos
 }
 
-func DataToStructMap(dtos []VarRec) (map[symbol.ADT]compvar.StructRec, error) {
-	recMap := make(map[symbol.ADT]compvar.StructRec, len(dtos))
+func DataToStructMap(dtos []VarRec) (map[symbol.ADT]execvar.StructRec, error) {
+	recMap := make(map[symbol.ADT]execvar.StructRec, len(dtos))
 	for _, dto := range dtos {
 		rec, err := DataToStructRec(dto)
 		if err != nil {
@@ -67,7 +67,7 @@ func DataToStructMap(dtos []VarRec) (map[symbol.ADT]compvar.StructRec, error) {
 	return recMap, nil
 }
 
-func DataFromLinearMap(recMap map[symbol.ADT]compvar.LinearRec) []VarRec {
+func DataFromLinearMap(recMap map[symbol.ADT]execvar.LinearRec) []VarRec {
 	dtos := make([]VarRec, 0, len(recMap))
 	for _, rec := range recMap {
 		dtos = append(dtos, DataFromLinearRec(rec))
@@ -75,8 +75,8 @@ func DataFromLinearMap(recMap map[symbol.ADT]compvar.LinearRec) []VarRec {
 	return dtos
 }
 
-func DataToLinearMap(dtos []VarRec) (map[symbol.ADT]compvar.LinearRec, error) {
-	recMap := make(map[symbol.ADT]compvar.LinearRec, len(dtos))
+func DataToLinearMap(dtos []VarRec) (map[symbol.ADT]execvar.LinearRec, error) {
+	recMap := make(map[symbol.ADT]execvar.LinearRec, len(dtos))
 	for _, dto := range dtos {
 		rec, err := DataToLinearRec(dto)
 		if err != nil {
@@ -87,25 +87,25 @@ func DataToLinearMap(dtos []VarRec) (map[symbol.ADT]compvar.LinearRec, error) {
 	return recMap, nil
 }
 
-func DataToStructRec(dto VarRec) (compvar.StructRec, error) {
-	ref, err := dataToCompRef(dto)
+func DataToStructRec(dto VarRec) (execvar.StructRec, error) {
+	ref, err := dataToExecRef(dto)
 	if err != nil {
-		return compvar.StructRec{}, err
+		return execvar.StructRec{}, err
 	}
 	connID, err := identityadapter.ConvertFromNullString(dto.ConnID)
 	if err != nil {
-		return compvar.StructRec{}, err
+		return execvar.StructRec{}, err
 	}
 	chnlID, err := identityadapter.ConvertFromNullString(dto.ChnlID)
 	if err != nil {
-		return compvar.StructRec{}, err
+		return execvar.StructRec{}, err
 	}
 	chnlPH, err := symboladapter.ConvertFromNullString(dto.ChnlPH)
 	if err != nil {
-		return compvar.StructRec{}, err
+		return execvar.StructRec{}, err
 	}
-	return compvar.StructRec{
-		CompRef: ref,
+	return execvar.StructRec{
+		ExecRef: ref,
 		ConnID:  connID,
 		ChnlID:  chnlID,
 		ChnlPH:  chnlPH,
@@ -114,25 +114,25 @@ func DataToStructRec(dto VarRec) (compvar.StructRec, error) {
 	}, nil
 }
 
-func DataToLinearRec(dto VarRec) (compvar.LinearRec, error) {
-	ref, err := dataToCompRef(dto)
+func DataToLinearRec(dto VarRec) (execvar.LinearRec, error) {
+	ref, err := dataToExecRef(dto)
 	if err != nil {
-		return compvar.LinearRec{}, err
+		return execvar.LinearRec{}, err
 	}
 	connID, err := identityadapter.ConvertFromNullString(dto.ConnID)
 	if err != nil {
-		return compvar.LinearRec{}, err
+		return execvar.LinearRec{}, err
 	}
 	chnlID, err := identityadapter.ConvertFromNullString(dto.ChnlID)
 	if err != nil {
-		return compvar.LinearRec{}, err
+		return execvar.LinearRec{}, err
 	}
 	chnlPH, err := symboladapter.ConvertFromNullString(dto.ChnlPH)
 	if err != nil {
-		return compvar.LinearRec{}, err
+		return execvar.LinearRec{}, err
 	}
-	return compvar.LinearRec{
-		CompRef: ref,
+	return execvar.LinearRec{
+		ExecRef: ref,
 		ConnID:  connID,
 		ChnlID:  chnlID,
 		ChnlPH:  chnlPH,
@@ -141,7 +141,7 @@ func DataToLinearRec(dto VarRec) (compvar.LinearRec, error) {
 	}, nil
 }
 
-func DataFromStructRecs(recs []compvar.StructRec) []VarRec {
+func DataFromStructRecs(recs []execvar.StructRec) []VarRec {
 	if recs == nil {
 		return nil
 	}
@@ -152,7 +152,7 @@ func DataFromStructRecs(recs []compvar.StructRec) []VarRec {
 	return dtos
 }
 
-func DataFromLinearRecs(recs []compvar.LinearRec) []VarRec {
+func DataFromLinearRecs(recs []execvar.LinearRec) []VarRec {
 	if recs == nil {
 		return nil
 	}
@@ -163,11 +163,11 @@ func DataFromLinearRecs(recs []compvar.LinearRec) []VarRec {
 	return dtos
 }
 
-func DataToStructRecs(dtos []VarRec) ([]compvar.StructRec, error) {
+func DataToStructRecs(dtos []VarRec) ([]execvar.StructRec, error) {
 	if dtos == nil {
 		return nil, nil
 	}
-	recs := make([]compvar.StructRec, len(dtos))
+	recs := make([]execvar.StructRec, len(dtos))
 	for i, dto := range dtos {
 		rec, err := DataToStructRec(dto)
 		if err != nil {
@@ -178,11 +178,11 @@ func DataToStructRecs(dtos []VarRec) ([]compvar.StructRec, error) {
 	return recs, nil
 }
 
-func DataToLinearRecs(dtos []VarRec) ([]compvar.LinearRec, error) {
+func DataToLinearRecs(dtos []VarRec) ([]execvar.LinearRec, error) {
 	if dtos == nil {
 		return nil, nil
 	}
-	recs := make([]compvar.LinearRec, len(dtos))
+	recs := make([]execvar.LinearRec, len(dtos))
 	for i, dto := range dtos {
 		rec, err := DataToLinearRec(dto)
 		if err != nil {
@@ -193,35 +193,35 @@ func DataToLinearRecs(dtos []VarRec) ([]compvar.LinearRec, error) {
 	return recs, nil
 }
 
-func dataToCompRef(dto VarRec) (comproot.SemRef, error) {
-	compID, err := identityadapter.ConvertFromNullString(dto.CompID)
+func dataToExecRef(dto VarRec) (comproot.SemRef, error) {
+	execID, err := identityadapter.ConvertFromNullString(dto.ExecID)
 	if err != nil {
 		return comproot.SemRef{}, err
 	}
 	return comproot.SemRef{
-		CompID: compID,
-		CompRN: seqnumadapter.ConvertFromNullInt(dto.CompRN),
+		ExecID: execID,
+		ExecRN: seqnumadapter.ConvertFromNullInt(dto.ExecRN),
 	}, nil
 }
 
-func ConvertSideToNullInt(value compvar.Side) sql.NullInt16 {
+func ConvertSideToNullInt(value execvar.Side) sql.NullInt16 {
 	return sql.NullInt16{Int16: int16(value), Valid: true}
 }
 
-func ConvertSideFromNullInt(value sql.NullInt16) compvar.Side {
+func ConvertSideFromNullInt(value sql.NullInt16) execvar.Side {
 	if value.Valid {
-		return compvar.Side(value.Int16)
+		return execvar.Side(value.Int16)
 	}
-	return compvar.Side(0)
+	return execvar.Side(0)
 }
 
-func ConvertModeToNullInt(value compvar.Mode) sql.NullInt16 {
+func ConvertModeToNullInt(value execvar.Mode) sql.NullInt16 {
 	return sql.NullInt16{Int16: int16(value), Valid: true}
 }
 
-func ConvertModeFromNullInt(value sql.NullInt16) compvar.Mode {
+func ConvertModeFromNullInt(value sql.NullInt16) execvar.Mode {
 	if value.Valid {
-		return compvar.Mode(value.Int16)
+		return execvar.Mode(value.Int16)
 	}
-	return compvar.Mode(0)
+	return execvar.Mode(0)
 }

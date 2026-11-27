@@ -1,4 +1,4 @@
-package compvar
+package execvar
 
 import (
 	"fmt"
@@ -10,8 +10,8 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 )
 
-// human-readable specification of computation variable
-// человекочитаемая спецификация переменной вычисления
+// human-readable specification of execution variable
+// человекочитаемая спецификация переменной исполнения
 type VarSpec struct {
 	// channel placeholder
 	ChnlPH symbol.ADT
@@ -19,10 +19,10 @@ type VarSpec struct {
 	TermQN uniqsym.ADT
 }
 
-// machine-readable record of computation variable
-// машиночитаемая запись переменной вычисления
+// machine-readable record of execution variable
+// машиночитаемая запись переменной исполнения
 type VarRec interface {
-	GetCompRef() comproot.SemRef
+	GetExecRef() comproot.SemRef
 	GetConnID() identity.ADT
 	GetChnlID() identity.ADT
 	GetChnlPH() symbol.ADT
@@ -30,7 +30,7 @@ type VarRec interface {
 }
 
 type LinearRec struct {
-	CompRef comproot.SemRef
+	ExecRef comproot.SemRef
 	ConnID  identity.ADT
 	ChnlID  identity.ADT
 	ChnlPH  symbol.ADT
@@ -44,7 +44,7 @@ type LinearRec struct {
 	ExpCK contkey.ADT
 }
 
-func (r LinearRec) GetCompRef() comproot.SemRef { return r.CompRef }
+func (r LinearRec) GetExecRef() comproot.SemRef { return r.ExecRef }
 
 func (r LinearRec) GetConnID() identity.ADT { return r.ConnID }
 
@@ -55,7 +55,7 @@ func (r LinearRec) GetChnlPH() symbol.ADT { return r.ChnlPH }
 func (r LinearRec) GetExpCK() contkey.ADT { return r.ExpCK }
 
 type StructRec struct {
-	CompRef comproot.SemRef
+	ExecRef comproot.SemRef
 	ConnID  identity.ADT
 	ChnlID  identity.ADT
 	ChnlPH  symbol.ADT
@@ -69,7 +69,7 @@ type StructRec struct {
 	ExpCK contkey.ADT
 }
 
-func (r StructRec) GetCompRef() comproot.SemRef { return r.CompRef }
+func (r StructRec) GetExecRef() comproot.SemRef { return r.ExecRef }
 
 func (r StructRec) GetConnID() identity.ADT { return r.ConnID }
 

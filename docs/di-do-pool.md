@@ -9,7 +9,7 @@ the complete pool runtime.
 The following repository ports are registered through `samber/do` v2:
 
 - `execconn.Repo` backed by Ent and specialized pgx operations.
-- `compvar.Repo` with its current persistence adapter.
+- `execvar.Repo` with its current persistence adapter.
 - `execeval.Repo` backed by Ent and specialized pgx queries.
 - `typeexp.Repo` backed by Ent.
 - `typedef.Repo` backed by Ent.

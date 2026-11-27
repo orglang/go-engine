@@ -17,6 +17,7 @@ type DecSpec struct {
 }
 
 type DecRec struct {
+	TermQN    uniqsym.ADT
 	TermRef   termsem.SemRef
 	LiabVar   termvar.VarRec
 	AssetVars []termvar.VarRec

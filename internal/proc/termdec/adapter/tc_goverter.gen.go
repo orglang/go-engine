@@ -4,6 +4,7 @@
 package adapter
 
 import (
+	descroot "orglang/go-engine/internal/adt/descroot"
 	identity "orglang/go-engine/internal/adt/identity"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
 	symbol "orglang/go-engine/internal/adt/symbol"

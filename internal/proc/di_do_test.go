@@ -9,8 +9,8 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 	compconn "orglang/go-engine/internal/proc/compconn/core"
-	compexecadapter "orglang/go-engine/internal/proc/compexec/adapter"
-	compexec "orglang/go-engine/internal/proc/compexec/core"
+	execevaladapter "orglang/go-engine/internal/proc/execeval/adapter"
+	execeval "orglang/go-engine/internal/proc/execeval/core"
 	termdecadapter "orglang/go-engine/internal/proc/termdec/adapter"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 	termdefadapter "orglang/go-engine/internal/proc/termdef/adapter"
@@ -40,7 +40,7 @@ func TestPackageProvidesPersistencePorts(t *testing.T) {
 			return err
 		}},
 		{"computation-execution repository", func() error {
-			_, err := do.Invoke[compexec.Repo](injector)
+			_, err := do.Invoke[execeval.Repo](injector)
 			return err
 		}},
 		{"term-declaration repository", func() error {
@@ -78,7 +78,7 @@ func TestPackageProvidesApplicationServices(t *testing.T) {
 		call func() error
 	}{
 		{"computation-execution service", func() error {
-			_, err := do.Invoke[compexec.API](injector)
+			_, err := do.Invoke[execeval.API](injector)
 			return err
 		}},
 		{"term-declaration service port", func() error {
@@ -112,7 +112,7 @@ func TestPackageProvidesHTTPAdapters(t *testing.T) {
 		call func() error
 	}{
 		{"generated process execution controller", func() error {
-			_, err := do.Invoke[compexecadapter.GeneratedController](injector)
+			_, err := do.Invoke[execevaladapter.GeneratedController](injector)
 			return err
 		}},
 		{"term-definition controller", func() error {

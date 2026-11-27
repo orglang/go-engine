@@ -12,8 +12,8 @@ import (
 
 	"github.com/labstack/echo/v5"
 
-	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/descroot"
+	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/uniqsym"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
@@ -36,16 +36,37 @@ func TestCreateProcessDeclarationHandler(t *testing.T) {
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		e.ServeHTTP(rec, req)
-		if rec.Code != http.StatusCreated { t.Fatalf("unexpected status: got %d, want %d; body: %s", rec.Code, http.StatusCreated, rec.Body.String()) }
-		if !decAPI.called { t.Fatal("declaration API was not called") }
-		if got := decAPI.ctx.Value(requestContextKey{}); got != "request-context" { t.Fatalf("API did not receive request context: got %v", got) }
-		if got := uniqsym.ConvertToString(decAPI.spec.TermQN); got != "example.Process" { t.Errorf("unexpected term qn: got %q", got) }
-		if got := uniqsym.ConvertToString(decAPI.spec.LiabVar.TypeQN); got != "example.Liability" { t.Errorf("unexpected liability type qn: got %q", got) }
-		if got := string(decAPI.spec.LiabVar.ChnlPH); got != "liability" { t.Errorf("unexpected liability channel: got %q", got) }
-		if len(decAPI.spec.AssetVars) != 1 || uniqsym.ConvertToString(decAPI.spec.AssetVars[0].TypeQN) != "example.Asset" { t.Errorf("unexpected asset vars: %+v", decAPI.spec.AssetVars) }
-		var response struct { TermID string `json:"term_id"`; DescRn int64 `json:"desc_rn"` }
-		if err := json.NewDecoder(rec.Body).Decode(&response); err != nil { t.Fatalf("decode response: %v", err) }
-		if response.DescRn != 11 { t.Errorf("unexpected description revision: got %d, want 11", response.DescRn) }
+		if rec.Code != http.StatusCreated {
+			t.Fatalf("unexpected status: got %d, want %d; body: %s", rec.Code, http.StatusCreated, rec.Body.String())
+		}
+		if !decAPI.called {
+			t.Fatal("declaration API was not called")
+		}
+		if got := decAPI.ctx.Value(requestContextKey{}); got != "request-context" {
+			t.Fatalf("API did not receive request context: got %v", got)
+		}
+		if got := uniqsym.ConvertToString(decAPI.spec.TermQN); got != "example.Process" {
+			t.Errorf("unexpected term qn: got %q", got)
+		}
+		if got := uniqsym.ConvertToString(decAPI.spec.LiabVar.TypeQN); got != "example.Liability" {
+			t.Errorf("unexpected liability type qn: got %q", got)
+		}
+		if got := string(decAPI.spec.LiabVar.ChnlPH); got != "liability" {
+			t.Errorf("unexpected liability channel: got %q", got)
+		}
+		if len(decAPI.spec.AssetVars) != 1 || uniqsym.ConvertToString(decAPI.spec.AssetVars[0].TypeQN) != "example.Asset" {
+			t.Errorf("unexpected asset vars: %+v", decAPI.spec.AssetVars)
+		}
+		var response struct {
+			TermID string `json:"term_id"`
+			DescRn int64  `json:"desc_rn"`
+		}
+		if err := json.NewDecoder(rec.Body).Decode(&response); err != nil {
+			t.Fatalf("decode response: %v", err)
+		}
+		if response.DescRn != 11 {
+			t.Errorf("unexpected description revision: got %d, want 11", response.DescRn)
+		}
 	})
 	t.Run("rejects invalid qualified names before creating", func(t *testing.T) {
 		decAPI := &generatedDecAPIStub{}
@@ -57,16 +78,20 @@ func TestCreateProcessDeclarationHandler(t *testing.T) {
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		e.ServeHTTP(rec, req)
-		if rec.Code != http.StatusBadRequest { t.Fatalf("unexpected status: got %d, want %d; body: %s", rec.Code, http.StatusBadRequest, rec.Body.String()) }
-		if decAPI.called { t.Fatal("declaration API was called for an invalid request") }
+		if rec.Code != http.StatusBadRequest {
+			t.Fatalf("unexpected status: got %d, want %d; body: %s", rec.Code, http.StatusBadRequest, rec.Body.String())
+		}
+		if decAPI.called {
+			t.Fatal("declaration API was called for an invalid request")
+		}
 	})
 }
 
 type generatedDecAPIStub struct {
 	termdec.API
 	called bool
-	spec termdec.DecSpec
-	ctx context.Context
+	spec   termdec.DecSpec
+	ctx    context.Context
 }
 
 func (s *generatedDecAPIStub) Create(ctx context.Context, spec termdec.DecSpec) (termdec.DecSnap, error) {

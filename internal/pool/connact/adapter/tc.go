@@ -4,7 +4,7 @@ import (
 	"fmt"
 	comprootadapter "orglang/go-engine/internal/adt/comproot/adapter"
 	"orglang/go-engine/internal/adt/identity"
-	compexec "orglang/go-engine/internal/pool/compexec/adapter"
+	execeval "orglang/go-engine/internal/pool/execeval/adapter"
 
 	connact "orglang/go-engine/internal/pool/connact/core"
 )
@@ -20,7 +20,7 @@ func DataFromStepRec(r connact.ActRec) ActRec {
 			CompRN: compRef.CompRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
 			K:      PubKind,
-			Exp:    compexec.DataFromExpRec(rec.ValExp),
+			Exp:    execeval.DataFromExpRec(rec.ValExp),
 		}
 	case connact.SubRec:
 		compRef := comprootadapter.DataFromRef(rec.CompRef)
@@ -31,7 +31,7 @@ func DataFromStepRec(r connact.ActRec) ActRec {
 			CompRN: compRef.CompRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
 			K:      SubKind,
-			Exp:    compexec.DataFromExpRec(rec.ContExp),
+			Exp:    execeval.DataFromExpRec(rec.ContExp),
 		}
 	default:
 		panic(connact.ErrActRecTypeUnexpected(r))

@@ -5,8 +5,8 @@ import (
 	"log/slog"
 
 	"orglang/go-engine/internal/adt/descroot"
-	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/tx"
@@ -57,7 +57,9 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ identity.ADT, _ d
 	newDec := DecRec{TermQN: spec.TermQN, TermID: termID, DescRef: newRoot, LiabVar: newLiabVar, AssetVars: newAssetVars}
 
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		if err := s.descRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil { return err }
+		if err := s.descRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil {
+			return err
+		}
 		return s.repo.AddRec(txCtx, conn, newDec)
 	})
 	if transactErr != nil {

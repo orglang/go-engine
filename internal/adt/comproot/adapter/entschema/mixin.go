@@ -15,7 +15,7 @@ type CompRootMixin struct {
 // Fields of the CompRootMixin.
 func (CompRootMixin) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("id").StorageKey("comp_id").Unique().Immutable(),
-		field.Int64("comp_rn"),
+		field.String("id").StorageKey("exec_id").Unique().Immutable(),
+		field.Int64("comp_rn").StorageKey("exec_rn"),
 	}
 }

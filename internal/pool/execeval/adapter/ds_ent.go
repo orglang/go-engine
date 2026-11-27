@@ -1,0 +1,154 @@
+package adapter
+
+import (
+	"context"
+	"errors"
+	"log/slog"
+	"reflect"
+
+	"github.com/georgysavva/scany/v2/pgxscan"
+	"github.com/jackc/pgx/v5"
+
+	"orglang/go-engine/internal/adt/comproot"
+	comprootadapter "orglang/go-engine/internal/adt/comproot/adapter"
+	"orglang/go-engine/internal/adt/uniqsym"
+	"orglang/go-engine/internal/lib/entpgx"
+	"orglang/go-engine/internal/lib/lf"
+	"orglang/go-engine/internal/lib/tx"
+	"orglang/go-engine/internal/pool/ent"
+
+	execeval "orglang/go-engine/internal/pool/execeval/core"
+)
+
+type daoEnt struct {
+	client *ent.Client
+	log    *slog.Logger
+}
+
+func NewDaoEnt(client *ent.Client, log *slog.Logger) execeval.Repo {
+	name := slog.String("name", reflect.TypeFor[daoEnt]().Name())
+	return &daoEnt{client: client, log: log.With(name)}
+}
+
+// for compilation purposes
+func newRepo() execeval.Repo { return new(daoEnt) }
+
+func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec execeval.EvalRec) error {
+	dto := DataFromEvalRec(rec)
+	refAttr := slog.Any("ref", rec.CompRef)
+	_, err := dao.client.ExecEval.Create().
+		SetID(dto.CompID).
+		SetCompRn(dto.CompRN).
+		SetLiabMode(dto.LiabMode).
+		Save(entpgx.WithConn(ctx, conn.Pgx))
+	if err != nil {
+		dao.log.Error("query execution failed", refAttr)
+		return err
+	}
+	if _, err := conn.Pgx.Exec(ctx, insertImplBind, dto.TermQN, dto.CompID); err != nil {
+		dao.log.Error("implementation binding insertion failed", refAttr, slog.String("sql", insertImplBind))
+		return err
+	}
+	dao.log.Log(ctx, lf.LevelTrace, "addition succeed", slog.Any("dto", dto))
+	return nil
+}
+
+func (dao *daoEnt) ModifyRec(context.Context, tx.Conn, execeval.EvalMod) error {
+	panic("unimplemented")
+}
+
+func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref comproot.SemRef) (execeval.EvalSnap2, error) {
+	refAttr := slog.Any("ref", ref)
+	rows, err := conn.Pgx.Query(ctx, selectSnapByRef,
+		comprootadapter.DataFromRef(ref).CompID,
+		comprootadapter.DataFromRef(ref).CompID,
+		comprootadapter.DataFromRef(ref).CompID,
+	)
+	if err != nil {
+		dao.log.Error("query execution failed", refAttr, slog.String("sql", selectSnapByRef))
+		return execeval.EvalSnap2{}, err
+	}
+	defer rows.Close()
+	dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[EvalSnap2])
+	if err != nil {
+		dao.log.Error("rows scanning failed", refAttr, slog.Any("dto", dto))
+		return execeval.EvalSnap2{}, err
+	}
+	rec, err := DataToEvalSnap2(dto)
+	if err != nil {
+		dao.log.Error("model conversion failed", refAttr)
+		return execeval.EvalSnap2{}, err
+	}
+	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("dto", dto))
+	return rec, nil
+}
+
+func (dao *daoEnt) GetSnapMapByQNs(ctx context.Context, conn tx.Conn, termQNs []uniqsym.ADT) (_ map[uniqsym.ADT]execeval.EvalSnap1, err error) {
+	dao.log.Log(ctx, lf.LevelTrace, "getting started", slog.Any("qns", termQNs))
+	if len(termQNs) == 0 {
+		return map[uniqsym.ADT]execeval.EvalSnap1{}, nil
+	}
+	batch := pgx.Batch{}
+	for _, termQN := range termQNs {
+		batch.Queue(selectSnapByQN, uniqsym.ConvertToString(termQN))
+	}
+	br := conn.Pgx.SendBatch(ctx, &batch)
+	defer func() {
+		err = errors.Join(err, br.Close())
+	}()
+	dtos := make(map[uniqsym.ADT]EvalSnap1, len(termQNs))
+	for _, termQN := range termQNs {
+		qnAttr := slog.Any("qn", termQN)
+		rows, readErr := br.Query()
+		if readErr != nil {
+			dao.log.Error("query execution failed", qnAttr)
+			return nil, readErr
+		}
+		var dto EvalSnap1
+		scanErr := pgxscan.ScanOne(&dto, rows)
+		if scanErr != nil {
+			dao.log.Error("row scanning failed", qnAttr)
+			return nil, scanErr
+		}
+		dtos[termQN] = dto
+	}
+	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("dtos", dtos))
+	return DataToSnapMap(dtos)
+}
+
+const (
+	insertImplBind = `
+INSERT INTO pool_impl_binds (impl_qn, impl_id, kind)
+VALUES ($1, $2, 0)
+`
+
+	selectSnapByRef = `
+WITH struct_vars AS (
+    SELECT var.comp_id, var.comp_rn, var.conn_id, var.chnl_id, var.chnl_ph, var.exp_ck, var.side
+    FROM pool_struct_vars var WHERE comp_id = $1
+), linear_vars AS (
+    SELECT var.comp_id, var.comp_rn, var.conn_id, var.chnl_id, var.chnl_ph, var.exp_ck, var.side
+    FROM pool_linear_vars var WHERE comp_id = $2
+)
+SELECT exec.exec_id, exec.exec_rn, exec.liab_mode,
+    (SELECT array_agg(row(r.*)) FROM struct_vars r) AS struct_vars,
+    (SELECT array_agg(row(r.*)) FROM linear_vars r) AS linear_vars
+FROM pool_exec_evals exec WHERE exec.exec_id = $3
+`
+
+	selectSnapByQN = `
+SELECT sem.exec_id AS "sem.comp_id", sem.exec_rn AS "sem.comp_rn", exec.liab_mode,
+    struct_var.comp_id, struct_var.comp_rn, struct_var.conn_id, struct_var.chnl_id,
+    struct_var.chnl_ph, struct_var.exp_ck, struct_var.side,
+    linear_var.comp_id, linear_var.comp_rn, linear_var.conn_id, linear_var.chnl_id,
+    linear_var.chnl_ph, linear_var.exp_ck, linear_var.side
+FROM pool_exec_evals sem
+JOIN pool_exec_evals exec ON exec.exec_id = sem.exec_id
+JOIN pool_struct_vars struct_var ON struct_var.comp_id = sem.exec_id AND struct_var.side = 1 AND exec.liab_mode = 1
+JOIN pool_linear_vars linear_var ON linear_var.comp_id = sem.exec_id AND linear_var.side = 1 AND exec.liab_mode = 2
+JOIN pool_impl_binds bind ON bind.impl_id = sem.exec_id
+WHERE bind.impl_qn = $1
+ORDER BY struct_var.comp_rn DESC, linear_var.comp_rn DESC
+LIMIT 1
+`
+)

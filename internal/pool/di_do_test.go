@@ -9,9 +9,9 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 	compconn "orglang/go-engine/internal/pool/compconn/core"
-	compexecadapter "orglang/go-engine/internal/pool/compexec/adapter"
-	compexec "orglang/go-engine/internal/pool/compexec/core"
 	compvar "orglang/go-engine/internal/pool/compvar/core"
+	execevaladapter "orglang/go-engine/internal/pool/execeval/adapter"
+	execeval "orglang/go-engine/internal/pool/execeval/core"
 	termdecadapter "orglang/go-engine/internal/pool/termdec/adapter"
 	termdec "orglang/go-engine/internal/pool/termdec/core"
 	termdefadapter "orglang/go-engine/internal/pool/termdef/adapter"
@@ -47,7 +47,7 @@ func TestPackageProvidesPersistencePortsAndDefinitionServices(t *testing.T) {
 			return err
 		}},
 		{"pool computation-execution repository", func() error {
-			_, err := do.Invoke[compexec.Repo](injector)
+			_, err := do.Invoke[execeval.Repo](injector)
 			return err
 		}},
 		{"pool type-definition repository", func() error {
@@ -75,11 +75,11 @@ func TestPackageProvidesPersistencePortsAndDefinitionServices(t *testing.T) {
 			return err
 		}},
 		{"pool computation-execution service", func() error {
-			_, err := do.Invoke[compexec.API](injector)
+			_, err := do.Invoke[execeval.API](injector)
 			return err
 		}},
 		{"pool computation-execution broker subscription", func() error {
-			return compexecadapter.SubscribeBroker(injector)
+			return execevaladapter.SubscribeBroker(injector)
 		}},
 	}
 
@@ -100,7 +100,7 @@ func TestPackageProvidesHTTPControllers(t *testing.T) {
 		call func() error
 	}{
 		{"computation-execution controller", func() error {
-			_, err := do.Invoke[compexecadapter.Controller](injector)
+			_, err := do.Invoke[execevaladapter.Controller](injector)
 			return err
 		}},
 		{"generated type-definition controller", func() error {

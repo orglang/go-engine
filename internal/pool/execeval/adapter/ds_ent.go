@@ -57,7 +57,7 @@ func (dao *daoEnt) ModifyRec(context.Context, tx.Conn, execeval.EvalMod) error {
 	panic("unimplemented")
 }
 
-func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref comproot.SemRef) (execeval.EvalSnap2, error) {
+func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref comproot.RootRef) (execeval.EvalSnap2, error) {
 	refAttr := slog.Any("ref", ref)
 	rows, err := conn.Pgx.Query(ctx, selectSnapByRef,
 		comprootadapter.DataFromRef(ref).CompID,

@@ -66,7 +66,7 @@ func DataToStepRec(dto ActRec) (connact.ActRec, error) {
 	if err != nil {
 		return nil, err
 	}
-	compRef := comproot.SemRef{CompID: compID, CompRN: seqnum.ADT(dto.ExecRN)}
+	compRef := comproot.RootRef{CompID: compID, CompRN: seqnum.ADT(dto.ExecRN)}
 	switch dto.K {
 	case MsgStep:
 		return connact.PubRec{ConnID: connID, ActNr: seqnum.ADT(dto.ActNr), CompRef: compRef, ChnlID: chnlID, ValExp: exp}, nil

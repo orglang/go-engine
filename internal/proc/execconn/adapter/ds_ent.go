@@ -76,7 +76,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod core.ConnMod
 INSERT INTO proc_conn_acts (conn_id, act_nr, exec_id, exec_rn, chnl_id, kind, exp)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
 `
-		_, err = conn.Pgx.Exec(ctx, insertAct, dto.ConnID, dto.ActNr, dto.CompID, dto.CompRN, dto.ChnlID, dto.K, dto.Exp)
+		_, err = conn.Pgx.Exec(ctx, insertAct, dto.ConnID, dto.ActNr, dto.ExecID, dto.ExecRN, dto.ChnlID, dto.K, dto.Exp)
 		if err != nil {
 			dao.log.Error("Act insertion failed", slog.Any("act", act))
 			return err

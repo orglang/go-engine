@@ -11,20 +11,20 @@ import (
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
 	webapi "orglang/go-engine/internal/app/web/api"
-	compstepcore "orglang/go-engine/internal/proc/compstep/core"
+	execstepcore "orglang/go-engine/internal/proc/execstep/core"
 	connact "orglang/go-engine/internal/proc/connact/core"
 )
 
-func generatedStepToCore(id string, dto webapi.ProcStepSpec) (compstepcore.StepSpec, error) {
+func generatedStepToCore(id string, dto webapi.ProcStepSpec) (execstepcore.StepSpec, error) {
 	compID, err := identity.ConvertFromString(id)
 	if err != nil {
-		return compstepcore.StepSpec{}, fmt.Errorf("convert process execution id: %w", err)
+		return execstepcore.StepSpec{}, fmt.Errorf("convert process execution id: %w", err)
 	}
 	expr, err := generatedProcessExpressionToCore(dto.ProcExpr)
 	if err != nil {
-		return compstepcore.StepSpec{}, err
+		return execstepcore.StepSpec{}, err
 	}
-	return compstepcore.StepSpec{
+	return execstepcore.StepSpec{
 		CompRef: comproot.SemRef{CompID: compID},
 		ProcExp: expr,
 	}, nil

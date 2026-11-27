@@ -19,7 +19,7 @@ import (
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
-	compstep "orglang/go-engine/internal/proc/compstep/core"
+	execstep "orglang/go-engine/internal/proc/execstep/core"
 	connact "orglang/go-engine/internal/proc/connact/core"
 	execconn "orglang/go-engine/internal/proc/execconn/core"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
@@ -28,7 +28,7 @@ import (
 )
 
 type API interface {
-	Take(context.Context, compstep.StepSpec) error
+	Take(context.Context, execstep.StepSpec) error
 	RetrieveSnap(comproot.SemRef) (EvalSnap, error)
 }
 
@@ -43,7 +43,7 @@ type EvalMod struct {
 }
 
 type EvalEff struct {
-	Steps []compstep.StepSpec
+	Steps []execstep.StepSpec
 }
 
 type takeResult struct {
@@ -106,7 +106,7 @@ func ErrMissingChnl(want symbol.ADT) error {
 	return fmt.Errorf("channel missing in cfg: %v", want)
 }
 
-func (s *service) Take(ctx context.Context, spec compstep.StepSpec) (err error) {
+func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) {
 	compAttr := slog.Any("proc", spec.CompRef)
 	s.log.Debug("step taking started", compAttr, slog.Any("exp", spec.ProcExp))
 	// initial values
@@ -280,7 +280,7 @@ func (s *service) takeWith(
 			})
 			if expRec.ContExp != nil {
 				// шедулим продолжение наблюдателя
-				evalEff.Steps = append(evalEff.Steps, compstep.StepSpec{
+				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					CompRef: observation.CompRef,
 					ProcExp: expRec.ContExp,
 				})
@@ -354,7 +354,7 @@ func (s *service) takeWith(
 				ExpCK:   nextExpCK,
 			})
 			if termExp.ContExp != nil {
-				evalEff.Steps = append(evalEff.Steps, compstep.StepSpec{
+				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					CompRef: evalSnap.CompRef,
 					ProcExp: termExp.ContExp,
 				})
@@ -371,7 +371,7 @@ func (s *service) takeWith(
 				ChnlBS:  connChnl.ChnlBS,
 				ExpCK:   connChnl.ExpCK,
 			})
-			evalEff.Steps = append(evalEff.Steps, compstep.StepSpec{
+			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 				CompRef: evalSnap.CompRef,
 				ProcExp: termExp,
 			})
@@ -477,7 +477,7 @@ func (s *service) takeWith(
 				ExpCK:   valChnl.ExpCK,
 			})
 			if expRec.ContExp != nil {
-				evalEff.Steps = append(evalEff.Steps, compstep.StepSpec{
+				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					CompRef: receival.CompRef,
 					ProcExp: expRec.ContExp,
 				})
@@ -570,7 +570,7 @@ func (s *service) takeWith(
 				ExpCK:   valExp.ValExpCK,
 			})
 			if termExp.ContExp != nil {
-				evalEff.Steps = append(evalEff.Steps, compstep.StepSpec{
+				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					CompRef: evalSnap.CompRef,
 					ProcExp: termExp.ContExp,
 				})
@@ -659,7 +659,7 @@ func (s *service) takeWith(
 				ExpCK: nextExpCK,
 			})
 			if contExp.ContExps[termExp.ValLabQN] != nil {
-				evalEff.Steps = append(evalEff.Steps, compstep.StepSpec{
+				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					CompRef: following.CompRef,
 					ProcExp: contExp.ContExps[termExp.ValLabQN],
 				})
@@ -728,7 +728,7 @@ func (s *service) takeWith(
 				ExpCK: valExp.ValExpCK,
 			})
 			if termExp.ContExps[valExp.ValLabQN] != nil {
-				evalEff.Steps = append(evalEff.Steps, compstep.StepSpec{
+				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					CompRef: evalSnap.CompRef,
 					ProcExp: termExp.ContExps[valExp.ValLabQN],
 				})
@@ -788,7 +788,7 @@ func (s *service) takeWith(
 					ExpCK: connChnl.ExpCK,
 				})
 				if forwardable.ContExp != nil {
-					evalEff.Steps = append(evalEff.Steps, compstep.StepSpec{
+					evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 						CompRef: forwardable.CompRef,
 						ProcExp: forwardable.ContExp,
 					})
@@ -805,7 +805,7 @@ func (s *service) takeWith(
 					// TODO значение ChnlBS
 					ExpCK: contChnl.ExpCK,
 				})
-				evalEff.Steps = append(evalEff.Steps, compstep.StepSpec{
+				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					CompRef: forwardable.CompRef,
 					ProcExp: forwardable.ValExp,
 				})
@@ -856,7 +856,7 @@ func (s *service) takeWith(
 					ExpCK: contChnl.ExpCK,
 				})
 				if forwardable.ContExp != nil {
-					evalEff.Steps = append(evalEff.Steps, compstep.StepSpec{
+					evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 						CompRef: forwardable.CompRef,
 						ProcExp: forwardable.ContExp,
 					})
@@ -873,7 +873,7 @@ func (s *service) takeWith(
 					// TODO значение ChnlBS
 					ExpCK: connChnl.ExpCK,
 				})
-				evalEff.Steps = append(evalEff.Steps, compstep.StepSpec{
+				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					CompRef: forwardable.CompRef,
 					ProcExp: forwardable.ValExp, // TODO: несовпадение типов
 				})

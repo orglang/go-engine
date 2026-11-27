@@ -16,7 +16,7 @@ import (
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/app/web/api"
-	compstep "orglang/go-engine/internal/pool/compstep/core"
+	execstep "orglang/go-engine/internal/pool/execstep/core"
 	compvar "orglang/go-engine/internal/pool/compvar/core"
 	execeval "orglang/go-engine/internal/pool/execeval/core"
 )
@@ -135,16 +135,16 @@ func (c *controllerEcho) PostSpec3(ctx *echo.Context) error {
 	return ctx.JSON(http.StatusCreated, compRefToAPI(ref))
 }
 
-func poolStepSpecToCore(dto api.PoolStepSpec) (compstep.StepSpec, error) {
+func poolStepSpecToCore(dto api.PoolStepSpec) (execstep.StepSpec, error) {
 	ref, err := compRefFromAPI(dto.CompRef)
 	if err != nil {
-		return compstep.StepSpec{}, err
+		return execstep.StepSpec{}, err
 	}
 	exp, err := poolTermExprToCore(dto.PoolExpr)
 	if err != nil {
-		return compstep.StepSpec{}, err
+		return execstep.StepSpec{}, err
 	}
-	return compstep.StepSpec{CompRef: ref, PoolExp: exp}, nil
+	return execstep.StepSpec{CompRef: ref, PoolExp: exp}, nil
 }
 
 func compRefFromAPI(dto api.AnyCompRef) (comproot.SemRef, error) {

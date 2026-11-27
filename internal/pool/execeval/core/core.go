@@ -16,7 +16,7 @@ import (
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
 
-	compstep "orglang/go-engine/internal/pool/compstep/core"
+	execstep "orglang/go-engine/internal/pool/execstep/core"
 	compvar "orglang/go-engine/internal/pool/compvar/core"
 	connact "orglang/go-engine/internal/pool/connact/core"
 	execconn "orglang/go-engine/internal/pool/execconn/core"
@@ -29,13 +29,13 @@ import (
 
 type API interface {
 	Run(context.Context, EvalSpec) (comproot.SemRef, error) // aka Create
-	Take(context.Context, compstep.StepSpec) error
-	Spawn(context.Context, compstep.StepSpec) (comproot.SemRef, error)
+	Take(context.Context, execstep.StepSpec) error
+	Spawn(context.Context, execstep.StepSpec) (comproot.SemRef, error)
 }
 
 type Broker interface {
 	Subscribe(api API)
-	SendSpec(compstep.StepSpec) error
+	SendSpec(execstep.StepSpec) error
 }
 
 type EvalSpec struct {
@@ -61,7 +61,7 @@ type EvalMod struct {
 func (mod EvalMod) isEmpty() bool { return len(mod.Vars) == 0 }
 
 type EvalEff struct {
-	Steps []compstep.StepSpec
+	Steps []execstep.StepSpec
 }
 
 type EvalSnap1 struct {
@@ -228,7 +228,7 @@ func (s *service) Run(ctx context.Context, spec EvalSpec) (_ comproot.SemRef, er
 	return newEval.CompRef, nil
 }
 
-func (s *service) Spawn(ctx context.Context, spec compstep.StepSpec) (_ comproot.SemRef, err error) {
+func (s *service) Spawn(ctx context.Context, spec execstep.StepSpec) (_ comproot.SemRef, err error) {
 	refAttr := slog.Any("ref", spec.CompRef)
 	s.log.Debug("proc spawning started", refAttr, slog.Any("exp", spec.PoolExp))
 	newEval := procexeceval.EvalRec{CompRef: comproot.New(), LiabMode: compvar.LinearMode}
@@ -243,7 +243,7 @@ func (s *service) Spawn(ctx context.Context, spec compstep.StepSpec) (_ comproot
 	return newEval.CompRef, nil
 }
 
-func (s *service) Take(ctx context.Context, spec compstep.StepSpec) (err error) {
+func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) {
 	refAttr := slog.Any("ref", spec.CompRef)
 	s.log.Debug("step taking started", refAttr, slog.Any("exp", spec.PoolExp))
 	evalSnap, retErr := s.retrieveSnap(ctx, spec.CompRef)
@@ -392,7 +392,7 @@ func (s *service) takeStep(
 		})
 		if termExp.ContExp != nil {
 			// шедулим продолжение доступодателя
-			evalEff.Steps = append(evalEff.Steps, compstep.StepSpec{
+			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 				CompRef: evalSnap.CompRef,
 				PoolExp: termExp.ContExp,
 			})
@@ -411,7 +411,7 @@ func (s *service) takeStep(
 			})
 			if expRec.ContExp != nil {
 				// шедулим продолжение доступополучателя
-				evalEff.Steps = append(evalEff.Steps, compstep.StepSpec{
+				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					CompRef: acquisition.CompRef,
 					PoolExp: expRec.ContExp,
 				})
@@ -485,7 +485,7 @@ func (s *service) takeStep(
 		})
 		if termExp.ContExp != nil {
 			// шедулим продолжение доступополучателя
-			evalEff.Steps = append(evalEff.Steps, compstep.StepSpec{
+			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 				CompRef: evalSnap.CompRef,
 				PoolExp: termExp.ContExp,
 			})
@@ -504,7 +504,7 @@ func (s *service) takeStep(
 			})
 			if expRec.ContExp != nil {
 				// шедулим продолжение доступодателя
-				evalEff.Steps = append(evalEff.Steps, compstep.StepSpec{
+				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					CompRef: acception.CompRef,
 					PoolExp: expRec.ContExp,
 				})
@@ -579,7 +579,7 @@ func (s *service) takeStep(
 		})
 		if termExp.ContExp != nil {
 			// шедулим продолжение соискателя
-			evalEff.Steps = append(evalEff.Steps, compstep.StepSpec{
+			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 				CompRef: evalSnap.CompRef,
 				PoolExp: termExp.ContExp,
 			})
@@ -597,7 +597,7 @@ func (s *service) takeStep(
 			})
 			if expRec.ContExp != nil {
 				// шедулим продолжение нанимателя
-				evalEff.Steps = append(evalEff.Steps, compstep.StepSpec{
+				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					CompRef: hiring.CompRef,
 					PoolExp: expRec.ContExp,
 				})
@@ -672,7 +672,7 @@ func (s *service) takeStep(
 		})
 		if termExp.ContExp != nil {
 			// шедулим продолжение нанимателя
-			evalEff.Steps = append(evalEff.Steps, compstep.StepSpec{
+			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 				CompRef: evalSnap.CompRef,
 				PoolExp: termExp.ContExp,
 			})
@@ -690,7 +690,7 @@ func (s *service) takeStep(
 			})
 			if expRec.ContExp != nil {
 				// запускаем продолжение соискателя
-				evalEff.Steps = append(evalEff.Steps, compstep.StepSpec{
+				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					CompRef: application.CompRef,
 					PoolExp: expRec.ContExp,
 				})

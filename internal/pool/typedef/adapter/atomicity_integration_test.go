@@ -73,7 +73,7 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 	if err != nil {
 		t.Fatalf("create type qualified name: %v", err)
 	}
-	_, err = service.Create(ctx, typedef.DefSpec{
+	_, _, err = service.Create(ctx, typedef.DefSpec{
 		TypeQN:  typeQN,
 		TypeExp: typedef.OneSpec{},
 	})

@@ -102,7 +102,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod compexec.Eva
 			err = errors.Join(err, bindRes.Close())
 		}()
 		for _, dto := range dto.LinearVars {
-			_, err = bindRes.Eval()
+			_, err = bindRes.Exec()
 			if err != nil {
 				dao.log.Error("execution failed", slog.Any("dto", dto))
 			}
@@ -125,7 +125,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod compexec.Eva
 		err = errors.Join(err, execRes.Close())
 	}()
 	for _, dto := range dto.CompRefs {
-		ct, execErr := execRes.Eval()
+		ct, execErr := execRes.Exec()
 		if execErr != nil {
 			dao.log.Error("execution failed", slog.Any("dto", dto))
 			return execErr

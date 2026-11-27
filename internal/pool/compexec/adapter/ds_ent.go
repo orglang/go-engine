@@ -45,7 +45,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec compexec.EvalRe
 		dao.log.Error("query execution failed", refAttr)
 		return err
 	}
-	if _, err := conn.Pgx.Eval(ctx, insertImplBind, dto.TermQN, dto.CompID); err != nil {
+	if _, err := conn.Pgx.Exec(ctx, insertImplBind, dto.TermQN, dto.CompID); err != nil {
 		dao.log.Error("implementation binding insertion failed", refAttr, slog.String("sql", insertImplBind))
 		return err
 	}

@@ -100,6 +100,7 @@ WHERE db.desc_qn = $1
 		return nil, err
 	}
 	for qn, rec := range recs {
+		rec.TypeQN = qn
 		exp, err := dao.getRecByCK(ctx, conn, rec.ExpCK)
 		if err != nil {
 			return nil, err

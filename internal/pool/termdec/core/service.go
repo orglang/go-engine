@@ -6,7 +6,7 @@ import (
 
 	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/seqnum"
-	"orglang/go-engine/internal/adt/termsem"
+	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/tx"
@@ -27,7 +27,7 @@ func NewService(repo Repo, descRootRepo descroot.Repo, typeDefRepo typedef.Repo,
 
 var _ API = (*service)(nil)
 
-func (s *service) Create(ctx context.Context, spec DecSpec) (_ termsem.SemRef, err error) {
+func (s *service) Create(ctx context.Context, spec DecSpec) (_ identity.ADT, _ descroot.SemRef, err error) {
 	qnAttr := slog.Any("qn", spec.TermQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 
@@ -40,7 +40,7 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ termsem.SemRef, e
 		return s.typeDefRepo.GetRecsByQNs(txCtx, conn, append(assetQNs, spec.LiabVar.TypeQN))
 	})
 	if getErr != nil {
-		return termsem.SemRef{}, getErr
+		return identity.ADT{}, descroot.SemRef{}, getErr
 	}
 
 	liabTypeDef := typeDefs[spec.LiabVar.TypeQN]
@@ -53,7 +53,8 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ termsem.SemRef, e
 
 	expectedRoot := liabTypeDef.DescRef
 	newRoot := descroot.SemRef{DescID: expectedRoot.DescID, DescRN: seqnum.Next(expectedRoot.DescRN)}
-	newDec := DecRec{TermQN: spec.TermQN, TermRef: termsem.New(newRoot), LiabVar: newLiabVar, AssetVars: newAssetVars}
+	termID := identity.New()
+	newDec := DecRec{TermQN: spec.TermQN, TermID: termID, DescRef: newRoot, LiabVar: newLiabVar, AssetVars: newAssetVars}
 
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		if err := s.descRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil { return err }
@@ -61,8 +62,8 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ termsem.SemRef, e
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", qnAttr)
-		return termsem.SemRef{}, transactErr
+		return identity.ADT{}, descroot.SemRef{}, transactErr
 	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", newDec.TermRef))
-	return newDec.TermRef, nil
+	s.log.Debug("creation succeed", qnAttr, slog.Any("termID", termID), slog.Any("descRef", newRoot))
+	return termID, newRoot, nil
 }

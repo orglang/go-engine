@@ -66,7 +66,7 @@ func TestModifyRecReturnsBatchExecError(t *testing.T) {
 	conn := tx.Conn{Pgx: batchExecErrorPgx{batch: batch}}
 
 	err := dao.ModifyRec(context.Background(), conn, execeval.EvalMod{
-		CompRefs: []comproot.SemRef{comproot.New()},
+		CompRefs: []comproot.RootRef{comproot.New()},
 	})
 	if !errors.Is(err, execErr) {
 		t.Fatalf("ModifyRec() error = %v, want %v", err, execErr)

@@ -49,7 +49,7 @@ CREATE TABLE pool_impl_binds (
 
 CREATE INDEX pool_impl_qn_gist_idx ON pool_impl_binds USING GIST (impl_qn);
 
-CREATE TABLE pool_exec_evals (
+CREATE TABLE pool_comp_execs (
     comp_id varchar UNIQUE,
     comp_rn bigint,
     liab_mode smallint
@@ -140,7 +140,7 @@ CREATE TABLE proc_impl_binds (
 
 CREATE INDEX proc_impl_qn_gist_idx ON proc_impl_binds USING GIST (impl_qn);
 
-CREATE TABLE proc_exec_evals (
+CREATE TABLE proc_comp_execs (
     comp_id varchar UNIQUE,
     comp_rn bigint,
     liab_mode smallint

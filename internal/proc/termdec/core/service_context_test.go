@@ -19,7 +19,7 @@ func TestServiceInceptPropagatesCallerCancellationToRepository(t *testing.T) {
 	defer cancel()
 
 	repo := &contextRepo{entered: make(chan struct{})}
-	api := NewService(repo, contextDescRootRepo{}, contextDescSemRepo{}, nil,
+	api := NewService(repo, contextDescRootRepo{}, nil,
 		contextTransactor{}, slog.New(slog.NewTextHandler(io.Discard, nil)))
 
 	result := make(chan error, 1)

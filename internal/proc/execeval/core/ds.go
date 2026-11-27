@@ -10,5 +10,5 @@ import (
 type Repo interface {
 	AddRec(context.Context, tx.Conn, EvalRec) error
 	ModifyRec(context.Context, tx.Conn, EvalMod) error
-	GetSnapByRef(context.Context, tx.Conn, comproot.SemRef) (EvalSnap, error)
+	GetSnapByRef(context.Context, tx.Conn, comproot.RootRef) (EvalSnap, error)
 }

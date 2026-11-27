@@ -12,6 +12,9 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/contkey:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
 var (
+	// goverter:map TermID TermRef.TermID
+	// goverter:map DescRef.DescID TermRef.DescID
+	// goverter:map DescRef.DescRN TermRef.DescRN
 	ViewFromDecSnap func(termdec.DecSnap) DecSnapVP
 )
 

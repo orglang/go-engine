@@ -262,7 +262,7 @@ func (s *service) takeWith(
 		case connact.WaitRec:
 			// лишаем продолжения закрывателя
 			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
-				RootRef: connChnl.CompRef,
+				RootRef: connChnl.RootRef,
 				ConnID:  connChnl.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  connChnl.ChnlPH,
@@ -337,7 +337,7 @@ func (s *service) takeWith(
 		case connact.CloseRec:
 			// лишаем продолжения наблюдателя
 			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
-				RootRef: connChnl.CompRef,
+				RootRef: connChnl.RootRef,
 				ConnID:  connChnl.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  connChnl.ChnlPH,
@@ -440,7 +440,7 @@ func (s *service) takeWith(
 		newChnlID := identity.New()
 		// вяжем продолжение отправителя
 		evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
-			RootRef: connChnl.CompRef,
+			RootRef: connChnl.RootRef,
 			ConnID:  connChnl.ConnID,
 			ChnlID:  newChnlID,
 			ChnlPH:  connChnl.ChnlPH,
@@ -449,7 +449,7 @@ func (s *service) takeWith(
 		})
 		// лишаем значения отправителя
 		evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
-			RootRef: connChnl.CompRef,
+			RootRef: connChnl.RootRef,
 			ConnID:  connChnl.ConnID,
 			ChnlID:  identity.New(),
 			ChnlPH:  valChnl.ChnlPH,
@@ -523,7 +523,7 @@ func (s *service) takeWith(
 			newChnlID := identity.New()
 			// вяжем продолжение принимателя
 			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
-				RootRef: connChnl.CompRef,
+				RootRef: connChnl.RootRef,
 				ConnID:  connChnl.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  connChnl.ChnlPH,
@@ -553,7 +553,7 @@ func (s *service) takeWith(
 		case connact.SendRec:
 			// вяжем продолжение принимателя
 			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
-				RootRef: connChnl.CompRef,
+				RootRef: connChnl.RootRef,
 				ConnID:  connChnl.ConnID,
 				ChnlID:  valExp.ContChnlID,
 				ChnlPH:  connChnl.ChnlPH,
@@ -562,7 +562,7 @@ func (s *service) takeWith(
 			})
 			// вяжем значение принимателя
 			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
-				RootRef: connChnl.CompRef,
+				RootRef: connChnl.RootRef,
 				ConnID:  valExp.ConnID,
 				ChnlID:  valExp.ValChnlID,
 				ChnlPH:  termExp.NewChnlPH,
@@ -613,7 +613,7 @@ func (s *service) takeWith(
 			newChnlID := identity.New()
 			// вяжем продолжение решателя
 			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
-				RootRef: connChnl.CompRef,
+				RootRef: connChnl.RootRef,
 				ConnID:  connChnl.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  connChnl.ChnlPH,
@@ -642,7 +642,7 @@ func (s *service) takeWith(
 		case connact.CaseRec:
 			// вяжем продолжение решателя
 			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
-				RootRef: connChnl.CompRef,
+				RootRef: connChnl.RootRef,
 				ConnID:  connChnl.ConnID,
 				ChnlID:  contExp.ContChnlID,
 				ChnlPH:  connChnl.ChnlPH,
@@ -701,7 +701,7 @@ func (s *service) takeWith(
 			// регистрируем подписку последователя
 			connMod.Acts = append(connMod.Acts, connact.SubRec{
 				ConnID:  connChnl.ConnID,
-				CompRef: connChnl.CompRef,
+				CompRef: connChnl.RootRef,
 				ChnlID:  connChnl.ChnlID,
 				ContExp: connact.CaseRec{
 					ConnChnlPH: connChnl.ChnlPH,
@@ -720,7 +720,7 @@ func (s *service) takeWith(
 		case connact.LabRec:
 			// вяжем продолжение последователя
 			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
-				RootRef: connChnl.CompRef,
+				RootRef: connChnl.RootRef,
 				ConnID:  connChnl.ConnID,
 				ChnlID:  valExp.ContChnlID,
 				ChnlPH:  connChnl.ChnlPH,
@@ -814,7 +814,7 @@ func (s *service) takeWith(
 			case nil:
 				// лишаем значений схлопывающегося
 				evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
-					RootRef: connChnl.CompRef,
+					RootRef: connChnl.RootRef,
 					ConnID:  connChnl.ConnID,
 					ChnlID:  connChnl.ChnlID,
 					ChnlPH:  termExp.ConnChnlPH,
@@ -822,7 +822,7 @@ func (s *service) takeWith(
 					ExpCK:   connChnl.ExpCK.Invert(),
 				})
 				evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
-					RootRef: connChnl.CompRef,
+					RootRef: connChnl.RootRef,
 					// TODO значение ConnID
 					ChnlID: contChnl.ChnlID,
 					ChnlPH: termExp.ContChnlPH,
@@ -883,7 +883,7 @@ func (s *service) takeWith(
 				// регистрируем подписку схлопывающегося
 				connMod.Acts = append(connMod.Acts, connact.SubRec{
 					ConnID:  fwdConnSnap.ConnID,
-					CompRef: connChnl.CompRef,
+					CompRef: connChnl.RootRef,
 					ChnlID:  connChnl.ChnlID,
 					ContExp: connact.FwdRec{
 						ContChnlID: contChnl.ChnlID,

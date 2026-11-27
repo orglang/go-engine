@@ -383,7 +383,7 @@ func (s *service) takeStep(
 		newChnlID := identity.New()
 		// вяжем продолжение доступодателя
 		evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-			RootRef: connChnl.CompRef,
+			RootRef: connChnl.RootRef,
 			ConnID:  connChnl.ConnID,
 			ChnlID:  newChnlID,
 			ChnlPH:  connChnl.ChnlPH,
@@ -476,7 +476,7 @@ func (s *service) takeStep(
 		newChnlID := identity.New()
 		// вяжем продолжение доступополучателя
 		evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-			RootRef: connChnl.CompRef,
+			RootRef: connChnl.RootRef,
 			ConnID:  connChnl.ConnID,
 			ChnlID:  newChnlID,
 			ChnlPH:  connChnl.ChnlPH,
@@ -570,7 +570,7 @@ func (s *service) takeStep(
 		newChnlID := identity.New()
 		// вяжем продолжение соискателя
 		evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-			RootRef: connChnl.CompRef,
+			RootRef: connChnl.RootRef,
 			ConnID:  connChnl.ConnID,
 			ChnlID:  newChnlID,
 			ChnlPH:  connChnl.ChnlPH,
@@ -663,7 +663,7 @@ func (s *service) takeStep(
 		newChnlID := identity.New()
 		// вяжем продолжение нанимателя
 		evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-			RootRef: connChnl.CompRef,
+			RootRef: connChnl.RootRef,
 			ConnID:  connChnl.ConnID,
 			ChnlID:  newChnlID,
 			ChnlPH:  connChnl.ChnlPH,
@@ -754,7 +754,7 @@ func (s *service) takeStep(
 		newChnlID := identity.New()
 		// вяжем продолжение доступовозвращателя
 		evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-			RootRef: connChnl.CompRef,
+			RootRef: connChnl.RootRef,
 			ConnID:  connChnl.ConnID,
 			ChnlID:  newChnlID,
 			ChnlPH:  connChnl.ChnlPH,
@@ -830,7 +830,7 @@ func (s *service) takeStep(
 		}
 		newChnlID := identity.New()
 		evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-			RootRef: connChnl.CompRef,
+			RootRef: connChnl.RootRef,
 			ConnID:  connChnl.ConnID,
 			ChnlID:  newChnlID,
 			ChnlPH:  connChnl.ChnlPH,

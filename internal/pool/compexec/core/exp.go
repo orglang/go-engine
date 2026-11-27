@@ -37,7 +37,7 @@ type AcquireSpec struct {
 	ContExp    ExpSpec
 }
 
-func (s AcquireSpec) spec() {}
+func (s AcquireSpec) spec()    {}
 func (AcquireSpec) IsPoolExp() {}
 
 func (s AcquireSpec) LogValue() slog.Value {
@@ -50,7 +50,7 @@ type AcceptSpec struct {
 	ContExp    ExpSpec
 }
 
-func (s AcceptSpec) spec() {}
+func (s AcceptSpec) spec()    {}
 func (AcceptSpec) IsPoolExp() {}
 
 func (s AcceptSpec) LogValue() slog.Value {
@@ -65,7 +65,7 @@ type HireSpec struct {
 	ContExp    ExpSpec
 }
 
-func (s HireSpec) spec() {}
+func (s HireSpec) spec()    {}
 func (HireSpec) IsPoolExp() {}
 
 func (s HireSpec) LogValue() slog.Value {
@@ -80,7 +80,7 @@ type ApplySpec struct {
 	ContExp    ExpSpec
 }
 
-func (s ApplySpec) spec() {}
+func (s ApplySpec) spec()    {}
 func (ApplySpec) IsPoolExp() {}
 
 func (s ApplySpec) LogValue() slog.Value {
@@ -92,7 +92,7 @@ type ReleaseSpec struct {
 	ConnChnlPH symbol.ADT
 }
 
-func (s ReleaseSpec) spec() {}
+func (s ReleaseSpec) spec()    {}
 func (ReleaseSpec) IsPoolExp() {}
 
 func (s ReleaseSpec) LogValue() slog.Value {
@@ -104,7 +104,7 @@ type DetachSpec struct {
 	ConnChnlPH symbol.ADT
 }
 
-func (s DetachSpec) spec() {}
+func (s DetachSpec) spec()    {}
 func (DetachSpec) IsPoolExp() {}
 
 func (s DetachSpec) LogValue() slog.Value {
@@ -117,7 +117,7 @@ type FireSpec struct {
 	ProcTermQN uniqsym.ADT
 }
 
-func (s FireSpec) spec() {}
+func (s FireSpec) spec()    {}
 func (FireSpec) IsPoolExp() {}
 
 func (s FireSpec) LogValue() slog.Value {
@@ -130,7 +130,7 @@ type QuitSpec struct {
 	ProcTermQN uniqsym.ADT
 }
 
-func (s QuitSpec) spec() {}
+func (s QuitSpec) spec()    {}
 func (QuitSpec) IsPoolExp() {}
 
 func (s QuitSpec) LogValue() slog.Value {
@@ -144,7 +144,7 @@ type SpawnSpec struct {
 	ProcCompQNs []uniqsym.ADT
 }
 
-func (s SpawnSpec) spec() {}
+func (s SpawnSpec) spec()    {}
 func (SpawnSpec) IsPoolExp() {}
 
 func (s SpawnSpec) LogValue() slog.Value {
@@ -158,7 +158,7 @@ type SpawnSpec2 struct {
 	ProcCompRefs []comproot.SemRef
 }
 
-func (s SpawnSpec2) spec() {}
+func (s SpawnSpec2) spec()    {}
 func (SpawnSpec2) IsPoolExp() {}
 
 func (s SpawnSpec2) LogValue() slog.Value {
@@ -173,7 +173,7 @@ type AcquireRec struct {
 	ContExp    ExpSpec
 }
 
-func (r AcquireRec) rec() {}
+func (r AcquireRec) rec()    {}
 func (AcquireRec) IsExpRec() {}
 
 type AcceptRec struct {
@@ -181,7 +181,7 @@ type AcceptRec struct {
 	ContExp    ExpSpec
 }
 
-func (r AcceptRec) rec() {}
+func (r AcceptRec) rec()    {}
 func (AcceptRec) IsExpRec() {}
 
 type HireRec struct {
@@ -190,7 +190,7 @@ type HireRec struct {
 	ContExp    ExpSpec
 }
 
-func (r HireRec) rec() {}
+func (r HireRec) rec()    {}
 func (HireRec) IsExpRec() {}
 
 type ApplyRec struct {
@@ -199,42 +199,42 @@ type ApplyRec struct {
 	ContExp    ExpSpec
 }
 
-func (r ApplyRec) rec() {}
+func (r ApplyRec) rec()    {}
 func (ApplyRec) IsExpRec() {}
 
 type ReleaseRec struct {
 	ContChnlPH symbol.ADT
 }
 
-func (r ReleaseRec) rec() {}
+func (r ReleaseRec) rec()    {}
 func (ReleaseRec) IsExpRec() {}
 
 type DetachRec struct {
 	ContChnlPH symbol.ADT
 }
 
-func (r DetachRec) rec() {}
+func (r DetachRec) rec()    {}
 func (DetachRec) IsExpRec() {}
 
 type FireRec struct {
 	ConnChnlPH symbol.ADT
 }
 
-func (r FireRec) rec() {}
+func (r FireRec) rec()    {}
 func (FireRec) IsExpRec() {}
 
 type QuitRec struct {
 	ConnChnlPH symbol.ADT
 }
 
-func (r QuitRec) rec() {}
+func (r QuitRec) rec()    {}
 func (QuitRec) IsExpRec() {}
 
 type SpawnRec struct {
 	ConnChnlPH symbol.ADT
 }
 
-func (r SpawnRec) rec() {}
+func (r SpawnRec) rec()    {}
 func (SpawnRec) IsExpRec() {}
 
 func ErrSpecTypeUnexpected(got ExpSpec) error {

@@ -18,6 +18,7 @@ func init() {
 		var adapterExecRec ExecRec
 		adapterExecRec.CompID = identity.ConvertToString(source.CompRef.CompID)
 		adapterExecRec.CompRN = int64(source.CompRef.CompRN)
+		adapterExecRec.TermQN = uniqsym.ConvertToString(source.TermQN)
 		adapterExecRec.LiabMode = int16(source.LiabMode)
 		return adapterExecRec
 	}
@@ -37,6 +38,11 @@ func init() {
 			return coreExecRec, err
 		}
 		coreExecRec.CompRef = comprootSemRef
+		uniqsymADT, err := uniqsym.ConvertFromString(source.TermQN)
+		if err != nil {
+			return coreExecRec, err
+		}
+		coreExecRec.TermQN = uniqsymADT
 		coreExecRec.LiabMode = compvar.Mode(source.LiabMode)
 		return coreExecRec, nil
 	}

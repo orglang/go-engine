@@ -2,7 +2,7 @@ package adapter
 
 import (
 	"fmt"
-	compsemadapter "orglang/go-engine/internal/adt/comproot/adapter"
+	comprootadapter "orglang/go-engine/internal/adt/comproot/adapter"
 	"orglang/go-engine/internal/adt/identity"
 	compexec "orglang/go-engine/internal/pool/compexec/adapter"
 
@@ -12,7 +12,7 @@ import (
 func DataFromStepRec(r connact.ActRec) ActRec {
 	switch rec := r.(type) {
 	case connact.PubRec:
-		compRef := compsemadapter.DataFromRef(rec.CompRef)
+		compRef := comprootadapter.DataFromRef(rec.CompRef)
 		return ActRec{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
@@ -23,7 +23,7 @@ func DataFromStepRec(r connact.ActRec) ActRec {
 			Exp:    compexec.DataFromExpRec(rec.ValExp),
 		}
 	case connact.SubRec:
-		compRef := compsemadapter.DataFromRef(rec.CompRef)
+		compRef := comprootadapter.DataFromRef(rec.CompRef)
 		return ActRec{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),

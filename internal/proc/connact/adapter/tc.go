@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"orglang/go-engine/internal/adt/comproot"
-	compsemadapter "orglang/go-engine/internal/adt/comproot/adapter"
+	comprootadapter "orglang/go-engine/internal/adt/comproot/adapter"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 
@@ -19,7 +19,7 @@ func DataFromStepRec(r connact.ActRec) (ActRec, error) {
 		if err != nil {
 			return ActRec{}, err
 		}
-		compRef := compsemadapter.DataFromRef(rec.CompRef)
+		compRef := comprootadapter.DataFromRef(rec.CompRef)
 		return ActRec{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
@@ -34,7 +34,7 @@ func DataFromStepRec(r connact.ActRec) (ActRec, error) {
 		if err != nil {
 			return ActRec{}, err
 		}
-		compRef := compsemadapter.DataFromRef(rec.CompRef)
+		compRef := comprootadapter.DataFromRef(rec.CompRef)
 		return ActRec{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),

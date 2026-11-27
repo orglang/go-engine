@@ -8,8 +8,6 @@ import (
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/adt/comproot"
-	"orglang/go-engine/internal/adt/implsem"
-	implsemadapter "orglang/go-engine/internal/adt/implsem/adapter"
 	"orglang/go-engine/internal/lib/tx"
 	compconn "orglang/go-engine/internal/pool/compconn/core"
 	compexec "orglang/go-engine/internal/pool/compexec/core"
@@ -79,10 +77,6 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		implRepo, err := do.Invoke[implsem.Repo](i)
-		if err != nil {
-			return nil, err
-		}
 		compRepo, err := do.Invoke[comproot.Repo](i)
 		if err != nil {
 			return nil, err
@@ -103,8 +97,7 @@ var Package = do.Package(
 			TypeDefRepo:    typeRepo,
 			ProcExecRepo:   procRepo,
 			TermDecRepo:    termDecRepo,
-			ImplSemRepo:    implRepo,
-			CompSemRepo:    compRepo,
+			CompRootRepo:   compRepo,
 			Transactor:     transactor,
 			Logger:         logger,
 		}), nil
@@ -129,14 +122,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return NewCompSemDaoEnt(client, logger), nil
-	}),
-	do.Lazy[implsem.Repo](func(i do.Injector) (implsem.Repo, error) {
-		logger, err := do.Invoke[*slog.Logger](i)
-		if err != nil {
-			return nil, err
-		}
-		return implsemadapter.NewDaoPgx("pool_impl_binds")(logger), nil
+		return NewCompRootDaoEnt(client, logger), nil
 	}),
 )
 

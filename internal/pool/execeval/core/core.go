@@ -16,7 +16,7 @@ import (
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
 
-	compconn "orglang/go-engine/internal/pool/compconn/core"
+	execconn "orglang/go-engine/internal/pool/execconn/core"
 	compstep "orglang/go-engine/internal/pool/compstep/core"
 	compvar "orglang/go-engine/internal/pool/compvar/core"
 	connact "orglang/go-engine/internal/pool/connact/core"
@@ -88,7 +88,7 @@ type service struct {
 	execEvalRepo   Repo
 	execEvalBroker Broker
 	compVarRepo    compvar.Repo
-	connRepo       compconn.Repo
+	connRepo       execconn.Repo
 	typeDefRepo    typedef.Repo
 	procEvalRepo   procexeceval.Repo
 	termDecRepo    termdec.Repo
@@ -106,7 +106,7 @@ type ServiceDeps struct {
 	ExecEvalRepo   Repo
 	ExecEvalBroker Broker
 	CompVarRepo    compvar.Repo
-	CompConnRepo   compconn.Repo
+	ExecConnRepo   execconn.Repo
 	TypeDefRepo    typedef.Repo
 	ProcEvalRepo   procexeceval.Repo
 	TermDecRepo    termdec.Repo
@@ -119,7 +119,7 @@ func NewService(deps ServiceDeps) API {
 	name := slog.String("name", reflect.TypeFor[service]().Name())
 	return &service{
 		deps.ExecEvalRepo, deps.ExecEvalBroker, deps.CompVarRepo,
-		deps.CompConnRepo, deps.TypeDefRepo, deps.ProcEvalRepo, deps.TermDecRepo,
+		deps.ExecConnRepo, deps.TypeDefRepo, deps.ProcEvalRepo, deps.TermDecRepo,
 		deps.CompRootRepo,
 		deps.Transactor, deps.Logger.With(name),
 	}
@@ -169,7 +169,7 @@ func (s *service) Run(ctx context.Context, spec EvalSpec) (_ comproot.SemRef, er
 	// Materialize a Connection row for each attached asset endpoint.
 	// A self-reference uses the new liability endpoint, so both endpoints and
 	// its Connection are created atomically with this Computation.
-	newConns := make([]compconn.ConnRec, 0, len(assetEvals)+1)
+	newConns := make([]execconn.ConnRec, 0, len(assetEvals)+1)
 	for _, assetVar := range spec.AssetVars {
 		var connID identity.ADT
 		var chnlID identity.ADT
@@ -188,7 +188,7 @@ func (s *service) Run(ctx context.Context, spec EvalSpec) (_ comproot.SemRef, er
 			expCK = assetExec.LiabVar.GetExpCK()
 		}
 		if ok || assetVar.TermQN == spec.LiabVar.TermQN {
-			newConns = append(newConns, compconn.ConnRec{
+			newConns = append(newConns, execconn.ConnRec{
 				ConnID:          connID,
 				ProviderCompRef: providerCompRef,
 				ClientCompRef:   newEval.CompRef,
@@ -260,15 +260,15 @@ func (s *service) Take(ctx context.Context, spec compstep.StepSpec) (err error) 
 	// Connection changes always include the provider aggregate, regardless of
 	// which endpoint initiated the step.
 	compRefs := map[string]comproot.SemRef{}
-	if connMod.ProviderCompID.IsEmpty() {
+	if connMod.ProviderExecID.IsEmpty() {
 		// Non-connection steps still mutate the executing Computation root.
 		compRefs[evalSnap.CompRef.CompID.String()] = evalSnap.CompRef
 	} else {
 		// A connection step always mutates the provider aggregate. The
 		// initiating client root is added only if its own variables change.
 		providerRef := comproot.SemRef{
-			CompID: connMod.ProviderCompID,
-			CompRN: connMod.ProviderCompRN,
+			CompID: connMod.ProviderExecID,
+			CompRN: connMod.ProviderExecRN,
 		}
 		compRefs[providerRef.CompID.String()] = providerRef
 	}
@@ -277,7 +277,7 @@ func (s *service) Take(ctx context.Context, spec compstep.StepSpec) (err error) 
 		// The Act's CompRef records the revision that produced the Act. For
 		// provider-side writes, use the live provider revision captured with
 		// the Connection snapshot instead of that historical Act revision.
-		if !connMod.ProviderCompID.IsEmpty() && ref.CompID == connMod.ProviderCompID {
+		if !connMod.ProviderExecID.IsEmpty() && ref.CompID == connMod.ProviderExecID {
 			continue
 		}
 		if !ref.CompID.IsEmpty() {
@@ -323,7 +323,7 @@ func (s *service) takeStep(
 ) (
 	evalMod EvalMod,
 	evalEff EvalEff,
-	connMod compconn.ConnMod,
+	connMod execconn.ConnMod,
 	err error,
 ) {
 	compAttr := slog.Any("compRef", evalSnap.CompRef)
@@ -342,9 +342,9 @@ func (s *service) takeStep(
 		}
 		nextExpCK := typeExp.(typedef.ProdRec).Next()
 		// получаем снепшот соединения
-		var connSnap compconn.ConnSnap
+		var connSnap execconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconn.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, execconn.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -355,8 +355,8 @@ func (s *service) takeStep(
 			return evalMod, evalEff, connMod, getErr
 		}
 		connMod.ConnID = connSnap.ConnID
-		connMod.ProviderCompID = connSnap.ProviderCompID
-		connMod.ProviderCompRN = connSnap.ProviderCompRN
+		connMod.ProviderExecID = connSnap.ProviderExecID
+		connMod.ProviderExecRN = connSnap.ProviderExecRN
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextAct()
 		if subscription != nil {
@@ -435,9 +435,9 @@ func (s *service) takeStep(
 		}
 		nextExpCK := typeExp.(typedef.ProdRec).Next()
 		// получаем снепшот коммуникации
-		var connSnap compconn.ConnSnap
+		var connSnap execconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconn.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, execconn.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -448,8 +448,8 @@ func (s *service) takeStep(
 			return evalMod, evalEff, connMod, getErr
 		}
 		connMod.ConnID = connSnap.ConnID
-		connMod.ProviderCompID = connSnap.ProviderCompID
-		connMod.ProviderCompRN = connSnap.ProviderCompRN
+		connMod.ProviderExecID = connSnap.ProviderExecID
+		connMod.ProviderExecRN = connSnap.ProviderExecRN
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextAct()
 		if subscription != nil {
@@ -528,9 +528,9 @@ func (s *service) takeStep(
 		}
 		nextExpCK := typeExp.(typedef.ProdRec).Next()
 		// получаем снепшот коммуникации
-		var connSnap compconn.ConnSnap
+		var connSnap execconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconn.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, execconn.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -541,8 +541,8 @@ func (s *service) takeStep(
 			return evalMod, evalEff, connMod, getErr
 		}
 		connMod.ConnID = connSnap.ConnID
-		connMod.ProviderCompID = connSnap.ProviderCompID
-		connMod.ProviderCompRN = connSnap.ProviderCompRN
+		connMod.ProviderExecID = connSnap.ProviderExecID
+		connMod.ProviderExecRN = connSnap.ProviderExecRN
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextAct()
 		if subscription != nil {
@@ -621,9 +621,9 @@ func (s *service) takeStep(
 		}
 		nextExpCK := typeExp.(typedef.ProdRec).Next()
 		// получаем снепшот коммуникации
-		var connSnap compconn.ConnSnap
+		var connSnap execconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconn.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, execconn.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -634,8 +634,8 @@ func (s *service) takeStep(
 			return evalMod, evalEff, connMod, getErr
 		}
 		connMod.ConnID = connSnap.ConnID
-		connMod.ProviderCompID = connSnap.ProviderCompID
-		connMod.ProviderCompRN = connSnap.ProviderCompRN
+		connMod.ProviderExecID = connSnap.ProviderExecID
+		connMod.ProviderExecRN = connSnap.ProviderExecRN
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextAct()
 		if subscription != nil {
@@ -714,9 +714,9 @@ func (s *service) takeStep(
 		}
 		nextExpCK := typeExp.(typedef.ProdRec).Next()
 		// получаем снепшот коммуникации
-		var connSnap compconn.ConnSnap
+		var connSnap execconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconn.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, execconn.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -727,8 +727,8 @@ func (s *service) takeStep(
 			return evalMod, evalEff, connMod, getErr
 		}
 		connMod.ConnID = connSnap.ConnID
-		connMod.ProviderCompID = connSnap.ProviderCompID
-		connMod.ProviderCompRN = connSnap.ProviderCompRN
+		connMod.ProviderExecID = connSnap.ProviderExecID
+		connMod.ProviderExecRN = connSnap.ProviderExecRN
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextAct()
 		if subscription != nil {
@@ -791,9 +791,9 @@ func (s *service) takeStep(
 		}
 		nextExpCK := typeExp.(typedef.ProdRec).Next()
 		// получаем снепшот коммуникации
-		var connSnap compconn.ConnSnap
+		var connSnap execconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconn.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, execconn.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -804,8 +804,8 @@ func (s *service) takeStep(
 			return evalMod, evalEff, connMod, getErr
 		}
 		connMod.ConnID = connSnap.ConnID
-		connMod.ProviderCompID = connSnap.ProviderCompID
-		connMod.ProviderCompRN = connSnap.ProviderCompRN
+		connMod.ProviderExecID = connSnap.ProviderExecID
+		connMod.ProviderExecRN = connSnap.ProviderExecRN
 		connAttr := slog.Any("connID", connSnap.ConnID)
 		subscription := connSnap.NextAct()
 		if subscription != nil {

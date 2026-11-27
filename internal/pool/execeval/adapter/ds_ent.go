@@ -34,7 +34,7 @@ func NewDaoEnt(client *ent.Client, log *slog.Logger) execeval.Repo {
 func newRepo() execeval.Repo { return new(daoEnt) }
 
 func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec execeval.EvalRec) error {
-	dto := DataFromExecRec(rec)
+	dto := DataFromEvalRec(rec)
 	refAttr := slog.Any("ref", rec.CompRef)
 	_, err := dao.client.ExecEval.Create().
 		SetID(dto.CompID).
@@ -74,7 +74,7 @@ func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref comproot.
 		dao.log.Error("rows scanning failed", refAttr, slog.Any("dto", dto))
 		return execeval.EvalSnap2{}, err
 	}
-	rec, err := DataToExecSnap2(dto)
+	rec, err := DataToEvalSnap2(dto)
 	if err != nil {
 		dao.log.Error("model conversion failed", refAttr)
 		return execeval.EvalSnap2{}, err

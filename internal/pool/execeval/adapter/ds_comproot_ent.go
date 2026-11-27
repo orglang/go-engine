@@ -25,7 +25,7 @@ func NewCompRootDaoEnt(client *ent.Client, log *slog.Logger) comproot.Repo {
 	return &compRootDaoEnt{client: client, log: log.With(name)}
 }
 
-func (dao *compRootDaoEnt) TouchRef(ctx context.Context, conn tx.Conn, ref comproot.SemRef) error {
+func (dao *compRootDaoEnt) TouchRef(ctx context.Context, conn tx.Conn, ref comproot.RootRef) error {
 	dto := comprootadapter.DataFromRef(ref)
 	refAttr := slog.Any("ref", ref)
 	updated, err := dao.client.ExecEval.Update().

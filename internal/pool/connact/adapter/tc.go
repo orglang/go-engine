@@ -48,4 +48,3 @@ func DataToStepRec(dto ActRec) (connact.ActRec, error) {
 		panic(fmt.Errorf("act kind unexpected: %v", dto.K))
 	}
 }
-

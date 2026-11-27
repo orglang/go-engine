@@ -13,7 +13,7 @@ type ExecRec struct {
 }
 
 type ExecSnap1 struct {
-	CompRef   comprootadapter.SemRef  `db:"sem"`
+	CompRef   comprootadapter.SemRef `db:"sem"`
 	LiabMode  int16                  `db:"exec.liab_mode"`
 	StructVar *compvaradapter.VarRec `db:"struct_var"`
 	LinearVar *compvaradapter.VarRec `db:"linear_var"`

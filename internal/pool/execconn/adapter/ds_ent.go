@@ -59,7 +59,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execconn.Con
 	if (mod.OffsetNr != nil && !mod.OffsetNr.IsEmpty()) || len(mod.Acts) > 0 {
 		dto := DataFromMod(mod)
 		if len(mod.Acts) > 0 {
-			// The provider CAS advances comp_rn exactly once for this operation.
+			// The provider CAS advances exec_rn exactly once for this operation.
 			// Mirror that revision as the Act number; Take appends at most one Act per operation.
 			dto.ActNr = sql.Null[int64]{V: int64(mod.ProviderExecRN) + 1, Valid: true}
 		}

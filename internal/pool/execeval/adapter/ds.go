@@ -20,8 +20,8 @@ type EvalSnap1 struct {
 }
 
 type EvalSnap2 struct {
-	CompID     string                  `db:"comp_id"`
-	CompRN     int64                   `db:"comp_rn"`
+	CompID     string                  `db:"exec_id"`
+	CompRN     int64                   `db:"exec_rn"`
 	LiabMode   int16                   `db:"liab_mode"`
 	StructVars []compvaradapter.VarRec `db:"struct_vars"`
 	LinearVars []compvaradapter.VarRec `db:"linear_vars"`

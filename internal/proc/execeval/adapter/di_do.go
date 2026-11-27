@@ -27,7 +27,7 @@ var Package = do.Package(
 		return newDaoEnt(client, logger), nil
 	}),
 	do.Lazy[core.API](func(i do.Injector) (core.API, error) {
-		execRepo, err := do.Invoke[core.Repo](i)
+		evalRepo, err := do.Invoke[core.Repo](i)
 		if err != nil {
 			return nil, err
 		}
@@ -55,7 +55,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return core.NewService(execRepo, connRepo, termDecRepo, typeDefRepo, typeExpRepo, transactor, logger), nil
+		return core.NewService(evalRepo, connRepo, termDecRepo, typeDefRepo, typeExpRepo, transactor, logger), nil
 	}),
 	do.Lazy[GeneratedController](func(i do.Injector) (GeneratedController, error) {
 		api, err := do.Invoke[core.API](i)

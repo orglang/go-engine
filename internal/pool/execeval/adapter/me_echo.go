@@ -34,9 +34,9 @@ type controllerEcho struct {
 	log *slog.Logger
 }
 
-func newControllerEcho(execAPI execeval.API, log *slog.Logger) *controllerEcho {
+func newControllerEcho(evalAPI execeval.API, log *slog.Logger) *controllerEcho {
 	name := slog.String("name", reflect.TypeFor[controllerEcho]().Name())
-	return &controllerEcho{execAPI, log.With(name)}
+	return &controllerEcho{evalAPI, log.With(name)}
 }
 
 // RegisterRoutes attaches the pool computation-execution HTTP endpoints to an

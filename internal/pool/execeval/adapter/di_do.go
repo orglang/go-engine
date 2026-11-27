@@ -49,7 +49,7 @@ var Package = do.Package(
 		return newPondBroker(taskCtx, pool, logger), nil
 	}),
 	do.Lazy[execeval.API](func(i do.Injector) (execeval.API, error) {
-		execRepo, err := do.Invoke[execeval.Repo](i)
+		evalRepo, err := do.Invoke[execeval.Repo](i)
 		if err != nil {
 			return nil, err
 		}
@@ -90,7 +90,7 @@ var Package = do.Package(
 			return nil, err
 		}
 		return execeval.NewService(execeval.ServiceDeps{
-			ExecEvalRepo:   execRepo,
+			ExecEvalRepo:   evalRepo,
 			ExecEvalBroker: broker,
 			CompVarRepo:    varRepo,
 			CompConnRepo:   connRepo,

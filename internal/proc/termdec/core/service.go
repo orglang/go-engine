@@ -5,7 +5,6 @@ import (
 	"log/slog"
 
 	"orglang/go-engine/internal/adt/descroot"
-	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/termvar"
@@ -18,7 +17,6 @@ import (
 type service struct {
 	termDecRepo  Repo
 	descRootRepo descroot.Repo
-	descSemRepo  descsem.Repo
 	typeDefRepo  typedef.Repo
 	transactor   tx.Transactor
 	log          *slog.Logger
@@ -27,7 +25,6 @@ type service struct {
 func NewService(
 	termDecRepo Repo,
 	descRootRepo descroot.Repo,
-	descSemRepo descsem.Repo,
 	typeDefRepo typedef.Repo,
 	transactor tx.Transactor,
 	log *slog.Logger,
@@ -35,7 +32,6 @@ func NewService(
 	return &service{
 		termDecRepo:  termDecRepo,
 		descRootRepo: descRootRepo,
-		descSemRepo:  descSemRepo,
 		typeDefRepo:  typeDefRepo,
 		transactor:   transactor,
 		log:          log,
@@ -47,12 +43,8 @@ func (s *service) Incept(ctx context.Context, termQN uniqsym.ADT) (_ termsem.Sem
 	s.log.Debug("inception started", qnAttr)
 	newRoot := descroot.New()
 	newDec := DecRec{TermRef: termsem.New(newRoot), TermQN: termQN}
-	newBind := descsem.SemRec{DescQN: termQN, DescID: newDec.TermRef.TermID, Kind: descsem.TermKind}
 	err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		if err := s.descRootRepo.AddRef(txCtx, conn, newRoot); err != nil {
-			return err
-		}
-		if err := s.descSemRepo.AddRec(txCtx, conn, newBind); err != nil {
 			return err
 		}
 		return s.termDecRepo.AddRec(txCtx, conn, newDec)
@@ -89,12 +81,8 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ DecSnap, err erro
 	expectedRoot := descroot.SemRef{DescID: providerRef.DescID, DescRN: providerRef.DescRN}
 	newRoot := descroot.SemRef{DescID: expectedRoot.DescID, DescRN: seqnum.Next(expectedRoot.DescRN)}
 	newDec := DecRec{TermRef: termsem.New(newRoot), TermQN: spec.TermQN, LiabVar: newLiabVar, AssetVars: newAssetVars}
-	newBind := descsem.SemRec{DescQN: spec.TermQN, DescID: newDec.TermRef.TermID, Kind: descsem.TermKind}
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		if err := s.descRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil {
-			return err
-		}
-		if err := s.descSemRepo.AddRec(txCtx, conn, newBind); err != nil {
 			return err
 		}
 		return s.termDecRepo.AddRec(txCtx, conn, newDec)

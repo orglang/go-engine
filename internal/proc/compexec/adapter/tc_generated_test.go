@@ -11,7 +11,7 @@ import (
 
 func TestExecSnapToGenerated(t *testing.T) {
 	id := identity.New()
-	got := ExecSnapToGenerated(compexec.ExecSnap{
+	got := EvalSnapToGenerated(compexec.EvalSnap{
 		CompRef: comproot.SemRef{CompID: id, CompRN: seqnum.ADT(7)},
 	})
 	if got.CompRef.CompId != identity.ConvertToString(id) || got.CompRef.CompRn != 7 {

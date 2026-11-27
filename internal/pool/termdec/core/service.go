@@ -21,17 +21,8 @@ type service struct {
 	log          *slog.Logger
 }
 
-func NewService(
-	repo Repo,
-	descRootRepo descroot.Repo,
-	typeDefRepo typedef.Repo,
-	transactor tx.Transactor,
-	log *slog.Logger,
-) API {
-	return &service{
-		repo: repo, descRootRepo: descRootRepo, typeDefRepo: typeDefRepo,
-		transactor: transactor, log: log,
-	}
+func NewService(repo Repo, descRootRepo descroot.Repo, typeDefRepo typedef.Repo, transactor tx.Transactor, log *slog.Logger) API {
+	return &service{repo: repo, descRootRepo: descRootRepo, typeDefRepo: typeDefRepo, transactor: transactor, log: log}
 }
 
 var _ API = (*service)(nil)
@@ -40,42 +31,27 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ termsem.SemRef, e
 	qnAttr := slog.Any("qn", spec.TermQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	assetQNs := make([]uniqsym.ADT, 0, len(spec.AssetVars)+1)
-	for _, varSpec := range spec.AssetVars {
-		assetQNs = append(assetQNs, varSpec.TypeQN)
-	}
+	for _, varSpec := range spec.AssetVars { assetQNs = append(assetQNs, varSpec.TypeQN) }
 	typeDefs, getErr := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[uniqsym.ADT]typedef.DefRec, error) {
 		return s.typeDefRepo.GetRecsByQNs(txCtx, conn, append(assetQNs, spec.LiabVar.TypeQN))
 	})
-	if getErr != nil {
-		return termsem.SemRef{}, getErr
-	}
-	newLiabVar := termvar.VarRec{
-		TypeRef: typeDefs[spec.LiabVar.TypeQN].TypeRef,
-		ChnlPH:  spec.LiabVar.ChnlPH,
-		ExpCK:   typeDefs[spec.LiabVar.TypeQN].ExpCK,
-	}
+	if getErr != nil { return termsem.SemRef{}, getErr }
+	liabTypeDef := typeDefs[spec.LiabVar.TypeQN]
+	newLiabVar := termvar.VarRec{TypeID: liabTypeDef.TypeRef.TypeID, ChnlPH: spec.LiabVar.ChnlPH, ExpCK: liabTypeDef.ExpCK}
 	newAssetVars := make([]termvar.VarRec, 0, len(spec.AssetVars))
 	for _, varSpec := range spec.AssetVars {
-		newAssetVars = append(newAssetVars, termvar.VarRec{
-			TypeRef: typeDefs[varSpec.TypeQN].TypeRef,
-			ChnlPH:  varSpec.ChnlPH,
-			ExpCK:   typeDefs[varSpec.TypeQN].ExpCK,
-		})
+		typeDef := typeDefs[varSpec.TypeQN]
+		newAssetVars = append(newAssetVars, termvar.VarRec{TypeID: typeDef.TypeRef.TypeID, ChnlPH: varSpec.ChnlPH, ExpCK: typeDef.ExpCK})
 	}
-	providerRef := typeDefs[spec.LiabVar.TypeQN].TypeRef
+	providerRef := liabTypeDef.TypeRef
 	expectedRoot := descroot.SemRef{DescID: providerRef.DescID, DescRN: providerRef.DescRN}
 	newRoot := descroot.SemRef{DescID: expectedRoot.DescID, DescRN: seqnum.Next(expectedRoot.DescRN)}
 	newDec := DecRec{TermQN: spec.TermQN, TermRef: termsem.New(newRoot), LiabVar: newLiabVar, AssetVars: newAssetVars}
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		if err := s.descRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil {
-			return err
-		}
+		if err := s.descRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil { return err }
 		return s.repo.AddRec(txCtx, conn, newDec)
 	})
-	if transactErr != nil {
-		s.log.Error("creation failed", qnAttr)
-		return termsem.SemRef{}, transactErr
-	}
+	if transactErr != nil { s.log.Error("creation failed", qnAttr); return termsem.SemRef{}, transactErr }
 	s.log.Debug("creation succeed", qnAttr, slog.Any("ref", newDec.TermRef))
 	return newDec.TermRef, nil
 }

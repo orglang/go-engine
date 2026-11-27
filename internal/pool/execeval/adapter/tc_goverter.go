@@ -12,16 +12,16 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/compvar/adapter:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/compvar/adapter:Data.*
-// goverter:extend DataToEvalSnap1
+// goverter:extend DataToExecSnap1
 var (
 	// goverter:map . CompRef
-	DataToEvalRec func(EvalRec) (execeval.EvalRec, error)
+	DataToExecRec func(EvalRec) (execeval.EvalRec, error)
 	// goverter:autoMap CompRef
-	DataFromEvalRec func(execeval.EvalRec) EvalRec
+	DataFromExecRec func(execeval.EvalRec) EvalRec
 	// goverter:map . CompRef
-	DataToEvalSnap2 func(EvalSnap2) (execeval.EvalSnap2, error)
+	DataToExecSnap2 func(EvalSnap2) (execeval.EvalSnap2, error)
 	// goverter:autoMap CompRef
-	DataFromEvalSnap2 func(execeval.EvalSnap2) EvalSnap2
+	DataFromExecSnap2 func(execeval.EvalSnap2) EvalSnap2
 
 	DataToRefMap  func(map[uniqsym.ADT]EvalSnap2) (map[uniqsym.ADT]execeval.EvalSnap2, error)
 	DataToSnapMap func(map[uniqsym.ADT]EvalSnap1) (map[uniqsym.ADT]execeval.EvalSnap1, error)

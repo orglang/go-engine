@@ -44,11 +44,11 @@ var Package = do.Package(
 )
 
 func RegisterRoutes(server *echo.Echo, i do.Injector) error {
-	execController, err := do.Invoke[execeval.Controller](i)
+	evalController, err := do.Invoke[execeval.Controller](i)
 	if err != nil {
 		return err
 	}
-	if err := execeval.RegisterRoutes(server, execController); err != nil {
+	if err := execeval.RegisterRoutes(server, evalController); err != nil {
 		return err
 	}
 

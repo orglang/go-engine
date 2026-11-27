@@ -8,7 +8,7 @@ import (
 	execeval "orglang/go-engine/internal/pool/execeval/core"
 )
 
-func DataToEvalSnap1(dto EvalSnap1) (execeval.EvalSnap1, error) {
+func DataToExecSnap1(dto EvalSnap1) (execeval.EvalSnap1, error) {
 	ref, err := comprootadapter.DataToRef(dto.CompRef)
 	if err != nil {
 		return execeval.EvalSnap1{}, err

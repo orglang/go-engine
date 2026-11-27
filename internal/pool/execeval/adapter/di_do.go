@@ -95,7 +95,7 @@ var Package = do.Package(
 			CompVarRepo:    varRepo,
 			CompConnRepo:   connRepo,
 			TypeDefRepo:    typeRepo,
-			ProcExecRepo:   procRepo,
+			ProcEvalRepo:   procRepo,
 			TermDecRepo:    termDecRepo,
 			CompRootRepo:   compRepo,
 			Transactor:     transactor,

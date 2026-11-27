@@ -90,7 +90,7 @@ type service struct {
 	compVarRepo    compvar.Repo
 	connRepo       compconn.Repo
 	typeDefRepo    typedef.Repo
-	procExecRepo   procexeceval.Repo
+	procEvalRepo   procexeceval.Repo
 	termDecRepo    termdec.Repo
 	compRootRepo   comproot.Repo
 	transactor     tx.Transactor
@@ -108,7 +108,7 @@ type ServiceDeps struct {
 	CompVarRepo    compvar.Repo
 	CompConnRepo   compconn.Repo
 	TypeDefRepo    typedef.Repo
-	ProcExecRepo   procexeceval.Repo
+	ProcEvalRepo   procexeceval.Repo
 	TermDecRepo    termdec.Repo
 	CompRootRepo   comproot.Repo
 	Transactor     tx.Transactor
@@ -119,7 +119,7 @@ func NewService(deps ServiceDeps) API {
 	name := slog.String("name", reflect.TypeFor[service]().Name())
 	return &service{
 		deps.ExecEvalRepo, deps.ExecEvalBroker, deps.CompVarRepo,
-		deps.CompConnRepo, deps.TypeDefRepo, deps.ProcExecRepo, deps.TermDecRepo,
+		deps.CompConnRepo, deps.TypeDefRepo, deps.ProcEvalRepo, deps.TermDecRepo,
 		deps.CompRootRepo,
 		deps.Transactor, deps.Logger.With(name),
 	}
@@ -233,7 +233,7 @@ func (s *service) Spawn(ctx context.Context, spec compstep.StepSpec) (_ comproot
 	s.log.Debug("proc spawning started", refAttr, slog.Any("exp", spec.PoolExp))
 	newEval := procexeceval.EvalRec{CompRef: comproot.New(), LiabMode: compvar.LinearMode}
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		return s.procExecRepo.AddRec(txCtx, conn, newEval)
+		return s.procEvalRepo.AddRec(txCtx, conn, newEval)
 	})
 	if transactErr != nil {
 		s.log.Error("proc spawning failed", refAttr)

@@ -45,7 +45,7 @@ var Package = do.Package(
 // migrated API and server-rendered routes on the application's Echo server.
 // It is an explicit composition function; it does not start an HTTP listener.
 func RegisterRoutes(server *echo.Echo, i do.Injector) error {
-	execController, err := do.Invoke[execeval.GeneratedController](i)
+	evalController, err := do.Invoke[execeval.GeneratedController](i)
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func RegisterRoutes(server *echo.Echo, i do.Injector) error {
 		return err
 	}
 
-	if err := execeval.RegisterGeneratedRoutes(server, execController); err != nil {
+	if err := execeval.RegisterGeneratedRoutes(server, evalController); err != nil {
 		return err
 	}
 	if err := termdec.RegisterGeneratedRoutes(server, termDecController); err != nil {

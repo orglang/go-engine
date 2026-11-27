@@ -37,7 +37,7 @@ func newDaoEnt(client *ent.Client, log *slog.Logger) *daoEnt {
 }
 
 func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec execeval.EvalRec) error {
-	dto := DataFromEvalRec(rec)
+	dto := DataFromExecRec(rec)
 	refAttr := slog.Any("ref", rec.CompRef)
 	_, err := dao.client.ExecEval.Create().
 		SetID(dto.CompID).

@@ -9,6 +9,9 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
 var (
+	// goverter:map TypeID TypeRef.TypeID
+	// goverter:map DescRef.DescID TypeRef.DescID
+	// goverter:map DescRef.DescRN TypeRef.DescRN
 	ViewFromDefSnap func(typedef.DefSnap) DefSnapVP
 )
 

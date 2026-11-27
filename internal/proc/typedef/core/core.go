@@ -94,7 +94,7 @@ func (s *service) Modify(ctx context.Context, snap DefSnap) (_ DefSnap, err erro
 		s.log.Error("modification failed", refAttr)
 		return DefSnap{}, errConcurrentModification(snap.DescRef.DescRN, rec.DescRef.DescRN)
 	}
-	curSnap, err := s.retrieveSnap(ctx, rec)
+	curSnap, err := s.snapFromRec(ctx, rec)
 	if err != nil {
 		s.log.Error("modification failed", refAttr)
 		return DefSnap{}, err
@@ -126,10 +126,10 @@ func (s *service) RetrieveSnap(ctx context.Context, id identity.ADT) (_ DefSnap,
 		s.log.Error("retrieval failed", slog.Any("typeID", id))
 		return DefSnap{}, getErr
 	}
-	return s.retrieveSnap(ctx, rec)
+	return s.snapFromRec(ctx, rec)
 }
 
-func (s *service) retrieveSnap(ctx context.Context, rec DefRec) (_ DefSnap, err error) {
+func (s *service) snapFromRec(ctx context.Context, rec DefRec) (_ DefSnap, err error) {
 	expRec, err := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (ExpRec, error) {
 		return s.typeExpRepo.SelectRecByCK(txCtx, conn, rec.ExpCK)
 	})

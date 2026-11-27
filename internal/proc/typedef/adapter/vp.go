@@ -11,12 +11,14 @@ type DefSpecVP struct {
 	TypeQN string `form:"type_qn" json:"type_qn"`
 }
 
+type TypeRefVP struct {
+	TypeID identity.ADT `json:"TypeID"`
+	DescID identity.ADT `json:"DescID"`
+	DescRN seqnum.ADT   `json:"DescRN"`
+}
+
 type DefSnapVP struct {
-	TypeRef struct {
-		TypeID identity.ADT `json:"TypeID"`
-		DescID identity.ADT `json:"DescID"`
-		DescRN seqnum.ADT   `json:"DescRN"`
-	} `json:"ref"`
+	TypeRef TypeRefVP `json:"ref"`
 	DefSpec DefSpecVP `json:"spec"`
 }
 

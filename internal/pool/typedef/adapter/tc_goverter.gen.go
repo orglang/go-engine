@@ -43,16 +43,16 @@ func init() {
 			return coreDefRec, err
 		}
 		coreDefRec.TypeQN = uniqsymADT
-		typeID, err := identity.ConvertFromString(source.TypeID)
+		identityADT, err := identity.ConvertFromString(source.TypeID)
 		if err != nil {
 			return coreDefRec, err
 		}
-		descID, err := identity.ConvertFromString(source.DescID)
+		coreDefRec.TypeID = identityADT
+		descrootSemRef, err := adapterDefRecToDescrootSemRef(source)
 		if err != nil {
 			return coreDefRec, err
 		}
-		coreDefRec.TypeID = typeID
-		coreDefRec.DescRef = descroot.SemRef{DescID: descID, DescRN: seqnum.ConvertFromInt(source.DescRN)}
+		coreDefRec.DescRef = descrootSemRef
 		contkeyADT, err := contkey.ConvertFromInt(source.ExpCK)
 		if err != nil {
 			return coreDefRec, err
@@ -61,31 +61,41 @@ func init() {
 		return coreDefRec, nil
 	}
 	DataToDefRecMap = func(source map[uniqsym.ADT]DefRec) (map[uniqsym.ADT]core.DefRec, error) {
-		var result map[uniqsym.ADT]core.DefRec
+		var mapUniqsymADTCoreDefRec map[uniqsym.ADT]core.DefRec
 		if source != nil {
-			result = make(map[uniqsym.ADT]core.DefRec, len(source))
+			mapUniqsymADTCoreDefRec = make(map[uniqsym.ADT]core.DefRec, len(source))
 			for key, value := range source {
-				rec, err := DataToDefRec(value)
+				coreDefRec, err := DataToDefRec(value)
 				if err != nil {
 					return nil, err
 				}
-				result[key] = rec
+				mapUniqsymADTCoreDefRec[key] = coreDefRec
 			}
 		}
-		return result, nil
+		return mapUniqsymADTCoreDefRec, nil
 	}
 	DataToDefRecs = func(source []DefRec) ([]core.DefRec, error) {
-		var result []core.DefRec
+		var coreDefRecList []core.DefRec
 		if source != nil {
-			result = make([]core.DefRec, len(source))
-			for i := range source {
-				rec, err := DataToDefRec(source[i])
+			coreDefRecList = make([]core.DefRec, len(source))
+			for i := 0; i < len(source); i++ {
+				coreDefRec, err := DataToDefRec(source[i])
 				if err != nil {
 					return nil, err
 				}
-				result[i] = rec
+				coreDefRecList[i] = coreDefRec
 			}
 		}
-		return result, nil
+		return coreDefRecList, nil
 	}
+}
+func adapterDefRecToDescrootSemRef(source DefRec) (descroot.SemRef, error) {
+	var descrootSemRef descroot.SemRef
+	identityADT, err := identity.ConvertFromString(source.DescID)
+	if err != nil {
+		return descrootSemRef, err
+	}
+	descrootSemRef.DescID = identityADT
+	descrootSemRef.DescRN = seqnum.ConvertFromInt(source.DescRN)
+	return descrootSemRef, nil
 }

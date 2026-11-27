@@ -14,52 +14,74 @@ import (
 
 func init() {
 	DataFromDefRec = func(source core.DefRec) (DefRec, error) {
-		var result DefRec
-		result.TypeQN = uniqsym.ConvertToString(source.TypeQN)
-		result.TypeID = identity.ConvertToString(source.TypeID)
-		result.DescID = identity.ConvertToString(source.DescRef.DescID)
-		result.DescRN = seqnum.ConvertToInt(source.DescRef.DescRN)
-		result.ExpCK = contkey.ConvertToInt(source.ExpCK)
-		return result, nil
+		var adapterDefRec DefRec
+		adapterDefRec.TypeQN = uniqsym.ConvertToString(source.TypeQN)
+		adapterDefRec.TypeID = identity.ConvertToString(source.TypeID)
+		adapterDefRec.DescID = identity.ConvertToString(source.DescRef.DescID)
+		adapterDefRec.DescRN = seqnum.ConvertToInt(source.DescRef.DescRN)
+		adapterDefRec.ExpCK = contkey.ConvertToInt(source.ExpCK)
+		return adapterDefRec, nil
 	}
 	DataFromDefRecs = func(source []core.DefRec) ([]DefRec, error) {
-		var result []DefRec
+		var adapterDefRecList []DefRec
 		if source != nil {
-			result = make([]DefRec, len(source))
-			for i := range source {
-				value, err := DataFromDefRec(source[i])
-				if err != nil { return nil, err }
-				result[i] = value
+			adapterDefRecList = make([]DefRec, len(source))
+			for i := 0; i < len(source); i++ {
+				adapterDefRec, err := DataFromDefRec(source[i])
+				if err != nil {
+					return nil, err
+				}
+				adapterDefRecList[i] = adapterDefRec
 			}
 		}
-		return result, nil
+		return adapterDefRecList, nil
 	}
 	DataToDefRec = func(source DefRec) (core.DefRec, error) {
-		var result core.DefRec
-		qn, err := uniqsym.ConvertFromString(source.TypeQN)
-		if err != nil { return result, err }
-		typeID, err := identity.ConvertFromString(source.TypeID)
-		if err != nil { return result, err }
-		descID, err := identity.ConvertFromString(source.DescID)
-		if err != nil { return result, err }
-		expCK, err := contkey.ConvertFromInt(source.ExpCK)
-		if err != nil { return result, err }
-		result.TypeQN = qn
-		result.TypeID = typeID
-		result.DescRef = descroot.SemRef{DescID: descID, DescRN: seqnum.ConvertFromInt(source.DescRN)}
-		result.ExpCK = expCK
-		return result, nil
+		var coreDefRec core.DefRec
+		uniqsymADT, err := uniqsym.ConvertFromString(source.TypeQN)
+		if err != nil {
+			return coreDefRec, err
+		}
+		coreDefRec.TypeQN = uniqsymADT
+		identityADT, err := identity.ConvertFromString(source.TypeID)
+		if err != nil {
+			return coreDefRec, err
+		}
+		coreDefRec.TypeID = identityADT
+		descrootSemRef, err := adapterDefRecToDescrootSemRef(source)
+		if err != nil {
+			return coreDefRec, err
+		}
+		coreDefRec.DescRef = descrootSemRef
+		contkeyADT, err := contkey.ConvertFromInt(source.ExpCK)
+		if err != nil {
+			return coreDefRec, err
+		}
+		coreDefRec.ExpCK = contkeyADT
+		return coreDefRec, nil
 	}
 	DataToDefRecs = func(source []DefRec) ([]core.DefRec, error) {
-		var result []core.DefRec
+		var coreDefRecList []core.DefRec
 		if source != nil {
-			result = make([]core.DefRec, len(source))
-			for i := range source {
-				value, err := DataToDefRec(source[i])
-				if err != nil { return nil, err }
-				result[i] = value
+			coreDefRecList = make([]core.DefRec, len(source))
+			for i := 0; i < len(source); i++ {
+				coreDefRec, err := DataToDefRec(source[i])
+				if err != nil {
+					return nil, err
+				}
+				coreDefRecList[i] = coreDefRec
 			}
 		}
-		return result, nil
+		return coreDefRecList, nil
 	}
+}
+func adapterDefRecToDescrootSemRef(source DefRec) (descroot.SemRef, error) {
+	var descrootSemRef descroot.SemRef
+	identityADT, err := identity.ConvertFromString(source.DescID)
+	if err != nil {
+		return descrootSemRef, err
+	}
+	descrootSemRef.DescID = identityADT
+	descrootSemRef.DescRN = seqnum.ConvertFromInt(source.DescRN)
+	return descrootSemRef, nil
 }

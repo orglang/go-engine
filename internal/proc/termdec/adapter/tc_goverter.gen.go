@@ -17,162 +17,227 @@ import (
 
 func init() {
 	DataFromTermDecRec = func(source core.DecRec) (DecRec, error) {
-		var result DecRec
-		result.TermID = identity.ConvertToString(source.TermID)
-		result.DescID = identity.ConvertToString(source.DescRef.DescID)
-		result.DescRN = seqnum.ConvertToInt(source.DescRef.DescRN)
-		liab, err := adapter.DataFromVarRec(source.LiabVar)
-		if err != nil { return result, err }
-		result.LiabVar = liab
+		var adapterDecRec DecRec
+		adapterDecRec.TermID = identity.ConvertToString(source.TermID)
+		adapterDecRec.DescID = identity.ConvertToString(source.DescRef.DescID)
+		adapterDecRec.DescRN = seqnum.ConvertToInt(source.DescRef.DescRN)
+		adapterVarRec, err := adapter.DataFromVarRec(source.LiabVar)
+		if err != nil {
+			return adapterDecRec, err
+		}
+		adapterDecRec.LiabVar = adapterVarRec
 		if source.AssetVars != nil {
-			result.AssetVars = make([]adapter.VarRec, len(source.AssetVars))
-			for i := range source.AssetVars {
-				value, err := adapter.DataFromVarRec(source.AssetVars[i])
-				if err != nil { return result, err }
-				result.AssetVars[i] = value
+			adapterDecRec.AssetVars = make([]adapter.VarRec, len(source.AssetVars))
+			for i := 0; i < len(source.AssetVars); i++ {
+				adapterVarRec2, err := adapter.DataFromVarRec(source.AssetVars[i])
+				if err != nil {
+					return adapterDecRec, err
+				}
+				adapterDecRec.AssetVars[i] = adapterVarRec2
 			}
 		}
-		return result, nil
+		return adapterDecRec, nil
 	}
 	DataFromTermDecRecs = func(source []core.DecRec) ([]DecRec, error) {
-		var result []DecRec
+		var adapterDecRecList []DecRec
 		if source != nil {
-			result = make([]DecRec, len(source))
-			for i := range source {
-				value, err := DataFromTermDecRec(source[i])
-				if err != nil { return nil, err }
-				result[i] = value
+			adapterDecRecList = make([]DecRec, len(source))
+			for i := 0; i < len(source); i++ {
+				adapterDecRec, err := DataFromTermDecRec(source[i])
+				if err != nil {
+					return nil, err
+				}
+				adapterDecRecList[i] = adapterDecRec
 			}
 		}
-		return result, nil
+		return adapterDecRecList, nil
 	}
 	DataFromTermDecSnap = func(source core.DecSnap) (DecSnap, error) {
-		var result DecSnap
-		result.TermID = identity.ConvertToString(source.TermID)
-		result.DescID = identity.ConvertToString(source.DescRef.DescID)
-		result.DescRN = seqnum.ConvertToInt(source.DescRef.DescRN)
-		liab, err := adapter.DataFromVarRec(source.LiabVar)
-		if err != nil { return result, err }
-		result.LiabVar = liab
+		var adapterDecSnap DecSnap
+		adapterDecSnap.TermID = identity.ConvertToString(source.TermID)
+		adapterDecSnap.DescID = identity.ConvertToString(source.DescRef.DescID)
+		adapterDecSnap.DescRN = seqnum.ConvertToInt(source.DescRef.DescRN)
+		adapterVarRec, err := adapter.DataFromVarRec(source.LiabVar)
+		if err != nil {
+			return adapterDecSnap, err
+		}
+		adapterDecSnap.LiabVar = adapterVarRec
 		if source.AssetVars != nil {
-			result.AssetVars = make([]adapter.VarRec, len(source.AssetVars))
-			for i := range source.AssetVars {
-				value, err := adapter.DataFromVarRec(source.AssetVars[i])
-				if err != nil { return result, err }
-				result.AssetVars[i] = value
+			adapterDecSnap.AssetVars = make([]adapter.VarRec, len(source.AssetVars))
+			for i := 0; i < len(source.AssetVars); i++ {
+				adapterVarRec2, err := adapter.DataFromVarRec(source.AssetVars[i])
+				if err != nil {
+					return adapterDecSnap, err
+				}
+				adapterDecSnap.AssetVars[i] = adapterVarRec2
 			}
 		}
-		return result, nil
+		return adapterDecSnap, nil
 	}
 	DataFromTermDecSnaps = func(source []core.DecSnap) ([]DecSnap, error) {
-		var result []DecSnap
+		var adapterDecSnapList []DecSnap
 		if source != nil {
-			result = make([]DecSnap, len(source))
-			for i := range source {
-				value, err := DataFromTermDecSnap(source[i])
-				if err != nil { return nil, err }
-				result[i] = value
+			adapterDecSnapList = make([]DecSnap, len(source))
+			for i := 0; i < len(source); i++ {
+				adapterDecSnap, err := DataFromTermDecSnap(source[i])
+				if err != nil {
+					return nil, err
+				}
+				adapterDecSnapList[i] = adapterDecSnap
 			}
 		}
-		return result, nil
+		return adapterDecSnapList, nil
 	}
 	DataToTermDecRec = func(source DecRec) (core.DecRec, error) {
-		var result core.DecRec
-		termID, err := identity.ConvertFromString(source.TermID)
-		if err != nil { return result, err }
-		descID, err := identity.ConvertFromString(source.DescID)
-		if err != nil { return result, err }
-		liab, err := adapter.DataToVarRec(source.LiabVar)
-		if err != nil { return result, err }
-		result.TermID = termID
-		result.DescRef = descroot.SemRef{DescID: descID, DescRN: seqnum.ConvertFromInt(source.DescRN)}
-		result.LiabVar = liab
+		var coreDecRec core.DecRec
+		identityADT, err := identity.ConvertFromString(source.TermID)
+		if err != nil {
+			return coreDecRec, err
+		}
+		coreDecRec.TermID = identityADT
+		descrootSemRef, err := adapterDecRecToDescrootSemRef(source)
+		if err != nil {
+			return coreDecRec, err
+		}
+		coreDecRec.DescRef = descrootSemRef
+		termvarVarRec, err := adapter.DataToVarRec(source.LiabVar)
+		if err != nil {
+			return coreDecRec, err
+		}
+		coreDecRec.LiabVar = termvarVarRec
 		if source.AssetVars != nil {
-			result.AssetVars = make([]termvar.VarRec, len(source.AssetVars))
-			for i := range source.AssetVars {
-				value, err := adapter.DataToVarRec(source.AssetVars[i])
-				if err != nil { return result, err }
-				result.AssetVars[i] = value
+			coreDecRec.AssetVars = make([]termvar.VarRec, len(source.AssetVars))
+			for i := 0; i < len(source.AssetVars); i++ {
+				termvarVarRec2, err := adapter.DataToVarRec(source.AssetVars[i])
+				if err != nil {
+					return coreDecRec, err
+				}
+				coreDecRec.AssetVars[i] = termvarVarRec2
 			}
 		}
-		return result, nil
+		return coreDecRec, nil
 	}
 	DataToTermDecRecs = func(source []DecRec) ([]core.DecRec, error) {
-		var result []core.DecRec
+		var coreDecRecList []core.DecRec
 		if source != nil {
-			result = make([]core.DecRec, len(source))
-			for i := range source {
-				value, err := DataToTermDecRec(source[i])
-				if err != nil { return nil, err }
-				result[i] = value
+			coreDecRecList = make([]core.DecRec, len(source))
+			for i := 0; i < len(source); i++ {
+				coreDecRec, err := DataToTermDecRec(source[i])
+				if err != nil {
+					return nil, err
+				}
+				coreDecRecList[i] = coreDecRec
 			}
 		}
-		return result, nil
+		return coreDecRecList, nil
 	}
 	DataToTermDecSnap = func(source DecSnap) (core.DecSnap, error) {
-		var result core.DecSnap
-		termID, err := identity.ConvertFromString(source.TermID)
-		if err != nil { return result, err }
-		descID, err := identity.ConvertFromString(source.DescID)
-		if err != nil { return result, err }
-		liab, err := adapter.DataToVarRec(source.LiabVar)
-		if err != nil { return result, err }
-		result.TermID = termID
-		result.DescRef = descroot.SemRef{DescID: descID, DescRN: seqnum.ConvertFromInt(source.DescRN)}
-		result.LiabVar = liab
+		var coreDecSnap core.DecSnap
+		identityADT, err := identity.ConvertFromString(source.TermID)
+		if err != nil {
+			return coreDecSnap, err
+		}
+		coreDecSnap.TermID = identityADT
+		descrootSemRef, err := adapterDecSnapToDescrootSemRef(source)
+		if err != nil {
+			return coreDecSnap, err
+		}
+		coreDecSnap.DescRef = descrootSemRef
+		termvarVarRec, err := adapter.DataToVarRec(source.LiabVar)
+		if err != nil {
+			return coreDecSnap, err
+		}
+		coreDecSnap.LiabVar = termvarVarRec
 		if source.AssetVars != nil {
-			result.AssetVars = make([]termvar.VarRec, len(source.AssetVars))
-			for i := range source.AssetVars {
-				value, err := adapter.DataToVarRec(source.AssetVars[i])
-				if err != nil { return result, err }
-				result.AssetVars[i] = value
+			coreDecSnap.AssetVars = make([]termvar.VarRec, len(source.AssetVars))
+			for i := 0; i < len(source.AssetVars); i++ {
+				termvarVarRec2, err := adapter.DataToVarRec(source.AssetVars[i])
+				if err != nil {
+					return coreDecSnap, err
+				}
+				coreDecSnap.AssetVars[i] = termvarVarRec2
 			}
 		}
-		return result, nil
+		return coreDecSnap, nil
 	}
 	DataToTermDecSnaps = func(source []DecSnap) ([]core.DecSnap, error) {
-		var result []core.DecSnap
+		var coreDecSnapList []core.DecSnap
 		if source != nil {
-			result = make([]core.DecSnap, len(source))
-			for i := range source {
-				value, err := DataToTermDecSnap(source[i])
-				if err != nil { return nil, err }
-				result[i] = value
+			coreDecSnapList = make([]core.DecSnap, len(source))
+			for i := 0; i < len(source); i++ {
+				coreDecSnap, err := DataToTermDecSnap(source[i])
+				if err != nil {
+					return nil, err
+				}
+				coreDecSnapList[i] = coreDecSnap
 			}
 		}
-		return result, nil
+		return coreDecSnapList, nil
 	}
+}
+func adapterDecRecToDescrootSemRef(source DecRec) (descroot.SemRef, error) {
+	var descrootSemRef descroot.SemRef
+	identityADT, err := identity.ConvertFromString(source.DescID)
+	if err != nil {
+		return descrootSemRef, err
+	}
+	descrootSemRef.DescID = identityADT
+	descrootSemRef.DescRN = seqnum.ConvertFromInt(source.DescRN)
+	return descrootSemRef, nil
+}
+func adapterDecSnapToDescrootSemRef(source DecSnap) (descroot.SemRef, error) {
+	var descrootSemRef descroot.SemRef
+	identityADT, err := identity.ConvertFromString(source.DescID)
+	if err != nil {
+		return descrootSemRef, err
+	}
+	descrootSemRef.DescID = identityADT
+	descrootSemRef.DescRN = seqnum.ConvertFromInt(source.DescRN)
+	return descrootSemRef, nil
 }
 func init() {
 	ConnVarFromGenerated = func(source api.AnyConnVarSpec) (termvar.VarSpec, error) {
-		var result termvar.VarSpec
-		chnlPH, err := symbol.ConvertFromString(source.ConnPh)
-		if err != nil { return result, err }
-		typeQN, err := uniqsym.ConvertFromString(source.TypeQn)
-		if err != nil { return result, err }
-		result.ChnlPH = chnlPH
-		result.TypeQN = typeQN
-		return result, nil
+		var termvarVarSpec termvar.VarSpec
+		symbolADT, err := symbol.ConvertFromString(source.ConnPh)
+		if err != nil {
+			return termvarVarSpec, err
+		}
+		termvarVarSpec.ChnlPH = symbolADT
+		uniqsymADT, err := uniqsym.ConvertFromString(source.TypeQn)
+		if err != nil {
+			return termvarVarSpec, err
+		}
+		termvarVarSpec.TypeQN = uniqsymADT
+		return termvarVarSpec, nil
 	}
 	DecSnapToGenerated = func(source core.DecSnap) api.AnyTermRef {
-		return api.AnyTermRef{DescRn: seqnum.ConvertToInt(source.DescRef.DescRN), TermId: identity.ConvertToString(source.TermID)}
+		var apiAnyTermRef api.AnyTermRef
+		apiAnyTermRef.DescRn = seqnum.ConvertToInt(source.DescRef.DescRN)
+		apiAnyTermRef.TermId = identity.ConvertToString(source.TermID)
+		return apiAnyTermRef
 	}
 	DecSpecFromGenerated = func(source api.ProcDecSpec) (core.DecSpec, error) {
-		var result core.DecSpec
-		qn, err := uniqsym.ConvertFromString(source.TermQn)
-		if err != nil { return result, err }
-		liab, err := ConnVarFromGenerated(source.LiabVar)
-		if err != nil { return result, err }
-		result.TermQN = qn
-		result.LiabVar = liab
+		var coreDecSpec core.DecSpec
+		uniqsymADT, err := uniqsym.ConvertFromString(source.TermQn)
+		if err != nil {
+			return coreDecSpec, err
+		}
+		coreDecSpec.TermQN = uniqsymADT
+		termvarVarSpec, err := ConnVarFromGenerated(source.LiabVar)
+		if err != nil {
+			return coreDecSpec, err
+		}
+		coreDecSpec.LiabVar = termvarVarSpec
 		if source.AssetVars != nil {
-			result.AssetVars = make([]termvar.VarSpec, len(source.AssetVars))
-			for i := range source.AssetVars {
-				value, err := ConnVarFromGenerated(source.AssetVars[i])
-				if err != nil { return result, err }
-				result.AssetVars[i] = value
+			coreDecSpec.AssetVars = make([]termvar.VarSpec, len(source.AssetVars))
+			for i := 0; i < len(source.AssetVars); i++ {
+				termvarVarSpec2, err := ConnVarFromGenerated(source.AssetVars[i])
+				if err != nil {
+					return coreDecSpec, err
+				}
+				coreDecSpec.AssetVars[i] = termvarVarSpec2
 			}
 		}
-		return result, nil
+		return coreDecSpec, nil
 	}
 }

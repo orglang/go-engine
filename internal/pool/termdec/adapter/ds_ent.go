@@ -53,6 +53,14 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdec.DecRec)
 		dao.log.Error("query execution failed", refAttr)
 		return err
 	}
+	const bindQuery = `
+INSERT INTO pool_desc_binds (desc_qn, desc_id, kind)
+VALUES ($1, $2, 2)
+`
+	if _, err := conn.Pgx.Exec(ctx, bindQuery, uniqsym.ConvertToString(rec.TermQN), rec.TermRef.TermID.String()); err != nil {
+		dao.log.Error("description binding insertion failed", refAttr, slog.Any("error", err))
+		return err
+	}
 	dao.log.Log(ctx, lf.LevelTrace, "declaration addition succeeded", refAttr)
 	return nil
 }
@@ -94,6 +102,7 @@ WHERE bind.desc_qn = $1
 		}
 	}
 	return termdec.DecRec{
+		TermQN: qn,
 		TermRef:   termsem.SemRef{TermID: termID, DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)},
 		LiabVar:   liabVar,
 		AssetVars: assetVars,

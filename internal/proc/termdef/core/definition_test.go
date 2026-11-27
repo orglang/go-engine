@@ -7,7 +7,6 @@ import (
 
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
-	"orglang/go-engine/internal/adt/termsem"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/tx"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
@@ -44,13 +43,13 @@ func (r *definitionTestRepo) SelectSpecByCK(_ context.Context, _ tx.Conn, key co
 type definitionTestDecRepo struct{ qn uniqsym.ADT }
 
 func (*definitionTestDecRepo) AddRec(context.Context, tx.Conn, termdec.DecRec) error { return nil }
-func (*definitionTestDecRepo) GetRefs(context.Context, tx.Conn) ([]termsem.SemRef, error) {
+func (*definitionTestDecRepo) GetIDs(context.Context, tx.Conn) ([]identity.ADT, error) {
 	return nil, nil
 }
 func (r *definitionTestDecRepo) GetQNByID(context.Context, tx.Conn, identity.ADT) (uniqsym.ADT, error) {
 	return r.qn, nil
 }
-func (*definitionTestDecRepo) GetSnap(context.Context, tx.Conn, termsem.SemRef) (termdec.DecSnap, error) {
+func (*definitionTestDecRepo) GetSnap(context.Context, tx.Conn, identity.ADT) (termdec.DecSnap, error) {
 	return termdec.DecSnap{}, nil
 }
 func (*definitionTestDecRepo) GetRecs(context.Context, tx.Conn, []identity.ADT) ([]termdec.DecRec, error) {

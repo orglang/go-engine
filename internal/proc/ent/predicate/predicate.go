@@ -6,11 +6,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// CompConn is the predicate function for compconn builders.
-type CompConn func(*sql.Selector)
-
 // DescRoot is the predicate function for descroot builders.
 type DescRoot func(*sql.Selector)
+
+// ExecConn is the predicate function for execconn builders.
+type ExecConn func(*sql.Selector)
 
 // ExecEval is the predicate function for execeval builders.
 type ExecEval func(*sql.Selector)

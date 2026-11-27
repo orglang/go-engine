@@ -9,22 +9,6 @@ import (
 )
 
 var (
-	// PoolCompConnsColumns holds the columns for the "pool_comp_conns" table.
-	PoolCompConnsColumns = []*schema.Column{
-		{Name: "conn_id", Type: field.TypeString, Unique: true},
-		{Name: "provider_comp_id", Type: field.TypeString},
-		{Name: "provider_comp_rn", Type: field.TypeInt64},
-		{Name: "client_comp_id", Type: field.TypeString},
-		{Name: "client_comp_rn", Type: field.TypeInt64},
-		{Name: "offset_nr", Type: field.TypeInt64, Nullable: true},
-		{Name: "act_nr", Type: field.TypeInt64, Nullable: true},
-	}
-	// PoolCompConnsTable holds the schema information for the "pool_comp_conns" table.
-	PoolCompConnsTable = &schema.Table{
-		Name:       "pool_comp_conns",
-		Columns:    PoolCompConnsColumns,
-		PrimaryKey: []*schema.Column{PoolCompConnsColumns[0]},
-	}
 	// PoolDescRootsColumns holds the columns for the "pool_desc_roots" table.
 	PoolDescRootsColumns = []*schema.Column{
 		{Name: "desc_id", Type: field.TypeString, Unique: true},
@@ -35,6 +19,22 @@ var (
 		Name:       "pool_desc_roots",
 		Columns:    PoolDescRootsColumns,
 		PrimaryKey: []*schema.Column{PoolDescRootsColumns[0]},
+	}
+	// PoolExecConnsColumns holds the columns for the "pool_exec_conns" table.
+	PoolExecConnsColumns = []*schema.Column{
+		{Name: "conn_id", Type: field.TypeString, Unique: true},
+		{Name: "provider_exec_id", Type: field.TypeString},
+		{Name: "provider_exec_rn", Type: field.TypeInt64},
+		{Name: "client_exec_id", Type: field.TypeString},
+		{Name: "client_exec_rn", Type: field.TypeInt64},
+		{Name: "offset_nr", Type: field.TypeInt64, Nullable: true},
+		{Name: "act_nr", Type: field.TypeInt64, Nullable: true},
+	}
+	// PoolExecConnsTable holds the schema information for the "pool_exec_conns" table.
+	PoolExecConnsTable = &schema.Table{
+		Name:       "pool_exec_conns",
+		Columns:    PoolExecConnsColumns,
+		PrimaryKey: []*schema.Column{PoolExecConnsColumns[0]},
 	}
 	// PoolExecEvalsColumns holds the columns for the "pool_exec_evals" table.
 	PoolExecEvalsColumns = []*schema.Column{
@@ -102,8 +102,8 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		PoolCompConnsTable,
 		PoolDescRootsTable,
+		PoolExecConnsTable,
 		PoolExecEvalsTable,
 		PoolDescTermsTable,
 		PoolTermExpsTable,
@@ -113,11 +113,11 @@ var (
 )
 
 func init() {
-	PoolCompConnsTable.Annotation = &entsql.Annotation{
-		Table: "pool_comp_conns",
-	}
 	PoolDescRootsTable.Annotation = &entsql.Annotation{
 		Table: "pool_desc_roots",
+	}
+	PoolExecConnsTable.Annotation = &entsql.Annotation{
+		Table: "pool_exec_conns",
 	}
 	PoolExecEvalsTable.Annotation = &entsql.Annotation{
 		Table: "pool_exec_evals",

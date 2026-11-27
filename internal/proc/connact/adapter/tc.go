@@ -23,8 +23,8 @@ func DataFromStepRec(r connact.ActRec) (ActRec, error) {
 		return ActRec{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
-			CompID: compRef.CompID,
-			CompRN: compRef.CompRN,
+			ExecID: compRef.CompID,
+			ExecRN: compRef.CompRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
 			K:      MsgStep,
 			Exp:    exp,
@@ -38,8 +38,8 @@ func DataFromStepRec(r connact.ActRec) (ActRec, error) {
 		return ActRec{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
-			CompID: compRef.CompID,
-			CompRN: compRef.CompRN,
+			ExecID: compRef.CompID,
+			ExecRN: compRef.CompRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
 			K:      SvcStep,
 			Exp:    exp,
@@ -54,7 +54,7 @@ func DataToStepRec(dto ActRec) (connact.ActRec, error) {
 	if err != nil {
 		return nil, err
 	}
-	compID, err := identity.ConvertFromString(dto.CompID)
+	compID, err := identity.ConvertFromString(dto.ExecID)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func DataToStepRec(dto ActRec) (connact.ActRec, error) {
 	if err != nil {
 		return nil, err
 	}
-	compRef := comproot.SemRef{CompID: compID, CompRN: seqnum.ADT(dto.CompRN)}
+	compRef := comproot.SemRef{CompID: compID, CompRN: seqnum.ADT(dto.ExecRN)}
 	switch dto.K {
 	case MsgStep:
 		return connact.PubRec{ConnID: connID, ActNr: seqnum.ADT(dto.ActNr), CompRef: compRef, ChnlID: chnlID, ValExp: exp}, nil

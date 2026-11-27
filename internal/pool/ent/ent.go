@@ -6,8 +6,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"orglang/go-engine/internal/pool/ent/compconn"
 	"orglang/go-engine/internal/pool/ent/descroot"
+	"orglang/go-engine/internal/pool/ent/execconn"
 	"orglang/go-engine/internal/pool/ent/execeval"
 	"orglang/go-engine/internal/pool/ent/termdec"
 	"orglang/go-engine/internal/pool/ent/termexp"
@@ -79,8 +79,8 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			compconn.Table: compconn.ValidColumn,
 			descroot.Table: descroot.ValidColumn,
+			execconn.Table: execconn.ValidColumn,
 			execeval.Table: execeval.ValidColumn,
 			termdec.Table:  termdec.ValidColumn,
 			termexp.Table:  termexp.ValidColumn,

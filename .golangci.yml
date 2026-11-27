@@ -38,14 +38,14 @@ linters:
             - {pkg: orglang/go-engine/internal/lib/db/adapter, desc: &adapterBoundary "Core/domain code must depend on a port, not an adapter."}
             - {pkg: orglang/go-engine/internal/prog/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc/compstep/adapter, desc: *adapterBoundary}
-            - {pkg: orglang/go-engine/internal/proc/compconn/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/proc/execconn/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc/connact/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc/execeval/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc/termdef/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc/typedef/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc/typeexp/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/compstep/adapter, desc: *adapterBoundary}
-            - {pkg: orglang/go-engine/internal/pool/compconn/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/pool/execconn/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/connact/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/execeval/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/compvar/adapter, desc: *adapterBoundary}

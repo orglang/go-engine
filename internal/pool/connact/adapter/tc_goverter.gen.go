@@ -14,12 +14,12 @@ import (
 func init() {
 	DataToCompRef = func(source ActRec) (comproot.SemRef, error) {
 		var comprootSemRef comproot.SemRef
-		identityADT, err := identity.ConvertFromString(source.CompID)
+		identityADT, err := identity.ConvertFromString(source.ExecID)
 		if err != nil {
 			return comprootSemRef, err
 		}
 		comprootSemRef.CompID = identityADT
-		comprootSemRef.CompRN = seqnum.ConvertFromInt(source.CompRN)
+		comprootSemRef.CompRN = seqnum.ConvertFromInt(source.ExecRN)
 		return comprootSemRef, nil
 	}
 	DataToPubRec = func(source ActRec) (core.PubRec, error) {

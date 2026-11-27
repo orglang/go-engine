@@ -19,9 +19,9 @@ import (
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
-	compconn "orglang/go-engine/internal/proc/compconn/core"
 	compstep "orglang/go-engine/internal/proc/compstep/core"
 	connact "orglang/go-engine/internal/proc/connact/core"
+	execconn "orglang/go-engine/internal/proc/execconn/core"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 	termdef "orglang/go-engine/internal/proc/termdef/core"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
@@ -49,7 +49,7 @@ type EvalEff struct {
 type takeResult struct {
 	Mod        EvalMod
 	Effects    EvalEff
-	Connection compconn.ConnMod
+	Connection execconn.ConnMod
 }
 
 // aka Configuration
@@ -68,7 +68,7 @@ func ChnlPH(rec compvar.LinearRec) symbol.ADT { return rec.ChnlPH }
 
 type service struct {
 	execEvalRepo Repo
-	connRepo     compconn.Repo
+	connRepo     execconn.Repo
 	termDecRepo  termdec.Repo
 	typeDefRepo  typedef.Repo
 	typeExpRepo  typedef.TypeExpRepo
@@ -83,7 +83,7 @@ func newAPI() API {
 
 func NewService(
 	execEvalRepo Repo,
-	connRepo compconn.Repo,
+	connRepo execconn.Repo,
 	termDecRepo termdec.Repo,
 	typeDefRepo typedef.Repo,
 	typeExpRepo typedef.TypeExpRepo,
@@ -163,7 +163,7 @@ func (s *service) Take(ctx context.Context, spec compstep.StepSpec) (err error) 
 			return err
 		}
 		if len(result.Connection.Acts) > 0 || (result.Connection.OffsetNr != nil && !result.Connection.OffsetNr.IsEmpty()) {
-			providerRef := comproot.SemRef{CompID: result.Connection.ProviderCompID, CompRN: result.Connection.ProviderCompRN}
+			providerRef := comproot.SemRef{CompID: result.Connection.ProviderExecID, CompRN: result.Connection.ProviderExecRN}
 			if providerRef.CompID == evalSnap.CompRef.CompID {
 				if providerRef.CompRN != evalSnap.CompRef.CompRN {
 					return fmt.Errorf("provider computation snapshot changed: expected revision %v, got %v", providerRef.CompRN, evalSnap.CompRef.CompRN)
@@ -209,7 +209,7 @@ func (s *service) takeWith(
 ) (takeResult, error) {
 	var evalMod EvalMod
 	var evalEff EvalEff
-	var connMod compconn.ConnMod
+	var connMod execconn.ConnMod
 	var err error
 	compAttr := slog.Any("compRef", evalSnap.CompRef)
 	evalMod.CompRefs = append(evalMod.CompRefs, evalSnap.CompRef)
@@ -222,9 +222,9 @@ func (s *service) takeWith(
 		}
 		connAttr := slog.Any("connRef", connChnl.ConnID)
 		// получаем снепшот коммуникации
-		var connSnap compconn.ConnSnap
+		var connSnap execconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconn.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, execconn.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -234,8 +234,8 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed", compAttr, connAttr)
 			return takeResult{Mod: evalMod, Effects: evalEff, Connection: connMod}, getErr
 		}
-		connMod.ProviderCompID = connSnap.ProviderCompID
-		connMod.ProviderCompRN = connSnap.ProviderCompRN
+		connMod.ProviderExecID = connSnap.ProviderExecID
+		connMod.ProviderExecRN = connSnap.ProviderExecRN
 		subscription := connSnap.NextAct()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
@@ -297,9 +297,9 @@ func (s *service) takeWith(
 			return takeResult{Mod: evalMod, Effects: evalEff, Connection: connMod}, termdef.ErrMissingInCfg(termExp.ContChnlPH)
 		}
 		// получаем снепшот соединения
-		var connSnap compconn.ConnSnap
+		var connSnap execconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconn.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, execconn.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -309,8 +309,8 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed", compAttr)
 			return takeResult{Mod: evalMod, Effects: evalEff, Connection: connMod}, getErr
 		}
-		connMod.ProviderCompID = connSnap.ProviderCompID
-		connMod.ProviderCompRN = connSnap.ProviderCompRN
+		connMod.ProviderExecID = connSnap.ProviderExecID
+		connMod.ProviderExecRN = connSnap.ProviderExecRN
 		subscription := connSnap.NextAct()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
@@ -399,9 +399,9 @@ func (s *service) takeWith(
 			return takeResult{Mod: evalMod, Effects: evalEff, Connection: connMod}, termdef.ErrMissingInCfg(termExp.ValChnlPH)
 		}
 		// получаем снепшот соединения
-		var connSnap compconn.ConnSnap
+		var connSnap execconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconn.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, execconn.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -411,8 +411,8 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed", compAttr)
 			return takeResult{Mod: evalMod, Effects: evalEff, Connection: connMod}, getErr
 		}
-		connMod.ProviderCompID = connSnap.ProviderCompID
-		connMod.ProviderCompRN = connSnap.ProviderCompRN
+		connMod.ProviderExecID = connSnap.ProviderExecID
+		connMod.ProviderExecRN = connSnap.ProviderExecRN
 		subscription := connSnap.NextAct()
 		if subscription != nil {
 			connMod.ConnID = connSnap.ConnID
@@ -500,9 +500,9 @@ func (s *service) takeWith(
 		}
 		nextExpCK := typeExp.(typedef.ProdRec).Next()
 		// получаем снепшот соединения
-		var connSnap compconn.ConnSnap
+		var connSnap execconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconn.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, execconn.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -512,8 +512,8 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed", compAttr)
 			return takeResult{Mod: evalMod, Effects: evalEff, Connection: connMod}, getErr
 		}
-		connMod.ProviderCompID = connSnap.ProviderCompID
-		connMod.ProviderCompRN = connSnap.ProviderCompRN
+		connMod.ProviderExecID = connSnap.ProviderExecID
+		connMod.ProviderExecRN = connSnap.ProviderExecRN
 		publication := connSnap.NextAct()
 		if publication != nil {
 			connMod.ConnID = connSnap.ConnID
@@ -594,9 +594,9 @@ func (s *service) takeWith(
 		}
 		nextExpCK := typeExp.(typedef.SumRec).Next(termExp.ValLabQN)
 		// получаем снепшот соединения
-		var connSnap compconn.ConnSnap
+		var connSnap execconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconn.ConnQry{
+			connSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, execconn.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -606,8 +606,8 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed", compAttr)
 			return takeResult{Mod: evalMod, Effects: evalEff, Connection: connMod}, getErr
 		}
-		connMod.ProviderCompID = connSnap.ProviderCompID
-		connMod.ProviderCompRN = connSnap.ProviderCompRN
+		connMod.ProviderExecID = connSnap.ProviderExecID
+		connMod.ProviderExecRN = connSnap.ProviderExecRN
 		subscription := connSnap.NextAct()
 		if subscription == nil {
 			newChnlID := identity.New()
@@ -677,9 +677,9 @@ func (s *service) takeWith(
 			return takeResult{Mod: evalMod, Effects: evalEff, Connection: connMod}, err
 		}
 		// получаем снепшот соединения
-		var caseConnSnap compconn.ConnSnap
+		var caseConnSnap execconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			caseConnSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconn.ConnQry{
+			caseConnSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, execconn.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -689,8 +689,8 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed", compAttr)
 			return takeResult{Mod: evalMod, Effects: evalEff, Connection: connMod}, getErr
 		}
-		connMod.ProviderCompID = caseConnSnap.ProviderCompID
-		connMod.ProviderCompRN = caseConnSnap.ProviderCompRN
+		connMod.ProviderExecID = caseConnSnap.ProviderExecID
+		connMod.ProviderExecRN = caseConnSnap.ProviderExecRN
 		publication := caseConnSnap.NextAct()
 		if publication != nil {
 			connMod.ConnID = caseConnSnap.ConnID
@@ -755,9 +755,9 @@ func (s *service) takeWith(
 			return takeResult{Mod: evalMod, Effects: evalEff, Connection: connMod}, typedef.ErrMissingInEnv(connChnl.ExpCK)
 		}
 		// получаем снепшот соединения
-		var fwdConnSnap compconn.ConnSnap
+		var fwdConnSnap execconn.ConnSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			fwdConnSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, compconn.ConnQry{
+			fwdConnSnap, err = s.connRepo.GetSnapByQry(txCtx, conn, execconn.ConnQry{
 				ConnID: connChnl.ConnID,
 				ChnlID: option.Some(connChnl.ChnlID),
 			})
@@ -767,8 +767,8 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed", compAttr)
 			return takeResult{Mod: evalMod, Effects: evalEff, Connection: connMod}, getErr
 		}
-		connMod.ProviderCompID = fwdConnSnap.ProviderCompID
-		connMod.ProviderCompRN = fwdConnSnap.ProviderCompRN
+		connMod.ProviderExecID = fwdConnSnap.ProviderExecID
+		connMod.ProviderExecRN = fwdConnSnap.ProviderExecRN
 		act := fwdConnSnap.NextAct()
 		if act != nil {
 			connMod.ConnID = fwdConnSnap.ConnID

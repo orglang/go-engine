@@ -8,8 +8,8 @@ import (
 	"errors"
 	"fmt"
 	"orglang/go-engine/internal/adt/termvar/adapter"
-	"orglang/go-engine/internal/proc/ent/compconn"
 	"orglang/go-engine/internal/proc/ent/descroot"
+	"orglang/go-engine/internal/proc/ent/execconn"
 	"orglang/go-engine/internal/proc/ent/execeval"
 	"orglang/go-engine/internal/proc/ent/predicate"
 	"orglang/go-engine/internal/proc/ent/schema"
@@ -32,794 +32,14 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeCompConn = "CompConn"
 	TypeDescRoot = "DescRoot"
+	TypeExecConn = "ExecConn"
 	TypeExecEval = "ExecEval"
 	TypeTermDec  = "TermDec"
 	TypeTermExp  = "TermExp"
 	TypeTypeDef  = "TypeDef"
 	TypeTypeExp  = "TypeExp"
 )
-
-// CompConnMutation represents an operation that mutates the CompConn nodes in the graph.
-type CompConnMutation struct {
-	config
-	op                  Op
-	typ                 string
-	id                  *string
-	provider_comp_id    *string
-	provider_comp_rn    *int64
-	addprovider_comp_rn *int64
-	client_comp_id      *string
-	client_comp_rn      *int64
-	addclient_comp_rn   *int64
-	offset_nr           *int64
-	addoffset_nr        *int64
-	act_nr              *int64
-	addact_nr           *int64
-	clearedFields       map[string]struct{}
-	done                bool
-	oldValue            func(context.Context) (*CompConn, error)
-	predicates          []predicate.CompConn
-}
-
-var _ ent.Mutation = (*CompConnMutation)(nil)
-
-// compconnOption allows management of the mutation configuration using functional options.
-type compconnOption func(*CompConnMutation)
-
-// newCompConnMutation creates new mutation for the CompConn entity.
-func newCompConnMutation(c config, op Op, opts ...compconnOption) *CompConnMutation {
-	m := &CompConnMutation{
-		config:        c,
-		op:            op,
-		typ:           TypeCompConn,
-		clearedFields: make(map[string]struct{}),
-	}
-	for _, opt := range opts {
-		opt(m)
-	}
-	return m
-}
-
-// withCompConnID sets the ID field of the mutation.
-func withCompConnID(id string) compconnOption {
-	return func(m *CompConnMutation) {
-		var (
-			err   error
-			once  sync.Once
-			value *CompConn
-		)
-		m.oldValue = func(ctx context.Context) (*CompConn, error) {
-			once.Do(func() {
-				if m.done {
-					err = errors.New("querying old values post mutation is not allowed")
-				} else {
-					value, err = m.Client().CompConn.Get(ctx, id)
-				}
-			})
-			return value, err
-		}
-		m.id = &id
-	}
-}
-
-// withCompConn sets the old CompConn of the mutation.
-func withCompConn(node *CompConn) compconnOption {
-	return func(m *CompConnMutation) {
-		m.oldValue = func(context.Context) (*CompConn, error) {
-			return node, nil
-		}
-		m.id = &node.ID
-	}
-}
-
-// Client returns a new `ent.Client` from the mutation. If the mutation was
-// executed in a transaction (ent.Tx), a transactional client is returned.
-func (m CompConnMutation) Client() *Client {
-	client := &Client{config: m.config}
-	client.init()
-	return client
-}
-
-// Tx returns an `ent.Tx` for mutations that were executed in transactions;
-// it returns an error otherwise.
-func (m CompConnMutation) Tx() (*Tx, error) {
-	if _, ok := m.driver.(*txDriver); !ok {
-		return nil, errors.New("ent: mutation is not running in a transaction")
-	}
-	tx := &Tx{config: m.config}
-	tx.init()
-	return tx, nil
-}
-
-// SetID sets the value of the id field. Note that this
-// operation is only accepted on creation of CompConn entities.
-func (m *CompConnMutation) SetID(id string) {
-	m.id = &id
-}
-
-// ID returns the ID value in the mutation. Note that the ID is only available
-// if it was provided to the builder or after it was returned from the database.
-func (m *CompConnMutation) ID() (id string, exists bool) {
-	if m.id == nil {
-		return
-	}
-	return *m.id, true
-}
-
-// IDs queries the database and returns the entity ids that match the mutation's predicate.
-// That means, if the mutation is applied within a transaction with an isolation level such
-// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
-// or updated by the mutation.
-func (m *CompConnMutation) IDs(ctx context.Context) ([]string, error) {
-	switch {
-	case m.op.Is(OpUpdateOne | OpDeleteOne):
-		id, exists := m.ID()
-		if exists {
-			return []string{id}, nil
-		}
-		fallthrough
-	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().CompConn.Query().Where(m.predicates...).IDs(ctx)
-	default:
-		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
-	}
-}
-
-// SetProviderCompID sets the "provider_comp_id" field.
-func (m *CompConnMutation) SetProviderCompID(s string) {
-	m.provider_comp_id = &s
-}
-
-// ProviderCompID returns the value of the "provider_comp_id" field in the mutation.
-func (m *CompConnMutation) ProviderCompID() (r string, exists bool) {
-	v := m.provider_comp_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldProviderCompID returns the old "provider_comp_id" field's value of the CompConn entity.
-// If the CompConn object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CompConnMutation) OldProviderCompID(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldProviderCompID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldProviderCompID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldProviderCompID: %w", err)
-	}
-	return oldValue.ProviderCompID, nil
-}
-
-// ResetProviderCompID resets all changes to the "provider_comp_id" field.
-func (m *CompConnMutation) ResetProviderCompID() {
-	m.provider_comp_id = nil
-}
-
-// SetProviderCompRn sets the "provider_comp_rn" field.
-func (m *CompConnMutation) SetProviderCompRn(i int64) {
-	m.provider_comp_rn = &i
-	m.addprovider_comp_rn = nil
-}
-
-// ProviderCompRn returns the value of the "provider_comp_rn" field in the mutation.
-func (m *CompConnMutation) ProviderCompRn() (r int64, exists bool) {
-	v := m.provider_comp_rn
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldProviderCompRn returns the old "provider_comp_rn" field's value of the CompConn entity.
-// If the CompConn object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CompConnMutation) OldProviderCompRn(ctx context.Context) (v int64, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldProviderCompRn is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldProviderCompRn requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldProviderCompRn: %w", err)
-	}
-	return oldValue.ProviderCompRn, nil
-}
-
-// AddProviderCompRn adds i to the "provider_comp_rn" field.
-func (m *CompConnMutation) AddProviderCompRn(i int64) {
-	if m.addprovider_comp_rn != nil {
-		*m.addprovider_comp_rn += i
-	} else {
-		m.addprovider_comp_rn = &i
-	}
-}
-
-// AddedProviderCompRn returns the value that was added to the "provider_comp_rn" field in this mutation.
-func (m *CompConnMutation) AddedProviderCompRn() (r int64, exists bool) {
-	v := m.addprovider_comp_rn
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetProviderCompRn resets all changes to the "provider_comp_rn" field.
-func (m *CompConnMutation) ResetProviderCompRn() {
-	m.provider_comp_rn = nil
-	m.addprovider_comp_rn = nil
-}
-
-// SetClientCompID sets the "client_comp_id" field.
-func (m *CompConnMutation) SetClientCompID(s string) {
-	m.client_comp_id = &s
-}
-
-// ClientCompID returns the value of the "client_comp_id" field in the mutation.
-func (m *CompConnMutation) ClientCompID() (r string, exists bool) {
-	v := m.client_comp_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldClientCompID returns the old "client_comp_id" field's value of the CompConn entity.
-// If the CompConn object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CompConnMutation) OldClientCompID(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldClientCompID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldClientCompID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldClientCompID: %w", err)
-	}
-	return oldValue.ClientCompID, nil
-}
-
-// ResetClientCompID resets all changes to the "client_comp_id" field.
-func (m *CompConnMutation) ResetClientCompID() {
-	m.client_comp_id = nil
-}
-
-// SetClientCompRn sets the "client_comp_rn" field.
-func (m *CompConnMutation) SetClientCompRn(i int64) {
-	m.client_comp_rn = &i
-	m.addclient_comp_rn = nil
-}
-
-// ClientCompRn returns the value of the "client_comp_rn" field in the mutation.
-func (m *CompConnMutation) ClientCompRn() (r int64, exists bool) {
-	v := m.client_comp_rn
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldClientCompRn returns the old "client_comp_rn" field's value of the CompConn entity.
-// If the CompConn object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CompConnMutation) OldClientCompRn(ctx context.Context) (v int64, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldClientCompRn is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldClientCompRn requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldClientCompRn: %w", err)
-	}
-	return oldValue.ClientCompRn, nil
-}
-
-// AddClientCompRn adds i to the "client_comp_rn" field.
-func (m *CompConnMutation) AddClientCompRn(i int64) {
-	if m.addclient_comp_rn != nil {
-		*m.addclient_comp_rn += i
-	} else {
-		m.addclient_comp_rn = &i
-	}
-}
-
-// AddedClientCompRn returns the value that was added to the "client_comp_rn" field in this mutation.
-func (m *CompConnMutation) AddedClientCompRn() (r int64, exists bool) {
-	v := m.addclient_comp_rn
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetClientCompRn resets all changes to the "client_comp_rn" field.
-func (m *CompConnMutation) ResetClientCompRn() {
-	m.client_comp_rn = nil
-	m.addclient_comp_rn = nil
-}
-
-// SetOffsetNr sets the "offset_nr" field.
-func (m *CompConnMutation) SetOffsetNr(i int64) {
-	m.offset_nr = &i
-	m.addoffset_nr = nil
-}
-
-// OffsetNr returns the value of the "offset_nr" field in the mutation.
-func (m *CompConnMutation) OffsetNr() (r int64, exists bool) {
-	v := m.offset_nr
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldOffsetNr returns the old "offset_nr" field's value of the CompConn entity.
-// If the CompConn object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CompConnMutation) OldOffsetNr(ctx context.Context) (v int64, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldOffsetNr is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldOffsetNr requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldOffsetNr: %w", err)
-	}
-	return oldValue.OffsetNr, nil
-}
-
-// AddOffsetNr adds i to the "offset_nr" field.
-func (m *CompConnMutation) AddOffsetNr(i int64) {
-	if m.addoffset_nr != nil {
-		*m.addoffset_nr += i
-	} else {
-		m.addoffset_nr = &i
-	}
-}
-
-// AddedOffsetNr returns the value that was added to the "offset_nr" field in this mutation.
-func (m *CompConnMutation) AddedOffsetNr() (r int64, exists bool) {
-	v := m.addoffset_nr
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ClearOffsetNr clears the value of the "offset_nr" field.
-func (m *CompConnMutation) ClearOffsetNr() {
-	m.offset_nr = nil
-	m.addoffset_nr = nil
-	m.clearedFields[compconn.FieldOffsetNr] = struct{}{}
-}
-
-// OffsetNrCleared returns if the "offset_nr" field was cleared in this mutation.
-func (m *CompConnMutation) OffsetNrCleared() bool {
-	_, ok := m.clearedFields[compconn.FieldOffsetNr]
-	return ok
-}
-
-// ResetOffsetNr resets all changes to the "offset_nr" field.
-func (m *CompConnMutation) ResetOffsetNr() {
-	m.offset_nr = nil
-	m.addoffset_nr = nil
-	delete(m.clearedFields, compconn.FieldOffsetNr)
-}
-
-// SetActNr sets the "act_nr" field.
-func (m *CompConnMutation) SetActNr(i int64) {
-	m.act_nr = &i
-	m.addact_nr = nil
-}
-
-// ActNr returns the value of the "act_nr" field in the mutation.
-func (m *CompConnMutation) ActNr() (r int64, exists bool) {
-	v := m.act_nr
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldActNr returns the old "act_nr" field's value of the CompConn entity.
-// If the CompConn object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CompConnMutation) OldActNr(ctx context.Context) (v int64, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldActNr is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldActNr requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldActNr: %w", err)
-	}
-	return oldValue.ActNr, nil
-}
-
-// AddActNr adds i to the "act_nr" field.
-func (m *CompConnMutation) AddActNr(i int64) {
-	if m.addact_nr != nil {
-		*m.addact_nr += i
-	} else {
-		m.addact_nr = &i
-	}
-}
-
-// AddedActNr returns the value that was added to the "act_nr" field in this mutation.
-func (m *CompConnMutation) AddedActNr() (r int64, exists bool) {
-	v := m.addact_nr
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ClearActNr clears the value of the "act_nr" field.
-func (m *CompConnMutation) ClearActNr() {
-	m.act_nr = nil
-	m.addact_nr = nil
-	m.clearedFields[compconn.FieldActNr] = struct{}{}
-}
-
-// ActNrCleared returns if the "act_nr" field was cleared in this mutation.
-func (m *CompConnMutation) ActNrCleared() bool {
-	_, ok := m.clearedFields[compconn.FieldActNr]
-	return ok
-}
-
-// ResetActNr resets all changes to the "act_nr" field.
-func (m *CompConnMutation) ResetActNr() {
-	m.act_nr = nil
-	m.addact_nr = nil
-	delete(m.clearedFields, compconn.FieldActNr)
-}
-
-// Where appends a list predicates to the CompConnMutation builder.
-func (m *CompConnMutation) Where(ps ...predicate.CompConn) {
-	m.predicates = append(m.predicates, ps...)
-}
-
-// WhereP appends storage-level predicates to the CompConnMutation builder. Using this method,
-// users can use type-assertion to append predicates that do not depend on any generated package.
-func (m *CompConnMutation) WhereP(ps ...func(*sql.Selector)) {
-	p := make([]predicate.CompConn, len(ps))
-	for i := range ps {
-		p[i] = ps[i]
-	}
-	m.Where(p...)
-}
-
-// Op returns the operation name.
-func (m *CompConnMutation) Op() Op {
-	return m.op
-}
-
-// SetOp allows setting the mutation operation.
-func (m *CompConnMutation) SetOp(op Op) {
-	m.op = op
-}
-
-// Type returns the node type of this mutation (CompConn).
-func (m *CompConnMutation) Type() string {
-	return m.typ
-}
-
-// Fields returns all fields that were changed during this mutation. Note that in
-// order to get all numeric fields that were incremented/decremented, call
-// AddedFields().
-func (m *CompConnMutation) Fields() []string {
-	fields := make([]string, 0, 6)
-	if m.provider_comp_id != nil {
-		fields = append(fields, compconn.FieldProviderCompID)
-	}
-	if m.provider_comp_rn != nil {
-		fields = append(fields, compconn.FieldProviderCompRn)
-	}
-	if m.client_comp_id != nil {
-		fields = append(fields, compconn.FieldClientCompID)
-	}
-	if m.client_comp_rn != nil {
-		fields = append(fields, compconn.FieldClientCompRn)
-	}
-	if m.offset_nr != nil {
-		fields = append(fields, compconn.FieldOffsetNr)
-	}
-	if m.act_nr != nil {
-		fields = append(fields, compconn.FieldActNr)
-	}
-	return fields
-}
-
-// Field returns the value of a field with the given name. The second boolean
-// return value indicates that this field was not set, or was not defined in the
-// schema.
-func (m *CompConnMutation) Field(name string) (ent.Value, bool) {
-	switch name {
-	case compconn.FieldProviderCompID:
-		return m.ProviderCompID()
-	case compconn.FieldProviderCompRn:
-		return m.ProviderCompRn()
-	case compconn.FieldClientCompID:
-		return m.ClientCompID()
-	case compconn.FieldClientCompRn:
-		return m.ClientCompRn()
-	case compconn.FieldOffsetNr:
-		return m.OffsetNr()
-	case compconn.FieldActNr:
-		return m.ActNr()
-	}
-	return nil, false
-}
-
-// OldField returns the old value of the field from the database. An error is
-// returned if the mutation operation is not UpdateOne, or the query to the
-// database failed.
-func (m *CompConnMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
-	switch name {
-	case compconn.FieldProviderCompID:
-		return m.OldProviderCompID(ctx)
-	case compconn.FieldProviderCompRn:
-		return m.OldProviderCompRn(ctx)
-	case compconn.FieldClientCompID:
-		return m.OldClientCompID(ctx)
-	case compconn.FieldClientCompRn:
-		return m.OldClientCompRn(ctx)
-	case compconn.FieldOffsetNr:
-		return m.OldOffsetNr(ctx)
-	case compconn.FieldActNr:
-		return m.OldActNr(ctx)
-	}
-	return nil, fmt.Errorf("unknown CompConn field %s", name)
-}
-
-// SetField sets the value of a field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *CompConnMutation) SetField(name string, value ent.Value) error {
-	switch name {
-	case compconn.FieldProviderCompID:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetProviderCompID(v)
-		return nil
-	case compconn.FieldProviderCompRn:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetProviderCompRn(v)
-		return nil
-	case compconn.FieldClientCompID:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetClientCompID(v)
-		return nil
-	case compconn.FieldClientCompRn:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetClientCompRn(v)
-		return nil
-	case compconn.FieldOffsetNr:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetOffsetNr(v)
-		return nil
-	case compconn.FieldActNr:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetActNr(v)
-		return nil
-	}
-	return fmt.Errorf("unknown CompConn field %s", name)
-}
-
-// AddedFields returns all numeric fields that were incremented/decremented during
-// this mutation.
-func (m *CompConnMutation) AddedFields() []string {
-	var fields []string
-	if m.addprovider_comp_rn != nil {
-		fields = append(fields, compconn.FieldProviderCompRn)
-	}
-	if m.addclient_comp_rn != nil {
-		fields = append(fields, compconn.FieldClientCompRn)
-	}
-	if m.addoffset_nr != nil {
-		fields = append(fields, compconn.FieldOffsetNr)
-	}
-	if m.addact_nr != nil {
-		fields = append(fields, compconn.FieldActNr)
-	}
-	return fields
-}
-
-// AddedField returns the numeric value that was incremented/decremented on a field
-// with the given name. The second boolean return value indicates that this field
-// was not set, or was not defined in the schema.
-func (m *CompConnMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	case compconn.FieldProviderCompRn:
-		return m.AddedProviderCompRn()
-	case compconn.FieldClientCompRn:
-		return m.AddedClientCompRn()
-	case compconn.FieldOffsetNr:
-		return m.AddedOffsetNr()
-	case compconn.FieldActNr:
-		return m.AddedActNr()
-	}
-	return nil, false
-}
-
-// AddField adds the value to the field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *CompConnMutation) AddField(name string, value ent.Value) error {
-	switch name {
-	case compconn.FieldProviderCompRn:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddProviderCompRn(v)
-		return nil
-	case compconn.FieldClientCompRn:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddClientCompRn(v)
-		return nil
-	case compconn.FieldOffsetNr:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddOffsetNr(v)
-		return nil
-	case compconn.FieldActNr:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddActNr(v)
-		return nil
-	}
-	return fmt.Errorf("unknown CompConn numeric field %s", name)
-}
-
-// ClearedFields returns all nullable fields that were cleared during this
-// mutation.
-func (m *CompConnMutation) ClearedFields() []string {
-	var fields []string
-	if m.FieldCleared(compconn.FieldOffsetNr) {
-		fields = append(fields, compconn.FieldOffsetNr)
-	}
-	if m.FieldCleared(compconn.FieldActNr) {
-		fields = append(fields, compconn.FieldActNr)
-	}
-	return fields
-}
-
-// FieldCleared returns a boolean indicating if a field with the given name was
-// cleared in this mutation.
-func (m *CompConnMutation) FieldCleared(name string) bool {
-	_, ok := m.clearedFields[name]
-	return ok
-}
-
-// ClearField clears the value of the field with the given name. It returns an
-// error if the field is not defined in the schema.
-func (m *CompConnMutation) ClearField(name string) error {
-	switch name {
-	case compconn.FieldOffsetNr:
-		m.ClearOffsetNr()
-		return nil
-	case compconn.FieldActNr:
-		m.ClearActNr()
-		return nil
-	}
-	return fmt.Errorf("unknown CompConn nullable field %s", name)
-}
-
-// ResetField resets all changes in the mutation for the field with the given name.
-// It returns an error if the field is not defined in the schema.
-func (m *CompConnMutation) ResetField(name string) error {
-	switch name {
-	case compconn.FieldProviderCompID:
-		m.ResetProviderCompID()
-		return nil
-	case compconn.FieldProviderCompRn:
-		m.ResetProviderCompRn()
-		return nil
-	case compconn.FieldClientCompID:
-		m.ResetClientCompID()
-		return nil
-	case compconn.FieldClientCompRn:
-		m.ResetClientCompRn()
-		return nil
-	case compconn.FieldOffsetNr:
-		m.ResetOffsetNr()
-		return nil
-	case compconn.FieldActNr:
-		m.ResetActNr()
-		return nil
-	}
-	return fmt.Errorf("unknown CompConn field %s", name)
-}
-
-// AddedEdges returns all edge names that were set/added in this mutation.
-func (m *CompConnMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
-	return edges
-}
-
-// AddedIDs returns all IDs (to other nodes) that were added for the given edge
-// name in this mutation.
-func (m *CompConnMutation) AddedIDs(name string) []ent.Value {
-	return nil
-}
-
-// RemovedEdges returns all edge names that were removed in this mutation.
-func (m *CompConnMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
-	return edges
-}
-
-// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
-// the given name in this mutation.
-func (m *CompConnMutation) RemovedIDs(name string) []ent.Value {
-	return nil
-}
-
-// ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *CompConnMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
-	return edges
-}
-
-// EdgeCleared returns a boolean which indicates if the edge with the given name
-// was cleared in this mutation.
-func (m *CompConnMutation) EdgeCleared(name string) bool {
-	return false
-}
-
-// ClearEdge clears the value of the edge with the given name. It returns an error
-// if that edge is not defined in the schema.
-func (m *CompConnMutation) ClearEdge(name string) error {
-	return fmt.Errorf("unknown CompConn unique edge %s", name)
-}
-
-// ResetEdge resets all changes to the edge with the given name in this mutation.
-// It returns an error if the edge is not defined in the schema.
-func (m *CompConnMutation) ResetEdge(name string) error {
-	return fmt.Errorf("unknown CompConn edge %s", name)
-}
 
 // DescRootMutation represents an operation that mutates the DescRoot nodes in the graph.
 type DescRootMutation struct {
@@ -1187,6 +407,786 @@ func (m *DescRootMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *DescRootMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown DescRoot edge %s", name)
+}
+
+// ExecConnMutation represents an operation that mutates the ExecConn nodes in the graph.
+type ExecConnMutation struct {
+	config
+	op                  Op
+	typ                 string
+	id                  *string
+	provider_exec_id    *string
+	provider_exec_rn    *int64
+	addprovider_exec_rn *int64
+	client_exec_id      *string
+	client_exec_rn      *int64
+	addclient_exec_rn   *int64
+	offset_nr           *int64
+	addoffset_nr        *int64
+	act_nr              *int64
+	addact_nr           *int64
+	clearedFields       map[string]struct{}
+	done                bool
+	oldValue            func(context.Context) (*ExecConn, error)
+	predicates          []predicate.ExecConn
+}
+
+var _ ent.Mutation = (*ExecConnMutation)(nil)
+
+// execconnOption allows management of the mutation configuration using functional options.
+type execconnOption func(*ExecConnMutation)
+
+// newExecConnMutation creates new mutation for the ExecConn entity.
+func newExecConnMutation(c config, op Op, opts ...execconnOption) *ExecConnMutation {
+	m := &ExecConnMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeExecConn,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withExecConnID sets the ID field of the mutation.
+func withExecConnID(id string) execconnOption {
+	return func(m *ExecConnMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *ExecConn
+		)
+		m.oldValue = func(ctx context.Context) (*ExecConn, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().ExecConn.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withExecConn sets the old ExecConn of the mutation.
+func withExecConn(node *ExecConn) execconnOption {
+	return func(m *ExecConnMutation) {
+		m.oldValue = func(context.Context) (*ExecConn, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ExecConnMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ExecConnMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of ExecConn entities.
+func (m *ExecConnMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *ExecConnMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *ExecConnMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().ExecConn.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetProviderExecID sets the "provider_exec_id" field.
+func (m *ExecConnMutation) SetProviderExecID(s string) {
+	m.provider_exec_id = &s
+}
+
+// ProviderExecID returns the value of the "provider_exec_id" field in the mutation.
+func (m *ExecConnMutation) ProviderExecID() (r string, exists bool) {
+	v := m.provider_exec_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProviderExecID returns the old "provider_exec_id" field's value of the ExecConn entity.
+// If the ExecConn object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExecConnMutation) OldProviderExecID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProviderExecID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProviderExecID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProviderExecID: %w", err)
+	}
+	return oldValue.ProviderExecID, nil
+}
+
+// ResetProviderExecID resets all changes to the "provider_exec_id" field.
+func (m *ExecConnMutation) ResetProviderExecID() {
+	m.provider_exec_id = nil
+}
+
+// SetProviderExecRn sets the "provider_exec_rn" field.
+func (m *ExecConnMutation) SetProviderExecRn(i int64) {
+	m.provider_exec_rn = &i
+	m.addprovider_exec_rn = nil
+}
+
+// ProviderExecRn returns the value of the "provider_exec_rn" field in the mutation.
+func (m *ExecConnMutation) ProviderExecRn() (r int64, exists bool) {
+	v := m.provider_exec_rn
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProviderExecRn returns the old "provider_exec_rn" field's value of the ExecConn entity.
+// If the ExecConn object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExecConnMutation) OldProviderExecRn(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProviderExecRn is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProviderExecRn requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProviderExecRn: %w", err)
+	}
+	return oldValue.ProviderExecRn, nil
+}
+
+// AddProviderExecRn adds i to the "provider_exec_rn" field.
+func (m *ExecConnMutation) AddProviderExecRn(i int64) {
+	if m.addprovider_exec_rn != nil {
+		*m.addprovider_exec_rn += i
+	} else {
+		m.addprovider_exec_rn = &i
+	}
+}
+
+// AddedProviderExecRn returns the value that was added to the "provider_exec_rn" field in this mutation.
+func (m *ExecConnMutation) AddedProviderExecRn() (r int64, exists bool) {
+	v := m.addprovider_exec_rn
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetProviderExecRn resets all changes to the "provider_exec_rn" field.
+func (m *ExecConnMutation) ResetProviderExecRn() {
+	m.provider_exec_rn = nil
+	m.addprovider_exec_rn = nil
+}
+
+// SetClientExecID sets the "client_exec_id" field.
+func (m *ExecConnMutation) SetClientExecID(s string) {
+	m.client_exec_id = &s
+}
+
+// ClientExecID returns the value of the "client_exec_id" field in the mutation.
+func (m *ExecConnMutation) ClientExecID() (r string, exists bool) {
+	v := m.client_exec_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldClientExecID returns the old "client_exec_id" field's value of the ExecConn entity.
+// If the ExecConn object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExecConnMutation) OldClientExecID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldClientExecID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldClientExecID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldClientExecID: %w", err)
+	}
+	return oldValue.ClientExecID, nil
+}
+
+// ResetClientExecID resets all changes to the "client_exec_id" field.
+func (m *ExecConnMutation) ResetClientExecID() {
+	m.client_exec_id = nil
+}
+
+// SetClientExecRn sets the "client_exec_rn" field.
+func (m *ExecConnMutation) SetClientExecRn(i int64) {
+	m.client_exec_rn = &i
+	m.addclient_exec_rn = nil
+}
+
+// ClientExecRn returns the value of the "client_exec_rn" field in the mutation.
+func (m *ExecConnMutation) ClientExecRn() (r int64, exists bool) {
+	v := m.client_exec_rn
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldClientExecRn returns the old "client_exec_rn" field's value of the ExecConn entity.
+// If the ExecConn object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExecConnMutation) OldClientExecRn(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldClientExecRn is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldClientExecRn requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldClientExecRn: %w", err)
+	}
+	return oldValue.ClientExecRn, nil
+}
+
+// AddClientExecRn adds i to the "client_exec_rn" field.
+func (m *ExecConnMutation) AddClientExecRn(i int64) {
+	if m.addclient_exec_rn != nil {
+		*m.addclient_exec_rn += i
+	} else {
+		m.addclient_exec_rn = &i
+	}
+}
+
+// AddedClientExecRn returns the value that was added to the "client_exec_rn" field in this mutation.
+func (m *ExecConnMutation) AddedClientExecRn() (r int64, exists bool) {
+	v := m.addclient_exec_rn
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetClientExecRn resets all changes to the "client_exec_rn" field.
+func (m *ExecConnMutation) ResetClientExecRn() {
+	m.client_exec_rn = nil
+	m.addclient_exec_rn = nil
+}
+
+// SetOffsetNr sets the "offset_nr" field.
+func (m *ExecConnMutation) SetOffsetNr(i int64) {
+	m.offset_nr = &i
+	m.addoffset_nr = nil
+}
+
+// OffsetNr returns the value of the "offset_nr" field in the mutation.
+func (m *ExecConnMutation) OffsetNr() (r int64, exists bool) {
+	v := m.offset_nr
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOffsetNr returns the old "offset_nr" field's value of the ExecConn entity.
+// If the ExecConn object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExecConnMutation) OldOffsetNr(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOffsetNr is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOffsetNr requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOffsetNr: %w", err)
+	}
+	return oldValue.OffsetNr, nil
+}
+
+// AddOffsetNr adds i to the "offset_nr" field.
+func (m *ExecConnMutation) AddOffsetNr(i int64) {
+	if m.addoffset_nr != nil {
+		*m.addoffset_nr += i
+	} else {
+		m.addoffset_nr = &i
+	}
+}
+
+// AddedOffsetNr returns the value that was added to the "offset_nr" field in this mutation.
+func (m *ExecConnMutation) AddedOffsetNr() (r int64, exists bool) {
+	v := m.addoffset_nr
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearOffsetNr clears the value of the "offset_nr" field.
+func (m *ExecConnMutation) ClearOffsetNr() {
+	m.offset_nr = nil
+	m.addoffset_nr = nil
+	m.clearedFields[execconn.FieldOffsetNr] = struct{}{}
+}
+
+// OffsetNrCleared returns if the "offset_nr" field was cleared in this mutation.
+func (m *ExecConnMutation) OffsetNrCleared() bool {
+	_, ok := m.clearedFields[execconn.FieldOffsetNr]
+	return ok
+}
+
+// ResetOffsetNr resets all changes to the "offset_nr" field.
+func (m *ExecConnMutation) ResetOffsetNr() {
+	m.offset_nr = nil
+	m.addoffset_nr = nil
+	delete(m.clearedFields, execconn.FieldOffsetNr)
+}
+
+// SetActNr sets the "act_nr" field.
+func (m *ExecConnMutation) SetActNr(i int64) {
+	m.act_nr = &i
+	m.addact_nr = nil
+}
+
+// ActNr returns the value of the "act_nr" field in the mutation.
+func (m *ExecConnMutation) ActNr() (r int64, exists bool) {
+	v := m.act_nr
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldActNr returns the old "act_nr" field's value of the ExecConn entity.
+// If the ExecConn object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExecConnMutation) OldActNr(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldActNr is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldActNr requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldActNr: %w", err)
+	}
+	return oldValue.ActNr, nil
+}
+
+// AddActNr adds i to the "act_nr" field.
+func (m *ExecConnMutation) AddActNr(i int64) {
+	if m.addact_nr != nil {
+		*m.addact_nr += i
+	} else {
+		m.addact_nr = &i
+	}
+}
+
+// AddedActNr returns the value that was added to the "act_nr" field in this mutation.
+func (m *ExecConnMutation) AddedActNr() (r int64, exists bool) {
+	v := m.addact_nr
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearActNr clears the value of the "act_nr" field.
+func (m *ExecConnMutation) ClearActNr() {
+	m.act_nr = nil
+	m.addact_nr = nil
+	m.clearedFields[execconn.FieldActNr] = struct{}{}
+}
+
+// ActNrCleared returns if the "act_nr" field was cleared in this mutation.
+func (m *ExecConnMutation) ActNrCleared() bool {
+	_, ok := m.clearedFields[execconn.FieldActNr]
+	return ok
+}
+
+// ResetActNr resets all changes to the "act_nr" field.
+func (m *ExecConnMutation) ResetActNr() {
+	m.act_nr = nil
+	m.addact_nr = nil
+	delete(m.clearedFields, execconn.FieldActNr)
+}
+
+// Where appends a list predicates to the ExecConnMutation builder.
+func (m *ExecConnMutation) Where(ps ...predicate.ExecConn) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the ExecConnMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *ExecConnMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.ExecConn, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *ExecConnMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *ExecConnMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (ExecConn).
+func (m *ExecConnMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ExecConnMutation) Fields() []string {
+	fields := make([]string, 0, 6)
+	if m.provider_exec_id != nil {
+		fields = append(fields, execconn.FieldProviderExecID)
+	}
+	if m.provider_exec_rn != nil {
+		fields = append(fields, execconn.FieldProviderExecRn)
+	}
+	if m.client_exec_id != nil {
+		fields = append(fields, execconn.FieldClientExecID)
+	}
+	if m.client_exec_rn != nil {
+		fields = append(fields, execconn.FieldClientExecRn)
+	}
+	if m.offset_nr != nil {
+		fields = append(fields, execconn.FieldOffsetNr)
+	}
+	if m.act_nr != nil {
+		fields = append(fields, execconn.FieldActNr)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ExecConnMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case execconn.FieldProviderExecID:
+		return m.ProviderExecID()
+	case execconn.FieldProviderExecRn:
+		return m.ProviderExecRn()
+	case execconn.FieldClientExecID:
+		return m.ClientExecID()
+	case execconn.FieldClientExecRn:
+		return m.ClientExecRn()
+	case execconn.FieldOffsetNr:
+		return m.OffsetNr()
+	case execconn.FieldActNr:
+		return m.ActNr()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ExecConnMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case execconn.FieldProviderExecID:
+		return m.OldProviderExecID(ctx)
+	case execconn.FieldProviderExecRn:
+		return m.OldProviderExecRn(ctx)
+	case execconn.FieldClientExecID:
+		return m.OldClientExecID(ctx)
+	case execconn.FieldClientExecRn:
+		return m.OldClientExecRn(ctx)
+	case execconn.FieldOffsetNr:
+		return m.OldOffsetNr(ctx)
+	case execconn.FieldActNr:
+		return m.OldActNr(ctx)
+	}
+	return nil, fmt.Errorf("unknown ExecConn field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ExecConnMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case execconn.FieldProviderExecID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProviderExecID(v)
+		return nil
+	case execconn.FieldProviderExecRn:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProviderExecRn(v)
+		return nil
+	case execconn.FieldClientExecID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetClientExecID(v)
+		return nil
+	case execconn.FieldClientExecRn:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetClientExecRn(v)
+		return nil
+	case execconn.FieldOffsetNr:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOffsetNr(v)
+		return nil
+	case execconn.FieldActNr:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetActNr(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ExecConn field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ExecConnMutation) AddedFields() []string {
+	var fields []string
+	if m.addprovider_exec_rn != nil {
+		fields = append(fields, execconn.FieldProviderExecRn)
+	}
+	if m.addclient_exec_rn != nil {
+		fields = append(fields, execconn.FieldClientExecRn)
+	}
+	if m.addoffset_nr != nil {
+		fields = append(fields, execconn.FieldOffsetNr)
+	}
+	if m.addact_nr != nil {
+		fields = append(fields, execconn.FieldActNr)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ExecConnMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case execconn.FieldProviderExecRn:
+		return m.AddedProviderExecRn()
+	case execconn.FieldClientExecRn:
+		return m.AddedClientExecRn()
+	case execconn.FieldOffsetNr:
+		return m.AddedOffsetNr()
+	case execconn.FieldActNr:
+		return m.AddedActNr()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ExecConnMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case execconn.FieldProviderExecRn:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddProviderExecRn(v)
+		return nil
+	case execconn.FieldClientExecRn:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddClientExecRn(v)
+		return nil
+	case execconn.FieldOffsetNr:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddOffsetNr(v)
+		return nil
+	case execconn.FieldActNr:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddActNr(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ExecConn numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ExecConnMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(execconn.FieldOffsetNr) {
+		fields = append(fields, execconn.FieldOffsetNr)
+	}
+	if m.FieldCleared(execconn.FieldActNr) {
+		fields = append(fields, execconn.FieldActNr)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ExecConnMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ExecConnMutation) ClearField(name string) error {
+	switch name {
+	case execconn.FieldOffsetNr:
+		m.ClearOffsetNr()
+		return nil
+	case execconn.FieldActNr:
+		m.ClearActNr()
+		return nil
+	}
+	return fmt.Errorf("unknown ExecConn nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ExecConnMutation) ResetField(name string) error {
+	switch name {
+	case execconn.FieldProviderExecID:
+		m.ResetProviderExecID()
+		return nil
+	case execconn.FieldProviderExecRn:
+		m.ResetProviderExecRn()
+		return nil
+	case execconn.FieldClientExecID:
+		m.ResetClientExecID()
+		return nil
+	case execconn.FieldClientExecRn:
+		m.ResetClientExecRn()
+		return nil
+	case execconn.FieldOffsetNr:
+		m.ResetOffsetNr()
+		return nil
+	case execconn.FieldActNr:
+		m.ResetActNr()
+		return nil
+	}
+	return fmt.Errorf("unknown ExecConn field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ExecConnMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ExecConnMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ExecConnMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ExecConnMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ExecConnMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ExecConnMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ExecConnMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown ExecConn unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ExecConnMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown ExecConn edge %s", name)
 }
 
 // ExecEvalMutation represents an operation that mutates the ExecEval nodes in the graph.

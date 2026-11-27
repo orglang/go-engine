@@ -9,10 +9,10 @@ import (
 	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/wp"
-	compconn "orglang/go-engine/internal/pool/compconn/adapter"
 	compvar "orglang/go-engine/internal/pool/compvar/adapter"
 	descrootadapter "orglang/go-engine/internal/pool/descroot/adapter"
 	"orglang/go-engine/internal/pool/ent"
+	execconn "orglang/go-engine/internal/pool/execconn/adapter"
 	execeval "orglang/go-engine/internal/pool/execeval/adapter"
 	termdec "orglang/go-engine/internal/pool/termdec/adapter"
 	termdef "orglang/go-engine/internal/pool/termdef/adapter"
@@ -24,7 +24,7 @@ var Package = do.Package(
 		return ent.NewClient(ent.Driver(entpgx.New())), nil
 	}),
 	wp.Package,
-	compconn.Package,
+	execconn.Package,
 	compvar.Package,
 	execeval.Package,
 	typedef.Package,

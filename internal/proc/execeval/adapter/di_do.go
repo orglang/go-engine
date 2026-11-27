@@ -6,8 +6,8 @@ import (
 	"github.com/samber/do/v2"
 
 	"orglang/go-engine/internal/lib/tx"
-	compconn "orglang/go-engine/internal/proc/compconn/core"
 	"orglang/go-engine/internal/proc/ent"
+	execconn "orglang/go-engine/internal/proc/execconn/core"
 	"orglang/go-engine/internal/proc/execeval/core"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
@@ -31,7 +31,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		connRepo, err := do.Invoke[compconn.Repo](i)
+		connRepo, err := do.Invoke[execconn.Repo](i)
 		if err != nil {
 			return nil, err
 		}

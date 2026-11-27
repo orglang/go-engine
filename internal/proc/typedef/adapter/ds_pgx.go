@@ -157,13 +157,15 @@ func (dao *daoEnt) GetRecsByRefs(ctx context.Context, conn tx.Conn, refs []types
 	}()
 	var dtos []DefRec
 	for _, defRef := range refs {
-		rows, err := br.Query()
-		if err != nil {
+		rows, queryErr := br.Query()
+		if queryErr != nil {
 			dao.log.Error("query execution failed", slog.Any("defRef", defRef), slog.String("q", selectRecByID))
+			return nil, queryErr
 		}
-		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRec])
-		if err != nil {
+		dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRec])
+		if scanErr != nil {
 			dao.log.Error("row scanning failed", slog.Any("defRef", defRef))
+			return nil, scanErr
 		}
 		dtos = append(dtos, dto)
 	}
@@ -200,13 +202,15 @@ func (dao *daoEnt) GetRecsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 	}()
 	var dtos []DefRec
 	for _, typeQN := range typeQNs {
-		rows, err := br.Query()
-		if err != nil {
+		rows, queryErr := br.Query()
+		if queryErr != nil {
 			dao.log.Error("query execution failed", slog.Any("typeQN", typeQN), slog.String("q", selectRecByQN))
+			return nil, queryErr
 		}
-		dto, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRec])
-		if err != nil {
+		dto, scanErr := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[DefRec])
+		if scanErr != nil {
 			dao.log.Error("row scanning failed", slog.Any("typeQN", typeQN))
+			return nil, scanErr
 		}
 		dtos = append(dtos, dto)
 	}

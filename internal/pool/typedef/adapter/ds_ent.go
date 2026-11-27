@@ -67,7 +67,7 @@ func (dao *daoEnt) GetRecsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 		return map[uniqsym.ADT]typedef.DefRec{}, nil
 	}
 	const query = `
-SELECT td.type_id, td.desc_id, dr.desc_rn AS desc_rn, td.exp_ck
+SELECT db.desc_qn AS type_qn, td.type_id, td.desc_id, dr.desc_rn AS desc_rn, td.exp_ck
 FROM pool_type_defs AS td
 JOIN pool_desc_roots AS dr
     ON dr.desc_id = td.desc_id

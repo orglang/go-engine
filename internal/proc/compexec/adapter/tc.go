@@ -6,12 +6,12 @@ import (
 	compexec "orglang/go-engine/internal/proc/compexec/core"
 )
 
-func DataFromMod(source compexec.ExecMod) (ExecMod, error) {
+func DataFromMod(source compexec.EvalMod) (EvalMod, error) {
 	compRefs, err := adapter.DataFromRefs(source.CompRefs)
 	if err != nil {
-		return ExecMod{}, err
+		return EvalMod{}, err
 	}
-	return ExecMod{
+	return EvalMod{
 		CompRefs:   compRefs,
 		LinearVars: compvaradapter.DataFromLinearRecs(source.LinearVars),
 	}, nil

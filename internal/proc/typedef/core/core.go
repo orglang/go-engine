@@ -10,7 +10,6 @@ import (
 
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/descroot"
-	"orglang/go-engine/internal/adt/descsem"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/symbol"
@@ -51,7 +50,6 @@ type service struct {
 	typeDefRepo  Repo
 	descRootRepo descroot.Repo
 	typeExpRepo  TypeExpRepo
-	descSemRepo  DescSemRepo
 	transactor   tx.Transactor
 	log          *slog.Logger
 }
@@ -65,11 +63,10 @@ func NewService(
 	typeDefRepo Repo,
 	descRootRepo descroot.Repo,
 	typeExpRepo TypeExpRepo,
-	descSemRepo DescSemRepo,
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
-	return &service{typeDefRepo: typeDefRepo, descRootRepo: descRootRepo, typeExpRepo: typeExpRepo, descSemRepo: descSemRepo, transactor: transactor, log: log}
+	return &service{typeDefRepo: typeDefRepo, descRootRepo: descRootRepo, typeExpRepo: typeExpRepo, transactor: transactor, log: log}
 }
 
 func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err error) {
@@ -79,15 +76,10 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err erro
 	if err != nil {
 		return DefSnap{}, err
 	}
-	newDef := DefRec{TypeRef: typesem.New(), ExpCK: newExp.Key()}
+	newDef := DefRec{TypeRef: typesem.New(), TypeQN: spec.TypeQN, ExpCK: newExp.Key()}
 	newRoot := descroot.SemRef{DescID: newDef.TypeRef.DescID, DescRN: newDef.TypeRef.DescRN}
-	newDesc := descsem.SemRec{DescQN: spec.TypeQN, DescID: newDef.TypeRef.TypeID, Kind: descsem.TypeKind}
 	err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		err = s.descRootRepo.AddRef(txCtx, conn, newRoot)
-		if err != nil {
-			return err
-		}
-		err = s.descSemRepo.AddRec(txCtx, conn, newDesc)
 		if err != nil {
 			return err
 		}

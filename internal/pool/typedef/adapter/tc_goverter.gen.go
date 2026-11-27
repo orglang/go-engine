@@ -15,11 +15,11 @@ import (
 func init() {
 	DataFromDefRec = func(source core.DefRec) (DefRec, error) {
 		var adapterDefRec DefRec
+		adapterDefRec.TypeQN = uniqsym.ConvertToString(source.TypeQN)
 		adapterDefRec.TypeID = identity.ConvertToString(source.TypeRef.TypeID)
 		adapterDefRec.DescID = identity.ConvertToString(source.TypeRef.DescID)
 		adapterDefRec.DescRN = seqnum.ConvertToInt(source.TypeRef.DescRN)
 		adapterDefRec.ExpCK = contkey.ConvertToInt(source.ExpCK)
-		adapterDefRec.TypeQN = uniqsym.ConvertToString(source.TypeQN)
 		return adapterDefRec, nil
 	}
 	DataFromDefRecs = func(source []core.DefRec) ([]DefRec, error) {
@@ -38,16 +38,16 @@ func init() {
 	}
 	DataToDefRec = func(source DefRec) (core.DefRec, error) {
 		var coreDefRec core.DefRec
-		typesemSemRef, err := adapterDefRecToTypesemSemRef(source)
-		if err != nil {
-			return coreDefRec, err
-		}
-		coreDefRec.TypeRef = typesemSemRef
 		uniqsymADT, err := uniqsym.ConvertFromString(source.TypeQN)
 		if err != nil {
 			return coreDefRec, err
 		}
 		coreDefRec.TypeQN = uniqsymADT
+		typesemSemRef, err := adapterDefRecToTypesemSemRef(source)
+		if err != nil {
+			return coreDefRec, err
+		}
+		coreDefRec.TypeRef = typesemSemRef
 		contkeyADT, err := contkey.ConvertFromInt(source.ExpCK)
 		if err != nil {
 			return coreDefRec, err

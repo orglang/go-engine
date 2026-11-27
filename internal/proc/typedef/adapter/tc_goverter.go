@@ -12,7 +12,6 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
 var (
 	// goverter:map . DescRef
-	// goverter:ignore TypeExp
 	DataToDefRec  func(DefRec) (typedef.DefRec, error)
 	DataToDefRecs func([]DefRec) ([]typedef.DefRec, error)
 	// goverter:autoMap DescRef

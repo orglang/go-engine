@@ -1,4 +1,5 @@
 package adapter
+
 import (
 	"errors"
 	"fmt"

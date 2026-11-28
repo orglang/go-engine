@@ -63,9 +63,9 @@ func IDContainsFold(id string) predicate.ExecEval {
 	return predicate.ExecEval(sql.FieldContainsFold(FieldID, id))
 }
 
-// CompRn applies equality check predicate on the "comp_rn" field. It's identical to CompRnEQ.
-func CompRn(v int64) predicate.ExecEval {
-	return predicate.ExecEval(sql.FieldEQ(FieldCompRn, v))
+// ExecRn applies equality check predicate on the "exec_rn" field. It's identical to ExecRnEQ.
+func ExecRn(v int64) predicate.ExecEval {
+	return predicate.ExecEval(sql.FieldEQ(FieldExecRn, v))
 }
 
 // LiabMode applies equality check predicate on the "liab_mode" field. It's identical to LiabModeEQ.
@@ -73,44 +73,44 @@ func LiabMode(v int16) predicate.ExecEval {
 	return predicate.ExecEval(sql.FieldEQ(FieldLiabMode, v))
 }
 
-// CompRnEQ applies the EQ predicate on the "comp_rn" field.
-func CompRnEQ(v int64) predicate.ExecEval {
-	return predicate.ExecEval(sql.FieldEQ(FieldCompRn, v))
+// ExecRnEQ applies the EQ predicate on the "exec_rn" field.
+func ExecRnEQ(v int64) predicate.ExecEval {
+	return predicate.ExecEval(sql.FieldEQ(FieldExecRn, v))
 }
 
-// CompRnNEQ applies the NEQ predicate on the "comp_rn" field.
-func CompRnNEQ(v int64) predicate.ExecEval {
-	return predicate.ExecEval(sql.FieldNEQ(FieldCompRn, v))
+// ExecRnNEQ applies the NEQ predicate on the "exec_rn" field.
+func ExecRnNEQ(v int64) predicate.ExecEval {
+	return predicate.ExecEval(sql.FieldNEQ(FieldExecRn, v))
 }
 
-// CompRnIn applies the In predicate on the "comp_rn" field.
-func CompRnIn(vs ...int64) predicate.ExecEval {
-	return predicate.ExecEval(sql.FieldIn(FieldCompRn, vs...))
+// ExecRnIn applies the In predicate on the "exec_rn" field.
+func ExecRnIn(vs ...int64) predicate.ExecEval {
+	return predicate.ExecEval(sql.FieldIn(FieldExecRn, vs...))
 }
 
-// CompRnNotIn applies the NotIn predicate on the "comp_rn" field.
-func CompRnNotIn(vs ...int64) predicate.ExecEval {
-	return predicate.ExecEval(sql.FieldNotIn(FieldCompRn, vs...))
+// ExecRnNotIn applies the NotIn predicate on the "exec_rn" field.
+func ExecRnNotIn(vs ...int64) predicate.ExecEval {
+	return predicate.ExecEval(sql.FieldNotIn(FieldExecRn, vs...))
 }
 
-// CompRnGT applies the GT predicate on the "comp_rn" field.
-func CompRnGT(v int64) predicate.ExecEval {
-	return predicate.ExecEval(sql.FieldGT(FieldCompRn, v))
+// ExecRnGT applies the GT predicate on the "exec_rn" field.
+func ExecRnGT(v int64) predicate.ExecEval {
+	return predicate.ExecEval(sql.FieldGT(FieldExecRn, v))
 }
 
-// CompRnGTE applies the GTE predicate on the "comp_rn" field.
-func CompRnGTE(v int64) predicate.ExecEval {
-	return predicate.ExecEval(sql.FieldGTE(FieldCompRn, v))
+// ExecRnGTE applies the GTE predicate on the "exec_rn" field.
+func ExecRnGTE(v int64) predicate.ExecEval {
+	return predicate.ExecEval(sql.FieldGTE(FieldExecRn, v))
 }
 
-// CompRnLT applies the LT predicate on the "comp_rn" field.
-func CompRnLT(v int64) predicate.ExecEval {
-	return predicate.ExecEval(sql.FieldLT(FieldCompRn, v))
+// ExecRnLT applies the LT predicate on the "exec_rn" field.
+func ExecRnLT(v int64) predicate.ExecEval {
+	return predicate.ExecEval(sql.FieldLT(FieldExecRn, v))
 }
 
-// CompRnLTE applies the LTE predicate on the "comp_rn" field.
-func CompRnLTE(v int64) predicate.ExecEval {
-	return predicate.ExecEval(sql.FieldLTE(FieldCompRn, v))
+// ExecRnLTE applies the LTE predicate on the "exec_rn" field.
+func ExecRnLTE(v int64) predicate.ExecEval {
+	return predicate.ExecEval(sql.FieldLTE(FieldExecRn, v))
 }
 
 // LiabModeEQ applies the EQ predicate on the "liab_mode" field.

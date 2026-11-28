@@ -16,8 +16,8 @@ type ExecEval struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
-	// CompRn holds the value of the "comp_rn" field.
-	CompRn int64 `json:"comp_rn,omitempty"`
+	// ExecRn holds the value of the "exec_rn" field.
+	ExecRn int64 `json:"exec_rn,omitempty"`
 	// LiabMode holds the value of the "liab_mode" field.
 	LiabMode     int16 `json:"liab_mode,omitempty"`
 	selectValues sql.SelectValues
@@ -28,7 +28,7 @@ func (*ExecEval) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case execeval.FieldCompRn, execeval.FieldLiabMode:
+		case execeval.FieldExecRn, execeval.FieldLiabMode:
 			values[i] = new(sql.NullInt64)
 		case execeval.FieldID:
 			values[i] = new(sql.NullString)
@@ -53,11 +53,11 @@ func (_m *ExecEval) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.ID = value.String
 			}
-		case execeval.FieldCompRn:
+		case execeval.FieldExecRn:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field comp_rn", values[i])
+				return fmt.Errorf("unexpected type %T for field exec_rn", values[i])
 			} else if value.Valid {
-				_m.CompRn = value.Int64
+				_m.ExecRn = value.Int64
 			}
 		case execeval.FieldLiabMode:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -101,8 +101,8 @@ func (_m *ExecEval) String() string {
 	var builder strings.Builder
 	builder.WriteString("ExecEval(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
-	builder.WriteString("comp_rn=")
-	builder.WriteString(fmt.Sprintf("%v", _m.CompRn))
+	builder.WriteString("exec_rn=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ExecRn))
 	builder.WriteString(", ")
 	builder.WriteString("liab_mode=")
 	builder.WriteString(fmt.Sprintf("%v", _m.LiabMode))

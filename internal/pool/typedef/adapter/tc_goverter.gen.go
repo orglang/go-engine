@@ -48,11 +48,11 @@ func init() {
 			return coreDefRec, err
 		}
 		coreDefRec.TypeID = identityADT
-		descrootSemRef, err := adapterDefRecToDescrootSemRef(source)
+		descrootRootRef, err := adapterDefRecToDescrootRootRef(source)
 		if err != nil {
 			return coreDefRec, err
 		}
-		coreDefRec.DescRef = descrootSemRef
+		coreDefRec.DescRef = descrootRootRef
 		contkeyADT, err := contkey.ConvertFromInt(source.ExpCK)
 		if err != nil {
 			return coreDefRec, err
@@ -89,13 +89,13 @@ func init() {
 		return coreDefRecList, nil
 	}
 }
-func adapterDefRecToDescrootSemRef(source DefRec) (descroot.SemRef, error) {
-	var descrootSemRef descroot.SemRef
+func adapterDefRecToDescrootRootRef(source DefRec) (descroot.RootRef, error) {
+	var descrootRootRef descroot.RootRef
 	identityADT, err := identity.ConvertFromString(source.DescID)
 	if err != nil {
-		return descrootSemRef, err
+		return descrootRootRef, err
 	}
-	descrootSemRef.DescID = identityADT
-	descrootSemRef.DescRN = seqnum.ConvertFromInt(source.DescRN)
-	return descrootSemRef, nil
+	descrootRootRef.DescID = identityADT
+	descrootRootRef.DescRN = seqnum.ConvertFromInt(source.DescRN)
+	return descrootRootRef, nil
 }

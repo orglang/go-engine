@@ -3,8 +3,8 @@ package adapter
 import (
 	"database/sql"
 
-	"orglang/go-engine/internal/adt/execroot"
 	contkeyadapter "orglang/go-engine/internal/adt/contkey/adapter"
+	"orglang/go-engine/internal/adt/execroot"
 	"orglang/go-engine/internal/adt/execvar"
 	identityadapter "orglang/go-engine/internal/adt/identity/adapter"
 	seqnumadapter "orglang/go-engine/internal/adt/seqnum/adapter"

@@ -1195,8 +1195,8 @@ type ExecEvalMutation struct {
 	op            Op
 	typ           string
 	id            *string
-	comp_rn       *int64
-	addcomp_rn    *int64
+	exec_rn       *int64
+	addexec_rn    *int64
 	liab_mode     *int16
 	addliab_mode  *int16
 	clearedFields map[string]struct{}
@@ -1309,60 +1309,60 @@ func (m *ExecEvalMutation) IDs(ctx context.Context) ([]string, error) {
 	}
 }
 
-// SetCompRn sets the "comp_rn" field.
-func (m *ExecEvalMutation) SetCompRn(i int64) {
-	m.comp_rn = &i
-	m.addcomp_rn = nil
+// SetExecRn sets the "exec_rn" field.
+func (m *ExecEvalMutation) SetExecRn(i int64) {
+	m.exec_rn = &i
+	m.addexec_rn = nil
 }
 
-// CompRn returns the value of the "comp_rn" field in the mutation.
-func (m *ExecEvalMutation) CompRn() (r int64, exists bool) {
-	v := m.comp_rn
+// ExecRn returns the value of the "exec_rn" field in the mutation.
+func (m *ExecEvalMutation) ExecRn() (r int64, exists bool) {
+	v := m.exec_rn
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldCompRn returns the old "comp_rn" field's value of the ExecEval entity.
+// OldExecRn returns the old "exec_rn" field's value of the ExecEval entity.
 // If the ExecEval object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ExecEvalMutation) OldCompRn(ctx context.Context) (v int64, err error) {
+func (m *ExecEvalMutation) OldExecRn(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCompRn is only allowed on UpdateOne operations")
+		return v, errors.New("OldExecRn is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCompRn requires an ID field in the mutation")
+		return v, errors.New("OldExecRn requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCompRn: %w", err)
+		return v, fmt.Errorf("querying old value for OldExecRn: %w", err)
 	}
-	return oldValue.CompRn, nil
+	return oldValue.ExecRn, nil
 }
 
-// AddCompRn adds i to the "comp_rn" field.
-func (m *ExecEvalMutation) AddCompRn(i int64) {
-	if m.addcomp_rn != nil {
-		*m.addcomp_rn += i
+// AddExecRn adds i to the "exec_rn" field.
+func (m *ExecEvalMutation) AddExecRn(i int64) {
+	if m.addexec_rn != nil {
+		*m.addexec_rn += i
 	} else {
-		m.addcomp_rn = &i
+		m.addexec_rn = &i
 	}
 }
 
-// AddedCompRn returns the value that was added to the "comp_rn" field in this mutation.
-func (m *ExecEvalMutation) AddedCompRn() (r int64, exists bool) {
-	v := m.addcomp_rn
+// AddedExecRn returns the value that was added to the "exec_rn" field in this mutation.
+func (m *ExecEvalMutation) AddedExecRn() (r int64, exists bool) {
+	v := m.addexec_rn
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ResetCompRn resets all changes to the "comp_rn" field.
-func (m *ExecEvalMutation) ResetCompRn() {
-	m.comp_rn = nil
-	m.addcomp_rn = nil
+// ResetExecRn resets all changes to the "exec_rn" field.
+func (m *ExecEvalMutation) ResetExecRn() {
+	m.exec_rn = nil
+	m.addexec_rn = nil
 }
 
 // SetLiabMode sets the "liab_mode" field.
@@ -1456,8 +1456,8 @@ func (m *ExecEvalMutation) Type() string {
 // AddedFields().
 func (m *ExecEvalMutation) Fields() []string {
 	fields := make([]string, 0, 2)
-	if m.comp_rn != nil {
-		fields = append(fields, execeval.FieldCompRn)
+	if m.exec_rn != nil {
+		fields = append(fields, execeval.FieldExecRn)
 	}
 	if m.liab_mode != nil {
 		fields = append(fields, execeval.FieldLiabMode)
@@ -1470,8 +1470,8 @@ func (m *ExecEvalMutation) Fields() []string {
 // schema.
 func (m *ExecEvalMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case execeval.FieldCompRn:
-		return m.CompRn()
+	case execeval.FieldExecRn:
+		return m.ExecRn()
 	case execeval.FieldLiabMode:
 		return m.LiabMode()
 	}
@@ -1483,8 +1483,8 @@ func (m *ExecEvalMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *ExecEvalMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case execeval.FieldCompRn:
-		return m.OldCompRn(ctx)
+	case execeval.FieldExecRn:
+		return m.OldExecRn(ctx)
 	case execeval.FieldLiabMode:
 		return m.OldLiabMode(ctx)
 	}
@@ -1496,12 +1496,12 @@ func (m *ExecEvalMutation) OldField(ctx context.Context, name string) (ent.Value
 // type.
 func (m *ExecEvalMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case execeval.FieldCompRn:
+	case execeval.FieldExecRn:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetCompRn(v)
+		m.SetExecRn(v)
 		return nil
 	case execeval.FieldLiabMode:
 		v, ok := value.(int16)
@@ -1518,8 +1518,8 @@ func (m *ExecEvalMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *ExecEvalMutation) AddedFields() []string {
 	var fields []string
-	if m.addcomp_rn != nil {
-		fields = append(fields, execeval.FieldCompRn)
+	if m.addexec_rn != nil {
+		fields = append(fields, execeval.FieldExecRn)
 	}
 	if m.addliab_mode != nil {
 		fields = append(fields, execeval.FieldLiabMode)
@@ -1532,8 +1532,8 @@ func (m *ExecEvalMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *ExecEvalMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
-	case execeval.FieldCompRn:
-		return m.AddedCompRn()
+	case execeval.FieldExecRn:
+		return m.AddedExecRn()
 	case execeval.FieldLiabMode:
 		return m.AddedLiabMode()
 	}
@@ -1545,12 +1545,12 @@ func (m *ExecEvalMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *ExecEvalMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case execeval.FieldCompRn:
+	case execeval.FieldExecRn:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.AddCompRn(v)
+		m.AddExecRn(v)
 		return nil
 	case execeval.FieldLiabMode:
 		v, ok := value.(int16)
@@ -1586,8 +1586,8 @@ func (m *ExecEvalMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *ExecEvalMutation) ResetField(name string) error {
 	switch name {
-	case execeval.FieldCompRn:
-		m.ResetCompRn()
+	case execeval.FieldExecRn:
+		m.ResetExecRn()
 		return nil
 	case execeval.FieldLiabMode:
 		m.ResetLiabMode()

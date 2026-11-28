@@ -22,9 +22,9 @@ type ExecEvalCreate struct {
 	conflict []sql.ConflictOption
 }
 
-// SetCompRn sets the "comp_rn" field.
-func (_c *ExecEvalCreate) SetCompRn(v int64) *ExecEvalCreate {
-	_c.mutation.SetCompRn(v)
+// SetExecRn sets the "exec_rn" field.
+func (_c *ExecEvalCreate) SetExecRn(v int64) *ExecEvalCreate {
+	_c.mutation.SetExecRn(v)
 	return _c
 }
 
@@ -74,8 +74,8 @@ func (_c *ExecEvalCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *ExecEvalCreate) check() error {
-	if _, ok := _c.mutation.CompRn(); !ok {
-		return &ValidationError{Name: "comp_rn", err: errors.New(`ent: missing required field "ExecEval.comp_rn"`)}
+	if _, ok := _c.mutation.ExecRn(); !ok {
+		return &ValidationError{Name: "exec_rn", err: errors.New(`ent: missing required field "ExecEval.exec_rn"`)}
 	}
 	if _, ok := _c.mutation.LiabMode(); !ok {
 		return &ValidationError{Name: "liab_mode", err: errors.New(`ent: missing required field "ExecEval.liab_mode"`)}
@@ -116,9 +116,9 @@ func (_c *ExecEvalCreate) createSpec() (*ExecEval, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := _c.mutation.CompRn(); ok {
-		_spec.SetField(execeval.FieldCompRn, field.TypeInt64, value)
-		_node.CompRn = value
+	if value, ok := _c.mutation.ExecRn(); ok {
+		_spec.SetField(execeval.FieldExecRn, field.TypeInt64, value)
+		_node.ExecRn = value
 	}
 	if value, ok := _c.mutation.LiabMode(); ok {
 		_spec.SetField(execeval.FieldLiabMode, field.TypeInt16, value)
@@ -131,7 +131,7 @@ func (_c *ExecEvalCreate) createSpec() (*ExecEval, *sqlgraph.CreateSpec) {
 // of the `INSERT` statement. For example:
 //
 //	client.ExecEval.Create().
-//		SetCompRn(v).
+//		SetExecRn(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -140,7 +140,7 @@ func (_c *ExecEvalCreate) createSpec() (*ExecEval, *sqlgraph.CreateSpec) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.ExecEvalUpsert) {
-//			SetCompRn(v+v).
+//			SetExecRn(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *ExecEvalCreate) OnConflict(opts ...sql.ConflictOption) *ExecEvalUpsertOne {
@@ -176,21 +176,21 @@ type (
 	}
 )
 
-// SetCompRn sets the "comp_rn" field.
-func (u *ExecEvalUpsert) SetCompRn(v int64) *ExecEvalUpsert {
-	u.Set(execeval.FieldCompRn, v)
+// SetExecRn sets the "exec_rn" field.
+func (u *ExecEvalUpsert) SetExecRn(v int64) *ExecEvalUpsert {
+	u.Set(execeval.FieldExecRn, v)
 	return u
 }
 
-// UpdateCompRn sets the "comp_rn" field to the value that was provided on create.
-func (u *ExecEvalUpsert) UpdateCompRn() *ExecEvalUpsert {
-	u.SetExcluded(execeval.FieldCompRn)
+// UpdateExecRn sets the "exec_rn" field to the value that was provided on create.
+func (u *ExecEvalUpsert) UpdateExecRn() *ExecEvalUpsert {
+	u.SetExcluded(execeval.FieldExecRn)
 	return u
 }
 
-// AddCompRn adds v to the "comp_rn" field.
-func (u *ExecEvalUpsert) AddCompRn(v int64) *ExecEvalUpsert {
-	u.Add(execeval.FieldCompRn, v)
+// AddExecRn adds v to the "exec_rn" field.
+func (u *ExecEvalUpsert) AddExecRn(v int64) *ExecEvalUpsert {
+	u.Add(execeval.FieldExecRn, v)
 	return u
 }
 
@@ -260,24 +260,24 @@ func (u *ExecEvalUpsertOne) Update(set func(*ExecEvalUpsert)) *ExecEvalUpsertOne
 	return u
 }
 
-// SetCompRn sets the "comp_rn" field.
-func (u *ExecEvalUpsertOne) SetCompRn(v int64) *ExecEvalUpsertOne {
+// SetExecRn sets the "exec_rn" field.
+func (u *ExecEvalUpsertOne) SetExecRn(v int64) *ExecEvalUpsertOne {
 	return u.Update(func(s *ExecEvalUpsert) {
-		s.SetCompRn(v)
+		s.SetExecRn(v)
 	})
 }
 
-// AddCompRn adds v to the "comp_rn" field.
-func (u *ExecEvalUpsertOne) AddCompRn(v int64) *ExecEvalUpsertOne {
+// AddExecRn adds v to the "exec_rn" field.
+func (u *ExecEvalUpsertOne) AddExecRn(v int64) *ExecEvalUpsertOne {
 	return u.Update(func(s *ExecEvalUpsert) {
-		s.AddCompRn(v)
+		s.AddExecRn(v)
 	})
 }
 
-// UpdateCompRn sets the "comp_rn" field to the value that was provided on create.
-func (u *ExecEvalUpsertOne) UpdateCompRn() *ExecEvalUpsertOne {
+// UpdateExecRn sets the "exec_rn" field to the value that was provided on create.
+func (u *ExecEvalUpsertOne) UpdateExecRn() *ExecEvalUpsertOne {
 	return u.Update(func(s *ExecEvalUpsert) {
-		s.UpdateCompRn()
+		s.UpdateExecRn()
 	})
 }
 
@@ -437,7 +437,7 @@ func (_c *ExecEvalCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.ExecEvalUpsert) {
-//			SetCompRn(v+v).
+//			SetExecRn(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *ExecEvalCreateBulk) OnConflict(opts ...sql.ConflictOption) *ExecEvalUpsertBulk {
@@ -516,24 +516,24 @@ func (u *ExecEvalUpsertBulk) Update(set func(*ExecEvalUpsert)) *ExecEvalUpsertBu
 	return u
 }
 
-// SetCompRn sets the "comp_rn" field.
-func (u *ExecEvalUpsertBulk) SetCompRn(v int64) *ExecEvalUpsertBulk {
+// SetExecRn sets the "exec_rn" field.
+func (u *ExecEvalUpsertBulk) SetExecRn(v int64) *ExecEvalUpsertBulk {
 	return u.Update(func(s *ExecEvalUpsert) {
-		s.SetCompRn(v)
+		s.SetExecRn(v)
 	})
 }
 
-// AddCompRn adds v to the "comp_rn" field.
-func (u *ExecEvalUpsertBulk) AddCompRn(v int64) *ExecEvalUpsertBulk {
+// AddExecRn adds v to the "exec_rn" field.
+func (u *ExecEvalUpsertBulk) AddExecRn(v int64) *ExecEvalUpsertBulk {
 	return u.Update(func(s *ExecEvalUpsert) {
-		s.AddCompRn(v)
+		s.AddExecRn(v)
 	})
 }
 
-// UpdateCompRn sets the "comp_rn" field to the value that was provided on create.
-func (u *ExecEvalUpsertBulk) UpdateCompRn() *ExecEvalUpsertBulk {
+// UpdateExecRn sets the "exec_rn" field to the value that was provided on create.
+func (u *ExecEvalUpsertBulk) UpdateExecRn() *ExecEvalUpsertBulk {
 	return u.Update(func(s *ExecEvalUpsert) {
-		s.UpdateCompRn()
+		s.UpdateExecRn()
 	})
 }
 

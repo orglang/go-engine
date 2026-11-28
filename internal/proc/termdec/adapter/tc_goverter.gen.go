@@ -95,11 +95,11 @@ func init() {
 			return coreDecRec, err
 		}
 		coreDecRec.TermID = identityADT
-		descrootSemRef, err := adapterDecRecToDescrootSemRef(source)
+		descrootRootRef, err := adapterDecRecToDescrootRootRef(source)
 		if err != nil {
 			return coreDecRec, err
 		}
-		coreDecRec.DescRef = descrootSemRef
+		coreDecRec.DescRef = descrootRootRef
 		termvarVarRec, err := adapter.DataToVarRec(source.LiabVar)
 		if err != nil {
 			return coreDecRec, err
@@ -138,11 +138,11 @@ func init() {
 			return coreDecSnap, err
 		}
 		coreDecSnap.TermID = identityADT
-		descrootSemRef, err := adapterDecSnapToDescrootSemRef(source)
+		descrootRootRef, err := adapterDecSnapToDescrootRootRef(source)
 		if err != nil {
 			return coreDecSnap, err
 		}
-		coreDecSnap.DescRef = descrootSemRef
+		coreDecSnap.DescRef = descrootRootRef
 		termvarVarRec, err := adapter.DataToVarRec(source.LiabVar)
 		if err != nil {
 			return coreDecSnap, err
@@ -175,25 +175,25 @@ func init() {
 		return coreDecSnapList, nil
 	}
 }
-func adapterDecRecToDescrootSemRef(source DecRec) (descroot.SemRef, error) {
-	var descrootSemRef descroot.SemRef
+func adapterDecRecToDescrootRootRef(source DecRec) (descroot.RootRef, error) {
+	var descrootRootRef descroot.RootRef
 	identityADT, err := identity.ConvertFromString(source.DescID)
 	if err != nil {
-		return descrootSemRef, err
+		return descrootRootRef, err
 	}
-	descrootSemRef.DescID = identityADT
-	descrootSemRef.DescRN = seqnum.ConvertFromInt(source.DescRN)
-	return descrootSemRef, nil
+	descrootRootRef.DescID = identityADT
+	descrootRootRef.DescRN = seqnum.ConvertFromInt(source.DescRN)
+	return descrootRootRef, nil
 }
-func adapterDecSnapToDescrootSemRef(source DecSnap) (descroot.SemRef, error) {
-	var descrootSemRef descroot.SemRef
+func adapterDecSnapToDescrootRootRef(source DecSnap) (descroot.RootRef, error) {
+	var descrootRootRef descroot.RootRef
 	identityADT, err := identity.ConvertFromString(source.DescID)
 	if err != nil {
-		return descrootSemRef, err
+		return descrootRootRef, err
 	}
-	descrootSemRef.DescID = identityADT
-	descrootSemRef.DescRN = seqnum.ConvertFromInt(source.DescRN)
-	return descrootSemRef, nil
+	descrootRootRef.DescID = identityADT
+	descrootRootRef.DescRN = seqnum.ConvertFromInt(source.DescRN)
+	return descrootRootRef, nil
 }
 func init() {
 	ConnVarFromGenerated = func(source api.AnyConnVarSpec) (termvar.VarSpec, error) {

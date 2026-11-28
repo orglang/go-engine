@@ -262,12 +262,12 @@ func (_q *ExecEvalQuery) Clone() *ExecEvalQuery {
 // Example:
 //
 //	var v []struct {
-//		CompRn int64 `json:"comp_rn,omitempty"`
+//		ExecRn int64 `json:"exec_rn,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.ExecEval.Query().
-//		GroupBy(execeval.FieldCompRn).
+//		GroupBy(execeval.FieldExecRn).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *ExecEvalQuery) GroupBy(field string, fields ...string) *ExecEvalGroupBy {
@@ -285,11 +285,11 @@ func (_q *ExecEvalQuery) GroupBy(field string, fields ...string) *ExecEvalGroupB
 // Example:
 //
 //	var v []struct {
-//		CompRn int64 `json:"comp_rn,omitempty"`
+//		ExecRn int64 `json:"exec_rn,omitempty"`
 //	}
 //
 //	client.ExecEval.Query().
-//		Select(execeval.FieldCompRn).
+//		Select(execeval.FieldExecRn).
 //		Scan(ctx, &v)
 func (_q *ExecEvalQuery) Select(fields ...string) *ExecEvalSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

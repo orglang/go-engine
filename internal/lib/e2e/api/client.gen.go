@@ -17,12 +17,6 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
-// AnyCompRef Shared computation identity used by process and pool computations.
-type AnyCompRef struct {
-	CompId string `json:"comp_id"`
-	CompRn int64  `json:"comp_rn"`
-}
-
 // AnyConnVarSpec defines model for Any.Conn.VarSpec.
 type AnyConnVarSpec struct {
 	ConnPh string `json:"conn_ph"`
@@ -40,6 +34,12 @@ type AnyEvalSpec struct {
 	AssetVars []AnyEvalVarSpec `json:"asset_vars"`
 	LiabVar   AnyEvalVarSpec   `json:"liab_var"`
 	TermQn    string           `json:"term_qn"`
+}
+
+// AnyRootRef Shared root identity used by process and pool execution aggregates.
+type AnyRootRef struct {
+	ExecId string `json:"exec_id"`
+	ExecRn int64  `json:"exec_rn"`
 }
 
 // AnyTermRef Shared term identity.
@@ -75,11 +75,11 @@ type PoolDecSpec struct {
 
 // PoolStepSpec defines model for Pool.StepSpec.
 type PoolStepSpec struct {
-	// CompRef Shared computation identity used by process and pool computations.
-	CompRef AnyCompRef `json:"comp_ref"`
-
 	// PoolExpr Pool term expression specification. Exactly one variant is serialized inline with its kind discriminator.
 	PoolExpr PoolTermExprSpec `json:"pool_expr"`
+
+	// RootRef Shared root identity used by process and pool execution aggregates.
+	RootRef AnyRootRef `json:"root_ref"`
 }
 
 // PoolTermAcceptSpec defines model for Pool.Term.AcceptSpec.
@@ -212,8 +212,8 @@ type PoolTermReleaseSpec struct {
 // PoolTermSpawnSpec defines model for Pool.Term.SpawnSpec.
 type PoolTermSpawnSpec struct {
 	// ProcDr Shared term identity.
-	ProcDr  AnyTermRef   `json:"proc_dr"`
-	ProcIrs []AnyCompRef `json:"proc_irs"`
+	ProcDr       AnyTermRef   `json:"proc_dr"`
+	ProcExecRefs []AnyRootRef `json:"proc_exec_refs"`
 }
 
 // PoolTypeDefSnap defines model for Pool.Type.DefSnap.
@@ -289,12 +289,6 @@ type PoolTypeWithSpec struct {
 	ProcQns  []string         `json:"proc_qns"`
 }
 
-// ProcCompSnap defines model for Proc.CompSnap.
-type ProcCompSnap struct {
-	// CompRef Shared computation identity used by process and pool computations.
-	CompRef AnyCompRef `json:"comp_ref"`
-}
-
 // ProcDecSnap defines model for Proc.DecSnap.
 type ProcDecSnap struct {
 	// Ref Shared term identity.
@@ -307,6 +301,12 @@ type ProcDecSpec struct {
 	AssetVars []AnyConnVarSpec `json:"asset_vars"`
 	LiabVar   AnyConnVarSpec   `json:"liab_var"`
 	TermQn    string           `json:"term_qn"`
+}
+
+// ProcExecSnap defines model for Proc.ExecSnap.
+type ProcExecSnap struct {
+	// RootRef Shared root identity used by process and pool execution aggregates.
+	RootRef AnyRootRef `json:"root_ref"`
 }
 
 // ProcStepSpec defines model for Proc.StepSpec.
@@ -5019,11 +5019,11 @@ type CreatePoolExecutionResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON201 the response for an HTTP 201 `application/json` response
-	JSON201 *AnyCompRef
+	JSON201 *AnyRootRef
 }
 
 // GetJSON201 returns the response for an HTTP 201 `application/json` response
-func (r CreatePoolExecutionResponse) GetJSON201() *AnyCompRef {
+func (r CreatePoolExecutionResponse) GetJSON201() *AnyRootRef {
 	return r.JSON201
 }
 
@@ -5060,11 +5060,11 @@ type SpawnPoolExecutionResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON201 the response for an HTTP 201 `application/json` response
-	JSON201 *AnyCompRef
+	JSON201 *AnyRootRef
 }
 
 // GetJSON201 returns the response for an HTTP 201 `application/json` response
-func (r SpawnPoolExecutionResponse) GetJSON201() *AnyCompRef {
+func (r SpawnPoolExecutionResponse) GetJSON201() *AnyRootRef {
 	return r.JSON201
 }
 
@@ -5340,11 +5340,11 @@ type ListPoolExecutionsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *[]AnyCompRef
+	JSON200 *[]AnyRootRef
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r ListPoolExecutionsResponse) GetJSON200() *[]AnyCompRef {
+func (r ListPoolExecutionsResponse) GetJSON200() *[]AnyRootRef {
 	return r.JSON200
 }
 
@@ -5463,11 +5463,11 @@ type GetProcessExecutionResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *ProcCompSnap
+	JSON200 *ProcExecSnap
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetProcessExecutionResponse) GetJSON200() *ProcCompSnap {
+func (r GetProcessExecutionResponse) GetJSON200() *ProcExecSnap {
 	return r.JSON200
 }
 
@@ -5743,11 +5743,11 @@ type ListProcessExecutionsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *[]AnyCompRef
+	JSON200 *[]AnyRootRef
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r ListProcessExecutionsResponse) GetJSON200() *[]AnyCompRef {
+func (r ListProcessExecutionsResponse) GetJSON200() *[]AnyRootRef {
 	return r.JSON200
 }
 
@@ -6271,7 +6271,7 @@ func ParseCreatePoolExecutionResponse(rsp *http.Response) (*CreatePoolExecutionR
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
-		var dest AnyCompRef
+		var dest AnyRootRef
 		if err := runtime.JSONUnmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -6297,7 +6297,7 @@ func ParseSpawnPoolExecutionResponse(rsp *http.Response) (*SpawnPoolExecutionRes
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
-		var dest AnyCompRef
+		var dest AnyRootRef
 		if err := runtime.JSONUnmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -6469,7 +6469,7 @@ func ParseListPoolExecutionsResponse(rsp *http.Response) (*ListPoolExecutionsRes
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []AnyCompRef
+		var dest []AnyRootRef
 		if err := runtime.JSONUnmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -6547,7 +6547,7 @@ func ParseGetProcessExecutionResponse(rsp *http.Response) (*GetProcessExecutionR
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ProcCompSnap
+		var dest ProcExecSnap
 		if err := runtime.JSONUnmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -6719,7 +6719,7 @@ func ParseListProcessExecutionsResponse(rsp *http.Response) (*ListProcessExecuti
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []AnyCompRef
+		var dest []AnyRootRef
 		if err := runtime.JSONUnmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

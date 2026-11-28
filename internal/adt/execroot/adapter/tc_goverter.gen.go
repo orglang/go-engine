@@ -4,20 +4,20 @@
 package adapter
 
 import (
-	comproot "orglang/go-engine/internal/adt/comproot"
+	execroot "orglang/go-engine/internal/adt/execroot"
 	identity "orglang/go-engine/internal/adt/identity"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
 	uniqsym "orglang/go-engine/internal/adt/uniqsym"
 )
 
 func init() {
-	DataFromRef = func(source comproot.RootRef) RootRef {
+	DataFromRef = func(source execroot.RootRef) RootRef {
 		var adapterRootRef RootRef
-		adapterRootRef.CompID = identity.ConvertToString(source.CompID)
-		adapterRootRef.CompRN = seqnum.ConvertToInt(source.CompRN)
+		adapterRootRef.ExecID = identity.ConvertToString(source.ExecID)
+		adapterRootRef.ExecRN = seqnum.ConvertToInt(source.ExecRN)
 		return adapterRootRef
 	}
-	DataFromRefs = func(source []comproot.RootRef) ([]RootRef, error) {
+	DataFromRefs = func(source []execroot.RootRef) ([]RootRef, error) {
 		var adapterRootRefList []RootRef
 		if source != nil {
 			adapterRootRefList = make([]RootRef, len(source))
@@ -27,42 +27,42 @@ func init() {
 		}
 		return adapterRootRefList, nil
 	}
-	DataToRef = func(source RootRef) (comproot.RootRef, error) {
-		var comprootRootRef comproot.RootRef
-		identityADT, err := identity.ConvertFromString(source.CompID)
+	DataToRef = func(source RootRef) (execroot.RootRef, error) {
+		var execrootRootRef execroot.RootRef
+		identityADT, err := identity.ConvertFromString(source.ExecID)
 		if err != nil {
-			return comprootRootRef, err
+			return execrootRootRef, err
 		}
-		comprootRootRef.CompID = identityADT
-		comprootRootRef.CompRN = seqnum.ConvertFromInt(source.CompRN)
-		return comprootRootRef, nil
+		execrootRootRef.ExecID = identityADT
+		execrootRootRef.ExecRN = seqnum.ConvertFromInt(source.ExecRN)
+		return execrootRootRef, nil
 	}
-	DataToRefMap = func(source map[uniqsym.ADT]RootRef) (map[uniqsym.ADT]comproot.RootRef, error) {
-		var mapUniqsymADTComprootRootRef map[uniqsym.ADT]comproot.RootRef
+	DataToRefMap = func(source map[uniqsym.ADT]RootRef) (map[uniqsym.ADT]execroot.RootRef, error) {
+		var mapUniqsymADTExecrootRootRef map[uniqsym.ADT]execroot.RootRef
 		if source != nil {
-			mapUniqsymADTComprootRootRef = make(map[uniqsym.ADT]comproot.RootRef, len(source))
+			mapUniqsymADTExecrootRootRef = make(map[uniqsym.ADT]execroot.RootRef, len(source))
 			for key, value := range source {
-				comprootRootRef, err := DataToRef(value)
+				execrootRootRef, err := DataToRef(value)
 				if err != nil {
 					return nil, err
 				}
-				mapUniqsymADTComprootRootRef[key] = comprootRootRef
+				mapUniqsymADTExecrootRootRef[key] = execrootRootRef
 			}
 		}
-		return mapUniqsymADTComprootRootRef, nil
+		return mapUniqsymADTExecrootRootRef, nil
 	}
-	DataToRefs = func(source []RootRef) ([]comproot.RootRef, error) {
-		var comprootRootRefList []comproot.RootRef
+	DataToRefs = func(source []RootRef) ([]execroot.RootRef, error) {
+		var execrootRootRefList []execroot.RootRef
 		if source != nil {
-			comprootRootRefList = make([]comproot.RootRef, len(source))
+			execrootRootRefList = make([]execroot.RootRef, len(source))
 			for i := 0; i < len(source); i++ {
-				comprootRootRef, err := DataToRef(source[i])
+				execrootRootRef, err := DataToRef(source[i])
 				if err != nil {
 					return nil, err
 				}
-				comprootRootRefList[i] = comprootRootRef
+				execrootRootRefList[i] = execrootRootRef
 			}
 		}
-		return comprootRootRefList, nil
+		return execrootRootRefList, nil
 	}
 }

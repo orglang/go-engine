@@ -4,7 +4,7 @@
 package adapter
 
 import (
-	comproot "orglang/go-engine/internal/adt/comproot"
+	execroot "orglang/go-engine/internal/adt/execroot"
 	execvar "orglang/go-engine/internal/adt/execvar"
 	identity "orglang/go-engine/internal/adt/identity"
 	core "orglang/go-engine/internal/proc/execeval/core"
@@ -13,28 +13,28 @@ import (
 func init() {
 	DataFromEvalRec = func(source core.EvalRec) EvalRec {
 		var adapterEvalRec EvalRec
-		adapterEvalRec.CompID = identity.ConvertToString(source.CompRef.CompID)
-		adapterEvalRec.CompRN = int64(source.CompRef.CompRN)
+		adapterEvalRec.ExecID = identity.ConvertToString(source.RootRef.ExecID)
+		adapterEvalRec.ExecRN = int64(source.RootRef.ExecRN)
 		adapterEvalRec.LiabMode = int16(source.LiabMode)
 		return adapterEvalRec
 	}
 	DataToEvalRec = func(source EvalRec) (core.EvalRec, error) {
 		var coreEvalRec core.EvalRec
-		comprootRootRef, err := dataToSemRef(source)
+		execrootRootRef, err := dataToRootRef(source)
 		if err != nil {
 			return coreEvalRec, err
 		}
-		coreEvalRec.CompRef = comprootRootRef
+		coreEvalRec.RootRef = execrootRootRef
 		coreEvalRec.LiabMode = execvar.Mode(source.LiabMode)
 		return coreEvalRec, nil
 	}
-	dataToSemRef = func(source EvalRec) (comproot.RootRef, error) {
-		var comprootRootRef comproot.RootRef
-		identityADT, err := identity.ConvertFromString(source.CompID)
+	dataToRootRef = func(source EvalRec) (execroot.RootRef, error) {
+		var execrootRootRef execroot.RootRef
+		identityADT, err := identity.ConvertFromString(source.ExecID)
 		if err != nil {
-			return comprootRootRef, err
+			return execrootRootRef, err
 		}
-		comprootRootRef.CompID = identityADT
-		return comprootRootRef, nil
+		execrootRootRef.ExecID = identityADT
+		return execrootRootRef, nil
 	}
 }

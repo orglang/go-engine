@@ -26,7 +26,7 @@ type VarRec interface {
 	GetCommID() identity.ADT
 	GetChnlID() identity.ADT
 	GetChnlPH() symbol.ADT
-	GetExpCK() contkey.ADT
+	GetExprCK() contkey.ADT
 }
 
 type LinearRec struct {
@@ -52,7 +52,7 @@ func (r LinearRec) GetChnlID() identity.ADT { return r.ChnlID }
 
 func (r LinearRec) GetChnlPH() symbol.ADT { return r.ChnlPH }
 
-func (r LinearRec) GetExpCK() contkey.ADT { return r.ExprCK }
+func (r LinearRec) GetExprCK() contkey.ADT { return r.ExprCK }
 
 type StructRec struct {
 	RootRef execroot.RootRef
@@ -77,7 +77,7 @@ func (r StructRec) GetChnlID() identity.ADT { return r.ChnlID }
 
 func (r StructRec) GetChnlPH() symbol.ADT { return r.ChnlPH }
 
-func (r StructRec) GetExpCK() contkey.ADT { return r.ExprCK }
+func (r StructRec) GetExprCK() contkey.ADT { return r.ExprCK }
 
 type Side int16
 

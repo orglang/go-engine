@@ -62,7 +62,7 @@ func TestIntegrationEntPGXUsesCallbackTransaction(t *testing.T) {
 			created, err := client.TypeDef.Create().
 				SetID(id).
 				SetProgID(id).
-				SetExpCk(11).
+				SetExprCk(11).
 				Save(entCtx)
 			if err != nil {
 				t.Fatalf("create entity through Ent: %v", err)

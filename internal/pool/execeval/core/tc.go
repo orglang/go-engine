@@ -11,13 +11,13 @@ func ConvertRecToRef(rec EvalSnap2) execroot.RootRef {
 	return rec.RootRef
 }
 
-func ExtractExpCKs[T execvar.VarRec](vars []T) map[symbol.ADT]contkey.ADT {
+func ExtractExprCKs[T execvar.VarRec](vars []T) map[symbol.ADT]contkey.ADT {
 	cks := make(map[symbol.ADT]contkey.ADT, len(vars))
 	for _, v := range vars {
 		if v.GetChnlPH() == symbol.Zero {
 			continue
 		}
-		cks[v.GetChnlPH()] = v.GetExpCK()
+		cks[v.GetChnlPH()] = v.GetExprCK()
 	}
 	return cks
 }

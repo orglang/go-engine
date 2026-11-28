@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	"orglang/go-engine/internal/adt/comproot"
+	"orglang/go-engine/internal/adt/execroot"
 	execeval "orglang/go-engine/internal/proc/execeval/core"
 )
 
@@ -10,10 +10,10 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/identity:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/execvar/adapter:Data.*
 var (
-	// goverter:map . CompRef | dataToSemRef
+	// goverter:map . RootRef | dataToRootRef
 	DataToEvalRec func(EvalRec) (execeval.EvalRec, error)
-	// goverter:autoMap CompRef
+	// goverter:autoMap RootRef
 	DataFromEvalRec func(execeval.EvalRec) EvalRec
-	// goverter:ignore CompRN
-	dataToSemRef func(EvalRec) (comproot.RootRef, error)
+	// goverter:ignore RootRN
+	dataToRootRef func(EvalRec) (execroot.RootRef, error)
 )

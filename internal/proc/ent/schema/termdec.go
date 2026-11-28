@@ -27,6 +27,6 @@ func (TermDec) Fields() []ent.Field {
 // Annotations maps the schema to its owning Program's Term identity table.
 func (TermDec) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "proc_desc_terms"},
+		entsql.Annotation{Table: "proc_prog_terms"},
 	}
 }

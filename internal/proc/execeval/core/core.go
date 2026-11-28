@@ -108,10 +108,10 @@ func ErrMissingChnl(want symbol.ADT) error {
 
 func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) {
 	execAttr := slog.Any("proc", spec.RootRef)
-	s.log.Debug("step taking started", execAttr, slog.Any("exp", spec.ProcExp))
+	s.log.Debug("step taking started", execAttr, slog.Any("exp", spec.ProcExpr))
 	// initial values
 	execRef := spec.RootRef
-	expSpec := spec.ProcExp
+	expSpec := spec.ProcExpr
 	for expSpec != nil {
 		evalSnap, getErr1 := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (EvalSnap, error) {
 			return s.execEvalRepo.GetSnapByRef(txCtx, conn, execRef)
@@ -194,7 +194,7 @@ func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) 
 		if len(result.Effects.Steps) > 0 {
 			nextSpec := result.Effects.Steps[len(result.Effects.Steps)-1]
 			execRef = nextSpec.RootRef
-			expSpec = nextSpec.ProcExp
+			expSpec = nextSpec.ProcExpr
 		}
 	}
 	s.log.Debug("step taking succeed", execAttr)
@@ -282,7 +282,7 @@ func (s *service) takeWith(
 				// шедулим продолжение наблюдателя
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					RootRef: observation.RootRef,
-					ProcExp: expRec.ContExp,
+					ProcExpr: expRec.ContExp,
 				})
 			}
 			s.log.Debug("step taking succeed", execAttr, commAttr)
@@ -356,7 +356,7 @@ func (s *service) takeWith(
 			if termExp.ContExp != nil {
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					RootRef: evalSnap.RootRef,
-					ProcExp: termExp.ContExp,
+					ProcExpr: termExp.ContExp,
 				})
 			}
 			s.log.Debug("step taking succeed", execAttr)
@@ -373,7 +373,7 @@ func (s *service) takeWith(
 			})
 			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 				RootRef: evalSnap.RootRef,
-				ProcExp: termExp,
+				ProcExpr: termExp,
 			})
 			s.log.Debug("step taking succeed", execAttr)
 			return takeResult{Mod: evalMod, Effects: evalEff, Communication: commMod}, nil
@@ -479,7 +479,7 @@ func (s *service) takeWith(
 			if expRec.ContExp != nil {
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					RootRef: receival.RootRef,
-					ProcExp: expRec.ContExp,
+					ProcExpr: expRec.ContExp,
 				})
 			}
 			s.log.Debug("step taking succeed", execAttr)
@@ -572,7 +572,7 @@ func (s *service) takeWith(
 			if termExp.ContExp != nil {
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					RootRef: evalSnap.RootRef,
-					ProcExp: termExp.ContExp,
+					ProcExpr: termExp.ContExp,
 				})
 			}
 			s.log.Debug("step taking succeed", execAttr)
@@ -661,7 +661,7 @@ func (s *service) takeWith(
 			if contExp.ContExps[termExp.ValLabQN] != nil {
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					RootRef: following.RootRef,
-					ProcExp: contExp.ContExps[termExp.ValLabQN],
+					ProcExpr: contExp.ContExps[termExp.ValLabQN],
 				})
 			}
 			s.log.Debug("step taking succeed", execAttr)
@@ -730,7 +730,7 @@ func (s *service) takeWith(
 			if termExp.ContExps[valExp.ValLabQN] != nil {
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					RootRef: evalSnap.RootRef,
-					ProcExp: termExp.ContExps[valExp.ValLabQN],
+					ProcExpr: termExp.ContExps[valExp.ValLabQN],
 				})
 			}
 			s.log.Debug("step taking succeed", execAttr)
@@ -790,7 +790,7 @@ func (s *service) takeWith(
 				if forwardable.ContExp != nil {
 					evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 						RootRef: forwardable.RootRef,
-						ProcExp: forwardable.ContExp,
+						ProcExpr: forwardable.ContExp,
 					})
 				}
 				s.log.Debug("step taking succeed", execAttr)
@@ -807,7 +807,7 @@ func (s *service) takeWith(
 				})
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					RootRef: forwardable.RootRef,
-					ProcExp: forwardable.ValExp,
+					ProcExpr: forwardable.ValExp,
 				})
 				s.log.Debug("step taking succeed", execAttr)
 				return takeResult{Mod: evalMod, Effects: evalEff, Communication: commMod}, nil
@@ -858,7 +858,7 @@ func (s *service) takeWith(
 				if forwardable.ContExp != nil {
 					evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 						RootRef: forwardable.RootRef,
-						ProcExp: forwardable.ContExp,
+						ProcExpr: forwardable.ContExp,
 					})
 				}
 				s.log.Debug("step taking succeed", execAttr)
@@ -875,7 +875,7 @@ func (s *service) takeWith(
 				})
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					RootRef: forwardable.RootRef,
-					ProcExp: forwardable.ValExp, // TODO: несовпадение типов
+					ProcExpr: forwardable.ValExp, // TODO: несовпадение типов
 				})
 				s.log.Debug("step taking succeed", execAttr)
 				return takeResult{Mod: evalMod, Effects: evalEff, Communication: commMod}, nil

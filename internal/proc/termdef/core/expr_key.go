@@ -37,8 +37,8 @@ func exprContentValue(spec ExpSpec) (any, error) {
 		k, e := child(s.ContExp)
 		return map[string]any{"kind": "lab", "comm_chnl_ph": string(s.CommChnlPH), "val_lab_qn": uniqsym.ConvertToString(s.ValLabQN), "cont_expr_ck": k}, e
 	case ExpCaseSpec:
-		branches := make(map[string]int64, len(s.ContExps))
-		for q, v := range s.ContExps {
+		branches := make(map[string]int64, len(s.ContExprs))
+		for q, v := range s.ContExprs {
 			k, e := child(v)
 			if e != nil {
 				return nil, e

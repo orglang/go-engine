@@ -41,7 +41,7 @@ type LinearRec struct {
 	// Позитивное значение означает получение.
 	// Негативное значение означает лишение.
 	// Нулевое значение означает исчерпание.
-	ExpCK contkey.ADT
+	ExprCK contkey.ADT
 }
 
 func (r LinearRec) GetRootRef() execroot.RootRef { return r.RootRef }
@@ -52,7 +52,7 @@ func (r LinearRec) GetChnlID() identity.ADT { return r.ChnlID }
 
 func (r LinearRec) GetChnlPH() symbol.ADT { return r.ChnlPH }
 
-func (r LinearRec) GetExpCK() contkey.ADT { return r.ExpCK }
+func (r LinearRec) GetExpCK() contkey.ADT { return r.ExprCK }
 
 type StructRec struct {
 	RootRef execroot.RootRef
@@ -66,7 +66,7 @@ type StructRec struct {
 	// Позитивное значение означает получение.
 	// Негативное значение означает лишение.
 	// Нулевое значение означает исчерпание.
-	ExpCK contkey.ADT
+	ExprCK contkey.ADT
 }
 
 func (r StructRec) GetRootRef() execroot.RootRef { return r.RootRef }
@@ -77,7 +77,7 @@ func (r StructRec) GetChnlID() identity.ADT { return r.ChnlID }
 
 func (r StructRec) GetChnlPH() symbol.ADT { return r.ChnlPH }
 
-func (r StructRec) GetExpCK() contkey.ADT { return r.ExpCK }
+func (r StructRec) GetExpCK() contkey.ADT { return r.ExprCK }
 
 type Side int16
 

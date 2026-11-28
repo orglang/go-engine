@@ -14,12 +14,12 @@ func TestExpDataRoundTripPreservesNestedDefinition(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	spec := termdef.ExpAcquireSpec{
+	spec := termdef.ExprAcquireSpec{
 		CommChnlPH: symbol.ADT("request"),
-		ContExp: termdef.ExpHireSpec{
+		ContExp: termdef.ExprHireSpec{
 			CommChnlPH: symbol.ADT("worker"),
 			ProcTermQN: workerQN,
-			ContExp: termdef.ExpSpawnSpec{
+			ContExp: termdef.ExprSpawnSpec{
 				ProcTermQN: workerQN,
 			},
 		},
@@ -36,21 +36,21 @@ func TestExpDataRoundTripPreservesNestedDefinition(t *testing.T) {
 	if len(data.States) != 3 {
 		t.Fatalf("stored states = %d, want 3", len(data.States))
 	}
-	states := make(map[int64]ExpState, len(data.States))
+	states := make(map[int64]ExprState, len(data.States))
 	for _, state := range data.States {
-		states[state.ExpCK] = state
+		states[state.ExprCK] = state
 	}
-	root := states[data.ExpCK]
+	root := states[data.ExprCK]
 	if root.SupExpCK != 0 {
 		t.Errorf("root parent key = %d, want 0", root.SupExpCK)
 	}
 	middle := states[root.Spec.ContExpCK]
-	if middle.SupExpCK != root.ExpCK {
-		t.Errorf("middle parent key = %d, want %d", middle.SupExpCK, root.ExpCK)
+	if middle.SupExpCK != root.ExprCK {
+		t.Errorf("middle parent key = %d, want %d", middle.SupExpCK, root.ExprCK)
 	}
 	leaf := states[middle.Spec.ContExpCK]
-	if leaf.SupExpCK != middle.ExpCK {
-		t.Errorf("leaf parent key = %d, want %d", leaf.SupExpCK, middle.ExpCK)
+	if leaf.SupExpCK != middle.ExprCK {
+		t.Errorf("leaf parent key = %d, want %d", leaf.SupExpCK, middle.ExprCK)
 	}
 
 	gotRec, err := dataToExpRec(data)
@@ -63,12 +63,12 @@ func TestExpDataRoundTripPreservesNestedDefinition(t *testing.T) {
 }
 
 func TestDataToExpRecRejectsMissingContinuation(t *testing.T) {
-	_, err := dataToExpRec(ExpData{
-		ExpCK: 1,
-		States: []ExpState{{
-			ExpCK: 1,
+	_, err := dataToExpRec(ExprData{
+		ExprCK: 1,
+		States: []ExprState{{
+			ExprCK: 1,
 			K:     AcquireKind,
-			Spec: ExpStateSpec{
+			Spec: ExprStateSpec{
 				CommChnlPH: "request",
 				ContExpCK:  2,
 			},
@@ -82,52 +82,52 @@ func TestDataToExpRecRejectsMissingContinuation(t *testing.T) {
 func TestDataToExpRecRejectsInvalidTreeStructure(t *testing.T) {
 	tests := []struct {
 		name   string
-		states []ExpState
+		states []ExprState
 	}{
 		{
 			name: "missing root",
-			states: []ExpState{
-				{ExpCK: 2, K: ReleaseKind, Spec: ExpStateSpec{CommChnlPH: "request"}},
+			states: []ExprState{
+				{ExprCK: 2, K: ReleaseKind, Spec: ExprStateSpec{CommChnlPH: "request"}},
 			},
 		},
 		{
 			name: "duplicate expression",
-			states: []ExpState{
-				{ExpCK: 1, K: ReleaseKind, Spec: ExpStateSpec{CommChnlPH: "request"}},
-				{ExpCK: 1, K: ReleaseKind, Spec: ExpStateSpec{CommChnlPH: "request"}},
+			states: []ExprState{
+				{ExprCK: 1, K: ReleaseKind, Spec: ExprStateSpec{CommChnlPH: "request"}},
+				{ExprCK: 1, K: ReleaseKind, Spec: ExprStateSpec{CommChnlPH: "request"}},
 			},
 		},
 		{
 			name: "root has parent",
-			states: []ExpState{
-				{ExpCK: 1, SupExpCK: 2, K: ReleaseKind, Spec: ExpStateSpec{CommChnlPH: "request"}},
+			states: []ExprState{
+				{ExprCK: 1, SupExpCK: 2, K: ReleaseKind, Spec: ExprStateSpec{CommChnlPH: "request"}},
 			},
 		},
 		{
 			name: "unreachable expression",
-			states: []ExpState{
-				{ExpCK: 1, K: ReleaseKind, Spec: ExpStateSpec{CommChnlPH: "request"}},
-				{ExpCK: 2, K: ReleaseKind, Spec: ExpStateSpec{CommChnlPH: "worker"}},
+			states: []ExprState{
+				{ExprCK: 1, K: ReleaseKind, Spec: ExprStateSpec{CommChnlPH: "request"}},
+				{ExprCK: 2, K: ReleaseKind, Spec: ExprStateSpec{CommChnlPH: "worker"}},
 			},
 		},
 		{
 			name: "child has unexpected parent",
-			states: []ExpState{
-				{ExpCK: 1, K: AcquireKind, Spec: ExpStateSpec{CommChnlPH: "request", ContExpCK: 2}},
-				{ExpCK: 2, SupExpCK: 3, K: ReleaseKind, Spec: ExpStateSpec{CommChnlPH: "worker"}},
+			states: []ExprState{
+				{ExprCK: 1, K: AcquireKind, Spec: ExprStateSpec{CommChnlPH: "request", ContExpCK: 2}},
+				{ExprCK: 2, SupExpCK: 3, K: ReleaseKind, Spec: ExprStateSpec{CommChnlPH: "worker"}},
 			},
 		},
 		{
 			name: "unknown expression kind",
-			states: []ExpState{
-				{ExpCK: 1, K: 99},
+			states: []ExprState{
+				{ExprCK: 1, K: 99},
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := dataToExpRec(ExpData{ExpCK: 1, States: tt.states})
+			_, err := dataToExpRec(ExprData{ExprCK: 1, States: tt.states})
 			if err == nil {
 				t.Fatal("dataToExpRec() error = nil, want invalid tree error")
 			}

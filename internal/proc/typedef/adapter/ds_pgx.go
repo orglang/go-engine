@@ -39,7 +39,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec)
 		dao.log.Error("model conversion failed", idAttr)
 		return err
 	}
-	_, err = dao.client.TypeDef.Create().SetID(dto.TypeID).SetProgID(dto.ProgID).SetExpCk(dto.ExpCK).Save(entpgx.WithConn(ctx, conn.Pgx))
+	_, err = dao.client.TypeDef.Create().SetID(dto.TypeID).SetProgID(dto.ProgID).SetExpCk(dto.ExprCK).Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
 		dao.log.Error("query execution failed", idAttr)
 		return err
@@ -64,7 +64,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, rec typedef.DefR
 		dao.log.Error("model conversion failed", idAttr)
 		return err
 	}
-	affected, err := dao.client.TypeDef.Update().Where(typedefent.ID(dto.TypeID)).SetExpCk(dto.ExpCK).Save(entpgx.WithConn(ctx, conn.Pgx))
+	affected, err := dao.client.TypeDef.Update().Where(typedefent.ID(dto.TypeID)).SetExpCk(dto.ExprCK).Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
 		dao.log.Error("query execution failed", idAttr)
 		return err

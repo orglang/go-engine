@@ -9,7 +9,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/internal/adt/comproot"
+	"orglang/go-engine/internal/adt/execroot"
 	"orglang/go-engine/internal/adt/execvar"
 	execvaradapter "orglang/go-engine/internal/adt/execvar/adapter"
 	"orglang/go-engine/internal/adt/seqnum"
@@ -38,10 +38,10 @@ func newDaoEnt(client *ent.Client, log *slog.Logger) *daoEnt {
 
 func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec execeval.EvalRec) error {
 	dto := DataFromEvalRec(rec)
-	refAttr := slog.Any("ref", rec.CompRef)
+	refAttr := slog.Any("ref", rec.RootRef)
 	_, err := dao.client.ExecEval.Create().
-		SetID(dto.CompID).
-		SetCompRn(dto.CompRN).
+		SetID(dto.RootID).
+		SetCompRn(dto.RootRN).
 		SetLiabMode(dto.LiabMode).
 		Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
@@ -52,9 +52,9 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec execeval.EvalRe
 	return nil
 }
 
-func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref comproot.RootRef) (execeval.EvalSnap, error) {
+func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref execroot.RootRef) (execeval.EvalSnap, error) {
 	refAttr := slog.Any("ref", ref)
-	chnlRows, err := conn.Pgx.Query(ctx, selectChnls, ref.CompID.String())
+	chnlRows, err := conn.Pgx.Query(ctx, selectChnls, ref.RootID.String())
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)
 		return execeval.EvalSnap{}, err
@@ -77,7 +77,7 @@ func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref comproot.
 }
 
 func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execeval.EvalMod) (err error) {
-	if len(mod.CompRefs) == 0 {
+	if len(mod.RootRefs) == 0 {
 		panic("empty locks")
 	}
 	dto, err := DataFromMod(mod)
@@ -113,10 +113,10 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execeval.Eva
 	}
 	// execs
 	execReq := pgx.Batch{}
-	for _, dto := range dto.CompRefs {
+	for _, dto := range dto.RootRefs {
 		args := pgx.NamedArgs{
-			"exec_id": dto.CompID,
-			"exec_rn": dto.CompRN,
+			"exec_id": dto.RootID,
+			"exec_rn": dto.RootRN,
 		}
 		execReq.Queue(updateExec, args)
 	}
@@ -124,7 +124,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execeval.Eva
 	defer func() {
 		err = errors.Join(err, execRes.Close())
 	}()
-	for _, dto := range dto.CompRefs {
+	for _, dto := range dto.RootRefs {
 		ct, execErr := execRes.Exec()
 		if execErr != nil {
 			dao.log.Error("execution failed", slog.Any("dto", dto))
@@ -132,7 +132,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execeval.Eva
 		}
 		if ct.RowsAffected() == 0 {
 			dao.log.Error("update failed", slog.Any("dto", dto))
-			return errOptimisticUpdate(seqnum.ADT(dto.CompRN))
+			return errOptimisticUpdate(seqnum.ADT(dto.RootRN))
 		}
 	}
 	dao.log.Debug("update succeed")

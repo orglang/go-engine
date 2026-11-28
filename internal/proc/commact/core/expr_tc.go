@@ -51,7 +51,7 @@ func validateExprSpec(spec ExpSpec) error {
 	case LabSpec:
 		return validateExprSpec(s.ContExp)
 	case CaseSpec:
-		for label, child := range s.ContExps {
+		for label, child := range s.ContExprs {
 			if err := validateExprSpec(child); err != nil {
 				return fmt.Errorf("case[%s]: %w", uniqsym.ConvertToString(label), err)
 			}
@@ -98,8 +98,8 @@ func (s LabSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
 	return marshalTaggedSpec(enc, "lab", map[string]any{"comm_chnl_ph": string(s.CommChnlPH), "val_lab_qn": uniqsym.ConvertToString(s.ValLabQN), "cont_expr_ck": ck})
 }
 func (s CaseSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
-	branches := make(map[string]int64, len(s.ContExps))
-	for qn, child := range s.ContExps {
+	branches := make(map[string]int64, len(s.ContExprs))
+	for qn, child := range s.ContExprs {
 		name := uniqsym.ConvertToString(qn)
 		if _, exists := branches[name]; exists {
 			return fmt.Errorf("duplicate case label %q", name)

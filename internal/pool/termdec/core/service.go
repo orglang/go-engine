@@ -27,7 +27,7 @@ func NewService(repo Repo, descRootRepo descroot.Repo, typeDefRepo typedef.Repo,
 
 var _ API = (*service)(nil)
 
-func (s *service) Create(ctx context.Context, spec DecSpec) (_ identity.ADT, _ descroot.SemRef, err error) {
+func (s *service) Create(ctx context.Context, spec DecSpec) (_ identity.ADT, _ descroot.RootRef, err error) {
 	qnAttr := slog.Any("qn", spec.TermQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 
@@ -40,7 +40,7 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ identity.ADT, _ d
 		return s.typeDefRepo.GetRecsByQNs(txCtx, conn, append(assetQNs, spec.LiabVar.TypeQN))
 	})
 	if getErr != nil {
-		return identity.ADT{}, descroot.SemRef{}, getErr
+		return identity.ADT{}, descroot.RootRef{}, getErr
 	}
 
 	liabTypeDef := typeDefs[spec.LiabVar.TypeQN]
@@ -52,7 +52,7 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ identity.ADT, _ d
 	}
 
 	expectedRoot := liabTypeDef.DescRef
-	newRoot := descroot.SemRef{DescID: expectedRoot.DescID, DescRN: seqnum.Next(expectedRoot.DescRN)}
+	newRoot := descroot.RootRef{DescID: expectedRoot.DescID, DescRN: seqnum.Next(expectedRoot.DescRN)}
 	termID := identity.New()
 	newDec := DecRec{TermQN: spec.TermQN, TermID: termID, DescRef: newRoot, LiabVar: newLiabVar, AssetVars: newAssetVars}
 
@@ -64,7 +64,7 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ identity.ADT, _ d
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", qnAttr)
-		return identity.ADT{}, descroot.SemRef{}, transactErr
+		return identity.ADT{}, descroot.RootRef{}, transactErr
 	}
 	s.log.Debug("creation succeed", qnAttr, slog.Any("termID", termID), slog.Any("descRef", newRoot))
 	return termID, newRoot, nil

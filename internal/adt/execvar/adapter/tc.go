@@ -3,7 +3,7 @@ package adapter
 import (
 	"database/sql"
 
-	"orglang/go-engine/internal/adt/comproot"
+	"orglang/go-engine/internal/adt/execroot"
 	contkeyadapter "orglang/go-engine/internal/adt/contkey/adapter"
 	"orglang/go-engine/internal/adt/execvar"
 	identityadapter "orglang/go-engine/internal/adt/identity/adapter"
@@ -25,8 +25,8 @@ func DataFromVarRec(rec execvar.VarRec) VarRec {
 
 func DataFromStructRec(rec execvar.StructRec) VarRec {
 	return VarRec{
-		ExecID: identityadapter.ConvertToNullString(rec.RootRef.CompID),
-		ExecRN: seqnumadapter.ConvertToNullInt(rec.RootRef.CompRN),
+		ExecID: identityadapter.ConvertToNullString(rec.RootRef.RootID),
+		ExecRN: seqnumadapter.ConvertToNullInt(rec.RootRef.RootRN),
 		ConnID: identityadapter.ConvertToNullString(rec.ConnID),
 		ChnlID: identityadapter.ConvertToNullString(rec.ChnlID),
 		ChnlPH: symboladapter.ConvertToNullString(rec.ChnlPH),
@@ -37,8 +37,8 @@ func DataFromStructRec(rec execvar.StructRec) VarRec {
 
 func DataFromLinearRec(rec execvar.LinearRec) VarRec {
 	return VarRec{
-		ExecID: identityadapter.ConvertToNullString(rec.RootRef.CompID),
-		ExecRN: seqnumadapter.ConvertToNullInt(rec.RootRef.CompRN),
+		ExecID: identityadapter.ConvertToNullString(rec.RootRef.RootID),
+		ExecRN: seqnumadapter.ConvertToNullInt(rec.RootRef.RootRN),
 		ConnID: identityadapter.ConvertToNullString(rec.ConnID),
 		ChnlID: identityadapter.ConvertToNullString(rec.ChnlID),
 		ChnlPH: symboladapter.ConvertToNullString(rec.ChnlPH),
@@ -193,14 +193,14 @@ func DataToLinearRecs(dtos []VarRec) ([]execvar.LinearRec, error) {
 	return recs, nil
 }
 
-func dataToRootRef(dto VarRec) (comproot.RootRef, error) {
+func dataToRootRef(dto VarRec) (execroot.RootRef, error) {
 	execID, err := identityadapter.ConvertFromNullString(dto.ExecID)
 	if err != nil {
-		return comproot.RootRef{}, err
+		return execroot.RootRef{}, err
 	}
-	return comproot.RootRef{
-		CompID: execID,
-		CompRN: seqnumadapter.ConvertFromNullInt(dto.ExecRN),
+	return execroot.RootRef{
+		RootID: execID,
+		RootRN: seqnumadapter.ConvertFromNullInt(dto.ExecRN),
 	}, nil
 }
 

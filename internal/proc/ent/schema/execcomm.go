@@ -7,7 +7,7 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// ExecComm describes a persisted process computation communication.
+// ExecComm describes a persisted process execution communication.
 type ExecComm struct {
 	ent.Schema
 }

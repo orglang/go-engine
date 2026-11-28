@@ -329,7 +329,7 @@ func (s *service) takeStep(
 	execAttr := slog.Any("rootRef", evalSnap.RootRef)
 	switch termExp := exp.(type) {
 	case AcceptSpec:
-		connChnl, ok := evalSnap.StructVars[termExp.CommChnlPH]
+		commChnl, ok := evalSnap.StructVars[termExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
 			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExp.CommChnlPH)
@@ -345,8 +345,8 @@ func (s *service) takeStep(
 		var commSnap execcomm.CommSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 			commSnap, err = s.commRepo.GetSnapByQry(txCtx, conn, execcomm.CommQry{
-				CommID: connChnl.CommID,
-				ChnlID: option.Some(connChnl.ChnlID),
+				CommID: commChnl.CommID,
+				ChnlID: option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
@@ -367,9 +367,9 @@ func (s *service) takeStep(
 			commMod.Acts = append(commMod.Acts, commact.SubRec{
 				CommID:  commSnap.CommID,
 				RootRef: evalSnap.RootRef,
-				ChnlID:  connChnl.ChnlID,
+				ChnlID:  commChnl.ChnlID,
 				ContExp: AcceptRec{
-					ContChnlPH: connChnl.ChnlPH,
+					ContChnlPH: commChnl.ChnlPH,
 					ContExp:    termExp.ContExp,
 				},
 			})
@@ -383,11 +383,11 @@ func (s *service) takeStep(
 		newChnlID := identity.New()
 		// вяжем продолжение доступодателя
 		evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-			RootRef: connChnl.RootRef,
-			CommID:  connChnl.CommID,
+			RootRef: commChnl.RootRef,
+			CommID:  commChnl.CommID,
 			ChnlID:  newChnlID,
-			ChnlPH:  connChnl.ChnlPH,
-			ChnlBS:  connChnl.ChnlBS,
+			ChnlPH:  commChnl.ChnlPH,
+			ChnlBS:  commChnl.ChnlBS,
 			ExpCK:   nextExpCK,
 		})
 		if termExp.ContExp != nil {
@@ -406,7 +406,7 @@ func (s *service) takeStep(
 				CommID:  acquisition.CommID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
-				ChnlBS:  connChnl.ChnlBS,
+				ChnlBS:  commChnl.ChnlBS,
 				ExpCK:   nextExpCK,
 			})
 			if expRec.ContExp != nil {
@@ -422,7 +422,7 @@ func (s *service) takeStep(
 		s.log.Debug("step taking succeed", execAttr, commAttr)
 		return evalMod, evalEff, commMod, nil
 	case AcquireSpec:
-		connChnl, ok := evalSnap.StructVars[termExp.CommChnlPH]
+		commChnl, ok := evalSnap.StructVars[termExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
 			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExp.CommChnlPH)
@@ -438,8 +438,8 @@ func (s *service) takeStep(
 		var commSnap execcomm.CommSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 			commSnap, err = s.commRepo.GetSnapByQry(txCtx, conn, execcomm.CommQry{
-				CommID: connChnl.CommID,
-				ChnlID: option.Some(connChnl.ChnlID),
+				CommID: commChnl.CommID,
+				ChnlID: option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
@@ -460,9 +460,9 @@ func (s *service) takeStep(
 			commMod.Acts = append(commMod.Acts, commact.SubRec{
 				CommID:  commSnap.CommID,
 				RootRef: evalSnap.RootRef,
-				ChnlID:  connChnl.ChnlID,
+				ChnlID:  commChnl.ChnlID,
 				ContExp: AcquireRec{
-					ContChnlPH: connChnl.ChnlPH,
+					ContChnlPH: commChnl.ChnlPH,
 					ContExp:    termExp.ContExp,
 				},
 			})
@@ -476,11 +476,11 @@ func (s *service) takeStep(
 		newChnlID := identity.New()
 		// вяжем продолжение доступополучателя
 		evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-			RootRef: connChnl.RootRef,
-			CommID:  connChnl.CommID,
+			RootRef: commChnl.RootRef,
+			CommID:  commChnl.CommID,
 			ChnlID:  newChnlID,
-			ChnlPH:  connChnl.ChnlPH,
-			ChnlBS:  connChnl.ChnlBS,
+			ChnlPH:  commChnl.ChnlPH,
+			ChnlBS:  commChnl.ChnlBS,
 			ExpCK:   nextExpCK,
 		})
 		if termExp.ContExp != nil {
@@ -499,7 +499,7 @@ func (s *service) takeStep(
 				CommID:  acception.CommID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
-				ChnlBS:  connChnl.ChnlBS,
+				ChnlBS:  commChnl.ChnlBS,
 				ExpCK:   nextExpCK,
 			})
 			if expRec.ContExp != nil {
@@ -515,7 +515,7 @@ func (s *service) takeStep(
 		s.log.Debug("step taking succeed", execAttr, commAttr)
 		return evalMod, evalEff, commMod, nil
 	case ApplySpec:
-		connChnl, ok := evalSnap.LinearVars[termExp.CommChnlPH]
+		commChnl, ok := evalSnap.LinearVars[termExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
 			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExp.CommChnlPH)
@@ -531,8 +531,8 @@ func (s *service) takeStep(
 		var commSnap execcomm.CommSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 			commSnap, err = s.commRepo.GetSnapByQry(txCtx, conn, execcomm.CommQry{
-				CommID: connChnl.CommID,
-				ChnlID: option.Some(connChnl.ChnlID),
+				CommID: commChnl.CommID,
+				ChnlID: option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
@@ -553,9 +553,9 @@ func (s *service) takeStep(
 			commMod.Acts = append(commMod.Acts, commact.SubRec{
 				CommID:  commSnap.CommID,
 				RootRef: evalSnap.RootRef,
-				ChnlID:  connChnl.ChnlID,
+				ChnlID:  commChnl.ChnlID,
 				ContExp: ApplyRec{
-					ContChnlPH: connChnl.ChnlPH,
+					ContChnlPH: commChnl.ChnlPH,
 					ProcTermQN: termExp.ProcTermQN,
 					ContExp:    termExp.ContExp,
 				},
@@ -570,11 +570,11 @@ func (s *service) takeStep(
 		newChnlID := identity.New()
 		// вяжем продолжение соискателя
 		evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-			RootRef: connChnl.RootRef,
-			CommID:  connChnl.CommID,
+			RootRef: commChnl.RootRef,
+			CommID:  commChnl.CommID,
 			ChnlID:  newChnlID,
-			ChnlPH:  connChnl.ChnlPH,
-			ChnlBS:  connChnl.ChnlBS,
+			ChnlPH:  commChnl.ChnlPH,
+			ChnlBS:  commChnl.ChnlBS,
 			ExpCK:   nextExpCK,
 		})
 		if termExp.ContExp != nil {
@@ -592,7 +592,7 @@ func (s *service) takeStep(
 				CommID:  hiring.CommID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
-				ChnlBS:  connChnl.ChnlBS,
+				ChnlBS:  commChnl.ChnlBS,
 				ExpCK:   nextExpCK,
 			})
 			if expRec.ContExp != nil {
@@ -608,7 +608,7 @@ func (s *service) takeStep(
 		s.log.Debug("step taking succeed", execAttr, commAttr)
 		return evalMod, evalEff, commMod, nil
 	case HireSpec:
-		connChnl, ok := evalSnap.LinearVars[termExp.CommChnlPH]
+		commChnl, ok := evalSnap.LinearVars[termExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
 			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExp.CommChnlPH)
@@ -624,8 +624,8 @@ func (s *service) takeStep(
 		var commSnap execcomm.CommSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 			commSnap, err = s.commRepo.GetSnapByQry(txCtx, conn, execcomm.CommQry{
-				CommID: connChnl.CommID,
-				ChnlID: option.Some(connChnl.ChnlID),
+				CommID: commChnl.CommID,
+				ChnlID: option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
@@ -646,9 +646,9 @@ func (s *service) takeStep(
 			commMod.Acts = append(commMod.Acts, commact.SubRec{
 				CommID:  commSnap.CommID,
 				RootRef: evalSnap.RootRef,
-				ChnlID:  connChnl.ChnlID,
+				ChnlID:  commChnl.ChnlID,
 				ContExp: HireRec{
-					ContChnlPH: connChnl.ChnlPH,
+					ContChnlPH: commChnl.ChnlPH,
 					ProcTermQN: termExp.ProcTermQN,
 					ContExp:    termExp.ContExp,
 				},
@@ -663,11 +663,11 @@ func (s *service) takeStep(
 		newChnlID := identity.New()
 		// вяжем продолжение нанимателя
 		evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-			RootRef: connChnl.RootRef,
-			CommID:  connChnl.CommID,
+			RootRef: commChnl.RootRef,
+			CommID:  commChnl.CommID,
 			ChnlID:  newChnlID,
-			ChnlPH:  connChnl.ChnlPH,
-			ChnlBS:  connChnl.ChnlBS,
+			ChnlPH:  commChnl.ChnlPH,
+			ChnlBS:  commChnl.ChnlBS,
 			ExpCK:   nextExpCK,
 		})
 		if termExp.ContExp != nil {
@@ -685,7 +685,7 @@ func (s *service) takeStep(
 				CommID:  application.CommID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
-				ChnlBS:  connChnl.ChnlBS,
+				ChnlBS:  commChnl.ChnlBS,
 				ExpCK:   nextExpCK,
 			})
 			if expRec.ContExp != nil {
@@ -701,7 +701,7 @@ func (s *service) takeStep(
 		s.log.Debug("step taking succeed", execAttr, commAttr)
 		return evalMod, evalEff, commMod, nil
 	case ReleaseSpec:
-		connChnl, ok := evalSnap.LinearVars[termExp.CommChnlPH]
+		commChnl, ok := evalSnap.LinearVars[termExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
 			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExp.CommChnlPH)
@@ -717,8 +717,8 @@ func (s *service) takeStep(
 		var commSnap execcomm.CommSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 			commSnap, err = s.commRepo.GetSnapByQry(txCtx, conn, execcomm.CommQry{
-				CommID: connChnl.CommID,
-				ChnlID: option.Some(connChnl.ChnlID),
+				CommID: commChnl.CommID,
+				ChnlID: option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
@@ -739,9 +739,9 @@ func (s *service) takeStep(
 			commMod.Acts = append(commMod.Acts, commact.SubRec{
 				CommID:  commSnap.CommID,
 				RootRef: evalSnap.RootRef,
-				ChnlID:  connChnl.ChnlID,
+				ChnlID:  commChnl.ChnlID,
 				ContExp: ReleaseRec{
-					ContChnlPH: connChnl.ChnlPH,
+					ContChnlPH: commChnl.ChnlPH,
 				},
 			})
 			s.log.Debug("taking half done", execAttr, commAttr)
@@ -754,11 +754,11 @@ func (s *service) takeStep(
 		newChnlID := identity.New()
 		// вяжем продолжение доступовозвращателя
 		evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-			RootRef: connChnl.RootRef,
-			CommID:  connChnl.CommID,
+			RootRef: commChnl.RootRef,
+			CommID:  commChnl.CommID,
 			ChnlID:  newChnlID,
-			ChnlPH:  connChnl.ChnlPH,
-			ChnlBS:  connChnl.ChnlBS,
+			ChnlPH:  commChnl.ChnlPH,
+			ChnlBS:  commChnl.ChnlBS,
 			ExpCK:   nextExpCK,
 		})
 		switch expRec := detaching.ContExp.(type) {
@@ -769,7 +769,7 @@ func (s *service) takeStep(
 				CommID:  detaching.CommID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
-				ChnlBS:  connChnl.ChnlBS,
+				ChnlBS:  commChnl.ChnlBS,
 				ExpCK:   nextExpCK,
 			})
 		default:
@@ -778,7 +778,7 @@ func (s *service) takeStep(
 		s.log.Debug("step taking succeed", execAttr, commAttr)
 		return evalMod, evalEff, commMod, nil
 	case DetachSpec:
-		connChnl, ok := evalSnap.LinearVars[termExp.CommChnlPH]
+		commChnl, ok := evalSnap.LinearVars[termExp.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
 			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExp.CommChnlPH)
@@ -794,8 +794,8 @@ func (s *service) takeStep(
 		var commSnap execcomm.CommSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 			commSnap, err = s.commRepo.GetSnapByQry(txCtx, conn, execcomm.CommQry{
-				CommID: connChnl.CommID,
-				ChnlID: option.Some(connChnl.ChnlID),
+				CommID: commChnl.CommID,
+				ChnlID: option.Some(commChnl.ChnlID),
 			})
 			return err
 		})
@@ -816,9 +816,9 @@ func (s *service) takeStep(
 			commMod.Acts = append(commMod.Acts, commact.SubRec{
 				CommID:  commSnap.CommID,
 				RootRef: evalSnap.RootRef,
-				ChnlID:  connChnl.ChnlID,
+				ChnlID:  commChnl.ChnlID,
 				ContExp: DetachRec{
-					ContChnlPH: connChnl.ChnlPH,
+					ContChnlPH: commChnl.ChnlPH,
 				},
 			})
 			s.log.Debug("taking half done", execAttr, commAttr)
@@ -830,11 +830,11 @@ func (s *service) takeStep(
 		}
 		newChnlID := identity.New()
 		evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-			RootRef: connChnl.RootRef,
-			CommID:  connChnl.CommID,
+			RootRef: commChnl.RootRef,
+			CommID:  commChnl.CommID,
 			ChnlID:  newChnlID,
-			ChnlPH:  connChnl.ChnlPH,
-			ChnlBS:  connChnl.ChnlBS,
+			ChnlPH:  commChnl.ChnlPH,
+			ChnlBS:  commChnl.ChnlBS,
 			ExpCK:   nextExpCK,
 		})
 		switch expRec := releasing.ContExp.(type) {
@@ -845,7 +845,7 @@ func (s *service) takeStep(
 				CommID:  releasing.CommID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
-				ChnlBS:  connChnl.ChnlBS,
+				ChnlBS:  commChnl.ChnlBS,
 				ExpCK:   nextExpCK,
 			})
 		default:

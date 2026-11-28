@@ -89,7 +89,7 @@ func poolExecVarToCore(dto api.AnyEvalVarSpec) (execvar.VarSpec, error) {
 	if dto.CommPh == "" {
 		return execvar.VarSpec{}, errors.New("comm_ph cannot be blank")
 	}
-	connPH, err := symbol.ConvertFromString(dto.CommPh)
+	commPH, err := symbol.ConvertFromString(dto.CommPh)
 	if err != nil {
 		return execvar.VarSpec{}, err
 	}
@@ -97,7 +97,7 @@ func poolExecVarToCore(dto api.AnyEvalVarSpec) (execvar.VarSpec, error) {
 	if err != nil {
 		return execvar.VarSpec{}, err
 	}
-	return execvar.VarSpec{ChnlPH: connPH, TermQN: termQN}, nil
+	return execvar.VarSpec{ChnlPH: commPH, TermQN: termQN}, nil
 }
 
 func (c *controllerEcho) PostSpec2(ctx *echo.Context) error {

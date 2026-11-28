@@ -53,7 +53,7 @@ TypeSpec namespaces use `OrgLang` as the root and follow domain concepts:
 
 - `OrgLang.Any` — shared semantic identities (`TypeRef`, `TermRef`, `RootRef`) and the shared `EvalSpec`
 - `OrgLang.Any.Type` — shared type-link specification
-- `OrgLang.Any.Comm` — shared connection variable specs and records, defined in `any/comm/var.tsp`
+- `OrgLang.Any.Comm` — shared communication variable specs and records, defined in `any/comm/var.tsp`
 - `OrgLang.Any.Eval.VarSpec` — evaluation variable specification used when creating a pool execution
 - `OrgLang.Proc` — process declarations and snapshots
 - `OrgLang.Proc.Type` / `OrgLang.Proc.Term` — process type and term expressions; type definitions live in `Proc.Type.DefSpec` / `DefSnap`

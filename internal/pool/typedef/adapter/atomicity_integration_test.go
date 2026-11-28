@@ -75,7 +75,7 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 	}
 	_, _, err = service.Create(ctx, typedef.DefSpec{
 		TypeQN:  typeQN,
-		TypeExpr: typedef.OneSpec{},
+		TypeExprr: typedef.OneSpec{},
 	})
 	if err == nil {
 		t.Fatal("Create() error = nil, want deferred constraint failure at commit")
@@ -155,7 +155,7 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 	}
 	typeID, progRef, err := service.Create(ctx, typedef.DefSpec{
 		TypeQN:  typeQN,
-		TypeExpr: typedef.OneSpec{},
+		TypeExprr: typedef.OneSpec{},
 	})
 	if err != nil {
 		t.Fatalf("Create() error = %v, want nil", err)

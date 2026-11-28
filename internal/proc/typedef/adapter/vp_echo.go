@@ -57,7 +57,7 @@ func (p *echoPresenter) PostOne(c *echo.Context) error {
 		p.log.Error("conversion failed", slog.Any("dto", dto))
 		return err
 	}
-	snap, err := p.api.Create(ctx, typedef.DefSpec{TypeQN: qn, TypeExpr: typedef.OneSpec{}})
+	snap, err := p.api.Create(ctx, typedef.DefSpec{TypeQN: qn, TypeExprr: typedef.OneSpec{}})
 	if err != nil {
 		return err
 	}

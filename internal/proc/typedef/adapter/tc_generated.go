@@ -15,11 +15,11 @@ func DefSpecFromGenerated(dto webapi.ProcTypeDefSpec) (typedef.DefSpec, error) {
 	if err != nil {
 		return typedef.DefSpec{}, err
 	}
-	exp, err := expSpecFromGenerated(dto.TypeExprr)
+	exp, err := exprSpecFromGenerated(dto.TypeExprrr)
 	if err != nil {
 		return typedef.DefSpec{}, err
 	}
-	return typedef.DefSpec{TypeQN: qn, TypeExpr: exp}, nil
+	return typedef.DefSpec{TypeQN: qn, TypeExprr: exp}, nil
 }
 
 func DefSnapToGenerated(snap typedef.DefSnap) webapi.ProcTypeDefSnap {
@@ -30,12 +30,12 @@ func DefSnapToGenerated(snap typedef.DefSnap) webapi.ProcTypeDefSnap {
 		},
 		Spec: webapi.ProcTypeDefSpec{
 			TypeQn:   uniqsym.ConvertToString(snap.DefSpec.TypeQN),
-			TypeExprr: expSpecToGenerated(snap.DefSpec.TypeExpr),
+			TypeExprrr: exprSpecToGenerated(snap.DefSpec.TypeExprr),
 		},
 	}
 }
 
-func expSpecFromGenerated(dto webapi.ProcTypeExprrSpec) (typedef.ExpSpec, error) {
+func exprSpecFromGenerated(dto webapi.ProcTypeExprrrSpec) (typedef.ExpSpec, error) {
 	kind, err := dto.Discriminator()
 	if err != nil {
 		return nil, err
@@ -58,11 +58,11 @@ func expSpecFromGenerated(dto webapi.ProcTypeExprrSpec) (typedef.ExpSpec, error)
 		if err != nil {
 			return nil, err
 		}
-		val, err := expSpecFromGenerated(v.ValExpr)
+		val, err := exprSpecFromGenerated(v.ValExpr)
 		if err != nil {
 			return nil, err
 		}
-		cont, err := expSpecFromGenerated(v.ContExpr)
+		cont, err := exprSpecFromGenerated(v.ContExpr)
 		if err != nil {
 			return nil, err
 		}
@@ -72,11 +72,11 @@ func expSpecFromGenerated(dto webapi.ProcTypeExprrSpec) (typedef.ExpSpec, error)
 		if err != nil {
 			return nil, err
 		}
-		val, err := expSpecFromGenerated(v.ValExpr)
+		val, err := exprSpecFromGenerated(v.ValExpr)
 		if err != nil {
 			return nil, err
 		}
-		cont, err := expSpecFromGenerated(v.ContExpr)
+		cont, err := exprSpecFromGenerated(v.ContExpr)
 		if err != nil {
 			return nil, err
 		}
@@ -92,7 +92,7 @@ func expSpecFromGenerated(dto webapi.ProcTypeExprrSpec) (typedef.ExpSpec, error)
 			if err != nil {
 				return nil, err
 			}
-			cont, err := expSpecFromGenerated(choice.ContExpr)
+			cont, err := exprSpecFromGenerated(choice.ContExpr)
 			if err != nil {
 				return nil, err
 			}
@@ -110,7 +110,7 @@ func expSpecFromGenerated(dto webapi.ProcTypeExprrSpec) (typedef.ExpSpec, error)
 			if err != nil {
 				return nil, err
 			}
-			cont, err := expSpecFromGenerated(choice.ContExpr)
+			cont, err := exprSpecFromGenerated(choice.ContExpr)
 			if err != nil {
 				return nil, err
 			}
@@ -122,7 +122,7 @@ func expSpecFromGenerated(dto webapi.ProcTypeExprrSpec) (typedef.ExpSpec, error)
 		if err != nil {
 			return nil, err
 		}
-		cont, err := expSpecFromGenerated(v.ContExpr)
+		cont, err := exprSpecFromGenerated(v.ContExpr)
 		if err != nil {
 			return nil, err
 		}
@@ -132,7 +132,7 @@ func expSpecFromGenerated(dto webapi.ProcTypeExprrSpec) (typedef.ExpSpec, error)
 		if err != nil {
 			return nil, err
 		}
-		cont, err := expSpecFromGenerated(v.ContExpr)
+		cont, err := exprSpecFromGenerated(v.ContExpr)
 		if err != nil {
 			return nil, err
 		}
@@ -142,8 +142,8 @@ func expSpecFromGenerated(dto webapi.ProcTypeExprrSpec) (typedef.ExpSpec, error)
 	}
 }
 
-func expSpecToGenerated(spec typedef.ExpSpec) webapi.ProcTypeExprrSpec {
-	var dto webapi.ProcTypeExprrSpec
+func exprSpecToGenerated(spec typedef.ExpSpec) webapi.ProcTypeExprrrSpec {
+	var dto webapi.ProcTypeExprrrSpec
 	switch spec := spec.(type) {
 	case typedef.OneSpec:
 		_ = dto.FromProcTypeOneSpec(webapi.ProcTypeOneSpec{})
@@ -153,20 +153,20 @@ func expSpecToGenerated(spec typedef.ExpSpec) webapi.ProcTypeExprrSpec {
 		})
 	case typedef.TensorSpec:
 		_ = dto.FromProcTypeTensorSpec(webapi.ProcTypeTensorSpec{
-			ValExpr:  expSpecToGenerated(spec.Val),
-			ContExpr: expSpecToGenerated(spec.Cont),
+			ValExpr:  exprSpecToGenerated(spec.Val),
+			ContExpr: exprSpecToGenerated(spec.Cont),
 		})
 	case typedef.LolliSpec:
 		_ = dto.FromProcTypeLolliSpec(webapi.ProcTypeLolliSpec{
-			ValExpr:  expSpecToGenerated(spec.Val),
-			ContExpr: expSpecToGenerated(spec.Cont),
+			ValExpr:  exprSpecToGenerated(spec.Val),
+			ContExpr: exprSpecToGenerated(spec.Cont),
 		})
 	case typedef.PlusSpec:
 		choices := make([]webapi.ProcTypeChoiceSpec, 0, len(spec.Choices))
 		for label, cont := range spec.Choices {
 			choices = append(choices, webapi.ProcTypeChoiceSpec{
 				LabQn:    uniqsym.ConvertToString(label),
-				ContExpr: expSpecToGenerated(cont),
+				ContExpr: exprSpecToGenerated(cont),
 			})
 		}
 		_ = dto.FromProcTypePlusSpec(webapi.ProcTypePlusSpec{Choices: choices})
@@ -175,17 +175,17 @@ func expSpecToGenerated(spec typedef.ExpSpec) webapi.ProcTypeExprrSpec {
 		for label, cont := range spec.Choices {
 			choices = append(choices, webapi.ProcTypeChoiceSpec{
 				LabQn:    uniqsym.ConvertToString(label),
-				ContExpr: expSpecToGenerated(cont),
+				ContExpr: exprSpecToGenerated(cont),
 			})
 		}
 		_ = dto.FromProcTypeWithSpec(webapi.ProcTypeWithSpec{Choices: choices})
 	case typedef.UpSpec:
 		_ = dto.FromProcTypeUpSpec(webapi.ProcTypeUpSpec{
-			ContExpr: expSpecToGenerated(spec.Cont),
+			ContExpr: exprSpecToGenerated(spec.Cont),
 		})
 	case typedef.DownSpec:
 		_ = dto.FromProcTypeDownSpec(webapi.ProcTypeDownSpec{
-			ContExpr: expSpecToGenerated(spec.Cont),
+			ContExpr: exprSpecToGenerated(spec.Cont),
 		})
 	default:
 		panic(typedef.ErrSpecTypeUnexpected(spec))

@@ -9,8 +9,8 @@ import (
 
 func TestDefinitionToGeneratedPreservesNestedContinuation(t *testing.T) {
 	dto, err := DefinitionToGenerated(termdef.DefSpec{Exp: termdef.ExpAcquireSpec{
-		ConnChnlPH: symbol.ADT("request"),
-		ContExp:    termdef.ExpReleaseSpec{ConnChnlPH: symbol.ADT("release")},
+		CommChnlPH: symbol.ADT("request"),
+		ContExp:    termdef.ExpReleaseSpec{CommChnlPH: symbol.ADT("release")},
 	}})
 	if err != nil {
 		t.Fatal(err)

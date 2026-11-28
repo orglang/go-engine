@@ -76,15 +76,15 @@ func (dao *daoEnt) selectSpecByCK(ctx context.Context, conn tx.Conn, key contkey
 }
 
 const selectTermExprTree = `
-WITH RECURSIVE exp_tree AS (
+WITH RECURSIVE expr_tree AS (
     SELECT top.*
     FROM pool_term_exprs AS top
     WHERE top.expr_ck = $1
     UNION
     SELECT sub.*
     FROM pool_term_exprs AS sub
-    JOIN exp_tree AS sup ON sub.sup_expr_ck = sup.expr_ck
+    JOIN expr_tree AS sup ON sub.sup_expr_ck = sup.expr_ck
 )
 SELECT expr_ck, sup_expr_ck, kind, spec
-FROM exp_tree
+FROM expr_tree
 `

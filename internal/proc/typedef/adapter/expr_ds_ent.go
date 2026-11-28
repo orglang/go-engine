@@ -132,13 +132,13 @@ func (dao *exprDaoEnt) SelectRecsByCKs(ctx context.Context, conn tx.Conn, exprCK
 }
 
 const selectByID = `
-WITH RECURSIVE exp_tree AS (
+WITH RECURSIVE expr_tree AS (
     SELECT top.*
     FROM proc_type_exprs top
     WHERE top.expr_ck = $1
     UNION ALL
     SELECT sub.*
-    FROM proc_type_exprs sub, exp_tree sup
+    FROM proc_type_exprs sub, expr_tree sup
     WHERE sub.sup_expr_ck = sup.expr_ck
 )
-SELECT * FROM exp_tree`
+SELECT * FROM expr_tree`

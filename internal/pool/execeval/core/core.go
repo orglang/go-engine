@@ -262,26 +262,26 @@ func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) 
 	execRefs := map[string]execroot.RootRef{}
 	if connMod.ProviderExecID.IsEmpty() {
 		// Non-connection steps still mutate the executing Computation root.
-		execRefs[evalSnap.RootRef.RootID.String()] = evalSnap.RootRef
+		execRefs[evalSnap.RootRef.ExecID.String()] = evalSnap.RootRef
 	} else {
 		// A connection step always mutates the provider execution root. The
 		// initiating client root is added only if its own variables change.
 		providerExecRef := execroot.RootRef{
-			RootID: connMod.ProviderExecID,
-			RootRN: connMod.ProviderExecRN,
+			ExecID: connMod.ProviderExecID,
+			ExecRN: connMod.ProviderExecRN,
 		}
-		execRefs[providerExecRef.RootID.String()] = providerExecRef
+		execRefs[providerExecRef.ExecID.String()] = providerExecRef
 	}
 	for _, variable := range evalMod.Vars {
 		ref := variable.GetRootRef()
 		// The Act's RootRef records the revision that produced the Act. For
 		// provider-side writes, use the live provider revision captured with
 		// the Connection snapshot instead of that historical Act revision.
-		if !connMod.ProviderExecID.IsEmpty() && ref.RootID == connMod.ProviderExecID {
+		if !connMod.ProviderExecID.IsEmpty() && ref.ExecID == connMod.ProviderExecID {
 			continue
 		}
-		if !ref.RootID.IsEmpty() {
-			execRefs[ref.RootID.String()] = ref
+		if !ref.ExecID.IsEmpty() {
+			execRefs[ref.ExecID.String()] = ref
 		}
 	}
 	execKeys := make([]string, 0, len(execRefs))

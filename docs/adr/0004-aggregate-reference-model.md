@@ -118,7 +118,7 @@ Retire применяется ко всему Program aggregate:
 
 Execution — отдельный aggregate root в каждом bounded context. Он не входит в Program.
 
-### Identity и Execution
+### Identity и Evaluation
 
 - `ExecID` идентифицирует Execution aggregate и его единственную Evaluation.
 - В одном Execution существует ровно одна Evaluation; отдельный `ExecutionID` не вводится.

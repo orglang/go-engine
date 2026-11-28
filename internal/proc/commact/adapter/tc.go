@@ -15,7 +15,7 @@ import (
 func DataFromStepRec(r commact.ActRec) (ActRec, error) {
 	switch rec := r.(type) {
 	case commact.PubRec:
-		expr, err := execeval.DataFromExprRec(rec.ValExp)
+		expr, err := execeval.DataFromExprRec(rec.ValExpr)
 		if err != nil {
 			return ActRec{}, err
 		}
@@ -30,7 +30,7 @@ func DataFromStepRec(r commact.ActRec) (ActRec, error) {
 			Expr:   expr,
 		}, nil
 	case commact.SubRec:
-		expr, err := execeval.DataFromExprRec(rec.ContExp)
+		expr, err := execeval.DataFromExprRec(rec.ContExpr)
 		if err != nil {
 			return ActRec{}, err
 		}
@@ -69,9 +69,9 @@ func DataToStepRec(dto ActRec) (commact.ActRec, error) {
 	rootRef := execroot.RootRef{ExecID: rootID, ExecRN: seqnum.ADT(dto.ExecRN)}
 	switch dto.K {
 	case MsgStep:
-		return commact.PubRec{CommID: commID, ActNr: seqnum.ADT(dto.ActNr), RootRef: rootRef, ChnlID: chnlID, ValExp: expr}, nil
+		return commact.PubRec{CommID: commID, ActNr: seqnum.ADT(dto.ActNr), RootRef: rootRef, ChnlID: chnlID, ValExpr: expr}, nil
 	case SvcStep:
-		return commact.SubRec{CommID: commID, ActNr: seqnum.ADT(dto.ActNr), RootRef: rootRef, ChnlID: chnlID, ContExp: expr}, nil
+		return commact.SubRec{CommID: commID, ActNr: seqnum.ADT(dto.ActNr), RootRef: rootRef, ChnlID: chnlID, ContExpr: expr}, nil
 	default:
 		return nil, fmt.Errorf("unexpected Act kind: %v", dto.K)
 	}

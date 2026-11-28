@@ -13,7 +13,7 @@ func TestDownRecRoundTrip(t *testing.T) {
 
 	want := typedef.DownRec{
 		ExprCK:   contkey.Three,
-		ContExp: typedef.OneRec{ExprCK: contkey.One},
+		ContExpr: typedef.OneRec{ExprCK: contkey.One},
 	}
 
 	dto := dataFromExprRec(want)

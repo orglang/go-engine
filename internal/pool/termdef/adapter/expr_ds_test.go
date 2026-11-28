@@ -16,10 +16,10 @@ func TestExprDataRoundTripPreservesNestedDefinition(t *testing.T) {
 	}
 	spec := termdef.ExprAcquireSpec{
 		CommChnlPH: symbol.ADT("request"),
-		ContExp: termdef.ExprHireSpec{
+		ContExpr: termdef.ExprHireSpec{
 			CommChnlPH: symbol.ADT("worker"),
 			ProcTermQN: workerQN,
-			ContExp: termdef.ExprSpawnSpec{
+			ContExpr: termdef.ExprSpawnSpec{
 				ProcTermQN: workerQN,
 			},
 		},

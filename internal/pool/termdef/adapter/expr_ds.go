@@ -57,16 +57,16 @@ func statesFromExprRec(parent int64, rec termdef.ExprRec, dto *ExprData) int64 {
 	switch r := rec.(type) {
 	case termdef.ExprAcquireRec:
 		kind, data.CommChnlPH = AcquireKind, string(r.CommChnlPH)
-		data.ContExprCK = statesFromExprRec(key, r.ContExp, dto)
+		data.ContExprCK = statesFromExprRec(key, r.ContExpr, dto)
 	case termdef.ExprAcceptRec:
 		kind, data.CommChnlPH = AcceptKind, string(r.CommChnlPH)
-		data.ContExprCK = statesFromExprRec(key, r.ContExp, dto)
+		data.ContExprCK = statesFromExprRec(key, r.ContExpr, dto)
 	case termdef.ExprHireRec:
 		kind, data.CommChnlPH, data.ProcTermQN = HireKind, string(r.CommChnlPH), uniqsym.ConvertToString(r.ProcTermQN)
-		data.ContExprCK = statesFromExprRec(key, r.ContExp, dto)
+		data.ContExprCK = statesFromExprRec(key, r.ContExpr, dto)
 	case termdef.ExprApplyRec:
 		kind, data.CommChnlPH, data.ProcTermQN = ApplyKind, string(r.CommChnlPH), uniqsym.ConvertToString(r.ProcTermQN)
-		data.ContExprCK = statesFromExprRec(key, r.ContExp, dto)
+		data.ContExprCK = statesFromExprRec(key, r.ContExpr, dto)
 	case termdef.ExprReleaseRec:
 		kind, data.CommChnlPH = ReleaseKind, string(r.CommChnlPH)
 	case termdef.ExprDetachRec:
@@ -142,14 +142,14 @@ func statesToExprRec(states map[int64]ExprState, state ExprState, visiting, visi
 			return nil, e
 		}
 		c, e := cont()
-		return termdef.ExprAcquireRec{ExprCK: key, CommChnlPH: p, ContExp: c}, e
+		return termdef.ExprAcquireRec{ExprCK: key, CommChnlPH: p, ContExpr: c}, e
 	case AcceptKind:
 		p, e := ph()
 		if e != nil {
 			return nil, e
 		}
 		c, e := cont()
-		return termdef.ExprAcceptRec{ExprCK: key, CommChnlPH: p, ContExp: c}, e
+		return termdef.ExprAcceptRec{ExprCK: key, CommChnlPH: p, ContExpr: c}, e
 	case HireKind:
 		p, e := ph()
 		if e != nil {
@@ -160,7 +160,7 @@ func statesToExprRec(states map[int64]ExprState, state ExprState, visiting, visi
 			return nil, e
 		}
 		c, e := cont()
-		return termdef.ExprHireRec{ExprCK: key, CommChnlPH: p, ProcTermQN: q, ContExp: c}, e
+		return termdef.ExprHireRec{ExprCK: key, CommChnlPH: p, ProcTermQN: q, ContExpr: c}, e
 	case ApplyKind:
 		p, e := ph()
 		if e != nil {
@@ -171,7 +171,7 @@ func statesToExprRec(states map[int64]ExprState, state ExprState, visiting, visi
 			return nil, e
 		}
 		c, e := cont()
-		return termdef.ExprApplyRec{ExprCK: key, CommChnlPH: p, ProcTermQN: q, ContExp: c}, e
+		return termdef.ExprApplyRec{ExprCK: key, CommChnlPH: p, ProcTermQN: q, ContExpr: c}, e
 	case ReleaseKind:
 		p, e := ph()
 		return termdef.ExprReleaseRec{ExprCK: key, CommChnlPH: p}, e

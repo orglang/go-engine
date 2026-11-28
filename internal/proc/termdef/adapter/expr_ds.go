@@ -75,7 +75,7 @@ func statesFromExprRec(parent int64, rec termdef.ExprRec, dto *ExprData) int64 {
 	case termdef.ExprWaitRec:
 		kind = WaitKind
 		d.ContChnlPH = string(r.ContChnlPH)
-		d.ContExprCK = child(r.ContExp)
+		d.ContExprCK = child(r.ContExpr)
 	case termdef.ExprSendRec:
 		kind = SendKind
 		d.CommChnlPH = string(r.CommChnlPH)
@@ -84,12 +84,12 @@ func statesFromExprRec(parent int64, rec termdef.ExprRec, dto *ExprData) int64 {
 		kind = RecvKind
 		d.CommChnlPH = string(r.CommChnlPH)
 		d.NewChnlPH = string(r.NewChnlPH)
-		d.ContExprCK = child(r.ContExp)
+		d.ContExprCK = child(r.ContExpr)
 	case termdef.ExprLabRec:
 		kind = LabKind
 		d.CommChnlPH = string(r.CommChnlPH)
 		d.ValLabQN = uniqsym.ConvertToString(r.ValLabQN)
-		d.ContExprCK = child(r.ContExp)
+		d.ContExprCK = child(r.ContExpr)
 	case termdef.ExprCaseRec:
 		kind = CaseKind
 		d.CommChnlPH = string(r.CommChnlPH)
@@ -125,7 +125,7 @@ func statesFromExprRec(parent int64, rec termdef.ExprRec, dto *ExprData) int64 {
 		for i, v := range r.ValChnlPHs {
 			d.ValChnlPHs[i] = string(v)
 		}
-		d.ContExprCK = child(r.ContExp)
+		d.ContExprCK = child(r.ContExpr)
 	case termdef.ExprSpawnRec:
 		kind = SpawnKind
 		d.CommChnlPH = string(r.CommChnlPH)
@@ -134,15 +134,15 @@ func statesFromExprRec(parent int64, rec termdef.ExprRec, dto *ExprData) int64 {
 		for i, v := range r.NewChnlPHs {
 			d.NewChnlPHs[i] = string(v)
 		}
-		d.ContExprCK = child(r.ContExp)
+		d.ContExprCK = child(r.ContExpr)
 	case termdef.ExprAcquireRec:
 		kind = AcquireKind
 		d.CommChnlPH = string(r.CommChnlPH)
-		d.ContExprCK = child(r.ContExp)
+		d.ContExprCK = child(r.ContExpr)
 	case termdef.ExprAcceptRec:
 		kind = AcceptKind
 		d.CommChnlPH = string(r.CommChnlPH)
-		d.ContExprCK = child(r.ContExp)
+		d.ContExprCK = child(r.ContExpr)
 	case termdef.ExprDetachRec:
 		kind = DetachKind
 		d.CommChnlPH = string(r.CommChnlPH)
@@ -215,7 +215,7 @@ func statesToExprRec(states map[int64]ExprState, st ExprState, visiting, visited
 			return nil, e
 		}
 		c, e := child(d.ContExprCK)
-		return termdef.ExprWaitRec{ExprCK: key, ContChnlPH: p, ContExp: c}, e
+		return termdef.ExprWaitRec{ExprCK: key, ContChnlPH: p, ContExpr: c}, e
 	case SendKind:
 		x, e := ph(d.CommChnlPH)
 		if e != nil {
@@ -233,7 +233,7 @@ func statesToExprRec(states map[int64]ExprState, st ExprState, visiting, visited
 			return nil, e
 		}
 		c, e := child(d.ContExprCK)
-		return termdef.ExprRecvRec{ExprCK: key, CommChnlPH: x, NewChnlPH: y, ContExp: c}, e
+		return termdef.ExprRecvRec{ExprCK: key, CommChnlPH: x, NewChnlPH: y, ContExpr: c}, e
 	case LabKind:
 		x, e := ph(d.CommChnlPH)
 		if e != nil {
@@ -244,7 +244,7 @@ func statesToExprRec(states map[int64]ExprState, st ExprState, visiting, visited
 			return nil, e
 		}
 		c, e := child(d.ContExprCK)
-		return termdef.ExprLabRec{ExprCK: key, CommChnlPH: x, ValLabQN: q, ContExp: c}, e
+		return termdef.ExprLabRec{ExprCK: key, CommChnlPH: x, ValLabQN: q, ContExpr: c}, e
 	case CaseKind:
 		x, e := ph(d.CommChnlPH)
 		if e != nil {
@@ -308,7 +308,7 @@ func statesToExprRec(states map[int64]ExprState, st ExprState, visiting, visited
 			}
 		}
 		c, e := child(d.ContExprCK)
-		return termdef.ExprCallRec{ExprCK: key, CommChnlPH: x, NewChnlPH: y, ProcTermQN: q, ValChnlPHs: chs, ContExp: c}, e
+		return termdef.ExprCallRec{ExprCK: key, CommChnlPH: x, NewChnlPH: y, ProcTermQN: q, ValChnlPHs: chs, ContExpr: c}, e
 	case SpawnKind:
 		x, e := ph(d.CommChnlPH)
 		if e != nil {
@@ -326,21 +326,21 @@ func statesToExprRec(states map[int64]ExprState, st ExprState, visiting, visited
 			}
 		}
 		c, e := child(d.ContExprCK)
-		return termdef.ExprSpawnRec{ExprCK: key, CommChnlPH: x, ProcTermQN: q, NewChnlPHs: chs, ContExp: c}, e
+		return termdef.ExprSpawnRec{ExprCK: key, CommChnlPH: x, ProcTermQN: q, NewChnlPHs: chs, ContExpr: c}, e
 	case AcquireKind:
 		x, e := ph(d.CommChnlPH)
 		if e != nil {
 			return nil, e
 		}
 		c, e := child(d.ContExprCK)
-		return termdef.ExprAcquireRec{ExprCK: key, CommChnlPH: x, ContExp: c}, e
+		return termdef.ExprAcquireRec{ExprCK: key, CommChnlPH: x, ContExpr: c}, e
 	case AcceptKind:
 		x, e := ph(d.CommChnlPH)
 		if e != nil {
 			return nil, e
 		}
 		c, e := child(d.ContExprCK)
-		return termdef.ExprAcceptRec{ExprCK: key, CommChnlPH: x, ContExp: c}, e
+		return termdef.ExprAcceptRec{ExprCK: key, CommChnlPH: x, ContExpr: c}, e
 	case DetachKind:
 		x, e := ph(d.CommChnlPH)
 		return termdef.ExprDetachRec{ExprCK: key, CommChnlPH: x}, e

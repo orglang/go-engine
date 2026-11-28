@@ -7,7 +7,7 @@ import (
 
 func SampleVarRec() LinearRec {
 	return LinearRec{
-		RootRef: comproot.New(),
+		RootRef: execroot.New(),
 		ConnID:  identity.New(),
 		ChnlID:  identity.New(),
 		ChnlPH:  "chnl-1",

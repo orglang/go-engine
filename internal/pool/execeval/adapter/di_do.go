@@ -7,7 +7,7 @@ import (
 	"github.com/alitto/pond/v2"
 	"github.com/samber/do/v2"
 
-	"orglang/go-engine/internal/adt/comproot"
+	"orglang/go-engine/internal/adt/execroot"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/pool/ent"
 	execconn "orglang/go-engine/internal/pool/execconn/core"
@@ -77,7 +77,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		compRepo, err := do.Invoke[comproot.Repo](i)
+		compRepo, err := do.Invoke[execroot.Repo](i)
 		if err != nil {
 			return nil, err
 		}
@@ -97,7 +97,7 @@ var Package = do.Package(
 			TypeDefRepo:    typeRepo,
 			ProcEvalRepo:   procRepo,
 			TermDecRepo:    termDecRepo,
-			CompRootRepo:   compRepo,
+			ExecRootRepo:   compRepo,
 			Transactor:     transactor,
 			Logger:         logger,
 		}), nil
@@ -113,7 +113,7 @@ var Package = do.Package(
 		}
 		return newControllerEcho(api, logger), nil
 	}),
-	do.Lazy[comproot.Repo](func(i do.Injector) (comproot.Repo, error) {
+	do.Lazy[execroot.Repo](func(i do.Injector) (execroot.Repo, error) {
 		client, err := do.Invoke[*ent.Client](i)
 		if err != nil {
 			return nil, err
@@ -122,7 +122,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return NewCompRootDaoEnt(client, logger), nil
+		return NewExecRootDaoEnt(client, logger), nil
 	}),
 )
 

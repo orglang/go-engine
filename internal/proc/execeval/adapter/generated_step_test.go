@@ -36,7 +36,7 @@ func TestGeneratedStepToCoreMapsNestedProcessExpression(t *testing.T) {
 	if !ok {
 		t.Fatalf("expected core wait expression, got %T", spec.ProcExpr)
 	}
-	if got := symbol.ConvertToString(wait.ContExpr); got != "wait-channel" {
+	if got := symbol.ConvertToString(wait.ContChnlPH); got != "wait-channel" {
 		t.Errorf("unexpected wait channel: got %q", got)
 	}
 	closeSpec, ok := wait.ContExpr.(commact.CloseSpec)

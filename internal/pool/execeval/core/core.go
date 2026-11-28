@@ -155,7 +155,7 @@ func (s *service) Run(ctx context.Context, spec EvalSpec) (_ execroot.RootRef, e
 	}
 	newEval := EvalRec{RootRef: execroot.New(), TermQN: spec.TermQN, LiabMode: execvar.StructMode}
 	// Reserve the provider-side connection identity in its liability variable.
-	// The Connection record itself is created when a client Computation attaches.
+	// The Connection record itself is created when a client execution attaches.
 	newConnID := identity.New()
 	newLiabVar := execvar.StructRec{
 		RootRef: newEval.RootRef,
@@ -168,7 +168,7 @@ func (s *service) Run(ctx context.Context, spec EvalSpec) (_ execroot.RootRef, e
 	newAssetVars := make([]execvar.VarRec, 0, len(spec.AssetVars)+1)
 	// Materialize a Connection row for each attached asset endpoint.
 	// A self-reference uses the new liability endpoint, so both endpoints and
-	// its Connection are created atomically with this Computation.
+	// its Connection are created atomically with this execution.
 	newConns := make([]execconn.ConnRec, 0, len(assetEvals)+1)
 	for _, assetVar := range spec.AssetVars {
 		var connID identity.ADT
@@ -256,15 +256,15 @@ func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) 
 		s.log.Error("step taking failed", refAttr)
 		return takeErr
 	}
-	// Every changed Computation aggregate is guarded by its observed root revision.
-	// Connection changes always include the provider aggregate, regardless of
+	// Every changed execution root is guarded by its observed root revision.
+	// Connection changes always include the provider execution root, regardless of
 	// which endpoint initiated the step.
 	rootRefs := map[string]execroot.RootRef{}
 	if connMod.ProviderExecID.IsEmpty() {
 		// Non-connection steps still mutate the executing Computation root.
 		rootRefs[evalSnap.RootRef.RootID.String()] = evalSnap.RootRef
 	} else {
-		// A connection step always mutates the provider aggregate. The
+		// A connection step always mutates the provider execution root. The
 		// initiating client root is added only if its own variables change.
 		providerRef := execroot.RootRef{
 			RootID: connMod.ProviderExecID,
@@ -284,15 +284,15 @@ func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) 
 			rootRefs[ref.RootID.String()] = ref
 		}
 	}
-	compKeys := make([]string, 0, len(rootRefs))
+	rootKeys := make([]string, 0, len(rootRefs))
 	for key := range rootRefs {
-		compKeys = append(compKeys, key)
+		rootKeys = append(rootKeys, key)
 	}
-	slices.Sort(compKeys)
+	slices.Sort(rootKeys)
 
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		// CAS all affected aggregate roots before writing any child state.
-		for _, key := range compKeys {
+		for _, key := range rootKeys {
 			if touchErr := s.execRootRepo.TouchRef(txCtx, conn, rootRefs[key]); touchErr != nil {
 				return touchErr
 			}

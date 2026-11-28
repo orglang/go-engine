@@ -9,7 +9,7 @@ type ActRec struct {
 	ExecRN int64           `db:"exec_rn"`
 	ChnlID string          `db:"chnl_id"`
 	K      StepKind        `db:"kind"`
-	Expr   execeval.ExpRec `db:"expr" fieldopt:"noexpand"`
+	Expr   execeval.ExprRec `db:"expr" fieldopt:"noexpand"`
 }
 
 type StepKind int16

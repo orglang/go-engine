@@ -33,13 +33,13 @@ func newExprrRepo() typedef.TypeExprRepo {
 	return new(exprDaoEnt)
 }
 
-func (dao *exprDaoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.ExpRec) error {
+func (dao *exprDaoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.ExprRec) error {
 	ckAttr := slog.Any("exprCK", rec.Key())
 	dto := dataFromExprRec(rec)
 	builders := make([]*ent.TypeExprCreate, 0, len(dto.States))
 	for _, st := range dto.States {
 		builders = append(builders, dao.client.TypeExpr.Create().
-			SetID(st.ExpCK).
+			SetID(st.ExprCK).
 			SetSupExprCk(st.SupExprCK).
 			SetKind(int16(st.K)).
 			SetSpec(st.Spec))
@@ -57,7 +57,7 @@ func (dao *exprDaoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.Exp
 	return nil
 }
 
-func (dao *exprDaoEnt) SelectRecByCK(ctx context.Context, conn tx.Conn, exprCK contkey.ADT) (typedef.ExpRec, error) {
+func (dao *exprDaoEnt) SelectRecByCK(ctx context.Context, conn tx.Conn, exprCK contkey.ADT) (typedef.ExprRec, error) {
 	ckAttr := slog.Any("exprCK", exprCK)
 	rows, queryErr := conn.Pgx.Query(ctx, selectByID, contkey.ConvertToInt(exprCK))
 	if queryErr != nil {
@@ -77,24 +77,24 @@ func (dao *exprDaoEnt) SelectRecByCK(ctx context.Context, conn tx.Conn, exprCK c
 	dao.log.Log(ctx, lf.LevelTrace, "entity selection succeed", slog.Any("dtos", dtos))
 	states := make(map[int64]State, len(dtos))
 	for _, dto := range dtos {
-		states[dto.ExpCK] = dto
+		states[dto.ExprCK] = dto
 	}
 	return statesToExprRec(states, states[contkey.ConvertToInt(exprCK)])
 }
 
-func (dao *exprDaoEnt) SelectEnv(ctx context.Context, conn tx.Conn, exprCKs []contkey.ADT) (map[contkey.ADT]typedef.ExpRec, error) {
+func (dao *exprDaoEnt) SelectEnv(ctx context.Context, conn tx.Conn, exprCKs []contkey.ADT) (map[contkey.ADT]typedef.ExprRec, error) {
 	recs, err := dao.SelectRecsByCKs(ctx, conn, exprCKs)
 	if err != nil {
 		return nil, err
 	}
-	env := make(map[contkey.ADT]typedef.ExpRec, len(recs))
+	env := make(map[contkey.ADT]typedef.ExprRec, len(recs))
 	for _, rec := range recs {
 		env[rec.Key()] = rec
 	}
 	return env, nil
 }
 
-func (dao *exprDaoEnt) SelectRecsByCKs(ctx context.Context, conn tx.Conn, exprCKs []contkey.ADT) (_ []typedef.ExpRec, err error) {
+func (dao *exprDaoEnt) SelectRecsByCKs(ctx context.Context, conn tx.Conn, exprCKs []contkey.ADT) (_ []typedef.ExprRec, err error) {
 	batch := pgx.Batch{}
 	for _, exprCK := range exprCKs {
 		batch.Queue(selectByID, contkey.ConvertToInt(exprCK))
@@ -103,7 +103,7 @@ func (dao *exprDaoEnt) SelectRecsByCKs(ctx context.Context, conn tx.Conn, exprCK
 	defer func() {
 		err = errors.Join(err, br.Close())
 	}()
-	recs := make([]typedef.ExpRec, 0, len(exprCKs))
+	recs := make([]typedef.ExprRec, 0, len(exprCKs))
 	for _, exprCK := range exprCKs {
 		ckAttr := slog.Any("exprCK", exprCK)
 		rows, readErr := br.Query()
@@ -120,7 +120,7 @@ func (dao *exprDaoEnt) SelectRecsByCKs(ctx context.Context, conn tx.Conn, exprCK
 			dao.log.Error("entity selection failed", ckAttr)
 			return nil, typedef.ErrMissingInEnv(exprCK)
 		}
-		rec, convErr := dataToExprRec(ExpRec{ExpCK: contkey.ConvertToInt(exprCK), States: dtos})
+		rec, convErr := dataToExprRec(ExprRec{ExprCK: contkey.ConvertToInt(exprCK), States: dtos})
 		if convErr != nil {
 			dao.log.Error("model conversion failed", ckAttr)
 			return nil, convErr

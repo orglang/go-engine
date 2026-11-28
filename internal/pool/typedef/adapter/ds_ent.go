@@ -42,7 +42,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec)
 	_, err = dao.client.TypeDef.Create().
 		SetID(dto.TypeID).
 		SetProgID(dto.ProgID).
-		SetExpCk(dto.ExpCK).
+		SetExpCk(dto.ExprCK).
 		Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)
@@ -101,7 +101,7 @@ WHERE db.prog_qn = $1
 	}
 	for qn, rec := range recs {
 		rec.TypeQN = qn
-		expr, err := dao.getRecByCK(ctx, conn, rec.ExpCK)
+		expr, err := dao.getRecByCK(ctx, conn, rec.ExprCK)
 		if err != nil {
 			return nil, err
 		}

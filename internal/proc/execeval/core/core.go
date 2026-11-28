@@ -213,7 +213,7 @@ func (s *service) takeWith(
 	var err error
 	execAttr := slog.Any("rootRef", evalSnap.RootRef)
 	evalMod.ExecRefs = append(evalMod.ExecRefs, evalSnap.RootRef)
-	switch termExpr := exp.(type) {
+	switch termExpr := expr.(type) {
 	case commact.CloseSpec:
 		commChnl, ok := evalSnap.LinearVars[termExpr.ContChnlPH]
 		if !ok {

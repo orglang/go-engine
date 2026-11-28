@@ -327,18 +327,18 @@ func (s *service) takeStep(
 	err error,
 ) {
 	execAttr := slog.Any("rootRef", evalSnap.RootRef)
-	switch termExprr := exp.(type) {
+	switch termExpr := expr.(type) {
 	case AcceptSpec:
-		commChnl, ok := evalSnap.StructVars[termExprr.CommChnlPH]
+		commChnl, ok := evalSnap.StructVars[termExpr.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
-			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExprr.CommChnlPH)
+			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExpr.CommChnlPH)
 		}
 		// вычисляем следующее состояние
-		typeExpr, ok := evalSnap.StructExps[termExprr.CommChnlPH]
+		typeExpr, ok := evalSnap.StructExps[termExpr.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
-			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCtx(termExprr.CommChnlPH)
+			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCtx(termExpr.CommChnlPH)
 		}
 		nextExprCK := typeExpr.(typedef.ProdRec).Next()
 		// получаем снепшот соединения
@@ -370,7 +370,7 @@ func (s *service) takeStep(
 				ChnlID:  commChnl.ChnlID,
 				ContExp: AcceptRec{
 					ContChnlPH: commChnl.ChnlPH,
-					ContExp:    termExprr.ContExp,
+					ContExp:    termExpr.ContExp,
 				},
 			})
 			s.log.Debug("taking half done", execAttr, commAttr)
@@ -390,11 +390,11 @@ func (s *service) takeStep(
 			ChnlBS:  commChnl.ChnlBS,
 			ExpCK:   nextExprCK,
 		})
-		if termExprr.ContExp != nil {
+		if termExpr.ContExp != nil {
 			// шедулим продолжение доступодателя
 			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 				RootRef: evalSnap.RootRef,
-				PoolExpr: termExprr.ContExp,
+				PoolExpr: termExpr.ContExp,
 			})
 		}
 		switch exprRec := acquisition.ContExp.(type) {
@@ -422,16 +422,16 @@ func (s *service) takeStep(
 		s.log.Debug("step taking succeed", execAttr, commAttr)
 		return evalMod, evalEff, commMod, nil
 	case AcquireSpec:
-		commChnl, ok := evalSnap.StructVars[termExprr.CommChnlPH]
+		commChnl, ok := evalSnap.StructVars[termExpr.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
-			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExprr.CommChnlPH)
+			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExpr.CommChnlPH)
 		}
 		// вычисляем следующее состояние
-		typeExpr, ok := evalSnap.StructExps[termExprr.CommChnlPH]
+		typeExpr, ok := evalSnap.StructExps[termExpr.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
-			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCtx(termExprr.CommChnlPH)
+			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCtx(termExpr.CommChnlPH)
 		}
 		nextExprCK := typeExpr.(typedef.ProdRec).Next()
 		// получаем снепшот коммуникации
@@ -463,7 +463,7 @@ func (s *service) takeStep(
 				ChnlID:  commChnl.ChnlID,
 				ContExp: AcquireRec{
 					ContChnlPH: commChnl.ChnlPH,
-					ContExp:    termExprr.ContExp,
+					ContExp:    termExpr.ContExp,
 				},
 			})
 			s.log.Debug("taking half done", execAttr, commAttr)
@@ -483,11 +483,11 @@ func (s *service) takeStep(
 			ChnlBS:  commChnl.ChnlBS,
 			ExpCK:   nextExprCK,
 		})
-		if termExprr.ContExp != nil {
+		if termExpr.ContExp != nil {
 			// шедулим продолжение доступополучателя
 			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 				RootRef: evalSnap.RootRef,
-				PoolExpr: termExprr.ContExp,
+				PoolExpr: termExpr.ContExp,
 			})
 		}
 		switch exprRec := acception.ContExp.(type) {
@@ -515,16 +515,16 @@ func (s *service) takeStep(
 		s.log.Debug("step taking succeed", execAttr, commAttr)
 		return evalMod, evalEff, commMod, nil
 	case ApplySpec:
-		commChnl, ok := evalSnap.LinearVars[termExprr.CommChnlPH]
+		commChnl, ok := evalSnap.LinearVars[termExpr.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
-			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExprr.CommChnlPH)
+			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExpr.CommChnlPH)
 		}
 		// вычисляем следующее состояние
-		typeExpr, ok := evalSnap.LinearExps[termExprr.CommChnlPH]
+		typeExpr, ok := evalSnap.LinearExps[termExpr.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
-			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCtx(termExprr.CommChnlPH)
+			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCtx(termExpr.CommChnlPH)
 		}
 		nextExprCK := typeExpr.(typedef.ProdRec).Next()
 		// получаем снепшот коммуникации
@@ -556,8 +556,8 @@ func (s *service) takeStep(
 				ChnlID:  commChnl.ChnlID,
 				ContExp: ApplyRec{
 					ContChnlPH: commChnl.ChnlPH,
-					ProcTermQN: termExprr.ProcTermQN,
-					ContExp:    termExprr.ContExp,
+					ProcTermQN: termExpr.ProcTermQN,
+					ContExp:    termExpr.ContExp,
 				},
 			})
 			s.log.Debug("taking half done", execAttr, commAttr)
@@ -577,11 +577,11 @@ func (s *service) takeStep(
 			ChnlBS:  commChnl.ChnlBS,
 			ExpCK:   nextExprCK,
 		})
-		if termExprr.ContExp != nil {
+		if termExpr.ContExp != nil {
 			// шедулим продолжение соискателя
 			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 				RootRef: evalSnap.RootRef,
-				PoolExpr: termExprr.ContExp,
+				PoolExpr: termExpr.ContExp,
 			})
 		}
 		switch exprRec := hiring.ContExp.(type) {
@@ -608,16 +608,16 @@ func (s *service) takeStep(
 		s.log.Debug("step taking succeed", execAttr, commAttr)
 		return evalMod, evalEff, commMod, nil
 	case HireSpec:
-		commChnl, ok := evalSnap.LinearVars[termExprr.CommChnlPH]
+		commChnl, ok := evalSnap.LinearVars[termExpr.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
-			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExprr.CommChnlPH)
+			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExpr.CommChnlPH)
 		}
 		// вычисляем следующее состояние
-		typeExpr, ok := evalSnap.LinearExps[termExprr.CommChnlPH]
+		typeExpr, ok := evalSnap.LinearExps[termExpr.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
-			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCtx(termExprr.CommChnlPH)
+			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCtx(termExpr.CommChnlPH)
 		}
 		nextExprCK := typeExpr.(typedef.ProdRec).Next()
 		// получаем снепшот коммуникации
@@ -649,8 +649,8 @@ func (s *service) takeStep(
 				ChnlID:  commChnl.ChnlID,
 				ContExp: HireRec{
 					ContChnlPH: commChnl.ChnlPH,
-					ProcTermQN: termExprr.ProcTermQN,
-					ContExp:    termExprr.ContExp,
+					ProcTermQN: termExpr.ProcTermQN,
+					ContExp:    termExpr.ContExp,
 				},
 			})
 			s.log.Debug("taking half done", execAttr, commAttr)
@@ -670,11 +670,11 @@ func (s *service) takeStep(
 			ChnlBS:  commChnl.ChnlBS,
 			ExpCK:   nextExprCK,
 		})
-		if termExprr.ContExp != nil {
+		if termExpr.ContExp != nil {
 			// шедулим продолжение нанимателя
 			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 				RootRef: evalSnap.RootRef,
-				PoolExpr: termExprr.ContExp,
+				PoolExpr: termExpr.ContExp,
 			})
 		}
 		switch exprRec := application.ContExp.(type) {
@@ -701,16 +701,16 @@ func (s *service) takeStep(
 		s.log.Debug("step taking succeed", execAttr, commAttr)
 		return evalMod, evalEff, commMod, nil
 	case ReleaseSpec:
-		commChnl, ok := evalSnap.LinearVars[termExprr.CommChnlPH]
+		commChnl, ok := evalSnap.LinearVars[termExpr.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
-			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExprr.CommChnlPH)
+			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExpr.CommChnlPH)
 		}
 		// вычисляем следующее состояние
-		typeExpr, ok := evalSnap.LinearExps[termExprr.CommChnlPH]
+		typeExpr, ok := evalSnap.LinearExps[termExpr.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
-			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCtx(termExprr.CommChnlPH)
+			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCtx(termExpr.CommChnlPH)
 		}
 		nextExprCK := typeExpr.(typedef.ProdRec).Next()
 		// получаем снепшот коммуникации
@@ -778,16 +778,16 @@ func (s *service) takeStep(
 		s.log.Debug("step taking succeed", execAttr, commAttr)
 		return evalMod, evalEff, commMod, nil
 	case DetachSpec:
-		commChnl, ok := evalSnap.LinearVars[termExprr.CommChnlPH]
+		commChnl, ok := evalSnap.LinearVars[termExpr.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
-			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExprr.CommChnlPH)
+			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExpr.CommChnlPH)
 		}
 		// вычисляем следующее состояние
-		typeExpr, ok := evalSnap.LinearExps[termExprr.CommChnlPH]
+		typeExpr, ok := evalSnap.LinearExps[termExpr.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
-			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCtx(termExprr.CommChnlPH)
+			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCtx(termExpr.CommChnlPH)
 		}
 		nextExprCK := typeExpr.(typedef.ProdRec).Next()
 		// получаем снепшот коммуникации

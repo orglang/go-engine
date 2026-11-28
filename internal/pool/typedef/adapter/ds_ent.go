@@ -101,11 +101,11 @@ WHERE db.prog_qn = $1
 	}
 	for qn, rec := range recs {
 		rec.TypeQN = qn
-		exp, err := dao.getRecByCK(ctx, conn, rec.ExpCK)
+		expr, err := dao.getRecByCK(ctx, conn, rec.ExpCK)
 		if err != nil {
 			return nil, err
 		}
-		rec.TypeExpr = exp
+		rec.TypeExpr = expr
 		recs[qn] = rec
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("recs", recs))

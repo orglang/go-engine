@@ -60,13 +60,13 @@ func NewService(
 func (s *service) Create(ctx context.Context, spec DefSpec) (_ identity.ADT, _ progroot.RootRef, err error) {
 	qnAttr := slog.Any("qn", spec.TypeQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
-	newExp, convErr := ConvertSpecToRec(spec.TypeExpr)
+	newExpr, convErr := ConvertSpecToRec(spec.TypeExpr)
 	if convErr != nil {
 		return identity.ADT{}, progroot.RootRef{}, convErr
 	}
 	typeID := identity.New()
 	progRef := progroot.New()
-	newDef := DefRec{TypeID: typeID, ProgRef: progRef, TypeQN: spec.TypeQN, ExpCK: newExp.Key(), TypeExpr: newExp}
+	newDef := DefRec{TypeID: typeID, ProgRef: progRef, TypeQN: spec.TypeQN, ExpCK: newExpr.Key(), TypeExpr: newExpr}
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		if err := s.progRootRepo.AddRef(txCtx, conn, progRef); err != nil {
 			return err
@@ -82,5 +82,5 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ identity.ADT, _ p
 }
 
 func ErrMissingInEnv(want contkey.ADT) error {
-	return fmt.Errorf("exp missing in env: %v", want)
+	return fmt.Errorf("expr missing in env: %v", want)
 }

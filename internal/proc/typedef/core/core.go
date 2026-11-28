@@ -63,16 +63,16 @@ func NewService(typeDefRepo Repo, progRootRepo progroot.Repo, typeExprRepo TypeE
 func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err error) {
 	qnAttr := slog.Any("qn", spec.TypeQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
-	newExp, err := ConvertSpecToRec(spec.TypeExpr)
+	newExpr, err := ConvertSpecToRec(spec.TypeExpr)
 	if err != nil {
 		return DefSnap{}, err
 	}
-	newDef := DefRec{TypeID: identity.New(), ProgRef: progroot.New(), TypeQN: spec.TypeQN, ExpCK: newExp.Key()}
+	newDef := DefRec{TypeID: identity.New(), ProgRef: progroot.New(), TypeQN: spec.TypeQN, ExpCK: newExpr.Key()}
 	err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		if err := s.progRootRepo.AddRef(txCtx, conn, newDef.ProgRef); err != nil {
 			return err
 		}
-		if err := s.typeExprRepo.AddRec(txCtx, conn, newExp); err != nil {
+		if err := s.typeExprRepo.AddRec(txCtx, conn, newExpr); err != nil {
 			return err
 		}
 		return s.typeDefRepo.AddRec(txCtx, conn, newDef)
@@ -107,18 +107,18 @@ func (s *service) Modify(ctx context.Context, snap DefSnap) (_ DefSnap, err erro
 	if CheckSpec(snap.DefSpec.TypeExpr, curSnap.DefSpec.TypeExpr) == nil {
 		return curSnap, nil
 	}
-	newExp, err := ConvertSpecToRec(snap.DefSpec.TypeExpr)
+	newExpr, err := ConvertSpecToRec(snap.DefSpec.TypeExpr)
 	if err != nil {
 		return DefSnap{}, err
 	}
 	expectedRoot := progroot.RootRef{ProgID: rec.ProgRef.ProgID, ProgRN: snap.ProgRef.ProgRN}
 	snap.ProgRef.ProgRN = seqnum.Next(snap.ProgRef.ProgRN)
-	rec.ExpCK = newExp.Key()
+	rec.ExpCK = newExpr.Key()
 	err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		if err := s.progRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil {
 			return err
 		}
-		if err := s.typeExprRepo.AddRec(txCtx, conn, newExp); err != nil {
+		if err := s.typeExprRepo.AddRec(txCtx, conn, newExpr); err != nil {
 			return err
 		}
 		return s.typeDefRepo.ModifyRec(txCtx, conn, rec)
@@ -143,14 +143,14 @@ func (s *service) RetrieveSnap(ctx context.Context, id identity.ADT) (_ DefSnap,
 }
 
 func (s *service) snapFromRec(ctx context.Context, rec DefRec) (_ DefSnap, err error) {
-	expRec, err := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (ExpRec, error) {
+	exprRec, err := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (ExpRec, error) {
 		return s.typeExprRepo.SelectRecByCK(txCtx, conn, rec.ExpCK)
 	})
 	if err != nil {
 		s.log.Error("retrieval failed", slog.Any("typeID", rec.TypeID))
 		return DefSnap{}, err
 	}
-	return DefSnap{TypeID: rec.TypeID, ProgRef: rec.ProgRef, DefSpec: DefSpec{TypeQN: rec.TypeQN, TypeExpr: ConvertRecToSpec(expRec)}}, nil
+	return DefSnap{TypeID: rec.TypeID, ProgRef: rec.ProgRef, DefSpec: DefSpec{TypeQN: rec.TypeQN, TypeExpr: ConvertRecToSpec(exprRec)}}, nil
 }
 
 func (s *service) RetreiveRefs(ctx context.Context) (refs []identity.ADT, err error) {
@@ -165,11 +165,11 @@ func (s *service) RetreiveRefs(ctx context.Context) (refs []identity.ADT, err er
 }
 
 func CollectEnv(recs iter.Seq[DefRec]) []contkey.ADT {
-	expIDs := []contkey.ADT{}
+	exprIDs := []contkey.ADT{}
 	for r := range recs {
-		expIDs = append(expIDs, r.ExpCK)
+		exprIDs = append(exprIDs, r.ExpCK)
 	}
-	return expIDs
+	return exprIDs
 }
 
 func ErrSymMissingInEnv(want uniqsym.ADT) error { return fmt.Errorf("root missing in env: %v", want) }
@@ -180,7 +180,7 @@ func ErrOptimisticUpdate(got seqnum.ADT) error {
 	return fmt.Errorf("entity concurrent modification: got revision %v", got)
 }
 func ErrDoesNotExist(want identity.ADT) error { return fmt.Errorf("root doesn't exist: %v", want) }
-func ErrMissingInEnv(want contkey.ADT) error  { return fmt.Errorf("exp missing in env: %v", want) }
+func ErrMissingInEnv(want contkey.ADT) error  { return fmt.Errorf("expr missing in env: %v", want) }
 func ErrMissingInCfg(want identity.ADT) error { return fmt.Errorf("root missing in cfg: %v", want) }
 func ErrMissingInCtx(want symbol.ADT) error   { return fmt.Errorf("root missing in ctx: %v", want) }
 func ErrPolarityUnexpected(got ExpRec) error {

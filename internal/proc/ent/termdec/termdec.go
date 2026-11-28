@@ -20,7 +20,7 @@ const (
 	// FieldAssetVars holds the string denoting the asset_vars field in the database.
 	FieldAssetVars = "asset_vars"
 	// Table holds the table name of the termdec in the database.
-	Table = "proc_desc_terms"
+	Table = "proc_prog_terms"
 )
 
 // Columns holds all SQL columns for termdec fields.

@@ -99,7 +99,7 @@ func TestPackageProvidesHTTPControllers(t *testing.T) {
 		name string
 		call func() error
 	}{
-		{"computation-execution controller", func() error {
+		{"execution-evaluation controller", func() error {
 			_, err := do.Invoke[execevaladapter.Controller](injector)
 			return err
 		}},

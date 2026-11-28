@@ -19,7 +19,7 @@ type API interface {
 
 type DefSpec struct {
 	TypeQN  uniqsym.ADT
-	TypeExp ExpSpec
+	TypeExpr ExpSpec
 }
 
 type DefRec struct {
@@ -27,13 +27,13 @@ type DefRec struct {
 	TypeID  identity.ADT
 	ProgRef progroot.RootRef
 	ExpCK   contkey.ADT
-	TypeExp ExpRec
+	TypeExpr ExpRec
 }
 
 type DefSnap struct {
 	TypeID  identity.ADT
 	ProgRef progroot.RootRef
-	TypeExp ExpSpec
+	TypeExpr ExpSpec
 }
 
 type service struct {
@@ -60,13 +60,13 @@ func NewService(
 func (s *service) Create(ctx context.Context, spec DefSpec) (_ identity.ADT, _ progroot.RootRef, err error) {
 	qnAttr := slog.Any("qn", spec.TypeQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
-	newExp, convErr := ConvertSpecToRec(spec.TypeExp)
+	newExp, convErr := ConvertSpecToRec(spec.TypeExpr)
 	if convErr != nil {
 		return identity.ADT{}, progroot.RootRef{}, convErr
 	}
 	typeID := identity.New()
 	progRef := progroot.New()
-	newDef := DefRec{TypeID: typeID, ProgRef: progRef, TypeQN: spec.TypeQN, ExpCK: newExp.Key(), TypeExp: newExp}
+	newDef := DefRec{TypeID: typeID, ProgRef: progRef, TypeQN: spec.TypeQN, ExpCK: newExp.Key(), TypeExpr: newExp}
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		if err := s.progRootRepo.AddRef(txCtx, conn, progRef); err != nil {
 			return err

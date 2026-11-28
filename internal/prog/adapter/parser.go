@@ -23,14 +23,14 @@ type programAST struct {
 
 type poolDefAST struct {
 	TypeQN  string     `parser:"'pool' 'type' @Ident"`
-	TypeExp poolExpAST `parser:"'{' @@? '}'"`
+	TypeExpr poolExpAST `parser:"'{' @@? '}'"`
 }
 
 func (poolDefAST) programExpression() {}
 
 type procDefAST struct {
 	TypeQN  string     `parser:"'proc' 'type' @Ident"`
-	TypeExp procExpAST `parser:"'{' @@? '}'"`
+	TypeExpr procExpAST `parser:"'{' @@? '}'"`
 }
 
 func (procDefAST) programExpression() {}
@@ -126,21 +126,21 @@ func programASTToCore(ast programAST) (coreprog.Spec, error) {
 			if err != nil {
 				return coreprog.Spec{}, err
 			}
-			exp, err := poolExpToCore(expression.TypeExp)
+			exp, err := poolExpToCore(expression.TypeExpr)
 			if err != nil {
 				return coreprog.Spec{}, err
 			}
-			result.Pools = append(result.Pools, pooltypedef.DefSpec{TypeQN: qn, TypeExp: exp})
+			result.Pools = append(result.Pools, pooltypedef.DefSpec{TypeQN: qn, TypeExpr: exp})
 		case procDefAST:
 			qn, err := uniqsym.ConvertFromString(expression.TypeQN)
 			if err != nil {
 				return coreprog.Spec{}, err
 			}
-			exp, err := procExpToCore(expression.TypeExp)
+			exp, err := procExpToCore(expression.TypeExpr)
 			if err != nil {
 				return coreprog.Spec{}, err
 			}
-			result.Procs = append(result.Procs, proctypedef.DefSpec{TypeQN: qn, TypeExp: exp})
+			result.Procs = append(result.Procs, proctypedef.DefSpec{TypeQN: qn, TypeExpr: exp})
 		default:
 			return coreprog.Spec{}, fmt.Errorf("unsupported program expression: %T", expression)
 		}

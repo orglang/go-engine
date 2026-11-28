@@ -25,7 +25,7 @@ type API interface {
 
 type DefSpec struct {
 	TypeQN  uniqsym.ADT
-	TypeExp ExpSpec
+	TypeExpr ExpSpec
 }
 
 type DefRec struct {
@@ -49,21 +49,21 @@ type Context struct {
 type service struct {
 	typeDefRepo  Repo
 	progRootRepo progroot.Repo
-	typeExpRepo  TypeExpRepo
+	typeExprrRepo  TypeExprrRepo
 	transactor   tx.Transactor
 	log          *slog.Logger
 }
 
 func newAPI() API { return new(service) }
 
-func NewService(typeDefRepo Repo, progRootRepo progroot.Repo, typeExpRepo TypeExpRepo, transactor tx.Transactor, log *slog.Logger) API {
-	return &service{typeDefRepo: typeDefRepo, progRootRepo: progRootRepo, typeExpRepo: typeExpRepo, transactor: transactor, log: log}
+func NewService(typeDefRepo Repo, progRootRepo progroot.Repo, typeExprrRepo TypeExprrRepo, transactor tx.Transactor, log *slog.Logger) API {
+	return &service{typeDefRepo: typeDefRepo, progRootRepo: progRootRepo, typeExprrRepo: typeExprrRepo, transactor: transactor, log: log}
 }
 
 func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err error) {
 	qnAttr := slog.Any("qn", spec.TypeQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
-	newExp, err := ConvertSpecToRec(spec.TypeExp)
+	newExp, err := ConvertSpecToRec(spec.TypeExpr)
 	if err != nil {
 		return DefSnap{}, err
 	}
@@ -72,7 +72,7 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err erro
 		if err := s.progRootRepo.AddRef(txCtx, conn, newDef.ProgRef); err != nil {
 			return err
 		}
-		if err := s.typeExpRepo.AddRec(txCtx, conn, newExp); err != nil {
+		if err := s.typeExprrRepo.AddRec(txCtx, conn, newExp); err != nil {
 			return err
 		}
 		return s.typeDefRepo.AddRec(txCtx, conn, newDef)
@@ -104,10 +104,10 @@ func (s *service) Modify(ctx context.Context, snap DefSnap) (_ DefSnap, err erro
 		s.log.Error("modification failed", refAttr)
 		return DefSnap{}, err
 	}
-	if CheckSpec(snap.DefSpec.TypeExp, curSnap.DefSpec.TypeExp) == nil {
+	if CheckSpec(snap.DefSpec.TypeExpr, curSnap.DefSpec.TypeExpr) == nil {
 		return curSnap, nil
 	}
-	newExp, err := ConvertSpecToRec(snap.DefSpec.TypeExp)
+	newExp, err := ConvertSpecToRec(snap.DefSpec.TypeExpr)
 	if err != nil {
 		return DefSnap{}, err
 	}
@@ -118,7 +118,7 @@ func (s *service) Modify(ctx context.Context, snap DefSnap) (_ DefSnap, err erro
 		if err := s.progRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil {
 			return err
 		}
-		if err := s.typeExpRepo.AddRec(txCtx, conn, newExp); err != nil {
+		if err := s.typeExprrRepo.AddRec(txCtx, conn, newExp); err != nil {
 			return err
 		}
 		return s.typeDefRepo.ModifyRec(txCtx, conn, rec)
@@ -144,13 +144,13 @@ func (s *service) RetrieveSnap(ctx context.Context, id identity.ADT) (_ DefSnap,
 
 func (s *service) snapFromRec(ctx context.Context, rec DefRec) (_ DefSnap, err error) {
 	expRec, err := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (ExpRec, error) {
-		return s.typeExpRepo.SelectRecByCK(txCtx, conn, rec.ExpCK)
+		return s.typeExprrRepo.SelectRecByCK(txCtx, conn, rec.ExpCK)
 	})
 	if err != nil {
 		s.log.Error("retrieval failed", slog.Any("typeID", rec.TypeID))
 		return DefSnap{}, err
 	}
-	return DefSnap{TypeID: rec.TypeID, ProgRef: rec.ProgRef, DefSpec: DefSpec{TypeQN: rec.TypeQN, TypeExp: ConvertRecToSpec(expRec)}}, nil
+	return DefSnap{TypeID: rec.TypeID, ProgRef: rec.ProgRef, DefSpec: DefSpec{TypeQN: rec.TypeQN, TypeExpr: ConvertRecToSpec(expRec)}}, nil
 }
 
 func (s *service) RetreiveRefs(ctx context.Context) (refs []identity.ADT, err error) {

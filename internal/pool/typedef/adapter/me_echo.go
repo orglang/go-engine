@@ -40,11 +40,11 @@ func (h *controllerEcho) CreatePoolTypeDefinition(c *echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	expr, err := poolTypeExprToCore(dto.Expr)
+	expr, err := poolTypeExprrToCore(dto.Expr)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	typeID, progRef, err := h.api.Create(c.Request().Context(), typedef.DefSpec{TypeQN: qn, TypeExp: expr})
+	typeID, progRef, err := h.api.Create(c.Request().Context(), typedef.DefSpec{TypeQN: qn, TypeExpr: expr})
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func (h *controllerEcho) CreatePoolTypeDefinition(c *echo.Context) error {
 	})
 }
 
-func poolTypeExprToCore(dto webapi.PoolTypeExprSpec) (typedef.ExpSpec, error) {
+func poolTypeExprrToCore(dto webapi.PoolTypeExprrSpec) (typedef.ExpSpec, error) {
 	kind, err := dto.Discriminator()
 	if err != nil {
 		return nil, fmt.Errorf("read pool type expression kind: %w", err)
@@ -81,7 +81,7 @@ func poolTypeExprToCore(dto webapi.PoolTypeExprSpec) (typedef.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		cont, err := poolTypeExprToCore(spec.ContExpr)
+		cont, err := poolTypeExprrToCore(spec.ContExpr)
 		if err != nil {
 			return nil, err
 		}
@@ -95,7 +95,7 @@ func poolTypeExprToCore(dto webapi.PoolTypeExprSpec) (typedef.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		cont, err := poolTypeExprToCore(spec.ContExpr)
+		cont, err := poolTypeExprrToCore(spec.ContExpr)
 		if err != nil {
 			return nil, err
 		}
@@ -105,7 +105,7 @@ func poolTypeExprToCore(dto webapi.PoolTypeExprSpec) (typedef.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		cont, err := poolTypeExprToCore(spec.ContExpr)
+		cont, err := poolTypeExprrToCore(spec.ContExpr)
 		if err != nil {
 			return nil, err
 		}
@@ -115,7 +115,7 @@ func poolTypeExprToCore(dto webapi.PoolTypeExprSpec) (typedef.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		cont, err := poolTypeExprToCore(spec.ContExpr)
+		cont, err := poolTypeExprrToCore(spec.ContExpr)
 		if err != nil {
 			return nil, err
 		}

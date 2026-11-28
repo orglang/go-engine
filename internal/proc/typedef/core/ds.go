@@ -20,7 +20,7 @@ type Repo interface {
 	SelectEnv(context.Context, tx.Conn, []uniqsym.ADT) (map[uniqsym.ADT]DefRec, error)
 }
 
-type TypeExpRepo interface {
+type TypeExprrRepo interface {
 	AddRec(context.Context, tx.Conn, ExpRec) error
 	SelectRecByCK(context.Context, tx.Conn, contkey.ADT) (ExpRec, error)
 	SelectRecsByCKs(context.Context, tx.Conn, []contkey.ADT) ([]ExpRec, error)

@@ -15,11 +15,11 @@ func DefSpecFromGenerated(dto webapi.ProcTypeDefSpec) (typedef.DefSpec, error) {
 	if err != nil {
 		return typedef.DefSpec{}, err
 	}
-	exp, err := expSpecFromGenerated(dto.TypeExpr)
+	exp, err := expSpecFromGenerated(dto.TypeExprr)
 	if err != nil {
 		return typedef.DefSpec{}, err
 	}
-	return typedef.DefSpec{TypeQN: qn, TypeExp: exp}, nil
+	return typedef.DefSpec{TypeQN: qn, TypeExpr: exp}, nil
 }
 
 func DefSnapToGenerated(snap typedef.DefSnap) webapi.ProcTypeDefSnap {
@@ -30,12 +30,12 @@ func DefSnapToGenerated(snap typedef.DefSnap) webapi.ProcTypeDefSnap {
 		},
 		Spec: webapi.ProcTypeDefSpec{
 			TypeQn:   uniqsym.ConvertToString(snap.DefSpec.TypeQN),
-			TypeExpr: expSpecToGenerated(snap.DefSpec.TypeExp),
+			TypeExprr: expSpecToGenerated(snap.DefSpec.TypeExpr),
 		},
 	}
 }
 
-func expSpecFromGenerated(dto webapi.ProcTypeExprSpec) (typedef.ExpSpec, error) {
+func expSpecFromGenerated(dto webapi.ProcTypeExprrSpec) (typedef.ExpSpec, error) {
 	kind, err := dto.Discriminator()
 	if err != nil {
 		return nil, err
@@ -142,8 +142,8 @@ func expSpecFromGenerated(dto webapi.ProcTypeExprSpec) (typedef.ExpSpec, error) 
 	}
 }
 
-func expSpecToGenerated(spec typedef.ExpSpec) webapi.ProcTypeExprSpec {
-	var dto webapi.ProcTypeExprSpec
+func expSpecToGenerated(spec typedef.ExpSpec) webapi.ProcTypeExprrSpec {
+	var dto webapi.ProcTypeExprrSpec
 	switch spec := spec.(type) {
 	case typedef.OneSpec:
 		_ = dto.FromProcTypeOneSpec(webapi.ProcTypeOneSpec{})

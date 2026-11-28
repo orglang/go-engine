@@ -3,8 +3,8 @@ import "./term/expr.tsp";
 
 namespace OrgLang.Proc;
 
-model CompSnap {
-  comp_ref: Any.CompRef;
+model ExecSnap {
+  root_ref: Any.RootRef;
 }
 
 model StepSpec {

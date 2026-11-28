@@ -3,7 +3,7 @@ package execvar
 import (
 	"fmt"
 
-	"orglang/go-engine/internal/adt/comproot"
+	"orglang/go-engine/internal/adt/execroot"
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
@@ -22,7 +22,7 @@ type VarSpec struct {
 // machine-readable record of execution variable
 // машиночитаемая запись переменной исполнения
 type VarRec interface {
-	GetRootRef() comproot.RootRef
+	GetRootRef() execroot.RootRef
 	GetConnID() identity.ADT
 	GetChnlID() identity.ADT
 	GetChnlPH() symbol.ADT
@@ -30,7 +30,7 @@ type VarRec interface {
 }
 
 type LinearRec struct {
-	RootRef comproot.RootRef
+	RootRef execroot.RootRef
 	ConnID  identity.ADT
 	ChnlID  identity.ADT
 	ChnlPH  symbol.ADT
@@ -44,7 +44,7 @@ type LinearRec struct {
 	ExpCK contkey.ADT
 }
 
-func (r LinearRec) GetRootRef() comproot.RootRef { return r.RootRef }
+func (r LinearRec) GetRootRef() execroot.RootRef { return r.RootRef }
 
 func (r LinearRec) GetConnID() identity.ADT { return r.ConnID }
 
@@ -55,7 +55,7 @@ func (r LinearRec) GetChnlPH() symbol.ADT { return r.ChnlPH }
 func (r LinearRec) GetExpCK() contkey.ADT { return r.ExpCK }
 
 type StructRec struct {
-	RootRef comproot.RootRef
+	RootRef execroot.RootRef
 	ConnID  identity.ADT
 	ChnlID  identity.ADT
 	ChnlPH  symbol.ADT
@@ -69,7 +69,7 @@ type StructRec struct {
 	ExpCK contkey.ADT
 }
 
-func (r StructRec) GetRootRef() comproot.RootRef { return r.RootRef }
+func (r StructRec) GetRootRef() execroot.RootRef { return r.RootRef }
 
 func (r StructRec) GetConnID() identity.ADT { return r.ConnID }
 

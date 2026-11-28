@@ -1,6 +1,6 @@
 package core
 
-import "orglang/go-engine/internal/adt/comproot"
+import "orglang/go-engine/internal/adt/execroot"
 
 // ExpSpec is the expression contract required to schedule an execution step.
 type ExpSpec interface {
@@ -8,6 +8,6 @@ type ExpSpec interface {
 }
 
 type StepSpec struct {
-	CompRef comproot.RootRef
+	RootRef execroot.RootRef
 	PoolExp ExpSpec
 }

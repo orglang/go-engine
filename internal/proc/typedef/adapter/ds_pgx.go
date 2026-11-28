@@ -11,6 +11,7 @@ import (
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
+	"orglang/go-engine/internal/adt/contkey"
 
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/uniqsym"
@@ -30,6 +31,26 @@ func NewDaoEnt(client *ent.Client, log *slog.Logger) typedef.Repo {
 	return &daoEnt{client: client, log: log.With(name)}
 }
 func newRepo() typedef.Repo { return new(daoEnt) }
+
+func (dao *daoEnt) exprDAO() *exprDaoEnt {
+	return &exprDaoEnt{client: dao.client, log: dao.log}
+}
+
+func (dao *daoEnt) AddExprRec(ctx context.Context, conn tx.Conn, rec typedef.ExprRec) error {
+	return dao.exprDAO().AddExprRec(ctx, conn, rec)
+}
+
+func (dao *daoEnt) SelectExprRecByCK(ctx context.Context, conn tx.Conn, key contkey.ADT) (typedef.ExprRec, error) {
+	return dao.exprDAO().SelectExprRecByCK(ctx, conn, key)
+}
+
+func (dao *daoEnt) SelectExprRecsByCKs(ctx context.Context, conn tx.Conn, keys []contkey.ADT) ([]typedef.ExprRec, error) {
+	return dao.exprDAO().SelectExprRecsByCKs(ctx, conn, keys)
+}
+
+func (dao *daoEnt) SelectExprEnv(ctx context.Context, conn tx.Conn, keys []contkey.ADT) (map[contkey.ADT]typedef.ExprRec, error) {
+	return dao.exprDAO().SelectExprEnv(ctx, conn, keys)
+}
 
 func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec) error {
 	idAttr := slog.Any("typeID", rec.TypeID)

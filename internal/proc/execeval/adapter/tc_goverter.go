@@ -14,6 +14,6 @@ var (
 	DataToEvalRec func(EvalRec) (execeval.EvalRec, error)
 	// goverter:autoMap RootRef
 	DataFromEvalRec func(execeval.EvalRec) EvalRec
-	// goverter:ignore RootRN
+	// goverter:ignore ExecRN
 	dataToRootRef func(EvalRec) (execroot.RootRef, error)
 )

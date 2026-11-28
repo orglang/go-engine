@@ -17,7 +17,7 @@ func (TypeDef) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("id").StorageKey("type_id").Immutable(),
 		field.String("prog_id"),
-		field.Int64("exp_ck"),
+		field.Int64("exp_ck").StorageKey("expr_ck"),
 	}
 }
 

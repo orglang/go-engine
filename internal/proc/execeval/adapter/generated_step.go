@@ -128,7 +128,7 @@ func generatedProcessExpressionToCore(dto webapi.ProcTermExprSpec) (commact.ExpS
 			}
 			branches[label] = cont
 		}
-		return commact.CaseSpec{CommChnlPH: conn, ContExps: branches}, nil
+		return commact.CaseSpec{CommChnlPH: conn, ContExprs: branches}, nil
 	case "link":
 		spec, err := dto.AsProcTermLinkSpec()
 		if err != nil {

@@ -18,7 +18,7 @@ import (
 	procexeceval "orglang/go-engine/internal/proc/execeval/core"
 )
 
-// Package registers the computation-execution repository, service, broker and
+// Package registers the execution repository, service, broker and
 // inbound controller. Broker subscription and route registration are explicit
 // composition steps.
 var Package = do.Package(

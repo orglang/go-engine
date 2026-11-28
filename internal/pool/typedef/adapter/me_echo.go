@@ -40,7 +40,7 @@ func (h *controllerEcho) CreatePoolTypeDefinition(c *echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	expr, err := poolTypeExprrToCore(dto.Expr)
+	expr, err := poolTypeExprToCore(dto.Expr)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -54,7 +54,7 @@ func (h *controllerEcho) CreatePoolTypeDefinition(c *echo.Context) error {
 	})
 }
 
-func poolTypeExprrToCore(dto webapi.PoolTypeExprrSpec) (typedef.ExpSpec, error) {
+func poolTypeExprToCore(dto webapi.PoolTypeExprSpec) (typedef.ExpSpec, error) {
 	kind, err := dto.Discriminator()
 	if err != nil {
 		return nil, fmt.Errorf("read pool type expression kind: %w", err)
@@ -81,7 +81,7 @@ func poolTypeExprrToCore(dto webapi.PoolTypeExprrSpec) (typedef.ExpSpec, error) 
 		if err != nil {
 			return nil, err
 		}
-		cont, err := poolTypeExprrToCore(spec.ContExpr)
+		cont, err := poolTypeExprToCore(spec.ContExpr)
 		if err != nil {
 			return nil, err
 		}
@@ -95,7 +95,7 @@ func poolTypeExprrToCore(dto webapi.PoolTypeExprrSpec) (typedef.ExpSpec, error) 
 		if err != nil {
 			return nil, err
 		}
-		cont, err := poolTypeExprrToCore(spec.ContExpr)
+		cont, err := poolTypeExprToCore(spec.ContExpr)
 		if err != nil {
 			return nil, err
 		}
@@ -105,7 +105,7 @@ func poolTypeExprrToCore(dto webapi.PoolTypeExprrSpec) (typedef.ExpSpec, error) 
 		if err != nil {
 			return nil, err
 		}
-		cont, err := poolTypeExprrToCore(spec.ContExpr)
+		cont, err := poolTypeExprToCore(spec.ContExpr)
 		if err != nil {
 			return nil, err
 		}
@@ -115,7 +115,7 @@ func poolTypeExprrToCore(dto webapi.PoolTypeExprrSpec) (typedef.ExpSpec, error) 
 		if err != nil {
 			return nil, err
 		}
-		cont, err := poolTypeExprrToCore(spec.ContExpr)
+		cont, err := poolTypeExprToCore(spec.ContExpr)
 		if err != nil {
 			return nil, err
 		}

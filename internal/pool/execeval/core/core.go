@@ -8,7 +8,7 @@ import (
 
 	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/internal/adt/comproot"
+	"orglang/go-engine/internal/adt/execroot"
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/option"
@@ -28,9 +28,9 @@ import (
 )
 
 type API interface {
-	Run(context.Context, EvalSpec) (comproot.RootRef, error) // aka Create
+	Run(context.Context, EvalSpec) (execroot.RootRef, error) // aka Create
 	Take(context.Context, execstep.StepSpec) error
-	Spawn(context.Context, execstep.StepSpec) (comproot.RootRef, error)
+	Spawn(context.Context, execstep.StepSpec) (execroot.RootRef, error)
 }
 
 type Broker interface {
@@ -48,13 +48,13 @@ type EvalSpec struct {
 }
 
 type EvalRec struct {
-	CompRef  comproot.RootRef
+	RootRef  execroot.RootRef
 	TermQN   uniqsym.ADT
 	LiabMode execvar.Mode
 }
 
 type EvalMod struct {
-	CompRef comproot.RootRef
+	RootRef execroot.RootRef
 	Vars    []execvar.VarRec
 }
 
@@ -65,19 +65,19 @@ type EvalEff struct {
 }
 
 type EvalSnap1 struct {
-	CompRef comproot.RootRef
+	RootRef execroot.RootRef
 	LiabVar execvar.VarRec
 }
 
 type EvalSnap2 struct {
-	CompRef    comproot.RootRef
+	RootRef    execroot.RootRef
 	LiabMode   execvar.Mode
 	StructVars []execvar.StructRec
 	LinearVars []execvar.LinearRec
 }
 
 type EvalSnap3 struct {
-	CompRef    comproot.RootRef
+	RootRef    execroot.RootRef
 	StructVars map[symbol.ADT]execvar.StructRec
 	StructExps map[symbol.ADT]typedef.ExpRec
 	LinearVars map[symbol.ADT]execvar.LinearRec
@@ -92,7 +92,7 @@ type service struct {
 	typeDefRepo    typedef.Repo
 	procEvalRepo   procexeceval.Repo
 	termDecRepo    termdec.Repo
-	compRootRepo   comproot.Repo
+	compRootRepo   execroot.Repo
 	transactor     tx.Transactor
 	log            *slog.Logger
 }
@@ -110,7 +110,7 @@ type ServiceDeps struct {
 	TypeDefRepo    typedef.Repo
 	ProcEvalRepo   procexeceval.Repo
 	TermDecRepo    termdec.Repo
-	CompRootRepo   comproot.Repo
+	CompRootRepo   execroot.Repo
 	Transactor     tx.Transactor
 	Logger         *slog.Logger
 }
@@ -125,7 +125,7 @@ func NewService(deps ServiceDeps) API {
 	}
 }
 
-func (s *service) Run(ctx context.Context, spec EvalSpec) (_ comproot.RootRef, err error) {
+func (s *service) Run(ctx context.Context, spec EvalSpec) (_ execroot.RootRef, err error) {
 	specAttr := slog.Any("spec", spec)
 	s.log.Debug("creation started", specAttr)
 	var termDec termdec.DecRec
@@ -135,7 +135,7 @@ func (s *service) Run(ctx context.Context, spec EvalSpec) (_ comproot.RootRef, e
 	})
 	if getErr1 != nil {
 		s.log.Error("creation failed", specAttr)
-		return comproot.RootRef{}, getErr1
+		return execroot.RootRef{}, getErr1
 	}
 	assetQNs := make([]uniqsym.ADT, 0, len(spec.AssetVars))
 	for _, assetVar := range spec.AssetVars {
@@ -151,14 +151,14 @@ func (s *service) Run(ctx context.Context, spec EvalSpec) (_ comproot.RootRef, e
 	})
 	if getErr2 != nil {
 		s.log.Error("creation failed", specAttr)
-		return comproot.RootRef{}, getErr2
+		return execroot.RootRef{}, getErr2
 	}
-	newEval := EvalRec{CompRef: comproot.New(), TermQN: spec.TermQN, LiabMode: execvar.StructMode}
+	newEval := EvalRec{RootRef: execroot.New(), TermQN: spec.TermQN, LiabMode: execvar.StructMode}
 	// Reserve the provider-side connection identity in its liability variable.
 	// The Connection record itself is created when a client Computation attaches.
 	newConnID := identity.New()
 	newLiabVar := execvar.StructRec{
-		RootRef: newEval.CompRef,
+		RootRef: newEval.RootRef,
 		ConnID:  newConnID,
 		ChnlID:  identity.New(),
 		ChnlPH:  spec.LiabVar.ChnlPH,
@@ -174,16 +174,16 @@ func (s *service) Run(ctx context.Context, spec EvalSpec) (_ comproot.RootRef, e
 		var connID identity.ADT
 		var chnlID identity.ADT
 		var expCK contkey.ADT
-		var providerExecRef comproot.RootRef
+		var providerExecRef execroot.RootRef
 		assetExec, ok := assetEvals[assetVar.TermQN]
 		if !ok && assetVar.TermQN == spec.LiabVar.TermQN {
 			connID = newConnID
 			chnlID = newLiabVar.ChnlID
 			expCK = newLiabVar.ExpCK
-			providerExecRef = newEval.CompRef
+			providerExecRef = newEval.RootRef
 		} else {
 			connID = assetExec.LiabVar.GetConnID()
-			providerExecRef = assetExec.CompRef
+			providerExecRef = assetExec.RootRef
 			chnlID = assetExec.LiabVar.GetChnlID()
 			expCK = assetExec.LiabVar.GetExpCK()
 		}
@@ -191,12 +191,12 @@ func (s *service) Run(ctx context.Context, spec EvalSpec) (_ comproot.RootRef, e
 			newConns = append(newConns, execconn.ConnRec{
 				ConnID:          connID,
 				ProviderExecRef: providerExecRef,
-				ClientExecRef:   newEval.CompRef,
+				ClientExecRef:   newEval.RootRef,
 				OffsetNr:        seqnum.Zero,
 			})
 		}
 		newAssetVars = append(newAssetVars, execvar.StructRec{
-			RootRef: newEval.CompRef,
+			RootRef: newEval.RootRef,
 			ConnID:  connID,
 			ChnlID:  chnlID,
 			ChnlPH:  assetVar.ChnlPH,
@@ -222,31 +222,31 @@ func (s *service) Run(ctx context.Context, spec EvalSpec) (_ comproot.RootRef, e
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", specAttr)
-		return comproot.RootRef{}, transactErr
+		return execroot.RootRef{}, transactErr
 	}
-	s.log.Debug("creation succeed", slog.Any("ref", newEval.CompRef))
-	return newEval.CompRef, nil
+	s.log.Debug("creation succeed", slog.Any("ref", newEval.RootRef))
+	return newEval.RootRef, nil
 }
 
-func (s *service) Spawn(ctx context.Context, spec execstep.StepSpec) (_ comproot.RootRef, err error) {
-	refAttr := slog.Any("ref", spec.CompRef)
+func (s *service) Spawn(ctx context.Context, spec execstep.StepSpec) (_ execroot.RootRef, err error) {
+	refAttr := slog.Any("ref", spec.RootRef)
 	s.log.Debug("proc spawning started", refAttr, slog.Any("exp", spec.PoolExp))
-	newEval := procexeceval.EvalRec{CompRef: comproot.New(), LiabMode: execvar.LinearMode}
+	newEval := procexeceval.EvalRec{RootRef: execroot.New(), LiabMode: execvar.LinearMode}
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		return s.procEvalRepo.AddRec(txCtx, conn, newEval)
 	})
 	if transactErr != nil {
 		s.log.Error("proc spawning failed", refAttr)
-		return comproot.RootRef{}, transactErr
+		return execroot.RootRef{}, transactErr
 	}
-	s.log.Debug("proc spawning succeed", refAttr, slog.Any("proc", newEval.CompRef))
-	return newEval.CompRef, nil
+	s.log.Debug("proc spawning succeed", refAttr, slog.Any("proc", newEval.RootRef))
+	return newEval.RootRef, nil
 }
 
 func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) {
-	refAttr := slog.Any("ref", spec.CompRef)
+	refAttr := slog.Any("ref", spec.RootRef)
 	s.log.Debug("step taking started", refAttr, slog.Any("exp", spec.PoolExp))
-	evalSnap, retErr := s.retrieveSnap(ctx, spec.CompRef)
+	evalSnap, retErr := s.retrieveSnap(ctx, spec.RootRef)
 	if retErr != nil {
 		s.log.Error("step taking failed", refAttr)
 		return retErr
@@ -259,29 +259,29 @@ func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) 
 	// Every changed Computation aggregate is guarded by its observed root revision.
 	// Connection changes always include the provider aggregate, regardless of
 	// which endpoint initiated the step.
-	compRefs := map[string]comproot.RootRef{}
+	compRefs := map[string]execroot.RootRef{}
 	if connMod.ProviderExecID.IsEmpty() {
 		// Non-connection steps still mutate the executing Computation root.
-		compRefs[evalSnap.CompRef.CompID.String()] = evalSnap.CompRef
+		compRefs[evalSnap.RootRef.RootID.String()] = evalSnap.RootRef
 	} else {
 		// A connection step always mutates the provider aggregate. The
 		// initiating client root is added only if its own variables change.
-		providerRef := comproot.RootRef{
-			CompID: connMod.ProviderExecID,
-			CompRN: connMod.ProviderExecRN,
+		providerRef := execroot.RootRef{
+			RootID: connMod.ProviderExecID,
+			RootRN: connMod.ProviderExecRN,
 		}
-		compRefs[providerRef.CompID.String()] = providerRef
+		compRefs[providerRef.RootID.String()] = providerRef
 	}
 	for _, variable := range evalMod.Vars {
 		ref := variable.GetRootRef()
-		// The Act's CompRef records the revision that produced the Act. For
+		// The Act's RootRef records the revision that produced the Act. For
 		// provider-side writes, use the live provider revision captured with
 		// the Connection snapshot instead of that historical Act revision.
-		if !connMod.ProviderExecID.IsEmpty() && ref.CompID == connMod.ProviderExecID {
+		if !connMod.ProviderExecID.IsEmpty() && ref.RootID == connMod.ProviderExecID {
 			continue
 		}
-		if !ref.CompID.IsEmpty() {
-			compRefs[ref.CompID.String()] = ref
+		if !ref.RootID.IsEmpty() {
+			compRefs[ref.RootID.String()] = ref
 		}
 	}
 	compKeys := make([]string, 0, len(compRefs))
@@ -326,7 +326,7 @@ func (s *service) takeStep(
 	connMod execconn.ConnMod,
 	err error,
 ) {
-	compAttr := slog.Any("compRef", evalSnap.CompRef)
+	compAttr := slog.Any("compRef", evalSnap.RootRef)
 	switch termExp := exp.(type) {
 	case AcceptSpec:
 		connChnl, ok := evalSnap.StructVars[termExp.ConnChnlPH]
@@ -366,7 +366,7 @@ func (s *service) takeStep(
 			// регистрируем подписку доступодателя
 			connMod.Acts = append(connMod.Acts, connact.SubRec{
 				ConnID:  connSnap.ConnID,
-				CompRef: evalSnap.CompRef,
+				RootRef: evalSnap.RootRef,
 				ChnlID:  connChnl.ChnlID,
 				ContExp: AcceptRec{
 					ContChnlPH: connChnl.ChnlPH,
@@ -393,7 +393,7 @@ func (s *service) takeStep(
 		if termExp.ContExp != nil {
 			// шедулим продолжение доступодателя
 			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-				CompRef: evalSnap.CompRef,
+				RootRef: evalSnap.RootRef,
 				PoolExp: termExp.ContExp,
 			})
 		}
@@ -402,7 +402,7 @@ func (s *service) takeStep(
 			// сдвигаем офсет коммуникации
 			// вяжем продолжение доступополучателя
 			evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-				RootRef: acquisition.CompRef,
+				RootRef: acquisition.RootRef,
 				ConnID:  acquisition.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
@@ -412,7 +412,7 @@ func (s *service) takeStep(
 			if expRec.ContExp != nil {
 				// шедулим продолжение доступополучателя
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					CompRef: acquisition.CompRef,
+					RootRef: acquisition.RootRef,
 					PoolExp: expRec.ContExp,
 				})
 			}
@@ -459,7 +459,7 @@ func (s *service) takeStep(
 			// регистрируем подписку доступополучателя
 			connMod.Acts = append(connMod.Acts, connact.SubRec{
 				ConnID:  connSnap.ConnID,
-				CompRef: evalSnap.CompRef,
+				RootRef: evalSnap.RootRef,
 				ChnlID:  connChnl.ChnlID,
 				ContExp: AcquireRec{
 					ContChnlPH: connChnl.ChnlPH,
@@ -486,7 +486,7 @@ func (s *service) takeStep(
 		if termExp.ContExp != nil {
 			// шедулим продолжение доступополучателя
 			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-				CompRef: evalSnap.CompRef,
+				RootRef: evalSnap.RootRef,
 				PoolExp: termExp.ContExp,
 			})
 		}
@@ -495,7 +495,7 @@ func (s *service) takeStep(
 			// сдвигаем офсет коммуникации
 			// вяжем продолжение доступодателя
 			evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-				RootRef: acception.CompRef,
+				RootRef: acception.RootRef,
 				ConnID:  acception.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
@@ -505,7 +505,7 @@ func (s *service) takeStep(
 			if expRec.ContExp != nil {
 				// шедулим продолжение доступодателя
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					CompRef: acception.CompRef,
+					RootRef: acception.RootRef,
 					PoolExp: expRec.ContExp,
 				})
 			}
@@ -552,7 +552,7 @@ func (s *service) takeStep(
 			// регистрируем подписку соискателя
 			connMod.Acts = append(connMod.Acts, connact.SubRec{
 				ConnID:  connSnap.ConnID,
-				CompRef: evalSnap.CompRef,
+				RootRef: evalSnap.RootRef,
 				ChnlID:  connChnl.ChnlID,
 				ContExp: ApplyRec{
 					ContChnlPH: connChnl.ChnlPH,
@@ -580,7 +580,7 @@ func (s *service) takeStep(
 		if termExp.ContExp != nil {
 			// шедулим продолжение соискателя
 			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-				CompRef: evalSnap.CompRef,
+				RootRef: evalSnap.RootRef,
 				PoolExp: termExp.ContExp,
 			})
 		}
@@ -588,7 +588,7 @@ func (s *service) takeStep(
 		case HireRec:
 			// вяжем продолжение нанимателя
 			evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-				RootRef: hiring.CompRef,
+				RootRef: hiring.RootRef,
 				ConnID:  hiring.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
@@ -598,7 +598,7 @@ func (s *service) takeStep(
 			if expRec.ContExp != nil {
 				// шедулим продолжение нанимателя
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					CompRef: hiring.CompRef,
+					RootRef: hiring.RootRef,
 					PoolExp: expRec.ContExp,
 				})
 			}
@@ -645,7 +645,7 @@ func (s *service) takeStep(
 			// регистрируем подписку нанимателя
 			connMod.Acts = append(connMod.Acts, connact.SubRec{
 				ConnID:  connSnap.ConnID,
-				CompRef: evalSnap.CompRef,
+				RootRef: evalSnap.RootRef,
 				ChnlID:  connChnl.ChnlID,
 				ContExp: HireRec{
 					ContChnlPH: connChnl.ChnlPH,
@@ -673,7 +673,7 @@ func (s *service) takeStep(
 		if termExp.ContExp != nil {
 			// шедулим продолжение нанимателя
 			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-				CompRef: evalSnap.CompRef,
+				RootRef: evalSnap.RootRef,
 				PoolExp: termExp.ContExp,
 			})
 		}
@@ -681,7 +681,7 @@ func (s *service) takeStep(
 		case ApplyRec:
 			// вяжем продолжение соискателя
 			evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-				RootRef: application.CompRef,
+				RootRef: application.RootRef,
 				ConnID:  application.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
@@ -691,7 +691,7 @@ func (s *service) takeStep(
 			if expRec.ContExp != nil {
 				// запускаем продолжение соискателя
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					CompRef: application.CompRef,
+					RootRef: application.RootRef,
 					PoolExp: expRec.ContExp,
 				})
 			}
@@ -738,7 +738,7 @@ func (s *service) takeStep(
 			// регистрируем подписку доступовозвращателя
 			connMod.Acts = append(connMod.Acts, connact.SubRec{
 				ConnID:  connSnap.ConnID,
-				CompRef: evalSnap.CompRef,
+				RootRef: evalSnap.RootRef,
 				ChnlID:  connChnl.ChnlID,
 				ContExp: ReleaseRec{
 					ContChnlPH: connChnl.ChnlPH,
@@ -765,7 +765,7 @@ func (s *service) takeStep(
 		case DetachRec:
 			// вяжем продолжение доступопринимателя
 			evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-				RootRef: detaching.CompRef,
+				RootRef: detaching.RootRef,
 				ConnID:  detaching.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
@@ -815,7 +815,7 @@ func (s *service) takeStep(
 			// регистрируем подписку доступопринимателя
 			connMod.Acts = append(connMod.Acts, connact.SubRec{
 				ConnID:  connSnap.ConnID,
-				CompRef: evalSnap.CompRef,
+				RootRef: evalSnap.RootRef,
 				ChnlID:  connChnl.ChnlID,
 				ContExp: DetachRec{
 					ContChnlPH: connChnl.ChnlPH,
@@ -841,7 +841,7 @@ func (s *service) takeStep(
 		case ReleaseRec:
 			// вяжем продолжение доступовозвращателя
 			evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
-				RootRef: releasing.CompRef,
+				RootRef: releasing.RootRef,
 				ConnID:  releasing.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
@@ -858,7 +858,7 @@ func (s *service) takeStep(
 	}
 }
 
-func (s *service) retrieveSnap(ctx context.Context, ref comproot.RootRef) (_ EvalSnap3, err error) {
+func (s *service) retrieveSnap(ctx context.Context, ref execroot.RootRef) (_ EvalSnap3, err error) {
 	var evalSnap EvalSnap2
 	getErr1 := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		evalSnap, err = s.execEvalRepo.GetSnapByRef(txCtx, conn, ref)
@@ -881,7 +881,7 @@ func (s *service) retrieveSnap(ctx context.Context, ref comproot.RootRef) (_ Eva
 		return EvalSnap3{}, getErr2
 	}
 	return EvalSnap3{
-		CompRef:    evalSnap.CompRef,
+		RootRef:    evalSnap.RootRef,
 		StructVars: execvar.ConvertRecsToRecMap(evalSnap.StructVars),
 		StructExps: structExps,
 		LinearVars: execvar.ConvertRecsToRecMap(evalSnap.LinearVars),

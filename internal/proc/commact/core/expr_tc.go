@@ -32,12 +32,12 @@ func marshalTaggedSpec(enc *jsontext.Encoder, kind string, fields map[string]any
 	return jsonv2.MarshalEncode(enc, fields)
 }
 
-func childExprContentKey(spec ExpSpec) (int64, error) {
-	key, _, err := ExpContentKey(spec)
+func childExprContentKey(spec ExprSpec) (int64, error) {
+	key, _, err := ExprContentKey(spec)
 	return int64(key), err
 }
 
-func validateExprSpec(spec ExpSpec) error {
+func validateExprSpec(spec ExprSpec) error {
 	if spec == nil {
 		return errors.New("nil process term expression")
 	}

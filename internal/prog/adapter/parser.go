@@ -148,7 +148,7 @@ func programASTToCore(ast programAST) (coreprog.Spec, error) {
 	return result, nil
 }
 
-func poolExprToCore(ast poolExprAST) (pooltypedef.ExpSpec, error) {
+func poolExprToCore(ast poolExprAST) (pooltypedef.ExprSpec, error) {
 	switch ast.Kind {
 	case "one":
 		return pooltypedef.OneSpec{}, nil
@@ -204,7 +204,7 @@ func (a poolExprAST) Shift() *shiftAST {
 	return a.Down
 }
 
-func procExprToCore(ast procExprAST) (proctypedef.ExpSpec, error) {
+func procExprToCore(ast procExprAST) (proctypedef.ExprSpec, error) {
 	switch ast.Kind {
 	case "one":
 		return proctypedef.OneSpec{}, nil
@@ -230,7 +230,7 @@ func procExprToCore(ast procExprAST) (proctypedef.ExpSpec, error) {
 		return proctypedef.LolliSpec{Val: val, Cont: cont}, nil
 	case "plus", "with":
 		sum := ast.Sum()
-		choices := make(map[uniqsym.ADT]proctypedef.ExpSpec, len(sum.Choices))
+		choices := make(map[uniqsym.ADT]proctypedef.ExprSpec, len(sum.Choices))
 		for _, choice := range sum.Choices {
 			label, err := uniqsym.ConvertFromString(choice.Label)
 			if err != nil {

@@ -2,10 +2,10 @@ package adapter
 
 import enttypeschema "orglang/go-engine/internal/pool/ent/schema"
 
-type ExpKind int
+type ExprKind int
 
 const (
-	UnkKind ExpKind = iota
+	UnkKind ExprKind = iota
 	OneKind
 	LinkKind
 	TensorKind
@@ -16,27 +16,27 @@ const (
 	DownKind
 )
 
-type ExpRef struct {
-	ExpCK int64   `db:"expr_ck" json:"exp_ck"`
-	K     ExpKind `db:"kind" json:"kind"`
+type ExprRef struct {
+	ExprCK int64   `db:"expr_ck" json:"expr_ck"`
+	K     ExprKind `db:"kind" json:"kind"`
 }
 
-type ExpRec struct {
-	ExpCK  int64
+type ExprRec struct {
+	ExprCK  int64
 	States []State
 }
 
 type State struct {
-	ExpCK     int64   `db:"expr_ck"`
+	ExprCK     int64   `db:"expr_ck"`
 	SupExprCK int64   `db:"sup_expr_ck"`
-	K         ExpKind `db:"kind"`
-	Spec      ExpSpec `db:"spec" fieldopt:"noexpand"`
+	K         ExprKind `db:"kind"`
+	Spec      ExprSpec `db:"spec" fieldopt:"noexpand"`
 }
 
 // Keep the adapter DTO aligned with the JSON type used by the Ent schema.
 type (
-	ExpSpec = enttypeschema.ExpSpec
-	Prod    = enttypeschema.ExpProd
-	Sum     = enttypeschema.ExpSum
-	Shift   = enttypeschema.ExpShift
+	ExprSpec = enttypeschema.ExprSpec
+	Prod    = enttypeschema.ExprProd
+	Sum     = enttypeschema.ExprSum
+	Shift   = enttypeschema.ExprShift
 )

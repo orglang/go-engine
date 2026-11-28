@@ -7,23 +7,23 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// ExpSpec is the JSON payload stored for a process type-expression state.
-type ExpSpec struct {
+// ExprSpec is the JSON payload stored for a process type-expression state.
+type ExprSpec struct {
 	Link   string   `json:"link,omitempty"`
-	Tensor *ExpProd `json:"tensor,omitempty"`
-	Lolli  *ExpProd `json:"lolli,omitempty"`
-	Plus   []ExpSum `json:"plus,omitempty"`
-	With   []ExpSum `json:"with,omitempty"`
+	Tensor *ExprProd `json:"tensor,omitempty"`
+	Lolli  *ExprProd `json:"lolli,omitempty"`
+	Plus   []ExprSum `json:"plus,omitempty"`
+	With   []ExprSum `json:"with,omitempty"`
 }
 
-// ExpProd describes a product expression in a type-expression payload.
-type ExpProd struct {
+// ExprProd describes a product expression in a type-expression payload.
+type ExprProd struct {
 	ValExpCK  int64 `json:"on"`
 	ContExpCK int64 `json:"to"`
 }
 
-// ExpSum describes a choice branch in a type-expression payload.
-type ExpSum struct {
+// ExprSum describes a choice branch in a type-expression payload.
+type ExprSum struct {
 	LabQN     string `json:"on"`
 	ContExpCK int64  `json:"to"`
 }
@@ -39,7 +39,7 @@ func (TypeExpr) Fields() []ent.Field {
 		field.Int64("id").StorageKey("expr_ck").Unique().Immutable(),
 		field.Int64("sup_expr_ck"),
 		field.Int16("kind"),
-		field.JSON("spec", ExpSpec{}).Optional(),
+		field.JSON("spec", ExprSpec{}).Optional(),
 	}
 }
 

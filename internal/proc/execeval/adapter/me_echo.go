@@ -38,9 +38,9 @@ func (h *controllerEcho) GetProcessExecution(c *echo.Context, id string, params 
 		h.log.Error("conversion failed", slog.Any("id", id), slog.Any("err", err))
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	ref := execroot.RootRef{RootID: rootID}
+	ref := execroot.RootRef{ExecID: rootID}
 	if params.Rn != nil {
-		ref.RootRN = seqnum.ConvertFromInt(*params.Rn)
+		ref.ExecRN = seqnum.ConvertFromInt(*params.Rn)
 	}
 	snap, err := h.api.RetrieveSnap(ref)
 	if err != nil {

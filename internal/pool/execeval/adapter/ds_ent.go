@@ -38,7 +38,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec execeval.EvalRe
 	refAttr := slog.Any("ref", rec.RootRef)
 	_, err := dao.client.ExecEval.Create().
 		SetID(dto.RootID).
-		SetCompRn(dto.RootRN).
+		SetRootRn(dto.RootRN).
 		SetLiabMode(dto.LiabMode).
 		Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {

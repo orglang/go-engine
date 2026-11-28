@@ -50,7 +50,7 @@ func expToGenerated(spec termdef.ExpSpec) (webapi.ProcTermDefinitionSpec, error)
 			}
 			branches[uniqsym.ConvertToString(label)] = cont
 		}
-		return out, out.FromProcTermDefCaseSpec(webapi.ProcTermDefCaseSpec{CommPh: symbol.ConvertToString(s.CommChnlPH), ContExprs: branches})
+		return out, out.FromProcTermDefCaseSpec(webapi.ProcTermDefCaseSpec{CommPh: symbol.ConvertToString(s.CommChnlPH), ContExps: branches})
 	case termdef.ExpLinkSpec:
 		ys := make([]string, len(s.Ys))
 		for i, y := range s.Ys {

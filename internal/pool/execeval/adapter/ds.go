@@ -6,8 +6,8 @@ import (
 )
 
 type EvalRec struct {
-	RootID   string `db:"exec_id"`
-	RootRN   int64  `db:"exec_rn"`
+	ExecID   string `db:"exec_id"`
+	ExecRN   int64  `db:"exec_rn"`
 	TermQN   string `db:"term_qn"`
 	LiabMode int16  `db:"liab_mode"`
 }
@@ -20,8 +20,8 @@ type EvalSnap1 struct {
 }
 
 type EvalSnap2 struct {
-	RootID     string                  `db:"exec_id"`
-	RootRN     int64                   `db:"exec_rn"`
+	ExecID     string                  `db:"exec_id"`
+	ExecRN     int64                   `db:"exec_rn"`
 	LiabMode   int16                   `db:"liab_mode"`
 	StructVars []execvaradapter.VarRec `db:"struct_vars"`
 	LinearVars []execvaradapter.VarRec `db:"linear_vars"`

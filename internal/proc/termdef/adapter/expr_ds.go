@@ -93,16 +93,16 @@ func statesFromExprRec(parent int64, rec termdef.ExpRec, dto *ExpData) int64 {
 	case termdef.ExpCaseRec:
 		kind = CaseKind
 		d.CommChnlPH = string(r.CommChnlPH)
-		d.ContExpCKs = make(map[string]int64, len(r.ContExps))
-		labels := make([]uniqsym.ADT, 0, len(r.ContExps))
-		for q := range r.ContExps {
+		d.ContExpCKs = make(map[string]int64, len(r.ContExprs))
+		labels := make([]uniqsym.ADT, 0, len(r.ContExprs))
+		for q := range r.ContExprs {
 			labels = append(labels, q)
 		}
 		slices.SortFunc(labels, func(a, b uniqsym.ADT) int {
 			return strings.Compare(uniqsym.ConvertToString(a), uniqsym.ConvertToString(b))
 		})
 		for _, q := range labels {
-			d.ContExpCKs[uniqsym.ConvertToString(q)] = child(r.ContExps[q])
+			d.ContExpCKs[uniqsym.ConvertToString(q)] = child(r.ContExprs[q])
 		}
 	case termdef.ExpLinkRec:
 		kind = LinkKind
@@ -262,7 +262,7 @@ func statesToExprRec(states map[int64]ExpState, st ExpState, visiting, visited m
 			}
 			cs[q] = c
 		}
-		return termdef.ExpCaseRec{ExpCK: key, CommChnlPH: x, ContExps: cs}, nil
+		return termdef.ExpCaseRec{ExpCK: key, CommChnlPH: x, ContExprs: cs}, nil
 	case LinkKind:
 		q, e := uniqsym.ConvertFromString(d.ProcTermQN)
 		if e != nil {

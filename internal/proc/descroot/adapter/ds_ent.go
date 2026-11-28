@@ -24,7 +24,7 @@ func NewDaoEnt(client *ent.Client, log *slog.Logger) descroot.Repo {
 	return &daoEnt{client: client, log: log.With(name)}
 }
 
-func (dao *daoEnt) AddRef(ctx context.Context, conn tx.Conn, ref descroot.SemRef) error {
+func (dao *daoEnt) AddRef(ctx context.Context, conn tx.Conn, ref descroot.RootRef) error {
 	err := dao.client.DescRoot.Create().
 		SetID(ref.DescID.String()).
 		SetDescRn(int64(ref.DescRN)).
@@ -36,7 +36,7 @@ func (dao *daoEnt) AddRef(ctx context.Context, conn tx.Conn, ref descroot.SemRef
 	return nil
 }
 
-func (dao *daoEnt) TouchRef(ctx context.Context, conn tx.Conn, ref descroot.SemRef) error {
+func (dao *daoEnt) TouchRef(ctx context.Context, conn tx.Conn, ref descroot.RootRef) error {
 	updated, err := dao.client.DescRoot.Update().
 		AddDescRn(1).
 		Where(

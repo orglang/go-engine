@@ -37,7 +37,7 @@ type ExprState struct {
 type ExprStateSpec struct {
 	CommChnlPH  string   `json:"comm_chnl_ph,omitempty"`
 	ProcTermQN  string   `json:"proc_term_qn,omitempty"`
-	ProcCompQNs []string `json:"proc_comp_qns,omitempty"`
+	ProcExecQNs []string `json:"proc_exec_qns,omitempty"`
 	ContExprCK  int64    `json:"cont_expr_ck,omitempty"`
 }
 
@@ -77,7 +77,7 @@ func statesFromExprRec(parent int64, rec termdef.ExprRec, dto *ExprData) int64 {
 		kind, data.CommChnlPH, data.ProcTermQN = QuitKind, string(r.CommChnlPH), uniqsym.ConvertToString(r.ProcTermQN)
 	case termdef.ExprSpawnRec:
 		kind, data.ProcTermQN = SpawnKind, uniqsym.ConvertToString(r.ProcTermQN)
-		data.ProcCompQNs = uniqsym.ConvertToStrings(r.ProcCompQNs)
+		data.ProcExecQNs = uniqsym.ConvertToStrings(r.ProcExecQNs)
 	default:
 		panic(fmt.Sprintf("unexpected pool Definition record %T", rec))
 	}
@@ -197,8 +197,8 @@ func statesToExprRec(states map[int64]ExprState, state ExprState, visiting, visi
 		if e != nil {
 			return nil, e
 		}
-		qs, e := uniqsym.ConvertFromStrings(spec.ProcCompQNs)
-		return termdef.ExprSpawnRec{ExprCK: key, ProcTermQN: q, ProcCompQNs: qs}, e
+		qs, e := uniqsym.ConvertFromStrings(spec.ProcExecQNs)
+		return termdef.ExprSpawnRec{ExprCK: key, ProcTermQN: q, ProcExecQNs: qs}, e
 	default:
 		return nil, fmt.Errorf("unexpected pool Definition kind %v", state.K)
 	}

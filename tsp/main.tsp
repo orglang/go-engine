@@ -4,7 +4,7 @@ import "@typespec/openapi3";
 import "./models/any/type.tsp";
 import "./models/any/type/link.tsp";
 import "./models/any/term.tsp";
-import "./models/any/comp.tsp";
+import "./models/any/root.tsp";
 import "./models/any/conn/var.tsp";
 import "./models/any/eval.tsp";
 import "./models/proc/type/expr.tsp";
@@ -12,13 +12,13 @@ import "./models/proc/type/def.tsp";
 import "./models/proc/term/expr.tsp";
 import "./models/proc/term/def.tsp";
 import "./models/proc/term/dec.tsp";
-import "./models/proc/comp.tsp";
+import "./models/proc/exec.tsp";
 import "./models/pool/type/expr.tsp";
 import "./models/pool/type/def.tsp";
 import "./models/pool/term/expr.tsp";
 import "./models/pool/term/def.tsp";
 import "./models/pool/term/dec.tsp";
-import "./models/pool/comp.tsp";
+import "./models/pool/exec.tsp";
 
 using TypeSpec.Http;
 

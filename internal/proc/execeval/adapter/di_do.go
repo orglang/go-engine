@@ -43,7 +43,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		typeExprrRepo, err := do.Invoke[typedef.TypeExprrRepo](i)
+		typeExprrRepo, err := do.Invoke[typedef.TypeExprRepo](i)
 		if err != nil {
 			return nil, err
 		}

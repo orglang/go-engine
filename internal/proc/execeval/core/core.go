@@ -427,7 +427,7 @@ func (s *service) takeWith(
 				ContExp: commact.SendRec{
 					CommChnlPH: commChnl.ChnlPH,
 					ValChnlID:  valChnl.ChnlID,
-					ValExpCK:   valChnl.ExpCK,
+					ValExprCK:   valChnl.ExpCK,
 				},
 			})
 			s.log.Debug("taking half done", execAttr)
@@ -567,7 +567,7 @@ func (s *service) takeWith(
 				ChnlID:  valExpr.ValChnlID,
 				ChnlPH:  termExpr.NewChnlPH,
 				ChnlBS:  execvar.AssetSide,
-				ExpCK:   valExpr.ValExpCK,
+				ExpCK:   valExpr.ValExprCK,
 			})
 			if termExpr.ContExp != nil {
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
@@ -658,10 +658,10 @@ func (s *service) takeWith(
 				// TODO значение ChnlBS
 				ExpCK: nextExprCK,
 			})
-			if contExpr.ContExps[termExpr.ValLabQN] != nil {
+			if contExpr.ContExprs[termExpr.ValLabQN] != nil {
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					RootRef: following.RootRef,
-					ProcExpr: contExpr.ContExps[termExpr.ValLabQN],
+					ProcExpr: contExpr.ContExprs[termExpr.ValLabQN],
 				})
 			}
 			s.log.Debug("step taking succeed", execAttr)
@@ -706,7 +706,7 @@ func (s *service) takeWith(
 				ContExp: commact.CaseRec{
 					CommChnlPH: commChnl.ChnlPH,
 					ContChnlID: newChnlID,
-					ContExps:   termExpr.ContExps,
+					ContExprs:   termExpr.ContExprs,
 				},
 			})
 			s.log.Debug("taking half done", execAttr)
@@ -725,12 +725,12 @@ func (s *service) takeWith(
 				ChnlID:  valExpr.ContChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				// TODO значение ChnlBS
-				ExpCK: valExpr.ValExpCK,
+				ExpCK: valExpr.ValExprCK,
 			})
-			if termExpr.ContExps[valExpr.ValLabQN] != nil {
+			if termExpr.ContExprs[valExpr.ValLabQN] != nil {
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					RootRef: evalSnap.RootRef,
-					ProcExpr: termExpr.ContExps[valExpr.ValLabQN],
+					ProcExpr: termExpr.ContExprs[valExpr.ValLabQN],
 				})
 			}
 			s.log.Debug("step taking succeed", execAttr)
@@ -1067,13 +1067,13 @@ func (s *service) checkProvider(
 			return err
 		}
 		// check conts
-		if len(exprSpec.ContExps) != len(wantVia.Choices) {
-			err := fmt.Errorf("state mismatch: want %v choices, got %v conts", len(wantVia.Choices), len(exprSpec.ContExps))
+		if len(exprSpec.ContExprs) != len(wantVia.Choices) {
+			err := fmt.Errorf("state mismatch: want %v choices, got %v conts", len(wantVia.Choices), len(exprSpec.ContExprs))
 			s.log.Error("checking failed")
 			return err
 		}
 		for label, choice := range wantVia.Choices {
-			cont, ok := exprSpec.ContExps[label]
+			cont, ok := exprSpec.ContExprs[label]
 			if !ok {
 				err := fmt.Errorf("label mismatch: want %v, got nothing", label)
 				s.log.Error("checking failed")
@@ -1248,13 +1248,13 @@ func (s *service) checkClient(
 			return err
 		}
 		// check conts
-		if len(exprSpec.ContExps) != len(wantVia.Choices) {
-			err := fmt.Errorf("state mismatch: want %v choices, got %v conts", len(wantVia.Choices), len(exprSpec.ContExps))
+		if len(exprSpec.ContExprs) != len(wantVia.Choices) {
+			err := fmt.Errorf("state mismatch: want %v choices, got %v conts", len(wantVia.Choices), len(exprSpec.ContExprs))
 			s.log.Error("checking failed")
 			return err
 		}
 		for label, choice := range wantVia.Choices {
-			cont, ok := exprSpec.ContExps[label]
+			cont, ok := exprSpec.ContExprs[label]
 			if !ok {
 				err := fmt.Errorf("label mismatch: want %v, got nothing", label)
 				s.log.Error("checking failed")

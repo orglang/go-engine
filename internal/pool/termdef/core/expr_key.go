@@ -40,11 +40,11 @@ func exprContentValue(spec ExprSpec) (any, error) {
 	case ExprQuitSpec:
 		return map[string]any{"kind": "quit", "comm_chnl_ph": string(s.CommChnlPH), "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN)}, nil
 	case ExprSpawnSpec:
-		qns := make([]string, len(s.ProcCompQNs))
-		for i, q := range s.ProcCompQNs {
+		qns := make([]string, len(s.ProcExecQNs))
+		for i, q := range s.ProcExecQNs {
 			qns[i] = uniqsym.ConvertToString(q)
 		}
-		return map[string]any{"kind": "spawn", "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN), "proc_comp_qns": qns}, nil
+		return map[string]any{"kind": "spawn", "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN), "proc_exec_qns": qns}, nil
 	default:
 		return nil, fmt.Errorf("unexpected pool Definition spec %T", spec)
 	}

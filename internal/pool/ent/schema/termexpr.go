@@ -9,24 +9,24 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// TermExp describes one persisted process term-definition expression node.
-type TermExp struct {
+// TermExpr describes one persisted pool term-definition expression node.
+type TermExpr struct {
 	ent.Schema
 }
 
-// Fields of the TermExp.
-func (TermExp) Fields() []ent.Field {
+// Fields of the TermExpr.
+func (TermExpr) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int64("id").StorageKey("exp_ck").Unique().Immutable(),
-		field.Int64("sup_exp_ck"),
+		field.Int64("id").StorageKey("expr_ck").Unique().Immutable(),
+		field.Int64("sup_expr_ck"),
 		field.Int16("kind"),
 		field.JSON("spec", json.RawMessage{}).Optional(),
 	}
 }
 
 // Annotations maps the schema to its PostgreSQL expression table.
-func (TermExp) Annotations() []schema.Annotation {
+func (TermExpr) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "proc_term_exps"},
+		entsql.Annotation{Table: "pool_term_exprs"},
 	}
 }

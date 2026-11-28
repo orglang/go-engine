@@ -16,12 +16,12 @@ CREATE INDEX pool_prog_qn_gist_idx ON pool_prog_binds USING GIST (prog_qn);
 CREATE TABLE pool_type_defs (
     type_id varchar UNIQUE,
     prog_id varchar NOT NULL,
-    exp_ck bigint
+    expr_ck bigint
 );
 
-CREATE TABLE pool_type_exps (
-    exp_ck bigint UNIQUE,
-    sup_exp_ck bigint,
+CREATE TABLE pool_type_exprs (
+    expr_ck bigint UNIQUE,
+    sup_expr_ck bigint,
     kind smallint,
     spec jsonb
 );
@@ -29,14 +29,14 @@ CREATE TABLE pool_type_exps (
 CREATE TABLE pool_prog_terms (
     term_id varchar UNIQUE,
     prog_id varchar NOT NULL,
-    exp_ck bigint,
+    expr_ck bigint,
     liab_var jsonb,
     asset_vars jsonb
 );
 
-CREATE TABLE pool_term_exps (
-    exp_ck bigint UNIQUE,
-    sup_exp_ck bigint,
+CREATE TABLE pool_term_exprs (
+    expr_ck bigint UNIQUE,
+    sup_expr_ck bigint,
     kind smallint,
     spec jsonb
 );
@@ -61,7 +61,7 @@ CREATE TABLE pool_exec_vars (
     comm_id varchar,
     chnl_id varchar,
     chnl_ph varchar,
-    exp_ck bigint,
+    expr_ck bigint,
     side smallint
 );
 
@@ -88,7 +88,7 @@ CREATE TABLE pool_comm_acts (
     exec_rn bigint,
     chnl_id varchar,
     kind smallint,
-    exp jsonb
+    expr jsonb
 );
 
 CREATE TABLE proc_prog_roots (
@@ -107,12 +107,12 @@ CREATE INDEX proc_prog_qn_gist_idx ON proc_prog_binds USING GIST (prog_qn);
 CREATE TABLE proc_type_defs (
     type_id varchar UNIQUE,
     prog_id varchar NOT NULL,
-    exp_ck bigint
+    expr_ck bigint
 );
 
-CREATE TABLE proc_type_exps (
-    exp_ck bigint UNIQUE,
-    sup_exp_ck bigint,
+CREATE TABLE proc_type_exprs (
+    expr_ck bigint UNIQUE,
+    sup_expr_ck bigint,
     kind smallint,
     spec jsonb
 );
@@ -120,14 +120,14 @@ CREATE TABLE proc_type_exps (
 CREATE TABLE proc_prog_terms (
     term_id varchar UNIQUE,
     prog_id varchar NOT NULL,
-    exp_ck bigint,
+    expr_ck bigint,
     liab_var jsonb,
     asset_vars jsonb
 );
 
-CREATE TABLE proc_term_exps (
-    exp_ck bigint UNIQUE,
-    sup_exp_ck bigint,
+CREATE TABLE proc_term_exprs (
+    expr_ck bigint UNIQUE,
+    sup_expr_ck bigint,
     kind smallint,
     spec jsonb
 );
@@ -152,7 +152,7 @@ CREATE TABLE proc_exec_vars (
     comm_id varchar,
     chnl_id varchar,
     chnl_ph varchar,
-    exp_ck bigint,
+    expr_ck bigint,
     side smallint
 );
 
@@ -179,5 +179,5 @@ CREATE TABLE proc_comm_acts (
     exec_rn bigint,
     chnl_id varchar,
     kind smallint,
-    exp jsonb
+    expr jsonb
 );

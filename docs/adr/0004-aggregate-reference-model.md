@@ -123,7 +123,7 @@ Execution — отдельный aggregate root в каждом bounded context.
 - `ExecID` идентифицирует Execution aggregate и его единственную Evaluation.
 - В одном Execution существует ровно одна Evaluation; отдельный `ExecutionID` не вводится.
 - `ExecRN` — revision Execution aggregate.
-- Variables и channel bindings принадлежат Execution и адресуются через `ExecID`.
+- Variables и channel bindings принадлежат Evaluation и адресуются через `ExecID`.
 - Повторный запуск изменяет состояние той же Evaluation. Несколько Execution, retry history и run history базовой моделью не поддерживаются.
 
 ### Connection

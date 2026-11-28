@@ -10,7 +10,7 @@ import (
 
 	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/internal/adt/comproot"
+	"orglang/go-engine/internal/adt/execroot"
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/execvar"
 	"orglang/go-engine/internal/adt/identity"
@@ -29,16 +29,16 @@ import (
 
 type API interface {
 	Take(context.Context, execstep.StepSpec) error
-	RetrieveSnap(comproot.RootRef) (EvalSnap, error)
+	RetrieveSnap(execroot.RootRef) (EvalSnap, error)
 }
 
 type EvalRec struct {
-	CompRef  comproot.RootRef
+	RootRef  execroot.RootRef
 	LiabMode execvar.Mode
 }
 
 type EvalMod struct {
-	CompRefs   []comproot.RootRef
+	RootRefs   []execroot.RootRef
 	LinearVars []execvar.LinearRec
 }
 
@@ -54,7 +54,7 @@ type takeResult struct {
 
 // aka Configuration
 type EvalSnap struct {
-	CompRef    comproot.RootRef
+	RootRef    execroot.RootRef
 	LinearVars map[symbol.ADT]execvar.LinearRec
 }
 
@@ -98,7 +98,7 @@ func NewService(
 	}
 }
 
-func (s *service) RetrieveSnap(ref comproot.RootRef) (_ EvalSnap, err error) {
+func (s *service) RetrieveSnap(ref execroot.RootRef) (_ EvalSnap, err error) {
 	return EvalSnap{}, nil
 }
 
@@ -107,10 +107,10 @@ func ErrMissingChnl(want symbol.ADT) error {
 }
 
 func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) {
-	compAttr := slog.Any("proc", spec.CompRef)
+	compAttr := slog.Any("proc", spec.RootRef)
 	s.log.Debug("step taking started", compAttr, slog.Any("exp", spec.ProcExp))
 	// initial values
-	compRef := spec.CompRef
+	compRef := spec.RootRef
 	expSpec := spec.ProcExp
 	for expSpec != nil {
 		evalSnap, getErr1 := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (EvalSnap, error) {
@@ -163,13 +163,13 @@ func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) 
 			return err
 		}
 		if len(result.Connection.Acts) > 0 || (result.Connection.OffsetNr != nil && !result.Connection.OffsetNr.IsEmpty()) {
-			providerRef := comproot.RootRef{CompID: result.Connection.ProviderExecID, CompRN: result.Connection.ProviderExecRN}
-			if providerRef.CompID == evalSnap.CompRef.CompID {
-				if providerRef.CompRN != evalSnap.CompRef.CompRN {
-					return fmt.Errorf("provider computation snapshot changed: expected revision %v, got %v", providerRef.CompRN, evalSnap.CompRef.CompRN)
+			providerRef := execroot.RootRef{RootID: result.Connection.ProviderExecID, RootRN: result.Connection.ProviderExecRN}
+			if providerRef.RootID == evalSnap.RootRef.RootID {
+				if providerRef.RootRN != evalSnap.RootRef.RootRN {
+					return fmt.Errorf("provider computation snapshot changed: expected revision %v, got %v", providerRef.RootRN, evalSnap.RootRef.RootRN)
 				}
 			} else {
-				result.Mod.CompRefs = append(result.Mod.CompRefs, providerRef)
+				result.Mod.RootRefs = append(result.Mod.RootRefs, providerRef)
 			}
 		}
 		err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
@@ -193,7 +193,7 @@ func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) 
 		// next values
 		if len(result.Effects.Steps) > 0 {
 			nextSpec := result.Effects.Steps[len(result.Effects.Steps)-1]
-			compRef = nextSpec.CompRef
+			compRef = nextSpec.RootRef
 			expSpec = nextSpec.ProcExp
 		}
 	}
@@ -211,8 +211,8 @@ func (s *service) takeWith(
 	var evalEff EvalEff
 	var connMod execconn.ConnMod
 	var err error
-	compAttr := slog.Any("compRef", evalSnap.CompRef)
-	evalMod.CompRefs = append(evalMod.CompRefs, evalSnap.CompRef)
+	compAttr := slog.Any("compRef", evalSnap.RootRef)
+	evalMod.RootRefs = append(evalMod.RootRefs, evalSnap.RootRef)
 	switch termExp := exp.(type) {
 	case connact.CloseSpec:
 		connChnl, ok := evalSnap.LinearVars[termExp.ContChnlPH]
@@ -245,7 +245,7 @@ func (s *service) takeWith(
 			// регистрируем подписку закрывателя
 			connMod.Acts = append(connMod.Acts, connact.SubRec{
 				ConnID:  connSnap.ConnID,
-				CompRef: evalSnap.CompRef,
+				RootRef: evalSnap.RootRef,
 				ChnlID:  connChnl.ChnlID,
 				ContExp: connact.CloseRec(termExp),
 			})
@@ -271,7 +271,7 @@ func (s *service) takeWith(
 			})
 			// лишаем продолжения наблюдателя
 			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
-				RootRef: observation.CompRef,
+				RootRef: observation.RootRef,
 				ConnID:  observation.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
@@ -281,7 +281,7 @@ func (s *service) takeWith(
 			if expRec.ContExp != nil {
 				// шедулим продолжение наблюдателя
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					CompRef: observation.CompRef,
+					RootRef: observation.RootRef,
 					ProcExp: expRec.ContExp,
 				})
 			}
@@ -320,7 +320,7 @@ func (s *service) takeWith(
 			// регистрируем подписку наблюдателя
 			connMod.Acts = append(connMod.Acts, connact.SubRec{
 				ConnID:  connSnap.ConnID,
-				CompRef: evalSnap.CompRef,
+				RootRef: evalSnap.RootRef,
 				ChnlID:  connChnl.ChnlID,
 				ContExp: connact.WaitRec(termExp),
 			})
@@ -346,7 +346,7 @@ func (s *service) takeWith(
 			})
 			// лишаем продолжения закрывателя
 			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
-				RootRef: closage.CompRef,
+				RootRef: closage.RootRef,
 				ConnID:  closage.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ContChnlPH,
@@ -355,7 +355,7 @@ func (s *service) takeWith(
 			})
 			if termExp.ContExp != nil {
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					CompRef: evalSnap.CompRef,
+					RootRef: evalSnap.RootRef,
 					ProcExp: termExp.ContExp,
 				})
 			}
@@ -364,7 +364,7 @@ func (s *service) takeWith(
 		case connact.FwdRec:
 			// перенаправляем продолжение наблюдателя
 			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
-				RootRef: evalSnap.CompRef,
+				RootRef: evalSnap.RootRef,
 				ConnID:  connSnap.ConnID,
 				ChnlID:  expRec.ContChnlID,
 				ChnlPH:  connChnl.ChnlPH,
@@ -372,7 +372,7 @@ func (s *service) takeWith(
 				ExpCK:   connChnl.ExpCK,
 			})
 			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-				CompRef: evalSnap.CompRef,
+				RootRef: evalSnap.RootRef,
 				ProcExp: termExp,
 			})
 			s.log.Debug("step taking succeed", compAttr)
@@ -422,7 +422,7 @@ func (s *service) takeWith(
 			// регистрируем подписку отправителя
 			connMod.Acts = append(connMod.Acts, connact.SubRec{
 				ConnID:  connSnap.ConnID,
-				CompRef: evalSnap.CompRef,
+				RootRef: evalSnap.RootRef,
 				ChnlID:  connChnl.ChnlID,
 				ContExp: connact.SendRec{
 					ConnChnlPH: connChnl.ChnlPH,
@@ -460,7 +460,7 @@ func (s *service) takeWith(
 		case connact.RecvRec:
 			// вяжем продолжение принимателя
 			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
-				RootRef: receival.CompRef,
+				RootRef: receival.RootRef,
 				ConnID:  receival.ConnID,
 				ChnlID:  newChnlID,
 				ChnlPH:  expRec.ConnChnlPH,
@@ -469,7 +469,7 @@ func (s *service) takeWith(
 			})
 			// вяжем значение принимателя
 			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
-				RootRef: receival.CompRef,
+				RootRef: receival.RootRef,
 				ConnID:  valChnl.ConnID,
 				ChnlID:  valChnl.ChnlID,
 				ChnlPH:  expRec.NewChnlPH,
@@ -478,7 +478,7 @@ func (s *service) takeWith(
 			})
 			if expRec.ContExp != nil {
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					CompRef: receival.CompRef,
+					RootRef: receival.RootRef,
 					ProcExp: expRec.ContExp,
 				})
 			}
@@ -533,7 +533,7 @@ func (s *service) takeWith(
 			// регистрируем подписку принимателя
 			connMod.Acts = append(connMod.Acts, connact.SubRec{
 				ConnID:  connSnap.ConnID,
-				CompRef: evalSnap.CompRef,
+				RootRef: evalSnap.RootRef,
 				ChnlID:  connChnl.ChnlID,
 				ContExp: connact.RecvRec{
 					ConnChnlPH: connChnl.ChnlPH,
@@ -571,7 +571,7 @@ func (s *service) takeWith(
 			})
 			if termExp.ContExp != nil {
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					CompRef: evalSnap.CompRef,
+					RootRef: evalSnap.RootRef,
 					ProcExp: termExp.ContExp,
 				})
 			}
@@ -623,7 +623,7 @@ func (s *service) takeWith(
 			// регистрируем сообщение решателя
 			connMod.Acts = append(connMod.Acts, connact.PubRec{
 				ConnID:  connSnap.ConnID,
-				CompRef: evalSnap.CompRef,
+				RootRef: evalSnap.RootRef,
 				ChnlID:  connChnl.ChnlID,
 				ValExp: connact.LabRec{
 					ConnChnlPH: connChnl.ChnlPH,
@@ -651,7 +651,7 @@ func (s *service) takeWith(
 			})
 			// вяжем продолжение последователя
 			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
-				RootRef: following.CompRef,
+				RootRef: following.RootRef,
 				ConnID:  following.ConnID,
 				ChnlID:  contExp.ContChnlID,
 				ChnlPH:  contExp.ConnChnlPH,
@@ -660,7 +660,7 @@ func (s *service) takeWith(
 			})
 			if contExp.ContExps[termExp.ValLabQN] != nil {
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					CompRef: following.CompRef,
+					RootRef: following.RootRef,
 					ProcExp: contExp.ContExps[termExp.ValLabQN],
 				})
 			}
@@ -701,7 +701,7 @@ func (s *service) takeWith(
 			// регистрируем подписку последователя
 			connMod.Acts = append(connMod.Acts, connact.SubRec{
 				ConnID:  connChnl.ConnID,
-				CompRef: connChnl.RootRef,
+				RootRef: connChnl.RootRef,
 				ChnlID:  connChnl.ChnlID,
 				ContExp: connact.CaseRec{
 					ConnChnlPH: connChnl.ChnlPH,
@@ -729,7 +729,7 @@ func (s *service) takeWith(
 			})
 			if termExp.ContExps[valExp.ValLabQN] != nil {
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					CompRef: evalSnap.CompRef,
+					RootRef: evalSnap.RootRef,
 					ProcExp: termExp.ContExps[valExp.ValLabQN],
 				})
 			}
@@ -780,7 +780,7 @@ func (s *service) takeWith(
 			case connact.SubRec:
 				// перенаправляем подписчика
 				evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
-					RootRef: forwardable.CompRef,
+					RootRef: forwardable.RootRef,
 					ConnID:  forwardable.ConnID,
 					ChnlID:  connChnl.ChnlID,
 					ChnlPH:  forwardable.ContExp.Via(),
@@ -789,7 +789,7 @@ func (s *service) takeWith(
 				})
 				if forwardable.ContExp != nil {
 					evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-						CompRef: forwardable.CompRef,
+						RootRef: forwardable.RootRef,
 						ProcExp: forwardable.ContExp,
 					})
 				}
@@ -798,7 +798,7 @@ func (s *service) takeWith(
 			case connact.PubRec:
 				// перенаправляем публикатора
 				evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
-					RootRef: forwardable.CompRef,
+					RootRef: forwardable.RootRef,
 					ConnID:  forwardable.ConnID,
 					ChnlID:  contChnl.ChnlID,
 					ChnlPH:  forwardable.ValExp.Via(),
@@ -806,7 +806,7 @@ func (s *service) takeWith(
 					ExpCK: contChnl.ExpCK,
 				})
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					CompRef: forwardable.CompRef,
+					RootRef: forwardable.RootRef,
 					ProcExp: forwardable.ValExp,
 				})
 				s.log.Debug("step taking succeed", compAttr)
@@ -832,7 +832,7 @@ func (s *service) takeWith(
 				// регистрируем сообщение схлопывающегося
 				connMod.Acts = append(connMod.Acts, connact.PubRec{
 					ConnID:  fwdConnSnap.ConnID,
-					CompRef: evalSnap.CompRef,
+					RootRef: evalSnap.RootRef,
 					ChnlID:  connChnl.ChnlID,
 					ValExp: connact.FwdRec{
 						ContChnlID: contChnl.ChnlID,
@@ -848,7 +848,7 @@ func (s *service) takeWith(
 			case connact.SubRec:
 				// перенаправляем подписчика
 				evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
-					RootRef: forwardable.CompRef,
+					RootRef: forwardable.RootRef,
 					ConnID:  forwardable.ConnID,
 					ChnlID:  contChnl.ChnlID,
 					ChnlPH:  forwardable.ContExp.Via(),
@@ -857,7 +857,7 @@ func (s *service) takeWith(
 				})
 				if forwardable.ContExp != nil {
 					evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-						CompRef: forwardable.CompRef,
+						RootRef: forwardable.RootRef,
 						ProcExp: forwardable.ContExp,
 					})
 				}
@@ -866,7 +866,7 @@ func (s *service) takeWith(
 			case connact.PubRec:
 				// перенаправляем публикатора
 				evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
-					RootRef: forwardable.CompRef,
+					RootRef: forwardable.RootRef,
 					ConnID:  forwardable.ConnID,
 					ChnlID:  connChnl.ChnlID,
 					ChnlPH:  forwardable.ValExp.Via(),
@@ -874,7 +874,7 @@ func (s *service) takeWith(
 					ExpCK: connChnl.ExpCK,
 				})
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					CompRef: forwardable.CompRef,
+					RootRef: forwardable.RootRef,
 					ProcExp: forwardable.ValExp, // TODO: несовпадение типов
 				})
 				s.log.Debug("step taking succeed", compAttr)
@@ -883,7 +883,7 @@ func (s *service) takeWith(
 				// регистрируем подписку схлопывающегося
 				connMod.Acts = append(connMod.Acts, connact.SubRec{
 					ConnID:  fwdConnSnap.ConnID,
-					CompRef: connChnl.RootRef,
+					RootRef: connChnl.RootRef,
 					ChnlID:  connChnl.ChnlID,
 					ContExp: connact.FwdRec{
 						ContChnlID: contChnl.ChnlID,

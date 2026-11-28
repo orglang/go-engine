@@ -173,18 +173,18 @@ func poolExprToCore(ast poolExprAST) (pooltypedef.ExprSpec, error) {
 			return nil, err
 		}
 		if ast.Kind == "plus" {
-			return pooltypedef.PlusSpec{ProcQNs: qns, ContExp: cont}, nil
+			return pooltypedef.PlusSpec{ProcQNs: qns, ContExpr: cont}, nil
 		}
-		return pooltypedef.WithSpec{ProcQNs: qns, ContExp: cont}, nil
+		return pooltypedef.WithSpec{ProcQNs: qns, ContExpr: cont}, nil
 	case "up", "down":
 		cont, err := poolExprToCore(ast.Shift().Cont)
 		if err != nil {
 			return nil, err
 		}
 		if ast.Kind == "up" {
-			return pooltypedef.UpSpec{ContExp: cont}, nil
+			return pooltypedef.UpSpec{ContExpr: cont}, nil
 		}
-		return pooltypedef.DownSpec{ContExp: cont}, nil
+		return pooltypedef.DownSpec{ContExpr: cont}, nil
 	default:
 		return nil, fmt.Errorf("unsupported pool type expression kind %q", ast.Kind)
 	}

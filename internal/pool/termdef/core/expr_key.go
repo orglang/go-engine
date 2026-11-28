@@ -20,16 +20,16 @@ func exprContentValue(spec ExprSpec) (any, error) {
 	child := func(s ExprSpec) (int64, error) { k, _, e := ExprContentKey(s); return int64(k), e }
 	switch s := spec.(type) {
 	case ExprAcquireSpec:
-		k, e := child(s.ContExp)
+		k, e := child(s.ContExpr)
 		return map[string]any{"kind": "acquire", "comm_chnl_ph": string(s.CommChnlPH), "cont_expr_ck": k}, e
 	case ExprAcceptSpec:
-		k, e := child(s.ContExp)
+		k, e := child(s.ContExpr)
 		return map[string]any{"kind": "accept", "comm_chnl_ph": string(s.CommChnlPH), "cont_expr_ck": k}, e
 	case ExprHireSpec:
-		k, e := child(s.ContExp)
+		k, e := child(s.ContExpr)
 		return map[string]any{"kind": "hire", "comm_chnl_ph": string(s.CommChnlPH), "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN), "cont_expr_ck": k}, e
 	case ExprApplySpec:
-		k, e := child(s.ContExp)
+		k, e := child(s.ContExpr)
 		return map[string]any{"kind": "apply", "comm_chnl_ph": string(s.CommChnlPH), "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN), "cont_expr_ck": k}, e
 	case ExprReleaseSpec:
 		return map[string]any{"kind": "release", "comm_chnl_ph": string(s.CommChnlPH)}, nil

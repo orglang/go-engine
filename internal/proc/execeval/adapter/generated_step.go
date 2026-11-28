@@ -6,7 +6,7 @@ import (
 
 	"github.com/labstack/echo/v5"
 
-	"orglang/go-engine/internal/adt/comproot"
+	"orglang/go-engine/internal/adt/execroot"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
@@ -16,7 +16,7 @@ import (
 )
 
 func generatedStepToCore(id string, dto webapi.ProcStepSpec) (execstepcore.StepSpec, error) {
-	compID, err := identity.ConvertFromString(id)
+	rootID, err := identity.ConvertFromString(id)
 	if err != nil {
 		return execstepcore.StepSpec{}, fmt.Errorf("convert process execution id: %w", err)
 	}
@@ -25,7 +25,7 @@ func generatedStepToCore(id string, dto webapi.ProcStepSpec) (execstepcore.StepS
 		return execstepcore.StepSpec{}, err
 	}
 	return execstepcore.StepSpec{
-		CompRef: comproot.RootRef{CompID: compID},
+		CompRef: comproot.RootRef{CompID: rootID},
 		ProcExp: expr,
 	}, nil
 }

@@ -148,17 +148,17 @@ func poolStepSpecToCore(dto api.PoolStepSpec) (execstep.StepSpec, error) {
 }
 
 func rootRefFromAPI(dto api.AnyRootRef) (execroot.RootRef, error) {
-	id, err := identity.ConvertFromString(dto.RootId)
+	id, err := identity.ConvertFromString(dto.ExecId)
 	if err != nil {
 		return execroot.RootRef{}, err
 	}
-	return execroot.RootRef{RootID: id, RootRN: seqnum.ConvertFromInt(dto.RootRn)}, nil
+	return execroot.RootRef{ExecID: id, ExecRN: seqnum.ConvertFromInt(dto.ExecRn)}, nil
 }
 
 func rootRefToAPI(ref execroot.RootRef) api.AnyRootRef {
 	return api.AnyRootRef{
-		RootId: identity.ConvertToString(ref.RootID),
-		RootRn: seqnum.ConvertToInt(ref.RootRN),
+		ExecId: identity.ConvertToString(ref.ExecID),
+		ExecRn: seqnum.ConvertToInt(ref.ExecRN),
 	}
 }
 

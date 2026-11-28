@@ -6,7 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"orglang/go-engine/internal/proc/ent/execconn"
+	"orglang/go-engine/internal/proc/ent/execcomm"
 	"orglang/go-engine/internal/proc/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
@@ -14,27 +14,27 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// ExecConnUpdate is the builder for updating ExecConn entities.
-type ExecConnUpdate struct {
+// ExecCommUpdate is the builder for updating ExecComm entities.
+type ExecCommUpdate struct {
 	config
 	hooks    []Hook
-	mutation *ExecConnMutation
+	mutation *ExecCommMutation
 }
 
-// Where appends a list predicates to the ExecConnUpdate builder.
-func (_u *ExecConnUpdate) Where(ps ...predicate.ExecConn) *ExecConnUpdate {
+// Where appends a list predicates to the ExecCommUpdate builder.
+func (_u *ExecCommUpdate) Where(ps ...predicate.ExecComm) *ExecCommUpdate {
 	_u.mutation.Where(ps...)
 	return _u
 }
 
 // SetProviderExecID sets the "provider_exec_id" field.
-func (_u *ExecConnUpdate) SetProviderExecID(v string) *ExecConnUpdate {
+func (_u *ExecCommUpdate) SetProviderExecID(v string) *ExecCommUpdate {
 	_u.mutation.SetProviderExecID(v)
 	return _u
 }
 
 // SetNillableProviderExecID sets the "provider_exec_id" field if the given value is not nil.
-func (_u *ExecConnUpdate) SetNillableProviderExecID(v *string) *ExecConnUpdate {
+func (_u *ExecCommUpdate) SetNillableProviderExecID(v *string) *ExecCommUpdate {
 	if v != nil {
 		_u.SetProviderExecID(*v)
 	}
@@ -42,14 +42,14 @@ func (_u *ExecConnUpdate) SetNillableProviderExecID(v *string) *ExecConnUpdate {
 }
 
 // SetProviderExecRn sets the "provider_exec_rn" field.
-func (_u *ExecConnUpdate) SetProviderExecRn(v int64) *ExecConnUpdate {
+func (_u *ExecCommUpdate) SetProviderExecRn(v int64) *ExecCommUpdate {
 	_u.mutation.ResetProviderExecRn()
 	_u.mutation.SetProviderExecRn(v)
 	return _u
 }
 
 // SetNillableProviderExecRn sets the "provider_exec_rn" field if the given value is not nil.
-func (_u *ExecConnUpdate) SetNillableProviderExecRn(v *int64) *ExecConnUpdate {
+func (_u *ExecCommUpdate) SetNillableProviderExecRn(v *int64) *ExecCommUpdate {
 	if v != nil {
 		_u.SetProviderExecRn(*v)
 	}
@@ -57,19 +57,19 @@ func (_u *ExecConnUpdate) SetNillableProviderExecRn(v *int64) *ExecConnUpdate {
 }
 
 // AddProviderExecRn adds value to the "provider_exec_rn" field.
-func (_u *ExecConnUpdate) AddProviderExecRn(v int64) *ExecConnUpdate {
+func (_u *ExecCommUpdate) AddProviderExecRn(v int64) *ExecCommUpdate {
 	_u.mutation.AddProviderExecRn(v)
 	return _u
 }
 
 // SetClientExecID sets the "client_exec_id" field.
-func (_u *ExecConnUpdate) SetClientExecID(v string) *ExecConnUpdate {
+func (_u *ExecCommUpdate) SetClientExecID(v string) *ExecCommUpdate {
 	_u.mutation.SetClientExecID(v)
 	return _u
 }
 
 // SetNillableClientExecID sets the "client_exec_id" field if the given value is not nil.
-func (_u *ExecConnUpdate) SetNillableClientExecID(v *string) *ExecConnUpdate {
+func (_u *ExecCommUpdate) SetNillableClientExecID(v *string) *ExecCommUpdate {
 	if v != nil {
 		_u.SetClientExecID(*v)
 	}
@@ -77,14 +77,14 @@ func (_u *ExecConnUpdate) SetNillableClientExecID(v *string) *ExecConnUpdate {
 }
 
 // SetClientExecRn sets the "client_exec_rn" field.
-func (_u *ExecConnUpdate) SetClientExecRn(v int64) *ExecConnUpdate {
+func (_u *ExecCommUpdate) SetClientExecRn(v int64) *ExecCommUpdate {
 	_u.mutation.ResetClientExecRn()
 	_u.mutation.SetClientExecRn(v)
 	return _u
 }
 
 // SetNillableClientExecRn sets the "client_exec_rn" field if the given value is not nil.
-func (_u *ExecConnUpdate) SetNillableClientExecRn(v *int64) *ExecConnUpdate {
+func (_u *ExecCommUpdate) SetNillableClientExecRn(v *int64) *ExecCommUpdate {
 	if v != nil {
 		_u.SetClientExecRn(*v)
 	}
@@ -92,20 +92,20 @@ func (_u *ExecConnUpdate) SetNillableClientExecRn(v *int64) *ExecConnUpdate {
 }
 
 // AddClientExecRn adds value to the "client_exec_rn" field.
-func (_u *ExecConnUpdate) AddClientExecRn(v int64) *ExecConnUpdate {
+func (_u *ExecCommUpdate) AddClientExecRn(v int64) *ExecCommUpdate {
 	_u.mutation.AddClientExecRn(v)
 	return _u
 }
 
 // SetOffsetNr sets the "offset_nr" field.
-func (_u *ExecConnUpdate) SetOffsetNr(v int64) *ExecConnUpdate {
+func (_u *ExecCommUpdate) SetOffsetNr(v int64) *ExecCommUpdate {
 	_u.mutation.ResetOffsetNr()
 	_u.mutation.SetOffsetNr(v)
 	return _u
 }
 
 // SetNillableOffsetNr sets the "offset_nr" field if the given value is not nil.
-func (_u *ExecConnUpdate) SetNillableOffsetNr(v *int64) *ExecConnUpdate {
+func (_u *ExecCommUpdate) SetNillableOffsetNr(v *int64) *ExecCommUpdate {
 	if v != nil {
 		_u.SetOffsetNr(*v)
 	}
@@ -113,26 +113,26 @@ func (_u *ExecConnUpdate) SetNillableOffsetNr(v *int64) *ExecConnUpdate {
 }
 
 // AddOffsetNr adds value to the "offset_nr" field.
-func (_u *ExecConnUpdate) AddOffsetNr(v int64) *ExecConnUpdate {
+func (_u *ExecCommUpdate) AddOffsetNr(v int64) *ExecCommUpdate {
 	_u.mutation.AddOffsetNr(v)
 	return _u
 }
 
 // ClearOffsetNr clears the value of the "offset_nr" field.
-func (_u *ExecConnUpdate) ClearOffsetNr() *ExecConnUpdate {
+func (_u *ExecCommUpdate) ClearOffsetNr() *ExecCommUpdate {
 	_u.mutation.ClearOffsetNr()
 	return _u
 }
 
 // SetActNr sets the "act_nr" field.
-func (_u *ExecConnUpdate) SetActNr(v int64) *ExecConnUpdate {
+func (_u *ExecCommUpdate) SetActNr(v int64) *ExecCommUpdate {
 	_u.mutation.ResetActNr()
 	_u.mutation.SetActNr(v)
 	return _u
 }
 
 // SetNillableActNr sets the "act_nr" field if the given value is not nil.
-func (_u *ExecConnUpdate) SetNillableActNr(v *int64) *ExecConnUpdate {
+func (_u *ExecCommUpdate) SetNillableActNr(v *int64) *ExecCommUpdate {
 	if v != nil {
 		_u.SetActNr(*v)
 	}
@@ -140,29 +140,29 @@ func (_u *ExecConnUpdate) SetNillableActNr(v *int64) *ExecConnUpdate {
 }
 
 // AddActNr adds value to the "act_nr" field.
-func (_u *ExecConnUpdate) AddActNr(v int64) *ExecConnUpdate {
+func (_u *ExecCommUpdate) AddActNr(v int64) *ExecCommUpdate {
 	_u.mutation.AddActNr(v)
 	return _u
 }
 
 // ClearActNr clears the value of the "act_nr" field.
-func (_u *ExecConnUpdate) ClearActNr() *ExecConnUpdate {
+func (_u *ExecCommUpdate) ClearActNr() *ExecCommUpdate {
 	_u.mutation.ClearActNr()
 	return _u
 }
 
-// Mutation returns the ExecConnMutation object of the builder.
-func (_u *ExecConnUpdate) Mutation() *ExecConnMutation {
+// Mutation returns the ExecCommMutation object of the builder.
+func (_u *ExecCommUpdate) Mutation() *ExecCommMutation {
 	return _u.mutation
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (_u *ExecConnUpdate) Save(ctx context.Context) (int, error) {
+func (_u *ExecCommUpdate) Save(ctx context.Context) (int, error) {
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (_u *ExecConnUpdate) SaveX(ctx context.Context) int {
+func (_u *ExecCommUpdate) SaveX(ctx context.Context) int {
 	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -171,20 +171,20 @@ func (_u *ExecConnUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (_u *ExecConnUpdate) Exec(ctx context.Context) error {
+func (_u *ExecCommUpdate) Exec(ctx context.Context) error {
 	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_u *ExecConnUpdate) ExecX(ctx context.Context) {
+func (_u *ExecCommUpdate) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (_u *ExecConnUpdate) sqlSave(ctx context.Context) (_node int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(execconn.Table, execconn.Columns, sqlgraph.NewFieldSpec(execconn.FieldID, field.TypeString))
+func (_u *ExecCommUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	_spec := sqlgraph.NewUpdateSpec(execcomm.Table, execcomm.Columns, sqlgraph.NewFieldSpec(execcomm.FieldID, field.TypeString))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -193,44 +193,44 @@ func (_u *ExecConnUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 	}
 	if value, ok := _u.mutation.ProviderExecID(); ok {
-		_spec.SetField(execconn.FieldProviderExecID, field.TypeString, value)
+		_spec.SetField(execcomm.FieldProviderExecID, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.ProviderExecRn(); ok {
-		_spec.SetField(execconn.FieldProviderExecRn, field.TypeInt64, value)
+		_spec.SetField(execcomm.FieldProviderExecRn, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.AddedProviderExecRn(); ok {
-		_spec.AddField(execconn.FieldProviderExecRn, field.TypeInt64, value)
+		_spec.AddField(execcomm.FieldProviderExecRn, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.ClientExecID(); ok {
-		_spec.SetField(execconn.FieldClientExecID, field.TypeString, value)
+		_spec.SetField(execcomm.FieldClientExecID, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.ClientExecRn(); ok {
-		_spec.SetField(execconn.FieldClientExecRn, field.TypeInt64, value)
+		_spec.SetField(execcomm.FieldClientExecRn, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.AddedClientExecRn(); ok {
-		_spec.AddField(execconn.FieldClientExecRn, field.TypeInt64, value)
+		_spec.AddField(execcomm.FieldClientExecRn, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.OffsetNr(); ok {
-		_spec.SetField(execconn.FieldOffsetNr, field.TypeInt64, value)
+		_spec.SetField(execcomm.FieldOffsetNr, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.AddedOffsetNr(); ok {
-		_spec.AddField(execconn.FieldOffsetNr, field.TypeInt64, value)
+		_spec.AddField(execcomm.FieldOffsetNr, field.TypeInt64, value)
 	}
 	if _u.mutation.OffsetNrCleared() {
-		_spec.ClearField(execconn.FieldOffsetNr, field.TypeInt64)
+		_spec.ClearField(execcomm.FieldOffsetNr, field.TypeInt64)
 	}
 	if value, ok := _u.mutation.ActNr(); ok {
-		_spec.SetField(execconn.FieldActNr, field.TypeInt64, value)
+		_spec.SetField(execcomm.FieldActNr, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.AddedActNr(); ok {
-		_spec.AddField(execconn.FieldActNr, field.TypeInt64, value)
+		_spec.AddField(execcomm.FieldActNr, field.TypeInt64, value)
 	}
 	if _u.mutation.ActNrCleared() {
-		_spec.ClearField(execconn.FieldActNr, field.TypeInt64)
+		_spec.ClearField(execcomm.FieldActNr, field.TypeInt64)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
-			err = &NotFoundError{execconn.Label}
+			err = &NotFoundError{execcomm.Label}
 		} else if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -240,22 +240,22 @@ func (_u *ExecConnUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	return _node, nil
 }
 
-// ExecConnUpdateOne is the builder for updating a single ExecConn entity.
-type ExecConnUpdateOne struct {
+// ExecCommUpdateOne is the builder for updating a single ExecComm entity.
+type ExecCommUpdateOne struct {
 	config
 	fields   []string
 	hooks    []Hook
-	mutation *ExecConnMutation
+	mutation *ExecCommMutation
 }
 
 // SetProviderExecID sets the "provider_exec_id" field.
-func (_u *ExecConnUpdateOne) SetProviderExecID(v string) *ExecConnUpdateOne {
+func (_u *ExecCommUpdateOne) SetProviderExecID(v string) *ExecCommUpdateOne {
 	_u.mutation.SetProviderExecID(v)
 	return _u
 }
 
 // SetNillableProviderExecID sets the "provider_exec_id" field if the given value is not nil.
-func (_u *ExecConnUpdateOne) SetNillableProviderExecID(v *string) *ExecConnUpdateOne {
+func (_u *ExecCommUpdateOne) SetNillableProviderExecID(v *string) *ExecCommUpdateOne {
 	if v != nil {
 		_u.SetProviderExecID(*v)
 	}
@@ -263,14 +263,14 @@ func (_u *ExecConnUpdateOne) SetNillableProviderExecID(v *string) *ExecConnUpdat
 }
 
 // SetProviderExecRn sets the "provider_exec_rn" field.
-func (_u *ExecConnUpdateOne) SetProviderExecRn(v int64) *ExecConnUpdateOne {
+func (_u *ExecCommUpdateOne) SetProviderExecRn(v int64) *ExecCommUpdateOne {
 	_u.mutation.ResetProviderExecRn()
 	_u.mutation.SetProviderExecRn(v)
 	return _u
 }
 
 // SetNillableProviderExecRn sets the "provider_exec_rn" field if the given value is not nil.
-func (_u *ExecConnUpdateOne) SetNillableProviderExecRn(v *int64) *ExecConnUpdateOne {
+func (_u *ExecCommUpdateOne) SetNillableProviderExecRn(v *int64) *ExecCommUpdateOne {
 	if v != nil {
 		_u.SetProviderExecRn(*v)
 	}
@@ -278,19 +278,19 @@ func (_u *ExecConnUpdateOne) SetNillableProviderExecRn(v *int64) *ExecConnUpdate
 }
 
 // AddProviderExecRn adds value to the "provider_exec_rn" field.
-func (_u *ExecConnUpdateOne) AddProviderExecRn(v int64) *ExecConnUpdateOne {
+func (_u *ExecCommUpdateOne) AddProviderExecRn(v int64) *ExecCommUpdateOne {
 	_u.mutation.AddProviderExecRn(v)
 	return _u
 }
 
 // SetClientExecID sets the "client_exec_id" field.
-func (_u *ExecConnUpdateOne) SetClientExecID(v string) *ExecConnUpdateOne {
+func (_u *ExecCommUpdateOne) SetClientExecID(v string) *ExecCommUpdateOne {
 	_u.mutation.SetClientExecID(v)
 	return _u
 }
 
 // SetNillableClientExecID sets the "client_exec_id" field if the given value is not nil.
-func (_u *ExecConnUpdateOne) SetNillableClientExecID(v *string) *ExecConnUpdateOne {
+func (_u *ExecCommUpdateOne) SetNillableClientExecID(v *string) *ExecCommUpdateOne {
 	if v != nil {
 		_u.SetClientExecID(*v)
 	}
@@ -298,14 +298,14 @@ func (_u *ExecConnUpdateOne) SetNillableClientExecID(v *string) *ExecConnUpdateO
 }
 
 // SetClientExecRn sets the "client_exec_rn" field.
-func (_u *ExecConnUpdateOne) SetClientExecRn(v int64) *ExecConnUpdateOne {
+func (_u *ExecCommUpdateOne) SetClientExecRn(v int64) *ExecCommUpdateOne {
 	_u.mutation.ResetClientExecRn()
 	_u.mutation.SetClientExecRn(v)
 	return _u
 }
 
 // SetNillableClientExecRn sets the "client_exec_rn" field if the given value is not nil.
-func (_u *ExecConnUpdateOne) SetNillableClientExecRn(v *int64) *ExecConnUpdateOne {
+func (_u *ExecCommUpdateOne) SetNillableClientExecRn(v *int64) *ExecCommUpdateOne {
 	if v != nil {
 		_u.SetClientExecRn(*v)
 	}
@@ -313,20 +313,20 @@ func (_u *ExecConnUpdateOne) SetNillableClientExecRn(v *int64) *ExecConnUpdateOn
 }
 
 // AddClientExecRn adds value to the "client_exec_rn" field.
-func (_u *ExecConnUpdateOne) AddClientExecRn(v int64) *ExecConnUpdateOne {
+func (_u *ExecCommUpdateOne) AddClientExecRn(v int64) *ExecCommUpdateOne {
 	_u.mutation.AddClientExecRn(v)
 	return _u
 }
 
 // SetOffsetNr sets the "offset_nr" field.
-func (_u *ExecConnUpdateOne) SetOffsetNr(v int64) *ExecConnUpdateOne {
+func (_u *ExecCommUpdateOne) SetOffsetNr(v int64) *ExecCommUpdateOne {
 	_u.mutation.ResetOffsetNr()
 	_u.mutation.SetOffsetNr(v)
 	return _u
 }
 
 // SetNillableOffsetNr sets the "offset_nr" field if the given value is not nil.
-func (_u *ExecConnUpdateOne) SetNillableOffsetNr(v *int64) *ExecConnUpdateOne {
+func (_u *ExecCommUpdateOne) SetNillableOffsetNr(v *int64) *ExecCommUpdateOne {
 	if v != nil {
 		_u.SetOffsetNr(*v)
 	}
@@ -334,26 +334,26 @@ func (_u *ExecConnUpdateOne) SetNillableOffsetNr(v *int64) *ExecConnUpdateOne {
 }
 
 // AddOffsetNr adds value to the "offset_nr" field.
-func (_u *ExecConnUpdateOne) AddOffsetNr(v int64) *ExecConnUpdateOne {
+func (_u *ExecCommUpdateOne) AddOffsetNr(v int64) *ExecCommUpdateOne {
 	_u.mutation.AddOffsetNr(v)
 	return _u
 }
 
 // ClearOffsetNr clears the value of the "offset_nr" field.
-func (_u *ExecConnUpdateOne) ClearOffsetNr() *ExecConnUpdateOne {
+func (_u *ExecCommUpdateOne) ClearOffsetNr() *ExecCommUpdateOne {
 	_u.mutation.ClearOffsetNr()
 	return _u
 }
 
 // SetActNr sets the "act_nr" field.
-func (_u *ExecConnUpdateOne) SetActNr(v int64) *ExecConnUpdateOne {
+func (_u *ExecCommUpdateOne) SetActNr(v int64) *ExecCommUpdateOne {
 	_u.mutation.ResetActNr()
 	_u.mutation.SetActNr(v)
 	return _u
 }
 
 // SetNillableActNr sets the "act_nr" field if the given value is not nil.
-func (_u *ExecConnUpdateOne) SetNillableActNr(v *int64) *ExecConnUpdateOne {
+func (_u *ExecCommUpdateOne) SetNillableActNr(v *int64) *ExecCommUpdateOne {
 	if v != nil {
 		_u.SetActNr(*v)
 	}
@@ -361,42 +361,42 @@ func (_u *ExecConnUpdateOne) SetNillableActNr(v *int64) *ExecConnUpdateOne {
 }
 
 // AddActNr adds value to the "act_nr" field.
-func (_u *ExecConnUpdateOne) AddActNr(v int64) *ExecConnUpdateOne {
+func (_u *ExecCommUpdateOne) AddActNr(v int64) *ExecCommUpdateOne {
 	_u.mutation.AddActNr(v)
 	return _u
 }
 
 // ClearActNr clears the value of the "act_nr" field.
-func (_u *ExecConnUpdateOne) ClearActNr() *ExecConnUpdateOne {
+func (_u *ExecCommUpdateOne) ClearActNr() *ExecCommUpdateOne {
 	_u.mutation.ClearActNr()
 	return _u
 }
 
-// Mutation returns the ExecConnMutation object of the builder.
-func (_u *ExecConnUpdateOne) Mutation() *ExecConnMutation {
+// Mutation returns the ExecCommMutation object of the builder.
+func (_u *ExecCommUpdateOne) Mutation() *ExecCommMutation {
 	return _u.mutation
 }
 
-// Where appends a list predicates to the ExecConnUpdate builder.
-func (_u *ExecConnUpdateOne) Where(ps ...predicate.ExecConn) *ExecConnUpdateOne {
+// Where appends a list predicates to the ExecCommUpdate builder.
+func (_u *ExecCommUpdateOne) Where(ps ...predicate.ExecComm) *ExecCommUpdateOne {
 	_u.mutation.Where(ps...)
 	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (_u *ExecConnUpdateOne) Select(field string, fields ...string) *ExecConnUpdateOne {
+func (_u *ExecCommUpdateOne) Select(field string, fields ...string) *ExecCommUpdateOne {
 	_u.fields = append([]string{field}, fields...)
 	return _u
 }
 
-// Save executes the query and returns the updated ExecConn entity.
-func (_u *ExecConnUpdateOne) Save(ctx context.Context) (*ExecConn, error) {
+// Save executes the query and returns the updated ExecComm entity.
+func (_u *ExecCommUpdateOne) Save(ctx context.Context) (*ExecComm, error) {
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (_u *ExecConnUpdateOne) SaveX(ctx context.Context) *ExecConn {
+func (_u *ExecCommUpdateOne) SaveX(ctx context.Context) *ExecComm {
 	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -405,33 +405,33 @@ func (_u *ExecConnUpdateOne) SaveX(ctx context.Context) *ExecConn {
 }
 
 // Exec executes the query on the entity.
-func (_u *ExecConnUpdateOne) Exec(ctx context.Context) error {
+func (_u *ExecCommUpdateOne) Exec(ctx context.Context) error {
 	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_u *ExecConnUpdateOne) ExecX(ctx context.Context) {
+func (_u *ExecCommUpdateOne) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (_u *ExecConnUpdateOne) sqlSave(ctx context.Context) (_node *ExecConn, err error) {
-	_spec := sqlgraph.NewUpdateSpec(execconn.Table, execconn.Columns, sqlgraph.NewFieldSpec(execconn.FieldID, field.TypeString))
+func (_u *ExecCommUpdateOne) sqlSave(ctx context.Context) (_node *ExecComm, err error) {
+	_spec := sqlgraph.NewUpdateSpec(execcomm.Table, execcomm.Columns, sqlgraph.NewFieldSpec(execcomm.FieldID, field.TypeString))
 	id, ok := _u.mutation.ID()
 	if !ok {
-		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "ExecConn.id" for update`)}
+		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "ExecComm.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
 	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, execconn.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, execcomm.FieldID)
 		for _, f := range fields {
-			if !execconn.ValidColumn(f) {
+			if !execcomm.ValidColumn(f) {
 				return nil, &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 			}
-			if f != execconn.FieldID {
+			if f != execcomm.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, f)
 			}
 		}
@@ -444,47 +444,47 @@ func (_u *ExecConnUpdateOne) sqlSave(ctx context.Context) (_node *ExecConn, err 
 		}
 	}
 	if value, ok := _u.mutation.ProviderExecID(); ok {
-		_spec.SetField(execconn.FieldProviderExecID, field.TypeString, value)
+		_spec.SetField(execcomm.FieldProviderExecID, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.ProviderExecRn(); ok {
-		_spec.SetField(execconn.FieldProviderExecRn, field.TypeInt64, value)
+		_spec.SetField(execcomm.FieldProviderExecRn, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.AddedProviderExecRn(); ok {
-		_spec.AddField(execconn.FieldProviderExecRn, field.TypeInt64, value)
+		_spec.AddField(execcomm.FieldProviderExecRn, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.ClientExecID(); ok {
-		_spec.SetField(execconn.FieldClientExecID, field.TypeString, value)
+		_spec.SetField(execcomm.FieldClientExecID, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.ClientExecRn(); ok {
-		_spec.SetField(execconn.FieldClientExecRn, field.TypeInt64, value)
+		_spec.SetField(execcomm.FieldClientExecRn, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.AddedClientExecRn(); ok {
-		_spec.AddField(execconn.FieldClientExecRn, field.TypeInt64, value)
+		_spec.AddField(execcomm.FieldClientExecRn, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.OffsetNr(); ok {
-		_spec.SetField(execconn.FieldOffsetNr, field.TypeInt64, value)
+		_spec.SetField(execcomm.FieldOffsetNr, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.AddedOffsetNr(); ok {
-		_spec.AddField(execconn.FieldOffsetNr, field.TypeInt64, value)
+		_spec.AddField(execcomm.FieldOffsetNr, field.TypeInt64, value)
 	}
 	if _u.mutation.OffsetNrCleared() {
-		_spec.ClearField(execconn.FieldOffsetNr, field.TypeInt64)
+		_spec.ClearField(execcomm.FieldOffsetNr, field.TypeInt64)
 	}
 	if value, ok := _u.mutation.ActNr(); ok {
-		_spec.SetField(execconn.FieldActNr, field.TypeInt64, value)
+		_spec.SetField(execcomm.FieldActNr, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.AddedActNr(); ok {
-		_spec.AddField(execconn.FieldActNr, field.TypeInt64, value)
+		_spec.AddField(execcomm.FieldActNr, field.TypeInt64, value)
 	}
 	if _u.mutation.ActNrCleared() {
-		_spec.ClearField(execconn.FieldActNr, field.TypeInt64)
+		_spec.ClearField(execcomm.FieldActNr, field.TypeInt64)
 	}
-	_node = &ExecConn{config: _u.config}
+	_node = &ExecComm{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
 	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
-			err = &NotFoundError{execconn.Label}
+			err = &NotFoundError{execcomm.Label}
 		} else if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}

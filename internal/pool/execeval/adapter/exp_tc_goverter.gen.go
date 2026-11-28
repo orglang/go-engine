@@ -18,7 +18,7 @@ func init() {
 	}
 	DataFromAcceptSpec = func(source core.AcceptSpec) *GrantSpec {
 		var adapterGrantSpec GrantSpec
-		adapterGrantSpec.ConnChnlPH = string(source.ConnChnlPH)
+		adapterGrantSpec.CommChnlPH = string(source.CommChnlPH)
 		adapterGrantSpec.ContExp = DataFromExpSpec(source.ContExp)
 		return &adapterGrantSpec
 	}
@@ -30,7 +30,7 @@ func init() {
 	}
 	DataFromAcquireSpec = func(source core.AcquireSpec) *GrantSpec {
 		var adapterGrantSpec GrantSpec
-		adapterGrantSpec.ConnChnlPH = string(source.ConnChnlPH)
+		adapterGrantSpec.CommChnlPH = string(source.CommChnlPH)
 		adapterGrantSpec.ContExp = DataFromExpSpec(source.ContExp)
 		return &adapterGrantSpec
 	}
@@ -43,7 +43,7 @@ func init() {
 	}
 	DataFromApplySpec = func(source core.ApplySpec) *CoopSpec {
 		var adapterCoopSpec CoopSpec
-		adapterCoopSpec.ConnChnlPH = string(source.ConnChnlPH)
+		adapterCoopSpec.CommChnlPH = string(source.CommChnlPH)
 		adapterCoopSpec.ProcTermQN = uniqsym.ConvertToString(source.ProcTermQN)
 		adapterCoopSpec.ContExp = DataFromExpSpec(source.ContExp)
 		return &adapterCoopSpec
@@ -55,7 +55,7 @@ func init() {
 	}
 	DataFromDetachSpec = func(source core.DetachSpec) *RevokeSpec {
 		var adapterRevokeSpec RevokeSpec
-		adapterRevokeSpec.ConnChnlPH = string(source.ConnChnlPH)
+		adapterRevokeSpec.CommChnlPH = string(source.CommChnlPH)
 		return &adapterRevokeSpec
 	}
 	DataFromHireRec = func(source core.HireRec) *CoopRec {
@@ -67,7 +67,7 @@ func init() {
 	}
 	DataFromHireSpec = func(source core.HireSpec) *CoopSpec {
 		var adapterCoopSpec CoopSpec
-		adapterCoopSpec.ConnChnlPH = string(source.ConnChnlPH)
+		adapterCoopSpec.CommChnlPH = string(source.CommChnlPH)
 		adapterCoopSpec.ProcTermQN = uniqsym.ConvertToString(source.ProcTermQN)
 		adapterCoopSpec.ContExp = DataFromExpSpec(source.ContExp)
 		return &adapterCoopSpec
@@ -79,7 +79,7 @@ func init() {
 	}
 	DataFromReleaseSpec = func(source core.ReleaseSpec) *RevokeSpec {
 		var adapterRevokeSpec RevokeSpec
-		adapterRevokeSpec.ConnChnlPH = string(source.ConnChnlPH)
+		adapterRevokeSpec.CommChnlPH = string(source.CommChnlPH)
 		return &adapterRevokeSpec
 	}
 	DataToAcceptRec = func(source *GrantRec) (core.AcceptRec, error) {
@@ -97,7 +97,7 @@ func init() {
 	DataToAcceptSpec = func(source *GrantSpec) (core.AcceptSpec, error) {
 		var coreAcceptSpec core.AcceptSpec
 		if source != nil {
-			coreAcceptSpec.ConnChnlPH = symbol.ADT((*source).ConnChnlPH)
+			coreAcceptSpec.CommChnlPH = symbol.ADT((*source).CommChnlPH)
 			coreExpSpec, err := DataToExpSpec((*source).ContExp)
 			if err != nil {
 				return coreAcceptSpec, err
@@ -121,7 +121,7 @@ func init() {
 	DataToAcquireSpec = func(source *GrantSpec) (core.AcquireSpec, error) {
 		var coreAcquireSpec core.AcquireSpec
 		if source != nil {
-			coreAcquireSpec.ConnChnlPH = symbol.ADT((*source).ConnChnlPH)
+			coreAcquireSpec.CommChnlPH = symbol.ADT((*source).CommChnlPH)
 			coreExpSpec, err := DataToExpSpec((*source).ContExp)
 			if err != nil {
 				return coreAcquireSpec, err
@@ -150,7 +150,7 @@ func init() {
 	DataToApplySpec = func(source *CoopSpec) (core.ApplySpec, error) {
 		var coreApplySpec core.ApplySpec
 		if source != nil {
-			coreApplySpec.ConnChnlPH = symbol.ADT((*source).ConnChnlPH)
+			coreApplySpec.CommChnlPH = symbol.ADT((*source).CommChnlPH)
 			uniqsymADT, err := uniqsym.ConvertFromString((*source).ProcTermQN)
 			if err != nil {
 				return coreApplySpec, err
@@ -174,7 +174,7 @@ func init() {
 	DataToDetachSpec = func(source *RevokeSpec) (core.DetachSpec, error) {
 		var coreDetachSpec core.DetachSpec
 		if source != nil {
-			coreDetachSpec.ConnChnlPH = symbol.ADT((*source).ConnChnlPH)
+			coreDetachSpec.CommChnlPH = symbol.ADT((*source).CommChnlPH)
 		}
 		return coreDetachSpec, nil
 	}
@@ -198,7 +198,7 @@ func init() {
 	DataToHireSpec = func(source *CoopSpec) (core.HireSpec, error) {
 		var coreHireSpec core.HireSpec
 		if source != nil {
-			coreHireSpec.ConnChnlPH = symbol.ADT((*source).ConnChnlPH)
+			coreHireSpec.CommChnlPH = symbol.ADT((*source).CommChnlPH)
 			uniqsymADT, err := uniqsym.ConvertFromString((*source).ProcTermQN)
 			if err != nil {
 				return coreHireSpec, err
@@ -222,7 +222,7 @@ func init() {
 	DataToReleaseSpec = func(source *RevokeSpec) (core.ReleaseSpec, error) {
 		var coreReleaseSpec core.ReleaseSpec
 		if source != nil {
-			coreReleaseSpec.ConnChnlPH = symbol.ADT((*source).ConnChnlPH)
+			coreReleaseSpec.CommChnlPH = symbol.ADT((*source).CommChnlPH)
 		}
 		return coreReleaseSpec, nil
 	}

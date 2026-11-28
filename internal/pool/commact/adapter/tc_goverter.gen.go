@@ -7,18 +7,18 @@ import (
 	execroot "orglang/go-engine/internal/adt/execroot"
 	identity "orglang/go-engine/internal/adt/identity"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
-	core "orglang/go-engine/internal/pool/connact/core"
+	core "orglang/go-engine/internal/pool/commact/core"
 	adapter "orglang/go-engine/internal/pool/execeval/adapter"
 )
 
 func init() {
 	DataToPubRec = func(source ActRec) (core.PubRec, error) {
 		var corePubRec core.PubRec
-		identityADT, err := identity.ConvertFromString(source.ConnID)
+		identityADT, err := identity.ConvertFromString(source.CommID)
 		if err != nil {
 			return corePubRec, err
 		}
-		corePubRec.ConnID = identityADT
+		corePubRec.CommID = identityADT
 		corePubRec.ActNr = seqnum.ConvertFromInt(source.ActNr)
 		execrootRootRef, err := DataToRootRef(source)
 		if err != nil {
@@ -49,11 +49,11 @@ func init() {
 	}
 	DataToSubRec = func(source ActRec) (core.SubRec, error) {
 		var coreSubRec core.SubRec
-		identityADT, err := identity.ConvertFromString(source.ConnID)
+		identityADT, err := identity.ConvertFromString(source.CommID)
 		if err != nil {
 			return coreSubRec, err
 		}
-		coreSubRec.ConnID = identityADT
+		coreSubRec.CommID = identityADT
 		coreSubRec.ActNr = seqnum.ConvertFromInt(source.ActNr)
 		execrootRootRef, err := DataToRootRef(source)
 		if err != nil {

@@ -4,15 +4,15 @@ package ent
 
 import (
 	"fmt"
-	"orglang/go-engine/internal/proc/ent/execconn"
+	"orglang/go-engine/internal/proc/ent/execcomm"
 	"strings"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 )
 
-// ExecConn is the model entity for the ExecConn schema.
-type ExecConn struct {
+// ExecComm is the model entity for the ExecComm schema.
+type ExecComm struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
@@ -32,13 +32,13 @@ type ExecConn struct {
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*ExecConn) scanValues(columns []string) ([]any, error) {
+func (*ExecComm) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case execconn.FieldProviderExecRn, execconn.FieldClientExecRn, execconn.FieldOffsetNr, execconn.FieldActNr:
+		case execcomm.FieldProviderExecRn, execcomm.FieldClientExecRn, execcomm.FieldOffsetNr, execcomm.FieldActNr:
 			values[i] = new(sql.NullInt64)
-		case execconn.FieldID, execconn.FieldProviderExecID, execconn.FieldClientExecID:
+		case execcomm.FieldID, execcomm.FieldProviderExecID, execcomm.FieldClientExecID:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -48,50 +48,50 @@ func (*ExecConn) scanValues(columns []string) ([]any, error) {
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the ExecConn fields.
-func (_m *ExecConn) assignValues(columns []string, values []any) error {
+// to the ExecComm fields.
+func (_m *ExecComm) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case execconn.FieldID:
+		case execcomm.FieldID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
 			}
-		case execconn.FieldProviderExecID:
+		case execcomm.FieldProviderExecID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field provider_exec_id", values[i])
 			} else if value.Valid {
 				_m.ProviderExecID = value.String
 			}
-		case execconn.FieldProviderExecRn:
+		case execcomm.FieldProviderExecRn:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field provider_exec_rn", values[i])
 			} else if value.Valid {
 				_m.ProviderExecRn = value.Int64
 			}
-		case execconn.FieldClientExecID:
+		case execcomm.FieldClientExecID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field client_exec_id", values[i])
 			} else if value.Valid {
 				_m.ClientExecID = value.String
 			}
-		case execconn.FieldClientExecRn:
+		case execcomm.FieldClientExecRn:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field client_exec_rn", values[i])
 			} else if value.Valid {
 				_m.ClientExecRn = value.Int64
 			}
-		case execconn.FieldOffsetNr:
+		case execcomm.FieldOffsetNr:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field offset_nr", values[i])
 			} else if value.Valid {
 				_m.OffsetNr = value.Int64
 			}
-		case execconn.FieldActNr:
+		case execcomm.FieldActNr:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field act_nr", values[i])
 			} else if value.Valid {
@@ -104,34 +104,34 @@ func (_m *ExecConn) assignValues(columns []string, values []any) error {
 	return nil
 }
 
-// Value returns the ent.Value that was dynamically selected and assigned to the ExecConn.
+// Value returns the ent.Value that was dynamically selected and assigned to the ExecComm.
 // This includes values selected through modifiers, order, etc.
-func (_m *ExecConn) Value(name string) (ent.Value, error) {
+func (_m *ExecComm) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// Update returns a builder for updating this ExecConn.
-// Note that you need to call ExecConn.Unwrap() before calling this method if this ExecConn
+// Update returns a builder for updating this ExecComm.
+// Note that you need to call ExecComm.Unwrap() before calling this method if this ExecComm
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (_m *ExecConn) Update() *ExecConnUpdateOne {
-	return NewExecConnClient(_m.config).UpdateOne(_m)
+func (_m *ExecComm) Update() *ExecCommUpdateOne {
+	return NewExecCommClient(_m.config).UpdateOne(_m)
 }
 
-// Unwrap unwraps the ExecConn entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the ExecComm entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (_m *ExecConn) Unwrap() *ExecConn {
+func (_m *ExecComm) Unwrap() *ExecComm {
 	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: ExecConn is not a transactional entity")
+		panic("ent: ExecComm is not a transactional entity")
 	}
 	_m.config.driver = _tx.drv
 	return _m
 }
 
 // String implements the fmt.Stringer.
-func (_m *ExecConn) String() string {
+func (_m *ExecComm) String() string {
 	var builder strings.Builder
-	builder.WriteString("ExecConn(")
+	builder.WriteString("ExecComm(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("provider_exec_id=")
 	builder.WriteString(_m.ProviderExecID)
@@ -154,5 +154,5 @@ func (_m *ExecConn) String() string {
 	return builder.String()
 }
 
-// ExecConns is a parsable slice of ExecConn.
-type ExecConns []*ExecConn
+// ExecComms is a parsable slice of ExecComm.
+type ExecComms []*ExecComm

@@ -20,9 +20,9 @@ var (
 		Columns:    PoolDescRootsColumns,
 		PrimaryKey: []*schema.Column{PoolDescRootsColumns[0]},
 	}
-	// PoolExecConnsColumns holds the columns for the "pool_exec_conns" table.
-	PoolExecConnsColumns = []*schema.Column{
-		{Name: "conn_id", Type: field.TypeString, Unique: true},
+	// PoolExecCommsColumns holds the columns for the "pool_exec_comms" table.
+	PoolExecCommsColumns = []*schema.Column{
+		{Name: "comm_id", Type: field.TypeString, Unique: true},
 		{Name: "provider_exec_id", Type: field.TypeString},
 		{Name: "provider_exec_rn", Type: field.TypeInt64},
 		{Name: "client_exec_id", Type: field.TypeString},
@@ -30,11 +30,11 @@ var (
 		{Name: "offset_nr", Type: field.TypeInt64, Nullable: true},
 		{Name: "act_nr", Type: field.TypeInt64, Nullable: true},
 	}
-	// PoolExecConnsTable holds the schema information for the "pool_exec_conns" table.
-	PoolExecConnsTable = &schema.Table{
-		Name:       "pool_exec_conns",
-		Columns:    PoolExecConnsColumns,
-		PrimaryKey: []*schema.Column{PoolExecConnsColumns[0]},
+	// PoolExecCommsTable holds the schema information for the "pool_exec_comms" table.
+	PoolExecCommsTable = &schema.Table{
+		Name:       "pool_exec_comms",
+		Columns:    PoolExecCommsColumns,
+		PrimaryKey: []*schema.Column{PoolExecCommsColumns[0]},
 	}
 	// PoolExecEvalsColumns holds the columns for the "pool_exec_evals" table.
 	PoolExecEvalsColumns = []*schema.Column{
@@ -103,7 +103,7 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		PoolDescRootsTable,
-		PoolExecConnsTable,
+		PoolExecCommsTable,
 		PoolExecEvalsTable,
 		PoolDescTermsTable,
 		PoolTermExpsTable,
@@ -116,8 +116,8 @@ func init() {
 	PoolDescRootsTable.Annotation = &entsql.Annotation{
 		Table: "pool_desc_roots",
 	}
-	PoolExecConnsTable.Annotation = &entsql.Annotation{
-		Table: "pool_exec_conns",
+	PoolExecCommsTable.Annotation = &entsql.Annotation{
+		Table: "pool_exec_comms",
 	}
 	PoolExecEvalsTable.Annotation = &entsql.Annotation{
 		Table: "pool_exec_evals",

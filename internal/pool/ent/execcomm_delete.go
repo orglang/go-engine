@@ -4,7 +4,7 @@ package ent
 
 import (
 	"context"
-	"orglang/go-engine/internal/pool/ent/execconn"
+	"orglang/go-engine/internal/pool/ent/execcomm"
 	"orglang/go-engine/internal/pool/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
@@ -12,26 +12,26 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// ExecConnDelete is the builder for deleting a ExecConn entity.
-type ExecConnDelete struct {
+// ExecCommDelete is the builder for deleting a ExecComm entity.
+type ExecCommDelete struct {
 	config
 	hooks    []Hook
-	mutation *ExecConnMutation
+	mutation *ExecCommMutation
 }
 
-// Where appends a list predicates to the ExecConnDelete builder.
-func (_d *ExecConnDelete) Where(ps ...predicate.ExecConn) *ExecConnDelete {
+// Where appends a list predicates to the ExecCommDelete builder.
+func (_d *ExecCommDelete) Where(ps ...predicate.ExecComm) *ExecCommDelete {
 	_d.mutation.Where(ps...)
 	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (_d *ExecConnDelete) Exec(ctx context.Context) (int, error) {
+func (_d *ExecCommDelete) Exec(ctx context.Context) (int, error) {
 	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_d *ExecConnDelete) ExecX(ctx context.Context) int {
+func (_d *ExecCommDelete) ExecX(ctx context.Context) int {
 	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
@@ -39,8 +39,8 @@ func (_d *ExecConnDelete) ExecX(ctx context.Context) int {
 	return n
 }
 
-func (_d *ExecConnDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(execconn.Table, sqlgraph.NewFieldSpec(execconn.FieldID, field.TypeString))
+func (_d *ExecCommDelete) sqlExec(ctx context.Context) (int, error) {
+	_spec := sqlgraph.NewDeleteSpec(execcomm.Table, sqlgraph.NewFieldSpec(execcomm.FieldID, field.TypeString))
 	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -56,32 +56,32 @@ func (_d *ExecConnDelete) sqlExec(ctx context.Context) (int, error) {
 	return affected, err
 }
 
-// ExecConnDeleteOne is the builder for deleting a single ExecConn entity.
-type ExecConnDeleteOne struct {
-	_d *ExecConnDelete
+// ExecCommDeleteOne is the builder for deleting a single ExecComm entity.
+type ExecCommDeleteOne struct {
+	_d *ExecCommDelete
 }
 
-// Where appends a list predicates to the ExecConnDelete builder.
-func (_d *ExecConnDeleteOne) Where(ps ...predicate.ExecConn) *ExecConnDeleteOne {
+// Where appends a list predicates to the ExecCommDelete builder.
+func (_d *ExecCommDeleteOne) Where(ps ...predicate.ExecComm) *ExecCommDeleteOne {
 	_d._d.mutation.Where(ps...)
 	return _d
 }
 
 // Exec executes the deletion query.
-func (_d *ExecConnDeleteOne) Exec(ctx context.Context) error {
+func (_d *ExecCommDeleteOne) Exec(ctx context.Context) error {
 	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
 	case n == 0:
-		return &NotFoundError{execconn.Label}
+		return &NotFoundError{execcomm.Label}
 	default:
 		return nil
 	}
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_d *ExecConnDeleteOne) ExecX(ctx context.Context) {
+func (_d *ExecCommDeleteOne) ExecX(ctx context.Context) {
 	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}

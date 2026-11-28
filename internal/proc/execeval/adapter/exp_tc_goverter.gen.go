@@ -3,7 +3,7 @@
 
 package adapter
 
-import core "orglang/go-engine/internal/proc/connact/core"
+import core "orglang/go-engine/internal/proc/commact/core"
 
 func init() {
 	DataFromExpRecs = func(source []core.ExpRec) ([]ExpRec, error) {

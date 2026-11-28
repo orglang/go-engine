@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 	"math"
-	"orglang/go-engine/internal/pool/ent/execconn"
+	"orglang/go-engine/internal/pool/ent/execcomm"
 	"orglang/go-engine/internal/pool/ent/predicate"
 
 	"entgo.io/ent"
@@ -15,64 +15,64 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// ExecConnQuery is the builder for querying ExecConn entities.
-type ExecConnQuery struct {
+// ExecCommQuery is the builder for querying ExecComm entities.
+type ExecCommQuery struct {
 	config
 	ctx        *QueryContext
-	order      []execconn.OrderOption
+	order      []execcomm.OrderOption
 	inters     []Interceptor
-	predicates []predicate.ExecConn
+	predicates []predicate.ExecComm
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
-// Where adds a new predicate for the ExecConnQuery builder.
-func (_q *ExecConnQuery) Where(ps ...predicate.ExecConn) *ExecConnQuery {
+// Where adds a new predicate for the ExecCommQuery builder.
+func (_q *ExecCommQuery) Where(ps ...predicate.ExecComm) *ExecCommQuery {
 	_q.predicates = append(_q.predicates, ps...)
 	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (_q *ExecConnQuery) Limit(limit int) *ExecConnQuery {
+func (_q *ExecCommQuery) Limit(limit int) *ExecCommQuery {
 	_q.ctx.Limit = &limit
 	return _q
 }
 
 // Offset to start from.
-func (_q *ExecConnQuery) Offset(offset int) *ExecConnQuery {
+func (_q *ExecCommQuery) Offset(offset int) *ExecCommQuery {
 	_q.ctx.Offset = &offset
 	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (_q *ExecConnQuery) Unique(unique bool) *ExecConnQuery {
+func (_q *ExecCommQuery) Unique(unique bool) *ExecCommQuery {
 	_q.ctx.Unique = &unique
 	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (_q *ExecConnQuery) Order(o ...execconn.OrderOption) *ExecConnQuery {
+func (_q *ExecCommQuery) Order(o ...execcomm.OrderOption) *ExecCommQuery {
 	_q.order = append(_q.order, o...)
 	return _q
 }
 
-// First returns the first ExecConn entity from the query.
-// Returns a *NotFoundError when no ExecConn was found.
-func (_q *ExecConnQuery) First(ctx context.Context) (*ExecConn, error) {
+// First returns the first ExecComm entity from the query.
+// Returns a *NotFoundError when no ExecComm was found.
+func (_q *ExecCommQuery) First(ctx context.Context) (*ExecComm, error) {
 	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
-		return nil, &NotFoundError{execconn.Label}
+		return nil, &NotFoundError{execcomm.Label}
 	}
 	return nodes[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (_q *ExecConnQuery) FirstX(ctx context.Context) *ExecConn {
+func (_q *ExecCommQuery) FirstX(ctx context.Context) *ExecComm {
 	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -80,22 +80,22 @@ func (_q *ExecConnQuery) FirstX(ctx context.Context) *ExecConn {
 	return node
 }
 
-// FirstID returns the first ExecConn ID from the query.
-// Returns a *NotFoundError when no ExecConn ID was found.
-func (_q *ExecConnQuery) FirstID(ctx context.Context) (id string, err error) {
+// FirstID returns the first ExecComm ID from the query.
+// Returns a *NotFoundError when no ExecComm ID was found.
+func (_q *ExecCommQuery) FirstID(ctx context.Context) (id string, err error) {
 	var ids []string
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
-		err = &NotFoundError{execconn.Label}
+		err = &NotFoundError{execcomm.Label}
 		return
 	}
 	return ids[0], nil
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *ExecConnQuery) FirstIDX(ctx context.Context) string {
+func (_q *ExecCommQuery) FirstIDX(ctx context.Context) string {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -103,10 +103,10 @@ func (_q *ExecConnQuery) FirstIDX(ctx context.Context) string {
 	return id
 }
 
-// Only returns a single ExecConn entity found by the query, ensuring it only returns one.
-// Returns a *NotSingularError when more than one ExecConn entity is found.
-// Returns a *NotFoundError when no ExecConn entities are found.
-func (_q *ExecConnQuery) Only(ctx context.Context) (*ExecConn, error) {
+// Only returns a single ExecComm entity found by the query, ensuring it only returns one.
+// Returns a *NotSingularError when more than one ExecComm entity is found.
+// Returns a *NotFoundError when no ExecComm entities are found.
+func (_q *ExecCommQuery) Only(ctx context.Context) (*ExecComm, error) {
 	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
@@ -115,14 +115,14 @@ func (_q *ExecConnQuery) Only(ctx context.Context) (*ExecConn, error) {
 	case 1:
 		return nodes[0], nil
 	case 0:
-		return nil, &NotFoundError{execconn.Label}
+		return nil, &NotFoundError{execcomm.Label}
 	default:
-		return nil, &NotSingularError{execconn.Label}
+		return nil, &NotSingularError{execcomm.Label}
 	}
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (_q *ExecConnQuery) OnlyX(ctx context.Context) *ExecConn {
+func (_q *ExecCommQuery) OnlyX(ctx context.Context) *ExecComm {
 	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
@@ -130,10 +130,10 @@ func (_q *ExecConnQuery) OnlyX(ctx context.Context) *ExecConn {
 	return node
 }
 
-// OnlyID is like Only, but returns the only ExecConn ID in the query.
-// Returns a *NotSingularError when more than one ExecConn ID is found.
+// OnlyID is like Only, but returns the only ExecComm ID in the query.
+// Returns a *NotSingularError when more than one ExecComm ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *ExecConnQuery) OnlyID(ctx context.Context) (id string, err error) {
+func (_q *ExecCommQuery) OnlyID(ctx context.Context) (id string, err error) {
 	var ids []string
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
@@ -142,15 +142,15 @@ func (_q *ExecConnQuery) OnlyID(ctx context.Context) (id string, err error) {
 	case 1:
 		id = ids[0]
 	case 0:
-		err = &NotFoundError{execconn.Label}
+		err = &NotFoundError{execcomm.Label}
 	default:
-		err = &NotSingularError{execconn.Label}
+		err = &NotSingularError{execcomm.Label}
 	}
 	return
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *ExecConnQuery) OnlyIDX(ctx context.Context) string {
+func (_q *ExecCommQuery) OnlyIDX(ctx context.Context) string {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -158,18 +158,18 @@ func (_q *ExecConnQuery) OnlyIDX(ctx context.Context) string {
 	return id
 }
 
-// All executes the query and returns a list of ExecConns.
-func (_q *ExecConnQuery) All(ctx context.Context) ([]*ExecConn, error) {
+// All executes the query and returns a list of ExecComms.
+func (_q *ExecCommQuery) All(ctx context.Context) ([]*ExecComm, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	qr := querierAll[[]*ExecConn, *ExecConnQuery]()
-	return withInterceptors[[]*ExecConn](ctx, _q, qr, _q.inters)
+	qr := querierAll[[]*ExecComm, *ExecCommQuery]()
+	return withInterceptors[[]*ExecComm](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (_q *ExecConnQuery) AllX(ctx context.Context) []*ExecConn {
+func (_q *ExecCommQuery) AllX(ctx context.Context) []*ExecComm {
 	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
@@ -177,20 +177,20 @@ func (_q *ExecConnQuery) AllX(ctx context.Context) []*ExecConn {
 	return nodes
 }
 
-// IDs executes the query and returns a list of ExecConn IDs.
-func (_q *ExecConnQuery) IDs(ctx context.Context) (ids []string, err error) {
+// IDs executes the query and returns a list of ExecComm IDs.
+func (_q *ExecCommQuery) IDs(ctx context.Context) (ids []string, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
-	if err = _q.Select(execconn.FieldID).Scan(ctx, &ids); err != nil {
+	if err = _q.Select(execcomm.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *ExecConnQuery) IDsX(ctx context.Context) []string {
+func (_q *ExecCommQuery) IDsX(ctx context.Context) []string {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -199,16 +199,16 @@ func (_q *ExecConnQuery) IDsX(ctx context.Context) []string {
 }
 
 // Count returns the count of the given query.
-func (_q *ExecConnQuery) Count(ctx context.Context) (int, error) {
+func (_q *ExecCommQuery) Count(ctx context.Context) (int, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, _q, querierCount[*ExecConnQuery](), _q.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*ExecCommQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (_q *ExecConnQuery) CountX(ctx context.Context) int {
+func (_q *ExecCommQuery) CountX(ctx context.Context) int {
 	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
@@ -217,7 +217,7 @@ func (_q *ExecConnQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (_q *ExecConnQuery) Exist(ctx context.Context) (bool, error) {
+func (_q *ExecCommQuery) Exist(ctx context.Context) (bool, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
 	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
@@ -230,7 +230,7 @@ func (_q *ExecConnQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (_q *ExecConnQuery) ExistX(ctx context.Context) bool {
+func (_q *ExecCommQuery) ExistX(ctx context.Context) bool {
 	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
@@ -238,18 +238,18 @@ func (_q *ExecConnQuery) ExistX(ctx context.Context) bool {
 	return exist
 }
 
-// Clone returns a duplicate of the ExecConnQuery builder, including all associated steps. It can be
+// Clone returns a duplicate of the ExecCommQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (_q *ExecConnQuery) Clone() *ExecConnQuery {
+func (_q *ExecCommQuery) Clone() *ExecCommQuery {
 	if _q == nil {
 		return nil
 	}
-	return &ExecConnQuery{
+	return &ExecCommQuery{
 		config:     _q.config,
 		ctx:        _q.ctx.Clone(),
-		order:      append([]execconn.OrderOption{}, _q.order...),
+		order:      append([]execcomm.OrderOption{}, _q.order...),
 		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.ExecConn{}, _q.predicates...),
+		predicates: append([]predicate.ExecComm{}, _q.predicates...),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -266,15 +266,15 @@ func (_q *ExecConnQuery) Clone() *ExecConnQuery {
 //		Count int `json:"count,omitempty"`
 //	}
 //
-//	client.ExecConn.Query().
-//		GroupBy(execconn.FieldProviderExecID).
+//	client.ExecComm.Query().
+//		GroupBy(execcomm.FieldProviderExecID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (_q *ExecConnQuery) GroupBy(field string, fields ...string) *ExecConnGroupBy {
+func (_q *ExecCommQuery) GroupBy(field string, fields ...string) *ExecCommGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &ExecConnGroupBy{build: _q}
+	grbuild := &ExecCommGroupBy{build: _q}
 	grbuild.flds = &_q.ctx.Fields
-	grbuild.label = execconn.Label
+	grbuild.label = execcomm.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
 }
@@ -288,23 +288,23 @@ func (_q *ExecConnQuery) GroupBy(field string, fields ...string) *ExecConnGroupB
 //		ProviderExecID string `json:"provider_exec_id,omitempty"`
 //	}
 //
-//	client.ExecConn.Query().
-//		Select(execconn.FieldProviderExecID).
+//	client.ExecComm.Query().
+//		Select(execcomm.FieldProviderExecID).
 //		Scan(ctx, &v)
-func (_q *ExecConnQuery) Select(fields ...string) *ExecConnSelect {
+func (_q *ExecCommQuery) Select(fields ...string) *ExecCommSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
-	sbuild := &ExecConnSelect{ExecConnQuery: _q}
-	sbuild.label = execconn.Label
+	sbuild := &ExecCommSelect{ExecCommQuery: _q}
+	sbuild.label = execcomm.Label
 	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
-// Aggregate returns a ExecConnSelect configured with the given aggregations.
-func (_q *ExecConnQuery) Aggregate(fns ...AggregateFunc) *ExecConnSelect {
+// Aggregate returns a ExecCommSelect configured with the given aggregations.
+func (_q *ExecCommQuery) Aggregate(fns ...AggregateFunc) *ExecCommSelect {
 	return _q.Select().Aggregate(fns...)
 }
 
-func (_q *ExecConnQuery) prepareQuery(ctx context.Context) error {
+func (_q *ExecCommQuery) prepareQuery(ctx context.Context) error {
 	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
@@ -316,7 +316,7 @@ func (_q *ExecConnQuery) prepareQuery(ctx context.Context) error {
 		}
 	}
 	for _, f := range _q.ctx.Fields {
-		if !execconn.ValidColumn(f) {
+		if !execcomm.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
@@ -330,16 +330,16 @@ func (_q *ExecConnQuery) prepareQuery(ctx context.Context) error {
 	return nil
 }
 
-func (_q *ExecConnQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*ExecConn, error) {
+func (_q *ExecCommQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*ExecComm, error) {
 	var (
-		nodes = []*ExecConn{}
+		nodes = []*ExecComm{}
 		_spec = _q.querySpec()
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
-		return (*ExecConn).scanValues(nil, columns)
+		return (*ExecComm).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &ExecConn{config: _q.config}
+		node := &ExecComm{config: _q.config}
 		nodes = append(nodes, node)
 		return node.assignValues(columns, values)
 	}
@@ -355,7 +355,7 @@ func (_q *ExecConnQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Exe
 	return nodes, nil
 }
 
-func (_q *ExecConnQuery) sqlCount(ctx context.Context) (int, error) {
+func (_q *ExecCommQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
@@ -364,8 +364,8 @@ func (_q *ExecConnQuery) sqlCount(ctx context.Context) (int, error) {
 	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (_q *ExecConnQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(execconn.Table, execconn.Columns, sqlgraph.NewFieldSpec(execconn.FieldID, field.TypeString))
+func (_q *ExecCommQuery) querySpec() *sqlgraph.QuerySpec {
+	_spec := sqlgraph.NewQuerySpec(execcomm.Table, execcomm.Columns, sqlgraph.NewFieldSpec(execcomm.FieldID, field.TypeString))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -374,9 +374,9 @@ func (_q *ExecConnQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, execconn.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, execcomm.FieldID)
 		for i := range fields {
-			if fields[i] != execconn.FieldID {
+			if fields[i] != execcomm.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
@@ -404,12 +404,12 @@ func (_q *ExecConnQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (_q *ExecConnQuery) sqlQuery(ctx context.Context) *sql.Selector {
+func (_q *ExecCommQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(_q.driver.Dialect())
-	t1 := builder.Table(execconn.Table)
+	t1 := builder.Table(execcomm.Table)
 	columns := _q.ctx.Fields
 	if len(columns) == 0 {
-		columns = execconn.Columns
+		columns = execcomm.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if _q.sql != nil {
@@ -436,28 +436,28 @@ func (_q *ExecConnQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	return selector
 }
 
-// ExecConnGroupBy is the group-by builder for ExecConn entities.
-type ExecConnGroupBy struct {
+// ExecCommGroupBy is the group-by builder for ExecComm entities.
+type ExecCommGroupBy struct {
 	selector
-	build *ExecConnQuery
+	build *ExecCommQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (_g *ExecConnGroupBy) Aggregate(fns ...AggregateFunc) *ExecConnGroupBy {
+func (_g *ExecCommGroupBy) Aggregate(fns ...AggregateFunc) *ExecCommGroupBy {
 	_g.fns = append(_g.fns, fns...)
 	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_g *ExecConnGroupBy) Scan(ctx context.Context, v any) error {
+func (_g *ExecCommGroupBy) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
 	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*ExecConnQuery, *ExecConnGroupBy](ctx, _g.build, _g, _g.build.inters, v)
+	return scanWithInterceptors[*ExecCommQuery, *ExecCommGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (_g *ExecConnGroupBy) sqlScan(ctx context.Context, root *ExecConnQuery, v any) error {
+func (_g *ExecCommGroupBy) sqlScan(ctx context.Context, root *ExecCommQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
 	aggregation := make([]string, 0, len(_g.fns))
 	for _, fn := range _g.fns {
@@ -484,28 +484,28 @@ func (_g *ExecConnGroupBy) sqlScan(ctx context.Context, root *ExecConnQuery, v a
 	return sql.ScanSlice(rows, v)
 }
 
-// ExecConnSelect is the builder for selecting fields of ExecConn entities.
-type ExecConnSelect struct {
-	*ExecConnQuery
+// ExecCommSelect is the builder for selecting fields of ExecComm entities.
+type ExecCommSelect struct {
+	*ExecCommQuery
 	selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (_s *ExecConnSelect) Aggregate(fns ...AggregateFunc) *ExecConnSelect {
+func (_s *ExecCommSelect) Aggregate(fns ...AggregateFunc) *ExecCommSelect {
 	_s.fns = append(_s.fns, fns...)
 	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_s *ExecConnSelect) Scan(ctx context.Context, v any) error {
+func (_s *ExecCommSelect) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
 	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*ExecConnQuery, *ExecConnSelect](ctx, _s.ExecConnQuery, _s, _s.inters, v)
+	return scanWithInterceptors[*ExecCommQuery, *ExecCommSelect](ctx, _s.ExecCommQuery, _s, _s.inters, v)
 }
 
-func (_s *ExecConnSelect) sqlScan(ctx context.Context, root *ExecConnQuery, v any) error {
+func (_s *ExecCommSelect) sqlScan(ctx context.Context, root *ExecCommQuery, v any) error {
 	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(_s.fns))
 	for _, fn := range _s.fns {

@@ -9,8 +9,8 @@ import (
 // DescRoot is the predicate function for descroot builders.
 type DescRoot func(*sql.Selector)
 
-// ExecConn is the predicate function for execconn builders.
-type ExecConn func(*sql.Selector)
+// ExecComm is the predicate function for execcomm builders.
+type ExecComm func(*sql.Selector)
 
 // ExecEval is the predicate function for execeval builders.
 type ExecEval func(*sql.Selector)

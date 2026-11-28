@@ -47,8 +47,8 @@ type EvalEff struct {
 }
 
 type takeResult struct {
-	Mod        EvalMod
-	Effects    EvalEff
+	Mod           EvalMod
+	Effects       EvalEff
 	Communication execcomm.CommMod
 }
 

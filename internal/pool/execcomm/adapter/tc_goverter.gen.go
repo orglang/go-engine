@@ -8,50 +8,50 @@ import (
 	adapter1 "orglang/go-engine/internal/adt/identity/adapter"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
 	adapter "orglang/go-engine/internal/adt/seqnum/adapter"
-	adapter2 "orglang/go-engine/internal/pool/connact/adapter"
-	core1 "orglang/go-engine/internal/pool/connact/core"
-	core "orglang/go-engine/internal/pool/execconn/core"
+	adapter2 "orglang/go-engine/internal/pool/commact/adapter"
+	core1 "orglang/go-engine/internal/pool/commact/core"
+	core "orglang/go-engine/internal/pool/execcomm/core"
 )
 
 func init() {
-	DataFromMod = func(source core.ConnMod) ConnMod {
-		var adapterConnMod ConnMod
-		adapterConnMod.ConnID = identityToString(source.ConnID)
-		adapterConnMod.OffsetNr = adapter.ConvertOptionToNullInt(source.OffsetNr)
-		adapterConnMod.ProviderExecID = identity.ConvertToString(source.ProviderExecID)
-		adapterConnMod.ProviderExecRN = seqnum.ConvertToInt(source.ProviderExecRN)
-		return adapterConnMod
+	DataFromMod = func(source core.CommMod) CommMod {
+		var adapterCommMod CommMod
+		adapterCommMod.CommID = identityToString(source.CommID)
+		adapterCommMod.OffsetNr = adapter.ConvertOptionToNullInt(source.OffsetNr)
+		adapterCommMod.ProviderExecID = identity.ConvertToString(source.ProviderExecID)
+		adapterCommMod.ProviderExecRN = seqnum.ConvertToInt(source.ProviderExecRN)
+		return adapterCommMod
 	}
-	DataFromQry = func(source core.ConnQry) ConnQry {
-		var adapterConnQry ConnQry
-		adapterConnQry.ConnID = identityToString(source.ConnID)
-		adapterConnQry.ChnlID = adapter1.ConvertOptionToNullString(source.ChnlID)
-		return adapterConnQry
+	DataFromQry = func(source core.CommQry) CommQry {
+		var adapterCommQry CommQry
+		adapterCommQry.CommID = identityToString(source.CommID)
+		adapterCommQry.ChnlID = adapter1.ConvertOptionToNullString(source.ChnlID)
+		return adapterCommQry
 	}
-	DataToSnap = func(source ConnSnap) (core.ConnSnap, error) {
-		var coreConnSnap core.ConnSnap
-		identityADT, err := dataToConnID(source)
+	DataToSnap = func(source CommSnap) (core.CommSnap, error) {
+		var coreCommSnap core.CommSnap
+		identityADT, err := dataToCommID(source)
 		if err != nil {
-			return coreConnSnap, err
+			return coreCommSnap, err
 		}
-		coreConnSnap.ConnID = identityADT
+		coreCommSnap.CommID = identityADT
 		identityADT2, err := identity.ConvertFromString(source.ProviderExecID)
 		if err != nil {
-			return coreConnSnap, err
+			return coreCommSnap, err
 		}
-		coreConnSnap.ProviderExecID = identityADT2
-		coreConnSnap.ProviderExecRN = seqnum.ConvertFromInt(source.ProviderExecRN)
-		coreConnSnap.OffsetNr = seqnum.ConvertFromInt(source.OffsetNr)
+		coreCommSnap.ProviderExecID = identityADT2
+		coreCommSnap.ProviderExecRN = seqnum.ConvertFromInt(source.ProviderExecRN)
+		coreCommSnap.OffsetNr = seqnum.ConvertFromInt(source.OffsetNr)
 		if source.Acts != nil {
-			coreConnSnap.Acts = make([]core1.ActRec, len(source.Acts))
+			coreCommSnap.Acts = make([]core1.ActRec, len(source.Acts))
 			for i := 0; i < len(source.Acts); i++ {
 				coreActRec, err := adapter2.DataToStepRec(source.Acts[i])
 				if err != nil {
-					return coreConnSnap, err
+					return coreCommSnap, err
 				}
-				coreConnSnap.Acts[i] = coreActRec
+				coreCommSnap.Acts[i] = coreActRec
 			}
 		}
-		return coreConnSnap, nil
+		return coreCommSnap, nil
 	}
 }

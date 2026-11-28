@@ -6,7 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"orglang/go-engine/internal/pool/ent/execconn"
+	"orglang/go-engine/internal/pool/ent/execcomm"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
@@ -14,46 +14,46 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// ExecConnCreate is the builder for creating a ExecConn entity.
-type ExecConnCreate struct {
+// ExecCommCreate is the builder for creating a ExecComm entity.
+type ExecCommCreate struct {
 	config
-	mutation *ExecConnMutation
+	mutation *ExecCommMutation
 	hooks    []Hook
 	conflict []sql.ConflictOption
 }
 
 // SetProviderExecID sets the "provider_exec_id" field.
-func (_c *ExecConnCreate) SetProviderExecID(v string) *ExecConnCreate {
+func (_c *ExecCommCreate) SetProviderExecID(v string) *ExecCommCreate {
 	_c.mutation.SetProviderExecID(v)
 	return _c
 }
 
 // SetProviderExecRn sets the "provider_exec_rn" field.
-func (_c *ExecConnCreate) SetProviderExecRn(v int64) *ExecConnCreate {
+func (_c *ExecCommCreate) SetProviderExecRn(v int64) *ExecCommCreate {
 	_c.mutation.SetProviderExecRn(v)
 	return _c
 }
 
 // SetClientExecID sets the "client_exec_id" field.
-func (_c *ExecConnCreate) SetClientExecID(v string) *ExecConnCreate {
+func (_c *ExecCommCreate) SetClientExecID(v string) *ExecCommCreate {
 	_c.mutation.SetClientExecID(v)
 	return _c
 }
 
 // SetClientExecRn sets the "client_exec_rn" field.
-func (_c *ExecConnCreate) SetClientExecRn(v int64) *ExecConnCreate {
+func (_c *ExecCommCreate) SetClientExecRn(v int64) *ExecCommCreate {
 	_c.mutation.SetClientExecRn(v)
 	return _c
 }
 
 // SetOffsetNr sets the "offset_nr" field.
-func (_c *ExecConnCreate) SetOffsetNr(v int64) *ExecConnCreate {
+func (_c *ExecCommCreate) SetOffsetNr(v int64) *ExecCommCreate {
 	_c.mutation.SetOffsetNr(v)
 	return _c
 }
 
 // SetNillableOffsetNr sets the "offset_nr" field if the given value is not nil.
-func (_c *ExecConnCreate) SetNillableOffsetNr(v *int64) *ExecConnCreate {
+func (_c *ExecCommCreate) SetNillableOffsetNr(v *int64) *ExecCommCreate {
 	if v != nil {
 		_c.SetOffsetNr(*v)
 	}
@@ -61,13 +61,13 @@ func (_c *ExecConnCreate) SetNillableOffsetNr(v *int64) *ExecConnCreate {
 }
 
 // SetActNr sets the "act_nr" field.
-func (_c *ExecConnCreate) SetActNr(v int64) *ExecConnCreate {
+func (_c *ExecCommCreate) SetActNr(v int64) *ExecCommCreate {
 	_c.mutation.SetActNr(v)
 	return _c
 }
 
 // SetNillableActNr sets the "act_nr" field if the given value is not nil.
-func (_c *ExecConnCreate) SetNillableActNr(v *int64) *ExecConnCreate {
+func (_c *ExecCommCreate) SetNillableActNr(v *int64) *ExecCommCreate {
 	if v != nil {
 		_c.SetActNr(*v)
 	}
@@ -75,23 +75,23 @@ func (_c *ExecConnCreate) SetNillableActNr(v *int64) *ExecConnCreate {
 }
 
 // SetID sets the "id" field.
-func (_c *ExecConnCreate) SetID(v string) *ExecConnCreate {
+func (_c *ExecCommCreate) SetID(v string) *ExecCommCreate {
 	_c.mutation.SetID(v)
 	return _c
 }
 
-// Mutation returns the ExecConnMutation object of the builder.
-func (_c *ExecConnCreate) Mutation() *ExecConnMutation {
+// Mutation returns the ExecCommMutation object of the builder.
+func (_c *ExecCommCreate) Mutation() *ExecCommMutation {
 	return _c.mutation
 }
 
-// Save creates the ExecConn in the database.
-func (_c *ExecConnCreate) Save(ctx context.Context) (*ExecConn, error) {
+// Save creates the ExecComm in the database.
+func (_c *ExecCommCreate) Save(ctx context.Context) (*ExecComm, error) {
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (_c *ExecConnCreate) SaveX(ctx context.Context) *ExecConn {
+func (_c *ExecCommCreate) SaveX(ctx context.Context) *ExecComm {
 	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -100,36 +100,36 @@ func (_c *ExecConnCreate) SaveX(ctx context.Context) *ExecConn {
 }
 
 // Exec executes the query.
-func (_c *ExecConnCreate) Exec(ctx context.Context) error {
+func (_c *ExecCommCreate) Exec(ctx context.Context) error {
 	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_c *ExecConnCreate) ExecX(ctx context.Context) {
+func (_c *ExecCommCreate) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (_c *ExecConnCreate) check() error {
+func (_c *ExecCommCreate) check() error {
 	if _, ok := _c.mutation.ProviderExecID(); !ok {
-		return &ValidationError{Name: "provider_exec_id", err: errors.New(`ent: missing required field "ExecConn.provider_exec_id"`)}
+		return &ValidationError{Name: "provider_exec_id", err: errors.New(`ent: missing required field "ExecComm.provider_exec_id"`)}
 	}
 	if _, ok := _c.mutation.ProviderExecRn(); !ok {
-		return &ValidationError{Name: "provider_exec_rn", err: errors.New(`ent: missing required field "ExecConn.provider_exec_rn"`)}
+		return &ValidationError{Name: "provider_exec_rn", err: errors.New(`ent: missing required field "ExecComm.provider_exec_rn"`)}
 	}
 	if _, ok := _c.mutation.ClientExecID(); !ok {
-		return &ValidationError{Name: "client_exec_id", err: errors.New(`ent: missing required field "ExecConn.client_exec_id"`)}
+		return &ValidationError{Name: "client_exec_id", err: errors.New(`ent: missing required field "ExecComm.client_exec_id"`)}
 	}
 	if _, ok := _c.mutation.ClientExecRn(); !ok {
-		return &ValidationError{Name: "client_exec_rn", err: errors.New(`ent: missing required field "ExecConn.client_exec_rn"`)}
+		return &ValidationError{Name: "client_exec_rn", err: errors.New(`ent: missing required field "ExecComm.client_exec_rn"`)}
 	}
 	return nil
 }
 
-func (_c *ExecConnCreate) sqlSave(ctx context.Context) (*ExecConn, error) {
+func (_c *ExecCommCreate) sqlSave(ctx context.Context) (*ExecComm, error) {
 	if err := _c.check(); err != nil {
 		return nil, err
 	}
@@ -144,7 +144,7 @@ func (_c *ExecConnCreate) sqlSave(ctx context.Context) (*ExecConn, error) {
 		if id, ok := _spec.ID.Value.(string); ok {
 			_node.ID = id
 		} else {
-			return nil, fmt.Errorf("unexpected ExecConn.ID type: %T", _spec.ID.Value)
+			return nil, fmt.Errorf("unexpected ExecComm.ID type: %T", _spec.ID.Value)
 		}
 	}
 	_c.mutation.id = &_node.ID
@@ -152,10 +152,10 @@ func (_c *ExecConnCreate) sqlSave(ctx context.Context) (*ExecConn, error) {
 	return _node, nil
 }
 
-func (_c *ExecConnCreate) createSpec() (*ExecConn, *sqlgraph.CreateSpec) {
+func (_c *ExecCommCreate) createSpec() (*ExecComm, *sqlgraph.CreateSpec) {
 	var (
-		_node = &ExecConn{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(execconn.Table, sqlgraph.NewFieldSpec(execconn.FieldID, field.TypeString))
+		_node = &ExecComm{config: _c.config}
+		_spec = sqlgraph.NewCreateSpec(execcomm.Table, sqlgraph.NewFieldSpec(execcomm.FieldID, field.TypeString))
 	)
 	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
@@ -163,27 +163,27 @@ func (_c *ExecConnCreate) createSpec() (*ExecConn, *sqlgraph.CreateSpec) {
 		_spec.ID.Value = id
 	}
 	if value, ok := _c.mutation.ProviderExecID(); ok {
-		_spec.SetField(execconn.FieldProviderExecID, field.TypeString, value)
+		_spec.SetField(execcomm.FieldProviderExecID, field.TypeString, value)
 		_node.ProviderExecID = value
 	}
 	if value, ok := _c.mutation.ProviderExecRn(); ok {
-		_spec.SetField(execconn.FieldProviderExecRn, field.TypeInt64, value)
+		_spec.SetField(execcomm.FieldProviderExecRn, field.TypeInt64, value)
 		_node.ProviderExecRn = value
 	}
 	if value, ok := _c.mutation.ClientExecID(); ok {
-		_spec.SetField(execconn.FieldClientExecID, field.TypeString, value)
+		_spec.SetField(execcomm.FieldClientExecID, field.TypeString, value)
 		_node.ClientExecID = value
 	}
 	if value, ok := _c.mutation.ClientExecRn(); ok {
-		_spec.SetField(execconn.FieldClientExecRn, field.TypeInt64, value)
+		_spec.SetField(execcomm.FieldClientExecRn, field.TypeInt64, value)
 		_node.ClientExecRn = value
 	}
 	if value, ok := _c.mutation.OffsetNr(); ok {
-		_spec.SetField(execconn.FieldOffsetNr, field.TypeInt64, value)
+		_spec.SetField(execcomm.FieldOffsetNr, field.TypeInt64, value)
 		_node.OffsetNr = value
 	}
 	if value, ok := _c.mutation.ActNr(); ok {
-		_spec.SetField(execconn.FieldActNr, field.TypeInt64, value)
+		_spec.SetField(execcomm.FieldActNr, field.TypeInt64, value)
 		_node.ActNr = value
 	}
 	return _node, _spec
@@ -192,7 +192,7 @@ func (_c *ExecConnCreate) createSpec() (*ExecConn, *sqlgraph.CreateSpec) {
 // OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
 // of the `INSERT` statement. For example:
 //
-//	client.ExecConn.Create().
+//	client.ExecComm.Create().
 //		SetProviderExecID(v).
 //		OnConflict(
 //			// Update the row with the new values
@@ -201,13 +201,13 @@ func (_c *ExecConnCreate) createSpec() (*ExecConn, *sqlgraph.CreateSpec) {
 //		).
 //		// Override some of the fields with custom
 //		// update values.
-//		Update(func(u *ent.ExecConnUpsert) {
+//		Update(func(u *ent.ExecCommUpsert) {
 //			SetProviderExecID(v+v).
 //		}).
 //		Exec(ctx)
-func (_c *ExecConnCreate) OnConflict(opts ...sql.ConflictOption) *ExecConnUpsertOne {
+func (_c *ExecCommCreate) OnConflict(opts ...sql.ConflictOption) *ExecCommUpsertOne {
 	_c.conflict = opts
-	return &ExecConnUpsertOne{
+	return &ExecCommUpsertOne{
 		create: _c,
 	}
 }
@@ -215,153 +215,153 @@ func (_c *ExecConnCreate) OnConflict(opts ...sql.ConflictOption) *ExecConnUpsert
 // OnConflictColumns calls `OnConflict` and configures the columns
 // as conflict target. Using this option is equivalent to using:
 //
-//	client.ExecConn.Create().
+//	client.ExecComm.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (_c *ExecConnCreate) OnConflictColumns(columns ...string) *ExecConnUpsertOne {
+func (_c *ExecCommCreate) OnConflictColumns(columns ...string) *ExecCommUpsertOne {
 	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
-	return &ExecConnUpsertOne{
+	return &ExecCommUpsertOne{
 		create: _c,
 	}
 }
 
 type (
-	// ExecConnUpsertOne is the builder for "upsert"-ing
-	//  one ExecConn node.
-	ExecConnUpsertOne struct {
-		create *ExecConnCreate
+	// ExecCommUpsertOne is the builder for "upsert"-ing
+	//  one ExecComm node.
+	ExecCommUpsertOne struct {
+		create *ExecCommCreate
 	}
 
-	// ExecConnUpsert is the "OnConflict" setter.
-	ExecConnUpsert struct {
+	// ExecCommUpsert is the "OnConflict" setter.
+	ExecCommUpsert struct {
 		*sql.UpdateSet
 	}
 )
 
 // SetProviderExecID sets the "provider_exec_id" field.
-func (u *ExecConnUpsert) SetProviderExecID(v string) *ExecConnUpsert {
-	u.Set(execconn.FieldProviderExecID, v)
+func (u *ExecCommUpsert) SetProviderExecID(v string) *ExecCommUpsert {
+	u.Set(execcomm.FieldProviderExecID, v)
 	return u
 }
 
 // UpdateProviderExecID sets the "provider_exec_id" field to the value that was provided on create.
-func (u *ExecConnUpsert) UpdateProviderExecID() *ExecConnUpsert {
-	u.SetExcluded(execconn.FieldProviderExecID)
+func (u *ExecCommUpsert) UpdateProviderExecID() *ExecCommUpsert {
+	u.SetExcluded(execcomm.FieldProviderExecID)
 	return u
 }
 
 // SetProviderExecRn sets the "provider_exec_rn" field.
-func (u *ExecConnUpsert) SetProviderExecRn(v int64) *ExecConnUpsert {
-	u.Set(execconn.FieldProviderExecRn, v)
+func (u *ExecCommUpsert) SetProviderExecRn(v int64) *ExecCommUpsert {
+	u.Set(execcomm.FieldProviderExecRn, v)
 	return u
 }
 
 // UpdateProviderExecRn sets the "provider_exec_rn" field to the value that was provided on create.
-func (u *ExecConnUpsert) UpdateProviderExecRn() *ExecConnUpsert {
-	u.SetExcluded(execconn.FieldProviderExecRn)
+func (u *ExecCommUpsert) UpdateProviderExecRn() *ExecCommUpsert {
+	u.SetExcluded(execcomm.FieldProviderExecRn)
 	return u
 }
 
 // AddProviderExecRn adds v to the "provider_exec_rn" field.
-func (u *ExecConnUpsert) AddProviderExecRn(v int64) *ExecConnUpsert {
-	u.Add(execconn.FieldProviderExecRn, v)
+func (u *ExecCommUpsert) AddProviderExecRn(v int64) *ExecCommUpsert {
+	u.Add(execcomm.FieldProviderExecRn, v)
 	return u
 }
 
 // SetClientExecID sets the "client_exec_id" field.
-func (u *ExecConnUpsert) SetClientExecID(v string) *ExecConnUpsert {
-	u.Set(execconn.FieldClientExecID, v)
+func (u *ExecCommUpsert) SetClientExecID(v string) *ExecCommUpsert {
+	u.Set(execcomm.FieldClientExecID, v)
 	return u
 }
 
 // UpdateClientExecID sets the "client_exec_id" field to the value that was provided on create.
-func (u *ExecConnUpsert) UpdateClientExecID() *ExecConnUpsert {
-	u.SetExcluded(execconn.FieldClientExecID)
+func (u *ExecCommUpsert) UpdateClientExecID() *ExecCommUpsert {
+	u.SetExcluded(execcomm.FieldClientExecID)
 	return u
 }
 
 // SetClientExecRn sets the "client_exec_rn" field.
-func (u *ExecConnUpsert) SetClientExecRn(v int64) *ExecConnUpsert {
-	u.Set(execconn.FieldClientExecRn, v)
+func (u *ExecCommUpsert) SetClientExecRn(v int64) *ExecCommUpsert {
+	u.Set(execcomm.FieldClientExecRn, v)
 	return u
 }
 
 // UpdateClientExecRn sets the "client_exec_rn" field to the value that was provided on create.
-func (u *ExecConnUpsert) UpdateClientExecRn() *ExecConnUpsert {
-	u.SetExcluded(execconn.FieldClientExecRn)
+func (u *ExecCommUpsert) UpdateClientExecRn() *ExecCommUpsert {
+	u.SetExcluded(execcomm.FieldClientExecRn)
 	return u
 }
 
 // AddClientExecRn adds v to the "client_exec_rn" field.
-func (u *ExecConnUpsert) AddClientExecRn(v int64) *ExecConnUpsert {
-	u.Add(execconn.FieldClientExecRn, v)
+func (u *ExecCommUpsert) AddClientExecRn(v int64) *ExecCommUpsert {
+	u.Add(execcomm.FieldClientExecRn, v)
 	return u
 }
 
 // SetOffsetNr sets the "offset_nr" field.
-func (u *ExecConnUpsert) SetOffsetNr(v int64) *ExecConnUpsert {
-	u.Set(execconn.FieldOffsetNr, v)
+func (u *ExecCommUpsert) SetOffsetNr(v int64) *ExecCommUpsert {
+	u.Set(execcomm.FieldOffsetNr, v)
 	return u
 }
 
 // UpdateOffsetNr sets the "offset_nr" field to the value that was provided on create.
-func (u *ExecConnUpsert) UpdateOffsetNr() *ExecConnUpsert {
-	u.SetExcluded(execconn.FieldOffsetNr)
+func (u *ExecCommUpsert) UpdateOffsetNr() *ExecCommUpsert {
+	u.SetExcluded(execcomm.FieldOffsetNr)
 	return u
 }
 
 // AddOffsetNr adds v to the "offset_nr" field.
-func (u *ExecConnUpsert) AddOffsetNr(v int64) *ExecConnUpsert {
-	u.Add(execconn.FieldOffsetNr, v)
+func (u *ExecCommUpsert) AddOffsetNr(v int64) *ExecCommUpsert {
+	u.Add(execcomm.FieldOffsetNr, v)
 	return u
 }
 
 // ClearOffsetNr clears the value of the "offset_nr" field.
-func (u *ExecConnUpsert) ClearOffsetNr() *ExecConnUpsert {
-	u.SetNull(execconn.FieldOffsetNr)
+func (u *ExecCommUpsert) ClearOffsetNr() *ExecCommUpsert {
+	u.SetNull(execcomm.FieldOffsetNr)
 	return u
 }
 
 // SetActNr sets the "act_nr" field.
-func (u *ExecConnUpsert) SetActNr(v int64) *ExecConnUpsert {
-	u.Set(execconn.FieldActNr, v)
+func (u *ExecCommUpsert) SetActNr(v int64) *ExecCommUpsert {
+	u.Set(execcomm.FieldActNr, v)
 	return u
 }
 
 // UpdateActNr sets the "act_nr" field to the value that was provided on create.
-func (u *ExecConnUpsert) UpdateActNr() *ExecConnUpsert {
-	u.SetExcluded(execconn.FieldActNr)
+func (u *ExecCommUpsert) UpdateActNr() *ExecCommUpsert {
+	u.SetExcluded(execcomm.FieldActNr)
 	return u
 }
 
 // AddActNr adds v to the "act_nr" field.
-func (u *ExecConnUpsert) AddActNr(v int64) *ExecConnUpsert {
-	u.Add(execconn.FieldActNr, v)
+func (u *ExecCommUpsert) AddActNr(v int64) *ExecCommUpsert {
+	u.Add(execcomm.FieldActNr, v)
 	return u
 }
 
 // ClearActNr clears the value of the "act_nr" field.
-func (u *ExecConnUpsert) ClearActNr() *ExecConnUpsert {
-	u.SetNull(execconn.FieldActNr)
+func (u *ExecCommUpsert) ClearActNr() *ExecCommUpsert {
+	u.SetNull(execcomm.FieldActNr)
 	return u
 }
 
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
-//	client.ExecConn.Create().
+//	client.ExecComm.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
 //			sql.ResolveWith(func(u *sql.UpdateSet) {
-//				u.SetIgnore(execconn.FieldID)
+//				u.SetIgnore(execcomm.FieldID)
 //			}),
 //		).
 //		Exec(ctx)
-func (u *ExecConnUpsertOne) UpdateNewValues() *ExecConnUpsertOne {
+func (u *ExecCommUpsertOne) UpdateNewValues() *ExecCommUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
-			s.SetIgnore(execconn.FieldID)
+			s.SetIgnore(execcomm.FieldID)
 		}
 	}))
 	return u
@@ -370,177 +370,177 @@ func (u *ExecConnUpsertOne) UpdateNewValues() *ExecConnUpsertOne {
 // Ignore sets each column to itself in case of conflict.
 // Using this option is equivalent to using:
 //
-//	client.ExecConn.Create().
+//	client.ExecComm.Create().
 //	    OnConflict(sql.ResolveWithIgnore()).
 //	    Exec(ctx)
-func (u *ExecConnUpsertOne) Ignore() *ExecConnUpsertOne {
+func (u *ExecCommUpsertOne) Ignore() *ExecCommUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
 	return u
 }
 
 // DoNothing configures the conflict_action to `DO NOTHING`.
 // Supported only by SQLite and PostgreSQL.
-func (u *ExecConnUpsertOne) DoNothing() *ExecConnUpsertOne {
+func (u *ExecCommUpsertOne) DoNothing() *ExecCommUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.DoNothing())
 	return u
 }
 
-// Update allows overriding fields `UPDATE` values. See the ExecConnCreate.OnConflict
+// Update allows overriding fields `UPDATE` values. See the ExecCommCreate.OnConflict
 // documentation for more info.
-func (u *ExecConnUpsertOne) Update(set func(*ExecConnUpsert)) *ExecConnUpsertOne {
+func (u *ExecCommUpsertOne) Update(set func(*ExecCommUpsert)) *ExecCommUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
-		set(&ExecConnUpsert{UpdateSet: update})
+		set(&ExecCommUpsert{UpdateSet: update})
 	}))
 	return u
 }
 
 // SetProviderExecID sets the "provider_exec_id" field.
-func (u *ExecConnUpsertOne) SetProviderExecID(v string) *ExecConnUpsertOne {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertOne) SetProviderExecID(v string) *ExecCommUpsertOne {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.SetProviderExecID(v)
 	})
 }
 
 // UpdateProviderExecID sets the "provider_exec_id" field to the value that was provided on create.
-func (u *ExecConnUpsertOne) UpdateProviderExecID() *ExecConnUpsertOne {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertOne) UpdateProviderExecID() *ExecCommUpsertOne {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.UpdateProviderExecID()
 	})
 }
 
 // SetProviderExecRn sets the "provider_exec_rn" field.
-func (u *ExecConnUpsertOne) SetProviderExecRn(v int64) *ExecConnUpsertOne {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertOne) SetProviderExecRn(v int64) *ExecCommUpsertOne {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.SetProviderExecRn(v)
 	})
 }
 
 // AddProviderExecRn adds v to the "provider_exec_rn" field.
-func (u *ExecConnUpsertOne) AddProviderExecRn(v int64) *ExecConnUpsertOne {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertOne) AddProviderExecRn(v int64) *ExecCommUpsertOne {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.AddProviderExecRn(v)
 	})
 }
 
 // UpdateProviderExecRn sets the "provider_exec_rn" field to the value that was provided on create.
-func (u *ExecConnUpsertOne) UpdateProviderExecRn() *ExecConnUpsertOne {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertOne) UpdateProviderExecRn() *ExecCommUpsertOne {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.UpdateProviderExecRn()
 	})
 }
 
 // SetClientExecID sets the "client_exec_id" field.
-func (u *ExecConnUpsertOne) SetClientExecID(v string) *ExecConnUpsertOne {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertOne) SetClientExecID(v string) *ExecCommUpsertOne {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.SetClientExecID(v)
 	})
 }
 
 // UpdateClientExecID sets the "client_exec_id" field to the value that was provided on create.
-func (u *ExecConnUpsertOne) UpdateClientExecID() *ExecConnUpsertOne {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertOne) UpdateClientExecID() *ExecCommUpsertOne {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.UpdateClientExecID()
 	})
 }
 
 // SetClientExecRn sets the "client_exec_rn" field.
-func (u *ExecConnUpsertOne) SetClientExecRn(v int64) *ExecConnUpsertOne {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertOne) SetClientExecRn(v int64) *ExecCommUpsertOne {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.SetClientExecRn(v)
 	})
 }
 
 // AddClientExecRn adds v to the "client_exec_rn" field.
-func (u *ExecConnUpsertOne) AddClientExecRn(v int64) *ExecConnUpsertOne {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertOne) AddClientExecRn(v int64) *ExecCommUpsertOne {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.AddClientExecRn(v)
 	})
 }
 
 // UpdateClientExecRn sets the "client_exec_rn" field to the value that was provided on create.
-func (u *ExecConnUpsertOne) UpdateClientExecRn() *ExecConnUpsertOne {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertOne) UpdateClientExecRn() *ExecCommUpsertOne {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.UpdateClientExecRn()
 	})
 }
 
 // SetOffsetNr sets the "offset_nr" field.
-func (u *ExecConnUpsertOne) SetOffsetNr(v int64) *ExecConnUpsertOne {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertOne) SetOffsetNr(v int64) *ExecCommUpsertOne {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.SetOffsetNr(v)
 	})
 }
 
 // AddOffsetNr adds v to the "offset_nr" field.
-func (u *ExecConnUpsertOne) AddOffsetNr(v int64) *ExecConnUpsertOne {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertOne) AddOffsetNr(v int64) *ExecCommUpsertOne {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.AddOffsetNr(v)
 	})
 }
 
 // UpdateOffsetNr sets the "offset_nr" field to the value that was provided on create.
-func (u *ExecConnUpsertOne) UpdateOffsetNr() *ExecConnUpsertOne {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertOne) UpdateOffsetNr() *ExecCommUpsertOne {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.UpdateOffsetNr()
 	})
 }
 
 // ClearOffsetNr clears the value of the "offset_nr" field.
-func (u *ExecConnUpsertOne) ClearOffsetNr() *ExecConnUpsertOne {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertOne) ClearOffsetNr() *ExecCommUpsertOne {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.ClearOffsetNr()
 	})
 }
 
 // SetActNr sets the "act_nr" field.
-func (u *ExecConnUpsertOne) SetActNr(v int64) *ExecConnUpsertOne {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertOne) SetActNr(v int64) *ExecCommUpsertOne {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.SetActNr(v)
 	})
 }
 
 // AddActNr adds v to the "act_nr" field.
-func (u *ExecConnUpsertOne) AddActNr(v int64) *ExecConnUpsertOne {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertOne) AddActNr(v int64) *ExecCommUpsertOne {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.AddActNr(v)
 	})
 }
 
 // UpdateActNr sets the "act_nr" field to the value that was provided on create.
-func (u *ExecConnUpsertOne) UpdateActNr() *ExecConnUpsertOne {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertOne) UpdateActNr() *ExecCommUpsertOne {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.UpdateActNr()
 	})
 }
 
 // ClearActNr clears the value of the "act_nr" field.
-func (u *ExecConnUpsertOne) ClearActNr() *ExecConnUpsertOne {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertOne) ClearActNr() *ExecCommUpsertOne {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.ClearActNr()
 	})
 }
 
 // Exec executes the query.
-func (u *ExecConnUpsertOne) Exec(ctx context.Context) error {
+func (u *ExecCommUpsertOne) Exec(ctx context.Context) error {
 	if len(u.create.conflict) == 0 {
-		return errors.New("ent: missing options for ExecConnCreate.OnConflict")
+		return errors.New("ent: missing options for ExecCommCreate.OnConflict")
 	}
 	return u.create.Exec(ctx)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (u *ExecConnUpsertOne) ExecX(ctx context.Context) {
+func (u *ExecCommUpsertOne) ExecX(ctx context.Context) {
 	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *ExecConnUpsertOne) ID(ctx context.Context) (id string, err error) {
+func (u *ExecCommUpsertOne) ID(ctx context.Context) (id string, err error) {
 	if u.create.driver.Dialect() == dialect.MySQL {
 		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
 		// fields from the database since MySQL does not support the RETURNING clause.
-		return id, errors.New("ent: ExecConnUpsertOne.ID is not supported by MySQL driver. Use ExecConnUpsertOne.Exec instead")
+		return id, errors.New("ent: ExecCommUpsertOne.ID is not supported by MySQL driver. Use ExecCommUpsertOne.Exec instead")
 	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
@@ -550,7 +550,7 @@ func (u *ExecConnUpsertOne) ID(ctx context.Context) (id string, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *ExecConnUpsertOne) IDX(ctx context.Context) string {
+func (u *ExecCommUpsertOne) IDX(ctx context.Context) string {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -558,27 +558,27 @@ func (u *ExecConnUpsertOne) IDX(ctx context.Context) string {
 	return id
 }
 
-// ExecConnCreateBulk is the builder for creating many ExecConn entities in bulk.
-type ExecConnCreateBulk struct {
+// ExecCommCreateBulk is the builder for creating many ExecComm entities in bulk.
+type ExecCommCreateBulk struct {
 	config
 	err      error
-	builders []*ExecConnCreate
+	builders []*ExecCommCreate
 	conflict []sql.ConflictOption
 }
 
-// Save creates the ExecConn entities in the database.
-func (_c *ExecConnCreateBulk) Save(ctx context.Context) ([]*ExecConn, error) {
+// Save creates the ExecComm entities in the database.
+func (_c *ExecCommCreateBulk) Save(ctx context.Context) ([]*ExecComm, error) {
 	if _c.err != nil {
 		return nil, _c.err
 	}
 	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
-	nodes := make([]*ExecConn, len(_c.builders))
+	nodes := make([]*ExecComm, len(_c.builders))
 	mutators := make([]Mutator, len(_c.builders))
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-				mutation, ok := m.(*ExecConnMutation)
+				mutation, ok := m.(*ExecCommMutation)
 				if !ok {
 					return nil, fmt.Errorf("unexpected mutation type %T", m)
 				}
@@ -622,7 +622,7 @@ func (_c *ExecConnCreateBulk) Save(ctx context.Context) ([]*ExecConn, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (_c *ExecConnCreateBulk) SaveX(ctx context.Context) []*ExecConn {
+func (_c *ExecCommCreateBulk) SaveX(ctx context.Context) []*ExecComm {
 	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -631,13 +631,13 @@ func (_c *ExecConnCreateBulk) SaveX(ctx context.Context) []*ExecConn {
 }
 
 // Exec executes the query.
-func (_c *ExecConnCreateBulk) Exec(ctx context.Context) error {
+func (_c *ExecCommCreateBulk) Exec(ctx context.Context) error {
 	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_c *ExecConnCreateBulk) ExecX(ctx context.Context) {
+func (_c *ExecCommCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
@@ -646,7 +646,7 @@ func (_c *ExecConnCreateBulk) ExecX(ctx context.Context) {
 // OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
 // of the `INSERT` statement. For example:
 //
-//	client.ExecConn.CreateBulk(builders...).
+//	client.ExecComm.CreateBulk(builders...).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -654,13 +654,13 @@ func (_c *ExecConnCreateBulk) ExecX(ctx context.Context) {
 //		).
 //		// Override some of the fields with custom
 //		// update values.
-//		Update(func(u *ent.ExecConnUpsert) {
+//		Update(func(u *ent.ExecCommUpsert) {
 //			SetProviderExecID(v+v).
 //		}).
 //		Exec(ctx)
-func (_c *ExecConnCreateBulk) OnConflict(opts ...sql.ConflictOption) *ExecConnUpsertBulk {
+func (_c *ExecCommCreateBulk) OnConflict(opts ...sql.ConflictOption) *ExecCommUpsertBulk {
 	_c.conflict = opts
-	return &ExecConnUpsertBulk{
+	return &ExecCommUpsertBulk{
 		create: _c,
 	}
 }
@@ -668,39 +668,39 @@ func (_c *ExecConnCreateBulk) OnConflict(opts ...sql.ConflictOption) *ExecConnUp
 // OnConflictColumns calls `OnConflict` and configures the columns
 // as conflict target. Using this option is equivalent to using:
 //
-//	client.ExecConn.Create().
+//	client.ExecComm.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (_c *ExecConnCreateBulk) OnConflictColumns(columns ...string) *ExecConnUpsertBulk {
+func (_c *ExecCommCreateBulk) OnConflictColumns(columns ...string) *ExecCommUpsertBulk {
 	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
-	return &ExecConnUpsertBulk{
+	return &ExecCommUpsertBulk{
 		create: _c,
 	}
 }
 
-// ExecConnUpsertBulk is the builder for "upsert"-ing
-// a bulk of ExecConn nodes.
-type ExecConnUpsertBulk struct {
-	create *ExecConnCreateBulk
+// ExecCommUpsertBulk is the builder for "upsert"-ing
+// a bulk of ExecComm nodes.
+type ExecCommUpsertBulk struct {
+	create *ExecCommCreateBulk
 }
 
 // UpdateNewValues updates the mutable fields using the new values that
 // were set on create. Using this option is equivalent to using:
 //
-//	client.ExecConn.Create().
+//	client.ExecComm.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
 //			sql.ResolveWith(func(u *sql.UpdateSet) {
-//				u.SetIgnore(execconn.FieldID)
+//				u.SetIgnore(execcomm.FieldID)
 //			}),
 //		).
 //		Exec(ctx)
-func (u *ExecConnUpsertBulk) UpdateNewValues() *ExecConnUpsertBulk {
+func (u *ExecCommUpsertBulk) UpdateNewValues() *ExecCommUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
-				s.SetIgnore(execconn.FieldID)
+				s.SetIgnore(execcomm.FieldID)
 			}
 		}
 	}))
@@ -710,174 +710,174 @@ func (u *ExecConnUpsertBulk) UpdateNewValues() *ExecConnUpsertBulk {
 // Ignore sets each column to itself in case of conflict.
 // Using this option is equivalent to using:
 //
-//	client.ExecConn.Create().
+//	client.ExecComm.Create().
 //		OnConflict(sql.ResolveWithIgnore()).
 //		Exec(ctx)
-func (u *ExecConnUpsertBulk) Ignore() *ExecConnUpsertBulk {
+func (u *ExecCommUpsertBulk) Ignore() *ExecCommUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
 	return u
 }
 
 // DoNothing configures the conflict_action to `DO NOTHING`.
 // Supported only by SQLite and PostgreSQL.
-func (u *ExecConnUpsertBulk) DoNothing() *ExecConnUpsertBulk {
+func (u *ExecCommUpsertBulk) DoNothing() *ExecCommUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.DoNothing())
 	return u
 }
 
-// Update allows overriding fields `UPDATE` values. See the ExecConnCreateBulk.OnConflict
+// Update allows overriding fields `UPDATE` values. See the ExecCommCreateBulk.OnConflict
 // documentation for more info.
-func (u *ExecConnUpsertBulk) Update(set func(*ExecConnUpsert)) *ExecConnUpsertBulk {
+func (u *ExecCommUpsertBulk) Update(set func(*ExecCommUpsert)) *ExecCommUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
-		set(&ExecConnUpsert{UpdateSet: update})
+		set(&ExecCommUpsert{UpdateSet: update})
 	}))
 	return u
 }
 
 // SetProviderExecID sets the "provider_exec_id" field.
-func (u *ExecConnUpsertBulk) SetProviderExecID(v string) *ExecConnUpsertBulk {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertBulk) SetProviderExecID(v string) *ExecCommUpsertBulk {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.SetProviderExecID(v)
 	})
 }
 
 // UpdateProviderExecID sets the "provider_exec_id" field to the value that was provided on create.
-func (u *ExecConnUpsertBulk) UpdateProviderExecID() *ExecConnUpsertBulk {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertBulk) UpdateProviderExecID() *ExecCommUpsertBulk {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.UpdateProviderExecID()
 	})
 }
 
 // SetProviderExecRn sets the "provider_exec_rn" field.
-func (u *ExecConnUpsertBulk) SetProviderExecRn(v int64) *ExecConnUpsertBulk {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertBulk) SetProviderExecRn(v int64) *ExecCommUpsertBulk {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.SetProviderExecRn(v)
 	})
 }
 
 // AddProviderExecRn adds v to the "provider_exec_rn" field.
-func (u *ExecConnUpsertBulk) AddProviderExecRn(v int64) *ExecConnUpsertBulk {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertBulk) AddProviderExecRn(v int64) *ExecCommUpsertBulk {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.AddProviderExecRn(v)
 	})
 }
 
 // UpdateProviderExecRn sets the "provider_exec_rn" field to the value that was provided on create.
-func (u *ExecConnUpsertBulk) UpdateProviderExecRn() *ExecConnUpsertBulk {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertBulk) UpdateProviderExecRn() *ExecCommUpsertBulk {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.UpdateProviderExecRn()
 	})
 }
 
 // SetClientExecID sets the "client_exec_id" field.
-func (u *ExecConnUpsertBulk) SetClientExecID(v string) *ExecConnUpsertBulk {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertBulk) SetClientExecID(v string) *ExecCommUpsertBulk {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.SetClientExecID(v)
 	})
 }
 
 // UpdateClientExecID sets the "client_exec_id" field to the value that was provided on create.
-func (u *ExecConnUpsertBulk) UpdateClientExecID() *ExecConnUpsertBulk {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertBulk) UpdateClientExecID() *ExecCommUpsertBulk {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.UpdateClientExecID()
 	})
 }
 
 // SetClientExecRn sets the "client_exec_rn" field.
-func (u *ExecConnUpsertBulk) SetClientExecRn(v int64) *ExecConnUpsertBulk {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertBulk) SetClientExecRn(v int64) *ExecCommUpsertBulk {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.SetClientExecRn(v)
 	})
 }
 
 // AddClientExecRn adds v to the "client_exec_rn" field.
-func (u *ExecConnUpsertBulk) AddClientExecRn(v int64) *ExecConnUpsertBulk {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertBulk) AddClientExecRn(v int64) *ExecCommUpsertBulk {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.AddClientExecRn(v)
 	})
 }
 
 // UpdateClientExecRn sets the "client_exec_rn" field to the value that was provided on create.
-func (u *ExecConnUpsertBulk) UpdateClientExecRn() *ExecConnUpsertBulk {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertBulk) UpdateClientExecRn() *ExecCommUpsertBulk {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.UpdateClientExecRn()
 	})
 }
 
 // SetOffsetNr sets the "offset_nr" field.
-func (u *ExecConnUpsertBulk) SetOffsetNr(v int64) *ExecConnUpsertBulk {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertBulk) SetOffsetNr(v int64) *ExecCommUpsertBulk {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.SetOffsetNr(v)
 	})
 }
 
 // AddOffsetNr adds v to the "offset_nr" field.
-func (u *ExecConnUpsertBulk) AddOffsetNr(v int64) *ExecConnUpsertBulk {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertBulk) AddOffsetNr(v int64) *ExecCommUpsertBulk {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.AddOffsetNr(v)
 	})
 }
 
 // UpdateOffsetNr sets the "offset_nr" field to the value that was provided on create.
-func (u *ExecConnUpsertBulk) UpdateOffsetNr() *ExecConnUpsertBulk {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertBulk) UpdateOffsetNr() *ExecCommUpsertBulk {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.UpdateOffsetNr()
 	})
 }
 
 // ClearOffsetNr clears the value of the "offset_nr" field.
-func (u *ExecConnUpsertBulk) ClearOffsetNr() *ExecConnUpsertBulk {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertBulk) ClearOffsetNr() *ExecCommUpsertBulk {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.ClearOffsetNr()
 	})
 }
 
 // SetActNr sets the "act_nr" field.
-func (u *ExecConnUpsertBulk) SetActNr(v int64) *ExecConnUpsertBulk {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertBulk) SetActNr(v int64) *ExecCommUpsertBulk {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.SetActNr(v)
 	})
 }
 
 // AddActNr adds v to the "act_nr" field.
-func (u *ExecConnUpsertBulk) AddActNr(v int64) *ExecConnUpsertBulk {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertBulk) AddActNr(v int64) *ExecCommUpsertBulk {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.AddActNr(v)
 	})
 }
 
 // UpdateActNr sets the "act_nr" field to the value that was provided on create.
-func (u *ExecConnUpsertBulk) UpdateActNr() *ExecConnUpsertBulk {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertBulk) UpdateActNr() *ExecCommUpsertBulk {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.UpdateActNr()
 	})
 }
 
 // ClearActNr clears the value of the "act_nr" field.
-func (u *ExecConnUpsertBulk) ClearActNr() *ExecConnUpsertBulk {
-	return u.Update(func(s *ExecConnUpsert) {
+func (u *ExecCommUpsertBulk) ClearActNr() *ExecCommUpsertBulk {
+	return u.Update(func(s *ExecCommUpsert) {
 		s.ClearActNr()
 	})
 }
 
 // Exec executes the query.
-func (u *ExecConnUpsertBulk) Exec(ctx context.Context) error {
+func (u *ExecCommUpsertBulk) Exec(ctx context.Context) error {
 	if u.create.err != nil {
 		return u.create.err
 	}
 	for i, b := range u.create.builders {
 		if len(b.conflict) != 0 {
-			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the ExecConnCreateBulk instead", i)
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the ExecCommCreateBulk instead", i)
 		}
 	}
 	if len(u.create.conflict) == 0 {
-		return errors.New("ent: missing options for ExecConnCreateBulk.OnConflict")
+		return errors.New("ent: missing options for ExecCommCreateBulk.OnConflict")
 	}
 	return u.create.Exec(ctx)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (u *ExecConnUpsertBulk) ExecX(ctx context.Context) {
+func (u *ExecCommUpsertBulk) ExecX(ctx context.Context) {
 	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}

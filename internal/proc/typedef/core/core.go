@@ -31,13 +31,13 @@ type DefSpec struct {
 type DefRec struct {
 	TypeQN  uniqsym.ADT
 	TypeID  identity.ADT
-	DescRef descroot.SemRef
+	DescRef descroot.RootRef
 	ExpCK   contkey.ADT
 }
 
 type DefSnap struct {
 	TypeID  identity.ADT
-	DescRef descroot.SemRef
+	DescRef descroot.RootRef
 	DefSpec DefSpec
 }
 
@@ -111,7 +111,7 @@ func (s *service) Modify(ctx context.Context, snap DefSnap) (_ DefSnap, err erro
 	if err != nil {
 		return DefSnap{}, err
 	}
-	expectedRoot := descroot.SemRef{DescID: rec.DescRef.DescID, DescRN: snap.DescRef.DescRN}
+	expectedRoot := descroot.RootRef{DescID: rec.DescRef.DescID, DescRN: snap.DescRef.DescRN}
 	snap.DescRef.DescRN = seqnum.Next(snap.DescRef.DescRN)
 	rec.ExpCK = newExp.Key()
 	err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {

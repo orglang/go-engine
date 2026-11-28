@@ -22,12 +22,12 @@ proc type ProcA { tensor { one } { plus { @ok { one } @fail { link PoolA } } } }
 	if len(spec.Pools) != 1 || len(spec.Procs) != 1 {
 		t.Fatalf("unexpected definition counts: pools=%d procs=%d", len(spec.Pools), len(spec.Procs))
 	}
-	if _, ok := spec.Pools[0].TypeExp.(pooltypedef.PlusSpec); !ok {
-		t.Fatalf("unexpected pool expression type: %T", spec.Pools[0].TypeExp)
+	if _, ok := spec.Pools[0].TypeExpr.(pooltypedef.PlusSpec); !ok {
+		t.Fatalf("unexpected pool expression type: %T", spec.Pools[0].TypeExpr)
 	}
-	procExp, ok := spec.Procs[0].TypeExp.(proctypedef.TensorSpec)
+	procExp, ok := spec.Procs[0].TypeExpr.(proctypedef.TensorSpec)
 	if !ok {
-		t.Fatalf("unexpected process expression type: %T", spec.Procs[0].TypeExp)
+		t.Fatalf("unexpected process expression type: %T", spec.Procs[0].TypeExpr)
 	}
 	if _, ok := procExp.Cont.(proctypedef.PlusSpec); !ok {
 		t.Fatalf("unexpected process continuation type: %T", procExp.Cont)

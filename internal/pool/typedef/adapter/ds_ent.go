@@ -27,7 +27,7 @@ func NewDaoEnt(client *ent.Client, log *slog.Logger) typedef.Repo {
 }
 
 func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec) error {
-	if err := dao.addExpRec(ctx, conn, rec.TypeExp); err != nil {
+	if err := dao.addExpRec(ctx, conn, rec.TypeExpr); err != nil {
 		return err
 	}
 	refAttr := slog.Any("typeID", rec.TypeID)
@@ -105,7 +105,7 @@ WHERE db.prog_qn = $1
 		if err != nil {
 			return nil, err
 		}
-		rec.TypeExp = exp
+		rec.TypeExpr = exp
 		recs[qn] = rec
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("recs", recs))

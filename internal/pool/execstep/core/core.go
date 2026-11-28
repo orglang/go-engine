@@ -4,10 +4,10 @@ import "orglang/go-engine/internal/adt/execroot"
 
 // ExpSpec is the expression contract required to schedule an execution step.
 type ExpSpec interface {
-	IsPoolExp()
+	IsPoolExpr()
 }
 
 type StepSpec struct {
 	RootRef execroot.RootRef
-	PoolExp ExpSpec
+	PoolExpr ExpSpec
 }

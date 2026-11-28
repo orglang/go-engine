@@ -33,7 +33,7 @@ func (h *controllerEcho) CreatePoolDeclaration(c *echo.Context) error {
 	if err := c.Bind(&dto); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	qn, err := uniqsym.ConvertFromString(dto.DescQn)
+	qn, err := uniqsym.ConvertFromString(dto.ProgQn)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -54,7 +54,7 @@ func (h *controllerEcho) CreatePoolDeclaration(c *echo.Context) error {
 	}
 	return c.JSON(http.StatusCreated, webapi.AnyTermRef{
 		TermId: identity.ConvertToString(termID),
-		DescRn: seqnum.ConvertToInt(progRef.ProgRN),
+		ProgRn: seqnum.ConvertToInt(progRef.ProgRN),
 	})
 }
 

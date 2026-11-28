@@ -167,7 +167,7 @@ func termRefFromAPI(dto api.AnyTermRef) (identity.ADT, seqnum.ADT, error) {
 	if err != nil {
 		return identity.ADT{}, 0, err
 	}
-	return id, seqnum.ConvertFromInt(dto.DescRn), nil
+	return id, seqnum.ConvertFromInt(dto.ProgRn), nil
 }
 
 func poolTermExprToCore(dto api.PoolTermExprSpec) (execeval.ExpSpec, error) {

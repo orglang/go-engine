@@ -33,7 +33,7 @@ func (h *controllerEcho) CreatePoolDeclaration(c *echo.Context) error {
 	if err := c.Bind(&dto); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	qn, err := uniqsym.ConvertFromString(dto.DescQn)
+	qn, err := uniqsym.ConvertFromString(dto.ProgQn)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -48,13 +48,13 @@ func (h *controllerEcho) CreatePoolDeclaration(c *echo.Context) error {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 	}
-	termID, descRef, err := h.api.Create(c.Request().Context(), core.DecSpec{TermQN: qn, LiabVar: liabVar, AssetVars: assetVars})
+	termID, progRef, err := h.api.Create(c.Request().Context(), core.DecSpec{TermQN: qn, LiabVar: liabVar, AssetVars: assetVars})
 	if err != nil {
 		return err
 	}
 	return c.JSON(http.StatusCreated, webapi.AnyTermRef{
 		TermId: identity.ConvertToString(termID),
-		DescRn: seqnum.ConvertToInt(descRef.DescRN),
+		ProgRn: seqnum.ConvertToInt(progRef.ProgRN),
 	})
 }
 

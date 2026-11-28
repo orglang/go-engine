@@ -10,16 +10,16 @@ import (
 
 	"github.com/labstack/echo/v5"
 
-	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/progroot"
 	"orglang/go-engine/internal/adt/uniqsym"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 )
 
 type generatedDeclarationAPIStub struct{}
 
-func (generatedDeclarationAPIStub) Incept(context.Context, uniqsym.ADT) (identity.ADT, descroot.RootRef, error) {
-	return identity.ADT{}, descroot.RootRef{}, nil
+func (generatedDeclarationAPIStub) Incept(context.Context, uniqsym.ADT) (identity.ADT, progroot.RootRef, error) {
+	return identity.ADT{}, progroot.RootRef{}, nil
 }
 func (generatedDeclarationAPIStub) Create(context.Context, termdec.DecSpec) (termdec.DecSnap, error) {
 	return termdec.DecSnap{}, nil

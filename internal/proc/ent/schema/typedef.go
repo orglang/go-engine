@@ -16,7 +16,7 @@ type TypeDef struct {
 func (TypeDef) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("id").StorageKey("type_id").Immutable(),
-		field.String("desc_id"),
+		field.String("prog_id"),
 		field.Int64("exp_ck"),
 	}
 }

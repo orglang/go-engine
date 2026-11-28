@@ -6,14 +6,14 @@ import (
 	"github.com/labstack/echo/v5"
 	"github.com/samber/do/v2"
 
-	"orglang/go-engine/internal/adt/descroot"
+	"orglang/go-engine/internal/adt/progroot"
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/wp"
-	descrootadapter "orglang/go-engine/internal/pool/descroot/adapter"
 	"orglang/go-engine/internal/pool/ent"
 	execcomm "orglang/go-engine/internal/pool/execcomm/adapter"
 	execeval "orglang/go-engine/internal/pool/execeval/adapter"
 	execvar "orglang/go-engine/internal/pool/execvar/adapter"
+	progrootadapter "orglang/go-engine/internal/pool/progroot/adapter"
 	termdec "orglang/go-engine/internal/pool/termdec/adapter"
 	termdef "orglang/go-engine/internal/pool/termdef/adapter"
 	typedef "orglang/go-engine/internal/pool/typedef/adapter"
@@ -30,7 +30,7 @@ var Package = do.Package(
 	typedef.Package,
 	termdec.Package,
 	termdef.Package,
-	do.LazyNamed[descroot.Repo]("pool-descroot", func(i do.Injector) (descroot.Repo, error) {
+	do.LazyNamed[progroot.Repo]("pool-progroot", func(i do.Injector) (progroot.Repo, error) {
 		client, err := do.Invoke[*ent.Client](i)
 		if err != nil {
 			return nil, err
@@ -39,7 +39,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return descrootadapter.NewDaoEnt(client, logger), nil
+		return progrootadapter.NewDaoEnt(client, logger), nil
 	}),
 )
 

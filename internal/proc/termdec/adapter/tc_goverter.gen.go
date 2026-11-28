@@ -4,8 +4,8 @@
 package adapter
 
 import (
-	descroot "orglang/go-engine/internal/adt/descroot"
 	identity "orglang/go-engine/internal/adt/identity"
+	progroot "orglang/go-engine/internal/adt/progroot"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
 	symbol "orglang/go-engine/internal/adt/symbol"
 	termvar "orglang/go-engine/internal/adt/termvar"
@@ -19,8 +19,8 @@ func init() {
 	DataFromTermDecRec = func(source core.DecRec) (DecRec, error) {
 		var adapterDecRec DecRec
 		adapterDecRec.TermID = identity.ConvertToString(source.TermID)
-		adapterDecRec.DescID = identity.ConvertToString(source.DescRef.DescID)
-		adapterDecRec.DescRN = seqnum.ConvertToInt(source.DescRef.DescRN)
+		adapterDecRec.ProgID = identity.ConvertToString(source.ProgRef.ProgID)
+		adapterDecRec.ProgRN = seqnum.ConvertToInt(source.ProgRef.ProgRN)
 		adapterVarRec, err := adapter.DataFromVarRec(source.LiabVar)
 		if err != nil {
 			return adapterDecRec, err
@@ -55,8 +55,8 @@ func init() {
 	DataFromTermDecSnap = func(source core.DecSnap) (DecSnap, error) {
 		var adapterDecSnap DecSnap
 		adapterDecSnap.TermID = identity.ConvertToString(source.TermID)
-		adapterDecSnap.DescID = identity.ConvertToString(source.DescRef.DescID)
-		adapterDecSnap.DescRN = seqnum.ConvertToInt(source.DescRef.DescRN)
+		adapterDecSnap.ProgID = identity.ConvertToString(source.ProgRef.ProgID)
+		adapterDecSnap.ProgRN = seqnum.ConvertToInt(source.ProgRef.ProgRN)
 		adapterVarRec, err := adapter.DataFromVarRec(source.LiabVar)
 		if err != nil {
 			return adapterDecSnap, err
@@ -95,11 +95,11 @@ func init() {
 			return coreDecRec, err
 		}
 		coreDecRec.TermID = identityADT
-		descrootRootRef, err := adapterDecRecToDescrootRootRef(source)
+		progrootRootRef, err := adapterDecRecToProgrootRootRef(source)
 		if err != nil {
 			return coreDecRec, err
 		}
-		coreDecRec.DescRef = descrootRootRef
+		coreDecRec.ProgRef = progrootRootRef
 		termvarVarRec, err := adapter.DataToVarRec(source.LiabVar)
 		if err != nil {
 			return coreDecRec, err
@@ -138,11 +138,11 @@ func init() {
 			return coreDecSnap, err
 		}
 		coreDecSnap.TermID = identityADT
-		descrootRootRef, err := adapterDecSnapToDescrootRootRef(source)
+		progrootRootRef, err := adapterDecSnapToProgrootRootRef(source)
 		if err != nil {
 			return coreDecSnap, err
 		}
-		coreDecSnap.DescRef = descrootRootRef
+		coreDecSnap.ProgRef = progrootRootRef
 		termvarVarRec, err := adapter.DataToVarRec(source.LiabVar)
 		if err != nil {
 			return coreDecSnap, err
@@ -175,25 +175,25 @@ func init() {
 		return coreDecSnapList, nil
 	}
 }
-func adapterDecRecToDescrootRootRef(source DecRec) (descroot.RootRef, error) {
-	var descrootRootRef descroot.RootRef
-	identityADT, err := identity.ConvertFromString(source.DescID)
+func adapterDecRecToProgrootRootRef(source DecRec) (progroot.RootRef, error) {
+	var progrootRootRef progroot.RootRef
+	identityADT, err := identity.ConvertFromString(source.ProgID)
 	if err != nil {
-		return descrootRootRef, err
+		return progrootRootRef, err
 	}
-	descrootRootRef.DescID = identityADT
-	descrootRootRef.DescRN = seqnum.ConvertFromInt(source.DescRN)
-	return descrootRootRef, nil
+	progrootRootRef.ProgID = identityADT
+	progrootRootRef.ProgRN = seqnum.ConvertFromInt(source.ProgRN)
+	return progrootRootRef, nil
 }
-func adapterDecSnapToDescrootRootRef(source DecSnap) (descroot.RootRef, error) {
-	var descrootRootRef descroot.RootRef
-	identityADT, err := identity.ConvertFromString(source.DescID)
+func adapterDecSnapToProgrootRootRef(source DecSnap) (progroot.RootRef, error) {
+	var progrootRootRef progroot.RootRef
+	identityADT, err := identity.ConvertFromString(source.ProgID)
 	if err != nil {
-		return descrootRootRef, err
+		return progrootRootRef, err
 	}
-	descrootRootRef.DescID = identityADT
-	descrootRootRef.DescRN = seqnum.ConvertFromInt(source.DescRN)
-	return descrootRootRef, nil
+	progrootRootRef.ProgID = identityADT
+	progrootRootRef.ProgRN = seqnum.ConvertFromInt(source.ProgRN)
+	return progrootRootRef, nil
 }
 func init() {
 	CommVarFromGenerated = func(source api.AnyCommVarSpec) (termvar.VarSpec, error) {
@@ -212,7 +212,7 @@ func init() {
 	}
 	DecSnapToGenerated = func(source core.DecSnap) api.AnyTermRef {
 		var apiAnyTermRef api.AnyTermRef
-		apiAnyTermRef.DescRn = seqnum.ConvertToInt(source.DescRef.DescRN)
+		apiAnyTermRef.ProgRn = seqnum.ConvertToInt(source.ProgRef.ProgRN)
 		apiAnyTermRef.TermId = identity.ConvertToString(source.TermID)
 		return apiAnyTermRef
 	}

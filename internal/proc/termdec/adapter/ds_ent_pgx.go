@@ -11,8 +11,8 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 
-	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/progroot"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/termvar"
 	termvaradapter "orglang/go-engine/internal/adt/termvar/adapter"
@@ -40,17 +40,17 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdec.DecRec)
 		dao.log.Error("model conversion failed", slog.Any("termID", rec.TermID))
 		return err
 	}
-	_, err = dao.client.TermDec.Create().SetID(dto.TermID).SetDescID(dto.DescID).SetLiabVar(dto.LiabVar).SetAssetVars(dto.AssetVars).Save(entpgx.WithConn(ctx, conn.Pgx))
+	_, err = dao.client.TermDec.Create().SetID(dto.TermID).SetProgID(dto.ProgID).SetLiabVar(dto.LiabVar).SetAssetVars(dto.AssetVars).Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
 		dao.log.Error("query execution failed", slog.Any("termID", rec.TermID))
 		return err
 	}
 	const bindQuery = `
-INSERT INTO proc_desc_binds (desc_qn, desc_id, kind)
+INSERT INTO proc_prog_binds (prog_qn, prog_id, kind)
 VALUES ($1, $2, 2)
 `
 	if _, err := conn.Pgx.Exec(ctx, bindQuery, uniqsym.ConvertToString(rec.TermQN), rec.TermID.String()); err != nil {
-		dao.log.Error("description binding insertion failed", slog.Any("termID", rec.TermID), slog.Any("error", err))
+		dao.log.Error("program binding insertion failed", slog.Any("termID", rec.TermID), slog.Any("error", err))
 		return err
 	}
 	return nil
@@ -123,9 +123,9 @@ func (dao *daoEnt) GetRecs(ctx context.Context, conn tx.Conn, ids []identity.ADT
 
 func (dao *daoEnt) GetQNByID(ctx context.Context, conn tx.Conn, termID identity.ADT) (uniqsym.ADT, error) {
 	const query = `
-SELECT desc_qn
-FROM proc_desc_binds
-WHERE desc_id = $1
+SELECT prog_qn
+FROM proc_prog_binds
+WHERE prog_id = $1
 `
 	rows, err := conn.Pgx.Query(ctx, query, termID.String())
 	if err != nil {
@@ -142,7 +142,7 @@ WHERE desc_id = $1
 func (dao *daoEnt) GetIDs(ctx context.Context, conn tx.Conn) ([]identity.ADT, error) {
 	const query = `
 SELECT term_id
-FROM proc_desc_terms
+FROM proc_prog_terms
 `
 	rows, err := conn.Pgx.Query(ctx, query)
 	if err != nil {
@@ -168,18 +168,18 @@ FROM proc_desc_terms
 const selectByID = `
 SELECT
     pd.term_id,
-    pd.desc_id,
-    dr.desc_rn,
+    pd.prog_id,
+    dr.prog_rn,
     pd.liab_var,
     pd.asset_vars
-FROM proc_desc_terms AS pd
-JOIN proc_desc_roots AS dr
-    ON dr.desc_id = pd.desc_id
+FROM proc_prog_terms AS pd
+JOIN proc_prog_roots AS dr
+    ON dr.prog_id = pd.prog_id
 WHERE pd.term_id = $1
 `
 
 func dataFromTermDecRec(rec termdec.DecRec) (DecRec, error) {
-	dto := DecRec{TermID: identity.ConvertToString(rec.TermID), DescID: identity.ConvertToString(rec.DescRef.DescID), DescRN: seqnum.ConvertToInt(rec.DescRef.DescRN)}
+	dto := DecRec{TermID: identity.ConvertToString(rec.TermID), ProgID: identity.ConvertToString(rec.ProgRef.ProgID), ProgRN: seqnum.ConvertToInt(rec.ProgRef.ProgRN)}
 	var err error
 	dto.LiabVar, err = termvaradapter.DataFromVarRec(rec.LiabVar)
 	if err != nil {
@@ -202,11 +202,11 @@ func dataToTermDecRec(dto DecRec) (termdec.DecRec, error) {
 	if err != nil {
 		return termdec.DecRec{}, err
 	}
-	descID, err := identity.ConvertFromString(dto.DescID)
+	descID, err := identity.ConvertFromString(dto.ProgID)
 	if err != nil {
 		return termdec.DecRec{}, err
 	}
-	rec := termdec.DecRec{TermID: termID, DescRef: descroot.RootRef{DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)}}
+	rec := termdec.DecRec{TermID: termID, ProgRef: progroot.RootRef{ProgID: descID, ProgRN: seqnum.ConvertFromInt(dto.ProgRN)}}
 	rec.LiabVar, err = termvaradapter.DataToVarRec(dto.LiabVar)
 	if err != nil {
 		return termdec.DecRec{}, err
@@ -228,11 +228,11 @@ func dataToTermDecSnap(dto DecSnap) (termdec.DecSnap, error) {
 	if err != nil {
 		return termdec.DecSnap{}, err
 	}
-	descID, err := identity.ConvertFromString(dto.DescID)
+	descID, err := identity.ConvertFromString(dto.ProgID)
 	if err != nil {
 		return termdec.DecSnap{}, err
 	}
-	snap := termdec.DecSnap{TermID: termID, DescRef: descroot.RootRef{DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)}}
+	snap := termdec.DecSnap{TermID: termID, ProgRef: progroot.RootRef{ProgID: descID, ProgRN: seqnum.ConvertFromInt(dto.ProgRN)}}
 	snap.LiabVar, err = termvaradapter.DataToVarRec(dto.LiabVar)
 	if err != nil {
 		return termdec.DecSnap{}, err

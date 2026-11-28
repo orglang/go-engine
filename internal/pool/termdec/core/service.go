@@ -4,8 +4,8 @@ import (
 	"context"
 	"log/slog"
 
-	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/progroot"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/uniqsym"
@@ -15,19 +15,19 @@ import (
 
 type service struct {
 	repo         Repo
-	descRootRepo descroot.Repo
+	progRootRepo progroot.Repo
 	typeDefRepo  typedef.Repo
 	transactor   tx.Transactor
 	log          *slog.Logger
 }
 
-func NewService(repo Repo, descRootRepo descroot.Repo, typeDefRepo typedef.Repo, transactor tx.Transactor, log *slog.Logger) API {
-	return &service{repo: repo, descRootRepo: descRootRepo, typeDefRepo: typeDefRepo, transactor: transactor, log: log}
+func NewService(repo Repo, progRootRepo progroot.Repo, typeDefRepo typedef.Repo, transactor tx.Transactor, log *slog.Logger) API {
+	return &service{repo: repo, progRootRepo: progRootRepo, typeDefRepo: typeDefRepo, transactor: transactor, log: log}
 }
 
 var _ API = (*service)(nil)
 
-func (s *service) Create(ctx context.Context, spec DecSpec) (_ identity.ADT, _ descroot.RootRef, err error) {
+func (s *service) Create(ctx context.Context, spec DecSpec) (_ identity.ADT, _ progroot.RootRef, err error) {
 	qnAttr := slog.Any("qn", spec.TermQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 
@@ -40,7 +40,7 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ identity.ADT, _ d
 		return s.typeDefRepo.GetRecsByQNs(txCtx, conn, append(assetQNs, spec.LiabVar.TypeQN))
 	})
 	if getErr != nil {
-		return identity.ADT{}, descroot.RootRef{}, getErr
+		return identity.ADT{}, progroot.RootRef{}, getErr
 	}
 
 	liabTypeDef := typeDefs[spec.LiabVar.TypeQN]
@@ -51,21 +51,21 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ identity.ADT, _ d
 		newAssetVars = append(newAssetVars, termvar.VarRec{TypeID: typeDef.TypeID, ChnlPH: varSpec.ChnlPH, ExpCK: typeDef.ExpCK})
 	}
 
-	expectedRoot := liabTypeDef.DescRef
-	newRoot := descroot.RootRef{DescID: expectedRoot.DescID, DescRN: seqnum.Next(expectedRoot.DescRN)}
+	expectedRoot := liabTypeDef.ProgRef
+	newRoot := progroot.RootRef{ProgID: expectedRoot.ProgID, ProgRN: seqnum.Next(expectedRoot.ProgRN)}
 	termID := identity.New()
-	newDec := DecRec{TermQN: spec.TermQN, TermID: termID, DescRef: newRoot, LiabVar: newLiabVar, AssetVars: newAssetVars}
+	newDec := DecRec{TermQN: spec.TermQN, TermID: termID, ProgRef: newRoot, LiabVar: newLiabVar, AssetVars: newAssetVars}
 
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		if err := s.descRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil {
+		if err := s.progRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil {
 			return err
 		}
 		return s.repo.AddRec(txCtx, conn, newDec)
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", qnAttr)
-		return identity.ADT{}, descroot.RootRef{}, transactErr
+		return identity.ADT{}, progroot.RootRef{}, transactErr
 	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("termID", termID), slog.Any("descRef", newRoot))
+	s.log.Debug("creation succeed", qnAttr, slog.Any("termID", termID), slog.Any("progRef", newRoot))
 	return termID, newRoot, nil
 }

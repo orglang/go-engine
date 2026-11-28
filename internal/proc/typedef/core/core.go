@@ -9,8 +9,8 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 
 	"orglang/go-engine/internal/adt/contkey"
-	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/progroot"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
@@ -31,13 +31,13 @@ type DefSpec struct {
 type DefRec struct {
 	TypeQN  uniqsym.ADT
 	TypeID  identity.ADT
-	DescRef descroot.RootRef
+	ProgRef progroot.RootRef
 	ExpCK   contkey.ADT
 }
 
 type DefSnap struct {
 	TypeID  identity.ADT
-	DescRef descroot.RootRef
+	ProgRef progroot.RootRef
 	DefSpec DefSpec
 }
 
@@ -48,7 +48,7 @@ type Context struct {
 
 type service struct {
 	typeDefRepo  Repo
-	descRootRepo descroot.Repo
+	progRootRepo progroot.Repo
 	typeExpRepo  TypeExpRepo
 	transactor   tx.Transactor
 	log          *slog.Logger
@@ -56,8 +56,8 @@ type service struct {
 
 func newAPI() API { return new(service) }
 
-func NewService(typeDefRepo Repo, descRootRepo descroot.Repo, typeExpRepo TypeExpRepo, transactor tx.Transactor, log *slog.Logger) API {
-	return &service{typeDefRepo: typeDefRepo, descRootRepo: descRootRepo, typeExpRepo: typeExpRepo, transactor: transactor, log: log}
+func NewService(typeDefRepo Repo, progRootRepo progroot.Repo, typeExpRepo TypeExpRepo, transactor tx.Transactor, log *slog.Logger) API {
+	return &service{typeDefRepo: typeDefRepo, progRootRepo: progRootRepo, typeExpRepo: typeExpRepo, transactor: transactor, log: log}
 }
 
 func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err error) {
@@ -67,9 +67,9 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err erro
 	if err != nil {
 		return DefSnap{}, err
 	}
-	newDef := DefRec{TypeID: identity.New(), DescRef: descroot.New(), TypeQN: spec.TypeQN, ExpCK: newExp.Key()}
+	newDef := DefRec{TypeID: identity.New(), ProgRef: progroot.New(), TypeQN: spec.TypeQN, ExpCK: newExp.Key()}
 	err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		if err := s.descRootRepo.AddRef(txCtx, conn, newDef.DescRef); err != nil {
+		if err := s.progRootRepo.AddRef(txCtx, conn, newDef.ProgRef); err != nil {
 			return err
 		}
 		if err := s.typeExpRepo.AddRec(txCtx, conn, newExp); err != nil {
@@ -81,8 +81,8 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err erro
 		s.log.Error("creation failed", qnAttr)
 		return DefSnap{}, err
 	}
-	s.log.Debug("creation succeed", qnAttr, slog.Any("typeID", newDef.TypeID), slog.Any("descRef", newDef.DescRef))
-	return DefSnap{TypeID: newDef.TypeID, DescRef: newDef.DescRef, DefSpec: spec}, nil
+	s.log.Debug("creation succeed", qnAttr, slog.Any("typeID", newDef.TypeID), slog.Any("progRef", newDef.ProgRef))
+	return DefSnap{TypeID: newDef.TypeID, ProgRef: newDef.ProgRef, DefSpec: spec}, nil
 }
 
 func (s *service) Modify(ctx context.Context, snap DefSnap) (_ DefSnap, err error) {
@@ -95,9 +95,9 @@ func (s *service) Modify(ctx context.Context, snap DefSnap) (_ DefSnap, err erro
 		s.log.Error("modification failed", refAttr)
 		return DefSnap{}, err
 	}
-	if snap.DescRef.DescRN != rec.DescRef.DescRN {
+	if snap.ProgRef.ProgRN != rec.ProgRef.ProgRN {
 		s.log.Error("modification failed", refAttr)
-		return DefSnap{}, errConcurrentModification(snap.DescRef.DescRN, rec.DescRef.DescRN)
+		return DefSnap{}, errConcurrentModification(snap.ProgRef.ProgRN, rec.ProgRef.ProgRN)
 	}
 	curSnap, err := s.snapFromRec(ctx, rec)
 	if err != nil {
@@ -111,11 +111,11 @@ func (s *service) Modify(ctx context.Context, snap DefSnap) (_ DefSnap, err erro
 	if err != nil {
 		return DefSnap{}, err
 	}
-	expectedRoot := descroot.RootRef{DescID: rec.DescRef.DescID, DescRN: snap.DescRef.DescRN}
-	snap.DescRef.DescRN = seqnum.Next(snap.DescRef.DescRN)
+	expectedRoot := progroot.RootRef{ProgID: rec.ProgRef.ProgID, ProgRN: snap.ProgRef.ProgRN}
+	snap.ProgRef.ProgRN = seqnum.Next(snap.ProgRef.ProgRN)
 	rec.ExpCK = newExp.Key()
 	err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		if err := s.descRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil {
+		if err := s.progRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil {
 			return err
 		}
 		if err := s.typeExpRepo.AddRec(txCtx, conn, newExp); err != nil {
@@ -150,7 +150,7 @@ func (s *service) snapFromRec(ctx context.Context, rec DefRec) (_ DefSnap, err e
 		s.log.Error("retrieval failed", slog.Any("typeID", rec.TypeID))
 		return DefSnap{}, err
 	}
-	return DefSnap{TypeID: rec.TypeID, DescRef: rec.DescRef, DefSpec: DefSpec{TypeQN: rec.TypeQN, TypeExp: ConvertRecToSpec(expRec)}}, nil
+	return DefSnap{TypeID: rec.TypeID, ProgRef: rec.ProgRef, DefSpec: DefSpec{TypeQN: rec.TypeQN, TypeExp: ConvertRecToSpec(expRec)}}, nil
 }
 
 func (s *service) RetreiveRefs(ctx context.Context) (refs []identity.ADT, err error) {

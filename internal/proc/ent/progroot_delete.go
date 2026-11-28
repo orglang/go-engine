@@ -4,34 +4,34 @@ package ent
 
 import (
 	"context"
-	"orglang/go-engine/internal/proc/ent/descroot"
 	"orglang/go-engine/internal/proc/ent/predicate"
+	"orglang/go-engine/internal/proc/ent/progroot"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 )
 
-// DescRootDelete is the builder for deleting a DescRoot entity.
-type DescRootDelete struct {
+// ProgRootDelete is the builder for deleting a ProgRoot entity.
+type ProgRootDelete struct {
 	config
 	hooks    []Hook
-	mutation *DescRootMutation
+	mutation *ProgRootMutation
 }
 
-// Where appends a list predicates to the DescRootDelete builder.
-func (_d *DescRootDelete) Where(ps ...predicate.DescRoot) *DescRootDelete {
+// Where appends a list predicates to the ProgRootDelete builder.
+func (_d *ProgRootDelete) Where(ps ...predicate.ProgRoot) *ProgRootDelete {
 	_d.mutation.Where(ps...)
 	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (_d *DescRootDelete) Exec(ctx context.Context) (int, error) {
+func (_d *ProgRootDelete) Exec(ctx context.Context) (int, error) {
 	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_d *DescRootDelete) ExecX(ctx context.Context) int {
+func (_d *ProgRootDelete) ExecX(ctx context.Context) int {
 	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
@@ -39,8 +39,8 @@ func (_d *DescRootDelete) ExecX(ctx context.Context) int {
 	return n
 }
 
-func (_d *DescRootDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(descroot.Table, sqlgraph.NewFieldSpec(descroot.FieldID, field.TypeString))
+func (_d *ProgRootDelete) sqlExec(ctx context.Context) (int, error) {
+	_spec := sqlgraph.NewDeleteSpec(progroot.Table, sqlgraph.NewFieldSpec(progroot.FieldID, field.TypeString))
 	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -56,32 +56,32 @@ func (_d *DescRootDelete) sqlExec(ctx context.Context) (int, error) {
 	return affected, err
 }
 
-// DescRootDeleteOne is the builder for deleting a single DescRoot entity.
-type DescRootDeleteOne struct {
-	_d *DescRootDelete
+// ProgRootDeleteOne is the builder for deleting a single ProgRoot entity.
+type ProgRootDeleteOne struct {
+	_d *ProgRootDelete
 }
 
-// Where appends a list predicates to the DescRootDelete builder.
-func (_d *DescRootDeleteOne) Where(ps ...predicate.DescRoot) *DescRootDeleteOne {
+// Where appends a list predicates to the ProgRootDelete builder.
+func (_d *ProgRootDeleteOne) Where(ps ...predicate.ProgRoot) *ProgRootDeleteOne {
 	_d._d.mutation.Where(ps...)
 	return _d
 }
 
 // Exec executes the deletion query.
-func (_d *DescRootDeleteOne) Exec(ctx context.Context) error {
+func (_d *ProgRootDeleteOne) Exec(ctx context.Context) error {
 	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
 	case n == 0:
-		return &NotFoundError{descroot.Label}
+		return &NotFoundError{progroot.Label}
 	default:
 		return nil
 	}
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_d *DescRootDeleteOne) ExecX(ctx context.Context) {
+func (_d *ProgRootDeleteOne) ExecX(ctx context.Context) {
 	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}

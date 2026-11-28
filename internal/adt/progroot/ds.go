@@ -1,4 +1,4 @@
-package descroot
+package progroot
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"orglang/go-engine/internal/lib/tx"
 )
 
-// Repo persists Description aggregate references and enforces their OCC boundary.
+// Repo persists Program aggregate references and enforces their OCC boundary.
 type Repo interface {
 	// AddRef inserts a new aggregate root at its initial revision.
 	AddRef(context.Context, tx.Conn, RootRef) error

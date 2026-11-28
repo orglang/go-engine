@@ -16,8 +16,8 @@ type TypeDef struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
-	// DescID holds the value of the "desc_id" field.
-	DescID string `json:"desc_id,omitempty"`
+	// ProgID holds the value of the "prog_id" field.
+	ProgID string `json:"prog_id,omitempty"`
 	// ExpCk holds the value of the "exp_ck" field.
 	ExpCk        int64 `json:"exp_ck,omitempty"`
 	selectValues sql.SelectValues
@@ -30,7 +30,7 @@ func (*TypeDef) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case typedef.FieldExpCk:
 			values[i] = new(sql.NullInt64)
-		case typedef.FieldID, typedef.FieldDescID:
+		case typedef.FieldID, typedef.FieldProgID:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -53,11 +53,11 @@ func (_m *TypeDef) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.ID = value.String
 			}
-		case typedef.FieldDescID:
+		case typedef.FieldProgID:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field desc_id", values[i])
+				return fmt.Errorf("unexpected type %T for field prog_id", values[i])
 			} else if value.Valid {
-				_m.DescID = value.String
+				_m.ProgID = value.String
 			}
 		case typedef.FieldExpCk:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -101,8 +101,8 @@ func (_m *TypeDef) String() string {
 	var builder strings.Builder
 	builder.WriteString("TypeDef(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
-	builder.WriteString("desc_id=")
-	builder.WriteString(_m.DescID)
+	builder.WriteString("prog_id=")
+	builder.WriteString(_m.ProgID)
 	builder.WriteString(", ")
 	builder.WriteString("exp_ck=")
 	builder.WriteString(fmt.Sprintf("%v", _m.ExpCk))

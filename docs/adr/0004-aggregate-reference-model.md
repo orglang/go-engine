@@ -1,4 +1,4 @@
-# ADR-0004: Модель Description и Computation aggregates
+# ADR-0004: Модель Program и Computation aggregates
 
 - **Статус:** Accepted
 - **Дата:** 2026-11-22
@@ -12,48 +12,48 @@
 
 Изменения SDK не входят в scope. Конкретная схема хранения, миграции и persistence-механизмы этим ADR не определяются.
 
-## 1. Description aggregate
+## 1. Program aggregate
 
-В каждом bounded context существует Description aggregate root. Он объединяет:
+В каждом bounded context существует Program aggregate root. Он объединяет:
 
 - ровно один Provider Type;
 - ноль или более Terms, реализующих этот Provider Type.
 
-Type и Term — разные доменные сущности первого уровня со своими identity и контрактами. Они принадлежат одному Description aggregate, но не становятся взаимозаменяемыми.
+Type и Term — разные доменные сущности первого уровня со своими identity и контрактами. Они принадлежат одному Program aggregate, но не становятся взаимозаменяемыми.
 
-Допустим Description только с Type, без Terms. Description без Type и Description только с Terms недопустимы. Term всегда реализует Provider Type своего Description.
+Допустим Program только с Type, без Terms. Program без Type и Program только с Terms недопустимы. Term всегда реализует Provider Type своего Program.
 
-Description не имеет собственного QN и не имеет доменного `kind`. Descriptor registry не определяет отдельный вид Description.
+Program не имеет собственного QN и не имеет доменного `kind`. Descriptor registry не определяет отдельный вид Program.
 
 ### Identity
 
-- `DescID` — identity Description aggregate root.
+- `ProgID` — identity Program aggregate root.
 - `TypeID` — identity Type.
 - `TermID` — identity Term.
 
-Identity Description и принадлежащих ему сущностей различны. Type и Term сохраняют свои собственные IDs даже при общем Description root.
+Identity Program и принадлежащих ему сущностей различны. Type и Term сохраняют свои собственные IDs даже при общем Program root.
 
 ### Revision
 
-`DescRN` — единственная revision наблюдаемого состояния Description aggregate и общая optimistic concurrency boundary для его мутаций.
+`ProgRN` — единственная revision наблюдаемого состояния Program aggregate и общая optimistic concurrency boundary для его мутаций.
 
-Одна атомарная команда, меняющая наблюдаемое состояние Description, увеличивает `DescRN` ровно один раз. Это правило распространяется на:
+Одна атомарная команда, меняющая наблюдаемое состояние Program, увеличивает `ProgRN` ровно один раз. Это правило распространяется на:
 
 - изменение Type expression и переключение текущего `ExpCK`;
 - изменение Declaration или Definition Term;
-- добавление принадлежащей Description сущности;
+- добавление принадлежащей Program сущности;
 - переименование Type или Term;
-- Retire Description.
+- Retire Program.
 
 Несколько внутренних записей одной команды не означают несколько increments. Технические изменения без наблюдаемого доменного изменения сами по себе не требуют increment.
 
-Отдельные `TypeRN` и `TermRN` в целевой модели не вводятся. Команды с optimistic concurrency используют expected `DescRN`.
+Отдельные `TypeRN` и `TermRN` в целевой модели не вводятся. Команды с optimistic concurrency используют expected `ProgRN`.
 
 ## 2. QN и единое пространство имён
 
-QN принадлежит непосредственно Type или Term. Description собственного QN не имеет.
+QN принадлежит непосредственно Type или Term. Program собственного QN не имеет.
 
-Внутри каждого bounded context существует одно общее пространство имён для QN всех Type и Term во всех Description. Поэтому:
+Внутри каждого bounded context существует одно общее пространство имён для QN всех Type и Term во всех Program. Поэтому:
 
 - QN любого Type должен быть уникален среди QN всех Type и Terms этого контекста;
 - QN любого Term должен быть уникален среди QN всех Terms и Types этого контекста;
@@ -62,7 +62,7 @@ QN принадлежит непосредственно Type или Term. Descr
 
 QN — изменяемое человеко-понятное имя для поиска и внешнего обращения, а не identity. Type QN разрешается в `TypeID`, Term QN — в `TermID`. Типизированные resolver contracts сохраняются; единое пространство имён не требует общего неразмеченного reference type.
 
-Переименование выполняется над Type или Term. Оно атомарно проверяет уникальность QN во всём bounded context, не меняет `TypeID`, `TermID` или `DescID` и увеличивает `DescRN` владельца ровно один раз.
+Переименование выполняется над Type или Term. Оно атомарно проверяет уникальность QN во всём bounded context, не меняет `TypeID`, `TermID` или `ProgID` и увеличивает `ProgRN` владельца ровно один раз.
 
 Aliases и история прежних QN не входят в базовую модель.
 
@@ -79,9 +79,9 @@ Type хранит ссылку на текущее expression state через `
 Provider — роль Type, контракт которого реализует Term.
 
 - Каждый Term имеет ровно один Provider Type.
-- Provider Type и реализующие его Terms принадлежат одному Description.
+- Provider Type и реализующие его Terms принадлежат одному Program.
 - Один Provider Type может иметь несколько Terms-реализаций.
-- Description может быть создан с Provider Type до появления первого Term.
+- Program может быть создан с Provider Type до появления первого Term.
 - Изменение Provider Type допустимо, если все реализующие его Terms корректны в итоговом состоянии.
 - Одна атомарная команда может изменить Provider Type и любое количество его Terms. Инварианты проверяются по итоговой композиции, а не по промежуточным состояниям.
 - Backward compatibility с предыдущим состоянием Provider Type не требуется.
@@ -91,32 +91,32 @@ Provider — роль Type, контракт которого реализует
 Client — роль Type, контракт которого Term использует, но не реализует.
 
 - Term может иметь ноль или более Client references.
-- Client Type может находиться в другом Description того же bounded context.
+- Client Type может находиться в другом Program того же bounded context.
 - Cross-bounded-context references запрещены.
-- Client reference фиксирует конкретное состояние Type, а не `DescRN` всего Description.
+- Client reference фиксирует конкретное состояние Type, а не `ProgRN` всего Program.
 - Последующие изменения Type не перенаправляют существующий Client reference автоматически.
 - Один Type может использоваться несколькими Terms как Client.
 - Один Term может использовать собственный Provider Type также и в роли Client; Provider и Client остаются разными отношениями.
-- Client reference не передаёт владение Type и не объединяет Description aggregates.
+- Client reference не передаёт владение Type и не объединяет Program aggregates.
 
 Идентификатор Type state, на который ссылается Client, пока не выбран. `ExpCK` — кандидат, но не подтверждено, что он идентифицирует весь Type contract.
 
 Открытыми остаются: возможность ссылаться на non-current Type state и правила его retention; явное обновление Client reference на новое состояние; возможность нескольких Client uses одного Type с разными pinned states.
 
-## 4. Description lifecycle
+## 4. Program lifecycle
 
-Retire применяется ко всему Description aggregate:
+Retire применяется ко всему Program aggregate:
 
-- Description становится недоступен для нового использования.
-- `DescID`, `TypeID`, `TermID`, данные и QN принадлежащих Type/Terms сохраняются.
-- Retire является наблюдаемой мутацией и увеличивает `DescRN` один раз.
+- Program становится недоступен для нового использования.
+- `ProgID`, `TypeID`, `TermID`, данные и QN принадлежащих Type/Terms сохраняются.
+- Retire является наблюдаемой мутацией и увеличивает `ProgRN` один раз.
 - QN остаются зарезервированными и не могут быть использованы повторно.
 
-Физический Delete не является частью обычного lifecycle. Он допустим только при отсутствии зависимостей, нарушающих referential integrity. После физического удаления Description его QN могут быть использованы повторно.
+Физический Delete не является частью обычного lifecycle. Он допустим только при отсутствии зависимостей, нарушающих referential integrity. После физического удаления Program его QN могут быть использованы повторно.
 
 ## 5. Computation aggregate
 
-Computation — отдельный aggregate root в каждом bounded context. Он не входит в Description.
+Computation — отдельный aggregate root в каждом bounded context. Он не входит в Program.
 
 ### Identity и Execution
 
@@ -143,8 +143,8 @@ Connection — сущность первого уровня внутри Computa
 
 - Core каждого bounded context владеет своими портами; adapters реализуют их.
 - Зависимости направлены внутрь. Domain/application code не зависит от драйверов и конкретных adapters.
-- Description operations выполняются в границе Description aggregate; Computation operations — в границе Computation aggregate.
-- Type и Term могут иметь раздельные use cases и capability packages, сохраняя общий Description consistency boundary.
+- Program operations выполняются в границе Program aggregate; Computation operations — в границе Computation aggregate.
+- Type и Term могут иметь раздельные use cases и capability packages, сохраняя общий Program consistency boundary.
 - SDK и публичные wire contracts не являются ограничением для целевой внутренней модели.
 - Persistence schema и migration strategy проектируются отдельно и должны обеспечивать описанные identity, uniqueness, atomicity и referential-integrity guarantees.
 
@@ -152,11 +152,11 @@ Connection — сущность первого уровня внутри Computa
 
 Этот ADR намеренно не определяет:
 
-- конкретную физическую схему хранения Description, Type, Term, QN registry и Computation;
+- конкретную физическую схему хранения Program, Type, Term, QN registry и Computation;
 - миграцию существующих descriptor bindings к QN → TypeID/TermID;
 - механизм обеспечения общей QN uniqueness constraint;
 - точный идентификатор и retention policy pinned Type states для Client references;
-- правила чтения retired Description, возможного восстановления и физического удаления;
+- правила чтения retired Program, возможного восстановления и физического удаления;
 - транзакционную реализацию операций, изменяющих несколько Computation aggregates.
 
 Эти вопросы не меняют зафиксированные выше доменные границы и инварианты.

@@ -6,7 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"orglang/go-engine/internal/proc/ent/descroot"
+	"orglang/go-engine/internal/pool/ent/progroot"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
@@ -14,38 +14,38 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// DescRootCreate is the builder for creating a DescRoot entity.
-type DescRootCreate struct {
+// ProgRootCreate is the builder for creating a ProgRoot entity.
+type ProgRootCreate struct {
 	config
-	mutation *DescRootMutation
+	mutation *ProgRootMutation
 	hooks    []Hook
 	conflict []sql.ConflictOption
 }
 
-// SetDescRn sets the "desc_rn" field.
-func (_c *DescRootCreate) SetDescRn(v int64) *DescRootCreate {
-	_c.mutation.SetDescRn(v)
+// SetProgRn sets the "prog_rn" field.
+func (_c *ProgRootCreate) SetProgRn(v int64) *ProgRootCreate {
+	_c.mutation.SetProgRn(v)
 	return _c
 }
 
 // SetID sets the "id" field.
-func (_c *DescRootCreate) SetID(v string) *DescRootCreate {
+func (_c *ProgRootCreate) SetID(v string) *ProgRootCreate {
 	_c.mutation.SetID(v)
 	return _c
 }
 
-// Mutation returns the DescRootMutation object of the builder.
-func (_c *DescRootCreate) Mutation() *DescRootMutation {
+// Mutation returns the ProgRootMutation object of the builder.
+func (_c *ProgRootCreate) Mutation() *ProgRootMutation {
 	return _c.mutation
 }
 
-// Save creates the DescRoot in the database.
-func (_c *DescRootCreate) Save(ctx context.Context) (*DescRoot, error) {
+// Save creates the ProgRoot in the database.
+func (_c *ProgRootCreate) Save(ctx context.Context) (*ProgRoot, error) {
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (_c *DescRootCreate) SaveX(ctx context.Context) *DescRoot {
+func (_c *ProgRootCreate) SaveX(ctx context.Context) *ProgRoot {
 	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -54,27 +54,27 @@ func (_c *DescRootCreate) SaveX(ctx context.Context) *DescRoot {
 }
 
 // Exec executes the query.
-func (_c *DescRootCreate) Exec(ctx context.Context) error {
+func (_c *ProgRootCreate) Exec(ctx context.Context) error {
 	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_c *DescRootCreate) ExecX(ctx context.Context) {
+func (_c *ProgRootCreate) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (_c *DescRootCreate) check() error {
-	if _, ok := _c.mutation.DescRn(); !ok {
-		return &ValidationError{Name: "desc_rn", err: errors.New(`ent: missing required field "DescRoot.desc_rn"`)}
+func (_c *ProgRootCreate) check() error {
+	if _, ok := _c.mutation.ProgRn(); !ok {
+		return &ValidationError{Name: "prog_rn", err: errors.New(`ent: missing required field "ProgRoot.prog_rn"`)}
 	}
 	return nil
 }
 
-func (_c *DescRootCreate) sqlSave(ctx context.Context) (*DescRoot, error) {
+func (_c *ProgRootCreate) sqlSave(ctx context.Context) (*ProgRoot, error) {
 	if err := _c.check(); err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (_c *DescRootCreate) sqlSave(ctx context.Context) (*DescRoot, error) {
 		if id, ok := _spec.ID.Value.(string); ok {
 			_node.ID = id
 		} else {
-			return nil, fmt.Errorf("unexpected DescRoot.ID type: %T", _spec.ID.Value)
+			return nil, fmt.Errorf("unexpected ProgRoot.ID type: %T", _spec.ID.Value)
 		}
 	}
 	_c.mutation.id = &_node.ID
@@ -97,19 +97,19 @@ func (_c *DescRootCreate) sqlSave(ctx context.Context) (*DescRoot, error) {
 	return _node, nil
 }
 
-func (_c *DescRootCreate) createSpec() (*DescRoot, *sqlgraph.CreateSpec) {
+func (_c *ProgRootCreate) createSpec() (*ProgRoot, *sqlgraph.CreateSpec) {
 	var (
-		_node = &DescRoot{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(descroot.Table, sqlgraph.NewFieldSpec(descroot.FieldID, field.TypeString))
+		_node = &ProgRoot{config: _c.config}
+		_spec = sqlgraph.NewCreateSpec(progroot.Table, sqlgraph.NewFieldSpec(progroot.FieldID, field.TypeString))
 	)
 	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := _c.mutation.DescRn(); ok {
-		_spec.SetField(descroot.FieldDescRn, field.TypeInt64, value)
-		_node.DescRn = value
+	if value, ok := _c.mutation.ProgRn(); ok {
+		_spec.SetField(progroot.FieldProgRn, field.TypeInt64, value)
+		_node.ProgRn = value
 	}
 	return _node, _spec
 }
@@ -117,8 +117,8 @@ func (_c *DescRootCreate) createSpec() (*DescRoot, *sqlgraph.CreateSpec) {
 // OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
 // of the `INSERT` statement. For example:
 //
-//	client.DescRoot.Create().
-//		SetDescRn(v).
+//	client.ProgRoot.Create().
+//		SetProgRn(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -126,13 +126,13 @@ func (_c *DescRootCreate) createSpec() (*DescRoot, *sqlgraph.CreateSpec) {
 //		).
 //		// Override some of the fields with custom
 //		// update values.
-//		Update(func(u *ent.DescRootUpsert) {
-//			SetDescRn(v+v).
+//		Update(func(u *ent.ProgRootUpsert) {
+//			SetProgRn(v+v).
 //		}).
 //		Exec(ctx)
-func (_c *DescRootCreate) OnConflict(opts ...sql.ConflictOption) *DescRootUpsertOne {
+func (_c *ProgRootCreate) OnConflict(opts ...sql.ConflictOption) *ProgRootUpsertOne {
 	_c.conflict = opts
-	return &DescRootUpsertOne{
+	return &ProgRootUpsertOne{
 		create: _c,
 	}
 }
@@ -140,63 +140,63 @@ func (_c *DescRootCreate) OnConflict(opts ...sql.ConflictOption) *DescRootUpsert
 // OnConflictColumns calls `OnConflict` and configures the columns
 // as conflict target. Using this option is equivalent to using:
 //
-//	client.DescRoot.Create().
+//	client.ProgRoot.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (_c *DescRootCreate) OnConflictColumns(columns ...string) *DescRootUpsertOne {
+func (_c *ProgRootCreate) OnConflictColumns(columns ...string) *ProgRootUpsertOne {
 	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
-	return &DescRootUpsertOne{
+	return &ProgRootUpsertOne{
 		create: _c,
 	}
 }
 
 type (
-	// DescRootUpsertOne is the builder for "upsert"-ing
-	//  one DescRoot node.
-	DescRootUpsertOne struct {
-		create *DescRootCreate
+	// ProgRootUpsertOne is the builder for "upsert"-ing
+	//  one ProgRoot node.
+	ProgRootUpsertOne struct {
+		create *ProgRootCreate
 	}
 
-	// DescRootUpsert is the "OnConflict" setter.
-	DescRootUpsert struct {
+	// ProgRootUpsert is the "OnConflict" setter.
+	ProgRootUpsert struct {
 		*sql.UpdateSet
 	}
 )
 
-// SetDescRn sets the "desc_rn" field.
-func (u *DescRootUpsert) SetDescRn(v int64) *DescRootUpsert {
-	u.Set(descroot.FieldDescRn, v)
+// SetProgRn sets the "prog_rn" field.
+func (u *ProgRootUpsert) SetProgRn(v int64) *ProgRootUpsert {
+	u.Set(progroot.FieldProgRn, v)
 	return u
 }
 
-// UpdateDescRn sets the "desc_rn" field to the value that was provided on create.
-func (u *DescRootUpsert) UpdateDescRn() *DescRootUpsert {
-	u.SetExcluded(descroot.FieldDescRn)
+// UpdateProgRn sets the "prog_rn" field to the value that was provided on create.
+func (u *ProgRootUpsert) UpdateProgRn() *ProgRootUpsert {
+	u.SetExcluded(progroot.FieldProgRn)
 	return u
 }
 
-// AddDescRn adds v to the "desc_rn" field.
-func (u *DescRootUpsert) AddDescRn(v int64) *DescRootUpsert {
-	u.Add(descroot.FieldDescRn, v)
+// AddProgRn adds v to the "prog_rn" field.
+func (u *ProgRootUpsert) AddProgRn(v int64) *ProgRootUpsert {
+	u.Add(progroot.FieldProgRn, v)
 	return u
 }
 
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
-//	client.DescRoot.Create().
+//	client.ProgRoot.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
 //			sql.ResolveWith(func(u *sql.UpdateSet) {
-//				u.SetIgnore(descroot.FieldID)
+//				u.SetIgnore(progroot.FieldID)
 //			}),
 //		).
 //		Exec(ctx)
-func (u *DescRootUpsertOne) UpdateNewValues() *DescRootUpsertOne {
+func (u *ProgRootUpsertOne) UpdateNewValues() *ProgRootUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
-			s.SetIgnore(descroot.FieldID)
+			s.SetIgnore(progroot.FieldID)
 		}
 	}))
 	return u
@@ -205,72 +205,72 @@ func (u *DescRootUpsertOne) UpdateNewValues() *DescRootUpsertOne {
 // Ignore sets each column to itself in case of conflict.
 // Using this option is equivalent to using:
 //
-//	client.DescRoot.Create().
+//	client.ProgRoot.Create().
 //	    OnConflict(sql.ResolveWithIgnore()).
 //	    Exec(ctx)
-func (u *DescRootUpsertOne) Ignore() *DescRootUpsertOne {
+func (u *ProgRootUpsertOne) Ignore() *ProgRootUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
 	return u
 }
 
 // DoNothing configures the conflict_action to `DO NOTHING`.
 // Supported only by SQLite and PostgreSQL.
-func (u *DescRootUpsertOne) DoNothing() *DescRootUpsertOne {
+func (u *ProgRootUpsertOne) DoNothing() *ProgRootUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.DoNothing())
 	return u
 }
 
-// Update allows overriding fields `UPDATE` values. See the DescRootCreate.OnConflict
+// Update allows overriding fields `UPDATE` values. See the ProgRootCreate.OnConflict
 // documentation for more info.
-func (u *DescRootUpsertOne) Update(set func(*DescRootUpsert)) *DescRootUpsertOne {
+func (u *ProgRootUpsertOne) Update(set func(*ProgRootUpsert)) *ProgRootUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
-		set(&DescRootUpsert{UpdateSet: update})
+		set(&ProgRootUpsert{UpdateSet: update})
 	}))
 	return u
 }
 
-// SetDescRn sets the "desc_rn" field.
-func (u *DescRootUpsertOne) SetDescRn(v int64) *DescRootUpsertOne {
-	return u.Update(func(s *DescRootUpsert) {
-		s.SetDescRn(v)
+// SetProgRn sets the "prog_rn" field.
+func (u *ProgRootUpsertOne) SetProgRn(v int64) *ProgRootUpsertOne {
+	return u.Update(func(s *ProgRootUpsert) {
+		s.SetProgRn(v)
 	})
 }
 
-// AddDescRn adds v to the "desc_rn" field.
-func (u *DescRootUpsertOne) AddDescRn(v int64) *DescRootUpsertOne {
-	return u.Update(func(s *DescRootUpsert) {
-		s.AddDescRn(v)
+// AddProgRn adds v to the "prog_rn" field.
+func (u *ProgRootUpsertOne) AddProgRn(v int64) *ProgRootUpsertOne {
+	return u.Update(func(s *ProgRootUpsert) {
+		s.AddProgRn(v)
 	})
 }
 
-// UpdateDescRn sets the "desc_rn" field to the value that was provided on create.
-func (u *DescRootUpsertOne) UpdateDescRn() *DescRootUpsertOne {
-	return u.Update(func(s *DescRootUpsert) {
-		s.UpdateDescRn()
+// UpdateProgRn sets the "prog_rn" field to the value that was provided on create.
+func (u *ProgRootUpsertOne) UpdateProgRn() *ProgRootUpsertOne {
+	return u.Update(func(s *ProgRootUpsert) {
+		s.UpdateProgRn()
 	})
 }
 
 // Exec executes the query.
-func (u *DescRootUpsertOne) Exec(ctx context.Context) error {
+func (u *ProgRootUpsertOne) Exec(ctx context.Context) error {
 	if len(u.create.conflict) == 0 {
-		return errors.New("ent: missing options for DescRootCreate.OnConflict")
+		return errors.New("ent: missing options for ProgRootCreate.OnConflict")
 	}
 	return u.create.Exec(ctx)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (u *DescRootUpsertOne) ExecX(ctx context.Context) {
+func (u *ProgRootUpsertOne) ExecX(ctx context.Context) {
 	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *DescRootUpsertOne) ID(ctx context.Context) (id string, err error) {
+func (u *ProgRootUpsertOne) ID(ctx context.Context) (id string, err error) {
 	if u.create.driver.Dialect() == dialect.MySQL {
 		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
 		// fields from the database since MySQL does not support the RETURNING clause.
-		return id, errors.New("ent: DescRootUpsertOne.ID is not supported by MySQL driver. Use DescRootUpsertOne.Exec instead")
+		return id, errors.New("ent: ProgRootUpsertOne.ID is not supported by MySQL driver. Use ProgRootUpsertOne.Exec instead")
 	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
@@ -280,7 +280,7 @@ func (u *DescRootUpsertOne) ID(ctx context.Context) (id string, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *DescRootUpsertOne) IDX(ctx context.Context) string {
+func (u *ProgRootUpsertOne) IDX(ctx context.Context) string {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -288,27 +288,27 @@ func (u *DescRootUpsertOne) IDX(ctx context.Context) string {
 	return id
 }
 
-// DescRootCreateBulk is the builder for creating many DescRoot entities in bulk.
-type DescRootCreateBulk struct {
+// ProgRootCreateBulk is the builder for creating many ProgRoot entities in bulk.
+type ProgRootCreateBulk struct {
 	config
 	err      error
-	builders []*DescRootCreate
+	builders []*ProgRootCreate
 	conflict []sql.ConflictOption
 }
 
-// Save creates the DescRoot entities in the database.
-func (_c *DescRootCreateBulk) Save(ctx context.Context) ([]*DescRoot, error) {
+// Save creates the ProgRoot entities in the database.
+func (_c *ProgRootCreateBulk) Save(ctx context.Context) ([]*ProgRoot, error) {
 	if _c.err != nil {
 		return nil, _c.err
 	}
 	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
-	nodes := make([]*DescRoot, len(_c.builders))
+	nodes := make([]*ProgRoot, len(_c.builders))
 	mutators := make([]Mutator, len(_c.builders))
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-				mutation, ok := m.(*DescRootMutation)
+				mutation, ok := m.(*ProgRootMutation)
 				if !ok {
 					return nil, fmt.Errorf("unexpected mutation type %T", m)
 				}
@@ -352,7 +352,7 @@ func (_c *DescRootCreateBulk) Save(ctx context.Context) ([]*DescRoot, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (_c *DescRootCreateBulk) SaveX(ctx context.Context) []*DescRoot {
+func (_c *ProgRootCreateBulk) SaveX(ctx context.Context) []*ProgRoot {
 	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -361,13 +361,13 @@ func (_c *DescRootCreateBulk) SaveX(ctx context.Context) []*DescRoot {
 }
 
 // Exec executes the query.
-func (_c *DescRootCreateBulk) Exec(ctx context.Context) error {
+func (_c *ProgRootCreateBulk) Exec(ctx context.Context) error {
 	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_c *DescRootCreateBulk) ExecX(ctx context.Context) {
+func (_c *ProgRootCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
@@ -376,7 +376,7 @@ func (_c *DescRootCreateBulk) ExecX(ctx context.Context) {
 // OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
 // of the `INSERT` statement. For example:
 //
-//	client.DescRoot.CreateBulk(builders...).
+//	client.ProgRoot.CreateBulk(builders...).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -384,13 +384,13 @@ func (_c *DescRootCreateBulk) ExecX(ctx context.Context) {
 //		).
 //		// Override some of the fields with custom
 //		// update values.
-//		Update(func(u *ent.DescRootUpsert) {
-//			SetDescRn(v+v).
+//		Update(func(u *ent.ProgRootUpsert) {
+//			SetProgRn(v+v).
 //		}).
 //		Exec(ctx)
-func (_c *DescRootCreateBulk) OnConflict(opts ...sql.ConflictOption) *DescRootUpsertBulk {
+func (_c *ProgRootCreateBulk) OnConflict(opts ...sql.ConflictOption) *ProgRootUpsertBulk {
 	_c.conflict = opts
-	return &DescRootUpsertBulk{
+	return &ProgRootUpsertBulk{
 		create: _c,
 	}
 }
@@ -398,39 +398,39 @@ func (_c *DescRootCreateBulk) OnConflict(opts ...sql.ConflictOption) *DescRootUp
 // OnConflictColumns calls `OnConflict` and configures the columns
 // as conflict target. Using this option is equivalent to using:
 //
-//	client.DescRoot.Create().
+//	client.ProgRoot.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (_c *DescRootCreateBulk) OnConflictColumns(columns ...string) *DescRootUpsertBulk {
+func (_c *ProgRootCreateBulk) OnConflictColumns(columns ...string) *ProgRootUpsertBulk {
 	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
-	return &DescRootUpsertBulk{
+	return &ProgRootUpsertBulk{
 		create: _c,
 	}
 }
 
-// DescRootUpsertBulk is the builder for "upsert"-ing
-// a bulk of DescRoot nodes.
-type DescRootUpsertBulk struct {
-	create *DescRootCreateBulk
+// ProgRootUpsertBulk is the builder for "upsert"-ing
+// a bulk of ProgRoot nodes.
+type ProgRootUpsertBulk struct {
+	create *ProgRootCreateBulk
 }
 
 // UpdateNewValues updates the mutable fields using the new values that
 // were set on create. Using this option is equivalent to using:
 //
-//	client.DescRoot.Create().
+//	client.ProgRoot.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
 //			sql.ResolveWith(func(u *sql.UpdateSet) {
-//				u.SetIgnore(descroot.FieldID)
+//				u.SetIgnore(progroot.FieldID)
 //			}),
 //		).
 //		Exec(ctx)
-func (u *DescRootUpsertBulk) UpdateNewValues() *DescRootUpsertBulk {
+func (u *ProgRootUpsertBulk) UpdateNewValues() *ProgRootUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
-				s.SetIgnore(descroot.FieldID)
+				s.SetIgnore(progroot.FieldID)
 			}
 		}
 	}))
@@ -440,69 +440,69 @@ func (u *DescRootUpsertBulk) UpdateNewValues() *DescRootUpsertBulk {
 // Ignore sets each column to itself in case of conflict.
 // Using this option is equivalent to using:
 //
-//	client.DescRoot.Create().
+//	client.ProgRoot.Create().
 //		OnConflict(sql.ResolveWithIgnore()).
 //		Exec(ctx)
-func (u *DescRootUpsertBulk) Ignore() *DescRootUpsertBulk {
+func (u *ProgRootUpsertBulk) Ignore() *ProgRootUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
 	return u
 }
 
 // DoNothing configures the conflict_action to `DO NOTHING`.
 // Supported only by SQLite and PostgreSQL.
-func (u *DescRootUpsertBulk) DoNothing() *DescRootUpsertBulk {
+func (u *ProgRootUpsertBulk) DoNothing() *ProgRootUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.DoNothing())
 	return u
 }
 
-// Update allows overriding fields `UPDATE` values. See the DescRootCreateBulk.OnConflict
+// Update allows overriding fields `UPDATE` values. See the ProgRootCreateBulk.OnConflict
 // documentation for more info.
-func (u *DescRootUpsertBulk) Update(set func(*DescRootUpsert)) *DescRootUpsertBulk {
+func (u *ProgRootUpsertBulk) Update(set func(*ProgRootUpsert)) *ProgRootUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
-		set(&DescRootUpsert{UpdateSet: update})
+		set(&ProgRootUpsert{UpdateSet: update})
 	}))
 	return u
 }
 
-// SetDescRn sets the "desc_rn" field.
-func (u *DescRootUpsertBulk) SetDescRn(v int64) *DescRootUpsertBulk {
-	return u.Update(func(s *DescRootUpsert) {
-		s.SetDescRn(v)
+// SetProgRn sets the "prog_rn" field.
+func (u *ProgRootUpsertBulk) SetProgRn(v int64) *ProgRootUpsertBulk {
+	return u.Update(func(s *ProgRootUpsert) {
+		s.SetProgRn(v)
 	})
 }
 
-// AddDescRn adds v to the "desc_rn" field.
-func (u *DescRootUpsertBulk) AddDescRn(v int64) *DescRootUpsertBulk {
-	return u.Update(func(s *DescRootUpsert) {
-		s.AddDescRn(v)
+// AddProgRn adds v to the "prog_rn" field.
+func (u *ProgRootUpsertBulk) AddProgRn(v int64) *ProgRootUpsertBulk {
+	return u.Update(func(s *ProgRootUpsert) {
+		s.AddProgRn(v)
 	})
 }
 
-// UpdateDescRn sets the "desc_rn" field to the value that was provided on create.
-func (u *DescRootUpsertBulk) UpdateDescRn() *DescRootUpsertBulk {
-	return u.Update(func(s *DescRootUpsert) {
-		s.UpdateDescRn()
+// UpdateProgRn sets the "prog_rn" field to the value that was provided on create.
+func (u *ProgRootUpsertBulk) UpdateProgRn() *ProgRootUpsertBulk {
+	return u.Update(func(s *ProgRootUpsert) {
+		s.UpdateProgRn()
 	})
 }
 
 // Exec executes the query.
-func (u *DescRootUpsertBulk) Exec(ctx context.Context) error {
+func (u *ProgRootUpsertBulk) Exec(ctx context.Context) error {
 	if u.create.err != nil {
 		return u.create.err
 	}
 	for i, b := range u.create.builders {
 		if len(b.conflict) != 0 {
-			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the DescRootCreateBulk instead", i)
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the ProgRootCreateBulk instead", i)
 		}
 	}
 	if len(u.create.conflict) == 0 {
-		return errors.New("ent: missing options for DescRootCreateBulk.OnConflict")
+		return errors.New("ent: missing options for ProgRootCreateBulk.OnConflict")
 	}
 	return u.create.Exec(ctx)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (u *DescRootUpsertBulk) ExecX(ctx context.Context) {
+func (u *ProgRootUpsertBulk) ExecX(ctx context.Context) {
 	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}

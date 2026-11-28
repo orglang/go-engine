@@ -9,17 +9,6 @@ import (
 )
 
 var (
-	// ProcDescRootsColumns holds the columns for the "proc_desc_roots" table.
-	ProcDescRootsColumns = []*schema.Column{
-		{Name: "desc_id", Type: field.TypeString, Unique: true},
-		{Name: "desc_rn", Type: field.TypeInt64},
-	}
-	// ProcDescRootsTable holds the schema information for the "proc_desc_roots" table.
-	ProcDescRootsTable = &schema.Table{
-		Name:       "proc_desc_roots",
-		Columns:    ProcDescRootsColumns,
-		PrimaryKey: []*schema.Column{ProcDescRootsColumns[0]},
-	}
 	// ProcExecCommsColumns holds the columns for the "proc_exec_comms" table.
 	ProcExecCommsColumns = []*schema.Column{
 		{Name: "comm_id", Type: field.TypeString, Unique: true},
@@ -48,19 +37,30 @@ var (
 		Columns:    ProcExecEvalsColumns,
 		PrimaryKey: []*schema.Column{ProcExecEvalsColumns[0]},
 	}
-	// ProcDescTermsColumns holds the columns for the "proc_desc_terms" table.
-	ProcDescTermsColumns = []*schema.Column{
+	// ProcProgRootsColumns holds the columns for the "proc_prog_roots" table.
+	ProcProgRootsColumns = []*schema.Column{
+		{Name: "prog_id", Type: field.TypeString, Unique: true},
+		{Name: "prog_rn", Type: field.TypeInt64},
+	}
+	// ProcProgRootsTable holds the schema information for the "proc_prog_roots" table.
+	ProcProgRootsTable = &schema.Table{
+		Name:       "proc_prog_roots",
+		Columns:    ProcProgRootsColumns,
+		PrimaryKey: []*schema.Column{ProcProgRootsColumns[0]},
+	}
+	// ProcProgTermsColumns holds the columns for the "proc_prog_terms" table.
+	ProcProgTermsColumns = []*schema.Column{
 		{Name: "term_id", Type: field.TypeString},
-		{Name: "desc_id", Type: field.TypeString},
+		{Name: "prog_id", Type: field.TypeString},
 		{Name: "exp_ck", Type: field.TypeInt64, Nullable: true},
 		{Name: "liab_var", Type: field.TypeJSON},
 		{Name: "asset_vars", Type: field.TypeJSON},
 	}
-	// ProcDescTermsTable holds the schema information for the "proc_desc_terms" table.
-	ProcDescTermsTable = &schema.Table{
-		Name:       "proc_desc_terms",
-		Columns:    ProcDescTermsColumns,
-		PrimaryKey: []*schema.Column{ProcDescTermsColumns[0]},
+	// ProcProgTermsTable holds the schema information for the "proc_prog_terms" table.
+	ProcProgTermsTable = &schema.Table{
+		Name:       "proc_prog_terms",
+		Columns:    ProcProgTermsColumns,
+		PrimaryKey: []*schema.Column{ProcProgTermsColumns[0]},
 	}
 	// ProcTermExpsColumns holds the columns for the "proc_term_exps" table.
 	ProcTermExpsColumns = []*schema.Column{
@@ -78,7 +78,7 @@ var (
 	// ProcTypeDefsColumns holds the columns for the "proc_type_defs" table.
 	ProcTypeDefsColumns = []*schema.Column{
 		{Name: "type_id", Type: field.TypeString},
-		{Name: "desc_id", Type: field.TypeString},
+		{Name: "prog_id", Type: field.TypeString},
 		{Name: "exp_ck", Type: field.TypeInt64},
 	}
 	// ProcTypeDefsTable holds the schema information for the "proc_type_defs" table.
@@ -102,10 +102,10 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		ProcDescRootsTable,
 		ProcExecCommsTable,
 		ProcExecEvalsTable,
-		ProcDescTermsTable,
+		ProcProgRootsTable,
+		ProcProgTermsTable,
 		ProcTermExpsTable,
 		ProcTypeDefsTable,
 		ProcTypeExpsTable,
@@ -113,17 +113,17 @@ var (
 )
 
 func init() {
-	ProcDescRootsTable.Annotation = &entsql.Annotation{
-		Table: "proc_desc_roots",
-	}
 	ProcExecCommsTable.Annotation = &entsql.Annotation{
 		Table: "proc_exec_comms",
 	}
 	ProcExecEvalsTable.Annotation = &entsql.Annotation{
 		Table: "proc_exec_evals",
 	}
-	ProcDescTermsTable.Annotation = &entsql.Annotation{
-		Table: "proc_desc_terms",
+	ProcProgRootsTable.Annotation = &entsql.Annotation{
+		Table: "proc_prog_roots",
+	}
+	ProcProgTermsTable.Annotation = &entsql.Annotation{
+		Table: "proc_prog_terms",
 	}
 	ProcTermExpsTable.Annotation = &entsql.Annotation{
 		Table: "proc_term_exps",

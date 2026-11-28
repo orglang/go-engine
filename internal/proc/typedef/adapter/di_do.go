@@ -5,7 +5,7 @@ import (
 
 	"github.com/samber/do/v2"
 
-	"orglang/go-engine/internal/adt/descroot"
+	"orglang/go-engine/internal/adt/progroot"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/ent"
 	"orglang/go-engine/internal/proc/typedef/core"
@@ -40,7 +40,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		descRootRepo, err := do.InvokeNamed[descroot.Repo](i, "proc-descroot")
+		progRootRepo, err := do.InvokeNamed[progroot.Repo](i, "proc-progroot")
 		if err != nil {
 			return nil, err
 		}
@@ -56,7 +56,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return core.NewService(typeDefRepo, descRootRepo, typeExpRepo, transactor, logger), nil
+		return core.NewService(typeDefRepo, progRootRepo, typeExpRepo, transactor, logger), nil
 	}),
 	do.Lazy[GeneratedController](func(i do.Injector) (GeneratedController, error) {
 		api, err := do.Invoke[core.API](i)

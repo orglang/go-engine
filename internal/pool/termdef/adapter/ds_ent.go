@@ -38,7 +38,7 @@ func (dao *daoEnt) GetByTermID(ctx context.Context, conn tx.Conn, termID identit
 	}
 	const query = `
 SELECT def.term_id, COALESCE(def.exp_ck, 0) AS exp_ck
-FROM pool_desc_terms AS def
+FROM pool_prog_terms AS def
 WHERE def.term_id = $1
 `
 	rows, err := conn.Pgx.Query(ctx, query, termID.String())

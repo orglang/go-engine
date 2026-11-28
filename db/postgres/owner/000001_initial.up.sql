@@ -1,21 +1,21 @@
 CREATE EXTENSION IF NOT EXISTS ltree;
 
-CREATE TABLE pool_desc_roots (
-    desc_id varchar PRIMARY KEY,
-    desc_rn bigint NOT NULL
+CREATE TABLE pool_prog_roots (
+    prog_id varchar PRIMARY KEY,
+    prog_rn bigint NOT NULL
 );
 
-CREATE TABLE pool_desc_binds (
-    desc_qn ltree UNIQUE,
-    desc_id varchar,
+CREATE TABLE pool_prog_binds (
+    prog_qn ltree UNIQUE,
+    prog_id varchar,
     kind smallint
 );
 
-CREATE INDEX pool_desc_qn_gist_idx ON pool_desc_binds USING GIST (desc_qn);
+CREATE INDEX pool_prog_qn_gist_idx ON pool_prog_binds USING GIST (prog_qn);
 
 CREATE TABLE pool_type_defs (
     type_id varchar UNIQUE,
-    desc_id varchar NOT NULL,
+    prog_id varchar NOT NULL,
     exp_ck bigint
 );
 
@@ -26,9 +26,9 @@ CREATE TABLE pool_type_exps (
     spec jsonb
 );
 
-CREATE TABLE pool_desc_terms (
+CREATE TABLE pool_prog_terms (
     term_id varchar UNIQUE,
-    desc_id varchar NOT NULL,
+    prog_id varchar NOT NULL,
     exp_ck bigint,
     liab_var jsonb,
     asset_vars jsonb
@@ -91,22 +91,22 @@ CREATE TABLE pool_comm_acts (
     exp jsonb
 );
 
-CREATE TABLE proc_desc_roots (
-    desc_id varchar PRIMARY KEY,
-    desc_rn bigint NOT NULL
+CREATE TABLE proc_prog_roots (
+    prog_id varchar PRIMARY KEY,
+    prog_rn bigint NOT NULL
 );
 
-CREATE TABLE proc_desc_binds (
-    desc_qn ltree UNIQUE,
-    desc_id varchar,
+CREATE TABLE proc_prog_binds (
+    prog_qn ltree UNIQUE,
+    prog_id varchar,
     kind smallint
 );
 
-CREATE INDEX proc_desc_qn_gist_idx ON proc_desc_binds USING GIST (desc_qn);
+CREATE INDEX proc_prog_qn_gist_idx ON proc_prog_binds USING GIST (prog_qn);
 
 CREATE TABLE proc_type_defs (
     type_id varchar UNIQUE,
-    desc_id varchar NOT NULL,
+    prog_id varchar NOT NULL,
     exp_ck bigint
 );
 
@@ -117,9 +117,9 @@ CREATE TABLE proc_type_exps (
     spec jsonb
 );
 
-CREATE TABLE proc_desc_terms (
+CREATE TABLE proc_prog_terms (
     term_id varchar UNIQUE,
-    desc_id varchar NOT NULL,
+    prog_id varchar NOT NULL,
     exp_ck bigint,
     liab_var jsonb,
     asset_vars jsonb

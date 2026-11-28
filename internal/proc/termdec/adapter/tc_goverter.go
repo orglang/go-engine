@@ -14,16 +14,16 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/termvar/adapter:Data.*
 var (
-	// goverter:map . DescRef
+	// goverter:map . ProgRef
 	// goverter:ignore TermQN
 	DataToTermDecRec func(DecRec) (termdec.DecRec, error)
-	// goverter:autoMap DescRef
+	// goverter:autoMap ProgRef
 	DataFromTermDecRec  func(termdec.DecRec) (DecRec, error)
 	DataToTermDecRecs   func([]DecRec) ([]termdec.DecRec, error)
 	DataFromTermDecRecs func([]termdec.DecRec) ([]DecRec, error)
-	// goverter:map . DescRef
+	// goverter:map . ProgRef
 	DataToTermDecSnap func(DecSnap) (termdec.DecSnap, error)
-	// goverter:autoMap DescRef
+	// goverter:autoMap ProgRef
 	DataFromTermDecSnap  func(termdec.DecSnap) (DecSnap, error)
 	DataToTermDecSnaps   func([]DecSnap) ([]termdec.DecSnap, error)
 	DataFromTermDecSnaps func([]termdec.DecSnap) ([]DecSnap, error)
@@ -42,6 +42,6 @@ var (
 	// goverter:map TermQn TermQN
 	DecSpecFromGenerated func(webapi.ProcDecSpec) (termdec.DecSpec, error)
 	// goverter:map TermID TermId
-	// goverter:map DescRef.DescRN DescRn
+	// goverter:map ProgRef.ProgRN ProgRn
 	DecSnapToGenerated func(termdec.DecSnap) webapi.AnyTermRef
 )

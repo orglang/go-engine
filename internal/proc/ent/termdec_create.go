@@ -23,9 +23,9 @@ type TermDecCreate struct {
 	conflict []sql.ConflictOption
 }
 
-// SetDescID sets the "desc_id" field.
-func (_c *TermDecCreate) SetDescID(v string) *TermDecCreate {
-	_c.mutation.SetDescID(v)
+// SetProgID sets the "prog_id" field.
+func (_c *TermDecCreate) SetProgID(v string) *TermDecCreate {
+	_c.mutation.SetProgID(v)
 	return _c
 }
 
@@ -95,8 +95,8 @@ func (_c *TermDecCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *TermDecCreate) check() error {
-	if _, ok := _c.mutation.DescID(); !ok {
-		return &ValidationError{Name: "desc_id", err: errors.New(`ent: missing required field "TermDec.desc_id"`)}
+	if _, ok := _c.mutation.ProgID(); !ok {
+		return &ValidationError{Name: "prog_id", err: errors.New(`ent: missing required field "TermDec.prog_id"`)}
 	}
 	if _, ok := _c.mutation.LiabVar(); !ok {
 		return &ValidationError{Name: "liab_var", err: errors.New(`ent: missing required field "TermDec.liab_var"`)}
@@ -140,9 +140,9 @@ func (_c *TermDecCreate) createSpec() (*TermDec, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := _c.mutation.DescID(); ok {
-		_spec.SetField(termdec.FieldDescID, field.TypeString, value)
-		_node.DescID = value
+	if value, ok := _c.mutation.ProgID(); ok {
+		_spec.SetField(termdec.FieldProgID, field.TypeString, value)
+		_node.ProgID = value
 	}
 	if value, ok := _c.mutation.ExpCk(); ok {
 		_spec.SetField(termdec.FieldExpCk, field.TypeInt64, value)
@@ -163,7 +163,7 @@ func (_c *TermDecCreate) createSpec() (*TermDec, *sqlgraph.CreateSpec) {
 // of the `INSERT` statement. For example:
 //
 //	client.TermDec.Create().
-//		SetDescID(v).
+//		SetProgID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -172,7 +172,7 @@ func (_c *TermDecCreate) createSpec() (*TermDec, *sqlgraph.CreateSpec) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.TermDecUpsert) {
-//			SetDescID(v+v).
+//			SetProgID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *TermDecCreate) OnConflict(opts ...sql.ConflictOption) *TermDecUpsertOne {
@@ -208,15 +208,15 @@ type (
 	}
 )
 
-// SetDescID sets the "desc_id" field.
-func (u *TermDecUpsert) SetDescID(v string) *TermDecUpsert {
-	u.Set(termdec.FieldDescID, v)
+// SetProgID sets the "prog_id" field.
+func (u *TermDecUpsert) SetProgID(v string) *TermDecUpsert {
+	u.Set(termdec.FieldProgID, v)
 	return u
 }
 
-// UpdateDescID sets the "desc_id" field to the value that was provided on create.
-func (u *TermDecUpsert) UpdateDescID() *TermDecUpsert {
-	u.SetExcluded(termdec.FieldDescID)
+// UpdateProgID sets the "prog_id" field to the value that was provided on create.
+func (u *TermDecUpsert) UpdateProgID() *TermDecUpsert {
+	u.SetExcluded(termdec.FieldProgID)
 	return u
 }
 
@@ -316,17 +316,17 @@ func (u *TermDecUpsertOne) Update(set func(*TermDecUpsert)) *TermDecUpsertOne {
 	return u
 }
 
-// SetDescID sets the "desc_id" field.
-func (u *TermDecUpsertOne) SetDescID(v string) *TermDecUpsertOne {
+// SetProgID sets the "prog_id" field.
+func (u *TermDecUpsertOne) SetProgID(v string) *TermDecUpsertOne {
 	return u.Update(func(s *TermDecUpsert) {
-		s.SetDescID(v)
+		s.SetProgID(v)
 	})
 }
 
-// UpdateDescID sets the "desc_id" field to the value that was provided on create.
-func (u *TermDecUpsertOne) UpdateDescID() *TermDecUpsertOne {
+// UpdateProgID sets the "prog_id" field to the value that was provided on create.
+func (u *TermDecUpsertOne) UpdateProgID() *TermDecUpsertOne {
 	return u.Update(func(s *TermDecUpsert) {
-		s.UpdateDescID()
+		s.UpdateProgID()
 	})
 }
 
@@ -521,7 +521,7 @@ func (_c *TermDecCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.TermDecUpsert) {
-//			SetDescID(v+v).
+//			SetProgID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *TermDecCreateBulk) OnConflict(opts ...sql.ConflictOption) *TermDecUpsertBulk {
@@ -600,17 +600,17 @@ func (u *TermDecUpsertBulk) Update(set func(*TermDecUpsert)) *TermDecUpsertBulk 
 	return u
 }
 
-// SetDescID sets the "desc_id" field.
-func (u *TermDecUpsertBulk) SetDescID(v string) *TermDecUpsertBulk {
+// SetProgID sets the "prog_id" field.
+func (u *TermDecUpsertBulk) SetProgID(v string) *TermDecUpsertBulk {
 	return u.Update(func(s *TermDecUpsert) {
-		s.SetDescID(v)
+		s.SetProgID(v)
 	})
 }
 
-// UpdateDescID sets the "desc_id" field to the value that was provided on create.
-func (u *TermDecUpsertBulk) UpdateDescID() *TermDecUpsertBulk {
+// UpdateProgID sets the "prog_id" field to the value that was provided on create.
+func (u *TermDecUpsertBulk) UpdateProgID() *TermDecUpsertBulk {
 	return u.Update(func(s *TermDecUpsert) {
-		s.UpdateDescID()
+		s.UpdateProgID()
 	})
 }
 

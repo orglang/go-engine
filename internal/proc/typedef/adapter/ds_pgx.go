@@ -39,17 +39,17 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec)
 		dao.log.Error("model conversion failed", idAttr)
 		return err
 	}
-	_, err = dao.client.TypeDef.Create().SetID(dto.TypeID).SetDescID(dto.DescID).SetExpCk(dto.ExpCK).Save(entpgx.WithConn(ctx, conn.Pgx))
+	_, err = dao.client.TypeDef.Create().SetID(dto.TypeID).SetProgID(dto.ProgID).SetExpCk(dto.ExpCK).Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
 		dao.log.Error("query execution failed", idAttr)
 		return err
 	}
 	const bindQuery = `
-INSERT INTO proc_desc_binds (desc_qn, desc_id, kind)
+INSERT INTO proc_prog_binds (prog_qn, prog_id, kind)
 VALUES ($1, $2, 1)
 `
 	if _, err := conn.Pgx.Exec(ctx, bindQuery, uniqsym.ConvertToString(rec.TypeQN), rec.TypeID.String()); err != nil {
-		dao.log.Error("description binding insertion failed", idAttr, slog.Any("error", err))
+		dao.log.Error("program binding insertion failed", idAttr, slog.Any("error", err))
 		return err
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "addition succeed", idAttr)
@@ -206,17 +206,17 @@ func (dao *daoEnt) GetRecsByQNs(ctx context.Context, conn tx.Conn, qns []uniqsym
 
 const (
 	selectRecByQN = `
-SELECT db.desc_qn AS type_qn, td.type_id, td.desc_id, td.exp_ck, dr.desc_rn AS desc_rn
+SELECT db.prog_qn AS type_qn, td.type_id, td.prog_id, td.exp_ck, dr.prog_rn AS prog_rn
 FROM proc_type_defs AS td
-JOIN proc_desc_roots AS dr ON dr.desc_id = td.desc_id
-JOIN proc_desc_binds AS db ON db.desc_id = td.type_id
-WHERE db.desc_qn = $1
+JOIN proc_prog_roots AS dr ON dr.prog_id = td.prog_id
+JOIN proc_prog_binds AS db ON db.prog_id = td.type_id
+WHERE db.prog_qn = $1
 `
 	selectRecByID = `
-SELECT db.desc_qn AS type_qn, td.type_id, td.desc_id, td.exp_ck, dr.desc_rn AS desc_rn
+SELECT db.prog_qn AS type_qn, td.type_id, td.prog_id, td.exp_ck, dr.prog_rn AS prog_rn
 FROM proc_type_defs AS td
-JOIN proc_desc_roots AS dr ON dr.desc_id = td.desc_id
-JOIN proc_desc_binds AS db ON db.desc_id = td.type_id
+JOIN proc_prog_roots AS dr ON dr.prog_id = td.prog_id
+JOIN proc_prog_binds AS db ON db.prog_id = td.type_id
 WHERE td.type_id = $1
 `
 	selectIDs = `

@@ -4,7 +4,7 @@ import "../../any/term.tsp";
 namespace OrgLang.Pool;
 
 model DecSpec {
-  desc_qn: string;
+  prog_qn: string;
   liab_var: Any.Comm.VarSpec;
   asset_vars: Any.Comm.VarSpec[];
 }

@@ -262,12 +262,12 @@ func (_q *TermDecQuery) Clone() *TermDecQuery {
 // Example:
 //
 //	var v []struct {
-//		DescID string `json:"desc_id,omitempty"`
+//		ProgID string `json:"prog_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.TermDec.Query().
-//		GroupBy(termdec.FieldDescID).
+//		GroupBy(termdec.FieldProgID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *TermDecQuery) GroupBy(field string, fields ...string) *TermDecGroupBy {
@@ -285,11 +285,11 @@ func (_q *TermDecQuery) GroupBy(field string, fields ...string) *TermDecGroupBy 
 // Example:
 //
 //	var v []struct {
-//		DescID string `json:"desc_id,omitempty"`
+//		ProgID string `json:"prog_id,omitempty"`
 //	}
 //
 //	client.TermDec.Query().
-//		Select(termdec.FieldDescID).
+//		Select(termdec.FieldProgID).
 //		Scan(ctx, &v)
 func (_q *TermDecQuery) Select(fields ...string) *TermDecSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

@@ -41,7 +41,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec)
 
 	_, err = dao.client.TypeDef.Create().
 		SetID(dto.TypeID).
-		SetDescID(dto.DescID).
+		SetProgID(dto.ProgID).
 		SetExpCk(dto.ExpCK).
 		Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
@@ -50,11 +50,11 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec)
 	}
 
 	const bindQuery = `
-INSERT INTO pool_desc_binds (desc_qn, desc_id, kind)
+INSERT INTO pool_prog_binds (prog_qn, prog_id, kind)
 VALUES ($1, $2, 1)
 `
 	if _, err := conn.Pgx.Exec(ctx, bindQuery, uniqsym.ConvertToString(rec.TypeQN), rec.TypeID.String()); err != nil {
-		dao.log.Error("description binding insertion failed", refAttr, slog.Any("error", err))
+		dao.log.Error("program binding insertion failed", refAttr, slog.Any("error", err))
 		return err
 	}
 
@@ -67,13 +67,13 @@ func (dao *daoEnt) GetRecsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 		return map[uniqsym.ADT]typedef.DefRec{}, nil
 	}
 	const query = `
-SELECT db.desc_qn AS type_qn, td.type_id, td.desc_id, dr.desc_rn AS desc_rn, td.exp_ck
+SELECT db.prog_qn AS type_qn, td.type_id, td.prog_id, dr.prog_rn AS prog_rn, td.exp_ck
 FROM pool_type_defs AS td
-JOIN pool_desc_roots AS dr
-    ON dr.desc_id = td.desc_id
-JOIN pool_desc_binds AS db
-    ON db.desc_id = td.type_id
-WHERE db.desc_qn = $1
+JOIN pool_prog_roots AS dr
+    ON dr.prog_id = td.prog_id
+JOIN pool_prog_binds AS db
+    ON db.prog_id = td.type_id
+WHERE db.prog_qn = $1
 `
 	batch := pgx.Batch{}
 	for _, qn := range typeQNs {

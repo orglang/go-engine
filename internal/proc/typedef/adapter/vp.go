@@ -13,8 +13,8 @@ type DefSpecVP struct {
 
 type TypeRefVP struct {
 	TypeID identity.ADT `json:"TypeID"`
-	DescID identity.ADT `json:"DescID"`
-	DescRN seqnum.ADT   `json:"DescRN"`
+	ProgID identity.ADT `json:"ProgID"`
+	ProgRN seqnum.ADT   `json:"ProgRN"`
 }
 
 type DefSnapVP struct {
@@ -25,8 +25,8 @@ type DefSnapVP struct {
 func ViewFromDefSnap(snap typedef.DefSnap) DefSnapVP {
 	var view DefSnapVP
 	view.TypeRef.TypeID = snap.TypeID
-	view.TypeRef.DescID = snap.DescRef.DescID
-	view.TypeRef.DescRN = snap.DescRef.DescRN
+	view.TypeRef.ProgID = snap.ProgRef.ProgID
+	view.TypeRef.ProgRN = snap.ProgRef.ProgRN
 	view.DefSpec.TypeQN = uniqsym.ConvertToString(snap.DefSpec.TypeQN)
 	return view
 }

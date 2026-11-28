@@ -4,31 +4,31 @@ package ent
 
 import (
 	"fmt"
-	"orglang/go-engine/internal/proc/ent/descroot"
+	"orglang/go-engine/internal/pool/ent/progroot"
 	"strings"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 )
 
-// DescRoot is the model entity for the DescRoot schema.
-type DescRoot struct {
+// ProgRoot is the model entity for the ProgRoot schema.
+type ProgRoot struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
-	// DescRn holds the value of the "desc_rn" field.
-	DescRn       int64 `json:"desc_rn,omitempty"`
+	// ProgRn holds the value of the "prog_rn" field.
+	ProgRn       int64 `json:"prog_rn,omitempty"`
 	selectValues sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*DescRoot) scanValues(columns []string) ([]any, error) {
+func (*ProgRoot) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case descroot.FieldDescRn:
+		case progroot.FieldProgRn:
 			values[i] = new(sql.NullInt64)
-		case descroot.FieldID:
+		case progroot.FieldID:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -38,24 +38,24 @@ func (*DescRoot) scanValues(columns []string) ([]any, error) {
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the DescRoot fields.
-func (_m *DescRoot) assignValues(columns []string, values []any) error {
+// to the ProgRoot fields.
+func (_m *ProgRoot) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case descroot.FieldID:
+		case progroot.FieldID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
 			}
-		case descroot.FieldDescRn:
+		case progroot.FieldProgRn:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field desc_rn", values[i])
+				return fmt.Errorf("unexpected type %T for field prog_rn", values[i])
 			} else if value.Valid {
-				_m.DescRn = value.Int64
+				_m.ProgRn = value.Int64
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -64,40 +64,40 @@ func (_m *DescRoot) assignValues(columns []string, values []any) error {
 	return nil
 }
 
-// Value returns the ent.Value that was dynamically selected and assigned to the DescRoot.
+// Value returns the ent.Value that was dynamically selected and assigned to the ProgRoot.
 // This includes values selected through modifiers, order, etc.
-func (_m *DescRoot) Value(name string) (ent.Value, error) {
+func (_m *ProgRoot) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// Update returns a builder for updating this DescRoot.
-// Note that you need to call DescRoot.Unwrap() before calling this method if this DescRoot
+// Update returns a builder for updating this ProgRoot.
+// Note that you need to call ProgRoot.Unwrap() before calling this method if this ProgRoot
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (_m *DescRoot) Update() *DescRootUpdateOne {
-	return NewDescRootClient(_m.config).UpdateOne(_m)
+func (_m *ProgRoot) Update() *ProgRootUpdateOne {
+	return NewProgRootClient(_m.config).UpdateOne(_m)
 }
 
-// Unwrap unwraps the DescRoot entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the ProgRoot entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (_m *DescRoot) Unwrap() *DescRoot {
+func (_m *ProgRoot) Unwrap() *ProgRoot {
 	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: DescRoot is not a transactional entity")
+		panic("ent: ProgRoot is not a transactional entity")
 	}
 	_m.config.driver = _tx.drv
 	return _m
 }
 
 // String implements the fmt.Stringer.
-func (_m *DescRoot) String() string {
+func (_m *ProgRoot) String() string {
 	var builder strings.Builder
-	builder.WriteString("DescRoot(")
+	builder.WriteString("ProgRoot(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
-	builder.WriteString("desc_rn=")
-	builder.WriteString(fmt.Sprintf("%v", _m.DescRn))
+	builder.WriteString("prog_rn=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ProgRn))
 	builder.WriteByte(')')
 	return builder.String()
 }
 
-// DescRoots is a parsable slice of DescRoot.
-type DescRoots []*DescRoot
+// ProgRoots is a parsable slice of ProgRoot.
+type ProgRoots []*ProgRoot

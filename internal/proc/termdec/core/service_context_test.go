@@ -7,8 +7,8 @@ import (
 	"log/slog"
 	"testing"
 
-	"orglang/go-engine/internal/adt/descroot"
 	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/progroot"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/tx"
 )
@@ -17,7 +17,7 @@ func TestServiceInceptPropagatesCallerCancellationToRepository(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	repo := &contextRepo{entered: make(chan struct{})}
-	api := NewService(repo, contextDescRootRepo{}, nil, contextTransactor{}, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	api := NewService(repo, contextProgRootRepo{}, nil, contextTransactor{}, slog.New(slog.NewTextHandler(io.Discard, nil)))
 	result := make(chan error, 1)
 	go func() { _, _, err := api.Incept(ctx, uniqsym.ADT{}); result <- err }()
 	<-repo.entered
@@ -55,10 +55,10 @@ func (*contextRepo) SelectEnv(context.Context, tx.Conn, []identity.ADT) (map[ide
 	return nil, nil
 }
 
-type contextDescRootRepo struct{}
+type contextProgRootRepo struct{}
 
-func (contextDescRootRepo) AddRef(context.Context, tx.Conn, descroot.RootRef) error   { return nil }
-func (contextDescRootRepo) TouchRef(context.Context, tx.Conn, descroot.RootRef) error { return nil }
+func (contextProgRootRepo) AddRef(context.Context, tx.Conn, progroot.RootRef) error   { return nil }
+func (contextProgRootRepo) TouchRef(context.Context, tx.Conn, progroot.RootRef) error { return nil }
 
 type contextTransactor struct{}
 
@@ -70,5 +70,5 @@ func (contextTransactor) ImplicitTx(ctx context.Context, fn func(context.Context
 }
 
 var _ Repo = (*contextRepo)(nil)
-var _ descroot.Repo = contextDescRootRepo{}
+var _ progroot.Repo = contextProgRootRepo{}
 var _ tx.Transactor = contextTransactor{}

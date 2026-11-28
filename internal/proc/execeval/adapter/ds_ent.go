@@ -171,12 +171,12 @@ WITH bnds AS NOT MATERIALIZED (
 )
 SELECT
     bnd.*,
-    prvd.desc_id
+    prvd.prog_id
 FROM bnds bnd
 LEFT JOIN liabs liab
     ON liab.proc_id = bnd.proc_id
 LEFT JOIN pool_exec_evals prvd
-    ON prvd.desc_id = liab.desc_id
+    ON prvd.prog_id = liab.prog_id
 `
 )
 

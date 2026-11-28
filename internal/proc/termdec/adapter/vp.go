@@ -12,8 +12,8 @@ type DecSpecVP struct {
 
 type TermRefVP struct {
 	TermID identity.ADT `json:"TermID"`
-	DescID identity.ADT `json:"DescID"`
-	DescRN seqnum.ADT   `json:"DescRN"`
+	ProgID identity.ADT `json:"ProgID"`
+	ProgRN seqnum.ADT   `json:"ProgRN"`
 }
 
 type DecSnapVP struct {
@@ -23,7 +23,7 @@ type DecSnapVP struct {
 func ViewFromDecSnap(snap termdec.DecSnap) DecSnapVP {
 	var view DecSnapVP
 	view.TermRef.TermID = snap.TermID
-	view.TermRef.DescID = snap.DescRef.DescID
-	view.TermRef.DescRN = snap.DescRef.DescRN
+	view.TermRef.ProgID = snap.ProgRef.ProgID
+	view.TermRef.ProgRN = snap.ProgRef.ProgRN
 	return view
 }

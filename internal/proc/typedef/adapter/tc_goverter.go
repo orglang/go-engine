@@ -11,10 +11,10 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/contkey:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/uniqsym:Convert.*
 var (
-	// goverter:map . DescRef
+	// goverter:map . ProgRef
 	DataToDefRec  func(DefRec) (typedef.DefRec, error)
 	DataToDefRecs func([]DefRec) ([]typedef.DefRec, error)
-	// goverter:autoMap DescRef
+	// goverter:autoMap ProgRef
 	DataFromDefRec  func(typedef.DefRec) (DefRec, error)
 	DataFromDefRecs func([]typedef.DefRec) ([]DefRec, error)
 )

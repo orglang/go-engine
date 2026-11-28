@@ -6,8 +6,8 @@ import (
 	"context"
 	"fmt"
 	"math"
-	"orglang/go-engine/internal/proc/ent/descroot"
-	"orglang/go-engine/internal/proc/ent/predicate"
+	"orglang/go-engine/internal/pool/ent/predicate"
+	"orglang/go-engine/internal/pool/ent/progroot"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -15,64 +15,64 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// DescRootQuery is the builder for querying DescRoot entities.
-type DescRootQuery struct {
+// ProgRootQuery is the builder for querying ProgRoot entities.
+type ProgRootQuery struct {
 	config
 	ctx        *QueryContext
-	order      []descroot.OrderOption
+	order      []progroot.OrderOption
 	inters     []Interceptor
-	predicates []predicate.DescRoot
+	predicates []predicate.ProgRoot
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
-// Where adds a new predicate for the DescRootQuery builder.
-func (_q *DescRootQuery) Where(ps ...predicate.DescRoot) *DescRootQuery {
+// Where adds a new predicate for the ProgRootQuery builder.
+func (_q *ProgRootQuery) Where(ps ...predicate.ProgRoot) *ProgRootQuery {
 	_q.predicates = append(_q.predicates, ps...)
 	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (_q *DescRootQuery) Limit(limit int) *DescRootQuery {
+func (_q *ProgRootQuery) Limit(limit int) *ProgRootQuery {
 	_q.ctx.Limit = &limit
 	return _q
 }
 
 // Offset to start from.
-func (_q *DescRootQuery) Offset(offset int) *DescRootQuery {
+func (_q *ProgRootQuery) Offset(offset int) *ProgRootQuery {
 	_q.ctx.Offset = &offset
 	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (_q *DescRootQuery) Unique(unique bool) *DescRootQuery {
+func (_q *ProgRootQuery) Unique(unique bool) *ProgRootQuery {
 	_q.ctx.Unique = &unique
 	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (_q *DescRootQuery) Order(o ...descroot.OrderOption) *DescRootQuery {
+func (_q *ProgRootQuery) Order(o ...progroot.OrderOption) *ProgRootQuery {
 	_q.order = append(_q.order, o...)
 	return _q
 }
 
-// First returns the first DescRoot entity from the query.
-// Returns a *NotFoundError when no DescRoot was found.
-func (_q *DescRootQuery) First(ctx context.Context) (*DescRoot, error) {
+// First returns the first ProgRoot entity from the query.
+// Returns a *NotFoundError when no ProgRoot was found.
+func (_q *ProgRootQuery) First(ctx context.Context) (*ProgRoot, error) {
 	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
-		return nil, &NotFoundError{descroot.Label}
+		return nil, &NotFoundError{progroot.Label}
 	}
 	return nodes[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (_q *DescRootQuery) FirstX(ctx context.Context) *DescRoot {
+func (_q *ProgRootQuery) FirstX(ctx context.Context) *ProgRoot {
 	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -80,22 +80,22 @@ func (_q *DescRootQuery) FirstX(ctx context.Context) *DescRoot {
 	return node
 }
 
-// FirstID returns the first DescRoot ID from the query.
-// Returns a *NotFoundError when no DescRoot ID was found.
-func (_q *DescRootQuery) FirstID(ctx context.Context) (id string, err error) {
+// FirstID returns the first ProgRoot ID from the query.
+// Returns a *NotFoundError when no ProgRoot ID was found.
+func (_q *ProgRootQuery) FirstID(ctx context.Context) (id string, err error) {
 	var ids []string
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
-		err = &NotFoundError{descroot.Label}
+		err = &NotFoundError{progroot.Label}
 		return
 	}
 	return ids[0], nil
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *DescRootQuery) FirstIDX(ctx context.Context) string {
+func (_q *ProgRootQuery) FirstIDX(ctx context.Context) string {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -103,10 +103,10 @@ func (_q *DescRootQuery) FirstIDX(ctx context.Context) string {
 	return id
 }
 
-// Only returns a single DescRoot entity found by the query, ensuring it only returns one.
-// Returns a *NotSingularError when more than one DescRoot entity is found.
-// Returns a *NotFoundError when no DescRoot entities are found.
-func (_q *DescRootQuery) Only(ctx context.Context) (*DescRoot, error) {
+// Only returns a single ProgRoot entity found by the query, ensuring it only returns one.
+// Returns a *NotSingularError when more than one ProgRoot entity is found.
+// Returns a *NotFoundError when no ProgRoot entities are found.
+func (_q *ProgRootQuery) Only(ctx context.Context) (*ProgRoot, error) {
 	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
@@ -115,14 +115,14 @@ func (_q *DescRootQuery) Only(ctx context.Context) (*DescRoot, error) {
 	case 1:
 		return nodes[0], nil
 	case 0:
-		return nil, &NotFoundError{descroot.Label}
+		return nil, &NotFoundError{progroot.Label}
 	default:
-		return nil, &NotSingularError{descroot.Label}
+		return nil, &NotSingularError{progroot.Label}
 	}
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (_q *DescRootQuery) OnlyX(ctx context.Context) *DescRoot {
+func (_q *ProgRootQuery) OnlyX(ctx context.Context) *ProgRoot {
 	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
@@ -130,10 +130,10 @@ func (_q *DescRootQuery) OnlyX(ctx context.Context) *DescRoot {
 	return node
 }
 
-// OnlyID is like Only, but returns the only DescRoot ID in the query.
-// Returns a *NotSingularError when more than one DescRoot ID is found.
+// OnlyID is like Only, but returns the only ProgRoot ID in the query.
+// Returns a *NotSingularError when more than one ProgRoot ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *DescRootQuery) OnlyID(ctx context.Context) (id string, err error) {
+func (_q *ProgRootQuery) OnlyID(ctx context.Context) (id string, err error) {
 	var ids []string
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
@@ -142,15 +142,15 @@ func (_q *DescRootQuery) OnlyID(ctx context.Context) (id string, err error) {
 	case 1:
 		id = ids[0]
 	case 0:
-		err = &NotFoundError{descroot.Label}
+		err = &NotFoundError{progroot.Label}
 	default:
-		err = &NotSingularError{descroot.Label}
+		err = &NotSingularError{progroot.Label}
 	}
 	return
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *DescRootQuery) OnlyIDX(ctx context.Context) string {
+func (_q *ProgRootQuery) OnlyIDX(ctx context.Context) string {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -158,18 +158,18 @@ func (_q *DescRootQuery) OnlyIDX(ctx context.Context) string {
 	return id
 }
 
-// All executes the query and returns a list of DescRoots.
-func (_q *DescRootQuery) All(ctx context.Context) ([]*DescRoot, error) {
+// All executes the query and returns a list of ProgRoots.
+func (_q *ProgRootQuery) All(ctx context.Context) ([]*ProgRoot, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	qr := querierAll[[]*DescRoot, *DescRootQuery]()
-	return withInterceptors[[]*DescRoot](ctx, _q, qr, _q.inters)
+	qr := querierAll[[]*ProgRoot, *ProgRootQuery]()
+	return withInterceptors[[]*ProgRoot](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (_q *DescRootQuery) AllX(ctx context.Context) []*DescRoot {
+func (_q *ProgRootQuery) AllX(ctx context.Context) []*ProgRoot {
 	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
@@ -177,20 +177,20 @@ func (_q *DescRootQuery) AllX(ctx context.Context) []*DescRoot {
 	return nodes
 }
 
-// IDs executes the query and returns a list of DescRoot IDs.
-func (_q *DescRootQuery) IDs(ctx context.Context) (ids []string, err error) {
+// IDs executes the query and returns a list of ProgRoot IDs.
+func (_q *ProgRootQuery) IDs(ctx context.Context) (ids []string, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
-	if err = _q.Select(descroot.FieldID).Scan(ctx, &ids); err != nil {
+	if err = _q.Select(progroot.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *DescRootQuery) IDsX(ctx context.Context) []string {
+func (_q *ProgRootQuery) IDsX(ctx context.Context) []string {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -199,16 +199,16 @@ func (_q *DescRootQuery) IDsX(ctx context.Context) []string {
 }
 
 // Count returns the count of the given query.
-func (_q *DescRootQuery) Count(ctx context.Context) (int, error) {
+func (_q *ProgRootQuery) Count(ctx context.Context) (int, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, _q, querierCount[*DescRootQuery](), _q.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*ProgRootQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (_q *DescRootQuery) CountX(ctx context.Context) int {
+func (_q *ProgRootQuery) CountX(ctx context.Context) int {
 	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
@@ -217,7 +217,7 @@ func (_q *DescRootQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (_q *DescRootQuery) Exist(ctx context.Context) (bool, error) {
+func (_q *ProgRootQuery) Exist(ctx context.Context) (bool, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
 	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
@@ -230,7 +230,7 @@ func (_q *DescRootQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (_q *DescRootQuery) ExistX(ctx context.Context) bool {
+func (_q *ProgRootQuery) ExistX(ctx context.Context) bool {
 	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
@@ -238,18 +238,18 @@ func (_q *DescRootQuery) ExistX(ctx context.Context) bool {
 	return exist
 }
 
-// Clone returns a duplicate of the DescRootQuery builder, including all associated steps. It can be
+// Clone returns a duplicate of the ProgRootQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (_q *DescRootQuery) Clone() *DescRootQuery {
+func (_q *ProgRootQuery) Clone() *ProgRootQuery {
 	if _q == nil {
 		return nil
 	}
-	return &DescRootQuery{
+	return &ProgRootQuery{
 		config:     _q.config,
 		ctx:        _q.ctx.Clone(),
-		order:      append([]descroot.OrderOption{}, _q.order...),
+		order:      append([]progroot.OrderOption{}, _q.order...),
 		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.DescRoot{}, _q.predicates...),
+		predicates: append([]predicate.ProgRoot{}, _q.predicates...),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -262,19 +262,19 @@ func (_q *DescRootQuery) Clone() *DescRootQuery {
 // Example:
 //
 //	var v []struct {
-//		DescRn int64 `json:"desc_rn,omitempty"`
+//		ProgRn int64 `json:"prog_rn,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
-//	client.DescRoot.Query().
-//		GroupBy(descroot.FieldDescRn).
+//	client.ProgRoot.Query().
+//		GroupBy(progroot.FieldProgRn).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (_q *DescRootQuery) GroupBy(field string, fields ...string) *DescRootGroupBy {
+func (_q *ProgRootQuery) GroupBy(field string, fields ...string) *ProgRootGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &DescRootGroupBy{build: _q}
+	grbuild := &ProgRootGroupBy{build: _q}
 	grbuild.flds = &_q.ctx.Fields
-	grbuild.label = descroot.Label
+	grbuild.label = progroot.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
 }
@@ -285,26 +285,26 @@ func (_q *DescRootQuery) GroupBy(field string, fields ...string) *DescRootGroupB
 // Example:
 //
 //	var v []struct {
-//		DescRn int64 `json:"desc_rn,omitempty"`
+//		ProgRn int64 `json:"prog_rn,omitempty"`
 //	}
 //
-//	client.DescRoot.Query().
-//		Select(descroot.FieldDescRn).
+//	client.ProgRoot.Query().
+//		Select(progroot.FieldProgRn).
 //		Scan(ctx, &v)
-func (_q *DescRootQuery) Select(fields ...string) *DescRootSelect {
+func (_q *ProgRootQuery) Select(fields ...string) *ProgRootSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
-	sbuild := &DescRootSelect{DescRootQuery: _q}
-	sbuild.label = descroot.Label
+	sbuild := &ProgRootSelect{ProgRootQuery: _q}
+	sbuild.label = progroot.Label
 	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
-// Aggregate returns a DescRootSelect configured with the given aggregations.
-func (_q *DescRootQuery) Aggregate(fns ...AggregateFunc) *DescRootSelect {
+// Aggregate returns a ProgRootSelect configured with the given aggregations.
+func (_q *ProgRootQuery) Aggregate(fns ...AggregateFunc) *ProgRootSelect {
 	return _q.Select().Aggregate(fns...)
 }
 
-func (_q *DescRootQuery) prepareQuery(ctx context.Context) error {
+func (_q *ProgRootQuery) prepareQuery(ctx context.Context) error {
 	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
@@ -316,7 +316,7 @@ func (_q *DescRootQuery) prepareQuery(ctx context.Context) error {
 		}
 	}
 	for _, f := range _q.ctx.Fields {
-		if !descroot.ValidColumn(f) {
+		if !progroot.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
@@ -330,16 +330,16 @@ func (_q *DescRootQuery) prepareQuery(ctx context.Context) error {
 	return nil
 }
 
-func (_q *DescRootQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*DescRoot, error) {
+func (_q *ProgRootQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*ProgRoot, error) {
 	var (
-		nodes = []*DescRoot{}
+		nodes = []*ProgRoot{}
 		_spec = _q.querySpec()
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
-		return (*DescRoot).scanValues(nil, columns)
+		return (*ProgRoot).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &DescRoot{config: _q.config}
+		node := &ProgRoot{config: _q.config}
 		nodes = append(nodes, node)
 		return node.assignValues(columns, values)
 	}
@@ -355,7 +355,7 @@ func (_q *DescRootQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Des
 	return nodes, nil
 }
 
-func (_q *DescRootQuery) sqlCount(ctx context.Context) (int, error) {
+func (_q *ProgRootQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
@@ -364,8 +364,8 @@ func (_q *DescRootQuery) sqlCount(ctx context.Context) (int, error) {
 	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (_q *DescRootQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(descroot.Table, descroot.Columns, sqlgraph.NewFieldSpec(descroot.FieldID, field.TypeString))
+func (_q *ProgRootQuery) querySpec() *sqlgraph.QuerySpec {
+	_spec := sqlgraph.NewQuerySpec(progroot.Table, progroot.Columns, sqlgraph.NewFieldSpec(progroot.FieldID, field.TypeString))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -374,9 +374,9 @@ func (_q *DescRootQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, descroot.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, progroot.FieldID)
 		for i := range fields {
-			if fields[i] != descroot.FieldID {
+			if fields[i] != progroot.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
@@ -404,12 +404,12 @@ func (_q *DescRootQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (_q *DescRootQuery) sqlQuery(ctx context.Context) *sql.Selector {
+func (_q *ProgRootQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(_q.driver.Dialect())
-	t1 := builder.Table(descroot.Table)
+	t1 := builder.Table(progroot.Table)
 	columns := _q.ctx.Fields
 	if len(columns) == 0 {
-		columns = descroot.Columns
+		columns = progroot.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if _q.sql != nil {
@@ -436,28 +436,28 @@ func (_q *DescRootQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	return selector
 }
 
-// DescRootGroupBy is the group-by builder for DescRoot entities.
-type DescRootGroupBy struct {
+// ProgRootGroupBy is the group-by builder for ProgRoot entities.
+type ProgRootGroupBy struct {
 	selector
-	build *DescRootQuery
+	build *ProgRootQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (_g *DescRootGroupBy) Aggregate(fns ...AggregateFunc) *DescRootGroupBy {
+func (_g *ProgRootGroupBy) Aggregate(fns ...AggregateFunc) *ProgRootGroupBy {
 	_g.fns = append(_g.fns, fns...)
 	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_g *DescRootGroupBy) Scan(ctx context.Context, v any) error {
+func (_g *ProgRootGroupBy) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
 	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*DescRootQuery, *DescRootGroupBy](ctx, _g.build, _g, _g.build.inters, v)
+	return scanWithInterceptors[*ProgRootQuery, *ProgRootGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (_g *DescRootGroupBy) sqlScan(ctx context.Context, root *DescRootQuery, v any) error {
+func (_g *ProgRootGroupBy) sqlScan(ctx context.Context, root *ProgRootQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
 	aggregation := make([]string, 0, len(_g.fns))
 	for _, fn := range _g.fns {
@@ -484,28 +484,28 @@ func (_g *DescRootGroupBy) sqlScan(ctx context.Context, root *DescRootQuery, v a
 	return sql.ScanSlice(rows, v)
 }
 
-// DescRootSelect is the builder for selecting fields of DescRoot entities.
-type DescRootSelect struct {
-	*DescRootQuery
+// ProgRootSelect is the builder for selecting fields of ProgRoot entities.
+type ProgRootSelect struct {
+	*ProgRootQuery
 	selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (_s *DescRootSelect) Aggregate(fns ...AggregateFunc) *DescRootSelect {
+func (_s *ProgRootSelect) Aggregate(fns ...AggregateFunc) *ProgRootSelect {
 	_s.fns = append(_s.fns, fns...)
 	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_s *DescRootSelect) Scan(ctx context.Context, v any) error {
+func (_s *ProgRootSelect) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
 	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*DescRootQuery, *DescRootSelect](ctx, _s.DescRootQuery, _s, _s.inters, v)
+	return scanWithInterceptors[*ProgRootQuery, *ProgRootSelect](ctx, _s.ProgRootQuery, _s, _s.inters, v)
 }
 
-func (_s *DescRootSelect) sqlScan(ctx context.Context, root *DescRootQuery, v any) error {
+func (_s *ProgRootSelect) sqlScan(ctx context.Context, root *ProgRootQuery, v any) error {
 	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(_s.fns))
 	for _, fn := range _s.fns {

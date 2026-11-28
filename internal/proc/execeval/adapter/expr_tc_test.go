@@ -33,7 +33,7 @@ func TestExprRecRoundTripPreservesCommunicationIDs(t *testing.T) {
 			CommChnlPH: commChnl,
 			ContChnlID: contID,
 			NewChnlPH:  newChnl,
-			ContExp:    commact.CloseSpec{ContChnlPH: contChnl},
+			ContExpr:    commact.CloseSpec{ContChnlPH: contChnl},
 		},
 		commact.LabRec{
 			CommChnlPH: commChnl,

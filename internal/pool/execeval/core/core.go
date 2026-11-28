@@ -368,9 +368,9 @@ func (s *service) takeStep(
 				CommID:  commSnap.CommID,
 				RootRef: evalSnap.RootRef,
 				ChnlID:  commChnl.ChnlID,
-				ContExp: AcceptRec{
+				ContExpr: AcceptRec{
 					ContChnlPH: commChnl.ChnlPH,
-					ContExp:    termExpr.ContExp,
+					ContExpr:    termExpr.ContExpr,
 				},
 			})
 			s.log.Debug("taking half done", execAttr, commAttr)
@@ -390,14 +390,14 @@ func (s *service) takeStep(
 			ChnlBS:  commChnl.ChnlBS,
 			ExprCK:   nextExprCK,
 		})
-		if termExpr.ContExp != nil {
+		if termExpr.ContExpr != nil {
 			// шедулим продолжение доступодателя
 			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 				RootRef:  evalSnap.RootRef,
-				PoolExpr: termExpr.ContExp,
+				PoolExpr: termExpr.ContExpr,
 			})
 		}
-		switch exprRec := acquisition.ContExp.(type) {
+		switch exprRec := acquisition.ContExpr.(type) {
 		case AcquireRec:
 			// сдвигаем офсет коммуникации
 			// вяжем продолжение доступополучателя
@@ -409,15 +409,15 @@ func (s *service) takeStep(
 				ChnlBS:  commChnl.ChnlBS,
 				ExprCK:   nextExprCK,
 			})
-			if exprRec.ContExp != nil {
+			if exprRec.ContExpr != nil {
 				// шедулим продолжение доступополучателя
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					RootRef:  acquisition.RootRef,
-					PoolExpr: exprRec.ContExp,
+					PoolExpr: exprRec.ContExpr,
 				})
 			}
 		default:
-			panic(ErrRecTypeUnexpected(acquisition.ContExp))
+			panic(ErrRecTypeUnexpected(acquisition.ContExpr))
 		}
 		s.log.Debug("step taking succeed", execAttr, commAttr)
 		return evalMod, evalEff, commMod, nil
@@ -461,9 +461,9 @@ func (s *service) takeStep(
 				CommID:  commSnap.CommID,
 				RootRef: evalSnap.RootRef,
 				ChnlID:  commChnl.ChnlID,
-				ContExp: AcquireRec{
+				ContExpr: AcquireRec{
 					ContChnlPH: commChnl.ChnlPH,
-					ContExp:    termExpr.ContExp,
+					ContExpr:    termExpr.ContExpr,
 				},
 			})
 			s.log.Debug("taking half done", execAttr, commAttr)
@@ -483,14 +483,14 @@ func (s *service) takeStep(
 			ChnlBS:  commChnl.ChnlBS,
 			ExprCK:   nextExprCK,
 		})
-		if termExpr.ContExp != nil {
+		if termExpr.ContExpr != nil {
 			// шедулим продолжение доступополучателя
 			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 				RootRef:  evalSnap.RootRef,
-				PoolExpr: termExpr.ContExp,
+				PoolExpr: termExpr.ContExpr,
 			})
 		}
-		switch exprRec := acception.ContExp.(type) {
+		switch exprRec := acception.ContExpr.(type) {
 		case AcceptRec:
 			// сдвигаем офсет коммуникации
 			// вяжем продолжение доступодателя
@@ -502,15 +502,15 @@ func (s *service) takeStep(
 				ChnlBS:  commChnl.ChnlBS,
 				ExprCK:   nextExprCK,
 			})
-			if exprRec.ContExp != nil {
+			if exprRec.ContExpr != nil {
 				// шедулим продолжение доступодателя
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					RootRef:  acception.RootRef,
-					PoolExpr: exprRec.ContExp,
+					PoolExpr: exprRec.ContExpr,
 				})
 			}
 		default:
-			panic(ErrRecTypeUnexpected(acception.ContExp))
+			panic(ErrRecTypeUnexpected(acception.ContExpr))
 		}
 		s.log.Debug("step taking succeed", execAttr, commAttr)
 		return evalMod, evalEff, commMod, nil
@@ -554,10 +554,10 @@ func (s *service) takeStep(
 				CommID:  commSnap.CommID,
 				RootRef: evalSnap.RootRef,
 				ChnlID:  commChnl.ChnlID,
-				ContExp: ApplyRec{
+				ContExpr: ApplyRec{
 					ContChnlPH: commChnl.ChnlPH,
 					ProcTermQN: termExpr.ProcTermQN,
-					ContExp:    termExpr.ContExp,
+					ContExpr:    termExpr.ContExpr,
 				},
 			})
 			s.log.Debug("taking half done", execAttr, commAttr)
@@ -577,14 +577,14 @@ func (s *service) takeStep(
 			ChnlBS:  commChnl.ChnlBS,
 			ExprCK:   nextExprCK,
 		})
-		if termExpr.ContExp != nil {
+		if termExpr.ContExpr != nil {
 			// шедулим продолжение соискателя
 			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 				RootRef:  evalSnap.RootRef,
-				PoolExpr: termExpr.ContExp,
+				PoolExpr: termExpr.ContExpr,
 			})
 		}
-		switch exprRec := hiring.ContExp.(type) {
+		switch exprRec := hiring.ContExpr.(type) {
 		case HireRec:
 			// вяжем продолжение нанимателя
 			evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
@@ -595,15 +595,15 @@ func (s *service) takeStep(
 				ChnlBS:  commChnl.ChnlBS,
 				ExprCK:   nextExprCK,
 			})
-			if exprRec.ContExp != nil {
+			if exprRec.ContExpr != nil {
 				// шедулим продолжение нанимателя
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					RootRef:  hiring.RootRef,
-					PoolExpr: exprRec.ContExp,
+					PoolExpr: exprRec.ContExpr,
 				})
 			}
 		default:
-			panic(ErrRecTypeUnexpected(hiring.ContExp))
+			panic(ErrRecTypeUnexpected(hiring.ContExpr))
 		}
 		s.log.Debug("step taking succeed", execAttr, commAttr)
 		return evalMod, evalEff, commMod, nil
@@ -647,10 +647,10 @@ func (s *service) takeStep(
 				CommID:  commSnap.CommID,
 				RootRef: evalSnap.RootRef,
 				ChnlID:  commChnl.ChnlID,
-				ContExp: HireRec{
+				ContExpr: HireRec{
 					ContChnlPH: commChnl.ChnlPH,
 					ProcTermQN: termExpr.ProcTermQN,
-					ContExp:    termExpr.ContExp,
+					ContExpr:    termExpr.ContExpr,
 				},
 			})
 			s.log.Debug("taking half done", execAttr, commAttr)
@@ -670,14 +670,14 @@ func (s *service) takeStep(
 			ChnlBS:  commChnl.ChnlBS,
 			ExprCK:   nextExprCK,
 		})
-		if termExpr.ContExp != nil {
+		if termExpr.ContExpr != nil {
 			// шедулим продолжение нанимателя
 			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 				RootRef:  evalSnap.RootRef,
-				PoolExpr: termExpr.ContExp,
+				PoolExpr: termExpr.ContExpr,
 			})
 		}
-		switch exprRec := application.ContExp.(type) {
+		switch exprRec := application.ContExpr.(type) {
 		case ApplyRec:
 			// вяжем продолжение соискателя
 			evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
@@ -688,15 +688,15 @@ func (s *service) takeStep(
 				ChnlBS:  commChnl.ChnlBS,
 				ExprCK:   nextExprCK,
 			})
-			if exprRec.ContExp != nil {
+			if exprRec.ContExpr != nil {
 				// запускаем продолжение соискателя
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 					RootRef:  application.RootRef,
-					PoolExpr: exprRec.ContExp,
+					PoolExpr: exprRec.ContExpr,
 				})
 			}
 		default:
-			panic(ErrRecTypeUnexpected(application.ContExp))
+			panic(ErrRecTypeUnexpected(application.ContExpr))
 		}
 		s.log.Debug("step taking succeed", execAttr, commAttr)
 		return evalMod, evalEff, commMod, nil
@@ -740,7 +740,7 @@ func (s *service) takeStep(
 				CommID:  commSnap.CommID,
 				RootRef: evalSnap.RootRef,
 				ChnlID:  commChnl.ChnlID,
-				ContExp: ReleaseRec{
+				ContExpr: ReleaseRec{
 					ContChnlPH: commChnl.ChnlPH,
 				},
 			})
@@ -761,7 +761,7 @@ func (s *service) takeStep(
 			ChnlBS:  commChnl.ChnlBS,
 			ExprCK:   nextExprCK,
 		})
-		switch exprRec := detaching.ContExp.(type) {
+		switch exprRec := detaching.ContExpr.(type) {
 		case DetachRec:
 			// вяжем продолжение доступопринимателя
 			evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
@@ -773,7 +773,7 @@ func (s *service) takeStep(
 				ExprCK:   nextExprCK,
 			})
 		default:
-			panic(ErrRecTypeUnexpected(detaching.ContExp))
+			panic(ErrRecTypeUnexpected(detaching.ContExpr))
 		}
 		s.log.Debug("step taking succeed", execAttr, commAttr)
 		return evalMod, evalEff, commMod, nil
@@ -817,7 +817,7 @@ func (s *service) takeStep(
 				CommID:  commSnap.CommID,
 				RootRef: evalSnap.RootRef,
 				ChnlID:  commChnl.ChnlID,
-				ContExp: DetachRec{
+				ContExpr: DetachRec{
 					ContChnlPH: commChnl.ChnlPH,
 				},
 			})
@@ -837,7 +837,7 @@ func (s *service) takeStep(
 			ChnlBS:  commChnl.ChnlBS,
 			ExprCK:   nextExprCK,
 		})
-		switch exprRec := releasing.ContExp.(type) {
+		switch exprRec := releasing.ContExpr.(type) {
 		case ReleaseRec:
 			// вяжем продолжение доступовозвращателя
 			evalMod.Vars = append(evalMod.Vars, execvar.LinearRec{
@@ -849,7 +849,7 @@ func (s *service) takeStep(
 				ExprCK:   nextExprCK,
 			})
 		default:
-			panic(ErrRecTypeUnexpected(releasing.ContExp))
+			panic(ErrRecTypeUnexpected(releasing.ContExpr))
 		}
 		s.log.Debug("step taking succeed", execAttr, commAttr)
 		return evalMod, evalEff, commMod, nil

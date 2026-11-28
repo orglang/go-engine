@@ -202,7 +202,7 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (execeval.ExprSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return execeval.AcquireSpec{CommChnlPH: ph, ContExp: cont}, nil
+		return execeval.AcquireSpec{CommChnlPH: ph, ContExpr: cont}, nil
 	case "accept":
 		value, err := dto.AsPoolTermAcceptSpec()
 		if err != nil {
@@ -216,7 +216,7 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (execeval.ExprSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return execeval.AcceptSpec{CommChnlPH: ph, ContExp: cont}, nil
+		return execeval.AcceptSpec{CommChnlPH: ph, ContExpr: cont}, nil
 	case "hire":
 		value, err := dto.AsPoolTermHireSpec()
 		if err != nil {
@@ -234,7 +234,7 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (execeval.ExprSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return execeval.HireSpec{CommChnlPH: ph, ProcTermQN: qn, ContExp: cont}, nil
+		return execeval.HireSpec{CommChnlPH: ph, ProcTermQN: qn, ContExpr: cont}, nil
 	case "apply":
 		value, err := dto.AsPoolTermApplySpec()
 		if err != nil {
@@ -252,7 +252,7 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (execeval.ExprSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return execeval.ApplySpec{CommChnlPH: ph, ProcTermQN: qn, ContExp: cont}, nil
+		return execeval.ApplySpec{CommChnlPH: ph, ProcTermQN: qn, ContExpr: cont}, nil
 	case "release":
 		value, err := dto.AsPoolTermReleaseSpec()
 		if err != nil {

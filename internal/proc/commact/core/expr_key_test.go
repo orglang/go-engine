@@ -14,12 +14,12 @@ func TestExprContentKeyIncludesLabContinuation(t *testing.T) {
 	base := LabSpec{
 		CommChnlPH: symbol.New("conn"),
 		ValLabQN:   label,
-		ContExp:    CloseSpec{ContChnlPH: symbol.New("left")},
+		ContExpr:    CloseSpec{ContChnlPH: symbol.New("left")},
 	}
 	changed := LabSpec{
 		CommChnlPH: base.CommChnlPH,
 		ValLabQN:   label,
-		ContExp:    CloseSpec{ContChnlPH: symbol.New("right")},
+		ContExpr:    CloseSpec{ContChnlPH: symbol.New("right")},
 	}
 
 	baseKey, _, err := ExprContentKey(base)
@@ -74,17 +74,17 @@ func TestExprContentKeySerializesEveryVariant(t *testing.T) {
 		kind string
 	}{
 		{CloseSpec{ContChnlPH: symbol.New("end")}, "close"},
-		{WaitSpec{ContChnlPH: symbol.New("conn"), ContExp: cont}, "wait"},
+		{WaitSpec{ContChnlPH: symbol.New("conn"), ContExpr: cont}, "wait"},
 		{SendSpec{CommChnlPH: symbol.New("conn"), ValChnlPH: symbol.New("value")}, "send"},
-		{RecvSpec{CommChnlPH: symbol.New("conn"), NewChnlPH: symbol.New("new"), ContExp: cont}, "recv"},
-		{LabSpec{CommChnlPH: symbol.New("conn"), ValLabQN: uniqsym.New(symbol.New("label")), ContExp: cont}, "lab"},
+		{RecvSpec{CommChnlPH: symbol.New("conn"), NewChnlPH: symbol.New("new"), ContExpr: cont}, "recv"},
+		{LabSpec{CommChnlPH: symbol.New("conn"), ValLabQN: uniqsym.New(symbol.New("label")), ContExpr: cont}, "lab"},
 		{CaseSpec{CommChnlPH: symbol.New("conn"), ContExps: map[uniqsym.ADT]ExprSpec{uniqsym.New(symbol.New("label")): cont}}, "case"},
 		{LinkSpec{ProcTermQN: procTermQN, X: identity.New(), Ys: []identity.ADT{identity.New()}}, "link"},
 		{FwdSpec{CommChnlPH: symbol.New("conn"), ContChnlPH: symbol.New("next")}, "fwd"},
-		{CallSpec{CommChnlPH: symbol.New("conn"), NewChnlPH: symbol.New("new"), ProcTermQN: procTermQN, ValChnlPHs: []symbol.ADT{symbol.New("value")}, ContExp: cont}, "call"},
-		{SpawnSpec{CommChnlPH: symbol.New("conn"), ProcTermQN: procTermQN, NewChnlPHs: []symbol.ADT{symbol.New("new")}, ContExp: cont}, "spawn"},
-		{AcqureSpec{CommChnlPH: symbol.New("conn"), ContExp: cont}, "acquire"},
-		{AcceptSpec{CommChnlPH: symbol.New("conn"), ContExp: cont}, "accept"},
+		{CallSpec{CommChnlPH: symbol.New("conn"), NewChnlPH: symbol.New("new"), ProcTermQN: procTermQN, ValChnlPHs: []symbol.ADT{symbol.New("value")}, ContExpr: cont}, "call"},
+		{SpawnSpec{CommChnlPH: symbol.New("conn"), ProcTermQN: procTermQN, NewChnlPHs: []symbol.ADT{symbol.New("new")}, ContExpr: cont}, "spawn"},
+		{AcqureSpec{CommChnlPH: symbol.New("conn"), ContExpr: cont}, "acquire"},
+		{AcceptSpec{CommChnlPH: symbol.New("conn"), ContExpr: cont}, "accept"},
 		{DetachSpec{CommChnlPH: symbol.New("conn")}, "detach"},
 		{ReleaseSpec{CommChnlPH: symbol.New("conn")}, "release"},
 	}

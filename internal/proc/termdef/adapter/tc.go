@@ -22,7 +22,7 @@ func exprToGenerated(spec termdef.ExprSpec) (webapi.ProcTermDefinitionSpec, erro
 	case termdef.ExprCloseSpec:
 		return out, out.FromProcTermDefCloseSpec(webapi.ProcTermDefCloseSpec{ContPh: symbol.ConvertToString(s.ContChnlPH)})
 	case termdef.ExprWaitSpec:
-		cont, err := exprToGenerated(s.ContExp)
+		cont, err := exprToGenerated(s.ContExpr)
 		if err != nil {
 			return out, err
 		}
@@ -30,13 +30,13 @@ func exprToGenerated(spec termdef.ExprSpec) (webapi.ProcTermDefinitionSpec, erro
 	case termdef.ExprSendSpec:
 		return out, out.FromProcTermDefSendSpec(webapi.ProcTermDefSendSpec{CommPh: symbol.ConvertToString(s.CommChnlPH), ValPh: symbol.ConvertToString(s.ValChnlPH)})
 	case termdef.ExprRecvSpec:
-		cont, err := exprToGenerated(s.ContExp)
+		cont, err := exprToGenerated(s.ContExpr)
 		if err != nil {
 			return out, err
 		}
 		return out, out.FromProcTermDefRecvSpec(webapi.ProcTermDefRecvSpec{CommPh: symbol.ConvertToString(s.CommChnlPH), NewPh: symbol.ConvertToString(s.NewChnlPH), ContExpr: cont})
 	case termdef.ExprLabSpec:
-		cont, err := exprToGenerated(s.ContExp)
+		cont, err := exprToGenerated(s.ContExpr)
 		if err != nil {
 			return out, err
 		}
@@ -60,7 +60,7 @@ func exprToGenerated(spec termdef.ExprSpec) (webapi.ProcTermDefinitionSpec, erro
 	case termdef.ExprFwdSpec:
 		return out, out.FromProcTermDefFwdSpec(webapi.ProcTermDefFwdSpec{CommPh: symbol.ConvertToString(s.CommChnlPH), ContPh: symbol.ConvertToString(s.ContChnlPH)})
 	case termdef.ExprCallSpec:
-		cont, err := exprToGenerated(s.ContExp)
+		cont, err := exprToGenerated(s.ContExpr)
 		if err != nil {
 			return out, err
 		}
@@ -70,7 +70,7 @@ func exprToGenerated(spec termdef.ExprSpec) (webapi.ProcTermDefinitionSpec, erro
 		}
 		return out, out.FromProcTermDefCallSpec(webapi.ProcTermDefCallSpec{CommPh: symbol.ConvertToString(s.CommChnlPH), NewPh: symbol.ConvertToString(s.NewChnlPH), ProcQn: uniqsym.ConvertToString(s.ProcTermQN), ValPhs: chs, ContExpr: cont})
 	case termdef.ExprSpawnSpec:
-		cont, err := exprToGenerated(s.ContExp)
+		cont, err := exprToGenerated(s.ContExpr)
 		if err != nil {
 			return out, err
 		}
@@ -80,13 +80,13 @@ func exprToGenerated(spec termdef.ExprSpec) (webapi.ProcTermDefinitionSpec, erro
 		}
 		return out, out.FromProcTermDefSpawnSpec(webapi.ProcTermDefSpawnSpec{CommPh: symbol.ConvertToString(s.CommChnlPH), ProcQn: uniqsym.ConvertToString(s.ProcTermQN), NewPhs: chs, ContExpr: cont})
 	case termdef.ExprAcquireSpec:
-		cont, err := exprToGenerated(s.ContExp)
+		cont, err := exprToGenerated(s.ContExpr)
 		if err != nil {
 			return out, err
 		}
 		return out, out.FromProcTermDefAcquireSpec(webapi.ProcTermDefAcquireSpec{CommPh: symbol.ConvertToString(s.CommChnlPH), ContExpr: cont})
 	case termdef.ExprAcceptSpec:
-		cont, err := exprToGenerated(s.ContExp)
+		cont, err := exprToGenerated(s.ContExpr)
 		if err != nil {
 			return out, err
 		}

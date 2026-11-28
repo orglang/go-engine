@@ -26,7 +26,7 @@ type PubRec struct {
 	ActNr   seqnum.ADT
 	RootRef execroot.RootRef
 	ChnlID  identity.ADT
-	ValExp  ExprRec
+	ValExpr  ExprRec
 }
 
 func (r PubRec) act()                    {}
@@ -39,7 +39,7 @@ type SubRec struct {
 	ActNr   seqnum.ADT
 	RootRef execroot.RootRef
 	ChnlID  identity.ADT
-	ContExp ExprRec
+	ContExpr ExprRec
 }
 
 func (r SubRec) act()                    {}

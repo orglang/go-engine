@@ -7,11 +7,11 @@ import (
 	execeval "orglang/go-engine/internal/proc/execeval/core"
 )
 
-func EvalSnapToGenerated(snap execeval.EvalSnap) webapi.ProcCompSnap {
-	return webapi.ProcCompSnap{
-		CompRef: webapi.AnyCompRef{
-			CompId: identity.ConvertToString(snap.CompRef.CompID),
-			CompRn: seqnum.ConvertToInt(snap.CompRef.CompRN),
+func EvalSnapToGenerated(snap execeval.EvalSnap) webapi.ProcExecSnap {
+	return webapi.ProcExecSnap{
+		RootRef: webapi.AnyRootRef{
+			ExecId: identity.ConvertToString(snap.RootRef.ExecID),
+			ExecRn: seqnum.ConvertToInt(snap.RootRef.ExecRN),
 		},
 	}
 }

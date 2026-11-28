@@ -13,7 +13,7 @@ import (
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
-// Package registers the process computation-execution repository, service, and HTTP controller.
+// Package registers the process evaluation repository, service, and HTTP controller.
 var Package = do.Package(
 	do.Lazy[core.Repo](func(i do.Injector) (core.Repo, error) {
 		client, err := do.Invoke[*ent.Client](i)

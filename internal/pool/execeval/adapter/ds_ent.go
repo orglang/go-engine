@@ -37,15 +37,15 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec execeval.EvalRe
 	dto := DataFromEvalRec(rec)
 	refAttr := slog.Any("ref", rec.RootRef)
 	_, err := dao.client.ExecEval.Create().
-		SetID(dto.RootID).
-		SetRootRn(dto.RootRN).
+		SetID(dto.ExecID).
+		SetExecRn(dto.ExecRN).
 		SetLiabMode(dto.LiabMode).
 		Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)
 		return err
 	}
-	if _, err := conn.Pgx.Exec(ctx, insertImplBind, dto.TermQN, dto.RootID); err != nil {
+	if _, err := conn.Pgx.Exec(ctx, insertImplBind, dto.TermQN, dto.ExecID); err != nil {
 		dao.log.Error("implementation binding insertion failed", refAttr, slog.String("sql", insertImplBind))
 		return err
 	}
@@ -60,9 +60,9 @@ func (dao *daoEnt) ModifyRec(context.Context, tx.Conn, execeval.EvalMod) error {
 func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref execroot.RootRef) (execeval.EvalSnap2, error) {
 	refAttr := slog.Any("ref", ref)
 	rows, err := conn.Pgx.Query(ctx, selectSnapByRef,
-		execrootadapter.DataFromRef(ref).RootID,
-		execrootadapter.DataFromRef(ref).RootID,
-		execrootadapter.DataFromRef(ref).RootID,
+		execrootadapter.DataFromRef(ref).ExecID,
+		execrootadapter.DataFromRef(ref).ExecID,
+		execrootadapter.DataFromRef(ref).ExecID,
 	)
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr, slog.String("sql", selectSnapByRef))

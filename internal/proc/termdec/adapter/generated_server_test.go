@@ -18,8 +18,8 @@ import (
 
 type generatedDeclarationAPIStub struct{}
 
-func (generatedDeclarationAPIStub) Incept(context.Context, uniqsym.ADT) (identity.ADT, descroot.SemRef, error) {
-	return identity.ADT{}, descroot.SemRef{}, nil
+func (generatedDeclarationAPIStub) Incept(context.Context, uniqsym.ADT) (identity.ADT, descroot.RootRef, error) {
+	return identity.ADT{}, descroot.RootRef{}, nil
 }
 func (generatedDeclarationAPIStub) Create(context.Context, termdec.DecSpec) (termdec.DecSnap, error) {
 	return termdec.DecSnap{}, nil

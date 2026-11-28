@@ -1,14 +1,14 @@
 package core
 
 import (
-	"orglang/go-engine/internal/adt/comproot"
+	"orglang/go-engine/internal/adt/execroot"
 	"orglang/go-engine/internal/adt/contkey"
 	"orglang/go-engine/internal/adt/execvar"
 	"orglang/go-engine/internal/adt/symbol"
 )
 
-func ConvertRecToRef(rec EvalSnap2) comproot.RootRef {
-	return rec.CompRef
+func ConvertRecToRef(rec EvalSnap2) execroot.RootRef {
+	return rec.RootRef
 }
 
 func ExtractExpCKs[T execvar.VarRec](vars []T) map[symbol.ADT]contkey.ADT {

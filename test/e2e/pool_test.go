@@ -110,7 +110,7 @@ func (s *suite) waitClose(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	poolTermQN, poolExecQN := "pool-term-qn", "pool-comp-qn"
+	poolTermQN, poolExecQN := "pool-term-qn", "pool-exec-qn"
 	poolAssetPH, poolLiabPH := "pool-asset-ph", "pool-liab-ph"
 	_, err = s.api.createPoolDeclaration(api.PoolDecSpec{
 		DescQn:  poolTermQN,

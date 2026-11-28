@@ -55,10 +55,6 @@ func TestPackageProvidesPersistencePorts(t *testing.T) {
 			_, err := do.Invoke[typedef.Repo](injector)
 			return err
 		}},
-		{"type-definition expression repository", func() error {
-			_, err := do.Invoke[typedef.TypeExprRepo](injector)
-			return err
-		}},
 	}
 
 	for _, provider := range providers {

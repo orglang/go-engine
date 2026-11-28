@@ -29,17 +29,17 @@ const (
 )
 
 type ExprSpec interface {
-	IsPoolExp()
+	IsPoolExpr()
 }
 
 // запрос доступа (подписка) со стороны клиента (спрос на доступ)
 type AcquireSpec struct {
 	CommChnlPH symbol.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (s AcquireSpec) spec()    {}
-func (AcquireSpec) IsPoolExp() {}
+func (AcquireSpec) IsPoolExpr() {}
 
 func (s AcquireSpec) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
@@ -48,11 +48,11 @@ func (s AcquireSpec) LogValue() slog.Value {
 // предложение доступа (публикация) со стороны провайдера (предложение доступа)
 type AcceptSpec struct {
 	CommChnlPH symbol.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (s AcceptSpec) spec()    {}
-func (AcceptSpec) IsPoolExp() {}
+func (AcceptSpec) IsPoolExpr() {}
 
 func (s AcceptSpec) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
@@ -63,11 +63,11 @@ type HireSpec struct {
 	CommChnlPH symbol.ADT
 	// запрашиваемая компетенция
 	ProcTermQN uniqsym.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (s HireSpec) spec()    {}
-func (HireSpec) IsPoolExp() {}
+func (HireSpec) IsPoolExpr() {}
 
 func (s HireSpec) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
@@ -78,11 +78,11 @@ type ApplySpec struct {
 	CommChnlPH symbol.ADT
 	// предлагаемая компетенция
 	ProcTermQN uniqsym.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (s ApplySpec) spec()    {}
-func (ApplySpec) IsPoolExp() {}
+func (ApplySpec) IsPoolExpr() {}
 
 func (s ApplySpec) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
@@ -94,7 +94,7 @@ type ReleaseSpec struct {
 }
 
 func (s ReleaseSpec) spec()    {}
-func (ReleaseSpec) IsPoolExp() {}
+func (ReleaseSpec) IsPoolExpr() {}
 
 func (s ReleaseSpec) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
@@ -106,7 +106,7 @@ type DetachSpec struct {
 }
 
 func (s DetachSpec) spec()    {}
-func (DetachSpec) IsPoolExp() {}
+func (DetachSpec) IsPoolExpr() {}
 
 func (s DetachSpec) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
@@ -119,7 +119,7 @@ type FireSpec struct {
 }
 
 func (s FireSpec) spec()    {}
-func (FireSpec) IsPoolExp() {}
+func (FireSpec) IsPoolExpr() {}
 
 func (s FireSpec) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
@@ -132,7 +132,7 @@ type QuitSpec struct {
 }
 
 func (s QuitSpec) spec()    {}
-func (QuitSpec) IsPoolExp() {}
+func (QuitSpec) IsPoolExpr() {}
 
 func (s QuitSpec) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
@@ -146,7 +146,7 @@ type SpawnSpec struct {
 }
 
 func (s SpawnSpec) spec()    {}
-func (SpawnSpec) IsPoolExp() {}
+func (SpawnSpec) IsPoolExpr() {}
 
 func (s SpawnSpec) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
@@ -161,7 +161,7 @@ type SpawnSpec2 struct {
 }
 
 func (s SpawnSpec2) spec()    {}
-func (SpawnSpec2) IsPoolExp() {}
+func (SpawnSpec2) IsPoolExpr() {}
 
 func (s SpawnSpec2) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
@@ -172,7 +172,7 @@ type ExprRec = commact.ExprRec
 
 type AcquireRec struct {
 	ContChnlPH symbol.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (r AcquireRec) rec()    {}
@@ -180,7 +180,7 @@ func (AcquireRec) IsExprRec() {}
 
 type AcceptRec struct {
 	ContChnlPH symbol.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (r AcceptRec) rec()    {}
@@ -189,7 +189,7 @@ func (AcceptRec) IsExprRec() {}
 type HireRec struct {
 	ContChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (r HireRec) rec()    {}
@@ -198,7 +198,7 @@ func (HireRec) IsExprRec() {}
 type ApplyRec struct {
 	ContChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (r ApplyRec) rec()    {}

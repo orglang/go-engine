@@ -21,7 +21,7 @@ func (s CloseSpec) Via() symbol.ADT { return s.ContChnlPH }
 
 type WaitSpec struct {
 	ContChnlPH symbol.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (s WaitSpec) Via() symbol.ADT { return s.ContChnlPH }
@@ -36,7 +36,7 @@ func (s SendSpec) Via() symbol.ADT { return s.CommChnlPH }
 type RecvSpec struct {
 	CommChnlPH symbol.ADT
 	NewChnlPH  symbol.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (s RecvSpec) Via() symbol.ADT { return s.CommChnlPH }
@@ -44,7 +44,7 @@ func (s RecvSpec) Via() symbol.ADT { return s.CommChnlPH }
 type LabSpec struct {
 	CommChnlPH symbol.ADT
 	ValLabQN   uniqsym.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (s LabSpec) Via() symbol.ADT { return s.CommChnlPH }
@@ -77,7 +77,7 @@ type CallSpec struct {
 	NewChnlPH  symbol.ADT
 	ProcTermQN uniqsym.ADT
 	ValChnlPHs []symbol.ADT // channel bulk
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (s CallSpec) Via() symbol.ADT { return s.CommChnlPH }
@@ -86,21 +86,21 @@ type SpawnSpec struct {
 	CommChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
 	NewChnlPHs []symbol.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (s SpawnSpec) Via() symbol.ADT { return s.CommChnlPH }
 
 type AcqureSpec struct {
 	CommChnlPH symbol.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (s AcqureSpec) Via() symbol.ADT { return s.CommChnlPH }
 
 type AcceptSpec struct {
 	CommChnlPH symbol.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (s AcceptSpec) Via() symbol.ADT { return s.CommChnlPH }
@@ -132,7 +132,7 @@ func (CloseRec) IsExprRec() {}
 
 type WaitRec struct {
 	ContChnlPH symbol.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (r WaitRec) Via() symbol.ADT { return r.ContChnlPH }
@@ -155,7 +155,7 @@ type RecvRec struct {
 	CommChnlPH symbol.ADT
 	ContChnlID identity.ADT
 	NewChnlPH  symbol.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (r RecvRec) Via() symbol.ADT { return r.CommChnlPH }
@@ -199,7 +199,7 @@ func CollectEnv(spec ExprSpec) []identity.ADT {
 func collectEnvRec(s ExprSpec, env []identity.ADT) []identity.ADT {
 	switch spec := s.(type) {
 	case RecvSpec:
-		return collectEnvRec(spec.ContExp, env)
+		return collectEnvRec(spec.ContExpr, env)
 	case CaseSpec:
 		for _, cont := range spec.ContExprs {
 			env = collectEnvRec(cont, env)

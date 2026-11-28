@@ -25,7 +25,7 @@ func (LinkSpec) spec() {}
 // aka Internal Choice
 type PlusSpec struct {
 	ProcQNs []uniqsym.ADT
-	ContExp ExprSpec
+	ContExpr ExprSpec
 }
 
 func (PlusSpec) spec() {}
@@ -33,19 +33,19 @@ func (PlusSpec) spec() {}
 // aka External Choice
 type WithSpec struct {
 	ProcQNs []uniqsym.ADT
-	ContExp ExprSpec
+	ContExpr ExprSpec
 }
 
 func (WithSpec) spec() {}
 
 type UpSpec struct {
-	ContExp ExprSpec
+	ContExpr ExprSpec
 }
 
 func (UpSpec) spec() {}
 
 type DownSpec struct {
-	ContExp ExprSpec
+	ContExpr ExprSpec
 }
 
 func (DownSpec) spec() {}
@@ -118,14 +118,14 @@ func (LinkRec) Pol() polarity.ADT { return polarity.Zero }
 type PlusRec struct {
 	ExprCK   contkey.ADT
 	ProcQNs []uniqsym.ADT
-	ContExp ExprRec
+	ContExpr ExprRec
 }
 
 func (PlusRec) spec() {}
 
 func (r PlusRec) Key() contkey.ADT { return r.ExprCK }
 
-func (r PlusRec) Next() contkey.ADT { return r.ContExp.Key() }
+func (r PlusRec) Next() contkey.ADT { return r.ContExpr.Key() }
 
 func (PlusRec) Pol() polarity.ADT { return polarity.Pos }
 
@@ -133,40 +133,40 @@ func (PlusRec) Pol() polarity.ADT { return polarity.Pos }
 type WithRec struct {
 	ExprCK   contkey.ADT
 	ProcQNs []uniqsym.ADT
-	ContExp ExprRec
+	ContExpr ExprRec
 }
 
 func (WithRec) spec() {}
 
 func (r WithRec) Key() contkey.ADT { return r.ExprCK }
 
-func (r WithRec) Next() contkey.ADT { return r.ContExp.Key() }
+func (r WithRec) Next() contkey.ADT { return r.ContExpr.Key() }
 
 func (WithRec) Pol() polarity.ADT { return polarity.Neg }
 
 type UpRec struct {
 	ExprCK   contkey.ADT
-	ContExp ExprRec
+	ContExpr ExprRec
 }
 
 func (UpRec) spec() {}
 
 func (r UpRec) Key() contkey.ADT { return r.ExprCK }
 
-func (r UpRec) Next() contkey.ADT { return r.ContExp.Key() }
+func (r UpRec) Next() contkey.ADT { return r.ContExpr.Key() }
 
 func (UpRec) Pol() polarity.ADT { return polarity.Zero }
 
 type DownRec struct {
 	ExprCK   contkey.ADT
-	ContExp ExprRec
+	ContExpr ExprRec
 }
 
 func (DownRec) spec() {}
 
 func (r DownRec) Key() contkey.ADT { return r.ExprCK }
 
-func (r DownRec) Next() contkey.ADT { return r.ContExp.Key() }
+func (r DownRec) Next() contkey.ADT { return r.ContExpr.Key() }
 
 func (DownRec) Pol() polarity.ADT { return polarity.Zero }
 

@@ -20,7 +20,7 @@ func (ExprCloseSpec) exprSpec() {}
 
 type ExprWaitSpec struct {
 	ContChnlPH symbol.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (ExprWaitSpec) exprSpec() {}
@@ -35,7 +35,7 @@ func (ExprSendSpec) exprSpec() {}
 type ExprRecvSpec struct {
 	CommChnlPH symbol.ADT
 	NewChnlPH  symbol.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (ExprRecvSpec) exprSpec() {}
@@ -43,7 +43,7 @@ func (ExprRecvSpec) exprSpec() {}
 type ExprLabSpec struct {
 	CommChnlPH symbol.ADT
 	ValLabQN   uniqsym.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (ExprLabSpec) exprSpec() {}
@@ -75,7 +75,7 @@ type ExprCallSpec struct {
 	NewChnlPH  symbol.ADT
 	ProcTermQN uniqsym.ADT
 	ValChnlPHs []symbol.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (ExprCallSpec) exprSpec() {}
@@ -84,21 +84,21 @@ type ExprSpawnSpec struct {
 	CommChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
 	NewChnlPHs []symbol.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (ExprSpawnSpec) exprSpec() {}
 
 type ExprAcquireSpec struct {
 	CommChnlPH symbol.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (ExprAcquireSpec) exprSpec() {}
 
 type ExprAcceptSpec struct {
 	CommChnlPH symbol.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (ExprAcceptSpec) exprSpec() {}
@@ -127,7 +127,7 @@ func (r ExprCloseRec) ContentKey() contkey.ADT { return r.ExprCK }
 type ExprWaitRec struct {
 	ExprCK      contkey.ADT
 	ContChnlPH symbol.ADT
-	ContExp    ExprRec
+	ContExpr    ExprRec
 }
 
 func (ExprWaitRec) exprRec()                   {}
@@ -146,7 +146,7 @@ type ExprRecvRec struct {
 	ExprCK      contkey.ADT
 	CommChnlPH symbol.ADT
 	NewChnlPH  symbol.ADT
-	ContExp    ExprRec
+	ContExpr    ExprRec
 }
 
 func (ExprRecvRec) exprRec()                   {}
@@ -156,7 +156,7 @@ type ExprLabRec struct {
 	ExprCK      contkey.ADT
 	CommChnlPH symbol.ADT
 	ValLabQN   uniqsym.ADT
-	ContExp    ExprRec
+	ContExpr    ExprRec
 }
 
 func (ExprLabRec) exprRec()                   {}
@@ -196,7 +196,7 @@ type ExprCallRec struct {
 	NewChnlPH  symbol.ADT
 	ProcTermQN uniqsym.ADT
 	ValChnlPHs []symbol.ADT
-	ContExp    ExprRec
+	ContExpr    ExprRec
 }
 
 func (ExprCallRec) exprRec()                   {}
@@ -207,7 +207,7 @@ type ExprSpawnRec struct {
 	CommChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
 	NewChnlPHs []symbol.ADT
-	ContExp    ExprRec
+	ContExpr    ExprRec
 }
 
 func (ExprSpawnRec) exprRec()                   {}
@@ -216,7 +216,7 @@ func (r ExprSpawnRec) ContentKey() contkey.ADT { return r.ExprCK }
 type ExprAcquireRec struct {
 	ExprCK      contkey.ADT
 	CommChnlPH symbol.ADT
-	ContExp    ExprRec
+	ContExpr    ExprRec
 }
 
 func (ExprAcquireRec) exprRec()                   {}
@@ -225,7 +225,7 @@ func (r ExprAcquireRec) ContentKey() contkey.ADT { return r.ExprCK }
 type ExprAcceptRec struct {
 	ExprCK      contkey.ADT
 	CommChnlPH symbol.ADT
-	ContExp    ExprRec
+	ContExpr    ExprRec
 }
 
 func (ExprAcceptRec) exprRec()                   {}
@@ -257,7 +257,7 @@ func ConvertSpecToRec(spec ExprSpec) (ExprRec, error) {
 	case ExprCloseSpec:
 		return ExprCloseRec{key, s.ContChnlPH}, nil
 	case ExprWaitSpec:
-		c, e := ConvertSpecToRec(s.ContExp)
+		c, e := ConvertSpecToRec(s.ContExpr)
 		if e != nil {
 			return nil, e
 		}
@@ -265,13 +265,13 @@ func ConvertSpecToRec(spec ExprSpec) (ExprRec, error) {
 	case ExprSendSpec:
 		return ExprSendRec{key, s.CommChnlPH, s.ValChnlPH}, nil
 	case ExprRecvSpec:
-		c, e := ConvertSpecToRec(s.ContExp)
+		c, e := ConvertSpecToRec(s.ContExpr)
 		if e != nil {
 			return nil, e
 		}
 		return ExprRecvRec{key, s.CommChnlPH, s.NewChnlPH, c}, nil
 	case ExprLabSpec:
-		c, e := ConvertSpecToRec(s.ContExp)
+		c, e := ConvertSpecToRec(s.ContExpr)
 		if e != nil {
 			return nil, e
 		}
@@ -291,25 +291,25 @@ func ConvertSpecToRec(spec ExprSpec) (ExprRec, error) {
 	case ExprFwdSpec:
 		return ExprFwdRec{key, s.CommChnlPH, s.ContChnlPH}, nil
 	case ExprCallSpec:
-		c, e := ConvertSpecToRec(s.ContExp)
+		c, e := ConvertSpecToRec(s.ContExpr)
 		if e != nil {
 			return nil, e
 		}
 		return ExprCallRec{key, s.CommChnlPH, s.NewChnlPH, s.ProcTermQN, s.ValChnlPHs, c}, nil
 	case ExprSpawnSpec:
-		c, e := ConvertSpecToRec(s.ContExp)
+		c, e := ConvertSpecToRec(s.ContExpr)
 		if e != nil {
 			return nil, e
 		}
 		return ExprSpawnRec{key, s.CommChnlPH, s.ProcTermQN, s.NewChnlPHs, c}, nil
 	case ExprAcquireSpec:
-		c, e := ConvertSpecToRec(s.ContExp)
+		c, e := ConvertSpecToRec(s.ContExpr)
 		if e != nil {
 			return nil, e
 		}
 		return ExprAcquireRec{key, s.CommChnlPH, c}, nil
 	case ExprAcceptSpec:
-		c, e := ConvertSpecToRec(s.ContExp)
+		c, e := ConvertSpecToRec(s.ContExpr)
 		if e != nil {
 			return nil, e
 		}
@@ -328,13 +328,13 @@ func ConvertRecToSpec(rec ExprRec) ExprSpec {
 	case ExprCloseRec:
 		return ExprCloseSpec{r.ContChnlPH}
 	case ExprWaitRec:
-		return ExprWaitSpec{r.ContChnlPH, ConvertRecToSpec(r.ContExp)}
+		return ExprWaitSpec{r.ContChnlPH, ConvertRecToSpec(r.ContExpr)}
 	case ExprSendRec:
 		return ExprSendSpec{r.CommChnlPH, r.ValChnlPH}
 	case ExprRecvRec:
-		return ExprRecvSpec{r.CommChnlPH, r.NewChnlPH, ConvertRecToSpec(r.ContExp)}
+		return ExprRecvSpec{r.CommChnlPH, r.NewChnlPH, ConvertRecToSpec(r.ContExpr)}
 	case ExprLabRec:
-		return ExprLabSpec{r.CommChnlPH, r.ValLabQN, ConvertRecToSpec(r.ContExp)}
+		return ExprLabSpec{r.CommChnlPH, r.ValLabQN, ConvertRecToSpec(r.ContExpr)}
 	case ExprCaseRec:
 		cs := make(map[uniqsym.ADT]ExprSpec, len(r.ContExprs))
 		for q, v := range r.ContExprs {
@@ -346,13 +346,13 @@ func ConvertRecToSpec(rec ExprRec) ExprSpec {
 	case ExprFwdRec:
 		return ExprFwdSpec{r.CommChnlPH, r.ContChnlPH}
 	case ExprCallRec:
-		return ExprCallSpec{r.CommChnlPH, r.NewChnlPH, r.ProcTermQN, r.ValChnlPHs, ConvertRecToSpec(r.ContExp)}
+		return ExprCallSpec{r.CommChnlPH, r.NewChnlPH, r.ProcTermQN, r.ValChnlPHs, ConvertRecToSpec(r.ContExpr)}
 	case ExprSpawnRec:
-		return ExprSpawnSpec{r.CommChnlPH, r.ProcTermQN, r.NewChnlPHs, ConvertRecToSpec(r.ContExp)}
+		return ExprSpawnSpec{r.CommChnlPH, r.ProcTermQN, r.NewChnlPHs, ConvertRecToSpec(r.ContExpr)}
 	case ExprAcquireRec:
-		return ExprAcquireSpec{r.CommChnlPH, ConvertRecToSpec(r.ContExp)}
+		return ExprAcquireSpec{r.CommChnlPH, ConvertRecToSpec(r.ContExpr)}
 	case ExprAcceptRec:
-		return ExprAcceptSpec{r.CommChnlPH, ConvertRecToSpec(r.ContExp)}
+		return ExprAcceptSpec{r.CommChnlPH, ConvertRecToSpec(r.ContExpr)}
 	case ExprDetachRec:
 		return ExprDetachSpec{r.CommChnlPH}
 	case ExprReleaseRec:

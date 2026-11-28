@@ -4,7 +4,7 @@ import "orglang/go-engine/internal/adt/execroot"
 
 // ExprSpec is the expression contract required to schedule an execution step.
 type ExprSpec interface {
-	IsPoolExp()
+	IsPoolExpr()
 }
 
 type StepSpec struct {

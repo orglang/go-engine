@@ -12,14 +12,14 @@ import (
 type ExprSpec interface{ exprSpec() }
 type ExprAcquireSpec struct {
 	CommChnlPH symbol.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (ExprAcquireSpec) exprSpec() {}
 
 type ExprAcceptSpec struct {
 	CommChnlPH symbol.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (ExprAcceptSpec) exprSpec() {}
@@ -27,7 +27,7 @@ func (ExprAcceptSpec) exprSpec() {}
 type ExprHireSpec struct {
 	CommChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (ExprHireSpec) exprSpec() {}
@@ -35,7 +35,7 @@ func (ExprHireSpec) exprSpec() {}
 type ExprApplySpec struct {
 	CommChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
-	ContExp    ExprSpec
+	ContExpr    ExprSpec
 }
 
 func (ExprApplySpec) exprSpec() {}
@@ -77,7 +77,7 @@ type ExprRec interface {
 type ExprAcquireRec struct {
 	ExprCK      contkey.ADT
 	CommChnlPH symbol.ADT
-	ContExp    ExprRec
+	ContExpr    ExprRec
 }
 
 func (ExprAcquireRec) exprRec()                   {}
@@ -86,7 +86,7 @@ func (r ExprAcquireRec) ContentKey() contkey.ADT { return r.ExprCK }
 type ExprAcceptRec struct {
 	ExprCK      contkey.ADT
 	CommChnlPH symbol.ADT
-	ContExp    ExprRec
+	ContExpr    ExprRec
 }
 
 func (ExprAcceptRec) exprRec()                   {}
@@ -96,7 +96,7 @@ type ExprHireRec struct {
 	ExprCK      contkey.ADT
 	CommChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
-	ContExp    ExprRec
+	ContExpr    ExprRec
 }
 
 func (ExprHireRec) exprRec()                   {}
@@ -106,7 +106,7 @@ type ExprApplyRec struct {
 	ExprCK      contkey.ADT
 	CommChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
-	ContExp    ExprRec
+	ContExpr    ExprRec
 }
 
 func (ExprApplyRec) exprRec()                   {}
@@ -162,25 +162,25 @@ func ConvertSpecToRec(spec ExprSpec) (ExprRec, error) {
 	}
 	switch s := spec.(type) {
 	case ExprAcquireSpec:
-		c, e := ConvertSpecToRec(s.ContExp)
+		c, e := ConvertSpecToRec(s.ContExpr)
 		if e != nil {
 			return nil, e
 		}
 		return ExprAcquireRec{key, s.CommChnlPH, c}, nil
 	case ExprAcceptSpec:
-		c, e := ConvertSpecToRec(s.ContExp)
+		c, e := ConvertSpecToRec(s.ContExpr)
 		if e != nil {
 			return nil, e
 		}
 		return ExprAcceptRec{key, s.CommChnlPH, c}, nil
 	case ExprHireSpec:
-		c, e := ConvertSpecToRec(s.ContExp)
+		c, e := ConvertSpecToRec(s.ContExpr)
 		if e != nil {
 			return nil, e
 		}
 		return ExprHireRec{key, s.CommChnlPH, s.ProcTermQN, c}, nil
 	case ExprApplySpec:
-		c, e := ConvertSpecToRec(s.ContExp)
+		c, e := ConvertSpecToRec(s.ContExpr)
 		if e != nil {
 			return nil, e
 		}
@@ -202,13 +202,13 @@ func ConvertSpecToRec(spec ExprSpec) (ExprRec, error) {
 func ConvertRecToSpec(rec ExprRec) ExprSpec {
 	switch r := rec.(type) {
 	case ExprAcquireRec:
-		return ExprAcquireSpec{r.CommChnlPH, ConvertRecToSpec(r.ContExp)}
+		return ExprAcquireSpec{r.CommChnlPH, ConvertRecToSpec(r.ContExpr)}
 	case ExprAcceptRec:
-		return ExprAcceptSpec{r.CommChnlPH, ConvertRecToSpec(r.ContExp)}
+		return ExprAcceptSpec{r.CommChnlPH, ConvertRecToSpec(r.ContExpr)}
 	case ExprHireRec:
-		return ExprHireSpec{r.CommChnlPH, r.ProcTermQN, ConvertRecToSpec(r.ContExp)}
+		return ExprHireSpec{r.CommChnlPH, r.ProcTermQN, ConvertRecToSpec(r.ContExpr)}
 	case ExprApplyRec:
-		return ExprApplySpec{r.CommChnlPH, r.ProcTermQN, ConvertRecToSpec(r.ContExp)}
+		return ExprApplySpec{r.CommChnlPH, r.ProcTermQN, ConvertRecToSpec(r.ContExpr)}
 	case ExprReleaseRec:
 		return ExprReleaseSpec{r.CommChnlPH}
 	case ExprDetachRec:

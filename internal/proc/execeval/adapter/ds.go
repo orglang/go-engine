@@ -12,6 +12,6 @@ type EvalRec struct {
 }
 
 type EvalMod struct {
-	RootRefs   []execrootadapter.RootRef
+	ExecRefs   []execrootadapter.RootRef
 	LinearVars []execvaradapter.VarRec
 }

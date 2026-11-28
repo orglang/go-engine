@@ -13,7 +13,7 @@ import (
 
 // Package registers process type-definition persistence, service, and HTTP adapters.
 var Package = do.Package(
-	do.Lazy[core.TypeExpRepo](func(i do.Injector) (core.TypeExpRepo, error) {
+	do.Lazy[core.TypeExprrRepo](func(i do.Injector) (core.TypeExprrRepo, error) {
 		client, err := do.Invoke[*ent.Client](i)
 		if err != nil {
 			return nil, err
@@ -44,7 +44,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		typeExpRepo, err := do.Invoke[core.TypeExpRepo](i)
+		typeExprrRepo, err := do.Invoke[core.TypeExprrRepo](i)
 		if err != nil {
 			return nil, err
 		}
@@ -56,7 +56,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return core.NewService(typeDefRepo, progRootRepo, typeExpRepo, transactor, logger), nil
+		return core.NewService(typeDefRepo, progRootRepo, typeExprrRepo, transactor, logger), nil
 	}),
 	do.Lazy[GeneratedController](func(i do.Injector) (GeneratedController, error) {
 		api, err := do.Invoke[core.API](i)

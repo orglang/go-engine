@@ -60,7 +60,7 @@ type EvalSnap struct {
 
 type Env struct {
 	TypeDefs map[uniqsym.ADT]typedef.DefRec
-	TypeExps map[contkey.ADT]typedef.ExpRec
+	TypeExprs map[contkey.ADT]typedef.ExpRec
 	ProcDecs map[identity.ADT]termdec.DecRec
 }
 
@@ -71,7 +71,7 @@ type service struct {
 	commRepo     execcomm.Repo
 	termDecRepo  termdec.Repo
 	typeDefRepo  typedef.Repo
-	typeExpRepo  typedef.TypeExpRepo
+	typeExprrRepo  typedef.TypeExprrRepo
 	transactor   tx.Transactor
 	log          *slog.Logger
 }
@@ -86,14 +86,14 @@ func NewService(
 	commRepo execcomm.Repo,
 	termDecRepo termdec.Repo,
 	typeDefRepo typedef.Repo,
-	typeExpRepo typedef.TypeExpRepo,
+	typeExprrRepo typedef.TypeExprrRepo,
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
 	name := slog.String("name", reflect.TypeFor[service]().Name())
 	return &service{
 		execEvalRepo, commRepo,
-		termDecRepo, typeDefRepo, typeExpRepo,
+		termDecRepo, typeDefRepo, typeExprrRepo,
 		transactor, log.With(name),
 	}
 }
@@ -141,15 +141,15 @@ func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) 
 		}
 		envIDs := typedef.CollectEnv(maps.Values(typeDefs))
 		ctxIDs := CollectCtx(maps.Values(evalSnap.LinearVars))
-		typeExps, getErr4 := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[contkey.ADT]typedef.ExpRec, error) {
-			return s.typeExpRepo.SelectEnv(txCtx, conn, append(envIDs, ctxIDs...))
+		typeExprs, getErr4 := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[contkey.ADT]typedef.ExpRec, error) {
+			return s.typeExprrRepo.SelectEnv(txCtx, conn, append(envIDs, ctxIDs...))
 		})
 		if getErr4 != nil {
 			s.log.Error("step taking failed", execAttr, slog.Any("env", envIDs), slog.Any("ctx", ctxIDs))
 			return getErr4
 		}
-		procEnv := Env{ProcDecs: procDecs, TypeDefs: typeDefs, TypeExps: typeExps}
-		procCtx := convertToCtx(maps.Values(evalSnap.LinearVars), typeExps)
+		procEnv := Env{ProcDecs: procDecs, TypeDefs: typeDefs, TypeExprs: typeExprs}
+		procCtx := convertToCtx(maps.Values(evalSnap.LinearVars), typeExprs)
 		// type checking
 		err = s.checkType(procEnv, procCtx, evalSnap, expSpec)
 		if err != nil {
@@ -387,12 +387,12 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed", execAttr)
 			return takeResult{Mod: evalMod, Effects: evalEff, Communication: commMod}, err
 		}
-		typeExp, ok := procEnv.TypeExps[commChnl.ExpCK]
+		typeExpr, ok := procEnv.TypeExprs[commChnl.ExpCK]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
 			return takeResult{Mod: evalMod, Effects: evalEff, Communication: commMod}, typedef.ErrMissingInEnv(commChnl.ExpCK)
 		}
-		nextExpCK := typeExp.(typedef.ProdRec).Next()
+		nextExpCK := typeExpr.(typedef.ProdRec).Next()
 		valChnl, ok := evalSnap.LinearVars[termExp.ValChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
@@ -493,12 +493,12 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed", execAttr)
 			return takeResult{Mod: evalMod, Effects: evalEff, Communication: commMod}, termdef.ErrMissingInCfg(termExp.CommChnlPH)
 		}
-		typeExp, ok := procEnv.TypeExps[commChnl.ExpCK]
+		typeExpr, ok := procEnv.TypeExprs[commChnl.ExpCK]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
 			return takeResult{Mod: evalMod, Effects: evalEff, Communication: commMod}, typedef.ErrMissingInEnv(commChnl.ExpCK)
 		}
-		nextExpCK := typeExp.(typedef.ProdRec).Next()
+		nextExpCK := typeExpr.(typedef.ProdRec).Next()
 		// получаем снепшот соединения
 		var commSnap execcomm.CommSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
@@ -587,12 +587,12 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed")
 			return takeResult{Mod: evalMod, Effects: evalEff, Communication: commMod}, err
 		}
-		typeExp, ok := procEnv.TypeExps[commChnl.ExpCK]
+		typeExpr, ok := procEnv.TypeExprs[commChnl.ExpCK]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
 			return takeResult{Mod: evalMod, Effects: evalEff, Communication: commMod}, typedef.ErrMissingInEnv(commChnl.ExpCK)
 		}
-		nextExpCK := typeExp.(typedef.SumRec).Next(termExp.ValLabQN)
+		nextExpCK := typeExpr.(typedef.SumRec).Next(termExp.ValLabQN)
 		// получаем снепшот соединения
 		var commSnap execcomm.CommSnap
 		getErr := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
@@ -749,7 +749,7 @@ func (s *service) takeWith(
 			s.log.Error("step taking failed")
 			return takeResult{Mod: evalMod, Effects: evalEff, Communication: commMod}, termdef.ErrMissingInCfg(termExp.ContChnlPH)
 		}
-		typeExp, ok := procEnv.TypeExps[commChnl.ExpCK]
+		typeExpr, ok := procEnv.TypeExprs[commChnl.ExpCK]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
 			return takeResult{Mod: evalMod, Effects: evalEff, Communication: commMod}, typedef.ErrMissingInEnv(commChnl.ExpCK)
@@ -774,7 +774,7 @@ func (s *service) takeWith(
 			commMod.CommID = fwdCommSnap.CommID
 			commMod.OffsetNr = option.Some(act.GetActNr())
 		}
-		switch typeExp.Pol() {
+		switch typeExpr.Pol() {
 		case polarity.Pos:
 			switch forwardable := act.(type) {
 			case commact.SubRec:
@@ -895,7 +895,7 @@ func (s *service) takeWith(
 				panic(commact.ErrActRecTypeUnexpected(act))
 			}
 		default:
-			panic(typedef.ErrPolarityUnexpected(typeExp))
+			panic(typedef.ErrPolarityUnexpected(typeExpr))
 		}
 	default:
 		panic(commact.ErrExpTypeUnexpected(exp))
@@ -906,14 +906,14 @@ func CollectCtx(chnls iter.Seq[execvar.LinearRec]) []contkey.ADT {
 	return nil
 }
 
-func convertToCtx(chnlBinds iter.Seq[execvar.LinearRec], typeExps map[contkey.ADT]typedef.ExpRec) typedef.Context {
+func convertToCtx(chnlBinds iter.Seq[execvar.LinearRec], typeExprs map[contkey.ADT]typedef.ExpRec) typedef.Context {
 	assets := make(map[symbol.ADT]typedef.ExpRec, 1)
 	liabs := make(map[symbol.ADT]typedef.ExpRec, 1)
 	for bind := range chnlBinds {
 		if bind.ChnlBS == execvar.LiabSide {
-			liabs[bind.ChnlPH] = typeExps[bind.ExpCK]
+			liabs[bind.ChnlPH] = typeExprs[bind.ExpCK]
 		} else {
-			assets[bind.ChnlPH] = typeExps[bind.ExpCK]
+			assets[bind.ChnlPH] = typeExprs[bind.ExpCK]
 		}
 	}
 	return typedef.Context{Assets: assets, Liabs: liabs}
@@ -1291,7 +1291,7 @@ func (s *service) checkClient(
 	// 			s.log.Error("checking failed")
 	// 			return err
 	// 		}
-	// 		wantVal, ok := procEnv.TypeExps[valType.ExpCK]
+	// 		wantVal, ok := procEnv.TypeExprs[valType.ExpCK]
 	// 		if !ok {
 	// 			err := typedef.ErrMissingInEnv(valType.ExpCK)
 	// 			s.log.Error("checking failed")
@@ -1317,7 +1317,7 @@ func (s *service) checkClient(
 	// 		s.log.Error("checking failed")
 	// 		return err
 	// 	}
-	// 	wantVia, ok := procEnv.TypeExps[viaRole.ExpCK]
+	// 	wantVia, ok := procEnv.TypeExprs[viaRole.ExpCK]
 	// 	if !ok {
 	// 		err := typedef.ErrMissingInEnv(viaRole.ExpCK)
 	// 		s.log.Error("checking failed")

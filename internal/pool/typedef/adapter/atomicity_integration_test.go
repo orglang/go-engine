@@ -33,9 +33,9 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 			prog_id varchar,
 			kind smallint
 		);
-		CREATE TEMP TABLE pool_type_exps (
-			exp_ck bigint UNIQUE,
-			sup_exp_ck bigint,
+		CREATE TEMP TABLE pool_type_exprs (
+			expr_ck bigint UNIQUE,
+			sup_expr_ck bigint,
 			kind smallint,
 			spec jsonb
 		);
@@ -44,7 +44,7 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 			type_id varchar UNIQUE REFERENCES pool_type_def_guard(id)
 				DEFERRABLE INITIALLY DEFERRED,
 			prog_id varchar NOT NULL REFERENCES pool_prog_roots(prog_id),
-			exp_ck bigint
+			expr_ck bigint
 		);
 	`)
 	if err != nil {
@@ -75,7 +75,7 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 	}
 	_, _, err = service.Create(ctx, typedef.DefSpec{
 		TypeQN:  typeQN,
-		TypeExp: typedef.OneSpec{},
+		TypeExpr: typedef.OneSpec{},
 	})
 	if err == nil {
 		t.Fatal("Create() error = nil, want deferred constraint failure at commit")
@@ -87,7 +87,7 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 	}
 	defer verifyConn.Release()
 
-	for _, table := range []string{"pool_prog_roots", "pool_prog_binds", "pool_type_exps", "pool_type_defs"} {
+	for _, table := range []string{"pool_prog_roots", "pool_prog_binds", "pool_type_exprs", "pool_type_defs"} {
 		var count int
 		if err := verifyConn.QueryRow(ctx, "SELECT count(*) FROM "+table).Scan(&count); err != nil {
 			t.Fatalf("count rows in %s: %v", table, err)
@@ -116,16 +116,16 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 			prog_id varchar,
 			kind smallint
 		);
-		CREATE TEMP TABLE pool_type_exps (
-			exp_ck bigint UNIQUE,
-			sup_exp_ck bigint,
+		CREATE TEMP TABLE pool_type_exprs (
+			expr_ck bigint UNIQUE,
+			sup_expr_ck bigint,
 			kind smallint,
 			spec jsonb
 		);
 		CREATE TEMP TABLE pool_type_defs (
 			type_id varchar UNIQUE,
 			prog_id varchar NOT NULL REFERENCES pool_prog_roots(prog_id),
-			exp_ck bigint
+			expr_ck bigint
 		);
 	`)
 	if err != nil {
@@ -155,7 +155,7 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 	}
 	typeID, progRef, err := service.Create(ctx, typedef.DefSpec{
 		TypeQN:  typeQN,
-		TypeExp: typedef.OneSpec{},
+		TypeExpr: typedef.OneSpec{},
 	})
 	if err != nil {
 		t.Fatalf("Create() error = %v, want nil", err)
@@ -181,7 +181,7 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 	if err != nil {
 		t.Fatalf("count Program roots: %v", err)
 	}
-	err = verifyConn.QueryRow(ctx, "SELECT count(*) FROM pool_type_exps").Scan(&typeExpCount)
+	err = verifyConn.QueryRow(ctx, "SELECT count(*) FROM pool_type_exprs").Scan(&typeExpCount)
 	if err != nil {
 		t.Fatalf("count type expressions: %v", err)
 	}

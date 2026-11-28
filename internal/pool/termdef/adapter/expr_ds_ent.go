@@ -14,7 +14,7 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/pool/ent"
-	termexpent "orglang/go-engine/internal/pool/ent/termexp"
+	termexprent "orglang/go-engine/internal/pool/ent/termexpr"
 	termdef "orglang/go-engine/internal/pool/termdef/core"
 )
 
@@ -28,22 +28,22 @@ func (dao *daoEnt) insertSpec(ctx context.Context, conn tx.Conn, spec termdef.Ex
 		return err
 	}
 
-	builders := make([]*ent.TermExpCreate, 0, len(dto.States))
+	builders := make([]*ent.TermExprCreate, 0, len(dto.States))
 	for _, state := range dto.States {
 		raw, err := json.Marshal(state.Spec)
 		if err != nil {
 			return err
 		}
-		builders = append(builders, dao.client.TermExp.Create().
+		builders = append(builders, dao.client.TermExpr.Create().
 			SetID(state.ExpCK).
-			SetSupExpCk(state.SupExpCK).
+			SetSupExprCk(state.SupExprCK).
 			SetKind(state.K).
 			SetSpec(jsontext.Value(raw)))
 	}
 
 	txCtx := entpgx.WithConn(ctx, conn.Pgx)
-	err = dao.client.TermExp.CreateBulk(builders...).
-		OnConflictColumns(termexpent.FieldID).
+	err = dao.client.TermExpr.CreateBulk(builders...).
+		OnConflictColumns(termexprent.FieldID).
 		DoNothing().
 		Exec(txCtx)
 	if err != nil {
@@ -55,7 +55,7 @@ func (dao *daoEnt) insertSpec(ctx context.Context, conn tx.Conn, spec termdef.Ex
 }
 
 func (dao *daoEnt) selectSpecByCK(ctx context.Context, conn tx.Conn, key contkey.ADT) (termdef.ExpSpec, error) {
-	rows, err := conn.Pgx.Query(ctx, selectTermExpTree, int64(key))
+	rows, err := conn.Pgx.Query(ctx, selectTermExprTree, int64(key))
 	if err != nil {
 		return nil, err
 	}
@@ -75,16 +75,16 @@ func (dao *daoEnt) selectSpecByCK(ctx context.Context, conn tx.Conn, key contkey
 	return termdef.ConvertRecToSpec(rec), nil
 }
 
-const selectTermExpTree = `
+const selectTermExprTree = `
 WITH RECURSIVE exp_tree AS (
     SELECT top.*
-    FROM pool_term_exps AS top
-    WHERE top.exp_ck = $1
+    FROM pool_term_exprs AS top
+    WHERE top.expr_ck = $1
     UNION
     SELECT sub.*
-    FROM pool_term_exps AS sub
-    JOIN exp_tree AS sup ON sub.sup_exp_ck = sup.exp_ck
+    FROM pool_term_exprs AS sub
+    JOIN exp_tree AS sup ON sub.sup_expr_ck = sup.expr_ck
 )
-SELECT exp_ck, sup_exp_ck, kind, spec
+SELECT expr_ck, sup_expr_ck, kind, spec
 FROM exp_tree
 `

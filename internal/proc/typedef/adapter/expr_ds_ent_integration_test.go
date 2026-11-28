@@ -17,7 +17,7 @@ import (
 	"orglang/go-engine/internal/testutil/pgxtest"
 )
 
-func TestIntegrationProcTypeExpAddRecIsIdempotent(t *testing.T) {
+func TestIntegrationProcTypeExprAddRecIsIdempotent(t *testing.T) {
 	pool := pgxtest.NewPostgresPool(t)
 
 	ctx, cancel := context.WithTimeout(t.Context(), 20*time.Second)
@@ -28,9 +28,9 @@ func TestIntegrationProcTypeExpAddRecIsIdempotent(t *testing.T) {
 		t.Fatalf("acquire PostgreSQL connection: %v", err)
 	}
 	_, err = conn.Exec(ctx, `
-		CREATE TEMP TABLE proc_type_exps (
-			exp_ck bigint UNIQUE,
-			sup_exp_ck bigint,
+		CREATE TEMP TABLE proc_type_exprs (
+			expr_ck bigint UNIQUE,
+			sup_expr_ck bigint,
 			kind smallint,
 			spec jsonb
 		);
@@ -73,7 +73,7 @@ func TestIntegrationProcTypeExpAddRecIsIdempotent(t *testing.T) {
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("SelectRecByCK() = %#v, want %#v", got, want)
 		}
-		rows, err := conn.Pgx.Query(txCtx, "SELECT count(*) FROM proc_type_exps")
+		rows, err := conn.Pgx.Query(txCtx, "SELECT count(*) FROM proc_type_exprs")
 		if err != nil {
 			return err
 		}

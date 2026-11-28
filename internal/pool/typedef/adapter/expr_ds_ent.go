@@ -21,14 +21,14 @@ func (dao *daoEnt) addExpRec(ctx context.Context, conn tx.Conn, rec typedef.ExpR
 	dto := dataFromExpRec(rec)
 	txCtx := entpgx.WithConn(ctx, conn.Pgx)
 	for _, st := range dto.States {
-		_, err := dao.client.TypeExp.Create().
+		_, err := dao.client.TypeExpr.Create().
 			SetID(st.ExpCK).
-			SetSupExpCk(st.SupExpCK).
+			SetSupExprCk(st.SupExprCK).
 			SetKind(int16(st.K)).
 			SetSpec(st.Spec).
 			Save(txCtx)
 		if err != nil {
-			dao.log.Error("query execution failed", ckAttr, slog.Int64("exp_ck", st.ExpCK))
+			dao.log.Error("query execution failed", ckAttr, slog.Int64("expr_ck", st.ExpCK))
 			return err
 		}
 	}
@@ -102,12 +102,12 @@ func (dao *daoEnt) GetTypeMap(ctx context.Context, conn tx.Conn, expCKs map[symb
 const selectRecByCK = `
 WITH RECURSIVE exp_tree AS (
     SELECT top.*
-    FROM pool_type_exps top
-    WHERE top.exp_ck = $1
+    FROM pool_type_exprs top
+    WHERE top.expr_ck = $1
     UNION ALL
     SELECT sub.*
-    FROM pool_type_exps sub, exp_tree sup
-    WHERE sub.sup_exp_ck = sup.exp_ck
+    FROM pool_type_exprs sub, exp_tree sup
+    WHERE sub.sup_expr_ck = sup.expr_ck
 )
 SELECT * FROM exp_tree
 `

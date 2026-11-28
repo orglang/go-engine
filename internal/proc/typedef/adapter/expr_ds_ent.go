@@ -13,7 +13,7 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/ent"
-	typeexpent "orglang/go-engine/internal/proc/ent/typeexp"
+	typeexprent "orglang/go-engine/internal/proc/ent/typeexpr"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
@@ -23,30 +23,30 @@ type expDaoEnt struct {
 	log    *slog.Logger
 }
 
-func NewExpDaoEnt(client *ent.Client, log *slog.Logger) typedef.TypeExpRepo {
+func NewExpDaoEnt(client *ent.Client, log *slog.Logger) typedef.TypeExprRepo {
 	name := slog.String("name", reflect.TypeFor[expDaoEnt]().Name())
 	return &expDaoEnt{client: client, log: log.With(name)}
 }
 
 // for compilation purposes
-func newExpRepo() typedef.TypeExpRepo {
+func newExpRepo() typedef.TypeExprRepo {
 	return new(expDaoEnt)
 }
 
 func (dao *expDaoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.ExpRec) error {
 	ckAttr := slog.Any("expCK", rec.Key())
 	dto := dataFromExpRec(rec)
-	builders := make([]*ent.TypeExpCreate, 0, len(dto.States))
+	builders := make([]*ent.TypeExprCreate, 0, len(dto.States))
 	for _, st := range dto.States {
-		builders = append(builders, dao.client.TypeExp.Create().
+		builders = append(builders, dao.client.TypeExpr.Create().
 			SetID(st.ExpCK).
-			SetSupExpCk(st.SupExpCK).
+			SetSupExprCk(st.SupExprCK).
 			SetKind(int16(st.K)).
 			SetSpec(st.Spec))
 	}
 	txCtx := entpgx.WithConn(ctx, conn.Pgx)
-	err := dao.client.TypeExp.CreateBulk(builders...).
-		OnConflictColumns(typeexpent.FieldID).
+	err := dao.client.TypeExpr.CreateBulk(builders...).
+		OnConflictColumns(typeexprent.FieldID).
 		DoNothing().
 		Exec(txCtx)
 	if err != nil {
@@ -134,11 +134,11 @@ func (dao *expDaoEnt) SelectRecsByCKs(ctx context.Context, conn tx.Conn, expCKs 
 const selectByID = `
 WITH RECURSIVE exp_tree AS (
     SELECT top.*
-    FROM proc_type_exps top
-    WHERE top.exp_ck = $1
+    FROM proc_type_exprs top
+    WHERE top.expr_ck = $1
     UNION ALL
     SELECT sub.*
-    FROM proc_type_exps sub, exp_tree sup
-    WHERE sub.sup_exp_ck = sup.exp_ck
+    FROM proc_type_exprs sub, exp_tree sup
+    WHERE sub.sup_expr_ck = sup.expr_ck
 )
 SELECT * FROM exp_tree`

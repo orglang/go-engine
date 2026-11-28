@@ -3,7 +3,6 @@ package core
 import (
 	"encoding/json/jsontext"
 	jsonv2 "encoding/json/v2"
-	"errors"
 	"fmt"
 
 	"orglang/go-engine/internal/adt/identity"
@@ -37,38 +36,6 @@ func childExprContentKey(spec ExprSpec) (int64, error) {
 	return int64(key), err
 }
 
-func validateExprSpec(spec ExprSpec) error {
-	if spec == nil {
-		return errors.New("nil process term expression")
-	}
-	switch s := spec.(type) {
-	case CloseSpec, SendSpec, LinkSpec, FwdSpec, DetachSpec, ReleaseSpec:
-		return nil
-	case WaitSpec:
-		return validateExprSpec(s.ContExpr)
-	case RecvSpec:
-		return validateExprSpec(s.ContExpr)
-	case LabSpec:
-		return validateExprSpec(s.ContExpr)
-	case CaseSpec:
-		for label, child := range s.ContExprs {
-			if err := validateExprSpec(child); err != nil {
-				return fmt.Errorf("case[%s]: %w", uniqsym.ConvertToString(label), err)
-			}
-		}
-		return nil
-	case CallSpec:
-		return validateExprSpec(s.ContExpr)
-	case SpawnSpec:
-		return validateExprSpec(s.ContExpr)
-	case AcqureSpec:
-		return validateExprSpec(s.ContExpr)
-	case AcceptSpec:
-		return validateExprSpec(s.ContExpr)
-	default:
-		return ErrExprTypeUnexpected(spec)
-	}
-}
 
 func (s CloseSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
 	return marshalTaggedSpec(enc, "close", map[string]any{"cont_chnl_ph": string(s.ContChnlPH)})

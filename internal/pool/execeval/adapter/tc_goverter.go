@@ -14,13 +14,13 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/execvar/adapter:Data.*
 // goverter:extend DataToEvalSnap1
 var (
-	// goverter:map . CompRef
+	// goverter:map . RootRef
 	DataToEvalRec func(EvalRec) (execeval.EvalRec, error)
-	// goverter:autoMap CompRef
+	// goverter:autoMap RootRef
 	DataFromEvalRec func(execeval.EvalRec) EvalRec
-	// goverter:map . CompRef
+	// goverter:map . RootRef
 	DataToEvalSnap2 func(EvalSnap2) (execeval.EvalSnap2, error)
-	// goverter:autoMap CompRef
+	// goverter:autoMap RootRef
 	DataFromEvalSnap2 func(execeval.EvalSnap2) EvalSnap2
 
 	DataToRefMap  func(map[uniqsym.ADT]EvalSnap2) (map[uniqsym.ADT]execeval.EvalSnap2, error)

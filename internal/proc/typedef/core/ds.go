@@ -18,11 +18,8 @@ type Repo interface {
 	GetRecByQN(context.Context, tx.Conn, uniqsym.ADT) (DefRec, error)
 	GetRecsByQNs(context.Context, tx.Conn, []uniqsym.ADT) ([]DefRec, error)
 	SelectEnv(context.Context, tx.Conn, []uniqsym.ADT) (map[uniqsym.ADT]DefRec, error)
-}
-
-type TypeExprRepo interface {
-	AddRec(context.Context, tx.Conn, ExprRec) error
-	SelectRecByCK(context.Context, tx.Conn, contkey.ADT) (ExprRec, error)
-	SelectRecsByCKs(context.Context, tx.Conn, []contkey.ADT) ([]ExprRec, error)
-	SelectEnv(context.Context, tx.Conn, []contkey.ADT) (map[contkey.ADT]ExprRec, error)
+	AddExprRec(context.Context, tx.Conn, ExprRec) error
+	SelectExprRecByCK(context.Context, tx.Conn, contkey.ADT) (ExprRec, error)
+	SelectExprRecsByCKs(context.Context, tx.Conn, []contkey.ADT) ([]ExprRec, error)
+	SelectExprEnv(context.Context, tx.Conn, []contkey.ADT) (map[contkey.ADT]ExprRec, error)
 }

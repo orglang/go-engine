@@ -9,7 +9,7 @@ import (
 )
 
 type Repo interface {
-	SetExpCK(context.Context, tx.Conn, identity.ADT, contkey.ADT) error
+	SetExprCK(context.Context, tx.Conn, identity.ADT, contkey.ADT) error
 	GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRec, error)
 	InsertSpec(context.Context, tx.Conn, ExprSpec) error
 	SelectSpecByCK(context.Context, tx.Conn, contkey.ADT) (ExprSpec, error)

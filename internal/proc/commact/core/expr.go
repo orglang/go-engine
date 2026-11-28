@@ -119,7 +119,7 @@ func (s ReleaseSpec) Via() symbol.ADT { return s.CommChnlPH }
 
 type ExprRec interface {
 	ExprSpec
-	IsExpRec()
+	IsExprRec()
 }
 
 type CloseRec struct {
@@ -128,7 +128,7 @@ type CloseRec struct {
 
 func (r CloseRec) Via() symbol.ADT { return r.ContChnlPH }
 
-func (CloseRec) IsExpRec() {}
+func (CloseRec) IsExprRec() {}
 
 type WaitRec struct {
 	ContChnlPH symbol.ADT
@@ -137,7 +137,7 @@ type WaitRec struct {
 
 func (r WaitRec) Via() symbol.ADT { return r.ContChnlPH }
 
-func (WaitRec) IsExpRec() {}
+func (WaitRec) IsExprRec() {}
 
 type SendRec struct {
 	CommChnlPH symbol.ADT
@@ -149,7 +149,7 @@ type SendRec struct {
 
 func (r SendRec) Via() symbol.ADT { return r.CommChnlPH }
 
-func (SendRec) IsExpRec() {}
+func (SendRec) IsExprRec() {}
 
 type RecvRec struct {
 	CommChnlPH symbol.ADT
@@ -160,7 +160,7 @@ type RecvRec struct {
 
 func (r RecvRec) Via() symbol.ADT { return r.CommChnlPH }
 
-func (RecvRec) IsExpRec() {}
+func (RecvRec) IsExprRec() {}
 
 type LabRec struct {
 	CommChnlPH symbol.ADT
@@ -171,7 +171,7 @@ type LabRec struct {
 
 func (r LabRec) Via() symbol.ADT { return r.CommChnlPH }
 
-func (LabRec) IsExpRec() {}
+func (LabRec) IsExprRec() {}
 
 type CaseRec struct {
 	CommChnlPH symbol.ADT
@@ -181,7 +181,7 @@ type CaseRec struct {
 
 func (r CaseRec) Via() symbol.ADT { return r.CommChnlPH }
 
-func (CaseRec) IsExpRec() {}
+func (CaseRec) IsExprRec() {}
 
 type FwdRec struct {
 	CommChnlPH symbol.ADT
@@ -190,7 +190,7 @@ type FwdRec struct {
 
 func (r FwdRec) Via() symbol.ADT { return r.CommChnlPH }
 
-func (FwdRec) IsExpRec() {}
+func (FwdRec) IsExprRec() {}
 
 func CollectEnv(spec ExprSpec) []identity.ADT {
 	return collectEnvRec(spec, []identity.ADT{})
@@ -210,7 +210,7 @@ func collectEnvRec(s ExprSpec, env []identity.ADT) []identity.ADT {
 	}
 }
 
-func ErrExpTypeUnexpected(got ExprSpec) error {
+func ErrExprTypeUnexpected(got ExprSpec) error {
 	return fmt.Errorf("expr spec unexpected: %T", got)
 }
 
@@ -218,10 +218,10 @@ func ErrRecTypeUnexpected(got any) error {
 	return fmt.Errorf("expr rec unexpected: %T", got)
 }
 
-func ErrExpTypeMismatch(got, want ExprSpec) error {
+func ErrExprTypeMismatch(got, want ExprSpec) error {
 	return fmt.Errorf("expr spec mismatch: want %T, got %T", want, got)
 }
 
-func ErrExpValueNil(pid identity.ADT) error {
+func ErrExprValueNil(pid identity.ADT) error {
 	return fmt.Errorf("proc %q term is nil", pid)
 }

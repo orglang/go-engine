@@ -176,7 +176,7 @@ type AcquireRec struct {
 }
 
 func (r AcquireRec) rec()    {}
-func (AcquireRec) IsExpRec() {}
+func (AcquireRec) IsExprRec() {}
 
 type AcceptRec struct {
 	ContChnlPH symbol.ADT
@@ -184,7 +184,7 @@ type AcceptRec struct {
 }
 
 func (r AcceptRec) rec()    {}
-func (AcceptRec) IsExpRec() {}
+func (AcceptRec) IsExprRec() {}
 
 type HireRec struct {
 	ContChnlPH symbol.ADT
@@ -193,7 +193,7 @@ type HireRec struct {
 }
 
 func (r HireRec) rec()    {}
-func (HireRec) IsExpRec() {}
+func (HireRec) IsExprRec() {}
 
 type ApplyRec struct {
 	ContChnlPH symbol.ADT
@@ -202,42 +202,42 @@ type ApplyRec struct {
 }
 
 func (r ApplyRec) rec()    {}
-func (ApplyRec) IsExpRec() {}
+func (ApplyRec) IsExprRec() {}
 
 type ReleaseRec struct {
 	ContChnlPH symbol.ADT
 }
 
 func (r ReleaseRec) rec()    {}
-func (ReleaseRec) IsExpRec() {}
+func (ReleaseRec) IsExprRec() {}
 
 type DetachRec struct {
 	ContChnlPH symbol.ADT
 }
 
 func (r DetachRec) rec()    {}
-func (DetachRec) IsExpRec() {}
+func (DetachRec) IsExprRec() {}
 
 type FireRec struct {
 	CommChnlPH symbol.ADT
 }
 
 func (r FireRec) rec()    {}
-func (FireRec) IsExpRec() {}
+func (FireRec) IsExprRec() {}
 
 type QuitRec struct {
 	CommChnlPH symbol.ADT
 }
 
 func (r QuitRec) rec()    {}
-func (QuitRec) IsExpRec() {}
+func (QuitRec) IsExprRec() {}
 
 type SpawnRec struct {
 	CommChnlPH symbol.ADT
 }
 
 func (r SpawnRec) rec()    {}
-func (SpawnRec) IsExpRec() {}
+func (SpawnRec) IsExprRec() {}
 
 func ErrSpecTypeUnexpected(got ExprSpec) error {
 	return fmt.Errorf("expr spec unexpected: %T%+v", got, got)
@@ -247,6 +247,6 @@ func ErrRecTypeUnexpected(got ExprRec) error {
 	return fmt.Errorf("expr rec unexpected: %T%+v", got, got)
 }
 
-func ErrExpKindUnexpected(got ExprKind) error {
+func ErrExprKindUnexpected(got ExprKind) error {
 	return fmt.Errorf("expr kind unexpected: %v", got)
 }

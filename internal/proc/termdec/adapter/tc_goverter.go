@@ -42,6 +42,6 @@ var (
 	// goverter:map TermQn TermQN
 	DecSpecFromGenerated func(webapi.ProcDecSpec) (termdec.DecSpec, error)
 	// goverter:map TermID TermId
-	// goverter:map ProgRef.ProgRN DescRn
+	// goverter:map ProgRef.ProgRN ProgRn
 	DecSnapToGenerated func(termdec.DecSnap) webapi.AnyTermRef
 )

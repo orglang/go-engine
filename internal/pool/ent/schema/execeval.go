@@ -9,7 +9,7 @@ import (
 	"orglang/go-engine/internal/adt/execroot/adapter/entschema"
 )
 
-// ExecEval describes a persisted pool computation execution.
+// ExecEval describes a persisted pool execution.
 type ExecEval struct {
 	ent.Schema
 }

@@ -17,7 +17,7 @@ import (
 
 type defRecDTO struct {
 	TermID string `db:"term_id"`
-	ExpCK  int64  `db:"expr_ck"`
+	ExprCK  int64  `db:"expr_ck"`
 }
 
 type daoEnt struct {
@@ -53,16 +53,16 @@ WHERE def.term_id = $1
 		}
 		return termdef.DefRec{}, err
 	}
-	expCK, err := contkey.ConvertFromInt(dto.ExpCK)
+	exprCK, err := contkey.ConvertFromInt(dto.ExprCK)
 	if err != nil {
 		return termdef.DefRec{}, err
 	}
-	if expCK == 0 {
+	if exprCK == 0 {
 		return termdef.DefRec{TermID: termID}, nil
 	}
-	exp, err := dao.selectSpecByCK(ctx, conn, expCK)
+	expr, err := dao.selectSpecByCK(ctx, conn, exprCK)
 	if err != nil {
 		return termdef.DefRec{}, err
 	}
-	return termdef.DefRec{TermID: termID, Exp: exp}, nil
+	return termdef.DefRec{TermID: termID, Expr: expr}, nil
 }

@@ -39,7 +39,7 @@ Identity Program и принадлежащих ему сущностей раз�
 
 Одна атомарная команда, меняющая наблюдаемое состояние Program, увеличивает `ProgRN` ровно один раз. Это правило распространяется на:
 
-- изменение Type expression и переключение текущего `ExpCK`;
+- изменение Type expression и переключение текущего `ExprCK`;
 - изменение Declaration или Definition Term;
 - добавление принадлежащей Program сущности;
 - переименование Type или Term;
@@ -70,7 +70,7 @@ Aliases и история прежних QN не входят в базовую 
 
 ### Type expression
 
-Type хранит ссылку на текущее expression state через `ExpCK`. Изменение Type создаёт новое expression state и переключает текущий `ExpCK`.
+Type хранит ссылку на текущее expression state через `ExprCK`. Изменение Type создаёт новое expression state и переключает текущий `ExprCK`.
 
 Полная история версий Type не входит в базовую модель. Старые expression states сохраняются, пока на них существуют действующие ссылки или иные зависимости. Удаление таких состояний должно соблюдать referential integrity; конкретные retention и garbage-collection правила относятся к последующему lifecycle/persistence design.
 
@@ -99,7 +99,7 @@ Client — роль Type, контракт которого Term использ�
 - Один Term может использовать собственный Provider Type также и в роли Client; Provider и Client остаются разными отношениями.
 - Client reference не передаёт владение Type и не объединяет Program aggregates.
 
-Идентификатор Type state, на который ссылается Client, пока не выбран. `ExpCK` — кандидат, но не подтверждено, что он идентифицирует весь Type contract.
+Идентификатор Type state, на который ссылается Client, пока не выбран. `ExprCK` — кандидат, но не подтверждено, что он идентифицирует весь Type contract.
 
 Открытыми остаются: возможность ссылаться на non-current Type state и правила его retention; явное обновление Client reference на новое состояние; возможность нескольких Client uses одного Type с разными pinned states.
 

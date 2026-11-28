@@ -17,7 +17,7 @@ import (
 
 type defRecDTO struct {
 	TermID string `db:"term_id"`
-	ExpCK  int64  `db:"expr_ck"`
+	ExprCK  int64  `db:"expr_ck"`
 }
 
 type daoEnt struct {
@@ -32,13 +32,13 @@ func NewDaoEnt(client *ent.Client, log *slog.Logger) termdef.Repo {
 
 var _ termdef.Repo = (*daoEnt)(nil)
 
-func (dao *daoEnt) SetExpCK(ctx context.Context, conn tx.Conn, termID identity.ADT, expCK contkey.ADT) error {
+func (dao *daoEnt) SetExpCK(ctx context.Context, conn tx.Conn, termID identity.ADT, exprCK contkey.ADT) error {
 	const query = `
 UPDATE proc_prog_terms
 SET expr_ck = $1
 WHERE term_id = $2
 `
-	result, err := conn.Pgx.Exec(ctx, query, int64(expCK), termID.String())
+	result, err := conn.Pgx.Exec(ctx, query, int64(exprCK), termID.String())
 	if err != nil {
 		return err
 	}
@@ -69,9 +69,9 @@ WHERE pd.term_id = $1
 		}
 		return termdef.DefRec{}, err
 	}
-	expCK, err := contkey.ConvertFromInt(dto.ExpCK)
+	exprCK, err := contkey.ConvertFromInt(dto.ExprCK)
 	if err != nil {
 		return termdef.DefRec{}, err
 	}
-	return termdef.DefRec{TermID: termID, ExpCK: expCK}, nil
+	return termdef.DefRec{TermID: termID, ExprCK: exprCK}, nil
 }

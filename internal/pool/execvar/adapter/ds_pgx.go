@@ -35,7 +35,7 @@ func (dao *daoPgx) AddRecs(ctx context.Context, conn tx.Conn, recs []adtexecvar.
 	batch := pgx.Batch{}
 	for _, rec := range recs {
 		dto := execvaradapter.DataFromVarRec(rec)
-		batch.Queue(insertRec(getTableName(rec)), dto.ExecID, dto.ExecRN, dto.CommID, dto.ChnlID, dto.ChnlPH, dto.ExpCK, dto.ChnlBS)
+		batch.Queue(insertRec(getTableName(rec)), dto.ExecID, dto.ExecRN, dto.CommID, dto.ChnlID, dto.ChnlPH, dto.ExprCK, dto.ChnlBS)
 	}
 	br := conn.Pgx.SendBatch(ctx, &batch)
 	defer func() {

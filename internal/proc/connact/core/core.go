@@ -3,7 +3,7 @@ package core
 import (
 	"fmt"
 
-	"orglang/go-engine/internal/adt/comproot"
+	"orglang/go-engine/internal/adt/execroot"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 )
@@ -20,7 +20,7 @@ func ChnlID(rec ActRec) identity.ADT { return rec.act() }
 type PubRec struct {
 	ConnID  identity.ADT
 	ActNr   seqnum.ADT
-	CompRef comproot.RootRef
+	RootRef execroot.RootRef
 	ChnlID  identity.ADT
 	ValExp  ExpRec
 }
@@ -32,7 +32,7 @@ func (r PubRec) GetActNr() seqnum.ADT    { return r.ActNr }
 type SubRec struct {
 	ConnID  identity.ADT
 	ActNr   seqnum.ADT
-	CompRef comproot.RootRef
+	RootRef execroot.RootRef
 	ChnlID  identity.ADT
 	ContExp ExpRec
 }

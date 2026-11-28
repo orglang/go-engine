@@ -163,10 +163,10 @@ func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) 
 			return err
 		}
 		if len(result.Connection.Acts) > 0 || (result.Connection.OffsetNr != nil && !result.Connection.OffsetNr.IsEmpty()) {
-			providerExecRef := execroot.RootRef{RootID: result.Connection.ProviderExecID, RootRN: result.Connection.ProviderExecRN}
-			if providerExecRef.RootID == evalSnap.RootRef.RootID {
-				if providerExecRef.RootRN != evalSnap.RootRef.RootRN {
-					return fmt.Errorf("provider execution root snapshot changed: expected revision %v, got %v", providerExecRef.RootRN, evalSnap.RootRef.RootRN)
+			providerExecRef := execroot.RootRef{ExecID: result.Connection.ProviderExecID, ExecRN: result.Connection.ProviderExecRN}
+			if providerExecRef.ExecID == evalSnap.RootRef.ExecID {
+				if providerExecRef.ExecRN != evalSnap.RootRef.ExecRN {
+					return fmt.Errorf("provider execution root snapshot changed: expected revision %v, got %v", providerExecRef.ExecRN, evalSnap.RootRef.ExecRN)
 				}
 			} else {
 				result.Mod.ExecRefs = append(result.Mod.ExecRefs, providerExecRef)

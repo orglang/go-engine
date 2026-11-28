@@ -33,12 +33,12 @@ func newControllerEcho(a execeval.API, l *slog.Logger) *controllerEcho {
 }
 
 func (h *controllerEcho) GetProcessExecution(c *echo.Context, id string, params webapi.GetProcessExecutionParams) error {
-	compID, err := identity.ConvertFromString(id)
+	rootID, err := identity.ConvertFromString(id)
 	if err != nil {
 		h.log.Error("conversion failed", slog.Any("id", id), slog.Any("err", err))
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	ref := execroot.RootRef{RootID: compID}
+	ref := execroot.RootRef{RootID: rootID}
 	if params.Rn != nil {
 		ref.RootRN = seqnum.ConvertFromInt(*params.Rn)
 	}

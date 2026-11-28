@@ -8,7 +8,7 @@ import (
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
-func TestExpSpecFromGenerated(t *testing.T) {
+func TestExprSpecFromGenerated(t *testing.T) {
 	var one webapi.ProcTypeExprSpec
 	err := one.FromProcTypeOneSpec(webapi.ProcTypeOneSpec{})
 	if err != nil {
@@ -108,7 +108,7 @@ func TestExpSpecFromGenerated(t *testing.T) {
 	}
 }
 
-func TestExpSpecFromGeneratedRejectsUnknownKind(t *testing.T) {
+func TestExprSpecFromGeneratedRejectsUnknownKind(t *testing.T) {
 	var dto webapi.ProcTypeExprSpec
 	if err := dto.UnmarshalJSON([]byte(`{"kind":"unknown"}`)); err != nil {
 		t.Fatal(err)

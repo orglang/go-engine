@@ -15,22 +15,22 @@ import (
 	"orglang/go-engine/internal/pool/ent/execeval"
 )
 
-type compRootDaoEnt struct {
+type execRootDaoEnt struct {
 	client *ent.Client
 	log    *slog.Logger
 }
 
-func NewCompRootDaoEnt(client *ent.Client, log *slog.Logger) execroot.Repo {
-	name := slog.String("name", reflect.TypeFor[compRootDaoEnt]().Name())
-	return &compRootDaoEnt{client: client, log: log.With(name)}
+func NewExecRootDaoEnt(client *ent.Client, log *slog.Logger) execroot.Repo {
+	name := slog.String("name", reflect.TypeFor[execRootDaoEnt]().Name())
+	return &execRootDaoEnt{client: client, log: log.With(name)}
 }
 
-func (dao *compRootDaoEnt) TouchRef(ctx context.Context, conn tx.Conn, ref execroot.RootRef) error {
+func (dao *execRootDaoEnt) TouchRef(ctx context.Context, conn tx.Conn, ref execroot.RootRef) error {
 	dto := execrootadapter.DataFromRef(ref)
 	refAttr := slog.Any("ref", ref)
 	updated, err := dao.client.ExecEval.Update().
-		AddCompRn(1).
-		Where(execeval.ID(dto.RootID), execeval.CompRn(dto.RootRN)).
+		AddRootRn(1).
+		Where(execeval.ID(dto.RootID), execeval.RootRn(dto.RootRN)).
 		Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)

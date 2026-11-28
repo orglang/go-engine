@@ -121,7 +121,7 @@ Execution — отдельный aggregate root в каждом bounded context.
 ### Identity и Evaluation
 
 - `ExecID` идентифицирует Execution aggregate и его единственную Evaluation.
-- В одном Execution существует ровно одна Evaluation; отдельный `ExecutionID` не вводится.
+- В одном Execution существует ровно одна Evaluation; отдельный `EvaluationID` не вводится.
 - `ExecRN` — revision Execution aggregate.
 - Variables и channel bindings принадлежат Evaluation и адресуются через `ExecID`.
 - Повторный запуск изменяет состояние той же Evaluation. Несколько Execution, retry history и run history базовой моделью не поддерживаются.
@@ -136,7 +136,7 @@ Connection — сущность первого уровня внутри Executi
 - Ordered Acts принадлежат Connection и являются его записями, а не отдельными сущностями первого уровня.
 - Мутации Connection выполняются через Provider Execution и используют expected revision Provider.
 - У Connection нет независимой optimistic concurrency revision.
-- Изменение только Connection не увеличивает revision Client Execution. Revision Client увеличивается, только если меняется его Execution.
+- Изменение только Connection не увеличивает revision Client Execution. Revision Client увеличивается, только если меняется его Evaluation.
 - Изменения, затрагивающие несколько Executions, требуют явно заданной транзакционной стратегии и expected revisions соответствующих агрегатов. Наличие endpoint reference само по себе не означает совместного владения.
 
 ## 6. Архитектурные границы

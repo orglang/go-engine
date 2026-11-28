@@ -140,11 +140,11 @@ func poolStepSpecToCore(dto api.PoolStepSpec) (execstep.StepSpec, error) {
 	if err != nil {
 		return execstep.StepSpec{}, err
 	}
-	expr, err := poolTermExprToCore(dto.PoolExprr)
+	expr, err := poolTermExprToCore(dto.PoolExpr)
 	if err != nil {
 		return execstep.StepSpec{}, err
 	}
-	return execstep.StepSpec{RootRef: ref, PoolExpr: exp}, nil
+	return execstep.StepSpec{RootRef: ref, PoolExpr: expr}, nil
 }
 
 func rootRefFromAPI(dto api.AnyRootRef) (execroot.RootRef, error) {

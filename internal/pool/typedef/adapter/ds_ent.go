@@ -27,7 +27,7 @@ func NewDaoEnt(client *ent.Client, log *slog.Logger) typedef.Repo {
 }
 
 func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec) error {
-	if err := dao.addExpRec(ctx, conn, rec.TypeExpr); err != nil {
+	if err := dao.addExprRec(ctx, conn, rec.TypeExpr); err != nil {
 		return err
 	}
 	refAttr := slog.Any("typeID", rec.TypeID)

@@ -38,7 +38,7 @@ var (
 var (
 	// goverter:map CommPh ChnlPH
 	// goverter:map TypeQn TypeQN
-	ConnVarFromGenerated func(webapi.AnyConnVarSpec) (termvar.VarSpec, error)
+	CommVarFromGenerated func(webapi.AnyCommVarSpec) (termvar.VarSpec, error)
 	// goverter:map TermQn TermQN
 	DecSpecFromGenerated func(webapi.ProcDecSpec) (termdec.DecSpec, error)
 	// goverter:map TermID TermId

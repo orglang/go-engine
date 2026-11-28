@@ -1,7 +1,7 @@
 package execvar
 
 import (
-	"orglang/go-engine/internal/adt/comproot"
+	"orglang/go-engine/internal/adt/execroot"
 	"orglang/go-engine/internal/adt/symbol"
 )
 

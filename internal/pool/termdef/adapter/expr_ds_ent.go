@@ -23,7 +23,7 @@ func (dao *daoEnt) insertSpec(ctx context.Context, conn tx.Conn, spec termdef.Ex
 	if err != nil {
 		return err
 	}
-	dto, err := dataFromExpRec(rec)
+	dto, err := dataFromExprRec(rec)
 	if err != nil {
 		return err
 	}
@@ -68,7 +68,7 @@ func (dao *daoEnt) selectSpecByCK(ctx context.Context, conn tx.Conn, key contkey
 	if len(states) == 0 {
 		return nil, fmt.Errorf("pool term Definition %d does not exist", key)
 	}
-	rec, err := dataToExpRec(ExpData{ExpCK: int64(key), States: states})
+	rec, err := dataToExprRec(ExpData{ExpCK: int64(key), States: states})
 	if err != nil {
 		return nil, err
 	}

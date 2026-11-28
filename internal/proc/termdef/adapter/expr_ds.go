@@ -55,19 +55,19 @@ type ExpStateSpec struct {
 	NewChnlPHs []string         `json:"new_chnl_phs,omitempty"`
 }
 
-func dataFromExpRec(rec termdef.ExpRec) (ExpData, error) {
+func dataFromExprRec(rec termdef.ExpRec) (ExpData, error) {
 	if rec == nil {
 		return ExpData{}, errors.New("nil process Definition record")
 	}
 	dto := ExpData{ExpCK: contkey.ConvertToInt(rec.ContentKey())}
-	statesFromExpRec(0, rec, &dto)
+	statesFromExprRec(0, rec, &dto)
 	return dto, nil
 }
-func statesFromExpRec(parent int64, rec termdef.ExpRec, dto *ExpData) int64 {
+func statesFromExprRec(parent int64, rec termdef.ExpRec, dto *ExpData) int64 {
 	key := contkey.ConvertToInt(rec.ContentKey())
 	var kind int16
 	d := ExpStateSpec{}
-	child := func(r termdef.ExpRec) int64 { return statesFromExpRec(key, r, dto) }
+	child := func(r termdef.ExpRec) int64 { return statesFromExprRec(key, r, dto) }
 	switch r := rec.(type) {
 	case termdef.ExpCloseRec:
 		kind = CloseKind
@@ -156,7 +156,7 @@ func statesFromExpRec(parent int64, rec termdef.ExpRec, dto *ExpData) int64 {
 	return key
 }
 
-func dataToExpRec(dto ExpData) (termdef.ExpRec, error) {
+func dataToExprRec(dto ExpData) (termdef.ExpRec, error) {
 	states := make(map[int64]ExpState, len(dto.States))
 	for _, state := range dto.States {
 		if _, exists := states[state.ExpCK]; exists {
@@ -173,7 +173,7 @@ func dataToExpRec(dto ExpData) (termdef.ExpRec, error) {
 	}
 	visiting := make(map[int64]struct{}, len(states))
 	visited := make(map[int64]struct{}, len(states))
-	rec, err := statesToExpRec(states, root, visiting, visited)
+	rec, err := statesToExprRec(states, root, visiting, visited)
 	if err != nil {
 		return nil, err
 	}
@@ -182,7 +182,7 @@ func dataToExpRec(dto ExpData) (termdef.ExpRec, error) {
 	}
 	return rec, nil
 }
-func statesToExpRec(states map[int64]ExpState, st ExpState, visiting, visited map[int64]struct{}) (termdef.ExpRec, error) {
+func statesToExprRec(states map[int64]ExpState, st ExpState, visiting, visited map[int64]struct{}) (termdef.ExpRec, error) {
 	if _, exists := visiting[st.ExpCK]; exists {
 		return nil, fmt.Errorf("process Definition contains cyclic expression %d", st.ExpCK)
 	}
@@ -202,7 +202,7 @@ func statesToExpRec(states map[int64]ExpState, st ExpState, visiting, visited ma
 		if s.SupExprCK != st.ExpCK {
 			return nil, fmt.Errorf("process Definition child %d has unexpected parent", ck)
 		}
-		return statesToExpRec(states, s, visiting, visited)
+		return statesToExprRec(states, s, visiting, visited)
 	}
 	ph := symbol.ConvertFromString
 	switch st.K {

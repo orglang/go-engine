@@ -41,32 +41,32 @@ type ExpStateSpec struct {
 	ContExpCK   int64    `json:"cont_expr_ck,omitempty"`
 }
 
-func dataFromExpRec(rec termdef.ExpRec) (ExpData, error) {
+func dataFromExprRec(rec termdef.ExpRec) (ExpData, error) {
 	if rec == nil {
 		return ExpData{}, errors.New("nil pool Definition record")
 	}
 	dto := ExpData{ExpCK: contkey.ConvertToInt(rec.ContentKey())}
-	statesFromExpRec(0, rec, &dto)
+	statesFromExprRec(0, rec, &dto)
 	return dto, nil
 }
 
-func statesFromExpRec(parent int64, rec termdef.ExpRec, dto *ExpData) int64 {
+func statesFromExprRec(parent int64, rec termdef.ExpRec, dto *ExpData) int64 {
 	key := contkey.ConvertToInt(rec.ContentKey())
 	var kind int16
 	data := ExpStateSpec{}
 	switch r := rec.(type) {
 	case termdef.ExpAcquireRec:
 		kind, data.CommChnlPH = AcquireKind, string(r.CommChnlPH)
-		data.ContExpCK = statesFromExpRec(key, r.ContExp, dto)
+		data.ContExpCK = statesFromExprRec(key, r.ContExp, dto)
 	case termdef.ExpAcceptRec:
 		kind, data.CommChnlPH = AcceptKind, string(r.CommChnlPH)
-		data.ContExpCK = statesFromExpRec(key, r.ContExp, dto)
+		data.ContExpCK = statesFromExprRec(key, r.ContExp, dto)
 	case termdef.ExpHireRec:
 		kind, data.CommChnlPH, data.ProcTermQN = HireKind, string(r.CommChnlPH), uniqsym.ConvertToString(r.ProcTermQN)
-		data.ContExpCK = statesFromExpRec(key, r.ContExp, dto)
+		data.ContExpCK = statesFromExprRec(key, r.ContExp, dto)
 	case termdef.ExpApplyRec:
 		kind, data.CommChnlPH, data.ProcTermQN = ApplyKind, string(r.CommChnlPH), uniqsym.ConvertToString(r.ProcTermQN)
-		data.ContExpCK = statesFromExpRec(key, r.ContExp, dto)
+		data.ContExpCK = statesFromExprRec(key, r.ContExp, dto)
 	case termdef.ExpReleaseRec:
 		kind, data.CommChnlPH = ReleaseKind, string(r.CommChnlPH)
 	case termdef.ExpDetachRec:
@@ -85,7 +85,7 @@ func statesFromExpRec(parent int64, rec termdef.ExpRec, dto *ExpData) int64 {
 	return key
 }
 
-func dataToExpRec(dto ExpData) (termdef.ExpRec, error) {
+func dataToExprRec(dto ExpData) (termdef.ExpRec, error) {
 	states := make(map[int64]ExpState, len(dto.States))
 	for _, state := range dto.States {
 		if _, exists := states[state.ExpCK]; exists {
@@ -102,7 +102,7 @@ func dataToExpRec(dto ExpData) (termdef.ExpRec, error) {
 	}
 	visiting := make(map[int64]struct{}, len(states))
 	visited := make(map[int64]struct{}, len(states))
-	rec, err := statesToExpRec(states, root, visiting, visited)
+	rec, err := statesToExprRec(states, root, visiting, visited)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func dataToExpRec(dto ExpData) (termdef.ExpRec, error) {
 	return rec, nil
 }
 
-func statesToExpRec(states map[int64]ExpState, state ExpState, visiting, visited map[int64]struct{}) (termdef.ExpRec, error) {
+func statesToExprRec(states map[int64]ExpState, state ExpState, visiting, visited map[int64]struct{}) (termdef.ExpRec, error) {
 	if _, exists := visiting[state.ExpCK]; exists {
 		return nil, fmt.Errorf("pool Definition contains cyclic expression %d", state.ExpCK)
 	}
@@ -132,7 +132,7 @@ func statesToExpRec(states map[int64]ExpState, state ExpState, visiting, visited
 		if child.SupExprCK != state.ExpCK {
 			return nil, fmt.Errorf("pool Definition child %d has unexpected parent", child.ExpCK)
 		}
-		return statesToExpRec(states, child, visiting, visited)
+		return statesToExprRec(states, child, visiting, visited)
 	}
 	ph := func() (symbol.ADT, error) { return symbol.ConvertFromString(spec.CommChnlPH) }
 	switch state.K {

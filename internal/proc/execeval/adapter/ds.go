@@ -6,8 +6,8 @@ import (
 )
 
 type EvalRec struct {
-	RootID   string `db:"comp_id"`
-	RootRN   int64  `db:"comp_rn"`
+	RootID   string `db:"root_id"`
+	RootRN   int64  `db:"root_rn"`
 	LiabMode int16  `db:"liab_mode"`
 }
 

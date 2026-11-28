@@ -6,16 +6,16 @@ import (
 	"entgo.io/ent/schema/mixin"
 )
 
-// CompRootMixin defines the fields shared by pool and process computation
-// execution tables that are used for ADT semantic revision tracking.
-type CompRootMixin struct {
+// ExecRootMixin defines the fields shared by pool and process execution
+// tables that are used for ADT semantic revision tracking.
+type ExecRootMixin struct {
 	mixin.Schema
 }
 
-// Fields of the CompRootMixin.
-func (CompRootMixin) Fields() []ent.Field {
+// Fields of the ExecRootMixin.
+func (ExecRootMixin) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("id").StorageKey("exec_id").Unique().Immutable(),
-		field.Int64("comp_rn").StorageKey("exec_rn"),
+		field.Int64("root_rn").StorageKey("exec_rn"),
 	}
 }

@@ -21,24 +21,24 @@ func expContentValue(spec ExpSpec) (any, error) {
 	switch s := spec.(type) {
 	case ExpAcquireSpec:
 		k, e := child(s.ContExp)
-		return map[string]any{"kind": "acquire", "conn_chnl_ph": string(s.ConnChnlPH), "cont_exp_ck": k}, e
+		return map[string]any{"kind": "acquire", "comm_chnl_ph": string(s.CommChnlPH), "cont_exp_ck": k}, e
 	case ExpAcceptSpec:
 		k, e := child(s.ContExp)
-		return map[string]any{"kind": "accept", "conn_chnl_ph": string(s.ConnChnlPH), "cont_exp_ck": k}, e
+		return map[string]any{"kind": "accept", "comm_chnl_ph": string(s.CommChnlPH), "cont_exp_ck": k}, e
 	case ExpHireSpec:
 		k, e := child(s.ContExp)
-		return map[string]any{"kind": "hire", "conn_chnl_ph": string(s.ConnChnlPH), "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN), "cont_exp_ck": k}, e
+		return map[string]any{"kind": "hire", "comm_chnl_ph": string(s.CommChnlPH), "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN), "cont_exp_ck": k}, e
 	case ExpApplySpec:
 		k, e := child(s.ContExp)
-		return map[string]any{"kind": "apply", "conn_chnl_ph": string(s.ConnChnlPH), "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN), "cont_exp_ck": k}, e
+		return map[string]any{"kind": "apply", "comm_chnl_ph": string(s.CommChnlPH), "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN), "cont_exp_ck": k}, e
 	case ExpReleaseSpec:
-		return map[string]any{"kind": "release", "conn_chnl_ph": string(s.ConnChnlPH)}, nil
+		return map[string]any{"kind": "release", "comm_chnl_ph": string(s.CommChnlPH)}, nil
 	case ExpDetachSpec:
-		return map[string]any{"kind": "detach", "conn_chnl_ph": string(s.ConnChnlPH)}, nil
+		return map[string]any{"kind": "detach", "comm_chnl_ph": string(s.CommChnlPH)}, nil
 	case ExpFireSpec:
-		return map[string]any{"kind": "fire", "conn_chnl_ph": string(s.ConnChnlPH), "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN)}, nil
+		return map[string]any{"kind": "fire", "comm_chnl_ph": string(s.CommChnlPH), "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN)}, nil
 	case ExpQuitSpec:
-		return map[string]any{"kind": "quit", "conn_chnl_ph": string(s.ConnChnlPH), "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN)}, nil
+		return map[string]any{"kind": "quit", "comm_chnl_ph": string(s.CommChnlPH), "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN)}, nil
 	case ExpSpawnSpec:
 		qns := make([]string, len(s.ProcCompQNs))
 		for i, q := range s.ProcCompQNs {

@@ -5,7 +5,7 @@ import "./models/any/type.tsp";
 import "./models/any/type/link.tsp";
 import "./models/any/term.tsp";
 import "./models/any/root.tsp";
-import "./models/any/conn/var.tsp";
+import "./models/any/comm/var.tsp";
 import "./models/any/eval.tsp";
 import "./models/proc/type/expr.tsp";
 import "./models/proc/type/def.tsp";

@@ -58,7 +58,7 @@ CREATE TABLE pool_exec_evals (
 CREATE TABLE pool_exec_vars (
     exec_id varchar,
     exec_rn bigint,
-    conn_id varchar,
+    comm_id varchar,
     chnl_id varchar,
     chnl_ph varchar,
     exp_ck bigint,
@@ -71,8 +71,8 @@ CREATE TABLE pool_struct_vars (
 CREATE TABLE pool_linear_vars (
 ) INHERITS (pool_exec_vars);
 
-CREATE TABLE pool_exec_conns (
-    conn_id varchar UNIQUE,
+CREATE TABLE pool_exec_comms (
+    comm_id varchar UNIQUE,
     provider_exec_id varchar NOT NULL,
     provider_exec_rn bigint NOT NULL,
     client_exec_id varchar NOT NULL,
@@ -81,8 +81,8 @@ CREATE TABLE pool_exec_conns (
     act_nr bigint
 );
 
-CREATE TABLE pool_conn_acts (
-    conn_id varchar,
+CREATE TABLE pool_comm_acts (
+    comm_id varchar,
     act_nr bigint,
     exec_id varchar,
     exec_rn bigint,
@@ -149,7 +149,7 @@ CREATE TABLE proc_exec_evals (
 CREATE TABLE proc_exec_vars (
     exec_id varchar,
     exec_rn bigint,
-    conn_id varchar,
+    comm_id varchar,
     chnl_id varchar,
     chnl_ph varchar,
     exp_ck bigint,
@@ -162,8 +162,8 @@ CREATE TABLE proc_struct_vars (
 CREATE TABLE proc_linear_vars (
 ) INHERITS (proc_exec_vars);
 
-CREATE TABLE proc_exec_conns (
-    conn_id varchar UNIQUE,
+CREATE TABLE proc_exec_comms (
+    comm_id varchar UNIQUE,
     provider_exec_id varchar NOT NULL,
     provider_exec_rn bigint NOT NULL,
     client_exec_id varchar NOT NULL,
@@ -172,8 +172,8 @@ CREATE TABLE proc_exec_conns (
     act_nr bigint
 );
 
-CREATE TABLE proc_conn_acts (
-    conn_id varchar,
+CREATE TABLE proc_comm_acts (
+    comm_id varchar,
     act_nr bigint,
     exec_id varchar,
     exec_rn bigint,

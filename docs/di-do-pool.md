@@ -8,7 +8,7 @@ the complete pool runtime.
 
 The following repository ports are registered through `samber/do` v2:
 
-- `execconn.Repo` backed by Ent and specialized pgx operations.
+- `execcomm.Repo` backed by Ent and specialized pgx operations.
 - `execvar.Repo` with its current persistence adapter.
 - `execeval.Repo` backed by Ent and specialized pgx queries.
 - `typeexp.Repo` backed by Ent.
@@ -21,7 +21,7 @@ The following repository ports are registered through `samber/do` v2:
 The process computation-execution repository has its own adapter package.
 Each adapter package owns its concrete persistence details and exposes core
 ports. Repositories continue to receive `tx.Conn` from their callers; no
-provider acquires a connection or changes transaction ownership.
+provider acquires a communication or changes transaction ownership.
 
 The broker and API form a runtime relationship, so subscription is not hidden
 inside a lazy provider. The application composition root must call

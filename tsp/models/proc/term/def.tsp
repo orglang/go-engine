@@ -27,21 +27,21 @@ model DefWaitSpec {
   cont_expr: DefinitionSpec;
 }
 model DefSendSpec {
-  conn_ph: string;
+  comm_ph: string;
   val_ph: string;
 }
 model DefRecvSpec {
-  conn_ph: string;
+  comm_ph: string;
   new_ph: string;
   cont_expr: DefinitionSpec;
 }
 model DefLabSpec {
-  conn_ph: string;
+  comm_ph: string;
   val_lab_qn: string;
   cont_expr: DefinitionSpec;
 }
 model DefCaseSpec {
-  conn_ph: string;
+  comm_ph: string;
   cont_exps: Record<DefinitionSpec>;
 }
 model DefLinkSpec {
@@ -50,33 +50,33 @@ model DefLinkSpec {
   ys: string[];
 }
 model DefFwdSpec {
-  conn_ph: string;
+  comm_ph: string;
   cont_ph: string;
 }
 model DefCallSpec {
-  conn_ph: string;
+  comm_ph: string;
   new_ph: string;
   proc_qn: string;
   val_phs: string[];
   cont_expr: DefinitionSpec;
 }
 model DefSpawnSpec {
-  conn_ph: string;
+  comm_ph: string;
   proc_qn: string;
   new_phs: string[];
   cont_expr: DefinitionSpec;
 }
 model DefAcquireSpec {
-  conn_ph: string;
+  comm_ph: string;
   cont_expr: DefinitionSpec;
 }
 model DefAcceptSpec {
-  conn_ph: string;
+  comm_ph: string;
   cont_expr: DefinitionSpec;
 }
 model DefDetachSpec {
-  conn_ph: string;
+  comm_ph: string;
 }
 model DefReleaseSpec {
-  conn_ph: string;
+  comm_ph: string;
 }

@@ -1,126 +1,126 @@
-# ADR-0002: Жизненный цикл Connection и его endpoints
+# ADR-0002: Жизненный цикл Communication и его endpoints
 
 - **Статус:** Accepted
 - **Дата:** 2026-11-08
 
 ## Контекст
 
-`Computation` является корнем агрегата. `Connection` — вложенная сущность, связывающая провайдерскую и клиентскую Computation для обмена сообщениями. Endpoint-ы представлены переменными Computation: liability-переменная провайдера и соответствующая asset-переменная клиента содержат один `ConnID`. В рассматриваемом сценарии провайдерская Computation создаётся раньше клиентской.
+`Computation` является корнем агрегата. `Communication` — вложенная сущность, связывающая провайдерскую и клиентскую Computation для обмена сообщениями. Endpoint-ы представлены переменными Computation: liability-переменная провайдера и соответствующая asset-переменная клиента содержат один `CommID`. В рассматриваемом сценарии провайдерская Computation создаётся раньше клиентской.
 
-Если откладывать создание Connection до появления клиента, можно заранее зарезервировать его идентификатор в liability-переменной провайдера. Это позволяет сохранить идентичность будущего соединения без преждевременного создания самой сущности.
+Если откладывать создание Communication до появления клиента, можно заранее зарезервировать его идентификатор в liability-переменной провайдера. Это позволяет сохранить идентичность будущего соединения без преждевременного создания самой сущности.
 
 ## Рассмотренные варианты
 
-### Вариант C: резервировать ConnID в liability-переменной, создавать Connection вместе с client Computation
+### Вариант C: резервировать CommID в liability-переменной, создавать Communication вместе с client Computation
 
-При создании provider Computation генерируется `ConnID` и записывается в её liability-переменную, но запись Connection ещё не создаётся. При создании client Computation используется тот же `ConnID`: в одной транзакции создаётся Connection с обоими endpoints и создаётся/привязывается liability-переменная клиента.
+При создании provider Computation генерируется `CommID` и записывается в её liability-переменную, но запись Communication ещё не создаётся. При создании client Computation используется тот же `CommID`: в одной транзакции создаётся Communication с обоими endpoints и создаётся/привязывается liability-переменная клиента.
 
 Преимущества:
-- Provider Computation сразу получает стабильный `ConnID`; её не нужно обновлять при создании клиента.
-- Connection создаётся только тогда, когда известны оба endpoint, поэтому не требуется nullable `ClientCompRef`.
-- Не нужно создавать Connection при первом Act или вводить отдельную операцию позднего обновления endpoint.
+- Provider Computation сразу получает стабильный `CommID`; её не нужно обновлять при создании клиента.
+- Communication создаётся только тогда, когда известны оба endpoint, поэтому не требуется nullable `ClientCompRef`.
+- Не нужно создавать Communication при первом Act или вводить отдельную операцию позднего обновления endpoint.
 
 Недостатки и обязательные условия:
-- До создания клиента `ConnID` существует только как зарезервированное значение в liability-переменной; строки Connection ещё нет. Это должно быть допустимым состоянием модели и хранилища.
-- Все операции, которым нужна именно сущность Connection (например, чтение состояния канала или запись Act), должны требовать существующую запись Connection и не трактовать один `ConnID` как доказательство её существования.
-- Создание Connection при создании клиента должно проверять, что `ConnID` действительно зарезервирован provider Computation и ещё не использован; создание Connection и клиентской стороны должно быть атомарным.
-- Нужно определить поведение, если client Computation так и не будет создана: зарезервированный `ConnID` останется в provider Computation без соответствующей записи Connection.
+- До создания клиента `CommID` существует только как зарезервированное значение в liability-переменной; строки Communication ещё нет. Это должно быть допустимым состоянием модели и хранилища.
+- Все операции, которым нужна именно сущность Communication (например, чтение состояния канала или запись Act), должны требовать существующую запись Communication и не трактовать один `CommID` как доказательство её существования.
+- Создание Communication при создании клиента должно проверять, что `CommID` действительно зарезервирован provider Computation и ещё не использован; создание Communication и клиентской стороны должно быть атомарным.
+- Нужно определить поведение, если client Computation так и не будет создана: зарезервированный `CommID` останется в provider Computation без соответствующей записи Communication.
 
-### Вариант A: создавать Connection вместе с provider Computation
+### Вариант A: создавать Communication вместе с provider Computation
 
-При создании provider Computation в той же транзакции создаются Connection и liability-переменная провайдера. Connection сразу получает `ProviderCompRef` и свой `ConnID`; `ClientCompRef` остаётся пустым до создания client Computation. При создании клиента существующий Connection дополняется второй ссылкой.
+При создании provider Computation в той же транзакции создаются Communication и liability-переменная провайдера. Communication сразу получает `ProviderCompRef` и свой `CommID`; `ClientCompRef` остаётся пустым до создания client Computation. При создании клиента существующий Communication дополняется второй ссылкой.
 
 Преимущества:
-- `ConnID` доступен провайдеру с момента создания его Computation и может использоваться всеми последующими операциями провайдера.
-- Liability-переменная провайдера сразу имеет окончательную связь с Connection; не требуется позднее обновлять уже созданную переменную.
+- `CommID` доступен провайдеру с момента создания его Computation и может использоваться всеми последующими операциями провайдера.
+- Liability-переменная провайдера сразу имеет окончательную связь с Communication; не требуется позднее обновлять уже созданную переменную.
 - Создание клиента сводится к присоединению второго endpoint к уже известной сущности.
 
 Недостатки:
-- Между созданием provider и client Computation существует Connection с незаполненным `ClientCompRef`.
+- Между созданием provider и client Computation существует Communication с незаполненным `ClientCompRef`.
 - Хранилище и прикладные операции должны допускать это состояние, но не разрешать Act до появления клиента.
 
-### Вариант B: создавать Connection вместе с client Computation
+### Вариант B: создавать Communication вместе с client Computation
 
-При создании provider Computation Connection ещё не существует, а её liability-переменная не имеет `ConnID`. В транзакции создания client Computation создаётся Connection с обоими endpoints, после чего обновляется liability-переменная уже существующей provider Computation и создаётся/привязывается переменная клиента.
+При создании provider Computation Communication ещё не существует, а её liability-переменная не имеет `CommID`. В транзакции создания client Computation создаётся Communication с обоими endpoints, после чего обновляется liability-переменная уже существующей provider Computation и создаётся/привязывается переменная клиента.
 
 Преимущества:
-- Connection появляется только тогда, когда известны обе Computation; не требуется состояние с незаполненным `ClientCompRef`.
-- Создаваемый Connection сразу имеет оба endpoint.
+- Communication появляется только тогда, когда известны обе Computation; не требуется состояние с незаполненным `ClientCompRef`.
+- Создаваемый Communication сразу имеет оба endpoint.
 
 Недостатки:
-- До создания клиента у провайдера нет `ConnID`; любые операции, которым нужна идентичность соединения, должны быть отложены или иметь отдельное представление состояния «ещё не подключён».
-- Создание клиента должно атомарно изменять уже существующую provider Computation и её liability-переменную вместе с созданием Connection и client Computation. Это расширяет транзакционную границу и требует найти и обновить провайдерскую сторону.
+- До создания клиента у провайдера нет `CommID`; любые операции, которым нужна идентичность соединения, должны быть отложены или иметь отдельное представление состояния «ещё не подключён».
+- Создание клиента должно атомарно изменять уже существующую provider Computation и её liability-переменную вместе с созданием Communication и client Computation. Это расширяет транзакционную границу и требует найти и обновить провайдерскую сторону.
 - Появляется поздняя мутация ранее созданной provider Computation ради завершения её связи.
 
 ## Решение
 
-Запись Connection хранит обе endpoint-ссылки явно: `ProviderCompRef` и `ClientCompRef`. В `pool_exec_conns` и `proc_exec_conns` соответствующие `provider_exec_id`/`provider_exec_rn` и `client_exec_id`/`client_exec_rn` обязательны. Pool Connection и Process Connection — независимые сущности со своими записями и жизненными циклами. Process Connection не создаётся и не копируется из Pool Connection; её создание при присоединении второй Process Computation рассматривается отдельно в [go-workspace issue #112](https://github.com/orglang/go-workspace/issues/112). И provider, и client могут инициировать как PubRec, так и SubRec; тип события не определяет сторону-инициатора. Каждый Act добавляется в общий поток Connection с увеличением общего номера Act.
+Запись Communication хранит обе endpoint-ссылки явно: `ProviderCompRef` и `ClientCompRef`. В `pool_exec_comms` и `proc_exec_comms` соответствующие `provider_exec_id`/`provider_exec_rn` и `client_exec_id`/`client_exec_rn` обязательны. Pool Communication и Process Communication — независимые сущности со своими записями и жизненными циклами. Process Communication не создаётся и не копируется из Pool Communication; её создание при присоединении второй Process Computation рассматривается отдельно в [go-workspace issue #112](https://github.com/orglang/go-workspace/issues/112). И provider, и client могут инициировать как PubRec, так и SubRec; тип события не определяет сторону-инициатора. Каждый Act добавляется в общий поток Communication с увеличением общего номера Act.
 
-Для Pool Connection генерировать `ConnID` при создании provider Computation и сохранять его в liability-переменной. Сам Pool Connection создавать в транзакции создания client Computation, когда известны оба endpoint. Это решение о Pool Connection не задаёт момент создания Process Connection: process-side attachment lifecycle вынесен в [go-workspace issue #112](https://github.com/orglang/go-workspace/issues/112).
+Для Pool Communication генерировать `CommID` при создании provider Computation и сохранять его в liability-переменной. Сам Pool Communication создавать в транзакции создания client Computation, когда известны оба endpoint. Это решение о Pool Communication не задаёт момент создания Process Communication: process-side attachment lifecycle вынесен в [go-workspace issue #112](https://github.com/orglang/go-workspace/issues/112).
 
-### Владение Connection и конкурентные изменения
+### Владение Communication и конкурентные изменения
 
-`Connection` является вложенной сущностью агрегата provider Computation. Provider Computation — единственный aggregate root, через который выполняются все изменения соответствующего Connection, включая добавление Act и изменение общего состояния взаимодействия. Это правило не зависит от того, какая сторона инициировала операцию: client может инициировать PubRec или SubRec, но запись Connection всё равно изменяется в транзакции с проверкой версии provider Computation.
+`Communication` является вложенной сущностью агрегата provider Computation. Provider Computation — единственный aggregate root, через который выполняются все изменения соответствующего Communication, включая добавление Act и изменение общего состояния взаимодействия. Это правило не зависит от того, какая сторона инициировала операцию: client может инициировать PubRec или SubRec, но запись Communication всё равно изменяется в транзакции с проверкой версии provider Computation.
 
-Каждая операция, изменяющая Pool или Process Connection, должна проверять именно ту версию `provider.comp_rn`, которую операция прочитала вместе со snapshot Connection, и атомарно увеличивать `provider.comp_rn` в той же транзакции, что и изменение Connection. Нельзя перечитывать актуальную версию provider root только внутри write-транзакции: это скрыло бы конкурентное изменение, произошедшее после чтения snapshot. Если ожидаемая версия устарела, CAS завершается конфликтом и вся транзакция откатывается. Поэтому две разные Computation, конкурирующие за один Pool или Process Connection, конфликтуют на версии одного и того же provider aggregate root. Отдельная версия Connection для optimistic concurrency control не вводится. Для Pool и Process Connection `act_nr` хранит ревизию provider Computation, которая была получена CAS-операцией и породила Act (`observed provider.comp_rn + 1`); тем самым `act_nr` одновременно задаёт порядок Act и не требует отдельного инкремента. Сам concurrency control по-прежнему выполняется исключительно CAS на `provider.comp_rn`, а не сравнением `act_nr`. За одну операцию добавляется не более одного Act. `offset_nr` обновляется под защитой CAS provider root.
+Каждая операция, изменяющая Pool или Process Communication, должна проверять именно ту версию `provider.comp_rn`, которую операция прочитала вместе со snapshot Communication, и атомарно увеличивать `provider.comp_rn` в той же транзакции, что и изменение Communication. Нельзя перечитывать актуальную версию provider root только внутри write-транзакции: это скрыло бы конкурентное изменение, произошедшее после чтения snapshot. Если ожидаемая версия устарела, CAS завершается конфликтом и вся транзакция откатывается. Поэтому две разные Computation, конкурирующие за один Pool или Process Communication, конфликтуют на версии одного и того же provider aggregate root. Отдельная версия Communication для optimistic concurrency control не вводится. Для Pool и Process Communication `act_nr` хранит ревизию provider Computation, которая была получена CAS-операцией и породила Act (`observed provider.comp_rn + 1`); тем самым `act_nr` одновременно задаёт порядок Act и не требует отдельного инкремента. Сам concurrency control по-прежнему выполняется исключительно CAS на `provider.comp_rn`, а не сравнением `act_nr`. За одну операцию добавляется не более одного Act. `offset_nr` обновляется под защитой CAS provider root.
 
 
-### Доступ к Connection со стороны клиента при партицировании
+### Доступ к Communication со стороны клиента при партицировании
 
-Если таблица Pool Connection будет партицирована по владельцу агрегата (`provider_exec_id`), запись Connection естественно размещается в партиции provider Computation. Это соответствует владению и позволяет выполнять изменения Connection рядом с provider aggregate root. Однако такой ключ партицирования создаёт отдельную задачу для чтения со стороны клиента: клиентская Computation знает `ConnID` из своей asset-переменной, но одного `ConnID` может быть недостаточно, чтобы определить партицию и эффективно выполнить partition pruning.
+Если таблица Pool Communication будет партицирована по владельцу агрегата (`provider_exec_id`), запись Communication естественно размещается в партиции provider Computation. Это соответствует владению и позволяет выполнять изменения Communication рядом с provider aggregate root. Однако такой ключ партицирования создаёт отдельную задачу для чтения со стороны клиента: клиентская Computation знает `CommID` из своей asset-переменной, но одного `CommID` может быть недостаточно, чтобы определить партицию и эффективно выполнить partition pruning.
 
-При этом глобальную уникальность `ConnID` нельзя автоматически гарантировать обычным `UNIQUE(conn_id)` на PostgreSQL partitioned table, если ключ партицирования не входит в ограничение уникальности. Ограничение вида `UNIQUE(provider_exec_id, conn_id)` обеспечивает уникальность только в сочетании с ключом владельца и означает, что для адресации Connection клиенту потребуется также знать `provider_exec_id`. Это значение можно хранить в клиентской endpoint-переменной/ссылке вместе с `ConnID`.
+При этом глобальную уникальность `CommID` нельзя автоматически гарантировать обычным `UNIQUE(comm_id)` на PostgreSQL partitioned table, если ключ партицирования не входит в ограничение уникальности. Ограничение вида `UNIQUE(provider_exec_id, comm_id)` обеспечивает уникальность только в сочетании с ключом владельца и означает, что для адресации Communication клиенту потребуется также знать `provider_exec_id`. Это значение можно хранить в клиентской endpoint-переменной/ссылке вместе с `CommID`.
 
-Если контракт должен позволять находить Connection только по глобальному `ConnID`, потребуется отдельный глобально адресуемый lookup-механизм, например небольшая непартицированная registry-таблица `ConnID → provider_exec_id`. Такой registry добавляет ещё одну сущность и требует атомарно поддерживать её при создании и удалении Connection. Альтернативой может быть отдельная непартицированная таблица идентификаторов, если её свойства и ограничения подходят модели.
+Если контракт должен позволять находить Communication только по глобальному `CommID`, потребуется отдельный глобально адресуемый lookup-механизм, например небольшая непартицированная registry-таблица `CommID → provider_exec_id`. Такой registry добавляет ещё одну сущность и требует атомарно поддерживать её при создании и удалении Communication. Альтернативой может быть отдельная непартицированная таблица идентификаторов, если её свойства и ограничения подходят модели.
 
-Таким образом, партицирование по `provider_exec_id` не меняет aggregate ownership или правило OCC, но влияет на контракт адресации Connection с клиентской стороны. До выбора физической схемы необходимо явно решить, будет ли клиентская сторона передавать `provider_exec_id` вместе с `ConnID` или система обязана поддерживать lookup только по `ConnID`. Это архитектурное решение о способе поиска; оно не должно приводить к переносу Connection в клиентскую партицию или к изменению его владельца.
+Таким образом, партицирование по `provider_exec_id` не меняет aggregate ownership или правило OCC, но влияет на контракт адресации Communication с клиентской стороны. До выбора физической схемы необходимо явно решить, будет ли клиентская сторона передавать `provider_exec_id` вместе с `CommID` или система обязана поддерживать lookup только по `CommID`. Это архитектурное решение о способе поиска; оно не должно приводить к переносу Communication в клиентскую партицию или к изменению его владельца.
 
-В рамках PR #61 тот же принцип aggregate ownership применяется к Process Connection независимо от её отдельного lifecycle: provider Computation является единственным aggregate root, и любое изменение Process Connection сериализуется CAS по ожидаемой `provider.comp_rn`. Это не связывает жизненные циклы Pool и Process Connection и не предполагает копирования их состояния. Attachment Process Connection остаётся отдельной задачей (см. [go-workspace issue #112](https://github.com/orglang/go-workspace/issues/112)).
+В рамках PR #61 тот же принцип aggregate ownership применяется к Process Communication независимо от её отдельного lifecycle: provider Computation является единственным aggregate root, и любое изменение Process Communication сериализуется CAS по ожидаемой `provider.comp_rn`. Это не связывает жизненные циклы Pool и Process Communication и не предполагает копирования их состояния. Attachment Process Communication остаётся отдельной задачей (см. [go-workspace issue #112](https://github.com/orglang/go-workspace/issues/112)).
 
-`client.comp_rn` увеличивается только тогда, когда операция одновременно изменяет собственное состояние client Computation (например, её переменные). Сам факт изменения общего Connection не является основанием увеличивать ревизию client Computation.
+`client.comp_rn` увеличивается только тогда, когда операция одновременно изменяет собственное состояние client Computation (например, её переменные). Сам факт изменения общего Communication не является основанием увеличивать ревизию client Computation.
 
-При создании клиентской Computation система получает зарезервированный `ConnID` из provider liability-переменной и в той же транзакции создаёт запись Connection и asset-переменные клиента. Liability-переменная провайдера и asset-переменная клиента тем самым образуют два endpoint-а одной Connection и ссылаются на один `ConnID`. До этой транзакции строки Connection нет.
+При создании клиентской Computation система получает зарезервированный `CommID` из provider liability-переменной и в той же транзакции создаёт запись Communication и asset-переменные клиента. Liability-переменная провайдера и asset-переменная клиента тем самым образуют два endpoint-а одной Communication и ссылаются на один `CommID`. До этой транзакции строки Communication нет.
 
-Оба endpoint должны быть определены до первого Act. Первый Act не создаёт Connection и не выполняет отложенную привязку endpoints.
+Оба endpoint должны быть определены до первого Act. Первый Act не создаёт Communication и не выполняет отложенную привязку endpoints.
 
 ## Повторная оценка выбора
 
-Вариант C следует предпочесть варианту A, если модель допускает зарезервированный `ConnID` без строки Connection до создания клиента. Он сохраняет раннюю и стабильную идентичность для provider Computation, но создаёт сам Connection только после появления обоих endpoints. Это устраняет как позднее изменение provider Computation из варианта B, так и неполный Connection из варианта A.
+Вариант C следует предпочесть варианту A, если модель допускает зарезервированный `CommID` без строки Communication до создания клиента. Он сохраняет раннюю и стабильную идентичность для provider Computation, но создаёт сам Communication только после появления обоих endpoints. Это устраняет как позднее изменение provider Computation из варианта B, так и неполный Communication из варианта A.
 
-Если же по инвариантам хранения каждый `ConnID` в liability-переменной обязан немедленно обозначать существующую запись Connection, вариант C неприменим; тогда остаётся вариант A.
+Если же по инвариантам хранения каждый `CommID` в liability-переменной обязан немедленно обозначать существующую запись Communication, вариант C неприменим; тогда остаётся вариант A.
 
 ## Инварианты
 
-- `ConnID` глобально идентифицирует Connection; отдельный составной reference для него не вводится.
-- Connection явно хранит `ProviderCompRef` и `ClientCompRef`; ссылки включают идентификатор и ревизию Computation.
-- Pool Connection принадлежит агрегату provider Computation; provider Computation является единственным aggregate root для его изменений, а Pool Connection не является самостоятельным корнем агрегата.
-- Любое изменение Pool или Process Connection проверяет ожидаемый `provider.comp_rn` из прочитанного snapshot и атомарно увеличивает `provider.comp_rn`; отдельная версия Connection и CAS по `offset_nr` для optimistic concurrency control не используются.
-- `client.comp_rn` увеличивается только при изменении собственного состояния client Computation, а не только из-за изменения Pool Connection.
-- Для Pool и Process Connection `act_nr` равен новой ревизии provider Computation, полученной CAS-операцией, которая добавляет Act. Он задаёт порядок Act, но не является самостоятельным concurrency token; отдельный инкремент счётчика не выполняется. Одна операция добавляет не более одного Act.
-- При выбранном варианте C запись Connection создаётся только после появления обоих endpoints; принадлежность endpoint-ов определяется переменными Computation, содержащими общий `ConnID`.
-- До создания клиента provider liability-переменная может содержать зарезервированный `ConnID`, для которого запись Connection ещё отсутствует.
-- Для одной пары endpoints используется один Connection и один `ConnID`.
-- Pool Connection и Process Connection не создаются друг из друга и не зависят друг от друга. Момент создания Process Connection не входит в объём этого PR; он должен быть определён отдельной process-side attachment операцией (см. [go-workspace issue #112](https://github.com/orglang/go-workspace/issues/112)). После создания любое изменение Process Connection, включая offset и Acts, защищается CAS по `provider.comp_rn`. `offset_nr` — только позиция в потоке, не concurrency token. PubRec и SubRec от любой из сторон используют одну process-side запись Connection и общий счётчик Acts; тип события не ограничивает сторону-инициатора.
-- Создание Connection с обоими endpoints и клиентской стороны выполняется атомарно с созданием клиентской Computation и её переменных.
+- `CommID` глобально идентифицирует Communication; отдельный составной reference для него не вводится.
+- Communication явно хранит `ProviderCompRef` и `ClientCompRef`; ссылки включают идентификатор и ревизию Computation.
+- Pool Communication принадлежит агрегату provider Computation; provider Computation является единственным aggregate root для его изменений, а Pool Communication не является самостоятельным корнем агрегата.
+- Любое изменение Pool или Process Communication проверяет ожидаемый `provider.comp_rn` из прочитанного snapshot и атомарно увеличивает `provider.comp_rn`; отдельная версия Communication и CAS по `offset_nr` для optimistic concurrency control не используются.
+- `client.comp_rn` увеличивается только при изменении собственного состояния client Computation, а не только из-за изменения Pool Communication.
+- Для Pool и Process Communication `act_nr` равен новой ревизии provider Computation, полученной CAS-операцией, которая добавляет Act. Он задаёт порядок Act, но не является самостоятельным concurrency token; отдельный инкремент счётчика не выполняется. Одна операция добавляет не более одного Act.
+- При выбранном варианте C запись Communication создаётся только после появления обоих endpoints; принадлежность endpoint-ов определяется переменными Computation, содержащими общий `CommID`.
+- До создания клиента provider liability-переменная может содержать зарезервированный `CommID`, для которого запись Communication ещё отсутствует.
+- Для одной пары endpoints используется один Communication и один `CommID`.
+- Pool Communication и Process Communication не создаются друг из друга и не зависят друг от друга. Момент создания Process Communication не входит в объём этого PR; он должен быть определён отдельной process-side attachment операцией (см. [go-workspace issue #112](https://github.com/orglang/go-workspace/issues/112)). После создания любое изменение Process Communication, включая offset и Acts, защищается CAS по `provider.comp_rn`. `offset_nr` — только позиция в потоке, не concurrency token. PubRec и SubRec от любой из сторон используют одну process-side запись Communication и общий счётчик Acts; тип события не ограничивает сторону-инициатора.
+- Создание Communication с обоими endpoints и клиентской стороны выполняется атомарно с созданием клиентской Computation и её переменных.
 - Первый Act допустим только после заполнения обоих endpoints.
-- `ChnlID` остаётся отдельной идентичностью interaction channel и не заменяет `ConnID`.
+- `ChnlID` остаётся отдельной идентичностью interaction channel и не заменяет `CommID`.
 
 ## Последствия
 
 ### Положительные
 
-- Провайдер получает стабильный `ConnID` сразу при создании своей Computation.
-- Обе стороны используют одну запись Connection и одну идентичность канала.
-- Connection создаётся сразу с обоими endpoint; не требуется отложенная привязка.
-- Жизненный цикл Connection согласован с тем, что provider Computation является его единственным aggregate root.
-- Конкурирующие изменения одного Connection сериализуются optimistic concurrency control на `provider.comp_rn`, даже если операции инициированы разными endpoint-ами.
+- Провайдер получает стабильный `CommID` сразу при создании своей Computation.
+- Обе стороны используют одну запись Communication и одну идентичность канала.
+- Communication создаётся сразу с обоими endpoint; не требуется отложенная привязка.
+- Жизненный цикл Communication согласован с тем, что provider Computation является его единственным aggregate root.
+- Конкурирующие изменения одного Communication сериализуются optimistic concurrency control на `provider.comp_rn`, даже если операции инициированы разными endpoint-ами.
 
 ### Отрицательные
 
-- До создания клиента существует зарезервированный `ConnID` без строки Connection.
-- Операции, которым нужна сущность Connection, должны отличать зарезервированный идентификатор от созданного Connection.
-- Все операции изменения Connection, включая инициированные client-стороной, должны иметь доступ к provider aggregate root и выполнять запись в его транзакционном контексте.
+- До создания клиента существует зарезервированный `CommID` без строки Communication.
+- Операции, которым нужна сущность Communication, должны отличать зарезервированный идентификатор от созданного Communication.
+- Все операции изменения Communication, включая инициированные client-стороной, должны иметь доступ к provider aggregate root и выполнять запись в его транзакционном контексте.
 
 ## Когда пересмотреть решение
 
-Пересмотреть ADR следует, если изменится порядок создания сторон, появится сценарий, в котором Connection должен существовать без провайдерской Computation, либо будет введён отдельный жизненный цикл установления соединения, независимый от создания Computation.
+Пересмотреть ADR следует, если изменится порядок создания сторон, появится сценарий, в котором Communication должен существовать без провайдерской Computation, либо будет введён отдельный жизненный цикл установления соединения, независимый от создания Computation.

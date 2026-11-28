@@ -59,7 +59,7 @@ func (h *controllerEcho) CreatePoolDeclaration(c *echo.Context) error {
 }
 
 func connVarFromGenerated(dto webapi.AnyConnVarSpec) (termvar.VarSpec, error) {
-	channel, err := symbol.ConvertFromString(dto.ConnPh)
+	channel, err := symbol.ConvertFromString(dto.CommPh)
 	if err != nil {
 		return termvar.VarSpec{}, err
 	}

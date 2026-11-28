@@ -61,7 +61,7 @@ type SendRec struct {
 	X        string `json:"x"`
 	A        string `json:"a"`
 	B        string `json:"b"`
-	ConnID   string `json:"conn_id"`
+	CommID   string `json:"comm_id"`
 	ValExpCK int64  `json:"val_exp_ck"`
 }
 

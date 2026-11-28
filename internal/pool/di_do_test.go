@@ -8,7 +8,7 @@ import (
 
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
-	execconn "orglang/go-engine/internal/pool/execconn/core"
+	execcomm "orglang/go-engine/internal/pool/execcomm/core"
 	execevaladapter "orglang/go-engine/internal/pool/execeval/adapter"
 	execeval "orglang/go-engine/internal/pool/execeval/core"
 	execvar "orglang/go-engine/internal/pool/execvar/core"
@@ -38,8 +38,8 @@ func TestPackageProvidesPersistencePortsAndDefinitionServices(t *testing.T) {
 		name string
 		call func() error
 	}{
-		{"pool connection repository", func() error {
-			_, err := do.Invoke[execconn.Repo](injector)
+		{"pool communication repository", func() error {
+			_, err := do.Invoke[execcomm.Repo](injector)
 			return err
 		}},
 		{"pool component-variable repository", func() error {

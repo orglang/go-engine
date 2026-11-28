@@ -13,12 +13,12 @@ const testExecutionID = "9m4e2mr0ui3e8a215n4g"
 
 func TestGeneratedStepToCoreMapsNestedProcessExpression(t *testing.T) {
 	var closeExpr webapi.ProcTermExprSpec
-	if err := closeExpr.FromProcTermCloseSpec(webapi.ProcTermCloseSpec{ConnPh: "close-channel"}); err != nil {
+	if err := closeExpr.FromProcTermCloseSpec(webapi.ProcTermCloseSpec{CommPh: "close-channel"}); err != nil {
 		t.Fatalf("build generated close expression: %v", err)
 	}
 	var waitExpr webapi.ProcTermExprSpec
 	err := waitExpr.FromProcTermWaitSpec(webapi.ProcTermWaitSpec{
-		ConnPh:   "wait-channel",
+		CommPh:   "wait-channel",
 		ContExpr: closeExpr,
 	})
 	if err != nil {
@@ -77,7 +77,7 @@ func TestGeneratedStepToCoreMapsLinkExpression(t *testing.T) {
 
 func TestGeneratedStepToCoreRejectsInvalidExecutionID(t *testing.T) {
 	var closeExpr webapi.ProcTermExprSpec
-	if err := closeExpr.FromProcTermCloseSpec(webapi.ProcTermCloseSpec{ConnPh: "close-channel"}); err != nil {
+	if err := closeExpr.FromProcTermCloseSpec(webapi.ProcTermCloseSpec{CommPh: "close-channel"}); err != nil {
 		t.Fatalf("build generated close expression: %v", err)
 	}
 	if _, err := generatedStepToCore("not-an-xid", webapi.ProcStepSpec{ProcExpr: closeExpr}); err == nil {

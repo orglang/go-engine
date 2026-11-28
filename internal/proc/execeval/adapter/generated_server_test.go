@@ -48,7 +48,7 @@ func TestCfgGeneratedServerRegistersProcessExecutionRoute(t *testing.T) {
 		t.Errorf("unexpected rn: got %v, want 42", stub.gotRN)
 	}
 
-	req = httptest.NewRequestWithContext(context.Background(), http.MethodPost, processExecutionRoute+"/exec-2/steps", strings.NewReader(`{"proc_expr":{"kind":"close","conn_ph":"c"}}`))
+	req = httptest.NewRequestWithContext(context.Background(), http.MethodPost, processExecutionRoute+"/exec-2/steps", strings.NewReader(`{"proc_expr":{"kind":"close","comm_ph":"c"}}`))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec = httptest.NewRecorder()
 	e.ServeHTTP(rec, req)

@@ -11,7 +11,7 @@ import (
 	"orglang/go-engine/internal/lib/wp"
 	descrootadapter "orglang/go-engine/internal/pool/descroot/adapter"
 	"orglang/go-engine/internal/pool/ent"
-	execconn "orglang/go-engine/internal/pool/execconn/adapter"
+	execcomm "orglang/go-engine/internal/pool/execcomm/adapter"
 	execeval "orglang/go-engine/internal/pool/execeval/adapter"
 	execvar "orglang/go-engine/internal/pool/execvar/adapter"
 	termdec "orglang/go-engine/internal/pool/termdec/adapter"
@@ -24,7 +24,7 @@ var Package = do.Package(
 		return ent.NewClient(ent.Driver(entpgx.New())), nil
 	}),
 	wp.Package,
-	execconn.Package,
+	execcomm.Package,
 	execvar.Package,
 	execeval.Package,
 	typedef.Package,

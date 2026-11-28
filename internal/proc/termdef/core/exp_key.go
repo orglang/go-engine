@@ -29,13 +29,13 @@ func expContentValue(spec ExpSpec) (any, error) {
 		k, e := child(s.ContExp)
 		return map[string]any{"kind": "wait", "cont_chnl_ph": string(s.ContChnlPH), "cont_exp_ck": k}, e
 	case ExpSendSpec:
-		return map[string]any{"kind": "send", "conn_chnl_ph": string(s.ConnChnlPH), "val_chnl_ph": string(s.ValChnlPH)}, nil
+		return map[string]any{"kind": "send", "comm_chnl_ph": string(s.CommChnlPH), "val_chnl_ph": string(s.ValChnlPH)}, nil
 	case ExpRecvSpec:
 		k, e := child(s.ContExp)
-		return map[string]any{"kind": "recv", "conn_chnl_ph": string(s.ConnChnlPH), "new_chnl_ph": string(s.NewChnlPH), "cont_exp_ck": k}, e
+		return map[string]any{"kind": "recv", "comm_chnl_ph": string(s.CommChnlPH), "new_chnl_ph": string(s.NewChnlPH), "cont_exp_ck": k}, e
 	case ExpLabSpec:
 		k, e := child(s.ContExp)
-		return map[string]any{"kind": "lab", "conn_chnl_ph": string(s.ConnChnlPH), "val_lab_qn": uniqsym.ConvertToString(s.ValLabQN), "cont_exp_ck": k}, e
+		return map[string]any{"kind": "lab", "comm_chnl_ph": string(s.CommChnlPH), "val_lab_qn": uniqsym.ConvertToString(s.ValLabQN), "cont_exp_ck": k}, e
 	case ExpCaseSpec:
 		branches := make(map[string]int64, len(s.ContExps))
 		for q, v := range s.ContExps {
@@ -49,7 +49,7 @@ func expContentValue(spec ExpSpec) (any, error) {
 			}
 			branches[name] = k
 		}
-		return map[string]any{"kind": "case", "conn_chnl_ph": string(s.ConnChnlPH), "cont_exp_cks": branches}, nil
+		return map[string]any{"kind": "case", "comm_chnl_ph": string(s.CommChnlPH), "cont_exp_cks": branches}, nil
 	case ExpLinkSpec:
 		ys := make([]string, len(s.Ys))
 		for i, v := range s.Ys {
@@ -57,31 +57,31 @@ func expContentValue(spec ExpSpec) (any, error) {
 		}
 		return map[string]any{"kind": "link", "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN), "x": identity.ConvertToString(s.X), "ys": ys}, nil
 	case ExpFwdSpec:
-		return map[string]any{"kind": "fwd", "conn_chnl_ph": string(s.ConnChnlPH), "cont_chnl_ph": string(s.ContChnlPH)}, nil
+		return map[string]any{"kind": "fwd", "comm_chnl_ph": string(s.CommChnlPH), "cont_chnl_ph": string(s.ContChnlPH)}, nil
 	case ExpCallSpec:
 		k, e := child(s.ContExp)
 		chs := make([]string, len(s.ValChnlPHs))
 		for i, v := range s.ValChnlPHs {
 			chs[i] = string(v)
 		}
-		return map[string]any{"kind": "call", "conn_chnl_ph": string(s.ConnChnlPH), "new_chnl_ph": string(s.NewChnlPH), "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN), "val_chnl_phs": chs, "cont_exp_ck": k}, e
+		return map[string]any{"kind": "call", "comm_chnl_ph": string(s.CommChnlPH), "new_chnl_ph": string(s.NewChnlPH), "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN), "val_chnl_phs": chs, "cont_exp_ck": k}, e
 	case ExpSpawnSpec:
 		k, e := child(s.ContExp)
 		chs := make([]string, len(s.NewChnlPHs))
 		for i, v := range s.NewChnlPHs {
 			chs[i] = string(v)
 		}
-		return map[string]any{"kind": "spawn", "conn_chnl_ph": string(s.ConnChnlPH), "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN), "new_chnl_phs": chs, "cont_exp_ck": k}, e
+		return map[string]any{"kind": "spawn", "comm_chnl_ph": string(s.CommChnlPH), "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN), "new_chnl_phs": chs, "cont_exp_ck": k}, e
 	case ExpAcquireSpec:
 		k, e := child(s.ContExp)
-		return map[string]any{"kind": "acquire", "conn_chnl_ph": string(s.ConnChnlPH), "cont_exp_ck": k}, e
+		return map[string]any{"kind": "acquire", "comm_chnl_ph": string(s.CommChnlPH), "cont_exp_ck": k}, e
 	case ExpAcceptSpec:
 		k, e := child(s.ContExp)
-		return map[string]any{"kind": "accept", "conn_chnl_ph": string(s.ConnChnlPH), "cont_exp_ck": k}, e
+		return map[string]any{"kind": "accept", "comm_chnl_ph": string(s.CommChnlPH), "cont_exp_ck": k}, e
 	case ExpDetachSpec:
-		return map[string]any{"kind": "detach", "conn_chnl_ph": string(s.ConnChnlPH)}, nil
+		return map[string]any{"kind": "detach", "comm_chnl_ph": string(s.CommChnlPH)}, nil
 	case ExpReleaseSpec:
-		return map[string]any{"kind": "release", "conn_chnl_ph": string(s.ConnChnlPH)}, nil
+		return map[string]any{"kind": "release", "comm_chnl_ph": string(s.CommChnlPH)}, nil
 	default:
 		return nil, fmt.Errorf("unexpected process Definition spec %T", spec)
 	}

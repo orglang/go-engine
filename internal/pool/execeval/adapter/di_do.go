@@ -10,7 +10,7 @@ import (
 	"orglang/go-engine/internal/adt/execroot"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/pool/ent"
-	execconn "orglang/go-engine/internal/pool/execconn/core"
+	execcomm "orglang/go-engine/internal/pool/execcomm/core"
 	execeval "orglang/go-engine/internal/pool/execeval/core"
 	execvar "orglang/go-engine/internal/pool/execvar/core"
 	termdec "orglang/go-engine/internal/pool/termdec/core"
@@ -61,7 +61,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		connRepo, err := do.Invoke[execconn.Repo](i)
+		commRepo, err := do.Invoke[execcomm.Repo](i)
 		if err != nil {
 			return nil, err
 		}
@@ -93,7 +93,7 @@ var Package = do.Package(
 			ExecEvalRepo:   evalRepo,
 			ExecEvalBroker: broker,
 			ExecVarRepo:    varRepo,
-			ExecConnRepo:   connRepo,
+			ExecCommRepo:   commRepo,
 			TypeDefRepo:    typeRepo,
 			ProcEvalRepo:   procRepo,
 			TermDecRepo:    termDecRepo,

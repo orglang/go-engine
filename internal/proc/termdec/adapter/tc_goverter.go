@@ -36,7 +36,7 @@ var (
 // goverter:extend orglang/go-engine/internal/adt/symbol:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
 var (
-	// goverter:map ConnPh ChnlPH
+	// goverter:map CommPh ChnlPH
 	// goverter:map TypeQn TypeQN
 	ConnVarFromGenerated func(webapi.AnyConnVarSpec) (termvar.VarSpec, error)
 	// goverter:map TermQn TermQN

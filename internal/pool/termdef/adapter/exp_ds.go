@@ -35,7 +35,7 @@ type ExpState struct {
 }
 
 type ExpStateSpec struct {
-	ConnChnlPH  string   `json:"conn_chnl_ph,omitempty"`
+	CommChnlPH  string   `json:"comm_chnl_ph,omitempty"`
 	ProcTermQN  string   `json:"proc_term_qn,omitempty"`
 	ProcCompQNs []string `json:"proc_comp_qns,omitempty"`
 	ContExpCK   int64    `json:"cont_exp_ck,omitempty"`
@@ -56,25 +56,25 @@ func statesFromExpRec(parent int64, rec termdef.ExpRec, dto *ExpData) int64 {
 	data := ExpStateSpec{}
 	switch r := rec.(type) {
 	case termdef.ExpAcquireRec:
-		kind, data.ConnChnlPH = AcquireKind, string(r.ConnChnlPH)
+		kind, data.CommChnlPH = AcquireKind, string(r.CommChnlPH)
 		data.ContExpCK = statesFromExpRec(key, r.ContExp, dto)
 	case termdef.ExpAcceptRec:
-		kind, data.ConnChnlPH = AcceptKind, string(r.ConnChnlPH)
+		kind, data.CommChnlPH = AcceptKind, string(r.CommChnlPH)
 		data.ContExpCK = statesFromExpRec(key, r.ContExp, dto)
 	case termdef.ExpHireRec:
-		kind, data.ConnChnlPH, data.ProcTermQN = HireKind, string(r.ConnChnlPH), uniqsym.ConvertToString(r.ProcTermQN)
+		kind, data.CommChnlPH, data.ProcTermQN = HireKind, string(r.CommChnlPH), uniqsym.ConvertToString(r.ProcTermQN)
 		data.ContExpCK = statesFromExpRec(key, r.ContExp, dto)
 	case termdef.ExpApplyRec:
-		kind, data.ConnChnlPH, data.ProcTermQN = ApplyKind, string(r.ConnChnlPH), uniqsym.ConvertToString(r.ProcTermQN)
+		kind, data.CommChnlPH, data.ProcTermQN = ApplyKind, string(r.CommChnlPH), uniqsym.ConvertToString(r.ProcTermQN)
 		data.ContExpCK = statesFromExpRec(key, r.ContExp, dto)
 	case termdef.ExpReleaseRec:
-		kind, data.ConnChnlPH = ReleaseKind, string(r.ConnChnlPH)
+		kind, data.CommChnlPH = ReleaseKind, string(r.CommChnlPH)
 	case termdef.ExpDetachRec:
-		kind, data.ConnChnlPH = DetachKind, string(r.ConnChnlPH)
+		kind, data.CommChnlPH = DetachKind, string(r.CommChnlPH)
 	case termdef.ExpFireRec:
-		kind, data.ConnChnlPH, data.ProcTermQN = FireKind, string(r.ConnChnlPH), uniqsym.ConvertToString(r.ProcTermQN)
+		kind, data.CommChnlPH, data.ProcTermQN = FireKind, string(r.CommChnlPH), uniqsym.ConvertToString(r.ProcTermQN)
 	case termdef.ExpQuitRec:
-		kind, data.ConnChnlPH, data.ProcTermQN = QuitKind, string(r.ConnChnlPH), uniqsym.ConvertToString(r.ProcTermQN)
+		kind, data.CommChnlPH, data.ProcTermQN = QuitKind, string(r.CommChnlPH), uniqsym.ConvertToString(r.ProcTermQN)
 	case termdef.ExpSpawnRec:
 		kind, data.ProcTermQN = SpawnKind, uniqsym.ConvertToString(r.ProcTermQN)
 		data.ProcCompQNs = uniqsym.ConvertToStrings(r.ProcCompQNs)
@@ -134,7 +134,7 @@ func statesToExpRec(states map[int64]ExpState, state ExpState, visiting, visited
 		}
 		return statesToExpRec(states, child, visiting, visited)
 	}
-	ph := func() (symbol.ADT, error) { return symbol.ConvertFromString(spec.ConnChnlPH) }
+	ph := func() (symbol.ADT, error) { return symbol.ConvertFromString(spec.CommChnlPH) }
 	switch state.K {
 	case AcquireKind:
 		p, e := ph()
@@ -142,14 +142,14 @@ func statesToExpRec(states map[int64]ExpState, state ExpState, visiting, visited
 			return nil, e
 		}
 		c, e := cont()
-		return termdef.ExpAcquireRec{ExpCK: key, ConnChnlPH: p, ContExp: c}, e
+		return termdef.ExpAcquireRec{ExpCK: key, CommChnlPH: p, ContExp: c}, e
 	case AcceptKind:
 		p, e := ph()
 		if e != nil {
 			return nil, e
 		}
 		c, e := cont()
-		return termdef.ExpAcceptRec{ExpCK: key, ConnChnlPH: p, ContExp: c}, e
+		return termdef.ExpAcceptRec{ExpCK: key, CommChnlPH: p, ContExp: c}, e
 	case HireKind:
 		p, e := ph()
 		if e != nil {
@@ -160,7 +160,7 @@ func statesToExpRec(states map[int64]ExpState, state ExpState, visiting, visited
 			return nil, e
 		}
 		c, e := cont()
-		return termdef.ExpHireRec{ExpCK: key, ConnChnlPH: p, ProcTermQN: q, ContExp: c}, e
+		return termdef.ExpHireRec{ExpCK: key, CommChnlPH: p, ProcTermQN: q, ContExp: c}, e
 	case ApplyKind:
 		p, e := ph()
 		if e != nil {
@@ -171,27 +171,27 @@ func statesToExpRec(states map[int64]ExpState, state ExpState, visiting, visited
 			return nil, e
 		}
 		c, e := cont()
-		return termdef.ExpApplyRec{ExpCK: key, ConnChnlPH: p, ProcTermQN: q, ContExp: c}, e
+		return termdef.ExpApplyRec{ExpCK: key, CommChnlPH: p, ProcTermQN: q, ContExp: c}, e
 	case ReleaseKind:
 		p, e := ph()
-		return termdef.ExpReleaseRec{ExpCK: key, ConnChnlPH: p}, e
+		return termdef.ExpReleaseRec{ExpCK: key, CommChnlPH: p}, e
 	case DetachKind:
 		p, e := ph()
-		return termdef.ExpDetachRec{ExpCK: key, ConnChnlPH: p}, e
+		return termdef.ExpDetachRec{ExpCK: key, CommChnlPH: p}, e
 	case FireKind:
 		p, e := ph()
 		if e != nil {
 			return nil, e
 		}
 		q, e := uniqsym.ConvertFromString(spec.ProcTermQN)
-		return termdef.ExpFireRec{ExpCK: key, ConnChnlPH: p, ProcTermQN: q}, e
+		return termdef.ExpFireRec{ExpCK: key, CommChnlPH: p, ProcTermQN: q}, e
 	case QuitKind:
 		p, e := ph()
 		if e != nil {
 			return nil, e
 		}
 		q, e := uniqsym.ConvertFromString(spec.ProcTermQN)
-		return termdef.ExpQuitRec{ExpCK: key, ConnChnlPH: p, ProcTermQN: q}, e
+		return termdef.ExpQuitRec{ExpCK: key, CommChnlPH: p, ProcTermQN: q}, e
 	case SpawnKind:
 		q, e := uniqsym.ConvertFromString(spec.ProcTermQN)
 		if e != nil {

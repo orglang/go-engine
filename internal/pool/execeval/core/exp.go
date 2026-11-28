@@ -9,7 +9,7 @@ import (
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
-	connact "orglang/go-engine/internal/pool/connact/core"
+	commact "orglang/go-engine/internal/pool/commact/core"
 )
 
 // ExpKind identifies the kind of a persisted pool term expression.
@@ -34,7 +34,7 @@ type ExpSpec interface {
 
 // запрос доступа (подписка) со стороны клиента (спрос на доступ)
 type AcquireSpec struct {
-	ConnChnlPH symbol.ADT
+	CommChnlPH symbol.ADT
 	ContExp    ExpSpec
 }
 
@@ -47,7 +47,7 @@ func (s AcquireSpec) LogValue() slog.Value {
 
 // предложение доступа (публикация) со стороны провайдера (предложение доступа)
 type AcceptSpec struct {
-	ConnChnlPH symbol.ADT
+	CommChnlPH symbol.ADT
 	ContExp    ExpSpec
 }
 
@@ -60,7 +60,7 @@ func (s AcceptSpec) LogValue() slog.Value {
 
 // запрос компетенции (подписка) со стороны нанимателя (спрос на рабочую силу)
 type HireSpec struct {
-	ConnChnlPH symbol.ADT
+	CommChnlPH symbol.ADT
 	// запрашиваемая компетенция
 	ProcTermQN uniqsym.ADT
 	ContExp    ExpSpec
@@ -75,7 +75,7 @@ func (s HireSpec) LogValue() slog.Value {
 
 // предложение компетенции (публикация) со стороны соискателя (предложение рабочей силы)
 type ApplySpec struct {
-	ConnChnlPH symbol.ADT
+	CommChnlPH symbol.ADT
 	// предлагаемая компетенция
 	ProcTermQN uniqsym.ADT
 	ContExp    ExpSpec
@@ -90,7 +90,7 @@ func (s ApplySpec) LogValue() slog.Value {
 
 // освобождение доступа (публикация) по инициативе клиента
 type ReleaseSpec struct {
-	ConnChnlPH symbol.ADT
+	CommChnlPH symbol.ADT
 }
 
 func (s ReleaseSpec) spec()    {}
@@ -102,7 +102,7 @@ func (s ReleaseSpec) LogValue() slog.Value {
 
 // лишение доступа (подписка) по инициативе провайдера
 type DetachSpec struct {
-	ConnChnlPH symbol.ADT
+	CommChnlPH symbol.ADT
 }
 
 func (s DetachSpec) spec()    {}
@@ -114,7 +114,7 @@ func (s DetachSpec) LogValue() slog.Value {
 
 // лишение должности по инициативе работодателя
 type FireSpec struct {
-	ConnChnlPH symbol.ADT
+	CommChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
 }
 
@@ -127,7 +127,7 @@ func (s FireSpec) LogValue() slog.Value {
 
 // освобождение должности по инициативе сотрудника
 type QuitSpec struct {
-	ConnChnlPH symbol.ADT
+	CommChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
 }
 
@@ -167,8 +167,8 @@ func (s SpawnSpec2) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
 }
 
-// ExpRec is the expression-record contract carried by a connection action.
-type ExpRec = connact.ExpRec
+// ExpRec is the expression-record contract carried by a communication action.
+type ExpRec = commact.ExpRec
 
 type AcquireRec struct {
 	ContChnlPH symbol.ADT
@@ -219,21 +219,21 @@ func (r DetachRec) rec()    {}
 func (DetachRec) IsExpRec() {}
 
 type FireRec struct {
-	ConnChnlPH symbol.ADT
+	CommChnlPH symbol.ADT
 }
 
 func (r FireRec) rec()    {}
 func (FireRec) IsExpRec() {}
 
 type QuitRec struct {
-	ConnChnlPH symbol.ADT
+	CommChnlPH symbol.ADT
 }
 
 func (r QuitRec) rec()    {}
 func (QuitRec) IsExpRec() {}
 
 type SpawnRec struct {
-	ConnChnlPH symbol.ADT
+	CommChnlPH symbol.ADT
 }
 
 func (r SpawnRec) rec()    {}

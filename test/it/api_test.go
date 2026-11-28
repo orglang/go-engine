@@ -71,8 +71,8 @@ func TestIntegrationGeneratedEchoServer(t *testing.T) {
 		api.RegisterHandlers(e, handler)
 
 		const requestBody = `{
-			"asset_vars": [{"conn_ph": "asset", "type_qn": "example.Asset"}],
-			"liab_var": {"conn_ph": "liability", "type_qn": "example.Liability"},
+			"asset_vars": [{"comm_ph": "asset", "type_qn": "example.Asset"}],
+			"liab_var": {"comm_ph": "liability", "type_qn": "example.Liability"},
 			"term_qn": "example.Process"
 		}`
 		req := httptest.NewRequestWithContext(
@@ -94,10 +94,10 @@ func TestIntegrationGeneratedEchoServer(t *testing.T) {
 		if handler.body.TermQn != "example.Process" {
 			t.Errorf("unexpected term_qn: got %q, want %q", handler.body.TermQn, "example.Process")
 		}
-		if len(handler.body.AssetVars) != 1 || handler.body.AssetVars[0].ConnPh != "asset" {
+		if len(handler.body.AssetVars) != 1 || handler.body.AssetVars[0].CommPh != "asset" {
 			t.Errorf("unexpected asset_vars: got %+v", handler.body.AssetVars)
 		}
-		if handler.body.LiabVar.ConnPh != "liability" {
+		if handler.body.LiabVar.CommPh != "liability" {
 			t.Errorf("unexpected liab_var: got %+v", handler.body.LiabVar)
 		}
 

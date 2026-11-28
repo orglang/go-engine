@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	connact "orglang/go-engine/internal/proc/connact/core"
+	commact "orglang/go-engine/internal/proc/commact/core"
 )
 
 // goverter:variables
@@ -9,8 +9,8 @@ import (
 // goverter:extend Data.*
 // goverter:extend data.*
 var (
-	DataToExpSpecs   func([]ExpSpec) ([]connact.ExpSpec, error)
-	DataFromExpSpecs func([]connact.ExpSpec) ([]ExpSpec, error)
-	DataToExpRecs    func([]ExpRec) ([]connact.ExpRec, error)
-	DataFromExpRecs  func([]connact.ExpRec) ([]ExpRec, error)
+	DataToExpSpecs   func([]ExpSpec) ([]commact.ExpSpec, error)
+	DataFromExpSpecs func([]commact.ExpSpec) ([]ExpSpec, error)
+	DataToExpRecs    func([]ExpRec) ([]commact.ExpRec, error)
+	DataFromExpRecs  func([]commact.ExpRec) ([]ExpRec, error)
 )

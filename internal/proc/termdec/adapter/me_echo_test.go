@@ -27,8 +27,8 @@ func TestCreateProcessDeclarationHandler(t *testing.T) {
 		h := NewControllerEcho(decAPI, slog.New(slog.NewTextHandler(io.Discard, nil)))
 		e.POST("/api/v1/processes/declarations", h.CreateProcessDeclaration)
 		const body = `{
-			"asset_vars": [{"conn_ph": "asset", "type_qn": "example.Asset"}],
-			"liab_var": {"conn_ph": "liability", "type_qn": "example.Liability"},
+			"asset_vars": [{"comm_ph": "asset", "type_qn": "example.Asset"}],
+			"liab_var": {"comm_ph": "liability", "type_qn": "example.Liability"},
 			"term_qn": "example.Process"
 		}`
 		requestCtx := context.WithValue(context.Background(), requestContextKey{}, "request-context")
@@ -73,7 +73,7 @@ func TestCreateProcessDeclarationHandler(t *testing.T) {
 		e := echo.New()
 		h := NewControllerEcho(decAPI, slog.New(slog.NewTextHandler(io.Discard, nil)))
 		e.POST("/api/v1/processes/declarations", h.CreateProcessDeclaration)
-		const body = `{"asset_vars":[],"liab_var":{"conn_ph":"liability","type_qn":""},"term_qn":"example.Process"}`
+		const body = `{"asset_vars":[],"liab_var":{"comm_ph":"liability","type_qn":""},"term_qn":"example.Process"}`
 		req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/v1/processes/declarations", strings.NewReader(body))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()

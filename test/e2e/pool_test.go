@@ -46,9 +46,9 @@ func (s *suite) beforeAll(t *testing.T) {
 func (s *suite) beforeEach(t *testing.T) {
 	tables := []string{
 		"pool_desc_binds", "pool_type_defs", "pool_type_exps", "pool_desc_terms", "pool_term_exps",
-		"pool_impl_binds", "pool_exec_evals", "pool_exec_vars", "pool_exec_conns", "pool_conn_acts",
+		"pool_impl_binds", "pool_exec_evals", "pool_exec_vars", "pool_exec_comms", "pool_comm_acts",
 		"proc_desc_binds", "proc_type_defs", "proc_type_exps", "proc_desc_terms", "proc_term_exps",
-		"proc_impl_binds", "proc_exec_evals", "proc_exec_vars", "proc_exec_conns", "proc_conn_acts",
+		"proc_impl_binds", "proc_exec_evals", "proc_exec_vars", "proc_exec_comms", "proc_comm_acts",
 	}
 	for _, table := range tables {
 		if _, err := s.db.ExecContext(t.Context(), fmt.Sprintf("truncate table %v", table)); err != nil {
@@ -114,9 +114,9 @@ func (s *suite) waitClose(t *testing.T) {
 	poolAssetPH, poolLiabPH := "pool-asset-ph", "pool-liab-ph"
 	_, err = s.api.createPoolDeclaration(api.PoolDecSpec{
 		DescQn:  poolTermQN,
-		LiabVar: api.AnyConnVarSpec{ConnPh: poolLiabPH, TypeQn: poolTypeQN},
+		LiabVar: api.AnyConnVarSpec{CommPh: poolLiabPH, TypeQn: poolTypeQN},
 		AssetVars: []api.AnyConnVarSpec{
-			{ConnPh: poolAssetPH, TypeQn: poolTypeQN},
+			{CommPh: poolAssetPH, TypeQn: poolTypeQN},
 		},
 	})
 	if err != nil {
@@ -125,9 +125,9 @@ func (s *suite) waitClose(t *testing.T) {
 
 	poolExecRef, err := s.api.createPoolExecution(api.AnyEvalSpec{
 		TermQn:  poolTermQN,
-		LiabVar: api.AnyEvalVarSpec{ConnPh: poolLiabPH, TermQn: poolExecQN},
+		LiabVar: api.AnyEvalVarSpec{CommPh: poolLiabPH, TermQn: poolExecQN},
 		AssetVars: []api.AnyEvalVarSpec{
-			{ConnPh: poolAssetPH, TermQn: poolExecQN},
+			{CommPh: poolAssetPH, TermQn: poolExecQN},
 		},
 	})
 	if err != nil {
@@ -137,11 +137,11 @@ func (s *suite) waitClose(t *testing.T) {
 	err = s.api.stepPoolExecution(api.PoolStepSpec{
 		RootRef: poolExecRef,
 		PoolExpr: poolTermExpr("acquire", api.PoolTermAcquireSpec{
-			ConnPh: poolAssetPH,
+			CommPh: poolAssetPH,
 			ContExpr: poolTermExpr("hire", api.PoolTermHireSpec{
-				ConnPh:   poolAssetPH,
+				CommPh:   poolAssetPH,
 				ProcQn:   closerProcQN,
-				ContExpr: poolTermExpr("release", api.PoolTermReleaseSpec{ConnPh: poolAssetPH}),
+				ContExpr: poolTermExpr("release", api.PoolTermReleaseSpec{CommPh: poolAssetPH}),
 			}),
 		}),
 	})
@@ -152,11 +152,11 @@ func (s *suite) waitClose(t *testing.T) {
 	err = s.api.stepPoolExecution(api.PoolStepSpec{
 		RootRef: poolExecRef,
 		PoolExpr: poolTermExpr("accept", api.PoolTermAcceptSpec{
-			ConnPh: poolLiabPH,
+			CommPh: poolLiabPH,
 			ContExpr: poolTermExpr("apply", api.PoolTermApplySpec{
-				ConnPh:   poolLiabPH,
+				CommPh:   poolLiabPH,
 				ProcQn:   closerProcQN,
-				ContExpr: poolTermExpr("detach", api.PoolTermDetachSpec{ConnPh: poolLiabPH}),
+				ContExpr: poolTermExpr("detach", api.PoolTermDetachSpec{CommPh: poolLiabPH}),
 			}),
 		}),
 	})

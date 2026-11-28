@@ -15,35 +15,35 @@ union DefinitionSpec {
 }
 
 model DefAcquireSpec {
-  conn_ph: string;
+  comm_ph: string;
   cont_expr: DefinitionSpec;
 }
 model DefAcceptSpec {
-  conn_ph: string;
+  comm_ph: string;
   cont_expr: DefinitionSpec;
 }
 model DefHireSpec {
-  conn_ph: string;
+  comm_ph: string;
   proc_qn: string;
   cont_expr: DefinitionSpec;
 }
 model DefApplySpec {
-  conn_ph: string;
+  comm_ph: string;
   proc_qn: string;
   cont_expr: DefinitionSpec;
 }
 model DefReleaseSpec {
-  conn_ph: string;
+  comm_ph: string;
 }
 model DefDetachSpec {
-  conn_ph: string;
+  comm_ph: string;
 }
 model DefFireSpec {
-  conn_ph: string;
+  comm_ph: string;
   proc_qn: string;
 }
 model DefQuitSpec {
-  conn_ph: string;
+  comm_ph: string;
   proc_qn: string;
 }
 model DefSpawnSpec {

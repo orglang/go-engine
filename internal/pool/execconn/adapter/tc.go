@@ -16,10 +16,10 @@ func dataToConnID(dto ConnSnap) (identity.ADT, error) {
 func DataFromRec(rec execconn.ConnRec) ConnRec {
 	return ConnRec{
 		ConnID:         identity.ConvertToString(rec.ConnID),
-		ProviderExecID: identity.ConvertToString(rec.ProviderExecRef.CompID),
-		ProviderExecRN: int64(rec.ProviderExecRef.CompRN),
-		ClientExecID:   identity.ConvertToString(rec.ClientExecRef.CompID),
-		ClientExecRN:   int64(rec.ClientExecRef.CompRN),
+		ProviderExecID: identity.ConvertToString(rec.ProviderRootRef.RootID),
+		ProviderExecRN: int64(rec.ProviderRootRef.RootRN),
+		ClientExecID:   identity.ConvertToString(rec.ClientRootRef.RootID),
+		ClientExecRN:   int64(rec.ClientRootRef.RootRN),
 		OffsetNr:       int64(rec.OffsetNr),
 		ActNr:          int64(rec.ActNr),
 	}

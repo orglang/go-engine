@@ -77,7 +77,7 @@ func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref execroot.
 }
 
 func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execeval.EvalMod) (err error) {
-	if len(mod.RootRefs) == 0 {
+	if len(mod.ExecRefs) == 0 {
 		panic("empty locks")
 	}
 	dto, err := DataFromMod(mod)
@@ -113,7 +113,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execeval.Eva
 	}
 	// execs
 	execReq := pgx.Batch{}
-	for _, dto := range dto.RootRefs {
+	for _, dto := range dto.ExecRefs {
 		args := pgx.NamedArgs{
 			"exec_id": dto.RootID,
 			"exec_rn": dto.RootRN,
@@ -124,7 +124,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execeval.Eva
 	defer func() {
 		err = errors.Join(err, execRes.Close())
 	}()
-	for _, dto := range dto.RootRefs {
+	for _, dto := range dto.ExecRefs {
 		ct, execErr := execRes.Exec()
 		if execErr != nil {
 			dao.log.Error("execution failed", slog.Any("dto", dto))

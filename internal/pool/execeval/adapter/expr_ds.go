@@ -16,13 +16,13 @@ type ExpSpec struct {
 
 type GrantSpec struct {
 	CommChnlPH string  `json:"ph"`
-	ContExp    ExpSpec `json:"exp"`
+	ContExp    ExpSpec `json:"expr"`
 }
 
 type CoopSpec struct {
 	CommChnlPH string  `json:"ph"`
 	ProcTermQN string  `json:"qn"`
-	ContExp    ExpSpec `json:"exp"`
+	ContExp    ExpSpec `json:"expr"`
 }
 
 type RevokeSpec struct {
@@ -53,13 +53,13 @@ const (
 
 type GrantRec struct {
 	ContChnlPH string  `json:"ph"`
-	ContExp    ExpSpec `json:"exp"`
+	ContExp    ExpSpec `json:"expr"`
 }
 
 type CoopRec struct {
 	ContChnlPH string  `json:"ph"`
 	ProcTermQN string  `json:"qn"`
-	ContExp    ExpSpec `json:"exp"`
+	ContExp    ExpSpec `json:"expr"`
 }
 
 type RevokeRec struct {

@@ -78,6 +78,6 @@ const (
 	poolStructVars = "pool_struct_vars"
 	poolLinearVars = "pool_linear_vars"
 
-	insertStructVar = `INSERT INTO pool_struct_vars (exec_id, exec_rn, comm_id, chnl_id, chnl_ph, exp_ck, side) VALUES ($1, $2, $3, $4, $5, $6, $7)`
-	insertLinearVar = `INSERT INTO pool_linear_vars (exec_id, exec_rn, comm_id, chnl_id, chnl_ph, exp_ck, side) VALUES ($1, $2, $3, $4, $5, $6, $7)`
+	insertStructVar = `INSERT INTO pool_struct_vars (exec_id, exec_rn, comm_id, chnl_id, chnl_ph, expr_ck, side) VALUES ($1, $2, $3, $4, $5, $6, $7)`
+	insertLinearVar = `INSERT INTO pool_linear_vars (exec_id, exec_rn, comm_id, chnl_id, chnl_ph, expr_ck, side) VALUES ($1, $2, $3, $4, $5, $6, $7)`
 )

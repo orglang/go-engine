@@ -185,7 +185,7 @@ func (s *service) Run(ctx context.Context, spec EvalSpec) (_ execroot.RootRef, e
 			commID = assetExec.LiabVar.GetCommID()
 			providerExecRef = assetExec.RootRef
 			chnlID = assetExec.LiabVar.GetChnlID()
-			exprCK = assetExec.LiabVar.GetExpCK()
+			exprCK = assetExec.LiabVar.GetExprCK()
 		}
 		if ok || assetVar.TermQN == spec.LiabVar.TermQN {
 			newConns = append(newConns, execcomm.CommRec{
@@ -870,11 +870,11 @@ func (s *service) retrieveSnap(ctx context.Context, ref execroot.RootRef) (_ Eva
 	var structExps map[symbol.ADT]typedef.ExprRec
 	var linearExps map[symbol.ADT]typedef.ExprRec
 	getErr2 := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		structExps, err = s.typeDefRepo.GetTypeMap(txCtx, conn, ExtractExpCKs(evalSnap.StructVars))
+		structExps, err = s.typeDefRepo.GetTypeMap(txCtx, conn, ExtractExprCKs(evalSnap.StructVars))
 		if err != nil {
 			return err
 		}
-		linearExps, err = s.typeDefRepo.GetTypeMap(txCtx, conn, ExtractExpCKs(evalSnap.LinearVars))
+		linearExps, err = s.typeDefRepo.GetTypeMap(txCtx, conn, ExtractExprCKs(evalSnap.LinearVars))
 		return err
 	})
 	if getErr2 != nil {

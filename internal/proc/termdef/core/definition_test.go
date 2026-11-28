@@ -28,7 +28,7 @@ type definitionTestRepo struct {
 	key  contkey.ADT
 }
 
-func (r *definitionTestRepo) SetExpCK(context.Context, tx.Conn, identity.ADT, contkey.ADT) error {
+func (r *definitionTestRepo) SetExprCK(context.Context, tx.Conn, identity.ADT, contkey.ADT) error {
 	return nil
 }
 func (r *definitionTestRepo) GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRec, error) {

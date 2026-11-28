@@ -12,7 +12,7 @@ import (
 	commact "orglang/go-engine/internal/proc/commact/core"
 )
 
-func TestExpRecRoundTripPreservesCommunicationIDs(t *testing.T) {
+func TestExprRecRoundTripPreservesCommunicationIDs(t *testing.T) {
 	commID := identity.New()
 	contID := identity.New()
 	valueID := identity.New()
@@ -26,7 +26,7 @@ func TestExpRecRoundTripPreservesCommunicationIDs(t *testing.T) {
 			CommChnlPH: commChnl,
 			ContChnlID: contID,
 			ValChnlID:  valueID,
-			ValExpCK:   contkey.ADT(7),
+			ValExprCK:   contkey.ADT(7),
 			CommID:     commID,
 		},
 		commact.RecvRec{
@@ -38,7 +38,7 @@ func TestExpRecRoundTripPreservesCommunicationIDs(t *testing.T) {
 		commact.LabRec{
 			CommChnlPH: commChnl,
 			ContChnlID: contID,
-			ValExpCK:   contkey.ADT(9),
+			ValExprCK:   contkey.ADT(9),
 			ValLabQN:   label,
 		},
 		commact.CaseRec{
@@ -51,13 +51,13 @@ func TestExpRecRoundTripPreservesCommunicationIDs(t *testing.T) {
 	}
 
 	for _, want := range tests {
-		dto, err := DataFromExpRec(want)
+		dto, err := DataFromExprRec(want)
 		if err != nil {
-			t.Fatalf("DataFromExpRec(%T): %v", want, err)
+			t.Fatalf("DataFromExprRec(%T): %v", want, err)
 		}
-		got, err := DataToExpRec(dto)
+		got, err := DataToExprRec(dto)
 		if err != nil {
-			t.Fatalf("DataToExpRec(%T): %v", want, err)
+			t.Fatalf("DataToExprRec(%T): %v", want, err)
 		}
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("round-trip mismatch for %T:\n got: %#v\nwant: %#v", want, got, want)

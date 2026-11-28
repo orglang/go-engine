@@ -898,7 +898,7 @@ func (s *service) takeWith(
 			panic(typedef.ErrPolarityUnexpected(typeExpr))
 		}
 	default:
-		panic(commact.ErrExpTypeUnexpected(expr))
+		panic(commact.ErrExprTypeUnexpected(expr))
 	}
 }
 
@@ -965,7 +965,7 @@ func (s *service) checkProvider(
 		delete(procCtx.Liabs, exprSpec.ContChnlPH)
 		return nil
 	case commact.WaitSpec:
-		err := commact.ErrExpTypeMismatch(es, commact.CloseSpec{})
+		err := commact.ErrExprTypeMismatch(es, commact.CloseSpec{})
 		s.log.Error("checking failed")
 		return err
 	case commact.SendSpec:
@@ -1119,7 +1119,7 @@ func (s *service) checkProvider(
 		delete(procCtx.Assets, exprSpec.ContChnlPH)
 		return nil
 	default:
-		panic(commact.ErrExpTypeUnexpected(es))
+		panic(commact.ErrExprTypeUnexpected(es))
 	}
 }
 
@@ -1131,7 +1131,7 @@ func (s *service) checkClient(
 ) error {
 	switch exprSpec := es.(type) {
 	case commact.CloseSpec:
-		err := commact.ErrExpTypeMismatch(es, commact.WaitSpec{})
+		err := commact.ErrExprTypeMismatch(es, commact.WaitSpec{})
 		s.log.Error("checking failed")
 		return err
 	case commact.WaitSpec:
@@ -1327,7 +1327,7 @@ func (s *service) checkClient(
 	// 	procCtx.Assets[exprSpec.X] = wantVia
 	// 	return s.checkType(procEnv, procCtx, procCfg, exprSpec.ContES)
 	default:
-		panic(commact.ErrExpTypeUnexpected(es))
+		panic(commact.ErrExprTypeUnexpected(es))
 	}
 }
 

@@ -10,7 +10,7 @@ import (
 
 // ExprRec is the expression-record contract carried by a communication action.
 type ExprRec interface {
-	IsExpRec()
+	IsExprRec()
 }
 
 // step (aka Act)

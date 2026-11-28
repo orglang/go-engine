@@ -6,19 +6,19 @@ import (
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
 	webapi "orglang/go-engine/internal/app/web/api"
-	connact "orglang/go-engine/internal/proc/connact/core"
+	commact "orglang/go-engine/internal/proc/commact/core"
 )
 
 const testExecutionID = "9m4e2mr0ui3e8a215n4g"
 
 func TestGeneratedStepToCoreMapsNestedProcessExpression(t *testing.T) {
 	var closeExpr webapi.ProcTermExprSpec
-	if err := closeExpr.FromProcTermCloseSpec(webapi.ProcTermCloseSpec{ConnPh: "close-channel"}); err != nil {
+	if err := closeExpr.FromProcTermCloseSpec(webapi.ProcTermCloseSpec{CommPh: "close-channel"}); err != nil {
 		t.Fatalf("build generated close expression: %v", err)
 	}
 	var waitExpr webapi.ProcTermExprSpec
 	err := waitExpr.FromProcTermWaitSpec(webapi.ProcTermWaitSpec{
-		ConnPh:   "wait-channel",
+		CommPh:   "wait-channel",
 		ContExpr: closeExpr,
 	})
 	if err != nil {
@@ -32,14 +32,14 @@ func TestGeneratedStepToCoreMapsNestedProcessExpression(t *testing.T) {
 	if got := identity.ConvertToString(spec.RootRef.ExecID); got != testExecutionID {
 		t.Errorf("unexpected execution root id: got %q", got)
 	}
-	wait, ok := spec.ProcExp.(connact.WaitSpec)
+	wait, ok := spec.ProcExp.(commact.WaitSpec)
 	if !ok {
 		t.Fatalf("expected core wait expression, got %T", spec.ProcExp)
 	}
 	if got := symbol.ConvertToString(wait.ContChnlPH); got != "wait-channel" {
 		t.Errorf("unexpected wait channel: got %q", got)
 	}
-	closeSpec, ok := wait.ContExp.(connact.CloseSpec)
+	closeSpec, ok := wait.ContExp.(commact.CloseSpec)
 	if !ok {
 		t.Fatalf("expected core close continuation, got %T", wait.ContExp)
 	}
@@ -63,7 +63,7 @@ func TestGeneratedStepToCoreMapsLinkExpression(t *testing.T) {
 	if err != nil {
 		t.Fatalf("convert generated link expression: %v", err)
 	}
-	link, ok := spec.ProcExp.(connact.LinkSpec)
+	link, ok := spec.ProcExp.(commact.LinkSpec)
 	if !ok {
 		t.Fatalf("expected core link expression, got %T", spec.ProcExp)
 	}
@@ -77,7 +77,7 @@ func TestGeneratedStepToCoreMapsLinkExpression(t *testing.T) {
 
 func TestGeneratedStepToCoreRejectsInvalidExecutionID(t *testing.T) {
 	var closeExpr webapi.ProcTermExprSpec
-	if err := closeExpr.FromProcTermCloseSpec(webapi.ProcTermCloseSpec{ConnPh: "close-channel"}); err != nil {
+	if err := closeExpr.FromProcTermCloseSpec(webapi.ProcTermCloseSpec{CommPh: "close-channel"}); err != nil {
 		t.Fatalf("build generated close expression: %v", err)
 	}
 	if _, err := generatedStepToCore("not-an-xid", webapi.ProcStepSpec{ProcExpr: closeExpr}); err == nil {

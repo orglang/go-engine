@@ -15,27 +15,27 @@ union ExprSpec {
 }
 
 model CloseSpec {
-  conn_ph: string;
+  comm_ph: string;
 }
 model WaitSpec {
-  conn_ph: string;
+  comm_ph: string;
   cont_expr: ExprSpec;
 }
 model SendSpec {
-  conn_ph: string;
+  comm_ph: string;
   val_ph: string;
 }
 model RecvSpec {
-  conn_ph: string;
+  comm_ph: string;
   bind_ph: string;
   cont_expr: ExprSpec;
 }
 model LabSpec {
-  conn_ph: string;
+  comm_ph: string;
   pattern_qn: string;
 }
 model CaseSpec {
-  conn_ph: string;
+  comm_ph: string;
   cont_bses: BranchSpec[];
 }
 model BranchSpec {
@@ -48,7 +48,7 @@ model LinkSpec {
   ys: string[];
 }
 model FwdSpec {
-  conn_ph: string;
+  comm_ph: string;
   cont_ph: string;
 }
 model CallSpec {

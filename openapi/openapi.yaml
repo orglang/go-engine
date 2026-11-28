@@ -449,37 +449,37 @@ paths:
               type: string
 components:
   schemas:
-    Any.Conn.VarRec:
+    Any.Comm.VarRec:
       type: object
       required:
         - type_ref
-        - conn_ph
+        - comm_ph
         - expr_ck
       properties:
         type_ref:
           $ref: '#/components/schemas/Any.TypeRef'
-        conn_ph:
+        comm_ph:
           type: string
         expr_ck:
           type: integer
           format: int64
-    Any.Conn.VarSpec:
+    Any.Comm.VarSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - type_qn
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         type_qn:
           type: string
     Any.Eval.VarSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - term_qn
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         term_qn:
           type: string
@@ -561,11 +561,11 @@ components:
         desc_qn:
           type: string
         liab_var:
-          $ref: '#/components/schemas/Any.Conn.VarSpec'
+          $ref: '#/components/schemas/Any.Comm.VarSpec'
         asset_vars:
           type: array
           items:
-            $ref: '#/components/schemas/Any.Conn.VarSpec'
+            $ref: '#/components/schemas/Any.Comm.VarSpec'
     Pool.ExecSnap:
       type: object
       required:
@@ -586,31 +586,31 @@ components:
     Pool.Term.AcceptSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - cont_expr
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         cont_expr:
           $ref: '#/components/schemas/Pool.Term.ExprSpec'
     Pool.Term.AcquireSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - cont_expr
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         cont_expr:
           $ref: '#/components/schemas/Pool.Term.ExprSpec'
     Pool.Term.ApplySpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - proc_qn
         - cont_expr
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         proc_qn:
           type: string
@@ -619,31 +619,31 @@ components:
     Pool.Term.DefAcceptSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - cont_expr
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         cont_expr:
           $ref: '#/components/schemas/Pool.Term.DefinitionSpec'
     Pool.Term.DefAcquireSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - cont_expr
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         cont_expr:
           $ref: '#/components/schemas/Pool.Term.DefinitionSpec'
     Pool.Term.DefApplySpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - proc_qn
         - cont_expr
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         proc_qn:
           type: string
@@ -652,28 +652,28 @@ components:
     Pool.Term.DefDetachSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
       properties:
-        conn_ph:
+        comm_ph:
           type: string
     Pool.Term.DefFireSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - proc_qn
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         proc_qn:
           type: string
     Pool.Term.DefHireSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - proc_qn
         - cont_expr
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         proc_qn:
           type: string
@@ -682,19 +682,19 @@ components:
     Pool.Term.DefQuitSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - proc_qn
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         proc_qn:
           type: string
     Pool.Term.DefReleaseSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
       properties:
-        conn_ph:
+        comm_ph:
           type: string
     Pool.Term.DefSpawnSpec:
       type: object
@@ -736,9 +736,9 @@ components:
     Pool.Term.DetachSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
       properties:
-        conn_ph:
+        comm_ph:
           type: string
     Pool.Term.ExprSpec:
       type: object
@@ -768,18 +768,18 @@ components:
     Pool.Term.FireSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
       properties:
-        conn_ph:
+        comm_ph:
           type: string
     Pool.Term.HireSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - proc_qn
         - cont_expr
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         proc_qn:
           type: string
@@ -788,19 +788,19 @@ components:
     Pool.Term.QuitSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - proc_qn
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         proc_qn:
           type: string
     Pool.Term.ReleaseSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
       properties:
-        conn_ph:
+        comm_ph:
           type: string
     Pool.Term.SpawnSpec:
       type: object
@@ -944,11 +944,11 @@ components:
         term_qn:
           type: string
         liab_var:
-          $ref: '#/components/schemas/Any.Conn.VarSpec'
+          $ref: '#/components/schemas/Any.Comm.VarSpec'
         asset_vars:
           type: array
           items:
-            $ref: '#/components/schemas/Any.Conn.VarSpec'
+            $ref: '#/components/schemas/Any.Comm.VarSpec'
     Proc.ExecSnap:
       type: object
       required:
@@ -994,10 +994,10 @@ components:
     Proc.Term.CaseSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - cont_bses
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         cont_bses:
           type: array
@@ -1006,40 +1006,40 @@ components:
     Proc.Term.CloseSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
       properties:
-        conn_ph:
+        comm_ph:
           type: string
     Proc.Term.DefAcceptSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - cont_expr
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         cont_expr:
           $ref: '#/components/schemas/Proc.Term.DefinitionSpec'
     Proc.Term.DefAcquireSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - cont_expr
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         cont_expr:
           $ref: '#/components/schemas/Proc.Term.DefinitionSpec'
     Proc.Term.DefCallSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - new_ph
         - proc_qn
         - val_phs
         - cont_expr
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         new_ph:
           type: string
@@ -1054,10 +1054,10 @@ components:
     Proc.Term.DefCaseSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - cont_exps
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         cont_exps:
           type: object
@@ -1073,28 +1073,28 @@ components:
     Proc.Term.DefDetachSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
       properties:
-        conn_ph:
+        comm_ph:
           type: string
     Proc.Term.DefFwdSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - cont_ph
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         cont_ph:
           type: string
     Proc.Term.DefLabSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - val_lab_qn
         - cont_expr
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         val_lab_qn:
           type: string
@@ -1118,11 +1118,11 @@ components:
     Proc.Term.DefRecvSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - new_ph
         - cont_expr
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         new_ph:
           type: string
@@ -1131,29 +1131,29 @@ components:
     Proc.Term.DefReleaseSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
       properties:
-        conn_ph:
+        comm_ph:
           type: string
     Proc.Term.DefSendSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - val_ph
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         val_ph:
           type: string
     Proc.Term.DefSpawnSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - proc_qn
         - new_phs
         - cont_expr
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         proc_qn:
           type: string
@@ -1236,20 +1236,20 @@ components:
     Proc.Term.FwdSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - cont_ph
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         cont_ph:
           type: string
     Proc.Term.LabSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - pattern_qn
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         pattern_qn:
           type: string
@@ -1271,11 +1271,11 @@ components:
     Proc.Term.RecvSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - bind_ph
         - cont_expr
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         bind_ph:
           type: string
@@ -1284,20 +1284,20 @@ components:
     Proc.Term.SendSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - val_ph
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         val_ph:
           type: string
     Proc.Term.WaitSpec:
       type: object
       required:
-        - conn_ph
+        - comm_ph
         - cont_expr
       properties:
-        conn_ph:
+        comm_ph:
           type: string
         cont_expr:
           $ref: '#/components/schemas/Proc.Term.ExprSpec'

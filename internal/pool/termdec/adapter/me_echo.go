@@ -37,13 +37,13 @@ func (h *controllerEcho) CreatePoolDeclaration(c *echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	liabVar, err := connVarFromGenerated(dto.LiabVar)
+	liabVar, err := commVarFromGenerated(dto.LiabVar)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	assetVars := make([]termvar.VarSpec, len(dto.AssetVars))
 	for i, variable := range dto.AssetVars {
-		assetVars[i], err = connVarFromGenerated(variable)
+		assetVars[i], err = commVarFromGenerated(variable)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
@@ -58,8 +58,8 @@ func (h *controllerEcho) CreatePoolDeclaration(c *echo.Context) error {
 	})
 }
 
-func connVarFromGenerated(dto webapi.AnyConnVarSpec) (termvar.VarSpec, error) {
-	channel, err := symbol.ConvertFromString(dto.ConnPh)
+func commVarFromGenerated(dto webapi.AnyCommVarSpec) (termvar.VarSpec, error) {
+	channel, err := symbol.ConvertFromString(dto.CommPh)
 	if err != nil {
 		return termvar.VarSpec{}, err
 	}

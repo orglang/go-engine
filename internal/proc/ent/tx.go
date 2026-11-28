@@ -14,8 +14,8 @@ type Tx struct {
 	config
 	// DescRoot is the client for interacting with the DescRoot builders.
 	DescRoot *DescRootClient
-	// ExecConn is the client for interacting with the ExecConn builders.
-	ExecConn *ExecConnClient
+	// ExecComm is the client for interacting with the ExecComm builders.
+	ExecComm *ExecCommClient
 	// ExecEval is the client for interacting with the ExecEval builders.
 	ExecEval *ExecEvalClient
 	// TermDec is the client for interacting with the TermDec builders.
@@ -158,7 +158,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.DescRoot = NewDescRootClient(tx.config)
-	tx.ExecConn = NewExecConnClient(tx.config)
+	tx.ExecComm = NewExecCommClient(tx.config)
 	tx.ExecEval = NewExecEvalClient(tx.config)
 	tx.TermDec = NewTermDecClient(tx.config)
 	tx.TermExp = NewTermExpClient(tx.config)

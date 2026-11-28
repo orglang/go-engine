@@ -86,10 +86,10 @@ func poolExecSpecToCore(dto api.AnyEvalSpec) (execeval.EvalSpec, error) {
 }
 
 func poolExecVarToCore(dto api.AnyEvalVarSpec) (execvar.VarSpec, error) {
-	if dto.ConnPh == "" {
-		return execvar.VarSpec{}, errors.New("conn_ph cannot be blank")
+	if dto.CommPh == "" {
+		return execvar.VarSpec{}, errors.New("comm_ph cannot be blank")
 	}
-	connPH, err := symbol.ConvertFromString(dto.ConnPh)
+	commPH, err := symbol.ConvertFromString(dto.CommPh)
 	if err != nil {
 		return execvar.VarSpec{}, err
 	}
@@ -97,7 +97,7 @@ func poolExecVarToCore(dto api.AnyEvalVarSpec) (execvar.VarSpec, error) {
 	if err != nil {
 		return execvar.VarSpec{}, err
 	}
-	return execvar.VarSpec{ChnlPH: connPH, TermQN: termQN}, nil
+	return execvar.VarSpec{ChnlPH: commPH, TermQN: termQN}, nil
 }
 
 func (c *controllerEcho) PostSpec2(ctx *echo.Context) error {
@@ -194,7 +194,7 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (execeval.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		ph, err := symbol.ConvertFromString(value.ConnPh)
+		ph, err := symbol.ConvertFromString(value.CommPh)
 		if err != nil {
 			return nil, err
 		}
@@ -202,13 +202,13 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (execeval.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return execeval.AcquireSpec{ConnChnlPH: ph, ContExp: cont}, nil
+		return execeval.AcquireSpec{CommChnlPH: ph, ContExp: cont}, nil
 	case "accept":
 		value, err := dto.AsPoolTermAcceptSpec()
 		if err != nil {
 			return nil, err
 		}
-		ph, err := symbol.ConvertFromString(value.ConnPh)
+		ph, err := symbol.ConvertFromString(value.CommPh)
 		if err != nil {
 			return nil, err
 		}
@@ -216,13 +216,13 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (execeval.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return execeval.AcceptSpec{ConnChnlPH: ph, ContExp: cont}, nil
+		return execeval.AcceptSpec{CommChnlPH: ph, ContExp: cont}, nil
 	case "hire":
 		value, err := dto.AsPoolTermHireSpec()
 		if err != nil {
 			return nil, err
 		}
-		ph, err := symbol.ConvertFromString(value.ConnPh)
+		ph, err := symbol.ConvertFromString(value.CommPh)
 		if err != nil {
 			return nil, err
 		}
@@ -234,13 +234,13 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (execeval.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return execeval.HireSpec{ConnChnlPH: ph, ProcTermQN: qn, ContExp: cont}, nil
+		return execeval.HireSpec{CommChnlPH: ph, ProcTermQN: qn, ContExp: cont}, nil
 	case "apply":
 		value, err := dto.AsPoolTermApplySpec()
 		if err != nil {
 			return nil, err
 		}
-		ph, err := symbol.ConvertFromString(value.ConnPh)
+		ph, err := symbol.ConvertFromString(value.CommPh)
 		if err != nil {
 			return nil, err
 		}
@@ -252,43 +252,43 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (execeval.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return execeval.ApplySpec{ConnChnlPH: ph, ProcTermQN: qn, ContExp: cont}, nil
+		return execeval.ApplySpec{CommChnlPH: ph, ProcTermQN: qn, ContExp: cont}, nil
 	case "release":
 		value, err := dto.AsPoolTermReleaseSpec()
 		if err != nil {
 			return nil, err
 		}
-		ph, err := symbol.ConvertFromString(value.ConnPh)
+		ph, err := symbol.ConvertFromString(value.CommPh)
 		if err != nil {
 			return nil, err
 		}
-		return execeval.ReleaseSpec{ConnChnlPH: ph}, nil
+		return execeval.ReleaseSpec{CommChnlPH: ph}, nil
 	case "detach":
 		value, err := dto.AsPoolTermDetachSpec()
 		if err != nil {
 			return nil, err
 		}
-		ph, err := symbol.ConvertFromString(value.ConnPh)
+		ph, err := symbol.ConvertFromString(value.CommPh)
 		if err != nil {
 			return nil, err
 		}
-		return execeval.DetachSpec{ConnChnlPH: ph}, nil
+		return execeval.DetachSpec{CommChnlPH: ph}, nil
 	case "fire":
 		value, err := dto.AsPoolTermFireSpec()
 		if err != nil {
 			return nil, err
 		}
-		ph, err := symbol.ConvertFromString(value.ConnPh)
+		ph, err := symbol.ConvertFromString(value.CommPh)
 		if err != nil {
 			return nil, err
 		}
-		return execeval.FireSpec{ConnChnlPH: ph}, nil
+		return execeval.FireSpec{CommChnlPH: ph}, nil
 	case "quit":
 		value, err := dto.AsPoolTermQuitSpec()
 		if err != nil {
 			return nil, err
 		}
-		ph, err := symbol.ConvertFromString(value.ConnPh)
+		ph, err := symbol.ConvertFromString(value.CommPh)
 		if err != nil {
 			return nil, err
 		}
@@ -296,7 +296,7 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (execeval.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return execeval.QuitSpec{ConnChnlPH: ph, ProcTermQN: qn}, nil
+		return execeval.QuitSpec{CommChnlPH: ph, ProcTermQN: qn}, nil
 	case "spawn":
 		value, err := dto.AsPoolTermSpawnSpec()
 		if err != nil {

@@ -1,6 +1,6 @@
 namespace OrgLang.Any.Eval;
 
 model VarSpec {
-  conn_ph: string;
+  comm_ph: string;
   term_qn: string;
 }

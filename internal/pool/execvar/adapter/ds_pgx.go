@@ -35,7 +35,7 @@ func (dao *daoPgx) AddRecs(ctx context.Context, conn tx.Conn, recs []adtexecvar.
 	batch := pgx.Batch{}
 	for _, rec := range recs {
 		dto := execvaradapter.DataFromVarRec(rec)
-		batch.Queue(insertRec(getTableName(rec)), dto.ExecID, dto.ExecRN, dto.ConnID, dto.ChnlID, dto.ChnlPH, dto.ExpCK, dto.ChnlBS)
+		batch.Queue(insertRec(getTableName(rec)), dto.ExecID, dto.ExecRN, dto.CommID, dto.ChnlID, dto.ChnlPH, dto.ExpCK, dto.ChnlBS)
 	}
 	br := conn.Pgx.SendBatch(ctx, &batch)
 	defer func() {
@@ -78,6 +78,6 @@ const (
 	poolStructVars = "pool_struct_vars"
 	poolLinearVars = "pool_linear_vars"
 
-	insertStructVar = `INSERT INTO pool_struct_vars (exec_id, exec_rn, conn_id, chnl_id, chnl_ph, exp_ck, side) VALUES ($1, $2, $3, $4, $5, $6, $7)`
-	insertLinearVar = `INSERT INTO pool_linear_vars (exec_id, exec_rn, conn_id, chnl_id, chnl_ph, exp_ck, side) VALUES ($1, $2, $3, $4, $5, $6, $7)`
+	insertStructVar = `INSERT INTO pool_struct_vars (exec_id, exec_rn, comm_id, chnl_id, chnl_ph, exp_ck, side) VALUES ($1, $2, $3, $4, $5, $6, $7)`
+	insertLinearVar = `INSERT INTO pool_linear_vars (exec_id, exec_rn, comm_id, chnl_id, chnl_ph, exp_ck, side) VALUES ($1, $2, $3, $4, $5, $6, $7)`
 )

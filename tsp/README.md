@@ -53,7 +53,7 @@ TypeSpec namespaces use `OrgLang` as the root and follow domain concepts:
 
 - `OrgLang.Any` — shared semantic identities (`TypeRef`, `TermRef`, `RootRef`) and the shared `EvalSpec`
 - `OrgLang.Any.Type` — shared type-link specification
-- `OrgLang.Any.Conn` — shared connection variable specs and records, defined in `any/conn/var.tsp`
+- `OrgLang.Any.Comm` — shared communication variable specs and records, defined in `any/comm/var.tsp`
 - `OrgLang.Any.Eval.VarSpec` — evaluation variable specification used when creating a pool execution
 - `OrgLang.Proc` — process declarations and snapshots
 - `OrgLang.Proc.Type` / `OrgLang.Proc.Term` — process type and term expressions; type definitions live in `Proc.Type.DefSpec` / `DefSnap`
@@ -78,7 +78,7 @@ when their payload fields currently have the same shape.
 
 These models describe the engine's process and pool expression variants
 independently of any client implementation. Several JSON names are
-intentionally normalized in the contract (for example `chnl_ph` → `conn_ph`,
+intentionally normalized in the contract (for example `chnl_ph` → `comm_ph`,
 `exp_vk` → `expr_ck`, `cont_es` → `cont_expr`, and `val_es` → `val_expr`).
 HTTP adapters map these generated transport models to engine-owned types.
 

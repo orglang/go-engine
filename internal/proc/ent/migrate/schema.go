@@ -20,9 +20,9 @@ var (
 		Columns:    ProcDescRootsColumns,
 		PrimaryKey: []*schema.Column{ProcDescRootsColumns[0]},
 	}
-	// ProcExecConnsColumns holds the columns for the "proc_exec_conns" table.
-	ProcExecConnsColumns = []*schema.Column{
-		{Name: "conn_id", Type: field.TypeString, Unique: true},
+	// ProcExecCommsColumns holds the columns for the "proc_exec_comms" table.
+	ProcExecCommsColumns = []*schema.Column{
+		{Name: "comm_id", Type: field.TypeString, Unique: true},
 		{Name: "provider_exec_id", Type: field.TypeString},
 		{Name: "provider_exec_rn", Type: field.TypeInt64},
 		{Name: "client_exec_id", Type: field.TypeString},
@@ -30,11 +30,11 @@ var (
 		{Name: "offset_nr", Type: field.TypeInt64, Nullable: true},
 		{Name: "act_nr", Type: field.TypeInt64, Nullable: true},
 	}
-	// ProcExecConnsTable holds the schema information for the "proc_exec_conns" table.
-	ProcExecConnsTable = &schema.Table{
-		Name:       "proc_exec_conns",
-		Columns:    ProcExecConnsColumns,
-		PrimaryKey: []*schema.Column{ProcExecConnsColumns[0]},
+	// ProcExecCommsTable holds the schema information for the "proc_exec_comms" table.
+	ProcExecCommsTable = &schema.Table{
+		Name:       "proc_exec_comms",
+		Columns:    ProcExecCommsColumns,
+		PrimaryKey: []*schema.Column{ProcExecCommsColumns[0]},
 	}
 	// ProcExecEvalsColumns holds the columns for the "proc_exec_evals" table.
 	ProcExecEvalsColumns = []*schema.Column{
@@ -103,7 +103,7 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		ProcDescRootsTable,
-		ProcExecConnsTable,
+		ProcExecCommsTable,
 		ProcExecEvalsTable,
 		ProcDescTermsTable,
 		ProcTermExpsTable,
@@ -116,8 +116,8 @@ func init() {
 	ProcDescRootsTable.Annotation = &entsql.Annotation{
 		Table: "proc_desc_roots",
 	}
-	ProcExecConnsTable.Annotation = &entsql.Annotation{
-		Table: "proc_exec_conns",
+	ProcExecCommsTable.Annotation = &entsql.Annotation{
+		Table: "proc_exec_comms",
 	}
 	ProcExecEvalsTable.Annotation = &entsql.Annotation{
 		Table: "proc_exec_evals",

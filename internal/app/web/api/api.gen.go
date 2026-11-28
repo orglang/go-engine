@@ -13,15 +13,15 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
-// AnyConnVarSpec defines model for Any.Conn.VarSpec.
-type AnyConnVarSpec struct {
-	ConnPh string `json:"conn_ph"`
+// AnyCommVarSpec defines model for Any.Comm.VarSpec.
+type AnyCommVarSpec struct {
+	CommPh string `json:"comm_ph"`
 	TypeQn string `json:"type_qn"`
 }
 
 // AnyEvalVarSpec defines model for Any.Eval.VarSpec.
 type AnyEvalVarSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 	TermQn string `json:"term_qn"`
 }
 
@@ -64,9 +64,9 @@ type PoolDecSnap struct {
 
 // PoolDecSpec defines model for Pool.DecSpec.
 type PoolDecSpec struct {
-	AssetVars []AnyConnVarSpec `json:"asset_vars"`
+	AssetVars []AnyCommVarSpec `json:"asset_vars"`
 	DescQn    string           `json:"desc_qn"`
-	LiabVar   AnyConnVarSpec   `json:"liab_var"`
+	LiabVar   AnyCommVarSpec   `json:"liab_var"`
 }
 
 // PoolStepSpec defines model for Pool.StepSpec.
@@ -80,7 +80,7 @@ type PoolStepSpec struct {
 
 // PoolTermAcceptSpec defines model for Pool.Term.AcceptSpec.
 type PoolTermAcceptSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 
 	// ContExpr Pool term expression specification. Exactly one variant is serialized inline with its kind discriminator.
 	ContExpr PoolTermExprSpec `json:"cont_expr"`
@@ -88,7 +88,7 @@ type PoolTermAcceptSpec struct {
 
 // PoolTermAcquireSpec defines model for Pool.Term.AcquireSpec.
 type PoolTermAcquireSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 
 	// ContExpr Pool term expression specification. Exactly one variant is serialized inline with its kind discriminator.
 	ContExpr PoolTermExprSpec `json:"cont_expr"`
@@ -96,7 +96,7 @@ type PoolTermAcquireSpec struct {
 
 // PoolTermApplySpec defines model for Pool.Term.ApplySpec.
 type PoolTermApplySpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 
 	// ContExpr Pool term expression specification. Exactly one variant is serialized inline with its kind discriminator.
 	ContExpr PoolTermExprSpec `json:"cont_expr"`
@@ -105,7 +105,7 @@ type PoolTermApplySpec struct {
 
 // PoolTermDefAcceptSpec defines model for Pool.Term.DefAcceptSpec.
 type PoolTermDefAcceptSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 
 	// ContExpr Declarative pool term Definition persisted independently from execution expressions.
 	ContExpr PoolTermDefinitionSpec `json:"cont_expr"`
@@ -113,7 +113,7 @@ type PoolTermDefAcceptSpec struct {
 
 // PoolTermDefAcquireSpec defines model for Pool.Term.DefAcquireSpec.
 type PoolTermDefAcquireSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 
 	// ContExpr Declarative pool term Definition persisted independently from execution expressions.
 	ContExpr PoolTermDefinitionSpec `json:"cont_expr"`
@@ -121,7 +121,7 @@ type PoolTermDefAcquireSpec struct {
 
 // PoolTermDefApplySpec defines model for Pool.Term.DefApplySpec.
 type PoolTermDefApplySpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 
 	// ContExpr Declarative pool term Definition persisted independently from execution expressions.
 	ContExpr PoolTermDefinitionSpec `json:"cont_expr"`
@@ -130,18 +130,18 @@ type PoolTermDefApplySpec struct {
 
 // PoolTermDefDetachSpec defines model for Pool.Term.DefDetachSpec.
 type PoolTermDefDetachSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 }
 
 // PoolTermDefFireSpec defines model for Pool.Term.DefFireSpec.
 type PoolTermDefFireSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 	ProcQn string `json:"proc_qn"`
 }
 
 // PoolTermDefHireSpec defines model for Pool.Term.DefHireSpec.
 type PoolTermDefHireSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 
 	// ContExpr Declarative pool term Definition persisted independently from execution expressions.
 	ContExpr PoolTermDefinitionSpec `json:"cont_expr"`
@@ -150,13 +150,13 @@ type PoolTermDefHireSpec struct {
 
 // PoolTermDefQuitSpec defines model for Pool.Term.DefQuitSpec.
 type PoolTermDefQuitSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 	ProcQn string `json:"proc_qn"`
 }
 
 // PoolTermDefReleaseSpec defines model for Pool.Term.DefReleaseSpec.
 type PoolTermDefReleaseSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 }
 
 // PoolTermDefSpawnSpec defines model for Pool.Term.DefSpawnSpec.
@@ -172,7 +172,7 @@ type PoolTermDefinitionSpec struct {
 
 // PoolTermDetachSpec defines model for Pool.Term.DetachSpec.
 type PoolTermDetachSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 }
 
 // PoolTermExprSpec Pool term expression specification. Exactly one variant is serialized inline with its kind discriminator.
@@ -182,12 +182,12 @@ type PoolTermExprSpec struct {
 
 // PoolTermFireSpec defines model for Pool.Term.FireSpec.
 type PoolTermFireSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 }
 
 // PoolTermHireSpec defines model for Pool.Term.HireSpec.
 type PoolTermHireSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 
 	// ContExpr Pool term expression specification. Exactly one variant is serialized inline with its kind discriminator.
 	ContExpr PoolTermExprSpec `json:"cont_expr"`
@@ -196,13 +196,13 @@ type PoolTermHireSpec struct {
 
 // PoolTermQuitSpec defines model for Pool.Term.QuitSpec.
 type PoolTermQuitSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 	ProcQn string `json:"proc_qn"`
 }
 
 // PoolTermReleaseSpec defines model for Pool.Term.ReleaseSpec.
 type PoolTermReleaseSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 }
 
 // PoolTermSpawnSpec defines model for Pool.Term.SpawnSpec.
@@ -294,8 +294,8 @@ type ProcDecSnap struct {
 
 // ProcDecSpec defines model for Proc.DecSpec.
 type ProcDecSpec struct {
-	AssetVars []AnyConnVarSpec `json:"asset_vars"`
-	LiabVar   AnyConnVarSpec   `json:"liab_var"`
+	AssetVars []AnyCommVarSpec `json:"asset_vars"`
+	LiabVar   AnyCommVarSpec   `json:"liab_var"`
 	TermQn    string           `json:"term_qn"`
 }
 
@@ -330,18 +330,18 @@ type ProcTermCallSpec struct {
 
 // ProcTermCaseSpec defines model for Proc.Term.CaseSpec.
 type ProcTermCaseSpec struct {
-	ConnPh   string               `json:"conn_ph"`
+	CommPh   string               `json:"comm_ph"`
 	ContBses []ProcTermBranchSpec `json:"cont_bses"`
 }
 
 // ProcTermCloseSpec defines model for Proc.Term.CloseSpec.
 type ProcTermCloseSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 }
 
 // ProcTermDefAcceptSpec defines model for Proc.Term.DefAcceptSpec.
 type ProcTermDefAcceptSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 
 	// ContExpr Declarative process term Definition persisted independently from execution expressions.
 	ContExpr ProcTermDefinitionSpec `json:"cont_expr"`
@@ -349,7 +349,7 @@ type ProcTermDefAcceptSpec struct {
 
 // ProcTermDefAcquireSpec defines model for Proc.Term.DefAcquireSpec.
 type ProcTermDefAcquireSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 
 	// ContExpr Declarative process term Definition persisted independently from execution expressions.
 	ContExpr ProcTermDefinitionSpec `json:"cont_expr"`
@@ -357,7 +357,7 @@ type ProcTermDefAcquireSpec struct {
 
 // ProcTermDefCallSpec defines model for Proc.Term.DefCallSpec.
 type ProcTermDefCallSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 
 	// ContExpr Declarative process term Definition persisted independently from execution expressions.
 	ContExpr ProcTermDefinitionSpec `json:"cont_expr"`
@@ -368,7 +368,7 @@ type ProcTermDefCallSpec struct {
 
 // ProcTermDefCaseSpec defines model for Proc.Term.DefCaseSpec.
 type ProcTermDefCaseSpec struct {
-	ConnPh   string                            `json:"conn_ph"`
+	CommPh   string                            `json:"comm_ph"`
 	ContExps map[string]ProcTermDefinitionSpec `json:"cont_exps"`
 }
 
@@ -379,18 +379,18 @@ type ProcTermDefCloseSpec struct {
 
 // ProcTermDefDetachSpec defines model for Proc.Term.DefDetachSpec.
 type ProcTermDefDetachSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 }
 
 // ProcTermDefFwdSpec defines model for Proc.Term.DefFwdSpec.
 type ProcTermDefFwdSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 	ContPh string `json:"cont_ph"`
 }
 
 // ProcTermDefLabSpec defines model for Proc.Term.DefLabSpec.
 type ProcTermDefLabSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 
 	// ContExpr Declarative process term Definition persisted independently from execution expressions.
 	ContExpr ProcTermDefinitionSpec `json:"cont_expr"`
@@ -406,7 +406,7 @@ type ProcTermDefLinkSpec struct {
 
 // ProcTermDefRecvSpec defines model for Proc.Term.DefRecvSpec.
 type ProcTermDefRecvSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 
 	// ContExpr Declarative process term Definition persisted independently from execution expressions.
 	ContExpr ProcTermDefinitionSpec `json:"cont_expr"`
@@ -415,18 +415,18 @@ type ProcTermDefRecvSpec struct {
 
 // ProcTermDefReleaseSpec defines model for Proc.Term.DefReleaseSpec.
 type ProcTermDefReleaseSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 }
 
 // ProcTermDefSendSpec defines model for Proc.Term.DefSendSpec.
 type ProcTermDefSendSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 	ValPh  string `json:"val_ph"`
 }
 
 // ProcTermDefSpawnSpec defines model for Proc.Term.DefSpawnSpec.
 type ProcTermDefSpawnSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 
 	// ContExpr Declarative process term Definition persisted independently from execution expressions.
 	ContExpr ProcTermDefinitionSpec `json:"cont_expr"`
@@ -453,13 +453,13 @@ type ProcTermExprSpec struct {
 
 // ProcTermFwdSpec defines model for Proc.Term.FwdSpec.
 type ProcTermFwdSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 	ContPh string `json:"cont_ph"`
 }
 
 // ProcTermLabSpec defines model for Proc.Term.LabSpec.
 type ProcTermLabSpec struct {
-	ConnPh    string `json:"conn_ph"`
+	CommPh    string `json:"comm_ph"`
 	PatternQn string `json:"pattern_qn"`
 }
 
@@ -473,7 +473,7 @@ type ProcTermLinkSpec struct {
 // ProcTermRecvSpec defines model for Proc.Term.RecvSpec.
 type ProcTermRecvSpec struct {
 	BindPh string `json:"bind_ph"`
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 
 	// ContExpr Process term expression specification. Exactly one variant is serialized inline with its kind discriminator.
 	ContExpr ProcTermExprSpec `json:"cont_expr"`
@@ -481,13 +481,13 @@ type ProcTermRecvSpec struct {
 
 // ProcTermSendSpec defines model for Proc.Term.SendSpec.
 type ProcTermSendSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 	ValPh  string `json:"val_ph"`
 }
 
 // ProcTermWaitSpec defines model for Proc.Term.WaitSpec.
 type ProcTermWaitSpec struct {
-	ConnPh string `json:"conn_ph"`
+	CommPh string `json:"comm_ph"`
 
 	// ContExpr Process term expression specification. Exactly one variant is serialized inline with its kind discriminator.
 	ContExpr ProcTermExprSpec `json:"cont_expr"`

@@ -9,43 +9,43 @@ import (
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
 
-	connact "orglang/go-engine/internal/proc/connact/core"
+	commact "orglang/go-engine/internal/proc/commact/core"
 )
 
-func TestExpRecRoundTripPreservesConnectionIDs(t *testing.T) {
-	connID := identity.New()
+func TestExpRecRoundTripPreservesCommunicationIDs(t *testing.T) {
+	commID := identity.New()
 	contID := identity.New()
 	valueID := identity.New()
-	connChnl := symbol.ADT("conn")
+	commChnl := symbol.ADT("conn")
 	contChnl := symbol.ADT("cont")
 	newChnl := symbol.ADT("new")
 	label := uniqsym.New(symbol.ADT("label"))
 
-	tests := []connact.ExpRec{
-		connact.SendRec{
-			ConnChnlPH: connChnl,
+	tests := []commact.ExpRec{
+		commact.SendRec{
+			CommChnlPH: commChnl,
 			ContChnlID: contID,
 			ValChnlID:  valueID,
 			ValExpCK:   contkey.ADT(7),
-			ConnID:     connID,
+			CommID:     commID,
 		},
-		connact.RecvRec{
-			ConnChnlPH: connChnl,
+		commact.RecvRec{
+			CommChnlPH: commChnl,
 			ContChnlID: contID,
 			NewChnlPH:  newChnl,
-			ContExp:    connact.CloseSpec{ContChnlPH: contChnl},
+			ContExp:    commact.CloseSpec{ContChnlPH: contChnl},
 		},
-		connact.LabRec{
-			ConnChnlPH: connChnl,
+		commact.LabRec{
+			CommChnlPH: commChnl,
 			ContChnlID: contID,
 			ValExpCK:   contkey.ADT(9),
 			ValLabQN:   label,
 		},
-		connact.CaseRec{
-			ConnChnlPH: connChnl,
+		commact.CaseRec{
+			CommChnlPH: commChnl,
 			ContChnlID: contID,
-			ContExps: map[uniqsym.ADT]connact.ExpSpec{
-				label: connact.CloseSpec{ContChnlPH: contChnl},
+			ContExps: map[uniqsym.ADT]commact.ExpSpec{
+				label: commact.CloseSpec{ContChnlPH: contChnl},
 			},
 		},
 	}

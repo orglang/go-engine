@@ -2,10 +2,10 @@ package core
 
 import (
 	"orglang/go-engine/internal/adt/execroot"
-	connact "orglang/go-engine/internal/proc/connact/core"
+	commact "orglang/go-engine/internal/proc/commact/core"
 )
 
 type StepSpec struct {
 	RootRef execroot.RootRef
-	ProcExp connact.ExpSpec
+	ProcExp commact.ExpSpec
 }

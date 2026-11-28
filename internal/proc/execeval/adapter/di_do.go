@@ -7,7 +7,7 @@ import (
 
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/ent"
-	execconn "orglang/go-engine/internal/proc/execconn/core"
+	execcomm "orglang/go-engine/internal/proc/execcomm/core"
 	"orglang/go-engine/internal/proc/execeval/core"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
 	typedef "orglang/go-engine/internal/proc/typedef/core"
@@ -31,7 +31,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		connRepo, err := do.Invoke[execconn.Repo](i)
+		commRepo, err := do.Invoke[execcomm.Repo](i)
 		if err != nil {
 			return nil, err
 		}
@@ -55,7 +55,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return core.NewService(evalRepo, connRepo, termDecRepo, typeDefRepo, typeExpRepo, transactor, logger), nil
+		return core.NewService(evalRepo, commRepo, termDecRepo, typeDefRepo, typeExpRepo, transactor, logger), nil
 	}),
 	do.Lazy[GeneratedController](func(i do.Injector) (GeneratedController, error) {
 		api, err := do.Invoke[core.API](i)

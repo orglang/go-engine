@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"orglang/go-engine/internal/adt/termvar/adapter"
 	"orglang/go-engine/internal/pool/ent/descroot"
-	"orglang/go-engine/internal/pool/ent/execconn"
+	"orglang/go-engine/internal/pool/ent/execcomm"
 	"orglang/go-engine/internal/pool/ent/execeval"
 	"orglang/go-engine/internal/pool/ent/predicate"
 	"orglang/go-engine/internal/pool/ent/schema"
@@ -33,7 +33,7 @@ const (
 
 	// Node types.
 	TypeDescRoot = "DescRoot"
-	TypeExecConn = "ExecConn"
+	TypeExecComm = "ExecComm"
 	TypeExecEval = "ExecEval"
 	TypeTermDec  = "TermDec"
 	TypeTermExp  = "TermExp"
@@ -409,8 +409,8 @@ func (m *DescRootMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown DescRoot edge %s", name)
 }
 
-// ExecConnMutation represents an operation that mutates the ExecConn nodes in the graph.
-type ExecConnMutation struct {
+// ExecCommMutation represents an operation that mutates the ExecComm nodes in the graph.
+type ExecCommMutation struct {
 	config
 	op                  Op
 	typ                 string
@@ -427,21 +427,21 @@ type ExecConnMutation struct {
 	addact_nr           *int64
 	clearedFields       map[string]struct{}
 	done                bool
-	oldValue            func(context.Context) (*ExecConn, error)
-	predicates          []predicate.ExecConn
+	oldValue            func(context.Context) (*ExecComm, error)
+	predicates          []predicate.ExecComm
 }
 
-var _ ent.Mutation = (*ExecConnMutation)(nil)
+var _ ent.Mutation = (*ExecCommMutation)(nil)
 
-// execconnOption allows management of the mutation configuration using functional options.
-type execconnOption func(*ExecConnMutation)
+// execcommOption allows management of the mutation configuration using functional options.
+type execcommOption func(*ExecCommMutation)
 
-// newExecConnMutation creates new mutation for the ExecConn entity.
-func newExecConnMutation(c config, op Op, opts ...execconnOption) *ExecConnMutation {
-	m := &ExecConnMutation{
+// newExecCommMutation creates new mutation for the ExecComm entity.
+func newExecCommMutation(c config, op Op, opts ...execcommOption) *ExecCommMutation {
+	m := &ExecCommMutation{
 		config:        c,
 		op:            op,
-		typ:           TypeExecConn,
+		typ:           TypeExecComm,
 		clearedFields: make(map[string]struct{}),
 	}
 	for _, opt := range opts {
@@ -450,20 +450,20 @@ func newExecConnMutation(c config, op Op, opts ...execconnOption) *ExecConnMutat
 	return m
 }
 
-// withExecConnID sets the ID field of the mutation.
-func withExecConnID(id string) execconnOption {
-	return func(m *ExecConnMutation) {
+// withExecCommID sets the ID field of the mutation.
+func withExecCommID(id string) execcommOption {
+	return func(m *ExecCommMutation) {
 		var (
 			err   error
 			once  sync.Once
-			value *ExecConn
+			value *ExecComm
 		)
-		m.oldValue = func(ctx context.Context) (*ExecConn, error) {
+		m.oldValue = func(ctx context.Context) (*ExecComm, error) {
 			once.Do(func() {
 				if m.done {
 					err = errors.New("querying old values post mutation is not allowed")
 				} else {
-					value, err = m.Client().ExecConn.Get(ctx, id)
+					value, err = m.Client().ExecComm.Get(ctx, id)
 				}
 			})
 			return value, err
@@ -472,10 +472,10 @@ func withExecConnID(id string) execconnOption {
 	}
 }
 
-// withExecConn sets the old ExecConn of the mutation.
-func withExecConn(node *ExecConn) execconnOption {
-	return func(m *ExecConnMutation) {
-		m.oldValue = func(context.Context) (*ExecConn, error) {
+// withExecComm sets the old ExecComm of the mutation.
+func withExecComm(node *ExecComm) execcommOption {
+	return func(m *ExecCommMutation) {
+		m.oldValue = func(context.Context) (*ExecComm, error) {
 			return node, nil
 		}
 		m.id = &node.ID
@@ -484,7 +484,7 @@ func withExecConn(node *ExecConn) execconnOption {
 
 // Client returns a new `ent.Client` from the mutation. If the mutation was
 // executed in a transaction (ent.Tx), a transactional client is returned.
-func (m ExecConnMutation) Client() *Client {
+func (m ExecCommMutation) Client() *Client {
 	client := &Client{config: m.config}
 	client.init()
 	return client
@@ -492,7 +492,7 @@ func (m ExecConnMutation) Client() *Client {
 
 // Tx returns an `ent.Tx` for mutations that were executed in transactions;
 // it returns an error otherwise.
-func (m ExecConnMutation) Tx() (*Tx, error) {
+func (m ExecCommMutation) Tx() (*Tx, error) {
 	if _, ok := m.driver.(*txDriver); !ok {
 		return nil, errors.New("ent: mutation is not running in a transaction")
 	}
@@ -502,14 +502,14 @@ func (m ExecConnMutation) Tx() (*Tx, error) {
 }
 
 // SetID sets the value of the id field. Note that this
-// operation is only accepted on creation of ExecConn entities.
-func (m *ExecConnMutation) SetID(id string) {
+// operation is only accepted on creation of ExecComm entities.
+func (m *ExecCommMutation) SetID(id string) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *ExecConnMutation) ID() (id string, exists bool) {
+func (m *ExecCommMutation) ID() (id string, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -520,7 +520,7 @@ func (m *ExecConnMutation) ID() (id string, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *ExecConnMutation) IDs(ctx context.Context) ([]string, error) {
+func (m *ExecCommMutation) IDs(ctx context.Context) ([]string, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
@@ -529,19 +529,19 @@ func (m *ExecConnMutation) IDs(ctx context.Context) ([]string, error) {
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().ExecConn.Query().Where(m.predicates...).IDs(ctx)
+		return m.Client().ExecComm.Query().Where(m.predicates...).IDs(ctx)
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
 }
 
 // SetProviderExecID sets the "provider_exec_id" field.
-func (m *ExecConnMutation) SetProviderExecID(s string) {
+func (m *ExecCommMutation) SetProviderExecID(s string) {
 	m.provider_exec_id = &s
 }
 
 // ProviderExecID returns the value of the "provider_exec_id" field in the mutation.
-func (m *ExecConnMutation) ProviderExecID() (r string, exists bool) {
+func (m *ExecCommMutation) ProviderExecID() (r string, exists bool) {
 	v := m.provider_exec_id
 	if v == nil {
 		return
@@ -549,10 +549,10 @@ func (m *ExecConnMutation) ProviderExecID() (r string, exists bool) {
 	return *v, true
 }
 
-// OldProviderExecID returns the old "provider_exec_id" field's value of the ExecConn entity.
-// If the ExecConn object wasn't provided to the builder, the object is fetched from the database.
+// OldProviderExecID returns the old "provider_exec_id" field's value of the ExecComm entity.
+// If the ExecComm object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ExecConnMutation) OldProviderExecID(ctx context.Context) (v string, err error) {
+func (m *ExecCommMutation) OldProviderExecID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldProviderExecID is only allowed on UpdateOne operations")
 	}
@@ -567,18 +567,18 @@ func (m *ExecConnMutation) OldProviderExecID(ctx context.Context) (v string, err
 }
 
 // ResetProviderExecID resets all changes to the "provider_exec_id" field.
-func (m *ExecConnMutation) ResetProviderExecID() {
+func (m *ExecCommMutation) ResetProviderExecID() {
 	m.provider_exec_id = nil
 }
 
 // SetProviderExecRn sets the "provider_exec_rn" field.
-func (m *ExecConnMutation) SetProviderExecRn(i int64) {
+func (m *ExecCommMutation) SetProviderExecRn(i int64) {
 	m.provider_exec_rn = &i
 	m.addprovider_exec_rn = nil
 }
 
 // ProviderExecRn returns the value of the "provider_exec_rn" field in the mutation.
-func (m *ExecConnMutation) ProviderExecRn() (r int64, exists bool) {
+func (m *ExecCommMutation) ProviderExecRn() (r int64, exists bool) {
 	v := m.provider_exec_rn
 	if v == nil {
 		return
@@ -586,10 +586,10 @@ func (m *ExecConnMutation) ProviderExecRn() (r int64, exists bool) {
 	return *v, true
 }
 
-// OldProviderExecRn returns the old "provider_exec_rn" field's value of the ExecConn entity.
-// If the ExecConn object wasn't provided to the builder, the object is fetched from the database.
+// OldProviderExecRn returns the old "provider_exec_rn" field's value of the ExecComm entity.
+// If the ExecComm object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ExecConnMutation) OldProviderExecRn(ctx context.Context) (v int64, err error) {
+func (m *ExecCommMutation) OldProviderExecRn(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldProviderExecRn is only allowed on UpdateOne operations")
 	}
@@ -604,7 +604,7 @@ func (m *ExecConnMutation) OldProviderExecRn(ctx context.Context) (v int64, err 
 }
 
 // AddProviderExecRn adds i to the "provider_exec_rn" field.
-func (m *ExecConnMutation) AddProviderExecRn(i int64) {
+func (m *ExecCommMutation) AddProviderExecRn(i int64) {
 	if m.addprovider_exec_rn != nil {
 		*m.addprovider_exec_rn += i
 	} else {
@@ -613,7 +613,7 @@ func (m *ExecConnMutation) AddProviderExecRn(i int64) {
 }
 
 // AddedProviderExecRn returns the value that was added to the "provider_exec_rn" field in this mutation.
-func (m *ExecConnMutation) AddedProviderExecRn() (r int64, exists bool) {
+func (m *ExecCommMutation) AddedProviderExecRn() (r int64, exists bool) {
 	v := m.addprovider_exec_rn
 	if v == nil {
 		return
@@ -622,18 +622,18 @@ func (m *ExecConnMutation) AddedProviderExecRn() (r int64, exists bool) {
 }
 
 // ResetProviderExecRn resets all changes to the "provider_exec_rn" field.
-func (m *ExecConnMutation) ResetProviderExecRn() {
+func (m *ExecCommMutation) ResetProviderExecRn() {
 	m.provider_exec_rn = nil
 	m.addprovider_exec_rn = nil
 }
 
 // SetClientExecID sets the "client_exec_id" field.
-func (m *ExecConnMutation) SetClientExecID(s string) {
+func (m *ExecCommMutation) SetClientExecID(s string) {
 	m.client_exec_id = &s
 }
 
 // ClientExecID returns the value of the "client_exec_id" field in the mutation.
-func (m *ExecConnMutation) ClientExecID() (r string, exists bool) {
+func (m *ExecCommMutation) ClientExecID() (r string, exists bool) {
 	v := m.client_exec_id
 	if v == nil {
 		return
@@ -641,10 +641,10 @@ func (m *ExecConnMutation) ClientExecID() (r string, exists bool) {
 	return *v, true
 }
 
-// OldClientExecID returns the old "client_exec_id" field's value of the ExecConn entity.
-// If the ExecConn object wasn't provided to the builder, the object is fetched from the database.
+// OldClientExecID returns the old "client_exec_id" field's value of the ExecComm entity.
+// If the ExecComm object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ExecConnMutation) OldClientExecID(ctx context.Context) (v string, err error) {
+func (m *ExecCommMutation) OldClientExecID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldClientExecID is only allowed on UpdateOne operations")
 	}
@@ -659,18 +659,18 @@ func (m *ExecConnMutation) OldClientExecID(ctx context.Context) (v string, err e
 }
 
 // ResetClientExecID resets all changes to the "client_exec_id" field.
-func (m *ExecConnMutation) ResetClientExecID() {
+func (m *ExecCommMutation) ResetClientExecID() {
 	m.client_exec_id = nil
 }
 
 // SetClientExecRn sets the "client_exec_rn" field.
-func (m *ExecConnMutation) SetClientExecRn(i int64) {
+func (m *ExecCommMutation) SetClientExecRn(i int64) {
 	m.client_exec_rn = &i
 	m.addclient_exec_rn = nil
 }
 
 // ClientExecRn returns the value of the "client_exec_rn" field in the mutation.
-func (m *ExecConnMutation) ClientExecRn() (r int64, exists bool) {
+func (m *ExecCommMutation) ClientExecRn() (r int64, exists bool) {
 	v := m.client_exec_rn
 	if v == nil {
 		return
@@ -678,10 +678,10 @@ func (m *ExecConnMutation) ClientExecRn() (r int64, exists bool) {
 	return *v, true
 }
 
-// OldClientExecRn returns the old "client_exec_rn" field's value of the ExecConn entity.
-// If the ExecConn object wasn't provided to the builder, the object is fetched from the database.
+// OldClientExecRn returns the old "client_exec_rn" field's value of the ExecComm entity.
+// If the ExecComm object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ExecConnMutation) OldClientExecRn(ctx context.Context) (v int64, err error) {
+func (m *ExecCommMutation) OldClientExecRn(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldClientExecRn is only allowed on UpdateOne operations")
 	}
@@ -696,7 +696,7 @@ func (m *ExecConnMutation) OldClientExecRn(ctx context.Context) (v int64, err er
 }
 
 // AddClientExecRn adds i to the "client_exec_rn" field.
-func (m *ExecConnMutation) AddClientExecRn(i int64) {
+func (m *ExecCommMutation) AddClientExecRn(i int64) {
 	if m.addclient_exec_rn != nil {
 		*m.addclient_exec_rn += i
 	} else {
@@ -705,7 +705,7 @@ func (m *ExecConnMutation) AddClientExecRn(i int64) {
 }
 
 // AddedClientExecRn returns the value that was added to the "client_exec_rn" field in this mutation.
-func (m *ExecConnMutation) AddedClientExecRn() (r int64, exists bool) {
+func (m *ExecCommMutation) AddedClientExecRn() (r int64, exists bool) {
 	v := m.addclient_exec_rn
 	if v == nil {
 		return
@@ -714,19 +714,19 @@ func (m *ExecConnMutation) AddedClientExecRn() (r int64, exists bool) {
 }
 
 // ResetClientExecRn resets all changes to the "client_exec_rn" field.
-func (m *ExecConnMutation) ResetClientExecRn() {
+func (m *ExecCommMutation) ResetClientExecRn() {
 	m.client_exec_rn = nil
 	m.addclient_exec_rn = nil
 }
 
 // SetOffsetNr sets the "offset_nr" field.
-func (m *ExecConnMutation) SetOffsetNr(i int64) {
+func (m *ExecCommMutation) SetOffsetNr(i int64) {
 	m.offset_nr = &i
 	m.addoffset_nr = nil
 }
 
 // OffsetNr returns the value of the "offset_nr" field in the mutation.
-func (m *ExecConnMutation) OffsetNr() (r int64, exists bool) {
+func (m *ExecCommMutation) OffsetNr() (r int64, exists bool) {
 	v := m.offset_nr
 	if v == nil {
 		return
@@ -734,10 +734,10 @@ func (m *ExecConnMutation) OffsetNr() (r int64, exists bool) {
 	return *v, true
 }
 
-// OldOffsetNr returns the old "offset_nr" field's value of the ExecConn entity.
-// If the ExecConn object wasn't provided to the builder, the object is fetched from the database.
+// OldOffsetNr returns the old "offset_nr" field's value of the ExecComm entity.
+// If the ExecComm object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ExecConnMutation) OldOffsetNr(ctx context.Context) (v int64, err error) {
+func (m *ExecCommMutation) OldOffsetNr(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldOffsetNr is only allowed on UpdateOne operations")
 	}
@@ -752,7 +752,7 @@ func (m *ExecConnMutation) OldOffsetNr(ctx context.Context) (v int64, err error)
 }
 
 // AddOffsetNr adds i to the "offset_nr" field.
-func (m *ExecConnMutation) AddOffsetNr(i int64) {
+func (m *ExecCommMutation) AddOffsetNr(i int64) {
 	if m.addoffset_nr != nil {
 		*m.addoffset_nr += i
 	} else {
@@ -761,7 +761,7 @@ func (m *ExecConnMutation) AddOffsetNr(i int64) {
 }
 
 // AddedOffsetNr returns the value that was added to the "offset_nr" field in this mutation.
-func (m *ExecConnMutation) AddedOffsetNr() (r int64, exists bool) {
+func (m *ExecCommMutation) AddedOffsetNr() (r int64, exists bool) {
 	v := m.addoffset_nr
 	if v == nil {
 		return
@@ -770,33 +770,33 @@ func (m *ExecConnMutation) AddedOffsetNr() (r int64, exists bool) {
 }
 
 // ClearOffsetNr clears the value of the "offset_nr" field.
-func (m *ExecConnMutation) ClearOffsetNr() {
+func (m *ExecCommMutation) ClearOffsetNr() {
 	m.offset_nr = nil
 	m.addoffset_nr = nil
-	m.clearedFields[execconn.FieldOffsetNr] = struct{}{}
+	m.clearedFields[execcomm.FieldOffsetNr] = struct{}{}
 }
 
 // OffsetNrCleared returns if the "offset_nr" field was cleared in this mutation.
-func (m *ExecConnMutation) OffsetNrCleared() bool {
-	_, ok := m.clearedFields[execconn.FieldOffsetNr]
+func (m *ExecCommMutation) OffsetNrCleared() bool {
+	_, ok := m.clearedFields[execcomm.FieldOffsetNr]
 	return ok
 }
 
 // ResetOffsetNr resets all changes to the "offset_nr" field.
-func (m *ExecConnMutation) ResetOffsetNr() {
+func (m *ExecCommMutation) ResetOffsetNr() {
 	m.offset_nr = nil
 	m.addoffset_nr = nil
-	delete(m.clearedFields, execconn.FieldOffsetNr)
+	delete(m.clearedFields, execcomm.FieldOffsetNr)
 }
 
 // SetActNr sets the "act_nr" field.
-func (m *ExecConnMutation) SetActNr(i int64) {
+func (m *ExecCommMutation) SetActNr(i int64) {
 	m.act_nr = &i
 	m.addact_nr = nil
 }
 
 // ActNr returns the value of the "act_nr" field in the mutation.
-func (m *ExecConnMutation) ActNr() (r int64, exists bool) {
+func (m *ExecCommMutation) ActNr() (r int64, exists bool) {
 	v := m.act_nr
 	if v == nil {
 		return
@@ -804,10 +804,10 @@ func (m *ExecConnMutation) ActNr() (r int64, exists bool) {
 	return *v, true
 }
 
-// OldActNr returns the old "act_nr" field's value of the ExecConn entity.
-// If the ExecConn object wasn't provided to the builder, the object is fetched from the database.
+// OldActNr returns the old "act_nr" field's value of the ExecComm entity.
+// If the ExecComm object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ExecConnMutation) OldActNr(ctx context.Context) (v int64, err error) {
+func (m *ExecCommMutation) OldActNr(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldActNr is only allowed on UpdateOne operations")
 	}
@@ -822,7 +822,7 @@ func (m *ExecConnMutation) OldActNr(ctx context.Context) (v int64, err error) {
 }
 
 // AddActNr adds i to the "act_nr" field.
-func (m *ExecConnMutation) AddActNr(i int64) {
+func (m *ExecCommMutation) AddActNr(i int64) {
 	if m.addact_nr != nil {
 		*m.addact_nr += i
 	} else {
@@ -831,7 +831,7 @@ func (m *ExecConnMutation) AddActNr(i int64) {
 }
 
 // AddedActNr returns the value that was added to the "act_nr" field in this mutation.
-func (m *ExecConnMutation) AddedActNr() (r int64, exists bool) {
+func (m *ExecCommMutation) AddedActNr() (r int64, exists bool) {
 	v := m.addact_nr
 	if v == nil {
 		return
@@ -840,34 +840,34 @@ func (m *ExecConnMutation) AddedActNr() (r int64, exists bool) {
 }
 
 // ClearActNr clears the value of the "act_nr" field.
-func (m *ExecConnMutation) ClearActNr() {
+func (m *ExecCommMutation) ClearActNr() {
 	m.act_nr = nil
 	m.addact_nr = nil
-	m.clearedFields[execconn.FieldActNr] = struct{}{}
+	m.clearedFields[execcomm.FieldActNr] = struct{}{}
 }
 
 // ActNrCleared returns if the "act_nr" field was cleared in this mutation.
-func (m *ExecConnMutation) ActNrCleared() bool {
-	_, ok := m.clearedFields[execconn.FieldActNr]
+func (m *ExecCommMutation) ActNrCleared() bool {
+	_, ok := m.clearedFields[execcomm.FieldActNr]
 	return ok
 }
 
 // ResetActNr resets all changes to the "act_nr" field.
-func (m *ExecConnMutation) ResetActNr() {
+func (m *ExecCommMutation) ResetActNr() {
 	m.act_nr = nil
 	m.addact_nr = nil
-	delete(m.clearedFields, execconn.FieldActNr)
+	delete(m.clearedFields, execcomm.FieldActNr)
 }
 
-// Where appends a list predicates to the ExecConnMutation builder.
-func (m *ExecConnMutation) Where(ps ...predicate.ExecConn) {
+// Where appends a list predicates to the ExecCommMutation builder.
+func (m *ExecCommMutation) Where(ps ...predicate.ExecComm) {
 	m.predicates = append(m.predicates, ps...)
 }
 
-// WhereP appends storage-level predicates to the ExecConnMutation builder. Using this method,
+// WhereP appends storage-level predicates to the ExecCommMutation builder. Using this method,
 // users can use type-assertion to append predicates that do not depend on any generated package.
-func (m *ExecConnMutation) WhereP(ps ...func(*sql.Selector)) {
-	p := make([]predicate.ExecConn, len(ps))
+func (m *ExecCommMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.ExecComm, len(ps))
 	for i := range ps {
 		p[i] = ps[i]
 	}
@@ -875,42 +875,42 @@ func (m *ExecConnMutation) WhereP(ps ...func(*sql.Selector)) {
 }
 
 // Op returns the operation name.
-func (m *ExecConnMutation) Op() Op {
+func (m *ExecCommMutation) Op() Op {
 	return m.op
 }
 
 // SetOp allows setting the mutation operation.
-func (m *ExecConnMutation) SetOp(op Op) {
+func (m *ExecCommMutation) SetOp(op Op) {
 	m.op = op
 }
 
-// Type returns the node type of this mutation (ExecConn).
-func (m *ExecConnMutation) Type() string {
+// Type returns the node type of this mutation (ExecComm).
+func (m *ExecCommMutation) Type() string {
 	return m.typ
 }
 
 // Fields returns all fields that were changed during this mutation. Note that in
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
-func (m *ExecConnMutation) Fields() []string {
+func (m *ExecCommMutation) Fields() []string {
 	fields := make([]string, 0, 6)
 	if m.provider_exec_id != nil {
-		fields = append(fields, execconn.FieldProviderExecID)
+		fields = append(fields, execcomm.FieldProviderExecID)
 	}
 	if m.provider_exec_rn != nil {
-		fields = append(fields, execconn.FieldProviderExecRn)
+		fields = append(fields, execcomm.FieldProviderExecRn)
 	}
 	if m.client_exec_id != nil {
-		fields = append(fields, execconn.FieldClientExecID)
+		fields = append(fields, execcomm.FieldClientExecID)
 	}
 	if m.client_exec_rn != nil {
-		fields = append(fields, execconn.FieldClientExecRn)
+		fields = append(fields, execcomm.FieldClientExecRn)
 	}
 	if m.offset_nr != nil {
-		fields = append(fields, execconn.FieldOffsetNr)
+		fields = append(fields, execcomm.FieldOffsetNr)
 	}
 	if m.act_nr != nil {
-		fields = append(fields, execconn.FieldActNr)
+		fields = append(fields, execcomm.FieldActNr)
 	}
 	return fields
 }
@@ -918,19 +918,19 @@ func (m *ExecConnMutation) Fields() []string {
 // Field returns the value of a field with the given name. The second boolean
 // return value indicates that this field was not set, or was not defined in the
 // schema.
-func (m *ExecConnMutation) Field(name string) (ent.Value, bool) {
+func (m *ExecCommMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case execconn.FieldProviderExecID:
+	case execcomm.FieldProviderExecID:
 		return m.ProviderExecID()
-	case execconn.FieldProviderExecRn:
+	case execcomm.FieldProviderExecRn:
 		return m.ProviderExecRn()
-	case execconn.FieldClientExecID:
+	case execcomm.FieldClientExecID:
 		return m.ClientExecID()
-	case execconn.FieldClientExecRn:
+	case execcomm.FieldClientExecRn:
 		return m.ClientExecRn()
-	case execconn.FieldOffsetNr:
+	case execcomm.FieldOffsetNr:
 		return m.OffsetNr()
-	case execconn.FieldActNr:
+	case execcomm.FieldActNr:
 		return m.ActNr()
 	}
 	return nil, false
@@ -939,65 +939,65 @@ func (m *ExecConnMutation) Field(name string) (ent.Value, bool) {
 // OldField returns the old value of the field from the database. An error is
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
-func (m *ExecConnMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+func (m *ExecCommMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case execconn.FieldProviderExecID:
+	case execcomm.FieldProviderExecID:
 		return m.OldProviderExecID(ctx)
-	case execconn.FieldProviderExecRn:
+	case execcomm.FieldProviderExecRn:
 		return m.OldProviderExecRn(ctx)
-	case execconn.FieldClientExecID:
+	case execcomm.FieldClientExecID:
 		return m.OldClientExecID(ctx)
-	case execconn.FieldClientExecRn:
+	case execcomm.FieldClientExecRn:
 		return m.OldClientExecRn(ctx)
-	case execconn.FieldOffsetNr:
+	case execcomm.FieldOffsetNr:
 		return m.OldOffsetNr(ctx)
-	case execconn.FieldActNr:
+	case execcomm.FieldActNr:
 		return m.OldActNr(ctx)
 	}
-	return nil, fmt.Errorf("unknown ExecConn field %s", name)
+	return nil, fmt.Errorf("unknown ExecComm field %s", name)
 }
 
 // SetField sets the value of a field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
-func (m *ExecConnMutation) SetField(name string, value ent.Value) error {
+func (m *ExecCommMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case execconn.FieldProviderExecID:
+	case execcomm.FieldProviderExecID:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetProviderExecID(v)
 		return nil
-	case execconn.FieldProviderExecRn:
+	case execcomm.FieldProviderExecRn:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetProviderExecRn(v)
 		return nil
-	case execconn.FieldClientExecID:
+	case execcomm.FieldClientExecID:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetClientExecID(v)
 		return nil
-	case execconn.FieldClientExecRn:
+	case execcomm.FieldClientExecRn:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetClientExecRn(v)
 		return nil
-	case execconn.FieldOffsetNr:
+	case execcomm.FieldOffsetNr:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetOffsetNr(v)
 		return nil
-	case execconn.FieldActNr:
+	case execcomm.FieldActNr:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
@@ -1005,24 +1005,24 @@ func (m *ExecConnMutation) SetField(name string, value ent.Value) error {
 		m.SetActNr(v)
 		return nil
 	}
-	return fmt.Errorf("unknown ExecConn field %s", name)
+	return fmt.Errorf("unknown ExecComm field %s", name)
 }
 
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
-func (m *ExecConnMutation) AddedFields() []string {
+func (m *ExecCommMutation) AddedFields() []string {
 	var fields []string
 	if m.addprovider_exec_rn != nil {
-		fields = append(fields, execconn.FieldProviderExecRn)
+		fields = append(fields, execcomm.FieldProviderExecRn)
 	}
 	if m.addclient_exec_rn != nil {
-		fields = append(fields, execconn.FieldClientExecRn)
+		fields = append(fields, execcomm.FieldClientExecRn)
 	}
 	if m.addoffset_nr != nil {
-		fields = append(fields, execconn.FieldOffsetNr)
+		fields = append(fields, execcomm.FieldOffsetNr)
 	}
 	if m.addact_nr != nil {
-		fields = append(fields, execconn.FieldActNr)
+		fields = append(fields, execcomm.FieldActNr)
 	}
 	return fields
 }
@@ -1030,15 +1030,15 @@ func (m *ExecConnMutation) AddedFields() []string {
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
-func (m *ExecConnMutation) AddedField(name string) (ent.Value, bool) {
+func (m *ExecCommMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
-	case execconn.FieldProviderExecRn:
+	case execcomm.FieldProviderExecRn:
 		return m.AddedProviderExecRn()
-	case execconn.FieldClientExecRn:
+	case execcomm.FieldClientExecRn:
 		return m.AddedClientExecRn()
-	case execconn.FieldOffsetNr:
+	case execcomm.FieldOffsetNr:
 		return m.AddedOffsetNr()
-	case execconn.FieldActNr:
+	case execcomm.FieldActNr:
 		return m.AddedActNr()
 	}
 	return nil, false
@@ -1047,30 +1047,30 @@ func (m *ExecConnMutation) AddedField(name string) (ent.Value, bool) {
 // AddField adds the value to the field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
-func (m *ExecConnMutation) AddField(name string, value ent.Value) error {
+func (m *ExecCommMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case execconn.FieldProviderExecRn:
+	case execcomm.FieldProviderExecRn:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddProviderExecRn(v)
 		return nil
-	case execconn.FieldClientExecRn:
+	case execcomm.FieldClientExecRn:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddClientExecRn(v)
 		return nil
-	case execconn.FieldOffsetNr:
+	case execcomm.FieldOffsetNr:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddOffsetNr(v)
 		return nil
-	case execconn.FieldActNr:
+	case execcomm.FieldActNr:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
@@ -1078,115 +1078,115 @@ func (m *ExecConnMutation) AddField(name string, value ent.Value) error {
 		m.AddActNr(v)
 		return nil
 	}
-	return fmt.Errorf("unknown ExecConn numeric field %s", name)
+	return fmt.Errorf("unknown ExecComm numeric field %s", name)
 }
 
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
-func (m *ExecConnMutation) ClearedFields() []string {
+func (m *ExecCommMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(execconn.FieldOffsetNr) {
-		fields = append(fields, execconn.FieldOffsetNr)
+	if m.FieldCleared(execcomm.FieldOffsetNr) {
+		fields = append(fields, execcomm.FieldOffsetNr)
 	}
-	if m.FieldCleared(execconn.FieldActNr) {
-		fields = append(fields, execconn.FieldActNr)
+	if m.FieldCleared(execcomm.FieldActNr) {
+		fields = append(fields, execcomm.FieldActNr)
 	}
 	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
 // cleared in this mutation.
-func (m *ExecConnMutation) FieldCleared(name string) bool {
+func (m *ExecCommMutation) FieldCleared(name string) bool {
 	_, ok := m.clearedFields[name]
 	return ok
 }
 
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
-func (m *ExecConnMutation) ClearField(name string) error {
+func (m *ExecCommMutation) ClearField(name string) error {
 	switch name {
-	case execconn.FieldOffsetNr:
+	case execcomm.FieldOffsetNr:
 		m.ClearOffsetNr()
 		return nil
-	case execconn.FieldActNr:
+	case execcomm.FieldActNr:
 		m.ClearActNr()
 		return nil
 	}
-	return fmt.Errorf("unknown ExecConn nullable field %s", name)
+	return fmt.Errorf("unknown ExecComm nullable field %s", name)
 }
 
 // ResetField resets all changes in the mutation for the field with the given name.
 // It returns an error if the field is not defined in the schema.
-func (m *ExecConnMutation) ResetField(name string) error {
+func (m *ExecCommMutation) ResetField(name string) error {
 	switch name {
-	case execconn.FieldProviderExecID:
+	case execcomm.FieldProviderExecID:
 		m.ResetProviderExecID()
 		return nil
-	case execconn.FieldProviderExecRn:
+	case execcomm.FieldProviderExecRn:
 		m.ResetProviderExecRn()
 		return nil
-	case execconn.FieldClientExecID:
+	case execcomm.FieldClientExecID:
 		m.ResetClientExecID()
 		return nil
-	case execconn.FieldClientExecRn:
+	case execcomm.FieldClientExecRn:
 		m.ResetClientExecRn()
 		return nil
-	case execconn.FieldOffsetNr:
+	case execcomm.FieldOffsetNr:
 		m.ResetOffsetNr()
 		return nil
-	case execconn.FieldActNr:
+	case execcomm.FieldActNr:
 		m.ResetActNr()
 		return nil
 	}
-	return fmt.Errorf("unknown ExecConn field %s", name)
+	return fmt.Errorf("unknown ExecComm field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
-func (m *ExecConnMutation) AddedEdges() []string {
+func (m *ExecCommMutation) AddedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
-func (m *ExecConnMutation) AddedIDs(name string) []ent.Value {
+func (m *ExecCommMutation) AddedIDs(name string) []ent.Value {
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
-func (m *ExecConnMutation) RemovedEdges() []string {
+func (m *ExecCommMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
-func (m *ExecConnMutation) RemovedIDs(name string) []ent.Value {
+func (m *ExecCommMutation) RemovedIDs(name string) []ent.Value {
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *ExecConnMutation) ClearedEdges() []string {
+func (m *ExecCommMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
-func (m *ExecConnMutation) EdgeCleared(name string) bool {
+func (m *ExecCommMutation) EdgeCleared(name string) bool {
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
-func (m *ExecConnMutation) ClearEdge(name string) error {
-	return fmt.Errorf("unknown ExecConn unique edge %s", name)
+func (m *ExecCommMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown ExecComm unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
-func (m *ExecConnMutation) ResetEdge(name string) error {
-	return fmt.Errorf("unknown ExecConn edge %s", name)
+func (m *ExecCommMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown ExecComm edge %s", name)
 }
 
 // ExecEvalMutation represents an operation that mutates the ExecEval nodes in the graph.

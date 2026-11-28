@@ -15,9 +15,9 @@ func TestExpDataRoundTripPreservesNestedDefinition(t *testing.T) {
 		t.Fatal(err)
 	}
 	spec := termdef.ExpAcquireSpec{
-		ConnChnlPH: symbol.ADT("request"),
+		CommChnlPH: symbol.ADT("request"),
 		ContExp: termdef.ExpHireSpec{
-			ConnChnlPH: symbol.ADT("worker"),
+			CommChnlPH: symbol.ADT("worker"),
 			ProcTermQN: workerQN,
 			ContExp: termdef.ExpSpawnSpec{
 				ProcTermQN: workerQN,
@@ -69,7 +69,7 @@ func TestDataToExpRecRejectsMissingContinuation(t *testing.T) {
 			ExpCK: 1,
 			K:     AcquireKind,
 			Spec: ExpStateSpec{
-				ConnChnlPH: "request",
+				CommChnlPH: "request",
 				ContExpCK:  2,
 			},
 		}},
@@ -87,34 +87,34 @@ func TestDataToExpRecRejectsInvalidTreeStructure(t *testing.T) {
 		{
 			name: "missing root",
 			states: []ExpState{
-				{ExpCK: 2, K: ReleaseKind, Spec: ExpStateSpec{ConnChnlPH: "request"}},
+				{ExpCK: 2, K: ReleaseKind, Spec: ExpStateSpec{CommChnlPH: "request"}},
 			},
 		},
 		{
 			name: "duplicate expression",
 			states: []ExpState{
-				{ExpCK: 1, K: ReleaseKind, Spec: ExpStateSpec{ConnChnlPH: "request"}},
-				{ExpCK: 1, K: ReleaseKind, Spec: ExpStateSpec{ConnChnlPH: "request"}},
+				{ExpCK: 1, K: ReleaseKind, Spec: ExpStateSpec{CommChnlPH: "request"}},
+				{ExpCK: 1, K: ReleaseKind, Spec: ExpStateSpec{CommChnlPH: "request"}},
 			},
 		},
 		{
 			name: "root has parent",
 			states: []ExpState{
-				{ExpCK: 1, SupExpCK: 2, K: ReleaseKind, Spec: ExpStateSpec{ConnChnlPH: "request"}},
+				{ExpCK: 1, SupExpCK: 2, K: ReleaseKind, Spec: ExpStateSpec{CommChnlPH: "request"}},
 			},
 		},
 		{
 			name: "unreachable expression",
 			states: []ExpState{
-				{ExpCK: 1, K: ReleaseKind, Spec: ExpStateSpec{ConnChnlPH: "request"}},
-				{ExpCK: 2, K: ReleaseKind, Spec: ExpStateSpec{ConnChnlPH: "worker"}},
+				{ExpCK: 1, K: ReleaseKind, Spec: ExpStateSpec{CommChnlPH: "request"}},
+				{ExpCK: 2, K: ReleaseKind, Spec: ExpStateSpec{CommChnlPH: "worker"}},
 			},
 		},
 		{
 			name: "child has unexpected parent",
 			states: []ExpState{
-				{ExpCK: 1, K: AcquireKind, Spec: ExpStateSpec{ConnChnlPH: "request", ContExpCK: 2}},
-				{ExpCK: 2, SupExpCK: 3, K: ReleaseKind, Spec: ExpStateSpec{ConnChnlPH: "worker"}},
+				{ExpCK: 1, K: AcquireKind, Spec: ExpStateSpec{CommChnlPH: "request", ContExpCK: 2}},
+				{ExpCK: 2, SupExpCK: 3, K: ReleaseKind, Spec: ExpStateSpec{CommChnlPH: "worker"}},
 			},
 		},
 		{

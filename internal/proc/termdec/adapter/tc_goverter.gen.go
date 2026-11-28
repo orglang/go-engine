@@ -196,9 +196,9 @@ func adapterDecSnapToDescrootRootRef(source DecSnap) (descroot.RootRef, error) {
 	return descrootRootRef, nil
 }
 func init() {
-	ConnVarFromGenerated = func(source api.AnyConnVarSpec) (termvar.VarSpec, error) {
+	CommVarFromGenerated = func(source api.AnyCommVarSpec) (termvar.VarSpec, error) {
 		var termvarVarSpec termvar.VarSpec
-		symbolADT, err := symbol.ConvertFromString(source.ConnPh)
+		symbolADT, err := symbol.ConvertFromString(source.CommPh)
 		if err != nil {
 			return termvarVarSpec, err
 		}
@@ -223,7 +223,7 @@ func init() {
 			return coreDecSpec, err
 		}
 		coreDecSpec.TermQN = uniqsymADT
-		termvarVarSpec, err := ConnVarFromGenerated(source.LiabVar)
+		termvarVarSpec, err := CommVarFromGenerated(source.LiabVar)
 		if err != nil {
 			return coreDecSpec, err
 		}
@@ -231,7 +231,7 @@ func init() {
 		if source.AssetVars != nil {
 			coreDecSpec.AssetVars = make([]termvar.VarSpec, len(source.AssetVars))
 			for i := 0; i < len(source.AssetVars); i++ {
-				termvarVarSpec2, err := ConnVarFromGenerated(source.AssetVars[i])
+				termvarVarSpec2, err := CommVarFromGenerated(source.AssetVars[i])
 				if err != nil {
 					return coreDecSpec, err
 				}

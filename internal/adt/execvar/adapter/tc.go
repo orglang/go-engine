@@ -27,7 +27,7 @@ func DataFromStructRec(rec execvar.StructRec) VarRec {
 	return VarRec{
 		ExecID: identityadapter.ConvertToNullString(rec.RootRef.ExecID),
 		ExecRN: seqnumadapter.ConvertToNullInt(rec.RootRef.ExecRN),
-		ConnID: identityadapter.ConvertToNullString(rec.ConnID),
+		CommID: identityadapter.ConvertToNullString(rec.CommID),
 		ChnlID: identityadapter.ConvertToNullString(rec.ChnlID),
 		ChnlPH: symboladapter.ConvertToNullString(rec.ChnlPH),
 		ExpCK:  contkeyadapter.ConvertToNullInt(rec.ExpCK),
@@ -39,7 +39,7 @@ func DataFromLinearRec(rec execvar.LinearRec) VarRec {
 	return VarRec{
 		ExecID: identityadapter.ConvertToNullString(rec.RootRef.ExecID),
 		ExecRN: seqnumadapter.ConvertToNullInt(rec.RootRef.ExecRN),
-		ConnID: identityadapter.ConvertToNullString(rec.ConnID),
+		CommID: identityadapter.ConvertToNullString(rec.CommID),
 		ChnlID: identityadapter.ConvertToNullString(rec.ChnlID),
 		ChnlPH: symboladapter.ConvertToNullString(rec.ChnlPH),
 		ExpCK:  contkeyadapter.ConvertToNullInt(rec.ExpCK),
@@ -92,7 +92,7 @@ func DataToStructRec(dto VarRec) (execvar.StructRec, error) {
 	if err != nil {
 		return execvar.StructRec{}, err
 	}
-	connID, err := identityadapter.ConvertFromNullString(dto.ConnID)
+	commID, err := identityadapter.ConvertFromNullString(dto.CommID)
 	if err != nil {
 		return execvar.StructRec{}, err
 	}
@@ -106,7 +106,7 @@ func DataToStructRec(dto VarRec) (execvar.StructRec, error) {
 	}
 	return execvar.StructRec{
 		RootRef: ref,
-		ConnID:  connID,
+		CommID:  commID,
 		ChnlID:  chnlID,
 		ChnlPH:  chnlPH,
 		ChnlBS:  ConvertSideFromNullInt(dto.ChnlBS),
@@ -119,7 +119,7 @@ func DataToLinearRec(dto VarRec) (execvar.LinearRec, error) {
 	if err != nil {
 		return execvar.LinearRec{}, err
 	}
-	connID, err := identityadapter.ConvertFromNullString(dto.ConnID)
+	commID, err := identityadapter.ConvertFromNullString(dto.CommID)
 	if err != nil {
 		return execvar.LinearRec{}, err
 	}
@@ -133,7 +133,7 @@ func DataToLinearRec(dto VarRec) (execvar.LinearRec, error) {
 	}
 	return execvar.LinearRec{
 		RootRef: ref,
-		ConnID:  connID,
+		CommID:  commID,
 		ChnlID:  chnlID,
 		ChnlPH:  chnlPH,
 		ChnlBS:  ConvertSideFromNullInt(dto.ChnlBS),

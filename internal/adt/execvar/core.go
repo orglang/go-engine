@@ -23,7 +23,7 @@ type VarSpec struct {
 // машиночитаемая запись переменной исполнения
 type VarRec interface {
 	GetRootRef() execroot.RootRef
-	GetConnID() identity.ADT
+	GetCommID() identity.ADT
 	GetChnlID() identity.ADT
 	GetChnlPH() symbol.ADT
 	GetExpCK() contkey.ADT
@@ -31,7 +31,7 @@ type VarRec interface {
 
 type LinearRec struct {
 	RootRef execroot.RootRef
-	ConnID  identity.ADT
+	CommID  identity.ADT
 	ChnlID  identity.ADT
 	ChnlPH  symbol.ADT
 	ChnlBS  side
@@ -46,7 +46,7 @@ type LinearRec struct {
 
 func (r LinearRec) GetRootRef() execroot.RootRef { return r.RootRef }
 
-func (r LinearRec) GetConnID() identity.ADT { return r.ConnID }
+func (r LinearRec) GetCommID() identity.ADT { return r.CommID }
 
 func (r LinearRec) GetChnlID() identity.ADT { return r.ChnlID }
 
@@ -56,7 +56,7 @@ func (r LinearRec) GetExpCK() contkey.ADT { return r.ExpCK }
 
 type StructRec struct {
 	RootRef execroot.RootRef
-	ConnID  identity.ADT
+	CommID  identity.ADT
 	ChnlID  identity.ADT
 	ChnlPH  symbol.ADT
 	ChnlBS  side
@@ -71,7 +71,7 @@ type StructRec struct {
 
 func (r StructRec) GetRootRef() execroot.RootRef { return r.RootRef }
 
-func (r StructRec) GetConnID() identity.ADT { return r.ConnID }
+func (r StructRec) GetCommID() identity.ADT { return r.CommID }
 
 func (r StructRec) GetChnlID() identity.ADT { return r.ChnlID }
 

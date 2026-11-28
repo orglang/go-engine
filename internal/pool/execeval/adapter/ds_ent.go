@@ -124,10 +124,10 @@ VALUES ($1, $2, 0)
 
 	selectSnapByRef = `
 WITH struct_vars AS (
-    SELECT var.exec_id, var.exec_rn, var.conn_id, var.chnl_id, var.chnl_ph, var.exp_ck, var.side
+    SELECT var.exec_id, var.exec_rn, var.comm_id, var.chnl_id, var.chnl_ph, var.exp_ck, var.side
     FROM pool_struct_vars var WHERE exec_id = $1
 ), linear_vars AS (
-    SELECT var.exec_id, var.exec_rn, var.conn_id, var.chnl_id, var.chnl_ph, var.exp_ck, var.side
+    SELECT var.exec_id, var.exec_rn, var.comm_id, var.chnl_id, var.chnl_ph, var.exp_ck, var.side
     FROM pool_linear_vars var WHERE exec_id = $2
 )
 SELECT exec.exec_id, exec.exec_rn, exec.liab_mode,
@@ -138,9 +138,9 @@ FROM pool_exec_evals exec WHERE exec.exec_id = $3
 
 	selectSnapByQN = `
 SELECT sem.exec_id AS "sem.exec_id", sem.exec_rn AS "sem.exec_rn", exec.liab_mode,
-    struct_var.exec_id, struct_var.exec_rn, struct_var.conn_id, struct_var.chnl_id,
+    struct_var.exec_id, struct_var.exec_rn, struct_var.comm_id, struct_var.chnl_id,
     struct_var.chnl_ph, struct_var.exp_ck, struct_var.side,
-    linear_var.exec_id, linear_var.exec_rn, linear_var.conn_id, linear_var.chnl_id,
+    linear_var.exec_id, linear_var.exec_rn, linear_var.comm_id, linear_var.chnl_id,
     linear_var.chnl_ph, linear_var.exp_ck, linear_var.side
 FROM pool_exec_evals sem
 JOIN pool_exec_evals exec ON exec.exec_id = sem.exec_id

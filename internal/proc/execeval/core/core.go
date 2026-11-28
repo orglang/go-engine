@@ -38,7 +38,7 @@ type EvalRec struct {
 }
 
 type EvalMod struct {
-	RootRefs   []execroot.RootRef
+	ExecRefs   []execroot.RootRef
 	LinearVars []execvar.LinearRec
 }
 
@@ -163,13 +163,13 @@ func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) 
 			return err
 		}
 		if len(result.Connection.Acts) > 0 || (result.Connection.OffsetNr != nil && !result.Connection.OffsetNr.IsEmpty()) {
-			providerRef := execroot.RootRef{RootID: result.Connection.ProviderExecID, RootRN: result.Connection.ProviderExecRN}
-			if providerRef.RootID == evalSnap.RootRef.RootID {
-				if providerRef.RootRN != evalSnap.RootRef.RootRN {
-					return fmt.Errorf("provider execution root snapshot changed: expected revision %v, got %v", providerRef.RootRN, evalSnap.RootRef.RootRN)
+			providerExecRef := execroot.RootRef{RootID: result.Connection.ProviderExecID, RootRN: result.Connection.ProviderExecRN}
+			if providerExecRef.RootID == evalSnap.RootRef.RootID {
+				if providerExecRef.RootRN != evalSnap.RootRef.RootRN {
+					return fmt.Errorf("provider execution root snapshot changed: expected revision %v, got %v", providerExecRef.RootRN, evalSnap.RootRef.RootRN)
 				}
 			} else {
-				result.Mod.RootRefs = append(result.Mod.RootRefs, providerRef)
+				result.Mod.ExecRefs = append(result.Mod.ExecRefs, providerExecRef)
 			}
 		}
 		err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
@@ -212,7 +212,7 @@ func (s *service) takeWith(
 	var connMod execconn.ConnMod
 	var err error
 	rootAttr := slog.Any("rootRef", evalSnap.RootRef)
-	evalMod.RootRefs = append(evalMod.RootRefs, evalSnap.RootRef)
+	evalMod.ExecRefs = append(evalMod.ExecRefs, evalSnap.RootRef)
 	switch termExp := exp.(type) {
 	case connact.CloseSpec:
 		connChnl, ok := evalSnap.LinearVars[termExp.ContChnlPH]

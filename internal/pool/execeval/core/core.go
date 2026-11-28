@@ -261,7 +261,7 @@ func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) 
 	// which endpoint initiated the step.
 	execRefs := map[string]execroot.RootRef{}
 	if commMod.ProviderExecID.IsEmpty() {
-		// Non-communication steps still mutate the executing Computation root.
+		// Non-communication steps still mutate the executing Execution root.
 		execRefs[evalSnap.RootRef.ExecID.String()] = evalSnap.RootRef
 	} else {
 		// A communication step always mutates the provider execution root. The

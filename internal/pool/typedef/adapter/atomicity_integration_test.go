@@ -9,7 +9,7 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 	dbadapter "orglang/go-engine/internal/lib/db/adapter"
 	"orglang/go-engine/internal/lib/entpgx"
-	descrootadapter "orglang/go-engine/internal/pool/descroot/adapter"
+	progrootadapter "orglang/go-engine/internal/pool/progroot/adapter"
 	"orglang/go-engine/internal/pool/ent"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 	"orglang/go-engine/internal/testutil/pgxtest"
@@ -27,10 +27,10 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 	}
 	_, err = conn.Exec(ctx, `
 		CREATE EXTENSION IF NOT EXISTS ltree;
-		CREATE TEMP TABLE pool_desc_roots (desc_id varchar PRIMARY KEY, desc_rn bigint NOT NULL);
-		CREATE TEMP TABLE pool_desc_binds (
-			desc_qn ltree UNIQUE,
-			desc_id varchar,
+		CREATE TEMP TABLE pool_prog_roots (prog_id varchar PRIMARY KEY, prog_rn bigint NOT NULL);
+		CREATE TEMP TABLE pool_prog_binds (
+			prog_qn ltree UNIQUE,
+			prog_id varchar,
 			kind smallint
 		);
 		CREATE TEMP TABLE pool_type_exps (
@@ -43,7 +43,7 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 		CREATE TEMP TABLE pool_type_defs (
 			type_id varchar UNIQUE REFERENCES pool_type_def_guard(id)
 				DEFERRABLE INITIALLY DEFERRED,
-			desc_id varchar NOT NULL REFERENCES pool_desc_roots(desc_id),
+			prog_id varchar NOT NULL REFERENCES pool_prog_roots(prog_id),
 			exp_ck bigint
 		);
 	`)
@@ -64,7 +64,7 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 	typeDefRepo := NewDaoEnt(entClient, logger)
 	service := typedef.NewService(
 		typeDefRepo,
-		descrootadapter.NewDaoEnt(entClient, logger),
+		progrootadapter.NewDaoEnt(entClient, logger),
 		dbadapter.NewTransactorPgx(pool),
 		logger,
 	)
@@ -87,7 +87,7 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 	}
 	defer verifyConn.Release()
 
-	for _, table := range []string{"pool_desc_roots", "pool_desc_binds", "pool_type_exps", "pool_type_defs"} {
+	for _, table := range []string{"pool_prog_roots", "pool_prog_binds", "pool_type_exps", "pool_type_defs"} {
 		var count int
 		if err := verifyConn.QueryRow(ctx, "SELECT count(*) FROM "+table).Scan(&count); err != nil {
 			t.Fatalf("count rows in %s: %v", table, err)
@@ -110,10 +110,10 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 	}
 	_, err = conn.Exec(ctx, `
 		CREATE EXTENSION IF NOT EXISTS ltree;
-		CREATE TEMP TABLE pool_desc_roots (desc_id varchar PRIMARY KEY, desc_rn bigint NOT NULL);
-		CREATE TEMP TABLE pool_desc_binds (
-			desc_qn ltree UNIQUE,
-			desc_id varchar,
+		CREATE TEMP TABLE pool_prog_roots (prog_id varchar PRIMARY KEY, prog_rn bigint NOT NULL);
+		CREATE TEMP TABLE pool_prog_binds (
+			prog_qn ltree UNIQUE,
+			prog_id varchar,
 			kind smallint
 		);
 		CREATE TEMP TABLE pool_type_exps (
@@ -124,7 +124,7 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 		);
 		CREATE TEMP TABLE pool_type_defs (
 			type_id varchar UNIQUE,
-			desc_id varchar NOT NULL REFERENCES pool_desc_roots(desc_id),
+			prog_id varchar NOT NULL REFERENCES pool_prog_roots(prog_id),
 			exp_ck bigint
 		);
 	`)
@@ -144,7 +144,7 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 
 	service := typedef.NewService(
 		NewDaoEnt(entClient, logger),
-		descrootadapter.NewDaoEnt(entClient, logger),
+		progrootadapter.NewDaoEnt(entClient, logger),
 		dbadapter.NewTransactorPgx(pool),
 		logger,
 	)
@@ -153,7 +153,7 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 	if err != nil {
 		t.Fatalf("create type qualified name: %v", err)
 	}
-	typeID, descRef, err := service.Create(ctx, typedef.DefSpec{
+	typeID, progRef, err := service.Create(ctx, typedef.DefSpec{
 		TypeQN:  typeQN,
 		TypeExp: typedef.OneSpec{},
 	})
@@ -170,32 +170,32 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 	}
 	defer verifyConn.Release()
 
-	var descBindCount, descRootCount, typeExpCount, typeDefCount int
+	var descBindCount, progRootCount, typeExpCount, typeDefCount int
 	err = verifyConn.QueryRow(ctx,
-		"SELECT count(*) FROM pool_desc_binds WHERE desc_id = $1", typeID.String(),
+		"SELECT count(*) FROM pool_prog_binds WHERE prog_id = $1", typeID.String(),
 	).Scan(&descBindCount)
 	if err != nil {
 		t.Fatalf("count descriptor bindings: %v", err)
 	}
-	err = verifyConn.QueryRow(ctx, "SELECT count(*) FROM pool_desc_roots WHERE desc_id = $1", descRef.DescID.String()).Scan(&descRootCount)
+	err = verifyConn.QueryRow(ctx, "SELECT count(*) FROM pool_prog_roots WHERE prog_id = $1", progRef.ProgID.String()).Scan(&progRootCount)
 	if err != nil {
-		t.Fatalf("count Description roots: %v", err)
+		t.Fatalf("count Program roots: %v", err)
 	}
 	err = verifyConn.QueryRow(ctx, "SELECT count(*) FROM pool_type_exps").Scan(&typeExpCount)
 	if err != nil {
 		t.Fatalf("count type expressions: %v", err)
 	}
 	err = verifyConn.QueryRow(ctx,
-		"SELECT count(*) FROM pool_type_defs WHERE type_id = $1 AND desc_id = $2", typeID.String(), descRef.DescID.String(),
+		"SELECT count(*) FROM pool_type_defs WHERE type_id = $1 AND prog_id = $2", typeID.String(), progRef.ProgID.String(),
 	).Scan(&typeDefCount)
 	if err != nil {
 		t.Fatalf("count type definitions: %v", err)
 	}
 
-	if descBindCount != 1 || descRootCount != 1 || typeExpCount == 0 || typeDefCount != 1 {
+	if descBindCount != 1 || progRootCount != 1 || typeExpCount == 0 || typeDefCount != 1 {
 		t.Errorf(
 			"persisted rows: desc binds = %d, desc roots = %d, type exps = %d, type defs = %d; want 1, 1, >0, 1",
-			descBindCount, descRootCount, typeExpCount, typeDefCount,
+			descBindCount, progRootCount, typeExpCount, typeDefCount,
 		)
 	}
 }

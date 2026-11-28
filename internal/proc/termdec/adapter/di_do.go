@@ -5,7 +5,7 @@ import (
 
 	"github.com/samber/do/v2"
 
-	"orglang/go-engine/internal/adt/descroot"
+	"orglang/go-engine/internal/adt/progroot"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/ent"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
@@ -29,7 +29,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		descRootRepo, err := do.InvokeNamed[descroot.Repo](i, "proc-descroot")
+		progRootRepo, err := do.InvokeNamed[progroot.Repo](i, "proc-progroot")
 		if err != nil {
 			return nil, err
 		}
@@ -45,7 +45,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return termdec.NewService(termDecRepo, descRootRepo, typeDefRepo, transactor, logger), nil
+		return termdec.NewService(termDecRepo, progRootRepo, typeDefRepo, transactor, logger), nil
 	}),
 	do.Lazy[*Controller](func(i do.Injector) (*Controller, error) {
 		api, err := do.Invoke[termdec.API](i)

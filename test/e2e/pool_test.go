@@ -45,9 +45,9 @@ func (s *suite) beforeAll(t *testing.T) {
 
 func (s *suite) beforeEach(t *testing.T) {
 	tables := []string{
-		"pool_desc_binds", "pool_type_defs", "pool_type_exps", "pool_desc_terms", "pool_term_exps",
+		"pool_prog_binds", "pool_type_defs", "pool_type_exps", "pool_prog_terms", "pool_term_exps",
 		"pool_impl_binds", "pool_exec_evals", "pool_exec_vars", "pool_exec_comms", "pool_comm_acts",
-		"proc_desc_binds", "proc_type_defs", "proc_type_exps", "proc_desc_terms", "proc_term_exps",
+		"proc_prog_binds", "proc_type_defs", "proc_type_exps", "proc_prog_terms", "proc_term_exps",
 		"proc_impl_binds", "proc_exec_evals", "proc_exec_vars", "proc_exec_comms", "proc_comm_acts",
 	}
 	for _, table := range tables {

@@ -6,11 +6,11 @@ import (
 	"log/slog"
 	"reflect"
 
-	"orglang/go-engine/internal/adt/descroot"
+	"orglang/go-engine/internal/adt/progroot"
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/pool/ent"
-	descrootent "orglang/go-engine/internal/pool/ent/descroot"
+	progrootent "orglang/go-engine/internal/pool/ent/progroot"
 )
 
 type daoEnt struct {
@@ -18,16 +18,16 @@ type daoEnt struct {
 	log    *slog.Logger
 }
 
-// NewDaoEnt creates a pool Description root repository backed by Ent.
-func NewDaoEnt(client *ent.Client, log *slog.Logger) descroot.Repo {
+// NewDaoEnt creates a pool Program root repository backed by Ent.
+func NewDaoEnt(client *ent.Client, log *slog.Logger) progroot.Repo {
 	name := slog.String("name", reflect.TypeFor[daoEnt]().Name())
 	return &daoEnt{client: client, log: log.With(name)}
 }
 
-func (dao *daoEnt) AddRef(ctx context.Context, conn tx.Conn, ref descroot.RootRef) error {
-	err := dao.client.DescRoot.Create().
-		SetID(ref.DescID.String()).
-		SetDescRn(int64(ref.DescRN)).
+func (dao *daoEnt) AddRef(ctx context.Context, conn tx.Conn, ref progroot.RootRef) error {
+	err := dao.client.ProgRoot.Create().
+		SetID(ref.ProgID.String()).
+		SetProgRn(int64(ref.ProgRN)).
 		Exec(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
 		dao.log.Error("query execution failed", slog.Any("ref", ref))
@@ -36,12 +36,12 @@ func (dao *daoEnt) AddRef(ctx context.Context, conn tx.Conn, ref descroot.RootRe
 	return nil
 }
 
-func (dao *daoEnt) TouchRef(ctx context.Context, conn tx.Conn, ref descroot.RootRef) error {
-	updated, err := dao.client.DescRoot.Update().
-		AddDescRn(1).
+func (dao *daoEnt) TouchRef(ctx context.Context, conn tx.Conn, ref progroot.RootRef) error {
+	updated, err := dao.client.ProgRoot.Update().
+		AddProgRn(1).
 		Where(
-			descrootent.ID(ref.DescID.String()),
-			descrootent.DescRn(int64(ref.DescRN)),
+			progrootent.ID(ref.ProgID.String()),
+			progrootent.ProgRn(int64(ref.ProgRN)),
 		).
 		Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {

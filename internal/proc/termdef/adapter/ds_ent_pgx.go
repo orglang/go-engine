@@ -34,7 +34,7 @@ var _ termdef.Repo = (*daoEnt)(nil)
 
 func (dao *daoEnt) SetExpCK(ctx context.Context, conn tx.Conn, termID identity.ADT, expCK contkey.ADT) error {
 	const query = `
-UPDATE proc_desc_terms
+UPDATE proc_prog_terms
 SET exp_ck = $1
 WHERE term_id = $2
 `
@@ -54,7 +54,7 @@ func (dao *daoEnt) GetRecByID(ctx context.Context, conn tx.Conn, termID identity
 	}
 	const query = `
 SELECT pd.term_id, COALESCE(pd.exp_ck, 0) AS exp_ck
-FROM proc_desc_terms AS pd
+FROM proc_prog_terms AS pd
 WHERE pd.term_id = $1
 `
 	rows, err := conn.Pgx.Query(ctx, query, termID.String())

@@ -4,7 +4,7 @@ import (
 	"context"
 	"iter"
 
-	"orglang/go-engine/internal/adt/descroot"
+	"orglang/go-engine/internal/adt/progroot"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/uniqsym"
@@ -19,7 +19,7 @@ type DecSpec struct {
 
 type DecRec struct {
 	TermID    identity.ADT
-	DescRef   descroot.RootRef
+	ProgRef   progroot.RootRef
 	TermQN    uniqsym.ADT
 	LiabVar   termvar.VarRec
 	AssetVars []termvar.VarRec
@@ -27,7 +27,7 @@ type DecRec struct {
 
 type DecSnap struct {
 	TermID    identity.ADT
-	DescRef   descroot.RootRef
+	ProgRef   progroot.RootRef
 	LiabVar   termvar.VarRec
 	AssetVars []termvar.VarRec
 }
@@ -44,7 +44,7 @@ type Repo interface {
 func CollectEnv(recs iter.Seq[DecRec]) []uniqsym.ADT { return []uniqsym.ADT{} }
 
 type API interface {
-	Incept(context.Context, uniqsym.ADT) (identity.ADT, descroot.RootRef, error)
+	Incept(context.Context, uniqsym.ADT) (identity.ADT, progroot.RootRef, error)
 	Create(context.Context, DecSpec) (DecSnap, error)
 	RetrieveSnap(context.Context, identity.ADT) (DecSnap, error)
 	RetreiveRefs(context.Context) ([]identity.ADT, error)

@@ -7,7 +7,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/internal/adt/descroot"
+	"orglang/go-engine/internal/adt/progroot"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/termvar"
@@ -45,7 +45,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdec.DecRec)
 	}
 	_, err = dao.client.TermDec.Create().
 		SetID(rec.TermID.String()).
-		SetDescID(rec.DescRef.DescID.String()).
+		SetProgID(rec.ProgRef.ProgID.String()).
 		SetLiabVar(liabVar).
 		SetAssetVars(assetVars).
 		Save(entpgx.WithConn(ctx, conn.Pgx))
@@ -54,11 +54,11 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec termdec.DecRec)
 		return err
 	}
 	const bindQuery = `
-INSERT INTO pool_desc_binds (desc_qn, desc_id, kind)
+INSERT INTO pool_prog_binds (prog_qn, prog_id, kind)
 VALUES ($1, $2, 2)
 `
 	if _, err := conn.Pgx.Exec(ctx, bindQuery, uniqsym.ConvertToString(rec.TermQN), rec.TermID.String()); err != nil {
-		dao.log.Error("description binding insertion failed", refAttr, slog.Any("error", err))
+		dao.log.Error("program binding insertion failed", refAttr, slog.Any("error", err))
 		return err
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "declaration addition succeeded", refAttr)
@@ -67,11 +67,11 @@ VALUES ($1, $2, 2)
 
 func (dao *daoEnt) GetRecByQN(ctx context.Context, conn tx.Conn, qn uniqsym.ADT) (termdec.DecRec, error) {
 	const query = `
-SELECT def.term_id, def.desc_id, root.desc_rn, def.liab_var, def.asset_vars
-FROM pool_desc_terms AS def
-JOIN pool_desc_roots AS root ON root.desc_id = def.desc_id
-JOIN pool_desc_binds AS bind ON bind.desc_id = def.term_id
-WHERE bind.desc_qn = $1
+SELECT def.term_id, def.prog_id, root.prog_rn, def.liab_var, def.asset_vars
+FROM pool_prog_terms AS def
+JOIN pool_prog_roots AS root ON root.prog_id = def.prog_id
+JOIN pool_prog_binds AS bind ON bind.prog_id = def.term_id
+WHERE bind.prog_qn = $1
 `
 	rows, err := conn.Pgx.Query(ctx, query, uniqsym.ConvertToString(qn))
 	if err != nil {
@@ -86,7 +86,7 @@ WHERE bind.desc_qn = $1
 	if err != nil {
 		return termdec.DecRec{}, err
 	}
-	descID, err := identity.ConvertFromString(dto.DescID)
+	descID, err := identity.ConvertFromString(dto.ProgID)
 	if err != nil {
 		return termdec.DecRec{}, err
 	}
@@ -104,7 +104,7 @@ WHERE bind.desc_qn = $1
 	return termdec.DecRec{
 		TermQN:    qn,
 		TermID:    termID,
-		DescRef:   descroot.RootRef{DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)},
+		ProgRef:   progroot.RootRef{ProgID: descID, ProgRN: seqnum.ConvertFromInt(dto.ProgRN)},
 		LiabVar:   liabVar,
 		AssetVars: assetVars,
 	}, nil
@@ -112,9 +112,9 @@ WHERE bind.desc_qn = $1
 
 func (dao *daoEnt) GetQNByID(ctx context.Context, conn tx.Conn, termID identity.ADT) (uniqsym.ADT, error) {
 	const query = `
-SELECT desc_qn
-FROM pool_desc_binds
-WHERE desc_id = $1
+SELECT prog_qn
+FROM pool_prog_binds
+WHERE prog_id = $1
 `
 	rows, err := conn.Pgx.Query(ctx, query, termID.String())
 	if err != nil {

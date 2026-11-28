@@ -12,7 +12,7 @@ import (
 
 	"github.com/labstack/echo/v5"
 
-	"orglang/go-engine/internal/adt/descroot"
+	"orglang/go-engine/internal/adt/progroot"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/uniqsym"
 	termdec "orglang/go-engine/internal/proc/termdec/core"
@@ -59,7 +59,7 @@ func TestCreateProcessDeclarationHandler(t *testing.T) {
 		}
 		var response struct {
 			TermID string `json:"term_id"`
-			DescRn int64  `json:"desc_rn"`
+			DescRn int64  `json:"prog_rn"`
 		}
 		if err := json.NewDecoder(rec.Body).Decode(&response); err != nil {
 			t.Fatalf("decode response: %v", err)
@@ -96,5 +96,5 @@ type generatedDecAPIStub struct {
 
 func (s *generatedDecAPIStub) Create(ctx context.Context, spec termdec.DecSpec) (termdec.DecSnap, error) {
 	s.called, s.spec, s.ctx = true, spec, ctx
-	return termdec.DecSnap{TermID: identity.New(), DescRef: descroot.RootRef{DescID: identity.New(), DescRN: 11}}, nil
+	return termdec.DecSnap{TermID: identity.New(), ProgRef: progroot.RootRef{ProgID: identity.New(), ProgRN: 11}}, nil
 }

@@ -57,12 +57,12 @@ func (p *echoPresenter) PostSpec(c *echo.Context) error {
 		p.log.Error("conversion failed", slog.Any("dto", dto))
 		return err
 	}
-	termID, descRef, err := p.api.Incept(ctx, qn)
+	termID, progRef, err := p.api.Incept(ctx, qn)
 	if err != nil {
 		return err
 	}
 	view := DecSnapVP{}
-	view.TermRef.TermID, view.TermRef.DescID, view.TermRef.DescRN = termID, descRef.DescID, descRef.DescRN
+	view.TermRef.TermID, view.TermRef.ProgID, view.TermRef.ProgRN = termID, progRef.ProgID, progRef.ProgRN
 	html, err := p.ssr.Render("view-one", view)
 	if err != nil {
 		p.log.Error("rendering failed", slog.Any("ref", view))

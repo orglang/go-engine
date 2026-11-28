@@ -44,13 +44,13 @@ func (h *controllerEcho) CreatePoolTypeDefinition(c *echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	typeID, descRef, err := h.api.Create(c.Request().Context(), typedef.DefSpec{TypeQN: qn, TypeExp: expr})
+	typeID, progRef, err := h.api.Create(c.Request().Context(), typedef.DefSpec{TypeQN: qn, TypeExp: expr})
 	if err != nil {
 		return err
 	}
 	return c.JSON(http.StatusCreated, webapi.AnyTypeRef{
 		TypeId: identity.ConvertToString(typeID),
-		DescRn: seqnum.ConvertToInt(descRef.DescRN),
+		DescRn: seqnum.ConvertToInt(progRef.ProgRN),
 	})
 }
 

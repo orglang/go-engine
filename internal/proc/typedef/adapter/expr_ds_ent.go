@@ -29,7 +29,7 @@ func NewExprDaoEnt(client *ent.Client, log *slog.Logger) typedef.TypeExprRepo {
 }
 
 // for compilation purposes
-func newExprrRepo() typedef.TypeExprRepo {
+func newExprRepo() typedef.TypeExprRepo {
 	return new(exprDaoEnt)
 }
 

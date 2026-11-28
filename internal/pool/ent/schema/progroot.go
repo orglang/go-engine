@@ -23,6 +23,6 @@ func (ProgRoot) Mixin() []ent.Mixin {
 // Annotations maps the schema to its existing PostgreSQL table.
 func (ProgRoot) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "pool_desc_roots"},
+		entsql.Annotation{Table: "pool_prog_roots"},
 	}
 }

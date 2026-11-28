@@ -85,7 +85,7 @@ func poolTypeExprToCore(dto webapi.PoolTypeExprSpec) (typedef.ExprSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return typedef.PlusSpec{ProcQNs: qns, ContExp: cont}, nil
+		return typedef.PlusSpec{ProcQNs: qns, ContExpr: cont}, nil
 	case "with":
 		spec, err := dto.AsPoolTypeWithSpec()
 		if err != nil {
@@ -99,7 +99,7 @@ func poolTypeExprToCore(dto webapi.PoolTypeExprSpec) (typedef.ExprSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return typedef.WithSpec{ProcQNs: qns, ContExp: cont}, nil
+		return typedef.WithSpec{ProcQNs: qns, ContExpr: cont}, nil
 	case "up":
 		spec, err := dto.AsPoolTypeUpSpec()
 		if err != nil {
@@ -109,7 +109,7 @@ func poolTypeExprToCore(dto webapi.PoolTypeExprSpec) (typedef.ExprSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return typedef.UpSpec{ContExp: cont}, nil
+		return typedef.UpSpec{ContExpr: cont}, nil
 	case "down":
 		spec, err := dto.AsPoolTypeDownSpec()
 		if err != nil {
@@ -119,7 +119,7 @@ func poolTypeExprToCore(dto webapi.PoolTypeExprSpec) (typedef.ExprSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return typedef.DownSpec{ContExp: cont}, nil
+		return typedef.DownSpec{ContExpr: cont}, nil
 	default:
 		return nil, fmt.Errorf("unsupported pool type expression kind %q", kind)
 	}

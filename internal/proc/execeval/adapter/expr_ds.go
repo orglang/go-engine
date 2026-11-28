@@ -3,16 +3,16 @@ package adapter
 type ExprKind int
 
 const (
-	NonExp ExprKind = iota
-	CloseExp
-	WaitExp
-	SendExp
-	RecvExp
-	LabExp
-	CaseExp
-	LinkExp
-	SpawnExp
-	FwdExp
+	NonExpr ExprKind = iota
+	CloseExpr
+	WaitExpr
+	SendExpr
+	RecvExpr
+	LabExpr
+	CaseExpr
+	LinkExpr
+	SpawnExpr
+	FwdExpr
 )
 
 type ExprSpec struct {

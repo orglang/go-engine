@@ -19,25 +19,25 @@ func exprToGenerated(spec termdef.ExprSpec) (webapi.PoolTermDefinitionSpec, erro
 
 	switch s := spec.(type) {
 	case termdef.ExprAcquireSpec:
-		cont, err := exprToGenerated(s.ContExp)
+		cont, err := exprToGenerated(s.ContExpr)
 		if err != nil {
 			return out, err
 		}
 		return out, out.FromPoolTermDefAcquireSpec(webapi.PoolTermDefAcquireSpec{CommPh: symbol.ConvertToString(s.CommChnlPH), ContExpr: cont})
 	case termdef.ExprAcceptSpec:
-		cont, err := exprToGenerated(s.ContExp)
+		cont, err := exprToGenerated(s.ContExpr)
 		if err != nil {
 			return out, err
 		}
 		return out, out.FromPoolTermDefAcceptSpec(webapi.PoolTermDefAcceptSpec{CommPh: symbol.ConvertToString(s.CommChnlPH), ContExpr: cont})
 	case termdef.ExprHireSpec:
-		cont, err := exprToGenerated(s.ContExp)
+		cont, err := exprToGenerated(s.ContExpr)
 		if err != nil {
 			return out, err
 		}
 		return out, out.FromPoolTermDefHireSpec(webapi.PoolTermDefHireSpec{CommPh: symbol.ConvertToString(s.CommChnlPH), ProcQn: uniqsym.ConvertToString(s.ProcTermQN), ContExpr: cont})
 	case termdef.ExprApplySpec:
-		cont, err := exprToGenerated(s.ContExp)
+		cont, err := exprToGenerated(s.ContExpr)
 		if err != nil {
 			return out, err
 		}

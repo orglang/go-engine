@@ -60,7 +60,7 @@ func generatedProcessExpressionToCore(dto webapi.ProcTermExprSpec) (commact.Expr
 		if err != nil {
 			return nil, err
 		}
-		return commact.WaitSpec{ContChnlPH: channel, ContExp: cont}, nil
+		return commact.WaitSpec{ContChnlPH: channel, ContExpr: cont}, nil
 	case "send":
 		spec, err := dto.AsProcTermSendSpec()
 		if err != nil {
@@ -92,7 +92,7 @@ func generatedProcessExpressionToCore(dto webapi.ProcTermExprSpec) (commact.Expr
 		if err != nil {
 			return nil, err
 		}
-		return commact.RecvSpec{CommChnlPH: conn, NewChnlPH: bind, ContExp: cont}, nil
+		return commact.RecvSpec{CommChnlPH: conn, NewChnlPH: bind, ContExpr: cont}, nil
 	case "lab":
 		spec, err := dto.AsProcTermLabSpec()
 		if err != nil {
@@ -188,7 +188,7 @@ func generatedProcessExpressionToCore(dto webapi.ProcTermExprSpec) (commact.Expr
 		if err != nil {
 			return nil, err
 		}
-		return commact.CallSpec{NewChnlPH: bind, ProcTermQN: proc, ValChnlPHs: values, ContExp: cont}, nil
+		return commact.CallSpec{NewChnlPH: bind, ProcTermQN: proc, ValChnlPHs: values, ContExpr: cont}, nil
 	default:
 		return nil, fmt.Errorf("unsupported process expression kind %q", kind)
 	}

@@ -10,7 +10,7 @@ import (
 
 	"github.com/labstack/echo/v5"
 
-	"orglang/go-engine/internal/adt/comproot"
+	"orglang/go-engine/internal/adt/execroot"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/symbol"
@@ -63,7 +63,7 @@ func (c *controllerEcho) PostSpec(ctx *echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return ctx.JSON(http.StatusCreated, compRefToAPI(ref))
+	return ctx.JSON(http.StatusCreated, rootRefToAPI(ref))
 }
 
 func poolExecSpecToCore(dto api.AnyEvalSpec) (execeval.EvalSpec, error) {
@@ -132,11 +132,11 @@ func (c *controllerEcho) PostSpec3(ctx *echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return ctx.JSON(http.StatusCreated, compRefToAPI(ref))
+	return ctx.JSON(http.StatusCreated, rootRefToAPI(ref))
 }
 
 func poolStepSpecToCore(dto api.PoolStepSpec) (execstep.StepSpec, error) {
-	ref, err := compRefFromAPI(dto.CompRef)
+	ref, err := rootRefFromAPI(dto.RootRef)
 	if err != nil {
 		return execstep.StepSpec{}, err
 	}
@@ -144,21 +144,21 @@ func poolStepSpecToCore(dto api.PoolStepSpec) (execstep.StepSpec, error) {
 	if err != nil {
 		return execstep.StepSpec{}, err
 	}
-	return execstep.StepSpec{CompRef: ref, PoolExp: exp}, nil
+	return execstep.StepSpec{RootRef: ref, PoolExp: exp}, nil
 }
 
-func compRefFromAPI(dto api.AnyCompRef) (comproot.RootRef, error) {
-	id, err := identity.ConvertFromString(dto.CompId)
+func rootRefFromAPI(dto api.AnyRootRef) (execroot.RootRef, error) {
+	id, err := identity.ConvertFromString(dto.RootId)
 	if err != nil {
-		return comproot.RootRef{}, err
+		return execroot.RootRef{}, err
 	}
-	return comproot.RootRef{CompID: id, CompRN: seqnum.ConvertFromInt(dto.CompRn)}, nil
+	return execroot.RootRef{RootID: id, RootRN: seqnum.ConvertFromInt(dto.RootRn)}, nil
 }
 
-func compRefToAPI(ref comproot.RootRef) api.AnyCompRef {
-	return api.AnyCompRef{
-		CompId: identity.ConvertToString(ref.CompID),
-		CompRn: seqnum.ConvertToInt(ref.CompRN),
+func rootRefToAPI(ref execroot.RootRef) api.AnyRootRef {
+	return api.AnyRootRef{
+		RootId: identity.ConvertToString(ref.RootID),
+		RootRn: seqnum.ConvertToInt(ref.RootRN),
 	}
 }
 
@@ -306,14 +306,14 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (execeval.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		compRefs := make([]comproot.RootRef, len(value.ProcIrs))
+		rootRefs := make([]execroot.RootRef, len(value.ProcIrs))
 		for i, item := range value.ProcIrs {
-			compRefs[i], err = compRefFromAPI(item)
+			rootRefs[i], err = rootRefFromAPI(item)
 			if err != nil {
 				return nil, fmt.Errorf("proc_irs[%d]: %w", i, err)
 			}
 		}
-		return execeval.SpawnSpec2{ProcTermID: termID, ProcTermRN: termRN, ProcCompRefs: compRefs}, nil
+		return execeval.SpawnSpec2{ProcTermID: termID, ProcTermRN: termRN, ProcRootRefs: rootRefs}, nil
 	default:
 		return nil, fmt.Errorf("pool_expr: unsupported kind %q", discriminator.Kind)
 	}

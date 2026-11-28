@@ -174,23 +174,23 @@ func (s *service) Run(ctx context.Context, spec EvalSpec) (_ execroot.RootRef, e
 		var connID identity.ADT
 		var chnlID identity.ADT
 		var expCK contkey.ADT
-		var providerRootRef execroot.RootRef
+		var providerExecRef execroot.RootRef
 		assetExec, ok := assetEvals[assetVar.TermQN]
 		if !ok && assetVar.TermQN == spec.LiabVar.TermQN {
 			connID = newConnID
 			chnlID = newLiabVar.ChnlID
 			expCK = newLiabVar.ExpCK
-			providerRootRef = newEval.RootRef
+			providerExecRef = newEval.RootRef
 		} else {
 			connID = assetExec.LiabVar.GetConnID()
-			providerRootRef = assetExec.RootRef
+			providerExecRef = assetExec.RootRef
 			chnlID = assetExec.LiabVar.GetChnlID()
 			expCK = assetExec.LiabVar.GetExpCK()
 		}
 		if ok || assetVar.TermQN == spec.LiabVar.TermQN {
 			newConns = append(newConns, execconn.ConnRec{
 				ConnID:          connID,
-				ProviderRootRef: providerRootRef,
+				ProviderRootRef: providerExecRef,
 				ClientRootRef:   newEval.RootRef,
 				OffsetNr:        seqnum.Zero,
 			})
@@ -259,18 +259,18 @@ func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) 
 	// Every changed execution root is guarded by its observed root revision.
 	// Connection changes always include the provider execution root, regardless of
 	// which endpoint initiated the step.
-	rootRefs := map[string]execroot.RootRef{}
+	execRefs := map[string]execroot.RootRef{}
 	if connMod.ProviderExecID.IsEmpty() {
 		// Non-connection steps still mutate the executing Computation root.
-		rootRefs[evalSnap.RootRef.RootID.String()] = evalSnap.RootRef
+		execRefs[evalSnap.RootRef.RootID.String()] = evalSnap.RootRef
 	} else {
 		// A connection step always mutates the provider execution root. The
 		// initiating client root is added only if its own variables change.
-		providerRef := execroot.RootRef{
+		providerExecRef := execroot.RootRef{
 			RootID: connMod.ProviderExecID,
 			RootRN: connMod.ProviderExecRN,
 		}
-		rootRefs[providerRef.RootID.String()] = providerRef
+		execRefs[providerExecRef.RootID.String()] = providerExecRef
 	}
 	for _, variable := range evalMod.Vars {
 		ref := variable.GetRootRef()
@@ -281,19 +281,19 @@ func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) 
 			continue
 		}
 		if !ref.RootID.IsEmpty() {
-			rootRefs[ref.RootID.String()] = ref
+			execRefs[ref.RootID.String()] = ref
 		}
 	}
-	rootKeys := make([]string, 0, len(rootRefs))
-	for key := range rootRefs {
-		rootKeys = append(rootKeys, key)
+	execKeys := make([]string, 0, len(execRefs))
+	for key := range execRefs {
+		execKeys = append(execKeys, key)
 	}
-	slices.Sort(rootKeys)
+	slices.Sort(execKeys)
 
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		// CAS all affected aggregate roots before writing any child state.
-		for _, key := range rootKeys {
-			if touchErr := s.execRootRepo.TouchRef(txCtx, conn, rootRefs[key]); touchErr != nil {
+		for _, key := range execKeys {
+			if touchErr := s.execRootRepo.TouchRef(txCtx, conn, execRefs[key]); touchErr != nil {
 				return touchErr
 			}
 		}

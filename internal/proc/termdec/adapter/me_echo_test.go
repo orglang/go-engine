@@ -59,13 +59,13 @@ func TestCreateProcessDeclarationHandler(t *testing.T) {
 		}
 		var response struct {
 			TermID string `json:"term_id"`
-			DescRn int64  `json:"prog_rn"`
+			ProgRn int64  `json:"prog_rn"`
 		}
 		if err := json.NewDecoder(rec.Body).Decode(&response); err != nil {
 			t.Fatalf("decode response: %v", err)
 		}
-		if response.DescRn != 11 {
-			t.Errorf("unexpected description revision: got %d, want 11", response.DescRn)
+		if response.ProgRn != 11 {
+			t.Errorf("unexpected description revision: got %d, want 11", response.ProgRn)
 		}
 	})
 	t.Run("rejects invalid qualified names before creating", func(t *testing.T) {

@@ -113,7 +113,7 @@ func (s *suite) waitClose(t *testing.T) {
 	poolTermQN, poolExecQN := "pool-term-qn", "pool-exec-qn"
 	poolAssetPH, poolLiabPH := "pool-asset-ph", "pool-liab-ph"
 	_, err = s.api.createPoolDeclaration(api.PoolDecSpec{
-		DescQn:  poolTermQN,
+		ProgQn:  poolTermQN,
 		LiabVar: api.AnyCommVarSpec{CommPh: poolLiabPH, TypeQn: poolTypeQN},
 		AssetVars: []api.AnyCommVarSpec{
 			{CommPh: poolAssetPH, TypeQn: poolTypeQN},

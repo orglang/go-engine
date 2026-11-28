@@ -92,7 +92,7 @@ type service struct {
 	typeDefRepo    typedef.Repo
 	procEvalRepo   procexeceval.Repo
 	termDecRepo    termdec.Repo
-	compRootRepo   execroot.Repo
+	execRootRepo   execroot.Repo
 	transactor     tx.Transactor
 	log            *slog.Logger
 }
@@ -110,7 +110,7 @@ type ServiceDeps struct {
 	TypeDefRepo    typedef.Repo
 	ProcEvalRepo   procexeceval.Repo
 	TermDecRepo    termdec.Repo
-	CompRootRepo   execroot.Repo
+	ExecRootRepo   execroot.Repo
 	Transactor     tx.Transactor
 	Logger         *slog.Logger
 }
@@ -120,7 +120,7 @@ func NewService(deps ServiceDeps) API {
 	return &service{
 		deps.ExecEvalRepo, deps.ExecEvalBroker, deps.ExecVarRepo,
 		deps.ExecConnRepo, deps.TypeDefRepo, deps.ProcEvalRepo, deps.TermDecRepo,
-		deps.CompRootRepo,
+		deps.ExecRootRepo,
 		deps.Transactor, deps.Logger.With(name),
 	}
 }
@@ -293,7 +293,7 @@ func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) 
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		// CAS all affected aggregate roots before writing any child state.
 		for _, key := range compKeys {
-			if touchErr := s.compRootRepo.TouchRef(txCtx, conn, compRefs[key]); touchErr != nil {
+			if touchErr := s.execRootRepo.TouchRef(txCtx, conn, compRefs[key]); touchErr != nil {
 				return touchErr
 			}
 		}

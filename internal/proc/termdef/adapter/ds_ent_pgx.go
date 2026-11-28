@@ -17,7 +17,7 @@ import (
 
 type defRecDTO struct {
 	TermID string `db:"term_id"`
-	ExprCK  int64  `db:"expr_ck"`
+	ExprCK int64  `db:"expr_ck"`
 }
 
 type daoEnt struct {

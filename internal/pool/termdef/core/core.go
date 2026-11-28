@@ -15,12 +15,12 @@ type API interface {
 
 type DefSpec struct {
 	TermQN uniqsym.ADT
-	Expr    ExprSpec
+	Expr   ExprSpec
 }
 
 type DefRec struct {
 	TermID identity.ADT
-	Expr    ExprSpec
+	Expr   ExprSpec
 }
 
 func NewService(termDecRepo termdec.Repo, termDefRepo Repo, transactor tx.Transactor) API {

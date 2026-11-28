@@ -18,12 +18,12 @@ type API interface {
 
 type DefSpec struct {
 	TermQN uniqsym.ADT
-	Expr    ExprSpec
+	Expr   ExprSpec
 }
 
 type DefRec struct {
 	TermID identity.ADT
-	ExprCK  contkey.ADT
+	ExprCK contkey.ADT
 }
 
 type service struct {

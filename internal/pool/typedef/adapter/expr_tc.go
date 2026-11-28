@@ -60,7 +60,7 @@ func dataFromExprRec(rec typedef.ExprRec) ExprRec {
 		panic("can't be nil")
 	}
 	dto := &ExprRec{
-		ExprCK:  contkey.ConvertToInt(rec.Key()),
+		ExprCK: contkey.ConvertToInt(rec.Key()),
 		States: nil,
 	}
 	statesFromExprRec(0, rec, dto)
@@ -127,7 +127,7 @@ func statesFromExprRec(supExprCK int64, r typedef.ExprRec, dto *ExprRec) int64 {
 		return exprCK
 	case typedef.LinkRec:
 		st := State{
-			ExprCK:     exprCK,
+			ExprCK:    exprCK,
 			K:         LinkKind,
 			SupExprCK: supExprCK,
 			Spec: ExprSpec{
@@ -138,11 +138,11 @@ func statesFromExprRec(supExprCK int64, r typedef.ExprRec, dto *ExprRec) int64 {
 		return exprCK
 	case typedef.PlusRec:
 		st := State{
-			ExprCK:     exprCK,
+			ExprCK:    exprCK,
 			K:         PlusKind,
 			SupExprCK: supExprCK,
 			Spec: ExprSpec{Plus: &Sum{
-				ProcQNs:   uniqsym.ConvertToStrings(rec.ProcQNs),
+				ProcQNs:    uniqsym.ConvertToStrings(rec.ProcQNs),
 				ContExprCK: statesFromExprRec(exprCK, rec.ContExpr, dto),
 			}},
 		}
@@ -150,11 +150,11 @@ func statesFromExprRec(supExprCK int64, r typedef.ExprRec, dto *ExprRec) int64 {
 		return exprCK
 	case typedef.WithRec:
 		st := State{
-			ExprCK:     exprCK,
+			ExprCK:    exprCK,
 			K:         WithKind,
 			SupExprCK: supExprCK,
 			Spec: ExprSpec{With: &Sum{
-				ProcQNs:   uniqsym.ConvertToStrings(rec.ProcQNs),
+				ProcQNs:    uniqsym.ConvertToStrings(rec.ProcQNs),
 				ContExprCK: statesFromExprRec(exprCK, rec.ContExpr, dto),
 			}},
 		}
@@ -162,7 +162,7 @@ func statesFromExprRec(supExprCK int64, r typedef.ExprRec, dto *ExprRec) int64 {
 		return exprCK
 	case typedef.UpRec:
 		st := State{
-			ExprCK:     exprCK,
+			ExprCK:    exprCK,
 			K:         UpKind,
 			SupExprCK: supExprCK,
 			Spec: ExprSpec{Up: &Shift{
@@ -173,7 +173,7 @@ func statesFromExprRec(supExprCK int64, r typedef.ExprRec, dto *ExprRec) int64 {
 		return exprCK
 	case typedef.DownRec:
 		st := State{
-			ExprCK:     exprCK,
+			ExprCK:    exprCK,
 			K:         DownKind,
 			SupExprCK: supExprCK,
 			Spec: ExprSpec{Down: &Shift{

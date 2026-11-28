@@ -32,7 +32,7 @@ type DefRec struct {
 	TypeQN  uniqsym.ADT
 	TypeID  identity.ADT
 	ProgRef progroot.RootRef
-	ExprCK   contkey.ADT
+	ExprCK  contkey.ADT
 }
 
 type DefSnap struct {

@@ -52,8 +52,8 @@ func TestIntegrationProcTypeExprAddRecIsIdempotent(t *testing.T) {
 	transactor := dbadapter.NewTransactorPgx(pool)
 	want := typedef.TensorRec{
 		ExprCK: contkey.Three,
-		Val:   typedef.OneRec{ExprCK: contkey.One},
-		Cont:  typedef.OneRec{ExprCK: contkey.Two},
+		Val:    typedef.OneRec{ExprCK: contkey.One},
+		Cont:   typedef.OneRec{ExprCK: contkey.Two},
 	}
 
 	for range 2 {

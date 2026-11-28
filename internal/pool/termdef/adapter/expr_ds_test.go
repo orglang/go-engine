@@ -67,10 +67,10 @@ func TestDataToExprRecRejectsMissingContinuation(t *testing.T) {
 		ExprCK: 1,
 		States: []ExprState{{
 			ExprCK: 1,
-			K:     AcquireKind,
+			K:      AcquireKind,
 			Spec: ExprStateSpec{
 				CommChnlPH: "request",
-				ContExprCK:  2,
+				ContExprCK: 2,
 			},
 		}},
 	})

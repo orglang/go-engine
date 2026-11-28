@@ -15,7 +15,7 @@ func init() {
 		var adapterVarRec VarRec
 		adapterVarRec.TypeID = identity.ConvertToString(source.TypeID)
 		adapterVarRec.ChnlPH = symbol.ConvertToString(source.ChnlPH)
-		adapterVarRec.ExpCK = int64(source.ExpCK)
+		adapterVarRec.ExprCK = int64(source.ExprCK)
 		return adapterVarRec, nil
 	}
 	DataToVarRec = func(source VarRec) (termvar.VarRec, error) {
@@ -30,7 +30,7 @@ func init() {
 			return termvarVarRec, err
 		}
 		termvarVarRec.ChnlPH = symbolADT
-		termvarVarRec.ExpCK = contkey.ADT(source.ExpCK)
+		termvarVarRec.ExprCK = contkey.ADT(source.ExprCK)
 		return termvarVarRec, nil
 	}
 }

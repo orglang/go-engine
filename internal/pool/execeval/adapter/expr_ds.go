@@ -5,7 +5,7 @@ import (
 )
 
 type ExprSpec struct {
-	K       ExprKind     `json:"k"`
+	K       ExprKind    `json:"k"`
 	Acquire *GrantSpec  `json:"acquire,omitempty"`
 	Accept  *GrantSpec  `json:"accept,omitempty"`
 	Hire    *CoopSpec   `json:"hire,omitempty"`
@@ -15,14 +15,14 @@ type ExprSpec struct {
 }
 
 type GrantSpec struct {
-	CommChnlPH string  `json:"ph"`
-	ContExpr    ExprSpec `json:"expr"`
+	CommChnlPH string   `json:"ph"`
+	ContExpr   ExprSpec `json:"expr"`
 }
 
 type CoopSpec struct {
-	CommChnlPH string  `json:"ph"`
-	ProcTermQN string  `json:"qn"`
-	ContExpr    ExprSpec `json:"expr"`
+	CommChnlPH string   `json:"ph"`
+	ProcTermQN string   `json:"qn"`
+	ContExpr   ExprSpec `json:"expr"`
 }
 
 type RevokeSpec struct {
@@ -30,7 +30,7 @@ type RevokeSpec struct {
 }
 
 type ExprRec struct {
-	K       ExprKind    `json:"k"`
+	K       ExprKind   `json:"k"`
 	Acquire *GrantRec  `json:"acquire,omitempty"`
 	Accept  *GrantRec  `json:"accept,omitempty"`
 	Hire    *CoopRec   `json:"hire,omitempty"`
@@ -52,14 +52,14 @@ const (
 )
 
 type GrantRec struct {
-	ContChnlPH string  `json:"ph"`
-	ContExpr    ExprSpec `json:"expr"`
+	ContChnlPH string   `json:"ph"`
+	ContExpr   ExprSpec `json:"expr"`
 }
 
 type CoopRec struct {
-	ContChnlPH string  `json:"ph"`
-	ProcTermQN string  `json:"qn"`
-	ContExpr    ExprSpec `json:"expr"`
+	ContChnlPH string   `json:"ph"`
+	ProcTermQN string   `json:"qn"`
+	ContExpr   ExprSpec `json:"expr"`
 }
 
 type RevokeRec struct {

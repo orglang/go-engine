@@ -68,17 +68,17 @@ func TestDataToExprRecAllowsSharedCaseContinuation(t *testing.T) {
 		States: []ExprState{
 			{
 				ExprCK: 1,
-				K:     CaseKind,
+				K:      CaseKind,
 				Spec: ExprStateSpec{
-					CommChnlPH: "request",
+					CommChnlPH:  "request",
 					ContExprCKs: map[string]int64{"accepted": 2, "rejected": 2},
 				},
 			},
 			{
 				ExprCK:    2,
 				SupExprCK: 1,
-				K:        CloseKind,
-				Spec:     ExprStateSpec{ContChnlPH: "done"},
+				K:         CloseKind,
+				Spec:      ExprStateSpec{ContChnlPH: "done"},
 			},
 		},
 	})

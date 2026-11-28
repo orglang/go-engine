@@ -77,10 +77,10 @@ type EvalSnap2 struct {
 }
 
 type EvalSnap3 struct {
-	RootRef    execroot.RootRef
-	StructVars map[symbol.ADT]execvar.StructRec
+	RootRef     execroot.RootRef
+	StructVars  map[symbol.ADT]execvar.StructRec
 	StructExprs map[symbol.ADT]typedef.ExprRec
-	LinearVars map[symbol.ADT]execvar.LinearRec
+	LinearVars  map[symbol.ADT]execvar.LinearRec
 	LinearExprs map[symbol.ADT]typedef.ExprRec
 }
 
@@ -163,7 +163,7 @@ func (s *service) Run(ctx context.Context, spec EvalSpec) (_ execroot.RootRef, e
 		ChnlID:  identity.New(),
 		ChnlPH:  spec.LiabVar.ChnlPH,
 		ChnlBS:  execvar.LiabSide,
-		ExprCK:   termDec.LiabVar.ExprCK,
+		ExprCK:  termDec.LiabVar.ExprCK,
 	}
 	newAssetVars := make([]execvar.VarRec, 0, len(spec.AssetVars)+1)
 	// Materialize a Communication row for each attached asset endpoint.
@@ -201,7 +201,7 @@ func (s *service) Run(ctx context.Context, spec EvalSpec) (_ execroot.RootRef, e
 			ChnlID:  chnlID,
 			ChnlPH:  assetVar.ChnlPH,
 			ChnlBS:  execvar.AssetSide,
-			ExprCK:   exprCK,
+			ExprCK:  exprCK,
 		})
 	}
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
@@ -370,7 +370,7 @@ func (s *service) takeStep(
 				ChnlID:  commChnl.ChnlID,
 				ContExpr: AcceptRec{
 					ContChnlPH: commChnl.ChnlPH,
-					ContExpr:    termExpr.ContExpr,
+					ContExpr:   termExpr.ContExpr,
 				},
 			})
 			s.log.Debug("taking half done", execAttr, commAttr)
@@ -388,7 +388,7 @@ func (s *service) takeStep(
 			ChnlID:  newChnlID,
 			ChnlPH:  commChnl.ChnlPH,
 			ChnlBS:  commChnl.ChnlBS,
-			ExprCK:   nextExprCK,
+			ExprCK:  nextExprCK,
 		})
 		if termExpr.ContExpr != nil {
 			// шедулим продолжение доступодателя
@@ -407,7 +407,7 @@ func (s *service) takeStep(
 				ChnlID:  newChnlID,
 				ChnlPH:  exprRec.ContChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
-				ExprCK:   nextExprCK,
+				ExprCK:  nextExprCK,
 			})
 			if exprRec.ContExpr != nil {
 				// шедулим продолжение доступополучателя
@@ -463,7 +463,7 @@ func (s *service) takeStep(
 				ChnlID:  commChnl.ChnlID,
 				ContExpr: AcquireRec{
 					ContChnlPH: commChnl.ChnlPH,
-					ContExpr:    termExpr.ContExpr,
+					ContExpr:   termExpr.ContExpr,
 				},
 			})
 			s.log.Debug("taking half done", execAttr, commAttr)
@@ -481,7 +481,7 @@ func (s *service) takeStep(
 			ChnlID:  newChnlID,
 			ChnlPH:  commChnl.ChnlPH,
 			ChnlBS:  commChnl.ChnlBS,
-			ExprCK:   nextExprCK,
+			ExprCK:  nextExprCK,
 		})
 		if termExpr.ContExpr != nil {
 			// шедулим продолжение доступополучателя
@@ -500,7 +500,7 @@ func (s *service) takeStep(
 				ChnlID:  newChnlID,
 				ChnlPH:  exprRec.ContChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
-				ExprCK:   nextExprCK,
+				ExprCK:  nextExprCK,
 			})
 			if exprRec.ContExpr != nil {
 				// шедулим продолжение доступодателя
@@ -557,7 +557,7 @@ func (s *service) takeStep(
 				ContExpr: ApplyRec{
 					ContChnlPH: commChnl.ChnlPH,
 					ProcTermQN: termExpr.ProcTermQN,
-					ContExpr:    termExpr.ContExpr,
+					ContExpr:   termExpr.ContExpr,
 				},
 			})
 			s.log.Debug("taking half done", execAttr, commAttr)
@@ -575,7 +575,7 @@ func (s *service) takeStep(
 			ChnlID:  newChnlID,
 			ChnlPH:  commChnl.ChnlPH,
 			ChnlBS:  commChnl.ChnlBS,
-			ExprCK:   nextExprCK,
+			ExprCK:  nextExprCK,
 		})
 		if termExpr.ContExpr != nil {
 			// шедулим продолжение соискателя
@@ -593,7 +593,7 @@ func (s *service) takeStep(
 				ChnlID:  newChnlID,
 				ChnlPH:  exprRec.ContChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
-				ExprCK:   nextExprCK,
+				ExprCK:  nextExprCK,
 			})
 			if exprRec.ContExpr != nil {
 				// шедулим продолжение нанимателя
@@ -650,7 +650,7 @@ func (s *service) takeStep(
 				ContExpr: HireRec{
 					ContChnlPH: commChnl.ChnlPH,
 					ProcTermQN: termExpr.ProcTermQN,
-					ContExpr:    termExpr.ContExpr,
+					ContExpr:   termExpr.ContExpr,
 				},
 			})
 			s.log.Debug("taking half done", execAttr, commAttr)
@@ -668,7 +668,7 @@ func (s *service) takeStep(
 			ChnlID:  newChnlID,
 			ChnlPH:  commChnl.ChnlPH,
 			ChnlBS:  commChnl.ChnlBS,
-			ExprCK:   nextExprCK,
+			ExprCK:  nextExprCK,
 		})
 		if termExpr.ContExpr != nil {
 			// шедулим продолжение нанимателя
@@ -686,7 +686,7 @@ func (s *service) takeStep(
 				ChnlID:  newChnlID,
 				ChnlPH:  exprRec.ContChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
-				ExprCK:   nextExprCK,
+				ExprCK:  nextExprCK,
 			})
 			if exprRec.ContExpr != nil {
 				// запускаем продолжение соискателя
@@ -759,7 +759,7 @@ func (s *service) takeStep(
 			ChnlID:  newChnlID,
 			ChnlPH:  commChnl.ChnlPH,
 			ChnlBS:  commChnl.ChnlBS,
-			ExprCK:   nextExprCK,
+			ExprCK:  nextExprCK,
 		})
 		switch exprRec := detaching.ContExpr.(type) {
 		case DetachRec:
@@ -770,7 +770,7 @@ func (s *service) takeStep(
 				ChnlID:  newChnlID,
 				ChnlPH:  exprRec.ContChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
-				ExprCK:   nextExprCK,
+				ExprCK:  nextExprCK,
 			})
 		default:
 			panic(ErrRecTypeUnexpected(detaching.ContExpr))
@@ -835,7 +835,7 @@ func (s *service) takeStep(
 			ChnlID:  newChnlID,
 			ChnlPH:  commChnl.ChnlPH,
 			ChnlBS:  commChnl.ChnlBS,
-			ExprCK:   nextExprCK,
+			ExprCK:  nextExprCK,
 		})
 		switch exprRec := releasing.ContExpr.(type) {
 		case ReleaseRec:
@@ -846,7 +846,7 @@ func (s *service) takeStep(
 				ChnlID:  newChnlID,
 				ChnlPH:  exprRec.ContChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
-				ExprCK:   nextExprCK,
+				ExprCK:  nextExprCK,
 			})
 		default:
 			panic(ErrRecTypeUnexpected(releasing.ContExpr))
@@ -881,10 +881,10 @@ func (s *service) retrieveSnap(ctx context.Context, ref execroot.RootRef) (_ Eva
 		return EvalSnap3{}, getErr2
 	}
 	return EvalSnap3{
-		RootRef:    evalSnap.RootRef,
-		StructVars: execvar.ConvertRecsToRecMap(evalSnap.StructVars),
+		RootRef:     evalSnap.RootRef,
+		StructVars:  execvar.ConvertRecsToRecMap(evalSnap.StructVars),
 		StructExprs: structExprs,
-		LinearVars: execvar.ConvertRecsToRecMap(evalSnap.LinearVars),
+		LinearVars:  execvar.ConvertRecsToRecMap(evalSnap.LinearVars),
 		LinearExprs: linearExprs,
 	}, nil
 }

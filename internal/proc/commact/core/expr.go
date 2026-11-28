@@ -21,7 +21,7 @@ func (s CloseSpec) Via() symbol.ADT { return s.ContChnlPH }
 
 type WaitSpec struct {
 	ContChnlPH symbol.ADT
-	ContExpr    ExprSpec
+	ContExpr   ExprSpec
 }
 
 func (s WaitSpec) Via() symbol.ADT { return s.ContChnlPH }
@@ -36,7 +36,7 @@ func (s SendSpec) Via() symbol.ADT { return s.CommChnlPH }
 type RecvSpec struct {
 	CommChnlPH symbol.ADT
 	NewChnlPH  symbol.ADT
-	ContExpr    ExprSpec
+	ContExpr   ExprSpec
 }
 
 func (s RecvSpec) Via() symbol.ADT { return s.CommChnlPH }
@@ -44,7 +44,7 @@ func (s RecvSpec) Via() symbol.ADT { return s.CommChnlPH }
 type LabSpec struct {
 	CommChnlPH symbol.ADT
 	ValLabQN   uniqsym.ADT
-	ContExpr    ExprSpec
+	ContExpr   ExprSpec
 }
 
 func (s LabSpec) Via() symbol.ADT { return s.CommChnlPH }
@@ -77,7 +77,7 @@ type CallSpec struct {
 	NewChnlPH  symbol.ADT
 	ProcTermQN uniqsym.ADT
 	ValChnlPHs []symbol.ADT // channel bulk
-	ContExpr    ExprSpec
+	ContExpr   ExprSpec
 }
 
 func (s CallSpec) Via() symbol.ADT { return s.CommChnlPH }
@@ -86,21 +86,21 @@ type SpawnSpec struct {
 	CommChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
 	NewChnlPHs []symbol.ADT
-	ContExpr    ExprSpec
+	ContExpr   ExprSpec
 }
 
 func (s SpawnSpec) Via() symbol.ADT { return s.CommChnlPH }
 
 type AcqureSpec struct {
 	CommChnlPH symbol.ADT
-	ContExpr    ExprSpec
+	ContExpr   ExprSpec
 }
 
 func (s AcqureSpec) Via() symbol.ADT { return s.CommChnlPH }
 
 type AcceptSpec struct {
 	CommChnlPH symbol.ADT
-	ContExpr    ExprSpec
+	ContExpr   ExprSpec
 }
 
 func (s AcceptSpec) Via() symbol.ADT { return s.CommChnlPH }
@@ -132,7 +132,7 @@ func (CloseRec) IsExprRec() {}
 
 type WaitRec struct {
 	ContChnlPH symbol.ADT
-	ContExpr    ExprSpec
+	ContExpr   ExprSpec
 }
 
 func (r WaitRec) Via() symbol.ADT { return r.ContChnlPH }
@@ -155,7 +155,7 @@ type RecvRec struct {
 	CommChnlPH symbol.ADT
 	ContChnlID identity.ADT
 	NewChnlPH  symbol.ADT
-	ContExpr    ExprSpec
+	ContExpr   ExprSpec
 }
 
 func (r RecvRec) Via() symbol.ADT { return r.CommChnlPH }

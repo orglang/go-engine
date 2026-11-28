@@ -11,7 +11,7 @@ func SampleVarRec() LinearRec {
 		CommID:  identity.New(),
 		ChnlID:  identity.New(),
 		ChnlPH:  "chnl-1",
-		ExprCK:   1,
+		ExprCK:  1,
 		ChnlBS:  LiabSide,
 	}
 }

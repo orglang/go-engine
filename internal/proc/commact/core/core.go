@@ -22,7 +22,7 @@ type PubRec struct {
 	ActNr   seqnum.ADT
 	RootRef execroot.RootRef
 	ChnlID  identity.ADT
-	ValExpr  ExprRec
+	ValExpr ExprRec
 }
 
 func (r PubRec) act() identity.ADT       { return r.ChnlID }
@@ -30,10 +30,10 @@ func (r PubRec) GetCommID() identity.ADT { return r.CommID }
 func (r PubRec) GetActNr() seqnum.ADT    { return r.ActNr }
 
 type SubRec struct {
-	CommID  identity.ADT
-	ActNr   seqnum.ADT
-	RootRef execroot.RootRef
-	ChnlID  identity.ADT
+	CommID   identity.ADT
+	ActNr    seqnum.ADT
+	RootRef  execroot.RootRef
+	ChnlID   identity.ADT
 	ContExpr ExprRec
 }
 

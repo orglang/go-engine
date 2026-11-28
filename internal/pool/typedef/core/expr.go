@@ -24,7 +24,7 @@ func (LinkSpec) spec() {}
 
 // aka Internal Choice
 type PlusSpec struct {
-	ProcQNs []uniqsym.ADT
+	ProcQNs  []uniqsym.ADT
 	ContExpr ExprSpec
 }
 
@@ -32,7 +32,7 @@ func (PlusSpec) spec() {}
 
 // aka External Choice
 type WithSpec struct {
-	ProcQNs []uniqsym.ADT
+	ProcQNs  []uniqsym.ADT
 	ContExpr ExprSpec
 }
 
@@ -104,7 +104,7 @@ func (OneRec) Pol() polarity.ADT { return polarity.Pos }
 
 // aka TpName
 type LinkRec struct {
-	ExprCK  contkey.ADT
+	ExprCK contkey.ADT
 	TypeQN uniqsym.ADT
 }
 
@@ -117,7 +117,7 @@ func (LinkRec) Pol() polarity.ADT { return polarity.Zero }
 // aka Internal Choice
 type PlusRec struct {
 	ExprCK   contkey.ADT
-	ProcQNs []uniqsym.ADT
+	ProcQNs  []uniqsym.ADT
 	ContExpr ExprRec
 }
 
@@ -132,7 +132,7 @@ func (PlusRec) Pol() polarity.ADT { return polarity.Pos }
 // aka External Choice
 type WithRec struct {
 	ExprCK   contkey.ADT
-	ProcQNs []uniqsym.ADT
+	ProcQNs  []uniqsym.ADT
 	ContExpr ExprRec
 }
 

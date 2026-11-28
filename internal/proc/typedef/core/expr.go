@@ -140,7 +140,7 @@ func (OneRec) Pol() polarity.ADT { return polarity.Pos }
 
 // aka TpName
 type LinkRec struct {
-	ExprCK  contkey.ADT
+	ExprCK contkey.ADT
 	TypeQN uniqsym.ADT
 }
 
@@ -152,7 +152,7 @@ func (LinkRec) Pol() polarity.ADT { return polarity.Zero }
 
 // aka Internal Choice
 type PlusRec struct {
-	ExprCK   contkey.ADT
+	ExprCK  contkey.ADT
 	Choices map[uniqsym.ADT]ExprRec
 }
 
@@ -166,7 +166,7 @@ func (PlusRec) Pol() polarity.ADT { return polarity.Pos }
 
 // aka External Choice
 type WithRec struct {
-	ExprCK   contkey.ADT
+	ExprCK  contkey.ADT
 	Choices map[uniqsym.ADT]ExprRec
 }
 
@@ -180,8 +180,8 @@ func (WithRec) Pol() polarity.ADT { return polarity.Neg }
 
 type TensorRec struct {
 	ExprCK contkey.ADT
-	Val   ExprRec
-	Cont  ExprRec
+	Val    ExprRec
+	Cont   ExprRec
 }
 
 func (TensorRec) spec() {}
@@ -194,8 +194,8 @@ func (TensorRec) Pol() polarity.ADT { return polarity.Pos }
 
 type LolliRec struct {
 	ExprCK contkey.ADT
-	Val   ExprRec
-	Cont  ExprRec
+	Val    ExprRec
+	Cont   ExprRec
 }
 
 func (LolliRec) spec() {}
@@ -208,7 +208,7 @@ func (LolliRec) Pol() polarity.ADT { return polarity.Neg }
 
 type UpRec struct {
 	ExprCK contkey.ADT
-	Cont  ExprRec
+	Cont   ExprRec
 }
 
 func (UpRec) spec() {}
@@ -219,7 +219,7 @@ func (UpRec) Pol() polarity.ADT { return polarity.Zero }
 
 type DownRec struct {
 	ExprCK contkey.ADT
-	Cont  ExprRec
+	Cont   ExprRec
 }
 
 func (DownRec) spec() {}

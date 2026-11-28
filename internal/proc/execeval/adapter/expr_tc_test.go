@@ -26,19 +26,19 @@ func TestExprRecRoundTripPreservesCommunicationIDs(t *testing.T) {
 			CommChnlPH: commChnl,
 			ContChnlID: contID,
 			ValChnlID:  valueID,
-			ValExprCK:   contkey.ADT(7),
+			ValExprCK:  contkey.ADT(7),
 			CommID:     commID,
 		},
 		commact.RecvRec{
 			CommChnlPH: commChnl,
 			ContChnlID: contID,
 			NewChnlPH:  newChnl,
-			ContExpr:    commact.CloseSpec{ContChnlPH: contChnl},
+			ContExpr:   commact.CloseSpec{ContChnlPH: contChnl},
 		},
 		commact.LabRec{
 			CommChnlPH: commChnl,
 			ContChnlID: contID,
-			ValExprCK:   contkey.ADT(9),
+			ValExprCK:  contkey.ADT(9),
 			ValLabQN:   label,
 		},
 		commact.CaseRec{

@@ -16,7 +16,7 @@ const (
 )
 
 type ExprSpec struct {
-	K     ExprKind    `json:"k"`
+	K     ExprKind   `json:"k"`
 	Close *CloseSpec `json:"close,omitempty"`
 	Wait  *WaitSpec  `json:"wait,omitempty"`
 	Send  *SendSpec  `json:"send,omitempty"`
@@ -27,7 +27,7 @@ type ExprSpec struct {
 }
 
 type ExprRec struct {
-	K     ExprKind   `json:"k"`
+	K     ExprKind  `json:"k"`
 	Close *CloseRec `json:"close,omitempty"`
 	Wait  *WaitRec  `json:"wait,omitempty"`
 	Send  *SendRec  `json:"send,omitempty"`
@@ -45,11 +45,11 @@ type CloseRec struct {
 }
 
 type WaitSpec struct {
-	X      string  `json:"x"`
+	X      string   `json:"x"`
 	ContES ExprSpec `json:"cont"`
 }
 type WaitRec struct {
-	X      string  `json:"x"`
+	X      string   `json:"x"`
 	ContES ExprSpec `json:"cont"`
 }
 
@@ -58,28 +58,28 @@ type SendSpec struct {
 	Y string `json:"y"`
 }
 type SendRec struct {
-	X        string `json:"x"`
-	A        string `json:"a"`
-	B        string `json:"b"`
-	CommID   string `json:"comm_id"`
+	X         string `json:"x"`
+	A         string `json:"a"`
+	B         string `json:"b"`
+	CommID    string `json:"comm_id"`
 	ValExprCK int64  `json:"val_expr_ck"`
 }
 
 type RecvSpec struct {
-	X      string  `json:"x"`
-	Y      string  `json:"y"`
+	X      string   `json:"x"`
+	Y      string   `json:"y"`
 	ContES ExprSpec `json:"cont"`
 }
 type RecvRec struct {
-	X      string  `json:"x"`
-	A      string  `json:"a"`
-	Y      string  `json:"y"`
+	X      string   `json:"x"`
+	A      string   `json:"a"`
+	Y      string   `json:"y"`
 	ContES ExprSpec `json:"cont"`
 }
 
 type LabSpec struct {
-	X      string  `json:"x"`
-	Label  string  `json:"lab"`
+	X      string   `json:"x"`
+	Label  string   `json:"lab"`
 	ContES ExprSpec `json:"cont"`
 }
 type LabRec struct {
@@ -101,11 +101,11 @@ type CaseRec struct {
 }
 
 type BranchSpec struct {
-	Label  string  `json:"lab"`
+	Label  string   `json:"lab"`
 	ContES ExprSpec `json:"cont"`
 }
 type BranchRec struct {
-	Label  string  `json:"lab"`
+	Label  string   `json:"lab"`
 	ContES ExprSpec `json:"cont"`
 }
 

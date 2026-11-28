@@ -37,10 +37,10 @@ func DataFromExprRec(r commact.ExprRec) (ExprRec, error) {
 		return ExprRec{
 			K: SendExpr,
 			Send: &SendRec{
-				X:        symbol.ConvertToString(rec.CommChnlPH),
-				A:        identity.ConvertToString(rec.ContChnlID),
-				B:        identity.ConvertToString(rec.ValChnlID),
-				CommID:   commID,
+				X:         symbol.ConvertToString(rec.CommChnlPH),
+				A:         identity.ConvertToString(rec.ContChnlID),
+				B:         identity.ConvertToString(rec.ValChnlID),
+				CommID:    commID,
 				ValExprCK: int64(rec.ValExprCK),
 			},
 		}, nil
@@ -62,9 +62,9 @@ func DataFromExprRec(r commact.ExprRec) (ExprRec, error) {
 		return ExprRec{
 			K: LabExpr,
 			Lab: &LabRec{
-				X:        symbol.ConvertToString(rec.CommChnlPH),
-				A:        identity.ConvertToString(rec.ContChnlID),
-				Label:    uniqsym.ConvertToString(rec.ValLabQN),
+				X:         symbol.ConvertToString(rec.CommChnlPH),
+				A:         identity.ConvertToString(rec.ContChnlID),
+				Label:     uniqsym.ConvertToString(rec.ValLabQN),
 				ValExprCK: int64(rec.ValExprCK),
 			},
 		}, nil

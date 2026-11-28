@@ -68,7 +68,7 @@ func dataFromExprRec(rec typedef.ExprRec) ExprRec {
 		panic("can't be nil")
 	}
 	dto := &ExprRec{
-		ExprCK:  contkey.ConvertToInt(rec.Key()),
+		ExprCK: contkey.ConvertToInt(rec.Key()),
 		States: nil,
 	}
 	statesFromExprRec(0, rec, dto)
@@ -151,7 +151,7 @@ func statesFromExprRec(fromID int64, r typedef.ExprRec, dto *ExprRec) int64 {
 		return exprCK
 	case typedef.LinkRec:
 		st := State{
-			ExprCK:     exprCK,
+			ExprCK:    exprCK,
 			K:         LinkKind,
 			SupExprCK: fromID,
 			Spec: ExprSpec{
@@ -164,7 +164,7 @@ func statesFromExprRec(fromID int64, r typedef.ExprRec, dto *ExprRec) int64 {
 		val := statesFromExprRec(exprCK, rec.Val, dto)
 		cont := statesFromExprRec(exprCK, rec.Cont, dto)
 		st := State{
-			ExprCK:     exprCK,
+			ExprCK:    exprCK,
 			K:         TensorKind,
 			SupExprCK: fromID,
 			Spec: ExprSpec{
@@ -177,7 +177,7 @@ func statesFromExprRec(fromID int64, r typedef.ExprRec, dto *ExprRec) int64 {
 		val := statesFromExprRec(exprCK, rec.Val, dto)
 		cont := statesFromExprRec(exprCK, rec.Cont, dto)
 		st := State{
-			ExprCK:     exprCK,
+			ExprCK:    exprCK,
 			K:         LolliKind,
 			SupExprCK: fromID,
 			Spec: ExprSpec{
@@ -193,7 +193,7 @@ func statesFromExprRec(fromID int64, r typedef.ExprRec, dto *ExprRec) int64 {
 			choices = append(choices, Sum{LabQN: uniqsym.ConvertToString(label), ContExprCK: cont})
 		}
 		st := State{
-			ExprCK:     exprCK,
+			ExprCK:    exprCK,
 			K:         PlusKind,
 			SupExprCK: fromID,
 			Spec:      ExprSpec{Plus: choices},
@@ -207,7 +207,7 @@ func statesFromExprRec(fromID int64, r typedef.ExprRec, dto *ExprRec) int64 {
 			choices = append(choices, Sum{LabQN: uniqsym.ConvertToString(label), ContExprCK: cont})
 		}
 		st := State{
-			ExprCK:     exprCK,
+			ExprCK:    exprCK,
 			K:         WithKind,
 			SupExprCK: fromID,
 			Spec:      ExprSpec{With: choices},

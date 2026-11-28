@@ -9,7 +9,7 @@ import (
 
 // ExprSpec is the JSON payload stored for a process type-expression state.
 type ExprSpec struct {
-	Link   string   `json:"link,omitempty"`
+	Link   string    `json:"link,omitempty"`
 	Tensor *ExprProd `json:"tensor,omitempty"`
 	Lolli  *ExprProd `json:"lolli,omitempty"`
 	Plus   []ExprSum `json:"plus,omitempty"`
@@ -24,7 +24,7 @@ type ExprProd struct {
 
 // ExprSum describes a choice branch in a type-expression payload.
 type ExprSum struct {
-	LabQN     string `json:"on"`
+	LabQN      string `json:"on"`
 	ContExprCK int64  `json:"to"`
 }
 

@@ -5,5 +5,5 @@ type DefRec struct {
 	TypeID string `db:"type_id"`
 	ProgID string `db:"prog_id"`
 	ProgRN int64  `db:"prog_rn"`
-	ExprCK  int64  `db:"expr_ck"`
+	ExprCK int64  `db:"expr_ck"`
 }

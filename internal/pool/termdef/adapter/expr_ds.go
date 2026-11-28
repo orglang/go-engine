@@ -23,14 +23,14 @@ const (
 )
 
 type ExprData struct {
-	ExprCK  int64      `db:"expr_ck"`
+	ExprCK int64       `db:"expr_ck"`
 	States []ExprState `db:"states"`
 }
 
 type ExprState struct {
-	ExprCK     int64        `db:"expr_ck"`
-	SupExprCK int64        `db:"sup_expr_ck"`
-	K         int16        `db:"kind"`
+	ExprCK    int64         `db:"expr_ck"`
+	SupExprCK int64         `db:"sup_expr_ck"`
+	K         int16         `db:"kind"`
 	Spec      ExprStateSpec `db:"spec"`
 }
 
@@ -38,7 +38,7 @@ type ExprStateSpec struct {
 	CommChnlPH  string   `json:"comm_chnl_ph,omitempty"`
 	ProcTermQN  string   `json:"proc_term_qn,omitempty"`
 	ProcCompQNs []string `json:"proc_comp_qns,omitempty"`
-	ContExprCK   int64    `json:"cont_expr_ck,omitempty"`
+	ContExprCK  int64    `json:"cont_expr_ck,omitempty"`
 }
 
 func dataFromExprRec(rec termdef.ExprRec) (ExprData, error) {

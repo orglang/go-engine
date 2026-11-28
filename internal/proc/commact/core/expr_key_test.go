@@ -14,12 +14,12 @@ func TestExprContentKeyIncludesLabContinuation(t *testing.T) {
 	base := LabSpec{
 		CommChnlPH: symbol.New("conn"),
 		ValLabQN:   label,
-		ContExpr:    CloseSpec{ContChnlPH: symbol.New("left")},
+		ContExpr:   CloseSpec{ContChnlPH: symbol.New("left")},
 	}
 	changed := LabSpec{
 		CommChnlPH: base.CommChnlPH,
 		ValLabQN:   label,
-		ContExpr:    CloseSpec{ContChnlPH: symbol.New("right")},
+		ContExpr:   CloseSpec{ContChnlPH: symbol.New("right")},
 	}
 
 	baseKey, _, err := ExprContentKey(base)

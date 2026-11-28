@@ -9,7 +9,7 @@ import (
 
 // ExprSpec is the JSON payload stored for a pool type-expression state.
 type ExprSpec struct {
-	Link   string    `json:"link,omitempty"`
+	Link   string     `json:"link,omitempty"`
 	Tensor *ExprProd  `json:"tensor,omitempty"`
 	Lolli  *ExprProd  `json:"lolli,omitempty"`
 	Plus   *ExprSum   `json:"plus,omitempty"`
@@ -26,7 +26,7 @@ type ExprProd struct {
 
 // ExprSum describes a sum expression in a type-expression payload.
 type ExprSum struct {
-	ProcQNs   []string `json:"on"`
+	ProcQNs    []string `json:"on"`
 	ContExprCK int64    `json:"to"`
 }
 

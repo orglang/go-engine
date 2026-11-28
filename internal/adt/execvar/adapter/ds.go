@@ -8,6 +8,6 @@ type VarRec struct {
 	CommID sql.NullString `db:"comm_id"`
 	ChnlID sql.NullString `db:"chnl_id"`
 	ChnlPH sql.NullString `db:"chnl_ph"`
-	ExprCK  sql.NullInt64  `db:"expr_ck"`
+	ExprCK sql.NullInt64  `db:"expr_ck"`
 	ChnlBS sql.NullInt16  `db:"side"`
 }

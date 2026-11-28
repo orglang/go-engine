@@ -6,16 +6,16 @@ package adapter
 import core "orglang/go-engine/internal/proc/commact/core"
 
 func init() {
-	DataFromExpRecs = func(source []core.ExpRec) ([]ExpRec, error) {
-		return DataFromExpRecs(source)
+	DataFromExprRecs = func(source []core.ExprRec) ([]ExprRec, error) {
+		return DataFromExprRecs(source)
 	}
-	DataFromExpSpecs = func(source []core.ExpSpec) ([]ExpSpec, error) {
-		return DataFromExpSpecs(source)
+	DataFromExprSpecs = func(source []core.ExprSpec) ([]ExprSpec, error) {
+		return DataFromExprSpecs(source)
 	}
-	DataToExpRecs = func(source []ExpRec) ([]core.ExpRec, error) {
-		return DataToExpRecs(source)
+	DataToExprRecs = func(source []ExprRec) ([]core.ExprRec, error) {
+		return DataToExprRecs(source)
 	}
-	DataToExpSpecs = func(source []ExpSpec) ([]core.ExpSpec, error) {
-		return DataToExpSpecs(source)
+	DataToExprSpecs = func(source []ExprSpec) ([]core.ExprSpec, error) {
+		return DataToExprSpecs(source)
 	}
 }

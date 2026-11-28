@@ -244,9 +244,9 @@ func (s *service) takeWith(
 		if subscription == nil {
 			// регистрируем подписку закрывателя
 			commMod.Acts = append(commMod.Acts, commact.SubRec{
-				CommID:  commSnap.CommID,
-				RootRef: evalSnap.RootRef,
-				ChnlID:  commChnl.ChnlID,
+				CommID:   commSnap.CommID,
+				RootRef:  evalSnap.RootRef,
+				ChnlID:   commChnl.ChnlID,
 				ContExpr: commact.CloseRec(termExpr),
 			})
 			s.log.Debug("taking half done", execAttr, commAttr)
@@ -267,7 +267,7 @@ func (s *service) takeWith(
 				ChnlID:  newChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
-				ExprCK:   nextExprCK,
+				ExprCK:  nextExprCK,
 			})
 			// лишаем продолжения наблюдателя
 			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
@@ -276,7 +276,7 @@ func (s *service) takeWith(
 				ChnlID:  newChnlID,
 				ChnlPH:  exprRec.ContChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
-				ExprCK:   nextExprCK,
+				ExprCK:  nextExprCK,
 			})
 			if exprRec.ContExpr != nil {
 				// шедулим продолжение наблюдателя
@@ -319,9 +319,9 @@ func (s *service) takeWith(
 		if subscription == nil {
 			// регистрируем подписку наблюдателя
 			commMod.Acts = append(commMod.Acts, commact.SubRec{
-				CommID:  commSnap.CommID,
-				RootRef: evalSnap.RootRef,
-				ChnlID:  commChnl.ChnlID,
+				CommID:   commSnap.CommID,
+				RootRef:  evalSnap.RootRef,
+				ChnlID:   commChnl.ChnlID,
 				ContExpr: commact.WaitRec(termExpr),
 			})
 			s.log.Debug("taking half done", execAttr)
@@ -342,7 +342,7 @@ func (s *service) takeWith(
 				ChnlID:  newChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
-				ExprCK:   nextExprCK,
+				ExprCK:  nextExprCK,
 			})
 			// лишаем продолжения закрывателя
 			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
@@ -351,7 +351,7 @@ func (s *service) takeWith(
 				ChnlID:  newChnlID,
 				ChnlPH:  exprRec.ContChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
-				ExprCK:   nextExprCK,
+				ExprCK:  nextExprCK,
 			})
 			if termExpr.ContExpr != nil {
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
@@ -369,7 +369,7 @@ func (s *service) takeWith(
 				ChnlID:  exprRec.ContChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
-				ExprCK:   commChnl.ExprCK,
+				ExprCK:  commChnl.ExprCK,
 			})
 			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
 				RootRef:  evalSnap.RootRef,
@@ -445,7 +445,7 @@ func (s *service) takeWith(
 			ChnlID:  newChnlID,
 			ChnlPH:  commChnl.ChnlPH,
 			ChnlBS:  commChnl.ChnlBS,
-			ExprCK:   nextExprCK,
+			ExprCK:  nextExprCK,
 		})
 		// лишаем значения отправителя
 		evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
@@ -454,7 +454,7 @@ func (s *service) takeWith(
 			ChnlID:  identity.New(),
 			ChnlPH:  valChnl.ChnlPH,
 			ChnlBS:  valChnl.ChnlBS,
-			ExprCK:   valChnl.ExprCK.Invert(),
+			ExprCK:  valChnl.ExprCK.Invert(),
 		})
 		switch exprRec := receival.ContExpr.(type) {
 		case commact.RecvRec:
@@ -465,7 +465,7 @@ func (s *service) takeWith(
 				ChnlID:  newChnlID,
 				ChnlPH:  exprRec.CommChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
-				ExprCK:   nextExprCK,
+				ExprCK:  nextExprCK,
 			})
 			// вяжем значение принимателя
 			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
@@ -474,7 +474,7 @@ func (s *service) takeWith(
 				ChnlID:  valChnl.ChnlID,
 				ChnlPH:  exprRec.NewChnlPH,
 				ChnlBS:  valChnl.ChnlBS,
-				ExprCK:   valChnl.ExprCK,
+				ExprCK:  valChnl.ExprCK,
 			})
 			if exprRec.ContExpr != nil {
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
@@ -528,7 +528,7 @@ func (s *service) takeWith(
 				ChnlID:  newChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
-				ExprCK:   nextExprCK,
+				ExprCK:  nextExprCK,
 			})
 			// регистрируем подписку принимателя
 			commMod.Acts = append(commMod.Acts, commact.SubRec{
@@ -539,7 +539,7 @@ func (s *service) takeWith(
 					CommChnlPH: commChnl.ChnlPH,
 					ContChnlID: newChnlID,
 					NewChnlPH:  termExpr.NewChnlPH,
-					ContExpr:    termExpr.ContExpr,
+					ContExpr:   termExpr.ContExpr,
 				},
 			})
 			s.log.Debug("taking half done", execAttr)
@@ -558,7 +558,7 @@ func (s *service) takeWith(
 				ChnlID:  valExpr.ContChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
-				ExprCK:   nextExprCK,
+				ExprCK:  nextExprCK,
 			})
 			// вяжем значение принимателя
 			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
@@ -567,7 +567,7 @@ func (s *service) takeWith(
 				ChnlID:  valExpr.ValChnlID,
 				ChnlPH:  termExpr.NewChnlPH,
 				ChnlBS:  execvar.AssetSide,
-				ExprCK:   valExpr.ValExprCK,
+				ExprCK:  valExpr.ValExprCK,
 			})
 			if termExpr.ContExpr != nil {
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
@@ -618,7 +618,7 @@ func (s *service) takeWith(
 				ChnlID:  newChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
-				ExprCK:   nextExprCK,
+				ExprCK:  nextExprCK,
 			})
 			// регистрируем сообщение решателя
 			commMod.Acts = append(commMod.Acts, commact.PubRec{
@@ -647,7 +647,7 @@ func (s *service) takeWith(
 				ChnlID:  contExpr.ContChnlID,
 				ChnlPH:  commChnl.ChnlPH,
 				ChnlBS:  commChnl.ChnlBS,
-				ExprCK:   nextExprCK,
+				ExprCK:  nextExprCK,
 			})
 			// вяжем продолжение последователя
 			evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
@@ -819,7 +819,7 @@ func (s *service) takeWith(
 					ChnlID:  commChnl.ChnlID,
 					ChnlPH:  termExpr.CommChnlPH,
 					ChnlBS:  commChnl.ChnlBS,
-					ExprCK:   commChnl.ExprCK.Invert(),
+					ExprCK:  commChnl.ExprCK.Invert(),
 				})
 				evalMod.LinearVars = append(evalMod.LinearVars, execvar.LinearRec{
 					RootRef: commChnl.RootRef,
@@ -827,7 +827,7 @@ func (s *service) takeWith(
 					ChnlID: contChnl.ChnlID,
 					ChnlPH: termExpr.ContChnlPH,
 					ChnlBS: contChnl.ChnlBS,
-					ExprCK:  contChnl.ExprCK.Invert(),
+					ExprCK: contChnl.ExprCK.Invert(),
 				})
 				// регистрируем сообщение схлопывающегося
 				commMod.Acts = append(commMod.Acts, commact.PubRec{

@@ -35,13 +35,13 @@ func (_c *TypeExprCreate) SetKind(v int16) *TypeExprCreate {
 }
 
 // SetSpec sets the "spec" field.
-func (_c *TypeExprCreate) SetSpec(v schema.ExpSpec) *TypeExprCreate {
+func (_c *TypeExprCreate) SetSpec(v schema.ExprSpec) *TypeExprCreate {
 	_c.mutation.SetSpec(v)
 	return _c
 }
 
 // SetNillableSpec sets the "spec" field if the given value is not nil.
-func (_c *TypeExprCreate) SetNillableSpec(v *schema.ExpSpec) *TypeExprCreate {
+func (_c *TypeExprCreate) SetNillableSpec(v *schema.ExprSpec) *TypeExprCreate {
 	if v != nil {
 		_c.SetSpec(*v)
 	}
@@ -228,7 +228,7 @@ func (u *TypeExprUpsert) AddKind(v int16) *TypeExprUpsert {
 }
 
 // SetSpec sets the "spec" field.
-func (u *TypeExprUpsert) SetSpec(v schema.ExpSpec) *TypeExprUpsert {
+func (u *TypeExprUpsert) SetSpec(v schema.ExprSpec) *TypeExprUpsert {
 	u.Set(typeexpr.FieldSpec, v)
 	return u
 }
@@ -336,7 +336,7 @@ func (u *TypeExprUpsertOne) UpdateKind() *TypeExprUpsertOne {
 }
 
 // SetSpec sets the "spec" field.
-func (u *TypeExprUpsertOne) SetSpec(v schema.ExpSpec) *TypeExprUpsertOne {
+func (u *TypeExprUpsertOne) SetSpec(v schema.ExprSpec) *TypeExprUpsertOne {
 	return u.Update(func(s *TypeExprUpsert) {
 		s.SetSpec(v)
 	})
@@ -612,7 +612,7 @@ func (u *TypeExprUpsertBulk) UpdateKind() *TypeExprUpsertBulk {
 }
 
 // SetSpec sets the "spec" field.
-func (u *TypeExprUpsertBulk) SetSpec(v schema.ExpSpec) *TypeExprUpsertBulk {
+func (u *TypeExprUpsertBulk) SetSpec(v schema.ExprSpec) *TypeExprUpsertBulk {
 	return u.Update(func(s *TypeExprUpsert) {
 		s.SetSpec(v)
 	})

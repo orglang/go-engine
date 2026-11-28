@@ -28,9 +28,9 @@ func (_c *TypeDefCreate) SetProgID(v string) *TypeDefCreate {
 	return _c
 }
 
-// SetExpCk sets the "exp_ck" field.
-func (_c *TypeDefCreate) SetExpCk(v int64) *TypeDefCreate {
-	_c.mutation.SetExpCk(v)
+// SetExprCk sets the "expr_ck" field.
+func (_c *TypeDefCreate) SetExprCk(v int64) *TypeDefCreate {
+	_c.mutation.SetExprCk(v)
 	return _c
 }
 
@@ -77,8 +77,8 @@ func (_c *TypeDefCreate) check() error {
 	if _, ok := _c.mutation.ProgID(); !ok {
 		return &ValidationError{Name: "prog_id", err: errors.New(`ent: missing required field "TypeDef.prog_id"`)}
 	}
-	if _, ok := _c.mutation.ExpCk(); !ok {
-		return &ValidationError{Name: "exp_ck", err: errors.New(`ent: missing required field "TypeDef.exp_ck"`)}
+	if _, ok := _c.mutation.ExprCk(); !ok {
+		return &ValidationError{Name: "expr_ck", err: errors.New(`ent: missing required field "TypeDef.expr_ck"`)}
 	}
 	return nil
 }
@@ -120,9 +120,9 @@ func (_c *TypeDefCreate) createSpec() (*TypeDef, *sqlgraph.CreateSpec) {
 		_spec.SetField(typedef.FieldProgID, field.TypeString, value)
 		_node.ProgID = value
 	}
-	if value, ok := _c.mutation.ExpCk(); ok {
-		_spec.SetField(typedef.FieldExpCk, field.TypeInt64, value)
-		_node.ExpCk = value
+	if value, ok := _c.mutation.ExprCk(); ok {
+		_spec.SetField(typedef.FieldExprCk, field.TypeInt64, value)
+		_node.ExprCk = value
 	}
 	return _node, _spec
 }
@@ -188,21 +188,21 @@ func (u *TypeDefUpsert) UpdateProgID() *TypeDefUpsert {
 	return u
 }
 
-// SetExpCk sets the "exp_ck" field.
-func (u *TypeDefUpsert) SetExpCk(v int64) *TypeDefUpsert {
-	u.Set(typedef.FieldExpCk, v)
+// SetExprCk sets the "expr_ck" field.
+func (u *TypeDefUpsert) SetExprCk(v int64) *TypeDefUpsert {
+	u.Set(typedef.FieldExprCk, v)
 	return u
 }
 
-// UpdateExpCk sets the "exp_ck" field to the value that was provided on create.
-func (u *TypeDefUpsert) UpdateExpCk() *TypeDefUpsert {
-	u.SetExcluded(typedef.FieldExpCk)
+// UpdateExprCk sets the "expr_ck" field to the value that was provided on create.
+func (u *TypeDefUpsert) UpdateExprCk() *TypeDefUpsert {
+	u.SetExcluded(typedef.FieldExprCk)
 	return u
 }
 
-// AddExpCk adds v to the "exp_ck" field.
-func (u *TypeDefUpsert) AddExpCk(v int64) *TypeDefUpsert {
-	u.Add(typedef.FieldExpCk, v)
+// AddExprCk adds v to the "expr_ck" field.
+func (u *TypeDefUpsert) AddExprCk(v int64) *TypeDefUpsert {
+	u.Add(typedef.FieldExprCk, v)
 	return u
 }
 
@@ -268,24 +268,24 @@ func (u *TypeDefUpsertOne) UpdateProgID() *TypeDefUpsertOne {
 	})
 }
 
-// SetExpCk sets the "exp_ck" field.
-func (u *TypeDefUpsertOne) SetExpCk(v int64) *TypeDefUpsertOne {
+// SetExprCk sets the "expr_ck" field.
+func (u *TypeDefUpsertOne) SetExprCk(v int64) *TypeDefUpsertOne {
 	return u.Update(func(s *TypeDefUpsert) {
-		s.SetExpCk(v)
+		s.SetExprCk(v)
 	})
 }
 
-// AddExpCk adds v to the "exp_ck" field.
-func (u *TypeDefUpsertOne) AddExpCk(v int64) *TypeDefUpsertOne {
+// AddExprCk adds v to the "expr_ck" field.
+func (u *TypeDefUpsertOne) AddExprCk(v int64) *TypeDefUpsertOne {
 	return u.Update(func(s *TypeDefUpsert) {
-		s.AddExpCk(v)
+		s.AddExprCk(v)
 	})
 }
 
-// UpdateExpCk sets the "exp_ck" field to the value that was provided on create.
-func (u *TypeDefUpsertOne) UpdateExpCk() *TypeDefUpsertOne {
+// UpdateExprCk sets the "expr_ck" field to the value that was provided on create.
+func (u *TypeDefUpsertOne) UpdateExprCk() *TypeDefUpsertOne {
 	return u.Update(func(s *TypeDefUpsert) {
-		s.UpdateExpCk()
+		s.UpdateExprCk()
 	})
 }
 
@@ -517,24 +517,24 @@ func (u *TypeDefUpsertBulk) UpdateProgID() *TypeDefUpsertBulk {
 	})
 }
 
-// SetExpCk sets the "exp_ck" field.
-func (u *TypeDefUpsertBulk) SetExpCk(v int64) *TypeDefUpsertBulk {
+// SetExprCk sets the "expr_ck" field.
+func (u *TypeDefUpsertBulk) SetExprCk(v int64) *TypeDefUpsertBulk {
 	return u.Update(func(s *TypeDefUpsert) {
-		s.SetExpCk(v)
+		s.SetExprCk(v)
 	})
 }
 
-// AddExpCk adds v to the "exp_ck" field.
-func (u *TypeDefUpsertBulk) AddExpCk(v int64) *TypeDefUpsertBulk {
+// AddExprCk adds v to the "expr_ck" field.
+func (u *TypeDefUpsertBulk) AddExprCk(v int64) *TypeDefUpsertBulk {
 	return u.Update(func(s *TypeDefUpsert) {
-		s.AddExpCk(v)
+		s.AddExprCk(v)
 	})
 }
 
-// UpdateExpCk sets the "exp_ck" field to the value that was provided on create.
-func (u *TypeDefUpsertBulk) UpdateExpCk() *TypeDefUpsertBulk {
+// UpdateExprCk sets the "expr_ck" field to the value that was provided on create.
+func (u *TypeDefUpsertBulk) UpdateExprCk() *TypeDefUpsertBulk {
 	return u.Update(func(s *TypeDefUpsert) {
-		s.UpdateExpCk()
+		s.UpdateExprCk()
 	})
 }
 

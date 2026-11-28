@@ -23,7 +23,7 @@ type TypeExpr struct {
 	// Kind holds the value of the "kind" field.
 	Kind int16 `json:"kind,omitempty"`
 	// Spec holds the value of the "spec" field.
-	Spec         schema.ExpSpec `json:"spec,omitempty"`
+	Spec         schema.ExprSpec `json:"spec,omitempty"`
 	selectValues sql.SelectValues
 }
 

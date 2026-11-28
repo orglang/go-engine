@@ -1651,8 +1651,8 @@ type TermDecMutation struct {
 	typ              string
 	id               *string
 	prog_id          *string
-	exp_ck           *int64
-	addexp_ck        *int64
+	expr_ck          *int64
+	addexpr_ck       *int64
 	liab_var         *adapter.VarRec
 	asset_vars       *[]adapter.VarRec
 	appendasset_vars []adapter.VarRec
@@ -1802,74 +1802,74 @@ func (m *TermDecMutation) ResetProgID() {
 	m.prog_id = nil
 }
 
-// SetExpCk sets the "exp_ck" field.
-func (m *TermDecMutation) SetExpCk(i int64) {
-	m.exp_ck = &i
-	m.addexp_ck = nil
+// SetExprCk sets the "expr_ck" field.
+func (m *TermDecMutation) SetExprCk(i int64) {
+	m.expr_ck = &i
+	m.addexpr_ck = nil
 }
 
-// ExpCk returns the value of the "exp_ck" field in the mutation.
-func (m *TermDecMutation) ExpCk() (r int64, exists bool) {
-	v := m.exp_ck
+// ExprCk returns the value of the "expr_ck" field in the mutation.
+func (m *TermDecMutation) ExprCk() (r int64, exists bool) {
+	v := m.expr_ck
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldExpCk returns the old "exp_ck" field's value of the TermDec entity.
+// OldExprCk returns the old "expr_ck" field's value of the TermDec entity.
 // If the TermDec object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TermDecMutation) OldExpCk(ctx context.Context) (v int64, err error) {
+func (m *TermDecMutation) OldExprCk(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldExpCk is only allowed on UpdateOne operations")
+		return v, errors.New("OldExprCk is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldExpCk requires an ID field in the mutation")
+		return v, errors.New("OldExprCk requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldExpCk: %w", err)
+		return v, fmt.Errorf("querying old value for OldExprCk: %w", err)
 	}
-	return oldValue.ExpCk, nil
+	return oldValue.ExprCk, nil
 }
 
-// AddExpCk adds i to the "exp_ck" field.
-func (m *TermDecMutation) AddExpCk(i int64) {
-	if m.addexp_ck != nil {
-		*m.addexp_ck += i
+// AddExprCk adds i to the "expr_ck" field.
+func (m *TermDecMutation) AddExprCk(i int64) {
+	if m.addexpr_ck != nil {
+		*m.addexpr_ck += i
 	} else {
-		m.addexp_ck = &i
+		m.addexpr_ck = &i
 	}
 }
 
-// AddedExpCk returns the value that was added to the "exp_ck" field in this mutation.
-func (m *TermDecMutation) AddedExpCk() (r int64, exists bool) {
-	v := m.addexp_ck
+// AddedExprCk returns the value that was added to the "expr_ck" field in this mutation.
+func (m *TermDecMutation) AddedExprCk() (r int64, exists bool) {
+	v := m.addexpr_ck
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearExpCk clears the value of the "exp_ck" field.
-func (m *TermDecMutation) ClearExpCk() {
-	m.exp_ck = nil
-	m.addexp_ck = nil
-	m.clearedFields[termdec.FieldExpCk] = struct{}{}
+// ClearExprCk clears the value of the "expr_ck" field.
+func (m *TermDecMutation) ClearExprCk() {
+	m.expr_ck = nil
+	m.addexpr_ck = nil
+	m.clearedFields[termdec.FieldExprCk] = struct{}{}
 }
 
-// ExpCkCleared returns if the "exp_ck" field was cleared in this mutation.
-func (m *TermDecMutation) ExpCkCleared() bool {
-	_, ok := m.clearedFields[termdec.FieldExpCk]
+// ExprCkCleared returns if the "expr_ck" field was cleared in this mutation.
+func (m *TermDecMutation) ExprCkCleared() bool {
+	_, ok := m.clearedFields[termdec.FieldExprCk]
 	return ok
 }
 
-// ResetExpCk resets all changes to the "exp_ck" field.
-func (m *TermDecMutation) ResetExpCk() {
-	m.exp_ck = nil
-	m.addexp_ck = nil
-	delete(m.clearedFields, termdec.FieldExpCk)
+// ResetExprCk resets all changes to the "expr_ck" field.
+func (m *TermDecMutation) ResetExprCk() {
+	m.expr_ck = nil
+	m.addexpr_ck = nil
+	delete(m.clearedFields, termdec.FieldExprCk)
 }
 
 // SetLiabVar sets the "liab_var" field.
@@ -1997,8 +1997,8 @@ func (m *TermDecMutation) Fields() []string {
 	if m.prog_id != nil {
 		fields = append(fields, termdec.FieldProgID)
 	}
-	if m.exp_ck != nil {
-		fields = append(fields, termdec.FieldExpCk)
+	if m.expr_ck != nil {
+		fields = append(fields, termdec.FieldExprCk)
 	}
 	if m.liab_var != nil {
 		fields = append(fields, termdec.FieldLiabVar)
@@ -2016,8 +2016,8 @@ func (m *TermDecMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case termdec.FieldProgID:
 		return m.ProgID()
-	case termdec.FieldExpCk:
-		return m.ExpCk()
+	case termdec.FieldExprCk:
+		return m.ExprCk()
 	case termdec.FieldLiabVar:
 		return m.LiabVar()
 	case termdec.FieldAssetVars:
@@ -2033,8 +2033,8 @@ func (m *TermDecMutation) OldField(ctx context.Context, name string) (ent.Value,
 	switch name {
 	case termdec.FieldProgID:
 		return m.OldProgID(ctx)
-	case termdec.FieldExpCk:
-		return m.OldExpCk(ctx)
+	case termdec.FieldExprCk:
+		return m.OldExprCk(ctx)
 	case termdec.FieldLiabVar:
 		return m.OldLiabVar(ctx)
 	case termdec.FieldAssetVars:
@@ -2055,12 +2055,12 @@ func (m *TermDecMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetProgID(v)
 		return nil
-	case termdec.FieldExpCk:
+	case termdec.FieldExprCk:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetExpCk(v)
+		m.SetExprCk(v)
 		return nil
 	case termdec.FieldLiabVar:
 		v, ok := value.(adapter.VarRec)
@@ -2084,8 +2084,8 @@ func (m *TermDecMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *TermDecMutation) AddedFields() []string {
 	var fields []string
-	if m.addexp_ck != nil {
-		fields = append(fields, termdec.FieldExpCk)
+	if m.addexpr_ck != nil {
+		fields = append(fields, termdec.FieldExprCk)
 	}
 	return fields
 }
@@ -2095,8 +2095,8 @@ func (m *TermDecMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *TermDecMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
-	case termdec.FieldExpCk:
-		return m.AddedExpCk()
+	case termdec.FieldExprCk:
+		return m.AddedExprCk()
 	}
 	return nil, false
 }
@@ -2106,12 +2106,12 @@ func (m *TermDecMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *TermDecMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case termdec.FieldExpCk:
+	case termdec.FieldExprCk:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.AddExpCk(v)
+		m.AddExprCk(v)
 		return nil
 	}
 	return fmt.Errorf("unknown TermDec numeric field %s", name)
@@ -2121,8 +2121,8 @@ func (m *TermDecMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *TermDecMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(termdec.FieldExpCk) {
-		fields = append(fields, termdec.FieldExpCk)
+	if m.FieldCleared(termdec.FieldExprCk) {
+		fields = append(fields, termdec.FieldExprCk)
 	}
 	return fields
 }
@@ -2138,8 +2138,8 @@ func (m *TermDecMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *TermDecMutation) ClearField(name string) error {
 	switch name {
-	case termdec.FieldExpCk:
-		m.ClearExpCk()
+	case termdec.FieldExprCk:
+		m.ClearExprCk()
 		return nil
 	}
 	return fmt.Errorf("unknown TermDec nullable field %s", name)
@@ -2152,8 +2152,8 @@ func (m *TermDecMutation) ResetField(name string) error {
 	case termdec.FieldProgID:
 		m.ResetProgID()
 		return nil
-	case termdec.FieldExpCk:
-		m.ResetExpCk()
+	case termdec.FieldExprCk:
+		m.ResetExprCk()
 		return nil
 	case termdec.FieldLiabVar:
 		m.ResetLiabVar()
@@ -2768,8 +2768,8 @@ type TypeDefMutation struct {
 	typ           string
 	id            *string
 	prog_id       *string
-	exp_ck        *int64
-	addexp_ck     *int64
+	expr_ck       *int64
+	addexpr_ck    *int64
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*TypeDef, error)
@@ -2916,60 +2916,60 @@ func (m *TypeDefMutation) ResetProgID() {
 	m.prog_id = nil
 }
 
-// SetExpCk sets the "exp_ck" field.
-func (m *TypeDefMutation) SetExpCk(i int64) {
-	m.exp_ck = &i
-	m.addexp_ck = nil
+// SetExprCk sets the "expr_ck" field.
+func (m *TypeDefMutation) SetExprCk(i int64) {
+	m.expr_ck = &i
+	m.addexpr_ck = nil
 }
 
-// ExpCk returns the value of the "exp_ck" field in the mutation.
-func (m *TypeDefMutation) ExpCk() (r int64, exists bool) {
-	v := m.exp_ck
+// ExprCk returns the value of the "expr_ck" field in the mutation.
+func (m *TypeDefMutation) ExprCk() (r int64, exists bool) {
+	v := m.expr_ck
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldExpCk returns the old "exp_ck" field's value of the TypeDef entity.
+// OldExprCk returns the old "expr_ck" field's value of the TypeDef entity.
 // If the TypeDef object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TypeDefMutation) OldExpCk(ctx context.Context) (v int64, err error) {
+func (m *TypeDefMutation) OldExprCk(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldExpCk is only allowed on UpdateOne operations")
+		return v, errors.New("OldExprCk is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldExpCk requires an ID field in the mutation")
+		return v, errors.New("OldExprCk requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldExpCk: %w", err)
+		return v, fmt.Errorf("querying old value for OldExprCk: %w", err)
 	}
-	return oldValue.ExpCk, nil
+	return oldValue.ExprCk, nil
 }
 
-// AddExpCk adds i to the "exp_ck" field.
-func (m *TypeDefMutation) AddExpCk(i int64) {
-	if m.addexp_ck != nil {
-		*m.addexp_ck += i
+// AddExprCk adds i to the "expr_ck" field.
+func (m *TypeDefMutation) AddExprCk(i int64) {
+	if m.addexpr_ck != nil {
+		*m.addexpr_ck += i
 	} else {
-		m.addexp_ck = &i
+		m.addexpr_ck = &i
 	}
 }
 
-// AddedExpCk returns the value that was added to the "exp_ck" field in this mutation.
-func (m *TypeDefMutation) AddedExpCk() (r int64, exists bool) {
-	v := m.addexp_ck
+// AddedExprCk returns the value that was added to the "expr_ck" field in this mutation.
+func (m *TypeDefMutation) AddedExprCk() (r int64, exists bool) {
+	v := m.addexpr_ck
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ResetExpCk resets all changes to the "exp_ck" field.
-func (m *TypeDefMutation) ResetExpCk() {
-	m.exp_ck = nil
-	m.addexp_ck = nil
+// ResetExprCk resets all changes to the "expr_ck" field.
+func (m *TypeDefMutation) ResetExprCk() {
+	m.expr_ck = nil
+	m.addexpr_ck = nil
 }
 
 // Where appends a list predicates to the TypeDefMutation builder.
@@ -3010,8 +3010,8 @@ func (m *TypeDefMutation) Fields() []string {
 	if m.prog_id != nil {
 		fields = append(fields, typedef.FieldProgID)
 	}
-	if m.exp_ck != nil {
-		fields = append(fields, typedef.FieldExpCk)
+	if m.expr_ck != nil {
+		fields = append(fields, typedef.FieldExprCk)
 	}
 	return fields
 }
@@ -3023,8 +3023,8 @@ func (m *TypeDefMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case typedef.FieldProgID:
 		return m.ProgID()
-	case typedef.FieldExpCk:
-		return m.ExpCk()
+	case typedef.FieldExprCk:
+		return m.ExprCk()
 	}
 	return nil, false
 }
@@ -3036,8 +3036,8 @@ func (m *TypeDefMutation) OldField(ctx context.Context, name string) (ent.Value,
 	switch name {
 	case typedef.FieldProgID:
 		return m.OldProgID(ctx)
-	case typedef.FieldExpCk:
-		return m.OldExpCk(ctx)
+	case typedef.FieldExprCk:
+		return m.OldExprCk(ctx)
 	}
 	return nil, fmt.Errorf("unknown TypeDef field %s", name)
 }
@@ -3054,12 +3054,12 @@ func (m *TypeDefMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetProgID(v)
 		return nil
-	case typedef.FieldExpCk:
+	case typedef.FieldExprCk:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetExpCk(v)
+		m.SetExprCk(v)
 		return nil
 	}
 	return fmt.Errorf("unknown TypeDef field %s", name)
@@ -3069,8 +3069,8 @@ func (m *TypeDefMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *TypeDefMutation) AddedFields() []string {
 	var fields []string
-	if m.addexp_ck != nil {
-		fields = append(fields, typedef.FieldExpCk)
+	if m.addexpr_ck != nil {
+		fields = append(fields, typedef.FieldExprCk)
 	}
 	return fields
 }
@@ -3080,8 +3080,8 @@ func (m *TypeDefMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *TypeDefMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
-	case typedef.FieldExpCk:
-		return m.AddedExpCk()
+	case typedef.FieldExprCk:
+		return m.AddedExprCk()
 	}
 	return nil, false
 }
@@ -3091,12 +3091,12 @@ func (m *TypeDefMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *TypeDefMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case typedef.FieldExpCk:
+	case typedef.FieldExprCk:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.AddExpCk(v)
+		m.AddExprCk(v)
 		return nil
 	}
 	return fmt.Errorf("unknown TypeDef numeric field %s", name)
@@ -3128,8 +3128,8 @@ func (m *TypeDefMutation) ResetField(name string) error {
 	case typedef.FieldProgID:
 		m.ResetProgID()
 		return nil
-	case typedef.FieldExpCk:
-		m.ResetExpCk()
+	case typedef.FieldExprCk:
+		m.ResetExprCk()
 		return nil
 	}
 	return fmt.Errorf("unknown TypeDef field %s", name)
@@ -3193,7 +3193,7 @@ type TypeExprMutation struct {
 	addsup_expr_ck *int64
 	kind           *int16
 	addkind        *int16
-	spec           *schema.ExpSpec
+	spec           *schema.ExprSpec
 	clearedFields  map[string]struct{}
 	done           bool
 	oldValue       func(context.Context) (*TypeExpr, error)
@@ -3417,12 +3417,12 @@ func (m *TypeExprMutation) ResetKind() {
 }
 
 // SetSpec sets the "spec" field.
-func (m *TypeExprMutation) SetSpec(ss schema.ExpSpec) {
+func (m *TypeExprMutation) SetSpec(ss schema.ExprSpec) {
 	m.spec = &ss
 }
 
 // Spec returns the value of the "spec" field in the mutation.
-func (m *TypeExprMutation) Spec() (r schema.ExpSpec, exists bool) {
+func (m *TypeExprMutation) Spec() (r schema.ExprSpec, exists bool) {
 	v := m.spec
 	if v == nil {
 		return
@@ -3433,7 +3433,7 @@ func (m *TypeExprMutation) Spec() (r schema.ExpSpec, exists bool) {
 // OldSpec returns the old "spec" field's value of the TypeExpr entity.
 // If the TypeExpr object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TypeExprMutation) OldSpec(ctx context.Context) (v schema.ExpSpec, err error) {
+func (m *TypeExprMutation) OldSpec(ctx context.Context) (v schema.ExprSpec, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldSpec is only allowed on UpdateOne operations")
 	}
@@ -3562,7 +3562,7 @@ func (m *TypeExprMutation) SetField(name string, value ent.Value) error {
 		m.SetKind(v)
 		return nil
 	case typeexpr.FieldSpec:
-		v, ok := value.(schema.ExpSpec)
+		v, ok := value.(schema.ExprSpec)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

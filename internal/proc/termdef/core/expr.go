@@ -20,7 +20,7 @@ func (ExprCloseSpec) exprSpec() {}
 
 type ExprWaitSpec struct {
 	ContChnlPH symbol.ADT
-	ContExpr    ExprSpec
+	ContExpr   ExprSpec
 }
 
 func (ExprWaitSpec) exprSpec() {}
@@ -35,7 +35,7 @@ func (ExprSendSpec) exprSpec() {}
 type ExprRecvSpec struct {
 	CommChnlPH symbol.ADT
 	NewChnlPH  symbol.ADT
-	ContExpr    ExprSpec
+	ContExpr   ExprSpec
 }
 
 func (ExprRecvSpec) exprSpec() {}
@@ -43,7 +43,7 @@ func (ExprRecvSpec) exprSpec() {}
 type ExprLabSpec struct {
 	CommChnlPH symbol.ADT
 	ValLabQN   uniqsym.ADT
-	ContExpr    ExprSpec
+	ContExpr   ExprSpec
 }
 
 func (ExprLabSpec) exprSpec() {}
@@ -75,7 +75,7 @@ type ExprCallSpec struct {
 	NewChnlPH  symbol.ADT
 	ProcTermQN uniqsym.ADT
 	ValChnlPHs []symbol.ADT
-	ContExpr    ExprSpec
+	ContExpr   ExprSpec
 }
 
 func (ExprCallSpec) exprSpec() {}
@@ -84,21 +84,21 @@ type ExprSpawnSpec struct {
 	CommChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
 	NewChnlPHs []symbol.ADT
-	ContExpr    ExprSpec
+	ContExpr   ExprSpec
 }
 
 func (ExprSpawnSpec) exprSpec() {}
 
 type ExprAcquireSpec struct {
 	CommChnlPH symbol.ADT
-	ContExpr    ExprSpec
+	ContExpr   ExprSpec
 }
 
 func (ExprAcquireSpec) exprSpec() {}
 
 type ExprAcceptSpec struct {
 	CommChnlPH symbol.ADT
-	ContExpr    ExprSpec
+	ContExpr   ExprSpec
 }
 
 func (ExprAcceptSpec) exprSpec() {}
@@ -117,134 +117,134 @@ type ExprRec interface {
 	ContentKey() contkey.ADT
 }
 type ExprCloseRec struct {
-	ExprCK      contkey.ADT
+	ExprCK     contkey.ADT
 	ContChnlPH symbol.ADT
 }
 
-func (ExprCloseRec) exprRec()                   {}
+func (ExprCloseRec) exprRec()                  {}
 func (r ExprCloseRec) ContentKey() contkey.ADT { return r.ExprCK }
 
 type ExprWaitRec struct {
-	ExprCK      contkey.ADT
+	ExprCK     contkey.ADT
 	ContChnlPH symbol.ADT
-	ContExpr    ExprRec
+	ContExpr   ExprRec
 }
 
-func (ExprWaitRec) exprRec()                   {}
+func (ExprWaitRec) exprRec()                  {}
 func (r ExprWaitRec) ContentKey() contkey.ADT { return r.ExprCK }
 
 type ExprSendRec struct {
-	ExprCK      contkey.ADT
+	ExprCK     contkey.ADT
 	CommChnlPH symbol.ADT
 	ValChnlPH  symbol.ADT
 }
 
-func (ExprSendRec) exprRec()                   {}
+func (ExprSendRec) exprRec()                  {}
 func (r ExprSendRec) ContentKey() contkey.ADT { return r.ExprCK }
 
 type ExprRecvRec struct {
-	ExprCK      contkey.ADT
+	ExprCK     contkey.ADT
 	CommChnlPH symbol.ADT
 	NewChnlPH  symbol.ADT
-	ContExpr    ExprRec
+	ContExpr   ExprRec
 }
 
-func (ExprRecvRec) exprRec()                   {}
+func (ExprRecvRec) exprRec()                  {}
 func (r ExprRecvRec) ContentKey() contkey.ADT { return r.ExprCK }
 
 type ExprLabRec struct {
-	ExprCK      contkey.ADT
+	ExprCK     contkey.ADT
 	CommChnlPH symbol.ADT
 	ValLabQN   uniqsym.ADT
-	ContExpr    ExprRec
+	ContExpr   ExprRec
 }
 
-func (ExprLabRec) exprRec()                   {}
+func (ExprLabRec) exprRec()                  {}
 func (r ExprLabRec) ContentKey() contkey.ADT { return r.ExprCK }
 
 type ExprCaseRec struct {
-	ExprCK      contkey.ADT
+	ExprCK     contkey.ADT
 	CommChnlPH symbol.ADT
 	ContExprs  map[uniqsym.ADT]ExprRec
 }
 
-func (ExprCaseRec) exprRec()                   {}
+func (ExprCaseRec) exprRec()                  {}
 func (r ExprCaseRec) ContentKey() contkey.ADT { return r.ExprCK }
 
 type ExprLinkRec struct {
-	ExprCK      contkey.ADT
+	ExprCK     contkey.ADT
 	ProcTermQN uniqsym.ADT
 	X          identity.ADT
 	Ys         []identity.ADT
 }
 
-func (ExprLinkRec) exprRec()                   {}
+func (ExprLinkRec) exprRec()                  {}
 func (r ExprLinkRec) ContentKey() contkey.ADT { return r.ExprCK }
 
 type ExprFwdRec struct {
-	ExprCK      contkey.ADT
+	ExprCK     contkey.ADT
 	CommChnlPH symbol.ADT
 	ContChnlPH symbol.ADT
 }
 
-func (ExprFwdRec) exprRec()                   {}
+func (ExprFwdRec) exprRec()                  {}
 func (r ExprFwdRec) ContentKey() contkey.ADT { return r.ExprCK }
 
 type ExprCallRec struct {
-	ExprCK      contkey.ADT
+	ExprCK     contkey.ADT
 	CommChnlPH symbol.ADT
 	NewChnlPH  symbol.ADT
 	ProcTermQN uniqsym.ADT
 	ValChnlPHs []symbol.ADT
-	ContExpr    ExprRec
+	ContExpr   ExprRec
 }
 
-func (ExprCallRec) exprRec()                   {}
+func (ExprCallRec) exprRec()                  {}
 func (r ExprCallRec) ContentKey() contkey.ADT { return r.ExprCK }
 
 type ExprSpawnRec struct {
-	ExprCK      contkey.ADT
+	ExprCK     contkey.ADT
 	CommChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
 	NewChnlPHs []symbol.ADT
-	ContExpr    ExprRec
+	ContExpr   ExprRec
 }
 
-func (ExprSpawnRec) exprRec()                   {}
+func (ExprSpawnRec) exprRec()                  {}
 func (r ExprSpawnRec) ContentKey() contkey.ADT { return r.ExprCK }
 
 type ExprAcquireRec struct {
-	ExprCK      contkey.ADT
+	ExprCK     contkey.ADT
 	CommChnlPH symbol.ADT
-	ContExpr    ExprRec
+	ContExpr   ExprRec
 }
 
-func (ExprAcquireRec) exprRec()                   {}
+func (ExprAcquireRec) exprRec()                  {}
 func (r ExprAcquireRec) ContentKey() contkey.ADT { return r.ExprCK }
 
 type ExprAcceptRec struct {
-	ExprCK      contkey.ADT
+	ExprCK     contkey.ADT
 	CommChnlPH symbol.ADT
-	ContExpr    ExprRec
+	ContExpr   ExprRec
 }
 
-func (ExprAcceptRec) exprRec()                   {}
+func (ExprAcceptRec) exprRec()                  {}
 func (r ExprAcceptRec) ContentKey() contkey.ADT { return r.ExprCK }
 
 type ExprDetachRec struct {
-	ExprCK      contkey.ADT
+	ExprCK     contkey.ADT
 	CommChnlPH symbol.ADT
 }
 
-func (ExprDetachRec) exprRec()                   {}
+func (ExprDetachRec) exprRec()                  {}
 func (r ExprDetachRec) ContentKey() contkey.ADT { return r.ExprCK }
 
 type ExprReleaseRec struct {
-	ExprCK      contkey.ADT
+	ExprCK     contkey.ADT
 	CommChnlPH symbol.ADT
 }
 
-func (ExprReleaseRec) exprRec()                   {}
+func (ExprReleaseRec) exprRec()                  {}
 func (r ExprReleaseRec) ContentKey() contkey.ADT { return r.ExprCK }
 
 // ConvertSpecToRec converts a declarative Definition into its content-addressed domain record.

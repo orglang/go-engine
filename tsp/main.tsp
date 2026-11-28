@@ -96,12 +96,12 @@ op getProcessAssociatedDeclaration(
 /** List execution identities associated with a process. */
 @get
 @route("/processes/{id}/executions")
-op listProcessExecutions(@path id: string): Ok<Any.CompRef[]>;
+op listProcessExecutions(@path id: string): Ok<Any.RootRef[]>;
 
 /** Get a process execution; omit rn to select the latest available revision. */
 @get
 @route("/processes/executions/{id}")
-op getProcessExecution(@path id: string, @query rn?: int64): Ok<Proc.CompSnap>;
+op getProcessExecution(@path id: string, @query rn?: int64): Ok<Proc.ExecSnap>;
 
 /** Apply one step to a process execution. */
 @post
@@ -177,12 +177,12 @@ op extendPoolDefinition(
 /** List execution identities associated with a pool. */
 @get
 @route("/pools/{id}/executions")
-op listPoolExecutions(@path id: string): Ok<Any.CompRef[]>;
+op listPoolExecutions(@path id: string): Ok<Any.RootRef[]>;
 
 /** Create a pool execution and return its identity. */
 @post
 @route("/pools/executions")
-op createPoolExecution(@body spec: Any.EvalSpec): Created<Any.CompRef>;
+op createPoolExecution(@body spec: Any.EvalSpec): Created<Any.RootRef>;
 
 /** Apply a batch of steps to pool executions. */
 @post
@@ -192,4 +192,4 @@ op stepPoolExecution(@body spec: Pool.StepSpec): NoContent;
 /** Spawn a child execution from a pool execution and return its identity. */
 @post
 @route("/pools/executions/spawns")
-op spawnPoolExecution(@body spec: Pool.StepSpec): Created<Any.CompRef>;
+op spawnPoolExecution(@body spec: Pool.StepSpec): Created<Any.RootRef>;

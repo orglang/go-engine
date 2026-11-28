@@ -22,11 +22,11 @@ func TestExpContentKeyIncludesLabContinuation(t *testing.T) {
 		ContExp:    CloseSpec{ContChnlPH: symbol.New("right")},
 	}
 
-	baseKey, _, err := ExpContentKey(base)
+	baseKey, _, err := ExprContentKey(base)
 	if err != nil {
 		t.Fatal(err)
 	}
-	changedKey, _, err := ExpContentKey(changed)
+	changedKey, _, err := ExprContentKey(changed)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -40,24 +40,24 @@ func TestExpContentKeyIsStableForCaseMapInsertionOrder(t *testing.T) {
 	rightLabel := uniqsym.New(symbol.New("right"))
 	left := CaseSpec{
 		CommChnlPH: symbol.New("conn"),
-		ContExps: map[uniqsym.ADT]ExpSpec{
+		ContExps: map[uniqsym.ADT]ExprSpec{
 			leftLabel:  CloseSpec{ContChnlPH: symbol.New("left")},
 			rightLabel: CloseSpec{ContChnlPH: symbol.New("right")},
 		},
 	}
 	right := CaseSpec{
 		CommChnlPH: symbol.New("conn"),
-		ContExps: map[uniqsym.ADT]ExpSpec{
+		ContExps: map[uniqsym.ADT]ExprSpec{
 			rightLabel: CloseSpec{ContChnlPH: symbol.New("right")},
 			leftLabel:  CloseSpec{ContChnlPH: symbol.New("left")},
 		},
 	}
 
-	leftKey, leftJSON, err := ExpContentKey(left)
+	leftKey, leftJSON, err := ExprContentKey(left)
 	if err != nil {
 		t.Fatal(err)
 	}
-	rightKey, rightJSON, err := ExpContentKey(right)
+	rightKey, rightJSON, err := ExprContentKey(right)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -70,7 +70,7 @@ func TestExpContentKeySerializesEveryVariant(t *testing.T) {
 	cont := CloseSpec{ContChnlPH: symbol.New("next")}
 	procTermQN := uniqsym.New(symbol.New("process"))
 	specs := []struct {
-		spec ExpSpec
+		spec ExprSpec
 		kind string
 	}{
 		{CloseSpec{ContChnlPH: symbol.New("end")}, "close"},
@@ -78,7 +78,7 @@ func TestExpContentKeySerializesEveryVariant(t *testing.T) {
 		{SendSpec{CommChnlPH: symbol.New("conn"), ValChnlPH: symbol.New("value")}, "send"},
 		{RecvSpec{CommChnlPH: symbol.New("conn"), NewChnlPH: symbol.New("new"), ContExp: cont}, "recv"},
 		{LabSpec{CommChnlPH: symbol.New("conn"), ValLabQN: uniqsym.New(symbol.New("label")), ContExp: cont}, "lab"},
-		{CaseSpec{CommChnlPH: symbol.New("conn"), ContExps: map[uniqsym.ADT]ExpSpec{uniqsym.New(symbol.New("label")): cont}}, "case"},
+		{CaseSpec{CommChnlPH: symbol.New("conn"), ContExps: map[uniqsym.ADT]ExprSpec{uniqsym.New(symbol.New("label")): cont}}, "case"},
 		{LinkSpec{ProcTermQN: procTermQN, X: identity.New(), Ys: []identity.ADT{identity.New()}}, "link"},
 		{FwdSpec{CommChnlPH: symbol.New("conn"), ContChnlPH: symbol.New("next")}, "fwd"},
 		{CallSpec{CommChnlPH: symbol.New("conn"), NewChnlPH: symbol.New("new"), ProcTermQN: procTermQN, ValChnlPHs: []symbol.ADT{symbol.New("value")}, ContExp: cont}, "call"},
@@ -89,7 +89,7 @@ func TestExpContentKeySerializesEveryVariant(t *testing.T) {
 		{ReleaseSpec{CommChnlPH: symbol.New("conn")}, "release"},
 	}
 	for _, tc := range specs {
-		_, data, err := ExpContentKey(tc.spec)
+		_, data, err := ExprContentKey(tc.spec)
 		if err != nil {
 			t.Fatalf("%s: %v", tc.kind, err)
 		}

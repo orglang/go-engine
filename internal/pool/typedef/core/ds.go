@@ -12,5 +12,5 @@ import (
 type Repo interface {
 	AddRec(context.Context, tx.Conn, DefRec) error
 	GetRecsByQNs(context.Context, tx.Conn, []uniqsym.ADT) (map[uniqsym.ADT]DefRec, error)
-	GetTypeMap(context.Context, tx.Conn, map[symbol.ADT]contkey.ADT) (map[symbol.ADT]ExpRec, error)
+	GetTypeMap(context.Context, tx.Conn, map[symbol.ADT]contkey.ADT) (map[symbol.ADT]ExprRec, error)
 }

@@ -21,7 +21,7 @@ func TestExpRecRoundTripPreservesCommunicationIDs(t *testing.T) {
 	newChnl := symbol.ADT("new")
 	label := uniqsym.New(symbol.ADT("label"))
 
-	tests := []commact.ExpRec{
+	tests := []commact.ExprRec{
 		commact.SendRec{
 			CommChnlPH: commChnl,
 			ContChnlID: contID,
@@ -44,7 +44,7 @@ func TestExpRecRoundTripPreservesCommunicationIDs(t *testing.T) {
 		commact.CaseRec{
 			CommChnlPH: commChnl,
 			ContChnlID: contID,
-			ContExps: map[uniqsym.ADT]commact.ExpSpec{
+			ContExps: map[uniqsym.ADT]commact.ExprSpec{
 				label: commact.CloseSpec{ContChnlPH: contChnl},
 			},
 		},

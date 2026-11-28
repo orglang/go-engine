@@ -21,8 +21,8 @@ type Repo interface {
 }
 
 type TypeExprRepo interface {
-	AddRec(context.Context, tx.Conn, ExpRec) error
-	SelectRecByCK(context.Context, tx.Conn, contkey.ADT) (ExpRec, error)
-	SelectRecsByCKs(context.Context, tx.Conn, []contkey.ADT) ([]ExpRec, error)
-	SelectEnv(context.Context, tx.Conn, []contkey.ADT) (map[contkey.ADT]ExpRec, error)
+	AddRec(context.Context, tx.Conn, ExprRec) error
+	SelectRecByCK(context.Context, tx.Conn, contkey.ADT) (ExprRec, error)
+	SelectRecsByCKs(context.Context, tx.Conn, []contkey.ADT) ([]ExprRec, error)
+	SelectEnv(context.Context, tx.Conn, []contkey.ADT) (map[contkey.ADT]ExprRec, error)
 }

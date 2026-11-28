@@ -23,7 +23,7 @@ func (definitionTestTransactor) ImplicitTx(ctx context.Context, fn func(context.
 
 type definitionTestRepo struct {
 	rec  DefRec
-	spec ExpSpec
+	spec ExprSpec
 	err  error
 	key  contkey.ADT
 }
@@ -34,8 +34,8 @@ func (r *definitionTestRepo) SetExpCK(context.Context, tx.Conn, identity.ADT, co
 func (r *definitionTestRepo) GetRecByID(context.Context, tx.Conn, identity.ADT) (DefRec, error) {
 	return r.rec, r.err
 }
-func (r *definitionTestRepo) InsertSpec(context.Context, tx.Conn, ExpSpec) error { return nil }
-func (r *definitionTestRepo) SelectSpecByCK(_ context.Context, _ tx.Conn, key contkey.ADT) (ExpSpec, error) {
+func (r *definitionTestRepo) InsertSpec(context.Context, tx.Conn, ExprSpec) error { return nil }
+func (r *definitionTestRepo) SelectSpecByCK(_ context.Context, _ tx.Conn, key contkey.ADT) (ExprSpec, error) {
 	r.key = key
 	return r.spec, nil
 }
@@ -68,7 +68,7 @@ func TestRetrieveDefinition(t *testing.T) {
 	}
 
 	t.Run("returns current definition", func(t *testing.T) {
-		repo := &definitionTestRepo{rec: DefRec{TermID: termID, ExpCK: wantKey}, spec: ExpCloseSpec{}}
+		repo := &definitionTestRepo{rec: DefRec{TermID: termID, ExprCK: wantKey}, spec: ExprCloseSpec{}}
 		decRepo := &definitionTestDecRepo{qn: wantQN}
 		service := NewService(decRepo, repo, definitionTestTransactor{})
 		got, err := service.RetrieveDefinition(context.Background(), termID)
@@ -78,8 +78,8 @@ func TestRetrieveDefinition(t *testing.T) {
 		if got.TermQN != wantQN {
 			t.Fatalf("RetrieveDefinition().TermQN = %v, want %v", got.TermQN, wantQN)
 		}
-		if _, ok := got.Exp.(ExpCloseSpec); !ok {
-			t.Fatalf("RetrieveDefinition().Exp = %T, want ExpCloseSpec", got.Exp)
+		if _, ok := got.Expr.(ExprCloseSpec); !ok {
+			t.Fatalf("RetrieveDefinition().Expr = %T, want ExprCloseSpec", got.Expr)
 		}
 		if repo.key != wantKey {
 			t.Fatalf("SelectSpecByCK() key = %v, want %v", repo.key, wantKey)

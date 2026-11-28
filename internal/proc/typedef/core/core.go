@@ -25,14 +25,14 @@ type API interface {
 
 type DefSpec struct {
 	TypeQN   uniqsym.ADT
-	TypeExpr ExpSpec
+	TypeExpr ExprSpec
 }
 
 type DefRec struct {
 	TypeQN  uniqsym.ADT
 	TypeID  identity.ADT
 	ProgRef progroot.RootRef
-	ExpCK   contkey.ADT
+	ExprCK   contkey.ADT
 }
 
 type DefSnap struct {
@@ -42,8 +42,8 @@ type DefSnap struct {
 }
 
 type Context struct {
-	Assets map[symbol.ADT]ExpRec
-	Liabs  map[symbol.ADT]ExpRec
+	Assets map[symbol.ADT]ExprRec
+	Liabs  map[symbol.ADT]ExprRec
 }
 
 type service struct {
@@ -67,7 +67,7 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err erro
 	if err != nil {
 		return DefSnap{}, err
 	}
-	newDef := DefRec{TypeID: identity.New(), ProgRef: progroot.New(), TypeQN: spec.TypeQN, ExpCK: newExpr.Key()}
+	newDef := DefRec{TypeID: identity.New(), ProgRef: progroot.New(), TypeQN: spec.TypeQN, ExprCK: newExpr.Key()}
 	err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		if err := s.progRootRepo.AddRef(txCtx, conn, newDef.ProgRef); err != nil {
 			return err
@@ -113,7 +113,7 @@ func (s *service) Modify(ctx context.Context, snap DefSnap) (_ DefSnap, err erro
 	}
 	expectedRoot := progroot.RootRef{ProgID: rec.ProgRef.ProgID, ProgRN: snap.ProgRef.ProgRN}
 	snap.ProgRef.ProgRN = seqnum.Next(snap.ProgRef.ProgRN)
-	rec.ExpCK = newExpr.Key()
+	rec.ExprCK = newExpr.Key()
 	err = s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		if err := s.progRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil {
 			return err
@@ -143,8 +143,8 @@ func (s *service) RetrieveSnap(ctx context.Context, id identity.ADT) (_ DefSnap,
 }
 
 func (s *service) snapFromRec(ctx context.Context, rec DefRec) (_ DefSnap, err error) {
-	exprRec, err := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (ExpRec, error) {
-		return s.typeExprRepo.SelectRecByCK(txCtx, conn, rec.ExpCK)
+	exprRec, err := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (ExprRec, error) {
+		return s.typeExprRepo.SelectRecByCK(txCtx, conn, rec.ExprCK)
 	})
 	if err != nil {
 		s.log.Error("retrieval failed", slog.Any("typeID", rec.TypeID))
@@ -167,7 +167,7 @@ func (s *service) RetreiveRefs(ctx context.Context) (refs []identity.ADT, err er
 func CollectEnv(recs iter.Seq[DefRec]) []contkey.ADT {
 	exprIDs := []contkey.ADT{}
 	for r := range recs {
-		exprIDs = append(exprIDs, r.ExpCK)
+		exprIDs = append(exprIDs, r.ExprCK)
 	}
 	return exprIDs
 }
@@ -183,9 +183,9 @@ func ErrDoesNotExist(want identity.ADT) error { return fmt.Errorf("root doesn't 
 func ErrMissingInEnv(want contkey.ADT) error  { return fmt.Errorf("expr missing in env: %v", want) }
 func ErrMissingInCfg(want identity.ADT) error { return fmt.Errorf("root missing in cfg: %v", want) }
 func ErrMissingInCtx(want symbol.ADT) error   { return fmt.Errorf("root missing in ctx: %v", want) }
-func ErrPolarityUnexpected(got ExpRec) error {
+func ErrPolarityUnexpected(got ExprRec) error {
 	return fmt.Errorf("root polarity unexpected: %v", got.Pol())
 }
-func ErrPolarityMismatch(a, b ExpRec) error {
+func ErrPolarityMismatch(a, b ExprRec) error {
 	return fmt.Errorf("root polarity mismatch: %v != %v", a.Pol(), b.Pol())
 }

@@ -8,8 +8,8 @@ import (
 	"orglang/go-engine/internal/adt/seqnum"
 )
 
-// ExpRec is the expression-record contract carried by a communication action.
-type ExpRec interface {
+// ExprRec is the expression-record contract carried by a communication action.
+type ExprRec interface {
 	IsExpRec()
 }
 
@@ -26,7 +26,7 @@ type PubRec struct {
 	ActNr   seqnum.ADT
 	RootRef execroot.RootRef
 	ChnlID  identity.ADT
-	ValExp  ExpRec
+	ValExp  ExprRec
 }
 
 func (r PubRec) act()                    {}
@@ -39,7 +39,7 @@ type SubRec struct {
 	ActNr   seqnum.ADT
 	RootRef execroot.RootRef
 	ChnlID  identity.ADT
-	ContExp ExpRec
+	ContExp ExprRec
 }
 
 func (r SubRec) act()                    {}

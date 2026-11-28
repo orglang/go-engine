@@ -165,7 +165,7 @@ type PoolTermDefReleaseSpec struct {
 
 // PoolTermDefSpawnSpec defines model for Pool.Term.DefSpawnSpec.
 type PoolTermDefSpawnSpec struct {
-	ProcCompQns []string `json:"proc_comp_qns"`
+	ProcExecQns []string `json:"proc_exec_qns"`
 	ProcQn      string   `json:"proc_qn"`
 }
 

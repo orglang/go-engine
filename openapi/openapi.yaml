@@ -700,11 +700,11 @@ components:
       type: object
       required:
         - proc_qn
-        - proc_comp_qns
+        - proc_exec_qns
       properties:
         proc_qn:
           type: string
-        proc_comp_qns:
+        proc_exec_qns:
           type: array
           items:
             type: string

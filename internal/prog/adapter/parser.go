@@ -130,7 +130,7 @@ func programASTToCore(ast programAST) (coreprog.Spec, error) {
 			if err != nil {
 				return coreprog.Spec{}, err
 			}
-			result.Pools = append(result.Pools, pooltypedef.DefSpec{TypeQN: qn, TypeExpr: expr})
+			result.Pools = append(result.Pools, pooltypedef.DefSpec{TypeQN: qn, TypeExpr: exprr})
 		case procDefAST:
 			qn, err := uniqsym.ConvertFromString(expression.TypeQN)
 			if err != nil {
@@ -140,7 +140,7 @@ func programASTToCore(ast programAST) (coreprog.Spec, error) {
 			if err != nil {
 				return coreprog.Spec{}, err
 			}
-			result.Procs = append(result.Procs, proctypedef.DefSpec{TypeQN: qn, TypeExpr: expr})
+			result.Procs = append(result.Procs, proctypedef.DefSpec{TypeQN: qn, TypeExpr: exprr})
 		default:
 			return coreprog.Spec{}, fmt.Errorf("unsupported program expression: %T", expression)
 		}

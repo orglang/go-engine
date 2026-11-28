@@ -25,7 +25,7 @@ func generatedStepToCore(id string, dto webapi.ProcStepSpec) (execstepcore.StepS
 		return execstepcore.StepSpec{}, err
 	}
 	return execstepcore.StepSpec{
-		CompRef: comproot.RootRef{CompID: rootID},
+		RootRef: execroot.RootRef{RootID: rootID},
 		ProcExp: expr,
 	}, nil
 }

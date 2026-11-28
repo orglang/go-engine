@@ -17,7 +17,7 @@ import (
 	"orglang/go-engine/internal/testutil/pgxtest"
 )
 
-func TestIntegrationProcTypeExprAddRecIsIdempotent(t *testing.T) {
+func TestIntegrationProcTypeDefRepoAddExprRecIsIdempotent(t *testing.T) {
 	pool := pgxtest.NewPostgresPool(t)
 
 	ctx, cancel := context.WithTimeout(t.Context(), 20*time.Second)
@@ -48,7 +48,7 @@ func TestIntegrationProcTypeExprAddRecIsIdempotent(t *testing.T) {
 		}
 	})
 
-	repo := NewExprDaoEnt(client, slog.Default())
+	repo := NewDaoEnt(client, slog.Default())
 	transactor := dbadapter.NewTransactorPgx(pool)
 	want := typedef.TensorRec{
 		ExprCK: contkey.Three,
@@ -58,20 +58,20 @@ func TestIntegrationProcTypeExprAddRecIsIdempotent(t *testing.T) {
 
 	for range 2 {
 		err := transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-			return repo.AddRec(txCtx, conn, want)
+			return repo.AddExprRec(txCtx, conn, want)
 		})
 		if err != nil {
-			t.Fatalf("AddRec() error = %v, want nil on repeated insert", err)
+			t.Fatalf("AddExprRec() error = %v, want nil on repeated insert", err)
 		}
 	}
 
 	err = transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		got, err := repo.SelectRecByCK(txCtx, conn, contkey.Three)
+		got, err := repo.SelectExprRecByCK(txCtx, conn, contkey.Three)
 		if err != nil {
 			return err
 		}
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("SelectRecByCK() = %#v, want %#v", got, want)
+			t.Errorf("SelectExprRecByCK() = %#v, want %#v", got, want)
 		}
 		rows, err := conn.Pgx.Query(txCtx, "SELECT count(*) FROM proc_type_exprs")
 		if err != nil {

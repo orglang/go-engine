@@ -90,21 +90,21 @@ func statesToExprRec(states map[int64]State, st State) (typedef.ExprRec, error) 
 		}
 		return typedef.LinkRec{ExprCK: exprCK, TypeQN: typeQN}, nil
 	case TensorKind:
-		b, err := statesToExprRec(states, states[st.Spec.Tensor.ValExpCK])
+		b, err := statesToExprRec(states, states[st.Spec.Tensor.ValExprCK])
 		if err != nil {
 			return nil, err
 		}
-		c, err := statesToExprRec(states, states[st.Spec.Tensor.ContExpCK])
+		c, err := statesToExprRec(states, states[st.Spec.Tensor.ContExprCK])
 		if err != nil {
 			return nil, err
 		}
 		return typedef.TensorRec{ExprCK: exprCK, Val: b, Cont: c}, nil
 	case LolliKind:
-		y, err := statesToExprRec(states, states[st.Spec.Lolli.ValExpCK])
+		y, err := statesToExprRec(states, states[st.Spec.Lolli.ValExprCK])
 		if err != nil {
 			return nil, err
 		}
-		z, err := statesToExprRec(states, states[st.Spec.Lolli.ContExpCK])
+		z, err := statesToExprRec(states, states[st.Spec.Lolli.ContExprCK])
 		if err != nil {
 			return nil, err
 		}
@@ -112,7 +112,7 @@ func statesToExprRec(states map[int64]State, st State) (typedef.ExprRec, error) 
 	case PlusKind:
 		choices := make(map[uniqsym.ADT]typedef.ExprRec, len(st.Spec.Plus))
 		for _, ch := range st.Spec.Plus {
-			choice, err := statesToExprRec(states, states[ch.ContExpCK])
+			choice, err := statesToExprRec(states, states[ch.ContExprCK])
 			if err != nil {
 				return nil, err
 			}
@@ -126,7 +126,7 @@ func statesToExprRec(states map[int64]State, st State) (typedef.ExprRec, error) 
 	case WithKind:
 		choices := make(map[uniqsym.ADT]typedef.ExprRec, len(st.Spec.With))
 		for _, ch := range st.Spec.With {
-			choice, err := statesToExprRec(states, states[ch.ContExpCK])
+			choice, err := statesToExprRec(states, states[ch.ContExprCK])
 			if err != nil {
 				return nil, err
 			}
@@ -168,7 +168,7 @@ func statesFromExprRec(fromID int64, r typedef.ExprRec, dto *ExprRec) int64 {
 			K:         TensorKind,
 			SupExprCK: fromID,
 			Spec: ExprSpec{
-				Tensor: &Prod{ValExpCK: val, ContExpCK: cont},
+				Tensor: &Prod{ValExprCK: val, ContExprCK: cont},
 			},
 		}
 		dto.States = append(dto.States, st)
@@ -181,7 +181,7 @@ func statesFromExprRec(fromID int64, r typedef.ExprRec, dto *ExprRec) int64 {
 			K:         LolliKind,
 			SupExprCK: fromID,
 			Spec: ExprSpec{
-				Lolli: &Prod{ValExpCK: val, ContExpCK: cont},
+				Lolli: &Prod{ValExprCK: val, ContExprCK: cont},
 			},
 		}
 		dto.States = append(dto.States, st)
@@ -190,7 +190,7 @@ func statesFromExprRec(fromID int64, r typedef.ExprRec, dto *ExprRec) int64 {
 		var choices []Sum
 		for label, choice := range rec.Choices {
 			cont := statesFromExprRec(exprCK, choice, dto)
-			choices = append(choices, Sum{LabQN: uniqsym.ConvertToString(label), ContExpCK: cont})
+			choices = append(choices, Sum{LabQN: uniqsym.ConvertToString(label), ContExprCK: cont})
 		}
 		st := State{
 			ExprCK:     exprCK,
@@ -204,7 +204,7 @@ func statesFromExprRec(fromID int64, r typedef.ExprRec, dto *ExprRec) int64 {
 		var choices []Sum
 		for label, choice := range rec.Choices {
 			cont := statesFromExprRec(exprCK, choice, dto)
-			choices = append(choices, Sum{LabQN: uniqsym.ConvertToString(label), ContExpCK: cont})
+			choices = append(choices, Sum{LabQN: uniqsym.ConvertToString(label), ContExprCK: cont})
 		}
 		st := State{
 			ExprCK:     exprCK,

@@ -41,7 +41,7 @@ func DataFromExprRec(r commact.ExprRec) (ExprRec, error) {
 				A:        identity.ConvertToString(rec.ContChnlID),
 				B:        identity.ConvertToString(rec.ValChnlID),
 				CommID:   commID,
-				ValExpCK: int64(rec.ValExprCK),
+				ValExprCK: int64(rec.ValExprCK),
 			},
 		}, nil
 	case commact.RecvRec:
@@ -65,7 +65,7 @@ func DataFromExprRec(r commact.ExprRec) (ExprRec, error) {
 				X:        symbol.ConvertToString(rec.CommChnlPH),
 				A:        identity.ConvertToString(rec.ContChnlID),
 				Label:    uniqsym.ConvertToString(rec.ValLabQN),
-				ValExpCK: int64(rec.ValExprCK),
+				ValExprCK: int64(rec.ValExprCK),
 			},
 		}, nil
 	case commact.CaseRec:
@@ -94,7 +94,7 @@ func DataFromExprRec(r commact.ExprRec) (ExprRec, error) {
 			},
 		}, nil
 	default:
-		panic(commact.ErrExpTypeUnexpected(rec))
+		panic(commact.ErrExprTypeUnexpected(rec))
 	}
 }
 
@@ -137,7 +137,7 @@ func DataToExprRec(dto ExprRec) (commact.ExprRec, error) {
 			CommChnlPH: x,
 			ContChnlID: a,
 			ValChnlID:  valID,
-			ValExprCK:  contkey.ADT(dto.Send.ValExpCK),
+			ValExprCK:  contkey.ADT(dto.Send.ValExprCK),
 			CommID:     commID,
 		}, nil
 	case RecvExp:
@@ -171,7 +171,7 @@ func DataToExprRec(dto ExprRec) (commact.ExprRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return commact.LabRec{CommChnlPH: a, ContChnlID: contID, ValExprCK: contkey.ADT(dto.Lab.ValExpCK), ValLabQN: label}, nil
+		return commact.LabRec{CommChnlPH: a, ContChnlID: contID, ValExprCK: contkey.ADT(dto.Lab.ValExprCK), ValLabQN: label}, nil
 	case CaseExp:
 		x, err := symbol.ConvertFromString(dto.Case.X)
 		if err != nil {
@@ -295,7 +295,7 @@ func dataFromExprSpec(s commact.ExprSpec) (ExprSpec, error) {
 			},
 		}, nil
 	default:
-		panic(commact.ErrExpTypeUnexpected(spec))
+		panic(commact.ErrExprTypeUnexpected(spec))
 	}
 }
 

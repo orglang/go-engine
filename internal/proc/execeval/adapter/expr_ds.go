@@ -62,7 +62,7 @@ type SendRec struct {
 	A        string `json:"a"`
 	B        string `json:"b"`
 	CommID   string `json:"comm_id"`
-	ValExpCK int64  `json:"val_expr_ck"`
+	ValExprCK int64  `json:"val_expr_ck"`
 }
 
 type RecvSpec struct {
@@ -86,8 +86,8 @@ type LabRec struct {
 	X     string `json:"x"`
 	A     string `json:"a"`
 	Label string `json:"lab"`
-	// ValExpCK keeps the legacy JSON property for wire compatibility.
-	ValExpCK int64 `json:"val_exp_vk"`
+	// ValExprCK keeps the legacy JSON property for wire compatibility.
+	ValExprCK int64 `json:"val_expr_vk"`
 }
 
 type CaseSpec struct {

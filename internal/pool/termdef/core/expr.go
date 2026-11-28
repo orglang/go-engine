@@ -64,7 +64,7 @@ func (ExprQuitSpec) exprSpec() {}
 
 type ExprSpawnSpec struct {
 	ProcTermQN  uniqsym.ADT
-	ProcCompQNs []uniqsym.ADT
+	ProcExecQNs []uniqsym.ADT
 }
 
 func (ExprSpawnSpec) exprSpec() {}
@@ -149,7 +149,7 @@ func (r ExprQuitRec) ContentKey() contkey.ADT { return r.ExprCK }
 type ExprSpawnRec struct {
 	ExprCK      contkey.ADT
 	ProcTermQN  uniqsym.ADT
-	ProcCompQNs []uniqsym.ADT
+	ProcExecQNs []uniqsym.ADT
 }
 
 func (ExprSpawnRec) exprRec()                  {}
@@ -194,7 +194,7 @@ func ConvertSpecToRec(spec ExprSpec) (ExprRec, error) {
 	case ExprQuitSpec:
 		return ExprQuitRec{key, s.CommChnlPH, s.ProcTermQN}, nil
 	case ExprSpawnSpec:
-		return ExprSpawnRec{key, s.ProcTermQN, s.ProcCompQNs}, nil
+		return ExprSpawnRec{key, s.ProcTermQN, s.ProcExecQNs}, nil
 	default:
 		return nil, fmt.Errorf("unexpected pool Definition expression spec %T", spec)
 	}
@@ -218,7 +218,7 @@ func ConvertRecToSpec(rec ExprRec) ExprSpec {
 	case ExprQuitRec:
 		return ExprQuitSpec{r.CommChnlPH, r.ProcTermQN}
 	case ExprSpawnRec:
-		return ExprSpawnSpec{r.ProcTermQN, r.ProcCompQNs}
+		return ExprSpawnSpec{r.ProcTermQN, r.ProcExecQNs}
 	default:
 		panic(fmt.Sprintf("unexpected pool Definition expression rec %T", rec))
 	}

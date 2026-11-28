@@ -41,7 +41,7 @@ func DataFromExprRec(r commact.ExpRec) (ExpRec, error) {
 				A:        identity.ConvertToString(rec.ContChnlID),
 				B:        identity.ConvertToString(rec.ValChnlID),
 				CommID:   commID,
-				ValExpCK: int64(rec.ValExpCK),
+				ValExprCK: int64(rec.ValExprCK),
 			},
 		}, nil
 	case commact.RecvRec:
@@ -65,12 +65,12 @@ func DataFromExprRec(r commact.ExpRec) (ExpRec, error) {
 				X:        symbol.ConvertToString(rec.CommChnlPH),
 				A:        identity.ConvertToString(rec.ContChnlID),
 				Label:    uniqsym.ConvertToString(rec.ValLabQN),
-				ValExpCK: int64(rec.ValExpCK),
+				ValExprCK: int64(rec.ValExprCK),
 			},
 		}, nil
 	case commact.CaseRec:
 		brs := []BranchRec{}
-		for l, cont := range rec.ContExps {
+		for l, cont := range rec.ContExprs {
 			dto, err := dataFromExprSpec(cont)
 			if err != nil {
 				return ExpRec{}, err
@@ -137,7 +137,7 @@ func DataToExprRec(dto ExpRec) (commact.ExpRec, error) {
 			CommChnlPH: x,
 			ContChnlID: a,
 			ValChnlID:  valID,
-			ValExpCK:   contkey.ADT(dto.Send.ValExpCK),
+			ValExprCK:   contkey.ADT(dto.Send.ValExpCK),
 			CommID:     commID,
 		}, nil
 	case RecvExp:
@@ -171,7 +171,7 @@ func DataToExprRec(dto ExpRec) (commact.ExpRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		return commact.LabRec{CommChnlPH: a, ContChnlID: contID, ValExpCK: contkey.ADT(dto.Lab.ValExpCK), ValLabQN: label}, nil
+		return commact.LabRec{CommChnlPH: a, ContChnlID: contID, ValExprCK: contkey.ADT(dto.Lab.ValExpCK), ValLabQN: label}, nil
 	case CaseExp:
 		x, err := symbol.ConvertFromString(dto.Case.X)
 		if err != nil {
@@ -193,7 +193,7 @@ func DataToExprRec(dto ExpRec) (commact.ExpRec, error) {
 			}
 			conts[label] = cont
 		}
-		return commact.CaseRec{CommChnlPH: x, ContChnlID: contID, ContExps: conts}, nil
+		return commact.CaseRec{CommChnlPH: x, ContChnlID: contID, ContExprs: conts}, nil
 	case FwdExp:
 		x, err := symbol.ConvertFromString(dto.Fwd.X)
 		if err != nil {
@@ -264,15 +264,15 @@ func dataFromExprSpec(s commact.ExpSpec) (ExpSpec, error) {
 		}, nil
 	case commact.CaseSpec:
 		brs := []BranchSpec{}
-		labels := make([]uniqsym.ADT, 0, len(spec.ContExps))
-		for label := range spec.ContExps {
+		labels := make([]uniqsym.ADT, 0, len(spec.ContExprs))
+		for label := range spec.ContExprs {
 			labels = append(labels, label)
 		}
 		slices.SortFunc(labels, func(a, b uniqsym.ADT) int {
 			return strings.Compare(uniqsym.ConvertToString(a), uniqsym.ConvertToString(b))
 		})
 		for _, l := range labels {
-			cont := spec.ContExps[l]
+			cont := spec.ContExprs[l]
 			dto, err := dataFromExprSpec(cont)
 			if err != nil {
 				return ExpSpec{}, err
@@ -372,7 +372,7 @@ func dataToExprSpec(dto ExpSpec) (commact.ExpSpec, error) {
 			}
 			conts[label] = cont
 		}
-		return commact.CaseSpec{CommChnlPH: x, ContExps: conts}, nil
+		return commact.CaseSpec{CommChnlPH: x, ContExprs: conts}, nil
 	case FwdExp:
 		x, err := symbol.ConvertFromString(dto.Fwd.X)
 		if err != nil {

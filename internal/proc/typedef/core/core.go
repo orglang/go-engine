@@ -117,7 +117,7 @@ func (s *service) Modify(ctx context.Context, snap DefSnap) (_ DefSnap, err erro
 		if err := s.progRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil {
 			return err
 		}
-		if err := s.typeExprRepo.AddRec(txCtx, conn, newExpr); err != nil {
+		if err := s.typeDefRepo.AddExprRec(txCtx, conn, newExpr); err != nil {
 			return err
 		}
 		return s.typeDefRepo.ModifyRec(txCtx, conn, rec)

@@ -25,8 +25,8 @@ func DataFromVarRec(rec execvar.VarRec) VarRec {
 
 func DataFromStructRec(rec execvar.StructRec) VarRec {
 	return VarRec{
-		ExecID: identityadapter.ConvertToNullString(rec.RootRef.RootID),
-		ExecRN: seqnumadapter.ConvertToNullInt(rec.RootRef.RootRN),
+		ExecID: identityadapter.ConvertToNullString(rec.RootRef.ExecID),
+		ExecRN: seqnumadapter.ConvertToNullInt(rec.RootRef.ExecRN),
 		ConnID: identityadapter.ConvertToNullString(rec.ConnID),
 		ChnlID: identityadapter.ConvertToNullString(rec.ChnlID),
 		ChnlPH: symboladapter.ConvertToNullString(rec.ChnlPH),
@@ -37,8 +37,8 @@ func DataFromStructRec(rec execvar.StructRec) VarRec {
 
 func DataFromLinearRec(rec execvar.LinearRec) VarRec {
 	return VarRec{
-		ExecID: identityadapter.ConvertToNullString(rec.RootRef.RootID),
-		ExecRN: seqnumadapter.ConvertToNullInt(rec.RootRef.RootRN),
+		ExecID: identityadapter.ConvertToNullString(rec.RootRef.ExecID),
+		ExecRN: seqnumadapter.ConvertToNullInt(rec.RootRef.ExecRN),
 		ConnID: identityadapter.ConvertToNullString(rec.ConnID),
 		ChnlID: identityadapter.ConvertToNullString(rec.ChnlID),
 		ChnlPH: symboladapter.ConvertToNullString(rec.ChnlPH),
@@ -199,8 +199,8 @@ func dataToRootRef(dto VarRec) (execroot.RootRef, error) {
 		return execroot.RootRef{}, err
 	}
 	return execroot.RootRef{
-		RootID: execID,
-		RootRN: seqnumadapter.ConvertFromNullInt(dto.ExecRN),
+		ExecID: execID,
+		ExecRN: seqnumadapter.ConvertFromNullInt(dto.ExecRN),
 	}, nil
 }
 

@@ -19,13 +19,13 @@ type DecSpec struct {
 type DecRec struct {
 	TermQN    uniqsym.ADT
 	TermID    identity.ADT
-	DescRef   descroot.SemRef
+	DescRef   descroot.RootRef
 	LiabVar   termvar.VarRec
 	AssetVars []termvar.VarRec
 }
 
 type API interface {
-	Create(context.Context, DecSpec) (identity.ADT, descroot.SemRef, error)
+	Create(context.Context, DecSpec) (identity.ADT, descroot.RootRef, error)
 }
 
 type Repo interface {

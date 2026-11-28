@@ -16,8 +16,8 @@ func DataFromStepRec(r connact.ActRec) ActRec {
 		return ActRec{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
-			ExecID: rootRef.RootID,
-			ExecRN: rootRef.RootRN,
+			ExecID: rootRef.ExecID,
+			ExecRN: rootRef.ExecRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
 			K:      PubKind,
 			Exp:    execeval.DataFromExpRec(rec.ValExp),
@@ -27,8 +27,8 @@ func DataFromStepRec(r connact.ActRec) ActRec {
 		return ActRec{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
-			ExecID: rootRef.RootID,
-			ExecRN: rootRef.RootRN,
+			ExecID: rootRef.ExecID,
+			ExecRN: rootRef.ExecRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
 			K:      SubKind,
 			Exp:    execeval.DataFromExpRec(rec.ContExp),

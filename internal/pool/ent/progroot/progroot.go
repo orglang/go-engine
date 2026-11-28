@@ -14,7 +14,7 @@ const (
 	// FieldProgRn holds the string denoting the prog_rn field in the database.
 	FieldProgRn = "prog_rn"
 	// Table holds the table name of the progroot in the database.
-	Table = "pool_desc_roots"
+	Table = "pool_prog_roots"
 )
 
 // Columns holds all SQL columns for progroot fields.

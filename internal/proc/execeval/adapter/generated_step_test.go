@@ -25,16 +25,16 @@ func TestGeneratedStepToCoreMapsNestedProcessExpression(t *testing.T) {
 		t.Fatalf("build generated wait expression: %v", err)
 	}
 
-	spec, err := generatedStepToCore(testExecutionID, webapi.ProcStepSpec{ProcExpr: waitExpr})
+	spec, err := generatedStepToCore(testExecutionID, webapi.ProcStepSpec{ProcExprr: waitExpr})
 	if err != nil {
 		t.Fatalf("convert generated step: %v", err)
 	}
 	if got := identity.ConvertToString(spec.RootRef.ExecID); got != testExecutionID {
 		t.Errorf("unexpected execution root id: got %q", got)
 	}
-	wait, ok := spec.ProcExp.(commact.WaitSpec)
+	wait, ok := spec.ProcExpr.(commact.WaitSpec)
 	if !ok {
-		t.Fatalf("expected core wait expression, got %T", spec.ProcExp)
+		t.Fatalf("expected core wait expression, got %T", spec.ProcExpr)
 	}
 	if got := symbol.ConvertToString(wait.ContChnlPH); got != "wait-channel" {
 		t.Errorf("unexpected wait channel: got %q", got)
@@ -59,13 +59,13 @@ func TestGeneratedStepToCoreMapsLinkExpression(t *testing.T) {
 		t.Fatalf("build generated link expression: %v", err)
 	}
 
-	spec, err := generatedStepToCore(testExecutionID, webapi.ProcStepSpec{ProcExpr: linkExpr})
+	spec, err := generatedStepToCore(testExecutionID, webapi.ProcStepSpec{ProcExprr: linkExpr})
 	if err != nil {
 		t.Fatalf("convert generated link expression: %v", err)
 	}
-	link, ok := spec.ProcExp.(commact.LinkSpec)
+	link, ok := spec.ProcExpr.(commact.LinkSpec)
 	if !ok {
-		t.Fatalf("expected core link expression, got %T", spec.ProcExp)
+		t.Fatalf("expected core link expression, got %T", spec.ProcExpr)
 	}
 	if got := identity.ConvertToString(link.X); got != testExecutionID {
 		t.Errorf("unexpected linked identity: got %q", got)
@@ -80,7 +80,7 @@ func TestGeneratedStepToCoreRejectsInvalidExecutionID(t *testing.T) {
 	if err := closeExpr.FromProcTermCloseSpec(webapi.ProcTermCloseSpec{CommPh: "close-channel"}); err != nil {
 		t.Fatalf("build generated close expression: %v", err)
 	}
-	if _, err := generatedStepToCore("not-an-xid", webapi.ProcStepSpec{ProcExpr: closeExpr}); err == nil {
+	if _, err := generatedStepToCore("not-an-xid", webapi.ProcStepSpec{ProcExprr: closeExpr}); err == nil {
 		t.Fatal("expected invalid execution id to be rejected")
 	}
 }

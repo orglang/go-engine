@@ -4,7 +4,7 @@
 package adapter
 
 import (
-	comproot "orglang/go-engine/internal/adt/comproot"
+	execroot "orglang/go-engine/internal/adt/execroot"
 	identity "orglang/go-engine/internal/adt/identity"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
 	core "orglang/go-engine/internal/pool/connact/core"
@@ -12,16 +12,6 @@ import (
 )
 
 func init() {
-	DataToCompRef = func(source ActRec) (comproot.SemRef, error) {
-		var comprootSemRef comproot.SemRef
-		identityADT, err := identity.ConvertFromString(source.ExecID)
-		if err != nil {
-			return comprootSemRef, err
-		}
-		comprootSemRef.CompID = identityADT
-		comprootSemRef.CompRN = seqnum.ConvertFromInt(source.ExecRN)
-		return comprootSemRef, nil
-	}
 	DataToPubRec = func(source ActRec) (core.PubRec, error) {
 		var corePubRec core.PubRec
 		identityADT, err := identity.ConvertFromString(source.ConnID)
@@ -30,11 +20,11 @@ func init() {
 		}
 		corePubRec.ConnID = identityADT
 		corePubRec.ActNr = seqnum.ConvertFromInt(source.ActNr)
-		comprootSemRef, err := DataToCompRef(source)
+		execrootRootRef, err := DataToRootRef(source)
 		if err != nil {
 			return corePubRec, err
 		}
-		corePubRec.CompRef = comprootSemRef
+		corePubRec.RootRef = execrootRootRef
 		identityADT2, err := identity.ConvertFromString(source.ChnlID)
 		if err != nil {
 			return corePubRec, err
@@ -47,6 +37,16 @@ func init() {
 		corePubRec.ValExp = coreExpRec
 		return corePubRec, nil
 	}
+	DataToRootRef = func(source ActRec) (execroot.RootRef, error) {
+		var execrootRootRef execroot.RootRef
+		identityADT, err := identity.ConvertFromString(source.ExecID)
+		if err != nil {
+			return execrootRootRef, err
+		}
+		execrootRootRef.ExecID = identityADT
+		execrootRootRef.ExecRN = seqnum.ConvertFromInt(source.ExecRN)
+		return execrootRootRef, nil
+	}
 	DataToSubRec = func(source ActRec) (core.SubRec, error) {
 		var coreSubRec core.SubRec
 		identityADT, err := identity.ConvertFromString(source.ConnID)
@@ -55,11 +55,11 @@ func init() {
 		}
 		coreSubRec.ConnID = identityADT
 		coreSubRec.ActNr = seqnum.ConvertFromInt(source.ActNr)
-		comprootSemRef, err := DataToCompRef(source)
+		execrootRootRef, err := DataToRootRef(source)
 		if err != nil {
 			return coreSubRec, err
 		}
-		coreSubRec.CompRef = comprootSemRef
+		coreSubRec.RootRef = execrootRootRef
 		identityADT2, err := identity.ConvertFromString(source.ChnlID)
 		if err != nil {
 			return coreSubRec, err

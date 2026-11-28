@@ -10,7 +10,7 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/identity/adapter:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/internal/adt/seqnum/adapter:Convert.*
-// goverter:extend orglang/go-engine/internal/adt/comproot/adapter:Data.*
+// goverter:extend orglang/go-engine/internal/adt/execroot/adapter:Data.*
 // goverter:extend orglang/go-engine/internal/pool/connact/adapter:Data.*
 var (
 	// goverter:map ConnID | identityToString

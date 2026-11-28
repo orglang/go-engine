@@ -42,18 +42,18 @@ func (c *generatedAPI) createPoolDeclaration(spec api.PoolDecSpec) (api.AnyTermR
 	return api.AnyTermRef{}, errors.New("create pool declaration: empty response")
 }
 
-func (c *generatedAPI) createPoolExecution(spec api.AnyEvalSpec) (api.AnyCompRef, error) {
+func (c *generatedAPI) createPoolExecution(spec api.AnyEvalSpec) (api.AnyRootRef, error) {
 	r, err := c.client.CreatePoolExecutionWithResponse(context.Background(), spec)
 	if err != nil {
-		return api.AnyCompRef{}, err
+		return api.AnyRootRef{}, err
 	}
 	if err := responseError(r.StatusCode(), r.GetBody()); err != nil {
-		return api.AnyCompRef{}, err
+		return api.AnyRootRef{}, err
 	}
 	if ref := r.GetJSON201(); ref != nil {
 		return *ref, nil
 	}
-	return api.AnyCompRef{}, errors.New("create pool execution: empty response")
+	return api.AnyRootRef{}, errors.New("create pool execution: empty response")
 }
 
 func (c *generatedAPI) stepPoolExecution(spec api.PoolStepSpec) error {

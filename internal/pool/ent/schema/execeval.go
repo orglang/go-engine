@@ -6,10 +6,10 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
 
-	"orglang/go-engine/internal/adt/comproot/adapter/entschema"
+	"orglang/go-engine/internal/adt/execroot/adapter/entschema"
 )
 
-// ExecEval describes a persisted pool computation execution.
+// ExecEval describes a persisted pool execution.
 type ExecEval struct {
 	ent.Schema
 }
@@ -17,7 +17,7 @@ type ExecEval struct {
 // Mixin of the ExecEval.
 func (ExecEval) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		entschema.CompRootMixin{},
+		entschema.ExecRootMixin{},
 	}
 }
 

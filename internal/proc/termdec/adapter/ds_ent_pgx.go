@@ -206,7 +206,7 @@ func dataToTermDecRec(dto DecRec) (termdec.DecRec, error) {
 	if err != nil {
 		return termdec.DecRec{}, err
 	}
-	rec := termdec.DecRec{TermID: termID, DescRef: descroot.SemRef{DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)}}
+	rec := termdec.DecRec{TermID: termID, DescRef: descroot.RootRef{DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)}}
 	rec.LiabVar, err = termvaradapter.DataToVarRec(dto.LiabVar)
 	if err != nil {
 		return termdec.DecRec{}, err
@@ -232,7 +232,7 @@ func dataToTermDecSnap(dto DecSnap) (termdec.DecSnap, error) {
 	if err != nil {
 		return termdec.DecSnap{}, err
 	}
-	snap := termdec.DecSnap{TermID: termID, DescRef: descroot.SemRef{DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)}}
+	snap := termdec.DecSnap{TermID: termID, DescRef: descroot.RootRef{DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)}}
 	snap.LiabVar, err = termvaradapter.DataToVarRec(dto.LiabVar)
 	if err != nil {
 		return termdec.DecSnap{}, err

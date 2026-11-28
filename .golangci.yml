@@ -37,22 +37,22 @@ linters:
           deny:
             - {pkg: orglang/go-engine/internal/lib/db/adapter, desc: &adapterBoundary "Core/domain code must depend on a port, not an adapter."}
             - {pkg: orglang/go-engine/internal/prog/adapter, desc: *adapterBoundary}
-            - {pkg: orglang/go-engine/internal/proc/compstep/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/proc/execstep/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc/execconn/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc/connact/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc/execeval/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc/termdef/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc/typedef/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc/typeexp/adapter, desc: *adapterBoundary}
-            - {pkg: orglang/go-engine/internal/pool/compstep/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/pool/execstep/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/execconn/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/connact/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/execeval/adapter, desc: *adapterBoundary}
-            - {pkg: orglang/go-engine/internal/pool/compvar/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/pool/execvar/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/termdef/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/typedef/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/typeexp/adapter, desc: *adapterBoundary}
-            - {pkg: orglang/go-engine/internal/adt/comproot/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/adt/execroot/adapter, desc: *adapterBoundary}
             - {pkg: github.com/jackc/pgx, desc: "Use lib/tx contracts; keep pgx in infrastructure adapters."}
         ProcCore:
           list-mode: lax
@@ -82,7 +82,7 @@ linters:
             - "**/adt/*/domain/**/*.go"
             - "!**/*_test.go"
           deny:
-            - {pkg: orglang/go-engine/internal/adt/comproot/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/adt/execroot/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc, desc: "Part is the generic participant abstraction; it must not depend on the process aggregate."}
             - {pkg: orglang/go-engine/internal/pool, desc: "Part is the generic participant abstraction; it must not depend on the pool aggregate."}
             - {pkg: orglang/go-engine/internal/prog, desc: "Part is the generic participant abstraction; it must not depend on the application composition root."}

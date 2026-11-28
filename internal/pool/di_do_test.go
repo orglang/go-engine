@@ -8,10 +8,10 @@ import (
 
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
-	compvar "orglang/go-engine/internal/pool/compvar/core"
 	execconn "orglang/go-engine/internal/pool/execconn/core"
 	execevaladapter "orglang/go-engine/internal/pool/execeval/adapter"
 	execeval "orglang/go-engine/internal/pool/execeval/core"
+	execvar "orglang/go-engine/internal/pool/execvar/core"
 	termdecadapter "orglang/go-engine/internal/pool/termdec/adapter"
 	termdec "orglang/go-engine/internal/pool/termdec/core"
 	termdefadapter "orglang/go-engine/internal/pool/termdef/adapter"
@@ -43,7 +43,7 @@ func TestPackageProvidesPersistencePortsAndDefinitionServices(t *testing.T) {
 			return err
 		}},
 		{"pool component-variable repository", func() error {
-			_, err := do.Invoke[compvar.Repo](injector)
+			_, err := do.Invoke[execvar.Repo](injector)
 			return err
 		}},
 		{"pool computation-execution repository", func() error {

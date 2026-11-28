@@ -6,26 +6,26 @@ import (
 
 	"github.com/labstack/echo/v5"
 
-	"orglang/go-engine/internal/adt/comproot"
+	"orglang/go-engine/internal/adt/execroot"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
 	webapi "orglang/go-engine/internal/app/web/api"
-	compstepcore "orglang/go-engine/internal/proc/compstep/core"
 	connact "orglang/go-engine/internal/proc/connact/core"
+	execstepcore "orglang/go-engine/internal/proc/execstep/core"
 )
 
-func generatedStepToCore(id string, dto webapi.ProcStepSpec) (compstepcore.StepSpec, error) {
-	compID, err := identity.ConvertFromString(id)
+func generatedStepToCore(id string, dto webapi.ProcStepSpec) (execstepcore.StepSpec, error) {
+	rootID, err := identity.ConvertFromString(id)
 	if err != nil {
-		return compstepcore.StepSpec{}, fmt.Errorf("convert process execution id: %w", err)
+		return execstepcore.StepSpec{}, fmt.Errorf("convert process execution id: %w", err)
 	}
 	expr, err := generatedProcessExpressionToCore(dto.ProcExpr)
 	if err != nil {
-		return compstepcore.StepSpec{}, err
+		return execstepcore.StepSpec{}, err
 	}
-	return compstepcore.StepSpec{
-		CompRef: comproot.SemRef{CompID: compID},
+	return execstepcore.StepSpec{
+		RootRef: execroot.RootRef{ExecID: rootID},
 		ProcExp: expr,
 	}, nil
 }

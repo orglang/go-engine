@@ -25,7 +25,7 @@ func NewService(termDecRepo Repo, descRootRepo descroot.Repo, typeDefRepo typede
 	return &service{termDecRepo: termDecRepo, descRootRepo: descRootRepo, typeDefRepo: typeDefRepo, transactor: transactor, log: log}
 }
 
-func (s *service) Incept(ctx context.Context, termQN uniqsym.ADT) (_ identity.ADT, _ descroot.SemRef, err error) {
+func (s *service) Incept(ctx context.Context, termQN uniqsym.ADT) (_ identity.ADT, _ descroot.RootRef, err error) {
 	qnAttr := slog.Any("qn", termQN)
 	s.log.Debug("inception started", qnAttr)
 	termID, newRoot := identity.New(), descroot.New()
@@ -38,7 +38,7 @@ func (s *service) Incept(ctx context.Context, termQN uniqsym.ADT) (_ identity.AD
 	})
 	if err != nil {
 		s.log.Error("inception failed", qnAttr)
-		return identity.ADT{}, descroot.SemRef{}, err
+		return identity.ADT{}, descroot.RootRef{}, err
 	}
 	s.log.Debug("inception succeed", qnAttr, slog.Any("termID", termID), slog.Any("descRef", newRoot))
 	return termID, newRoot, nil
@@ -65,7 +65,7 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ DecSnap, err erro
 		newAssetVars = append(newAssetVars, termvar.VarRec{TypeID: typeDef.TypeID, ChnlPH: assetVar.ChnlPH, ExpCK: typeDef.ExpCK})
 	}
 	expectedRoot := providerDef.DescRef
-	newRoot := descroot.SemRef{DescID: expectedRoot.DescID, DescRN: seqnum.Next(expectedRoot.DescRN)}
+	newRoot := descroot.RootRef{DescID: expectedRoot.DescID, DescRN: seqnum.Next(expectedRoot.DescRN)}
 	termID := identity.New()
 	newDec := DecRec{TermID: termID, DescRef: newRoot, TermQN: spec.TermQN, LiabVar: newLiabVar, AssetVars: newAssetVars}
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {

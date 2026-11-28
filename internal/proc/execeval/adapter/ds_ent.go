@@ -9,9 +9,9 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/internal/adt/comproot"
-	"orglang/go-engine/internal/adt/compvar"
-	compvaradapter "orglang/go-engine/internal/adt/compvar/adapter"
+	"orglang/go-engine/internal/adt/execroot"
+	"orglang/go-engine/internal/adt/execvar"
+	execvaradapter "orglang/go-engine/internal/adt/execvar/adapter"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/lf"
@@ -38,10 +38,10 @@ func newDaoEnt(client *ent.Client, log *slog.Logger) *daoEnt {
 
 func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec execeval.EvalRec) error {
 	dto := DataFromEvalRec(rec)
-	refAttr := slog.Any("ref", rec.CompRef)
+	refAttr := slog.Any("ref", rec.RootRef)
 	_, err := dao.client.ExecEval.Create().
-		SetID(dto.CompID).
-		SetCompRn(dto.CompRN).
+		SetID(dto.ExecID).
+		SetExecRn(dto.ExecRN).
 		SetLiabMode(dto.LiabMode).
 		Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
@@ -52,32 +52,32 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec execeval.EvalRe
 	return nil
 }
 
-func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref comproot.SemRef) (execeval.EvalSnap, error) {
+func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref execroot.RootRef) (execeval.EvalSnap, error) {
 	refAttr := slog.Any("ref", ref)
-	chnlRows, err := conn.Pgx.Query(ctx, selectChnls, ref.CompID.String())
+	chnlRows, err := conn.Pgx.Query(ctx, selectChnls, ref.ExecID.String())
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)
 		return execeval.EvalSnap{}, err
 	}
 	defer chnlRows.Close()
-	chnlDtos, err := pgx.CollectRows(chnlRows, pgx.RowToStructByName[compvaradapter.VarRec])
+	chnlDtos, err := pgx.CollectRows(chnlRows, pgx.RowToStructByName[execvaradapter.VarRec])
 	if err != nil {
 		dao.log.Error("row scanning failed", refAttr, slog.Any("t", reflect.TypeOf(chnlDtos)))
 		return execeval.EvalSnap{}, err
 	}
-	chnls, err := compvaradapter.DataToLinearRecs(chnlDtos)
+	chnls, err := execvaradapter.DataToLinearRecs(chnlDtos)
 	if err != nil {
 		dao.log.Error("model conversion failed", refAttr)
 		return execeval.EvalSnap{}, err
 	}
 	dao.log.Debug("snap selection succeed", refAttr)
 	return execeval.EvalSnap{
-		LinearVars: compvar.IndexBy(execeval.ChnlPH, chnls),
+		LinearVars: execvar.IndexBy(execeval.ChnlPH, chnls),
 	}, nil
 }
 
 func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execeval.EvalMod) (err error) {
-	if len(mod.CompRefs) == 0 {
+	if len(mod.ExecRefs) == 0 {
 		panic("empty locks")
 	}
 	dto, err := DataFromMod(mod)
@@ -89,7 +89,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execeval.Eva
 	bindReq := pgx.Batch{}
 	for _, dto := range dto.LinearVars {
 		args := pgx.NamedArgs{
-			"impl_id":  dto.CompID,
+			"impl_id":  dto.ExecID,
 			"chnl_ph":  dto.ChnlPH,
 			"chnl_id":  dto.ChnlID,
 			"state_id": dto.ExpCK,
@@ -113,10 +113,10 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execeval.Eva
 	}
 	// execs
 	execReq := pgx.Batch{}
-	for _, dto := range dto.CompRefs {
+	for _, dto := range dto.ExecRefs {
 		args := pgx.NamedArgs{
-			"exec_id": dto.CompID,
-			"exec_rn": dto.CompRN,
+			"exec_id": dto.ExecID,
+			"exec_rn": dto.ExecRN,
 		}
 		execReq.Queue(updateExec, args)
 	}
@@ -124,7 +124,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execeval.Eva
 	defer func() {
 		err = errors.Join(err, execRes.Close())
 	}()
-	for _, dto := range dto.CompRefs {
+	for _, dto := range dto.ExecRefs {
 		ct, execErr := execRes.Exec()
 		if execErr != nil {
 			dao.log.Error("execution failed", slog.Any("dto", dto))
@@ -132,7 +132,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execeval.Eva
 		}
 		if ct.RowsAffected() == 0 {
 			dao.log.Error("update failed", slog.Any("dto", dto))
-			return errOptimisticUpdate(seqnum.ADT(dto.CompRN))
+			return errOptimisticUpdate(seqnum.ADT(dto.ExecRN))
 		}
 	}
 	dao.log.Debug("update succeed")

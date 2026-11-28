@@ -7,8 +7,8 @@ import (
 
 	"github.com/gammazero/workerpool"
 
-	compstep "orglang/go-engine/internal/pool/compstep/core"
 	execeval "orglang/go-engine/internal/pool/execeval/core"
+	execstep "orglang/go-engine/internal/pool/execstep/core"
 )
 
 type workerPoolBroker struct {
@@ -37,14 +37,14 @@ func (b *workerPoolBroker) Subscribe(api execeval.API) {
 }
 
 // SendSpec starts work owned by the worker pool, not by the originating HTTP request.
-func (b *workerPoolBroker) SendSpec(spec compstep.StepSpec) error {
+func (b *workerPoolBroker) SendSpec(spec execstep.StepSpec) error {
 	b.pool.Submit(func() {
 		apiErr := b.api.Take(b.taskCtx, spec)
 		if apiErr != nil {
-			b.log.Error("consumption failed", slog.Any("ref", spec.CompRef), slog.Any("reason", apiErr))
+			b.log.Error("consumption failed", slog.Any("ref", spec.RootRef), slog.Any("reason", apiErr))
 			return
 		}
-		b.log.Debug("consumption succeed", slog.Any("ref", spec.CompRef))
+		b.log.Debug("consumption succeed", slog.Any("ref", spec.RootRef))
 	})
 	return nil
 }

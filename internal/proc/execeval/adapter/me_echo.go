@@ -6,7 +6,7 @@ import (
 
 	"github.com/labstack/echo/v5"
 
-	"orglang/go-engine/internal/adt/comproot"
+	"orglang/go-engine/internal/adt/execroot"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	webapi "orglang/go-engine/internal/app/web/api"
@@ -33,14 +33,14 @@ func newControllerEcho(a execeval.API, l *slog.Logger) *controllerEcho {
 }
 
 func (h *controllerEcho) GetProcessExecution(c *echo.Context, id string, params webapi.GetProcessExecutionParams) error {
-	compID, err := identity.ConvertFromString(id)
+	rootID, err := identity.ConvertFromString(id)
 	if err != nil {
 		h.log.Error("conversion failed", slog.Any("id", id), slog.Any("err", err))
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	ref := comproot.SemRef{CompID: compID}
+	ref := execroot.RootRef{ExecID: rootID}
 	if params.Rn != nil {
-		ref.CompRN = seqnum.ConvertFromInt(*params.Rn)
+		ref.ExecRN = seqnum.ConvertFromInt(*params.Rn)
 	}
 	snap, err := h.api.RetrieveSnap(ref)
 	if err != nil {

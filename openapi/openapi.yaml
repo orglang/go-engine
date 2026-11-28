@@ -33,7 +33,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Any.CompRef'
+                $ref: '#/components/schemas/Any.RootRef'
       requestBody:
         required: true
         content:
@@ -51,7 +51,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Any.CompRef'
+                $ref: '#/components/schemas/Any.RootRef'
       requestBody:
         required: true
         content:
@@ -209,7 +209,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Any.CompRef'
+                  $ref: '#/components/schemas/Any.RootRef'
   /api/v1/processes/declarations:
     post:
       operationId: createProcessDeclaration
@@ -275,7 +275,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Proc.CompSnap'
+                $ref: '#/components/schemas/Proc.ExecSnap'
   /api/v1/processes/executions/{id}/steps:
     post:
       operationId: stepProcessExecution
@@ -432,7 +432,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Any.CompRef'
+                  $ref: '#/components/schemas/Any.RootRef'
   /api/v1/programs:
     post:
       operationId: createProgram
@@ -449,18 +449,6 @@ paths:
               type: string
 components:
   schemas:
-    Any.CompRef:
-      type: object
-      required:
-        - comp_id
-        - comp_rn
-      properties:
-        comp_id:
-          type: string
-        comp_rn:
-          type: integer
-          format: int64
-      description: Shared computation identity used by process and pool computations.
     Any.Conn.VarRec:
       type: object
       required:
@@ -510,6 +498,18 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Any.Eval.VarSpec'
+    Any.RootRef:
+      type: object
+      required:
+        - exec_id
+        - exec_rn
+      properties:
+        exec_id:
+          type: string
+        exec_rn:
+          type: integer
+          format: int64
+      description: Shared root identity used by process and pool execution aggregates.
     Any.TermRef:
       type: object
       required:
@@ -541,13 +541,6 @@ components:
           type: integer
           format: int64
       description: Shared type identity.
-    Pool.CompSnap:
-      type: object
-      required:
-        - comp_ref
-      properties:
-        comp_ref:
-          $ref: '#/components/schemas/Any.CompRef'
     Pool.DecSnap:
       type: object
       required:
@@ -573,14 +566,21 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Any.Conn.VarSpec'
+    Pool.ExecSnap:
+      type: object
+      required:
+        - root_ref
+      properties:
+        root_ref:
+          $ref: '#/components/schemas/Any.RootRef'
     Pool.StepSpec:
       type: object
       required:
-        - comp_ref
+        - root_ref
         - pool_expr
       properties:
-        comp_ref:
-          $ref: '#/components/schemas/Any.CompRef'
+        root_ref:
+          $ref: '#/components/schemas/Any.RootRef'
         pool_expr:
           $ref: '#/components/schemas/Pool.Term.ExprSpec'
     Pool.Term.AcceptSpec:
@@ -806,14 +806,14 @@ components:
       type: object
       required:
         - proc_dr
-        - proc_irs
+        - proc_exec_refs
       properties:
         proc_dr:
           $ref: '#/components/schemas/Any.TermRef'
-        proc_irs:
+        proc_exec_refs:
           type: array
           items:
-            $ref: '#/components/schemas/Any.CompRef'
+            $ref: '#/components/schemas/Any.RootRef'
     Pool.Type.DefSnap:
       type: object
       required:
@@ -924,13 +924,6 @@ components:
             type: string
         cont_expr:
           $ref: '#/components/schemas/Pool.Type.ExprSpec'
-    Proc.CompSnap:
-      type: object
-      required:
-        - comp_ref
-      properties:
-        comp_ref:
-          $ref: '#/components/schemas/Any.CompRef'
     Proc.DecSnap:
       type: object
       required:
@@ -956,6 +949,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Any.Conn.VarSpec'
+    Proc.ExecSnap:
+      type: object
+      required:
+        - root_ref
+      properties:
+        root_ref:
+          $ref: '#/components/schemas/Any.RootRef'
     Proc.StepSpec:
       type: object
       required:

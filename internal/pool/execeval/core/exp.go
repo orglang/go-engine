@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"orglang/go-engine/internal/adt/comproot"
+	"orglang/go-engine/internal/adt/execroot"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/symbol"
@@ -157,7 +157,7 @@ type SpawnSpec2 struct {
 	ProcTermID identity.ADT
 	ProcTermRN seqnum.ADT
 	// ссылки на воплощения потребляемых процессов
-	ProcCompRefs []comproot.SemRef
+	ProcExecRefs []execroot.RootRef
 }
 
 func (s SpawnSpec2) spec()    {}

@@ -2,7 +2,7 @@ package adapter
 
 import (
 	"fmt"
-	comprootadapter "orglang/go-engine/internal/adt/comproot/adapter"
+	execrootadapter "orglang/go-engine/internal/adt/execroot/adapter"
 	"orglang/go-engine/internal/adt/identity"
 	execeval "orglang/go-engine/internal/pool/execeval/adapter"
 
@@ -12,23 +12,23 @@ import (
 func DataFromStepRec(r connact.ActRec) ActRec {
 	switch rec := r.(type) {
 	case connact.PubRec:
-		compRef := comprootadapter.DataFromRef(rec.CompRef)
+		rootRef := execrootadapter.DataFromRef(rec.RootRef)
 		return ActRec{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
-			ExecID: compRef.CompID,
-			ExecRN: compRef.CompRN,
+			ExecID: rootRef.ExecID,
+			ExecRN: rootRef.ExecRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
 			K:      PubKind,
 			Exp:    execeval.DataFromExpRec(rec.ValExp),
 		}
 	case connact.SubRec:
-		compRef := comprootadapter.DataFromRef(rec.CompRef)
+		rootRef := execrootadapter.DataFromRef(rec.RootRef)
 		return ActRec{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
-			ExecID: compRef.CompID,
-			ExecRN: compRef.CompRN,
+			ExecID: rootRef.ExecID,
+			ExecRN: rootRef.ExecRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
 			K:      SubKind,
 			Exp:    execeval.DataFromExpRec(rec.ContExp),

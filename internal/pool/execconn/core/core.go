@@ -3,7 +3,7 @@ package core
 import (
 	"fmt"
 
-	"orglang/go-engine/internal/adt/comproot"
+	"orglang/go-engine/internal/adt/execroot"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/option"
 	"orglang/go-engine/internal/adt/seqnum"
@@ -13,8 +13,8 @@ import (
 
 type ConnRec struct {
 	ConnID          identity.ADT
-	ProviderExecRef comproot.SemRef
-	ClientExecRef   comproot.SemRef
+	ProviderRootRef execroot.RootRef
+	ClientRootRef   execroot.RootRef
 	OffsetNr        seqnum.ADT
 	ActNr           seqnum.ADT
 }

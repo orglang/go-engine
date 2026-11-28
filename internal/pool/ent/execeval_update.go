@@ -27,24 +27,24 @@ func (_u *ExecEvalUpdate) Where(ps ...predicate.ExecEval) *ExecEvalUpdate {
 	return _u
 }
 
-// SetCompRn sets the "comp_rn" field.
-func (_u *ExecEvalUpdate) SetCompRn(v int64) *ExecEvalUpdate {
-	_u.mutation.ResetCompRn()
-	_u.mutation.SetCompRn(v)
+// SetExecRn sets the "exec_rn" field.
+func (_u *ExecEvalUpdate) SetExecRn(v int64) *ExecEvalUpdate {
+	_u.mutation.ResetExecRn()
+	_u.mutation.SetExecRn(v)
 	return _u
 }
 
-// SetNillableCompRn sets the "comp_rn" field if the given value is not nil.
-func (_u *ExecEvalUpdate) SetNillableCompRn(v *int64) *ExecEvalUpdate {
+// SetNillableExecRn sets the "exec_rn" field if the given value is not nil.
+func (_u *ExecEvalUpdate) SetNillableExecRn(v *int64) *ExecEvalUpdate {
 	if v != nil {
-		_u.SetCompRn(*v)
+		_u.SetExecRn(*v)
 	}
 	return _u
 }
 
-// AddCompRn adds value to the "comp_rn" field.
-func (_u *ExecEvalUpdate) AddCompRn(v int64) *ExecEvalUpdate {
-	_u.mutation.AddCompRn(v)
+// AddExecRn adds value to the "exec_rn" field.
+func (_u *ExecEvalUpdate) AddExecRn(v int64) *ExecEvalUpdate {
+	_u.mutation.AddExecRn(v)
 	return _u
 }
 
@@ -110,11 +110,11 @@ func (_u *ExecEvalUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			}
 		}
 	}
-	if value, ok := _u.mutation.CompRn(); ok {
-		_spec.SetField(execeval.FieldCompRn, field.TypeInt64, value)
+	if value, ok := _u.mutation.ExecRn(); ok {
+		_spec.SetField(execeval.FieldExecRn, field.TypeInt64, value)
 	}
-	if value, ok := _u.mutation.AddedCompRn(); ok {
-		_spec.AddField(execeval.FieldCompRn, field.TypeInt64, value)
+	if value, ok := _u.mutation.AddedExecRn(); ok {
+		_spec.AddField(execeval.FieldExecRn, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.LiabMode(); ok {
 		_spec.SetField(execeval.FieldLiabMode, field.TypeInt16, value)
@@ -142,24 +142,24 @@ type ExecEvalUpdateOne struct {
 	mutation *ExecEvalMutation
 }
 
-// SetCompRn sets the "comp_rn" field.
-func (_u *ExecEvalUpdateOne) SetCompRn(v int64) *ExecEvalUpdateOne {
-	_u.mutation.ResetCompRn()
-	_u.mutation.SetCompRn(v)
+// SetExecRn sets the "exec_rn" field.
+func (_u *ExecEvalUpdateOne) SetExecRn(v int64) *ExecEvalUpdateOne {
+	_u.mutation.ResetExecRn()
+	_u.mutation.SetExecRn(v)
 	return _u
 }
 
-// SetNillableCompRn sets the "comp_rn" field if the given value is not nil.
-func (_u *ExecEvalUpdateOne) SetNillableCompRn(v *int64) *ExecEvalUpdateOne {
+// SetNillableExecRn sets the "exec_rn" field if the given value is not nil.
+func (_u *ExecEvalUpdateOne) SetNillableExecRn(v *int64) *ExecEvalUpdateOne {
 	if v != nil {
-		_u.SetCompRn(*v)
+		_u.SetExecRn(*v)
 	}
 	return _u
 }
 
-// AddCompRn adds value to the "comp_rn" field.
-func (_u *ExecEvalUpdateOne) AddCompRn(v int64) *ExecEvalUpdateOne {
-	_u.mutation.AddCompRn(v)
+// AddExecRn adds value to the "exec_rn" field.
+func (_u *ExecEvalUpdateOne) AddExecRn(v int64) *ExecEvalUpdateOne {
+	_u.mutation.AddExecRn(v)
 	return _u
 }
 
@@ -255,11 +255,11 @@ func (_u *ExecEvalUpdateOne) sqlSave(ctx context.Context) (_node *ExecEval, err 
 			}
 		}
 	}
-	if value, ok := _u.mutation.CompRn(); ok {
-		_spec.SetField(execeval.FieldCompRn, field.TypeInt64, value)
+	if value, ok := _u.mutation.ExecRn(); ok {
+		_spec.SetField(execeval.FieldExecRn, field.TypeInt64, value)
 	}
-	if value, ok := _u.mutation.AddedCompRn(); ok {
-		_spec.AddField(execeval.FieldCompRn, field.TypeInt64, value)
+	if value, ok := _u.mutation.AddedExecRn(); ok {
+		_spec.AddField(execeval.FieldExecRn, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.LiabMode(); ok {
 		_spec.SetField(execeval.FieldLiabMode, field.TypeInt16, value)

@@ -7,8 +7,8 @@ import (
 
 	"github.com/alitto/pond/v2"
 
-	compstep "orglang/go-engine/internal/pool/compstep/core"
 	execeval "orglang/go-engine/internal/pool/execeval/core"
+	execstep "orglang/go-engine/internal/pool/execstep/core"
 )
 
 type pondBroker struct {
@@ -37,13 +37,13 @@ func (b *pondBroker) Subscribe(api execeval.API) {
 }
 
 // SendSpec starts work owned by the worker pool, not by the originating HTTP request.
-func (b *pondBroker) SendSpec(spec compstep.StepSpec) error {
+func (b *pondBroker) SendSpec(spec execstep.StepSpec) error {
 	return b.pool.Go(func() {
 		apiErr := b.api.Take(b.taskCtx, spec)
 		if apiErr != nil {
-			b.log.Error("consumption failed", slog.Any("ref", spec.CompRef), slog.Any("reason", apiErr))
+			b.log.Error("consumption failed", slog.Any("ref", spec.RootRef), slog.Any("reason", apiErr))
 			return
 		}
-		b.log.Debug("consumption succeed", slog.Any("ref", spec.CompRef))
+		b.log.Debug("consumption succeed", slog.Any("ref", spec.RootRef))
 	})
 }

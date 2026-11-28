@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	"orglang/go-engine/internal/adt/comproot"
+	"orglang/go-engine/internal/adt/execroot"
 
 	connact "orglang/go-engine/internal/pool/connact/core"
 )
@@ -12,13 +12,13 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/internal/pool/execeval/adapter:Data.*
 var (
-	// goverter:map ExecID CompID
-	// goverter:map ExecRN CompRN
-	DataToCompRef func(ActRec) (comproot.SemRef, error)
-	// goverter:map . CompRef
+	// goverter:map ExecID ExecID
+	// goverter:map ExecRN ExecRN
+	DataToRootRef func(ActRec) (execroot.RootRef, error)
+	// goverter:map . RootRef
 	// goverter:map Exp ValExp
 	DataToPubRec func(ActRec) (connact.PubRec, error)
-	// goverter:map . CompRef
+	// goverter:map . RootRef
 	// goverter:map Exp ContExp
 	DataToSubRec func(ActRec) (connact.SubRec, error)
 )

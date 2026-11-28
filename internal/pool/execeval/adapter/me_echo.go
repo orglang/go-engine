@@ -10,15 +10,15 @@ import (
 
 	"github.com/labstack/echo/v5"
 
-	"orglang/go-engine/internal/adt/comproot"
+	"orglang/go-engine/internal/adt/execroot"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/symbol"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/app/web/api"
-	compstep "orglang/go-engine/internal/pool/compstep/core"
-	compvar "orglang/go-engine/internal/pool/compvar/core"
 	execeval "orglang/go-engine/internal/pool/execeval/core"
+	execstep "orglang/go-engine/internal/pool/execstep/core"
+	execvar "orglang/go-engine/internal/pool/execvar/core"
 )
 
 // Controller is the inbound HTTP port implemented by the Echo adapter.
@@ -39,7 +39,7 @@ func newControllerEcho(evalAPI execeval.API, log *slog.Logger) *controllerEcho {
 	return &controllerEcho{evalAPI, log.With(name)}
 }
 
-// RegisterRoutes attaches the pool computation-execution HTTP endpoints to an
+// RegisterRoutes attaches the pool execution HTTP endpoints to an
 // Echo server. Controller construction is owned by the application container.
 func RegisterRoutes(server *echo.Echo, controller Controller) error {
 	server.POST("/api/v1/pools/executions", controller.PostSpec)
@@ -63,7 +63,7 @@ func (c *controllerEcho) PostSpec(ctx *echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return ctx.JSON(http.StatusCreated, compRefToAPI(ref))
+	return ctx.JSON(http.StatusCreated, rootRefToAPI(ref))
 }
 
 func poolExecSpecToCore(dto api.AnyEvalSpec) (execeval.EvalSpec, error) {
@@ -75,7 +75,7 @@ func poolExecSpecToCore(dto api.AnyEvalSpec) (execeval.EvalSpec, error) {
 	if err != nil {
 		return execeval.EvalSpec{}, err
 	}
-	assetVars := make([]compvar.VarSpec, len(dto.AssetVars))
+	assetVars := make([]execvar.VarSpec, len(dto.AssetVars))
 	for i, assetVar := range dto.AssetVars {
 		assetVars[i], err = poolExecVarToCore(assetVar)
 		if err != nil {
@@ -85,19 +85,19 @@ func poolExecSpecToCore(dto api.AnyEvalSpec) (execeval.EvalSpec, error) {
 	return execeval.EvalSpec{TermQN: termQN, LiabVar: liabVar, AssetVars: assetVars}, nil
 }
 
-func poolExecVarToCore(dto api.AnyEvalVarSpec) (compvar.VarSpec, error) {
+func poolExecVarToCore(dto api.AnyEvalVarSpec) (execvar.VarSpec, error) {
 	if dto.ConnPh == "" {
-		return compvar.VarSpec{}, errors.New("conn_ph cannot be blank")
+		return execvar.VarSpec{}, errors.New("conn_ph cannot be blank")
 	}
 	connPH, err := symbol.ConvertFromString(dto.ConnPh)
 	if err != nil {
-		return compvar.VarSpec{}, err
+		return execvar.VarSpec{}, err
 	}
 	termQN, err := uniqsym.ConvertFromString(dto.TermQn)
 	if err != nil {
-		return compvar.VarSpec{}, err
+		return execvar.VarSpec{}, err
 	}
-	return compvar.VarSpec{ChnlPH: connPH, TermQN: termQN}, nil
+	return execvar.VarSpec{ChnlPH: connPH, TermQN: termQN}, nil
 }
 
 func (c *controllerEcho) PostSpec2(ctx *echo.Context) error {
@@ -132,33 +132,33 @@ func (c *controllerEcho) PostSpec3(ctx *echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return ctx.JSON(http.StatusCreated, compRefToAPI(ref))
+	return ctx.JSON(http.StatusCreated, rootRefToAPI(ref))
 }
 
-func poolStepSpecToCore(dto api.PoolStepSpec) (compstep.StepSpec, error) {
-	ref, err := compRefFromAPI(dto.CompRef)
+func poolStepSpecToCore(dto api.PoolStepSpec) (execstep.StepSpec, error) {
+	ref, err := rootRefFromAPI(dto.RootRef)
 	if err != nil {
-		return compstep.StepSpec{}, err
+		return execstep.StepSpec{}, err
 	}
 	exp, err := poolTermExprToCore(dto.PoolExpr)
 	if err != nil {
-		return compstep.StepSpec{}, err
+		return execstep.StepSpec{}, err
 	}
-	return compstep.StepSpec{CompRef: ref, PoolExp: exp}, nil
+	return execstep.StepSpec{RootRef: ref, PoolExp: exp}, nil
 }
 
-func compRefFromAPI(dto api.AnyCompRef) (comproot.SemRef, error) {
-	id, err := identity.ConvertFromString(dto.CompId)
+func rootRefFromAPI(dto api.AnyRootRef) (execroot.RootRef, error) {
+	id, err := identity.ConvertFromString(dto.ExecId)
 	if err != nil {
-		return comproot.SemRef{}, err
+		return execroot.RootRef{}, err
 	}
-	return comproot.SemRef{CompID: id, CompRN: seqnum.ConvertFromInt(dto.CompRn)}, nil
+	return execroot.RootRef{ExecID: id, ExecRN: seqnum.ConvertFromInt(dto.ExecRn)}, nil
 }
 
-func compRefToAPI(ref comproot.SemRef) api.AnyCompRef {
-	return api.AnyCompRef{
-		CompId: identity.ConvertToString(ref.CompID),
-		CompRn: seqnum.ConvertToInt(ref.CompRN),
+func rootRefToAPI(ref execroot.RootRef) api.AnyRootRef {
+	return api.AnyRootRef{
+		ExecId: identity.ConvertToString(ref.ExecID),
+		ExecRn: seqnum.ConvertToInt(ref.ExecRN),
 	}
 }
 
@@ -306,14 +306,14 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (execeval.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		compRefs := make([]comproot.SemRef, len(value.ProcIrs))
-		for i, item := range value.ProcIrs {
-			compRefs[i], err = compRefFromAPI(item)
+		procExecRefs := make([]execroot.RootRef, len(value.ProcExecRefs))
+		for i, item := range value.ProcExecRefs {
+			procExecRefs[i], err = rootRefFromAPI(item)
 			if err != nil {
-				return nil, fmt.Errorf("proc_irs[%d]: %w", i, err)
+				return nil, fmt.Errorf("proc_exec_refs[%d]: %w", i, err)
 			}
 		}
-		return execeval.SpawnSpec2{ProcTermID: termID, ProcTermRN: termRN, ProcCompRefs: compRefs}, nil
+		return execeval.SpawnSpec2{ProcTermID: termID, ProcTermRN: termRN, ProcExecRefs: procExecRefs}, nil
 	default:
 		return nil, fmt.Errorf("pool_expr: unsupported kind %q", discriminator.Kind)
 	}

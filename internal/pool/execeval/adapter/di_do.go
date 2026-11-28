@@ -7,18 +7,18 @@ import (
 	"github.com/alitto/pond/v2"
 	"github.com/samber/do/v2"
 
-	"orglang/go-engine/internal/adt/comproot"
+	"orglang/go-engine/internal/adt/execroot"
 	"orglang/go-engine/internal/lib/tx"
-	compvar "orglang/go-engine/internal/pool/compvar/core"
 	"orglang/go-engine/internal/pool/ent"
 	execconn "orglang/go-engine/internal/pool/execconn/core"
 	execeval "orglang/go-engine/internal/pool/execeval/core"
+	execvar "orglang/go-engine/internal/pool/execvar/core"
 	termdec "orglang/go-engine/internal/pool/termdec/core"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 	procexeceval "orglang/go-engine/internal/proc/execeval/core"
 )
 
-// Package registers the computation-execution repository, service, broker and
+// Package registers the execution repository, service, broker and
 // inbound controller. Broker subscription and route registration are explicit
 // composition steps.
 var Package = do.Package(
@@ -57,7 +57,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		varRepo, err := do.Invoke[compvar.Repo](i)
+		varRepo, err := do.Invoke[execvar.Repo](i)
 		if err != nil {
 			return nil, err
 		}
@@ -77,7 +77,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		compRepo, err := do.Invoke[comproot.Repo](i)
+		execRootRepo, err := do.Invoke[execroot.Repo](i)
 		if err != nil {
 			return nil, err
 		}
@@ -92,12 +92,12 @@ var Package = do.Package(
 		return execeval.NewService(execeval.ServiceDeps{
 			ExecEvalRepo:   evalRepo,
 			ExecEvalBroker: broker,
-			CompVarRepo:    varRepo,
+			ExecVarRepo:    varRepo,
 			ExecConnRepo:   connRepo,
 			TypeDefRepo:    typeRepo,
 			ProcEvalRepo:   procRepo,
 			TermDecRepo:    termDecRepo,
-			CompRootRepo:   compRepo,
+			ExecRootRepo:   execRootRepo,
 			Transactor:     transactor,
 			Logger:         logger,
 		}), nil
@@ -113,7 +113,7 @@ var Package = do.Package(
 		}
 		return newControllerEcho(api, logger), nil
 	}),
-	do.Lazy[comproot.Repo](func(i do.Injector) (comproot.Repo, error) {
+	do.Lazy[execroot.Repo](func(i do.Injector) (execroot.Repo, error) {
 		client, err := do.Invoke[*ent.Client](i)
 		if err != nil {
 			return nil, err
@@ -122,7 +122,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return NewCompRootDaoEnt(client, logger), nil
+		return NewExecRootDaoEnt(client, logger), nil
 	}),
 )
 

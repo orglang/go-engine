@@ -104,7 +104,7 @@ WHERE bind.desc_qn = $1
 	return termdec.DecRec{
 		TermQN:    qn,
 		TermID:    termID,
-		DescRef:   descroot.SemRef{DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)},
+		DescRef:   descroot.RootRef{DescID: descID, DescRN: seqnum.ConvertFromInt(dto.DescRN)},
 		LiabVar:   liabVar,
 		AssetVars: assetVars,
 	}, nil

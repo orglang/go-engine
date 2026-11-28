@@ -55,9 +55,9 @@ CREATE TABLE pool_exec_evals (
     liab_mode smallint
 );
 
-CREATE TABLE pool_comp_vars (
-    comp_id varchar,
-    comp_rn bigint,
+CREATE TABLE pool_exec_vars (
+    exec_id varchar,
+    exec_rn bigint,
     conn_id varchar,
     chnl_id varchar,
     chnl_ph varchar,
@@ -66,10 +66,10 @@ CREATE TABLE pool_comp_vars (
 );
 
 CREATE TABLE pool_struct_vars (
-) INHERITS (pool_comp_vars);
+) INHERITS (pool_exec_vars);
 
 CREATE TABLE pool_linear_vars (
-) INHERITS (pool_comp_vars);
+) INHERITS (pool_exec_vars);
 
 CREATE TABLE pool_exec_conns (
     conn_id varchar UNIQUE,
@@ -146,9 +146,9 @@ CREATE TABLE proc_exec_evals (
     liab_mode smallint
 );
 
-CREATE TABLE proc_comp_vars (
-    comp_id varchar,
-    comp_rn bigint,
+CREATE TABLE proc_exec_vars (
+    exec_id varchar,
+    exec_rn bigint,
     conn_id varchar,
     chnl_id varchar,
     chnl_ph varchar,
@@ -157,10 +157,10 @@ CREATE TABLE proc_comp_vars (
 );
 
 CREATE TABLE proc_struct_vars (
-) INHERITS (proc_comp_vars);
+) INHERITS (proc_exec_vars);
 
 CREATE TABLE proc_linear_vars (
-) INHERITS (proc_comp_vars);
+) INHERITS (proc_exec_vars);
 
 CREATE TABLE proc_exec_conns (
     conn_id varchar UNIQUE,

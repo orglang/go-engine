@@ -96,5 +96,5 @@ type generatedDecAPIStub struct {
 
 func (s *generatedDecAPIStub) Create(ctx context.Context, spec termdec.DecSpec) (termdec.DecSnap, error) {
 	s.called, s.spec, s.ctx = true, spec, ctx
-	return termdec.DecSnap{TermID: identity.New(), DescRef: descroot.SemRef{DescID: identity.New(), DescRN: 11}}, nil
+	return termdec.DecSnap{TermID: identity.New(), DescRef: descroot.RootRef{DescID: identity.New(), DescRN: 11}}, nil
 }

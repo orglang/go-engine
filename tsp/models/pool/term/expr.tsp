@@ -1,5 +1,5 @@
 import "../../any/term.tsp";
-import "../../any/comp.tsp";
+import "../../any/root.tsp";
 
 namespace OrgLang.Pool.Term;
 
@@ -50,5 +50,5 @@ model DetachSpec {
 }
 model SpawnSpec {
   proc_dr: Any.TermRef;
-  proc_irs: Any.CompRef[];
+  proc_exec_refs: Any.RootRef[];
 }

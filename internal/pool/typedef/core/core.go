@@ -14,7 +14,7 @@ import (
 )
 
 type API interface {
-	Create(context.Context, DefSpec) (identity.ADT, descroot.SemRef, error)
+	Create(context.Context, DefSpec) (identity.ADT, descroot.RootRef, error)
 }
 
 type DefSpec struct {
@@ -25,14 +25,14 @@ type DefSpec struct {
 type DefRec struct {
 	TypeQN  uniqsym.ADT
 	TypeID  identity.ADT
-	DescRef descroot.SemRef
+	DescRef descroot.RootRef
 	ExpCK   contkey.ADT
 	TypeExp ExpRec
 }
 
 type DefSnap struct {
 	TypeID  identity.ADT
-	DescRef descroot.SemRef
+	DescRef descroot.RootRef
 	TypeExp ExpSpec
 }
 
@@ -57,12 +57,12 @@ func NewService(
 	return &service{typeDefRepo: typeDefRepo, descRootRepo: descRootRepo, transactor: transactor, log: log}
 }
 
-func (s *service) Create(ctx context.Context, spec DefSpec) (_ identity.ADT, _ descroot.SemRef, err error) {
+func (s *service) Create(ctx context.Context, spec DefSpec) (_ identity.ADT, _ descroot.RootRef, err error) {
 	qnAttr := slog.Any("qn", spec.TypeQN)
 	s.log.Debug("creation started", qnAttr, slog.Any("spec", spec))
 	newExp, convErr := ConvertSpecToRec(spec.TypeExp)
 	if convErr != nil {
-		return identity.ADT{}, descroot.SemRef{}, convErr
+		return identity.ADT{}, descroot.RootRef{}, convErr
 	}
 	typeID := identity.New()
 	descRef := descroot.New()
@@ -75,7 +75,7 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ identity.ADT, _ d
 	})
 	if transactErr != nil {
 		s.log.Error("creation failed", qnAttr)
-		return identity.ADT{}, descroot.SemRef{}, transactErr
+		return identity.ADT{}, descroot.RootRef{}, transactErr
 	}
 	s.log.Debug("creation succeed", qnAttr, slog.Any("typeID", typeID), slog.Any("descRef", descRef))
 	return typeID, descRef, nil

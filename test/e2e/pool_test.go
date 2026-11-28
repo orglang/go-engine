@@ -46,9 +46,9 @@ func (s *suite) beforeAll(t *testing.T) {
 func (s *suite) beforeEach(t *testing.T) {
 	tables := []string{
 		"pool_desc_binds", "pool_type_defs", "pool_type_exps", "pool_desc_terms", "pool_term_exps",
-		"pool_impl_binds", "pool_exec_evals", "pool_comp_vars", "pool_exec_conns", "pool_conn_acts",
+		"pool_impl_binds", "pool_exec_evals", "pool_exec_vars", "pool_exec_conns", "pool_conn_acts",
 		"proc_desc_binds", "proc_type_defs", "proc_type_exps", "proc_desc_terms", "proc_term_exps",
-		"proc_impl_binds", "proc_exec_evals", "proc_comp_vars", "proc_exec_conns", "proc_conn_acts",
+		"proc_impl_binds", "proc_exec_evals", "proc_exec_vars", "proc_exec_conns", "proc_conn_acts",
 	}
 	for _, table := range tables {
 		if _, err := s.db.ExecContext(t.Context(), fmt.Sprintf("truncate table %v", table)); err != nil {
@@ -110,7 +110,7 @@ func (s *suite) waitClose(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	poolTermQN, poolCompQN := "pool-term-qn", "pool-comp-qn"
+	poolTermQN, poolExecQN := "pool-term-qn", "pool-exec-qn"
 	poolAssetPH, poolLiabPH := "pool-asset-ph", "pool-liab-ph"
 	_, err = s.api.createPoolDeclaration(api.PoolDecSpec{
 		DescQn:  poolTermQN,
@@ -125,9 +125,9 @@ func (s *suite) waitClose(t *testing.T) {
 
 	poolExecRef, err := s.api.createPoolExecution(api.AnyEvalSpec{
 		TermQn:  poolTermQN,
-		LiabVar: api.AnyEvalVarSpec{ConnPh: poolLiabPH, TermQn: poolCompQN},
+		LiabVar: api.AnyEvalVarSpec{ConnPh: poolLiabPH, TermQn: poolExecQN},
 		AssetVars: []api.AnyEvalVarSpec{
-			{ConnPh: poolAssetPH, TermQn: poolCompQN},
+			{ConnPh: poolAssetPH, TermQn: poolExecQN},
 		},
 	})
 	if err != nil {
@@ -135,7 +135,7 @@ func (s *suite) waitClose(t *testing.T) {
 	}
 
 	err = s.api.stepPoolExecution(api.PoolStepSpec{
-		CompRef: poolExecRef,
+		RootRef: poolExecRef,
 		PoolExpr: poolTermExpr("acquire", api.PoolTermAcquireSpec{
 			ConnPh: poolAssetPH,
 			ContExpr: poolTermExpr("hire", api.PoolTermHireSpec{
@@ -150,7 +150,7 @@ func (s *suite) waitClose(t *testing.T) {
 	}
 
 	err = s.api.stepPoolExecution(api.PoolStepSpec{
-		CompRef: poolExecRef,
+		RootRef: poolExecRef,
 		PoolExpr: poolTermExpr("accept", api.PoolTermAcceptSpec{
 			ConnPh: poolLiabPH,
 			ContExpr: poolTermExpr("apply", api.PoolTermApplySpec{

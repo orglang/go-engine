@@ -11,8 +11,8 @@ const (
 	Label = "exec_eval"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "exec_id"
-	// FieldCompRn holds the string denoting the comp_rn field in the database.
-	FieldCompRn = "exec_rn"
+	// FieldExecRn holds the string denoting the exec_rn field in the database.
+	FieldExecRn = "exec_rn"
 	// FieldLiabMode holds the string denoting the liab_mode field in the database.
 	FieldLiabMode = "liab_mode"
 	// Table holds the table name of the execeval in the database.
@@ -22,7 +22,7 @@ const (
 // Columns holds all SQL columns for execeval fields.
 var Columns = []string{
 	FieldID,
-	FieldCompRn,
+	FieldExecRn,
 	FieldLiabMode,
 }
 
@@ -44,9 +44,9 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByCompRn orders the results by the comp_rn field.
-func ByCompRn(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCompRn, opts...).ToFunc()
+// ByExecRn orders the results by the exec_rn field.
+func ByExecRn(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldExecRn, opts...).ToFunc()
 }
 
 // ByLiabMode orders the results by the liab_mode field.

@@ -17,7 +17,7 @@ import (
 
 type defRecDTO struct {
 	TermID string `db:"term_id"`
-	ExpCK  int64  `db:"exp_ck"`
+	ExpCK  int64  `db:"expr_ck"`
 }
 
 type daoEnt struct {
@@ -35,7 +35,7 @@ var _ termdef.Repo = (*daoEnt)(nil)
 func (dao *daoEnt) SetExpCK(ctx context.Context, conn tx.Conn, termID identity.ADT, expCK contkey.ADT) error {
 	const query = `
 UPDATE proc_prog_terms
-SET exp_ck = $1
+SET expr_ck = $1
 WHERE term_id = $2
 `
 	result, err := conn.Pgx.Exec(ctx, query, int64(expCK), termID.String())
@@ -53,7 +53,7 @@ func (dao *daoEnt) GetRecByID(ctx context.Context, conn tx.Conn, termID identity
 		return termdef.DefRec{}, identity.ErrEmpty
 	}
 	const query = `
-SELECT pd.term_id, COALESCE(pd.exp_ck, 0) AS exp_ck
+SELECT pd.term_id, COALESCE(pd.expr_ck, 0) AS expr_ck
 FROM proc_prog_terms AS pd
 WHERE pd.term_id = $1
 `

@@ -62,7 +62,7 @@ type SendRec struct {
 	A        string `json:"a"`
 	B        string `json:"b"`
 	CommID   string `json:"comm_id"`
-	ValExpCK int64  `json:"val_exp_ck"`
+	ValExpCK int64  `json:"val_expr_ck"`
 }
 
 type RecvSpec struct {

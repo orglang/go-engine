@@ -17,7 +17,7 @@ import (
 
 type defRecDTO struct {
 	TermID string `db:"term_id"`
-	ExpCK  int64  `db:"exp_ck"`
+	ExpCK  int64  `db:"expr_ck"`
 }
 
 type daoEnt struct {
@@ -37,7 +37,7 @@ func (dao *daoEnt) GetByTermID(ctx context.Context, conn tx.Conn, termID identit
 		return termdef.DefRec{}, identity.ErrEmpty
 	}
 	const query = `
-SELECT def.term_id, COALESCE(def.exp_ck, 0) AS exp_ck
+SELECT def.term_id, COALESCE(def.expr_ck, 0) AS expr_ck
 FROM pool_prog_terms AS def
 WHERE def.term_id = $1
 `

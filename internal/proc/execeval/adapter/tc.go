@@ -7,12 +7,12 @@ import (
 )
 
 func DataFromMod(source execeval.EvalMod) (EvalMod, error) {
-	rootRefs, err := adapter.DataFromRefs(source.RootRefs)
+	rootRefs, err := adapter.DataFromRefs(source.ExecRefs)
 	if err != nil {
 		return EvalMod{}, err
 	}
 	return EvalMod{
-		RootRefs:   rootRefs,
+		ExecRefs:   rootRefs,
 		LinearVars: execvaradapter.DataFromLinearRecs(source.LinearVars),
 	}, nil
 }

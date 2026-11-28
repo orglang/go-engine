@@ -31,12 +31,12 @@ const (
 )
 
 type ExpData struct {
-	ExpCK  int64      `db:"exp_ck"`
+	ExpCK  int64      `db:"expr_ck"`
 	States []ExpState `db:"states"`
 }
 type ExpState struct {
-	ExpCK    int64        `db:"exp_ck"`
-	SupExpCK int64        `db:"sup_exp_ck"`
+	ExpCK    int64        `db:"expr_ck"`
+	SupExprCK int64        `db:"sup_expr_ck"`
 	K        int16        `db:"kind"`
 	Spec     ExpStateSpec `db:"spec"`
 }
@@ -46,8 +46,8 @@ type ExpStateSpec struct {
 	ValChnlPH  string           `json:"val_chnl_ph,omitempty"`
 	ValLabQN   string           `json:"val_lab_qn,omitempty"`
 	NewChnlPH  string           `json:"new_chnl_ph,omitempty"`
-	ContExpCK  int64            `json:"cont_exp_ck,omitempty"`
-	ContExpCKs map[string]int64 `json:"cont_exp_cks,omitempty"`
+	ContExpCK  int64            `json:"cont_expr_ck,omitempty"`
+	ContExpCKs map[string]int64 `json:"cont_expr_cks,omitempty"`
 	ProcTermQN string           `json:"proc_term_qn,omitempty"`
 	X          string           `json:"x,omitempty"`
 	Ys         []string         `json:"ys,omitempty"`
@@ -152,7 +152,7 @@ func statesFromExpRec(parent int64, rec termdef.ExpRec, dto *ExpData) int64 {
 	default:
 		panic(fmt.Sprintf("unexpected process Definition record %T", rec))
 	}
-	dto.States = append(dto.States, ExpState{ExpCK: key, SupExpCK: parent, K: kind, Spec: d})
+	dto.States = append(dto.States, ExpState{ExpCK: key, SupExprCK: parent, K: kind, Spec: d})
 	return key
 }
 
@@ -168,8 +168,8 @@ func dataToExpRec(dto ExpData) (termdef.ExpRec, error) {
 	if !ok {
 		return nil, fmt.Errorf("process Definition root %d is missing", dto.ExpCK)
 	}
-	if root.SupExpCK != 0 {
-		return nil, fmt.Errorf("process Definition root %d has unexpected parent %d", root.ExpCK, root.SupExpCK)
+	if root.SupExprCK != 0 {
+		return nil, fmt.Errorf("process Definition root %d has unexpected parent %d", root.ExpCK, root.SupExprCK)
 	}
 	visiting := make(map[int64]struct{}, len(states))
 	visited := make(map[int64]struct{}, len(states))
@@ -199,7 +199,7 @@ func statesToExpRec(states map[int64]ExpState, st ExpState, visiting, visited ma
 		if !ok {
 			return nil, fmt.Errorf("process Definition child %d is missing", ck)
 		}
-		if s.SupExpCK != st.ExpCK {
+		if s.SupExprCK != st.ExpCK {
 			return nil, fmt.Errorf("process Definition child %d has unexpected parent", ck)
 		}
 		return statesToExpRec(states, s, visiting, visited)

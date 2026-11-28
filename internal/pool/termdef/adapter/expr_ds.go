@@ -23,13 +23,13 @@ const (
 )
 
 type ExpData struct {
-	ExpCK  int64      `db:"exp_ck"`
+	ExpCK  int64      `db:"expr_ck"`
 	States []ExpState `db:"states"`
 }
 
 type ExpState struct {
-	ExpCK    int64        `db:"exp_ck"`
-	SupExpCK int64        `db:"sup_exp_ck"`
+	ExpCK    int64        `db:"expr_ck"`
+	SupExprCK int64        `db:"sup_expr_ck"`
 	K        int16        `db:"kind"`
 	Spec     ExpStateSpec `db:"spec"`
 }
@@ -38,7 +38,7 @@ type ExpStateSpec struct {
 	CommChnlPH  string   `json:"comm_chnl_ph,omitempty"`
 	ProcTermQN  string   `json:"proc_term_qn,omitempty"`
 	ProcCompQNs []string `json:"proc_comp_qns,omitempty"`
-	ContExpCK   int64    `json:"cont_exp_ck,omitempty"`
+	ContExpCK   int64    `json:"cont_expr_ck,omitempty"`
 }
 
 func dataFromExpRec(rec termdef.ExpRec) (ExpData, error) {
@@ -81,7 +81,7 @@ func statesFromExpRec(parent int64, rec termdef.ExpRec, dto *ExpData) int64 {
 	default:
 		panic(fmt.Sprintf("unexpected pool Definition record %T", rec))
 	}
-	dto.States = append(dto.States, ExpState{ExpCK: key, SupExpCK: parent, K: kind, Spec: data})
+	dto.States = append(dto.States, ExpState{ExpCK: key, SupExprCK: parent, K: kind, Spec: data})
 	return key
 }
 
@@ -97,8 +97,8 @@ func dataToExpRec(dto ExpData) (termdef.ExpRec, error) {
 	if !ok {
 		return nil, fmt.Errorf("pool Definition root %d is missing", dto.ExpCK)
 	}
-	if root.SupExpCK != 0 {
-		return nil, fmt.Errorf("pool Definition root %d has unexpected parent %d", root.ExpCK, root.SupExpCK)
+	if root.SupExprCK != 0 {
+		return nil, fmt.Errorf("pool Definition root %d has unexpected parent %d", root.ExpCK, root.SupExprCK)
 	}
 	visiting := make(map[int64]struct{}, len(states))
 	visited := make(map[int64]struct{}, len(states))
@@ -129,7 +129,7 @@ func statesToExpRec(states map[int64]ExpState, state ExpState, visiting, visited
 		if !ok {
 			return nil, fmt.Errorf("pool Definition child %d is missing", spec.ContExpCK)
 		}
-		if child.SupExpCK != state.ExpCK {
+		if child.SupExprCK != state.ExpCK {
 			return nil, fmt.Errorf("pool Definition child %d has unexpected parent", child.ExpCK)
 		}
 		return statesToExpRec(states, child, visiting, visited)

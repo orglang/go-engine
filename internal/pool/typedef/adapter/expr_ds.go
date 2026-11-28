@@ -17,7 +17,7 @@ const (
 )
 
 type ExpRef struct {
-	ExpCK int64   `db:"exp_ck" json:"exp_ck"`
+	ExpCK int64   `db:"expr_ck" json:"exp_ck"`
 	K     ExpKind `db:"kind" json:"kind"`
 }
 
@@ -27,8 +27,8 @@ type ExpRec struct {
 }
 
 type State struct {
-	ExpCK    int64   `db:"exp_ck"`
-	SupExpCK int64   `db:"sup_exp_ck"`
+	ExpCK    int64   `db:"expr_ck"`
+	SupExprCK int64   `db:"sup_expr_ck"`
 	K        ExpKind `db:"kind"`
 	Spec     ExpSpec `db:"spec" fieldopt:"noexpand"`
 }

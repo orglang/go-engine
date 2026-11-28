@@ -29,8 +29,8 @@ func (dao *execRootDaoEnt) TouchRef(ctx context.Context, conn tx.Conn, ref execr
 	dto := execrootadapter.DataFromRef(ref)
 	refAttr := slog.Any("ref", ref)
 	updated, err := dao.client.ExecEval.Update().
-		AddRootRn(1).
-		Where(execeval.ID(dto.RootID), execeval.RootRn(dto.RootRN)).
+		AddExecRn(1).
+		Where(execeval.ID(dto.ExecID), execeval.ExecRn(dto.ExecRN)).
 		Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)

@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"reflect"
 
-	"orglang/go-engine/internal/adt/comproot"
-	comprootadapter "orglang/go-engine/internal/adt/comproot/adapter"
+	"orglang/go-engine/internal/adt/execroot"
+	execrootadapter "orglang/go-engine/internal/adt/execroot/adapter"
 	"orglang/go-engine/internal/lib/entpgx"
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
@@ -20,17 +20,17 @@ type compRootDaoEnt struct {
 	log    *slog.Logger
 }
 
-func NewCompRootDaoEnt(client *ent.Client, log *slog.Logger) comproot.Repo {
+func NewCompRootDaoEnt(client *ent.Client, log *slog.Logger) execroot.Repo {
 	name := slog.String("name", reflect.TypeFor[compRootDaoEnt]().Name())
 	return &compRootDaoEnt{client: client, log: log.With(name)}
 }
 
-func (dao *compRootDaoEnt) TouchRef(ctx context.Context, conn tx.Conn, ref comproot.RootRef) error {
-	dto := comprootadapter.DataFromRef(ref)
+func (dao *compRootDaoEnt) TouchRef(ctx context.Context, conn tx.Conn, ref execroot.RootRef) error {
+	dto := execrootadapter.DataFromRef(ref)
 	refAttr := slog.Any("ref", ref)
 	updated, err := dao.client.ExecEval.Update().
 		AddCompRn(1).
-		Where(execeval.ID(dto.CompID), execeval.CompRn(dto.CompRN)).
+		Where(execeval.ID(dto.RootID), execeval.CompRn(dto.RootRN)).
 		Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)

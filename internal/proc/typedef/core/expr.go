@@ -62,7 +62,7 @@ type DownSpec struct {
 
 func (DownSpec) spec() {}
 
-type ExpRef interface {
+type ExprRef interface {
 	contkey.ContentKeyable
 }
 
@@ -376,7 +376,7 @@ func ErrSpecTypeUnexpected(got ExpSpec) error {
 	return fmt.Errorf("spec type unexpected: %T", got)
 }
 
-func ErrRefTypeUnexpected(got ExpRef) error {
+func ErrRefTypeUnexpected(got ExprRef) error {
 	return fmt.Errorf("ref type unexpected: %T", got)
 }
 

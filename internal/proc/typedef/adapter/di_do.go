@@ -44,7 +44,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		typeExprrRepo, err := do.Invoke[core.TypeExprRepo](i)
+		typeExprRepo, err := do.Invoke[core.TypeExprRepo](i)
 		if err != nil {
 			return nil, err
 		}
@@ -56,7 +56,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return core.NewService(typeDefRepo, progRootRepo, typeExprrRepo, transactor, logger), nil
+		return core.NewService(typeDefRepo, progRootRepo, typeExprRepo, transactor, logger), nil
 	}),
 	do.Lazy[GeneratedController](func(i do.Injector) (GeneratedController, error) {
 		api, err := do.Invoke[core.API](i)

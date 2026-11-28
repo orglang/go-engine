@@ -49,15 +49,15 @@ type Context struct {
 type service struct {
 	typeDefRepo  Repo
 	progRootRepo progroot.Repo
-	typeExprrRepo  TypeExprRepo
+	typeExprRepo  TypeExprRepo
 	transactor   tx.Transactor
 	log          *slog.Logger
 }
 
 func newAPI() API { return new(service) }
 
-func NewService(typeDefRepo Repo, progRootRepo progroot.Repo, typeExprrRepo TypeExprRepo, transactor tx.Transactor, log *slog.Logger) API {
-	return &service{typeDefRepo: typeDefRepo, progRootRepo: progRootRepo, typeExprrRepo: typeExprrRepo, transactor: transactor, log: log}
+func NewService(typeDefRepo Repo, progRootRepo progroot.Repo, typeExprRepo TypeExprRepo, transactor tx.Transactor, log *slog.Logger) API {
+	return &service{typeDefRepo: typeDefRepo, progRootRepo: progRootRepo, typeExprRepo: typeExprRepo, transactor: transactor, log: log}
 }
 
 func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err error) {
@@ -72,7 +72,7 @@ func (s *service) Create(ctx context.Context, spec DefSpec) (_ DefSnap, err erro
 		if err := s.progRootRepo.AddRef(txCtx, conn, newDef.ProgRef); err != nil {
 			return err
 		}
-		if err := s.typeExprrRepo.AddRec(txCtx, conn, newExp); err != nil {
+		if err := s.typeExprRepo.AddRec(txCtx, conn, newExp); err != nil {
 			return err
 		}
 		return s.typeDefRepo.AddRec(txCtx, conn, newDef)
@@ -118,7 +118,7 @@ func (s *service) Modify(ctx context.Context, snap DefSnap) (_ DefSnap, err erro
 		if err := s.progRootRepo.TouchRef(txCtx, conn, expectedRoot); err != nil {
 			return err
 		}
-		if err := s.typeExprrRepo.AddRec(txCtx, conn, newExp); err != nil {
+		if err := s.typeExprRepo.AddRec(txCtx, conn, newExp); err != nil {
 			return err
 		}
 		return s.typeDefRepo.ModifyRec(txCtx, conn, rec)
@@ -144,7 +144,7 @@ func (s *service) RetrieveSnap(ctx context.Context, id identity.ADT) (_ DefSnap,
 
 func (s *service) snapFromRec(ctx context.Context, rec DefRec) (_ DefSnap, err error) {
 	expRec, err := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (ExpRec, error) {
-		return s.typeExprrRepo.SelectRecByCK(txCtx, conn, rec.ExpCK)
+		return s.typeExprRepo.SelectRecByCK(txCtx, conn, rec.ExpCK)
 	})
 	if err != nil {
 		s.log.Error("retrieval failed", slog.Any("typeID", rec.TypeID))

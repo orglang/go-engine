@@ -77,7 +77,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		compRepo, err := do.Invoke[execroot.Repo](i)
+		execRootRepo, err := do.Invoke[execroot.Repo](i)
 		if err != nil {
 			return nil, err
 		}
@@ -97,7 +97,7 @@ var Package = do.Package(
 			TypeDefRepo:    typeRepo,
 			ProcEvalRepo:   procRepo,
 			TermDecRepo:    termDecRepo,
-			ExecRootRepo:   compRepo,
+			ExecRootRepo:   execRootRepo,
 			Transactor:     transactor,
 			Logger:         logger,
 		}), nil

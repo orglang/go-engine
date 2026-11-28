@@ -47,10 +47,10 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec execcomm.CommRe
 		SetActNr(dto.ActNr).
 		Save(txCtx)
 	if err != nil {
-		dao.log.Error("Connection insertion failed", refAttr)
+		dao.log.Error("Communication insertion failed", refAttr)
 		return err
 	}
-	dao.log.Log(ctx, lf.LevelTrace, "Connection insertion succeeded", refAttr)
+	dao.log.Log(ctx, lf.LevelTrace, "Communication insertion succeeded", refAttr)
 	return nil
 }
 
@@ -75,11 +75,11 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execcomm.Com
 		}
 		affected, err := update.Save(txCtx)
 		if err != nil {
-			dao.log.Error("Connection offset update failed", refAttr)
+			dao.log.Error("Communication offset update failed", refAttr)
 			return err
 		}
 		if affected == 0 {
-			return execcomm.ErrMissingConn(mod.CommID)
+			return execcomm.ErrMissingComm(mod.CommID)
 		}
 	}
 
@@ -95,7 +95,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execcomm.Com
 		}
 	}
 
-	dao.log.Log(ctx, lf.LevelTrace, "Connection modification succeeded", refAttr)
+	dao.log.Log(ctx, lf.LevelTrace, "Communication modification succeeded", refAttr)
 	return nil
 }
 
@@ -108,22 +108,22 @@ func (dao *daoEnt) GetSnapByQry(ctx context.Context, conn tx.Conn, qry execcomm.
 		querySQL = selectSnapByChannel
 		args = append(args, qryDTO.ChnlID.V)
 	}
-	dao.log.Log(ctx, lf.LevelTrace, "Connection snapshot selection started", slog.Any("qry", qryDTO))
+	dao.log.Log(ctx, lf.LevelTrace, "Communication snapshot selection started", slog.Any("qry", qryDTO))
 	rows, err := conn.Pgx.Query(ctx, querySQL, args...)
 	if err != nil {
-		dao.log.Error("Connection snapshot query failed", refAttr)
+		dao.log.Error("Communication snapshot query failed", refAttr)
 		return execcomm.CommSnap{}, err
 	}
 	defer rows.Close()
 
 	snapDTO, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[CommSnap])
 	if err != nil {
-		dao.log.Error("Connection snapshot scan failed", refAttr)
+		dao.log.Error("Communication snapshot scan failed", refAttr)
 		return execcomm.CommSnap{}, err
 	}
 	snap, err := DataToSnap(snapDTO)
 	if err != nil {
-		dao.log.Error("Connection snapshot conversion failed", refAttr)
+		dao.log.Error("Communication snapshot conversion failed", refAttr)
 		return execcomm.CommSnap{}, err
 	}
 	providerCompID, err := identity.ConvertFromString(snapDTO.ProviderExecID)
@@ -132,7 +132,7 @@ func (dao *daoEnt) GetSnapByQry(ctx context.Context, conn tx.Conn, qry execcomm.
 	}
 	snap.ProviderExecID = providerCompID
 	snap.ProviderExecRN = seqnum.ADT(snapDTO.ProviderExecRN)
-	dao.log.Log(ctx, lf.LevelTrace, "Connection snapshot loaded", slog.Any("dto", snapDTO))
+	dao.log.Log(ctx, lf.LevelTrace, "Communication snapshot loaded", slog.Any("dto", snapDTO))
 	return snap, nil
 }
 

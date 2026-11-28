@@ -32,11 +32,11 @@ type CommSnap struct {
 }
 
 func ErrOffsetConflict(got seqnum.ADT) error {
-	return fmt.Errorf("connection offset changed concurrently: got %v", got)
+	return fmt.Errorf("communication offset changed concurrently: got %v", got)
 }
 
 func ErrSnapshotConflict(got seqnum.ADT) error {
-	return fmt.Errorf("connection snapshot changed concurrently: offset %v", got)
+	return fmt.Errorf("communication snapshot changed concurrently: offset %v", got)
 }
 
 func (s CommSnap) NextAct() commact.ActRec {

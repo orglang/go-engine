@@ -9,7 +9,7 @@ import (
 	execcomm "orglang/go-engine/internal/pool/execcomm/core"
 )
 
-// Package registers the pool connection repository.
+// Package registers the pool communication repository.
 var Package = do.Package(
 	do.Lazy[execcomm.Repo](func(i do.Injector) (execcomm.Repo, error) {
 		client, err := do.Invoke[*ent.Client](i)

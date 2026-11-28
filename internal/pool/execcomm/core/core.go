@@ -42,11 +42,11 @@ type CommSnap struct {
 }
 
 func ErrOffsetConflict(got seqnum.ADT) error {
-	return fmt.Errorf("connection offset changed concurrently: got %v", got)
+	return fmt.Errorf("communication offset changed concurrently: got %v", got)
 }
 
-func ErrMissingConn(id identity.ADT) error {
-	return fmt.Errorf("connection missing: %v", id)
+func ErrMissingComm(id identity.ADT) error {
+	return fmt.Errorf("communication missing: %v", id)
 }
 
 func (s CommSnap) NextAct() commact.ActRec {

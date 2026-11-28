@@ -8,7 +8,7 @@ import (
 	"orglang/go-engine/internal/adt/seqnum"
 )
 
-// ExpRec is the expression-record contract carried by a connection action.
+// ExpRec is the expression-record contract carried by a communication action.
 type ExpRec interface {
 	IsExpRec()
 }

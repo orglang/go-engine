@@ -12,12 +12,12 @@ import (
 func TestExpContentKeyIncludesLabContinuation(t *testing.T) {
 	label := uniqsym.New(symbol.New("accepted"))
 	base := LabSpec{
-		ConnChnlPH: symbol.New("conn"),
+		CommChnlPH: symbol.New("conn"),
 		ValLabQN:   label,
 		ContExp:    CloseSpec{ContChnlPH: symbol.New("left")},
 	}
 	changed := LabSpec{
-		ConnChnlPH: base.ConnChnlPH,
+		CommChnlPH: base.CommChnlPH,
 		ValLabQN:   label,
 		ContExp:    CloseSpec{ContChnlPH: symbol.New("right")},
 	}
@@ -39,14 +39,14 @@ func TestExpContentKeyIsStableForCaseMapInsertionOrder(t *testing.T) {
 	leftLabel := uniqsym.New(symbol.New("left"))
 	rightLabel := uniqsym.New(symbol.New("right"))
 	left := CaseSpec{
-		ConnChnlPH: symbol.New("conn"),
+		CommChnlPH: symbol.New("conn"),
 		ContExps: map[uniqsym.ADT]ExpSpec{
 			leftLabel:  CloseSpec{ContChnlPH: symbol.New("left")},
 			rightLabel: CloseSpec{ContChnlPH: symbol.New("right")},
 		},
 	}
 	right := CaseSpec{
-		ConnChnlPH: symbol.New("conn"),
+		CommChnlPH: symbol.New("conn"),
 		ContExps: map[uniqsym.ADT]ExpSpec{
 			rightLabel: CloseSpec{ContChnlPH: symbol.New("right")},
 			leftLabel:  CloseSpec{ContChnlPH: symbol.New("left")},
@@ -75,18 +75,18 @@ func TestExpContentKeySerializesEveryVariant(t *testing.T) {
 	}{
 		{CloseSpec{ContChnlPH: symbol.New("end")}, "close"},
 		{WaitSpec{ContChnlPH: symbol.New("conn"), ContExp: cont}, "wait"},
-		{SendSpec{ConnChnlPH: symbol.New("conn"), ValChnlPH: symbol.New("value")}, "send"},
-		{RecvSpec{ConnChnlPH: symbol.New("conn"), NewChnlPH: symbol.New("new"), ContExp: cont}, "recv"},
-		{LabSpec{ConnChnlPH: symbol.New("conn"), ValLabQN: uniqsym.New(symbol.New("label")), ContExp: cont}, "lab"},
-		{CaseSpec{ConnChnlPH: symbol.New("conn"), ContExps: map[uniqsym.ADT]ExpSpec{uniqsym.New(symbol.New("label")): cont}}, "case"},
+		{SendSpec{CommChnlPH: symbol.New("conn"), ValChnlPH: symbol.New("value")}, "send"},
+		{RecvSpec{CommChnlPH: symbol.New("conn"), NewChnlPH: symbol.New("new"), ContExp: cont}, "recv"},
+		{LabSpec{CommChnlPH: symbol.New("conn"), ValLabQN: uniqsym.New(symbol.New("label")), ContExp: cont}, "lab"},
+		{CaseSpec{CommChnlPH: symbol.New("conn"), ContExps: map[uniqsym.ADT]ExpSpec{uniqsym.New(symbol.New("label")): cont}}, "case"},
 		{LinkSpec{ProcTermQN: procTermQN, X: identity.New(), Ys: []identity.ADT{identity.New()}}, "link"},
-		{FwdSpec{ConnChnlPH: symbol.New("conn"), ContChnlPH: symbol.New("next")}, "fwd"},
-		{CallSpec{ConnChnlPH: symbol.New("conn"), NewChnlPH: symbol.New("new"), ProcTermQN: procTermQN, ValChnlPHs: []symbol.ADT{symbol.New("value")}, ContExp: cont}, "call"},
-		{SpawnSpec{ConnChnlPH: symbol.New("conn"), ProcTermQN: procTermQN, NewChnlPHs: []symbol.ADT{symbol.New("new")}, ContExp: cont}, "spawn"},
-		{AcqureSpec{ConnChnlPH: symbol.New("conn"), ContExp: cont}, "acquire"},
-		{AcceptSpec{ConnChnlPH: symbol.New("conn"), ContExp: cont}, "accept"},
-		{DetachSpec{ConnChnlPH: symbol.New("conn")}, "detach"},
-		{ReleaseSpec{ConnChnlPH: symbol.New("conn")}, "release"},
+		{FwdSpec{CommChnlPH: symbol.New("conn"), ContChnlPH: symbol.New("next")}, "fwd"},
+		{CallSpec{CommChnlPH: symbol.New("conn"), NewChnlPH: symbol.New("new"), ProcTermQN: procTermQN, ValChnlPHs: []symbol.ADT{symbol.New("value")}, ContExp: cont}, "call"},
+		{SpawnSpec{CommChnlPH: symbol.New("conn"), ProcTermQN: procTermQN, NewChnlPHs: []symbol.ADT{symbol.New("new")}, ContExp: cont}, "spawn"},
+		{AcqureSpec{CommChnlPH: symbol.New("conn"), ContExp: cont}, "acquire"},
+		{AcceptSpec{CommChnlPH: symbol.New("conn"), ContExp: cont}, "accept"},
+		{DetachSpec{CommChnlPH: symbol.New("conn")}, "detach"},
+		{ReleaseSpec{CommChnlPH: symbol.New("conn")}, "release"},
 	}
 	for _, tc := range specs {
 		_, data, err := ExpContentKey(tc.spec)

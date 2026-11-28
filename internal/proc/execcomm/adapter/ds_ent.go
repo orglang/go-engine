@@ -58,11 +58,11 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod core.CommMod
 		}
 		affected, err := update.Save(entpgx.WithConn(ctx, conn.Pgx))
 		if err != nil {
-			dao.log.Error("Connection update failed", refAttr)
+			dao.log.Error("Communication update failed", refAttr)
 			return err
 		}
 		if affected == 0 {
-			return fmt.Errorf("process connection missing: %v", mod.CommID)
+			return fmt.Errorf("process communication missing: %v", mod.CommID)
 		}
 	}
 
@@ -113,7 +113,7 @@ WHERE conn.comm_id = $1
 `
 	rows, err := conn.Pgx.Query(ctx, query, args...)
 	if err != nil {
-		dao.log.Error("Connection snapshot query failed", slog.Any("comm_id", qry.CommID))
+		dao.log.Error("Communication snapshot query failed", slog.Any("comm_id", qry.CommID))
 		return core.CommSnap{}, err
 	}
 	defer rows.Close()
@@ -122,7 +122,7 @@ WHERE conn.comm_id = $1
 		return core.CommSnap{CommID: qry.CommID}, nil
 	}
 	if err != nil {
-		dao.log.Error("Connection snapshot scan failed", slog.Any("comm_id", qry.CommID))
+		dao.log.Error("Communication snapshot scan failed", slog.Any("comm_id", qry.CommID))
 		return core.CommSnap{}, err
 	}
 	parsedCommID, err := identity.ConvertFromString(dto.CommID)
@@ -145,6 +145,6 @@ WHERE conn.comm_id = $1
 		}
 		snap.Acts = append(snap.Acts, act)
 	}
-	dao.log.Log(ctx, lf.LevelTrace, "Connection snapshot loaded", slog.Any("comm_id", qry.CommID))
+	dao.log.Log(ctx, lf.LevelTrace, "Communication snapshot loaded", slog.Any("comm_id", qry.CommID))
 	return snap, nil
 }

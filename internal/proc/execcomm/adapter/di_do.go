@@ -9,7 +9,7 @@ import (
 	"orglang/go-engine/internal/proc/execcomm/core"
 )
 
-// Package registers the process connection repository.
+// Package registers the process communication repository.
 var Package = do.Package(
 	do.Lazy[core.Repo](func(i do.Injector) (core.Repo, error) {
 		client, err := do.Invoke[*ent.Client](i)

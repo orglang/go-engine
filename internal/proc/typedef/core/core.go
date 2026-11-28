@@ -49,7 +49,7 @@ type Context struct {
 type service struct {
 	typeDefRepo  Repo
 	progRootRepo progroot.Repo
-		transactor   tx.Transactor
+	transactor   tx.Transactor
 	log          *slog.Logger
 }
 

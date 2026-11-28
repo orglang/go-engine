@@ -25,7 +25,7 @@ func (LinkSpec) spec() {}
 // aka Internal Choice
 type PlusSpec struct {
 	ProcQNs []uniqsym.ADT
-	ContExpr ExpSpec
+	ContExp ExpSpec
 }
 
 func (PlusSpec) spec() {}
@@ -33,24 +33,24 @@ func (PlusSpec) spec() {}
 // aka External Choice
 type WithSpec struct {
 	ProcQNs []uniqsym.ADT
-	ContExpr ExpSpec
+	ContExp ExpSpec
 }
 
 func (WithSpec) spec() {}
 
 type UpSpec struct {
-	ContExpr ExpSpec
+	ContExp ExpSpec
 }
 
 func (UpSpec) spec() {}
 
 type DownSpec struct {
-	ContExpr ExpSpec
+	ContExp ExpSpec
 }
 
 func (DownSpec) spec() {}
 
-type ExprRef interface {
+type ExpRef interface {
 	contkey.ContentKeyable
 }
 
@@ -118,14 +118,14 @@ func (LinkRec) Pol() polarity.ADT { return polarity.Zero }
 type PlusRec struct {
 	ExpCK   contkey.ADT
 	ProcQNs []uniqsym.ADT
-	ContExpr ExpRec
+	ContExp ExpRec
 }
 
 func (PlusRec) spec() {}
 
 func (r PlusRec) Key() contkey.ADT { return r.ExpCK }
 
-func (r PlusRec) Next() contkey.ADT { return r.ContExpr.Key() }
+func (r PlusRec) Next() contkey.ADT { return r.ContExp.Key() }
 
 func (PlusRec) Pol() polarity.ADT { return polarity.Pos }
 
@@ -133,40 +133,40 @@ func (PlusRec) Pol() polarity.ADT { return polarity.Pos }
 type WithRec struct {
 	ExpCK   contkey.ADT
 	ProcQNs []uniqsym.ADT
-	ContExpr ExpRec
+	ContExp ExpRec
 }
 
 func (WithRec) spec() {}
 
 func (r WithRec) Key() contkey.ADT { return r.ExpCK }
 
-func (r WithRec) Next() contkey.ADT { return r.ContExpr.Key() }
+func (r WithRec) Next() contkey.ADT { return r.ContExp.Key() }
 
 func (WithRec) Pol() polarity.ADT { return polarity.Neg }
 
 type UpRec struct {
 	ExpCK   contkey.ADT
-	ContExpr ExpRec
+	ContExp ExpRec
 }
 
 func (UpRec) spec() {}
 
 func (r UpRec) Key() contkey.ADT { return r.ExpCK }
 
-func (r UpRec) Next() contkey.ADT { return r.ContExpr.Key() }
+func (r UpRec) Next() contkey.ADT { return r.ContExp.Key() }
 
 func (UpRec) Pol() polarity.ADT { return polarity.Zero }
 
 type DownRec struct {
 	ExpCK   contkey.ADT
-	ContExpr ExpRec
+	ContExp ExpRec
 }
 
 func (DownRec) spec() {}
 
 func (r DownRec) Key() contkey.ADT { return r.ExpCK }
 
-func (r DownRec) Next() contkey.ADT { return r.ContExpr.Key() }
+func (r DownRec) Next() contkey.ADT { return r.ContExp.Key() }
 
 func (DownRec) Pol() polarity.ADT { return polarity.Zero }
 
@@ -174,7 +174,7 @@ func ErrSpecTypeUnexpected(got ExpSpec) error {
 	return fmt.Errorf("spec type unexpected: %T", got)
 }
 
-func ErrRefTypeUnexpected(got ExprRef) error {
+func ErrRefTypeUnexpected(got ExpRef) error {
 	return fmt.Errorf("ref type unexpected: %T", got)
 }
 

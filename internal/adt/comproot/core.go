@@ -1,19 +1,19 @@
-// Package comproot defines the Computation aggregate root reference.
-package comproot
+// Package execroot defines the execution aggregate root reference.
+package execroot
 
 import (
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 )
 
-// RootRef identifies a Computation aggregate at a specific OCC revision.
-// Execution and Connections are owned by this aggregate.
+// RootRef identifies an execution aggregate at a specific OCC revision.
+// Executions and their connections are owned by this aggregate.
 type RootRef struct {
-	CompID identity.ADT
-	CompRN seqnum.ADT
+	RootID identity.ADT
+	RootRN seqnum.ADT
 }
 
-// New creates a reference for a new Computation aggregate.
+// New creates a reference for a new execution aggregate.
 func New() RootRef {
-	return RootRef{CompID: identity.New(), CompRN: seqnum.New()}
+	return RootRef{RootID: identity.New(), RootRN: seqnum.New()}
 }

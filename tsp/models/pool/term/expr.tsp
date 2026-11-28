@@ -50,5 +50,5 @@ model DetachSpec {
 }
 model SpawnSpec {
   proc_dr: Any.TermRef;
-  proc_irs: Any.RootRef[];
+  proc_exec_refs: Any.RootRef[];
 }

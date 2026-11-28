@@ -13,7 +13,7 @@ import (
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
-// Package registers the process computation-execution repository, service, and HTTP controller.
+// Package registers the process evaluation repository, service, and HTTP controller.
 var Package = do.Package(
 	do.Lazy[core.Repo](func(i do.Injector) (core.Repo, error) {
 		client, err := do.Invoke[*ent.Client](i)
@@ -43,10 +43,6 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		typeExprRepo, err := do.Invoke[typedef.TypeExprRepo](i)
-		if err != nil {
-			return nil, err
-		}
 		transactor, err := do.Invoke[tx.Transactor](i)
 		if err != nil {
 			return nil, err
@@ -55,7 +51,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return core.NewService(evalRepo, commRepo, termDecRepo, typeDefRepo, typeExprRepo, transactor, logger), nil
+		return core.NewService(evalRepo, commRepo, termDecRepo, typeDefRepo, transactor, logger), nil
 	}),
 	do.Lazy[GeneratedController](func(i do.Injector) (GeneratedController, error) {
 		api, err := do.Invoke[core.API](i)

@@ -48,5 +48,5 @@ model DefQuitSpec {
 }
 model DefSpawnSpec {
   proc_qn: string;
-  proc_comp_qns: string[];
+  proc_exec_qns: string[];
 }

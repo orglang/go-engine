@@ -39,7 +39,7 @@ func TestPackageProvidesPersistencePorts(t *testing.T) {
 			_, err := do.Invoke[execcomm.Repo](injector)
 			return err
 		}},
-		{"computation-execution repository", func() error {
+		{"execution-evaluation repository", func() error {
 			_, err := do.Invoke[execeval.Repo](injector)
 			return err
 		}},
@@ -53,10 +53,6 @@ func TestPackageProvidesPersistencePorts(t *testing.T) {
 		}},
 		{"type-definition repository", func() error {
 			_, err := do.Invoke[typedef.Repo](injector)
-			return err
-		}},
-		{"type-definition expression repository", func() error {
-			_, err := do.Invoke[typedef.TypeExprRepo](injector)
 			return err
 		}},
 	}
@@ -77,7 +73,7 @@ func TestPackageProvidesApplicationServices(t *testing.T) {
 		name string
 		call func() error
 	}{
-		{"computation-execution service", func() error {
+		{"execution-evaluation service", func() error {
 			_, err := do.Invoke[execeval.API](injector)
 			return err
 		}},

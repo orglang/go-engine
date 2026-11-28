@@ -46,7 +46,7 @@ func TestPackageProvidesPersistencePortsAndDefinitionServices(t *testing.T) {
 			_, err := do.Invoke[execvar.Repo](injector)
 			return err
 		}},
-		{"pool computation-execution repository", func() error {
+		{"pool execution-evaluation repository", func() error {
 			_, err := do.Invoke[execeval.Repo](injector)
 			return err
 		}},
@@ -74,11 +74,11 @@ func TestPackageProvidesPersistencePortsAndDefinitionServices(t *testing.T) {
 			_, err := do.Invoke[termdef.API](injector)
 			return err
 		}},
-		{"pool computation-execution service", func() error {
+		{"pool execution-evaluation service", func() error {
 			_, err := do.Invoke[execeval.API](injector)
 			return err
 		}},
-		{"pool computation-execution broker subscription", func() error {
+		{"pool execution-evaluation broker subscription", func() error {
 			return execevaladapter.SubscribeBroker(injector)
 		}},
 	}
@@ -99,7 +99,7 @@ func TestPackageProvidesHTTPControllers(t *testing.T) {
 		name string
 		call func() error
 	}{
-		{"computation-execution controller", func() error {
+		{"execution-evaluation controller", func() error {
 			_, err := do.Invoke[execevaladapter.Controller](injector)
 			return err
 		}},

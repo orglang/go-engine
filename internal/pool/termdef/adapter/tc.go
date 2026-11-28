@@ -51,11 +51,11 @@ func exprToGenerated(spec termdef.ExprSpec) (webapi.PoolTermDefinitionSpec, erro
 	case termdef.ExprQuitSpec:
 		return out, out.FromPoolTermDefQuitSpec(webapi.PoolTermDefQuitSpec{CommPh: symbol.ConvertToString(s.CommChnlPH), ProcQn: uniqsym.ConvertToString(s.ProcTermQN)})
 	case termdef.ExprSpawnSpec:
-		qns := make([]string, len(s.ProcCompQNs))
-		for i, qn := range s.ProcCompQNs {
+		qns := make([]string, len(s.ProcExecQNs))
+		for i, qn := range s.ProcExecQNs {
 			qns[i] = uniqsym.ConvertToString(qn)
 		}
-		return out, out.FromPoolTermDefSpawnSpec(webapi.PoolTermDefSpawnSpec{ProcQn: uniqsym.ConvertToString(s.ProcTermQN), ProcCompQns: qns})
+		return out, out.FromPoolTermDefSpawnSpec(webapi.PoolTermDefSpawnSpec{ProcQn: uniqsym.ConvertToString(s.ProcTermQN), ProcExecQns: qns})
 	default:
 		return out, fmt.Errorf("unsupported pool Definition spec %T", spec)
 	}

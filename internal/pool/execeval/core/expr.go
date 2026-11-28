@@ -142,7 +142,7 @@ type SpawnSpec struct {
 	// ссылка на описание порождаемого процесса
 	ProcTermQN uniqsym.ADT
 	// ссылки на воплощения потребляемых процессов
-	ProcCompQNs []uniqsym.ADT
+	ProcExecQNs []uniqsym.ADT
 }
 
 func (s SpawnSpec) spec()     {}

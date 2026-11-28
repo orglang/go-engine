@@ -1,4 +1,4 @@
-# ADR-0004: Модель Program и Computation aggregates
+# ADR-0004: Модель Program, Execution и Evaluation aggregates
 
 - **Статус:** Accepted
 - **Дата:** 2026-11-22
@@ -6,7 +6,7 @@
 
 ## Контекст и область решения
 
-Этот ADR фиксирует целевую доменную модель `proc` и `pool`: границы агрегатов, identity, revision, QN, отношения Type/Term и Computation. Текущая реализация и существующая схема БД не ограничивают целевую модель.
+Этот ADR фиксирует целевую доменную модель `proc` и `pool`: границы агрегатов, identity, revision, QN, отношения Type/Term и Execution. Текущая реализация и существующая схема БД не ограничивают целевую модель.
 
 `proc` и `pool` — разные bounded contexts. У каждого собственные агрегаты, identity spaces, application services, порты и persistence adapters. Между контекстами нет общих агрегатов и cross-context references.
 
@@ -114,36 +114,36 @@ Retire применяется ко всему Program aggregate:
 
 Физический Delete не является частью обычного lifecycle. Он допустим только при отсутствии зависимостей, нарушающих referential integrity. После физического удаления Program его QN могут быть использованы повторно.
 
-## 5. Computation aggregate
+## 5. Execution aggregate
 
-Computation — отдельный aggregate root в каждом bounded context. Он не входит в Program.
+Execution — отдельный aggregate root в каждом bounded context. Он не входит в Program.
 
-### Identity и Execution
+### Identity и Evaluation
 
-- `CompID` идентифицирует Computation aggregate и его единственный Execution.
-- В одном Computation существует ровно один Execution; отдельный `ExecutionID` не вводится.
-- `CompRN` — revision Computation aggregate.
-- Variables и channel bindings принадлежат Execution и адресуются через `CompID`.
-- Повторный запуск изменяет состояние того же Execution. Несколько Execution, retry history и run history базовой моделью не поддерживаются.
+- `ExecID` идентифицирует Execution aggregate и его единственную Evaluation.
+- В одном Execution существует ровно одна Evaluation; отдельный `EvaluationID` не вводится.
+- `ExecRN` — revision Execution aggregate.
+- Variables и channel bindings принадлежат Evaluation и адресуются через `ExecID`.
+- Повторный запуск изменяет состояние той же Evaluation. Несколько Execution, retry history и run history базовой моделью не поддерживаются.
 
 ### Connection
 
-Connection — сущность первого уровня внутри Computation aggregate, а не отдельный aggregate root и не часть Execution.
+Connection — сущность первого уровня внутри Execution aggregate, а не отдельный aggregate root и не часть Evaluation.
 
 - Connection имеет собственный ID.
-- Connection связывает Provider Computation и Client Computation.
-- Connection принадлежит Provider Computation; Client endpoint является внешней ссылкой, а не совладельцем Connection.
+- Connection связывает Provider Execution и Client Execution.
+- Connection принадлежит Provider Execution; Client endpoint является внешней ссылкой, а не совладельцем Connection.
 - Ordered Acts принадлежат Connection и являются его записями, а не отдельными сущностями первого уровня.
-- Мутации Connection выполняются через Provider Computation и используют expected revision Provider.
+- Мутации Connection выполняются через Provider Execution и используют expected revision Provider.
 - У Connection нет независимой optimistic concurrency revision.
-- Изменение только Connection не увеличивает revision Client Computation. Revision Client увеличивается, только если меняется его Execution.
-- Изменения, затрагивающие несколько Computations, требуют явно заданной транзакционной стратегии и expected revisions соответствующих агрегатов. Наличие endpoint reference само по себе не означает совместного владения.
+- Изменение только Connection не увеличивает revision Client Execution. Revision Client увеличивается, только если меняется его Evaluation.
+- Изменения, затрагивающие несколько Executions, требуют явно заданной транзакционной стратегии и expected revisions соответствующих агрегатов. Наличие endpoint reference само по себе не означает совместного владения.
 
 ## 6. Архитектурные границы
 
 - Core каждого bounded context владеет своими портами; adapters реализуют их.
 - Зависимости направлены внутрь. Domain/application code не зависит от драйверов и конкретных adapters.
-- Program operations выполняются в границе Program aggregate; Computation operations — в границе Computation aggregate.
+- Program operations выполняются в границе Program aggregate; Execution operations — в границе Execution aggregate.
 - Type и Term могут иметь раздельные use cases и capability packages, сохраняя общий Program consistency boundary.
 - SDK и публичные wire contracts не являются ограничением для целевой внутренней модели.
 - Persistence schema и migration strategy проектируются отдельно и должны обеспечивать описанные identity, uniqueness, atomicity и referential-integrity guarantees.
@@ -152,11 +152,11 @@ Connection — сущность первого уровня внутри Computa
 
 Этот ADR намеренно не определяет:
 
-- конкретную физическую схему хранения Program, Type, Term, QN registry и Computation;
+- конкретную физическую схему хранения Program, Type, Term, QN registry и Execution;
 - миграцию существующих descriptor bindings к QN → TypeID/TermID;
 - механизм обеспечения общей QN uniqueness constraint;
 - точный идентификатор и retention policy pinned Type states для Client references;
 - правила чтения retired Program, возможного восстановления и физического удаления;
-- транзакционную реализацию операций, изменяющих несколько Computation aggregates.
+- транзакционную реализацию операций, изменяющих несколько Execution aggregates.
 
 Эти вопросы не меняют зафиксированные выше доменные границы и инварианты.

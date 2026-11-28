@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"log/slog"
-	"reflect"
 
 	"github.com/jackc/pgx/v5"
 
@@ -13,9 +12,7 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/ent"
-	typeexprent "orglang/go-engine/internal/proc/ent/typeexpr"
-	typedef "orglang/go-engine/internal/proc/typedef/core"
-)
+	typeexprent "orglang/go-engine/internal/proc/ent/typeexpr")
 
 // Adapter
 type exprDaoEnt struct {
@@ -23,17 +20,7 @@ type exprDaoEnt struct {
 	log    *slog.Logger
 }
 
-func NewExprDaoEnt(client *ent.Client, log *slog.Logger) typedef.TypeExprRepo {
-	name := slog.String("name", reflect.TypeFor[exprDaoEnt]().Name())
-	return &exprDaoEnt{client: client, log: log.With(name)}
-}
-
-// for compilation purposes
-func newExprRepo() typedef.TypeExprRepo {
-	return new(exprDaoEnt)
-}
-
-func (dao *exprDaoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.ExprRec) error {
+func (dao *exprDaoEnt) AddExprRec(ctx context.Context, conn tx.Conn, rec typedef.ExprRec) error {
 	ckAttr := slog.Any("exprCK", rec.Key())
 	dto := dataFromExprRec(rec)
 	builders := make([]*ent.TypeExprCreate, 0, len(dto.States))
@@ -57,7 +44,7 @@ func (dao *exprDaoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.Exp
 	return nil
 }
 
-func (dao *exprDaoEnt) SelectRecByCK(ctx context.Context, conn tx.Conn, exprCK contkey.ADT) (typedef.ExprRec, error) {
+func (dao *exprDaoEnt) SelectExprRecByCK(ctx context.Context, conn tx.Conn, exprCK contkey.ADT) (typedef.ExprRec, error) {
 	ckAttr := slog.Any("exprCK", exprCK)
 	rows, queryErr := conn.Pgx.Query(ctx, selectByID, contkey.ConvertToInt(exprCK))
 	if queryErr != nil {
@@ -82,8 +69,8 @@ func (dao *exprDaoEnt) SelectRecByCK(ctx context.Context, conn tx.Conn, exprCK c
 	return statesToExprRec(states, states[contkey.ConvertToInt(exprCK)])
 }
 
-func (dao *exprDaoEnt) SelectEnv(ctx context.Context, conn tx.Conn, exprCKs []contkey.ADT) (map[contkey.ADT]typedef.ExprRec, error) {
-	recs, err := dao.SelectRecsByCKs(ctx, conn, exprCKs)
+func (dao *exprDaoEnt) SelectExprEnv(ctx context.Context, conn tx.Conn, exprCKs []contkey.ADT) (map[contkey.ADT]typedef.ExprRec, error) {
+	recs, err := dao.SelectExprRecsByCKs(ctx, conn, exprCKs)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +81,7 @@ func (dao *exprDaoEnt) SelectEnv(ctx context.Context, conn tx.Conn, exprCKs []co
 	return env, nil
 }
 
-func (dao *exprDaoEnt) SelectRecsByCKs(ctx context.Context, conn tx.Conn, exprCKs []contkey.ADT) (_ []typedef.ExprRec, err error) {
+func (dao *exprDaoEnt) SelectExprRecsByCKs(ctx context.Context, conn tx.Conn, exprCKs []contkey.ADT) (_ []typedef.ExprRec, err error) {
 	batch := pgx.Batch{}
 	for _, exprCK := range exprCKs {
 		batch.Queue(selectByID, contkey.ConvertToInt(exprCK))

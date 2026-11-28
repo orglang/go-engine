@@ -84,11 +84,10 @@ HTTP adapters map these generated transport models to engine-owned types.
 
 ## Naming
 
-The Go wire prefix `comp` denotes legacy computation prefix, not component.
-Shared root identity is `Any.RootRef`; context-specific computation
-models remain grouped in their owning `Proc.Exec` and `Pool.Exec` namespaces.
-The HTTP resource paths use the common term `executions` for both processes
-and pools, while retaining the domain model name `Comp`. Nested collection
+`Any.RootRef` identifies the aggregate root shared by process and pool
+executions. Context-specific execution models remain grouped in their owning
+`Proc.Exec` and `Pool.Exec` namespaces. The HTTP resource paths use the common
+term `executions` for both processes and pools. Nested collection
 routes return arrays of references; nested `declaration` routes return one
 declaration snapshot.
 

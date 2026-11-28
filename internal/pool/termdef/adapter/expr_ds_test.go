@@ -9,7 +9,7 @@ import (
 	termdef "orglang/go-engine/internal/pool/termdef/core"
 )
 
-func TestExpDataRoundTripPreservesNestedDefinition(t *testing.T) {
+func TestExprDataRoundTripPreservesNestedDefinition(t *testing.T) {
 	workerQN, err := uniqsym.ConvertFromString("example.worker")
 	if err != nil {
 		t.Fatal(err)
@@ -29,7 +29,7 @@ func TestExpDataRoundTripPreservesNestedDefinition(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := dataFromExpRec(wantRec)
+	data, err := dataFromExprRec(wantRec)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -41,19 +41,19 @@ func TestExpDataRoundTripPreservesNestedDefinition(t *testing.T) {
 		states[state.ExprCK] = state
 	}
 	root := states[data.ExprCK]
-	if root.SupExpCK != 0 {
-		t.Errorf("root parent key = %d, want 0", root.SupExpCK)
+	if root.SupExprCK != 0 {
+		t.Errorf("root parent key = %d, want 0", root.SupExprCK)
 	}
-	middle := states[root.Spec.ContExpCK]
-	if middle.SupExpCK != root.ExprCK {
-		t.Errorf("middle parent key = %d, want %d", middle.SupExpCK, root.ExprCK)
+	middle := states[root.Spec.ContExprCK]
+	if middle.SupExprCK != root.ExprCK {
+		t.Errorf("middle parent key = %d, want %d", middle.SupExprCK, root.ExprCK)
 	}
-	leaf := states[middle.Spec.ContExpCK]
-	if leaf.SupExpCK != middle.ExprCK {
-		t.Errorf("leaf parent key = %d, want %d", leaf.SupExpCK, middle.ExprCK)
+	leaf := states[middle.Spec.ContExprCK]
+	if leaf.SupExprCK != middle.ExprCK {
+		t.Errorf("leaf parent key = %d, want %d", leaf.SupExprCK, middle.ExprCK)
 	}
 
-	gotRec, err := dataToExpRec(data)
+	gotRec, err := dataToExprRec(data)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -62,24 +62,24 @@ func TestExpDataRoundTripPreservesNestedDefinition(t *testing.T) {
 	}
 }
 
-func TestDataToExpRecRejectsMissingContinuation(t *testing.T) {
-	_, err := dataToExpRec(ExprData{
+func TestDataToExprRecRejectsMissingContinuation(t *testing.T) {
+	_, err := dataToExprRec(ExprData{
 		ExprCK: 1,
 		States: []ExprState{{
 			ExprCK: 1,
 			K:     AcquireKind,
 			Spec: ExprStateSpec{
 				CommChnlPH: "request",
-				ContExpCK:  2,
+				ContExprCK:  2,
 			},
 		}},
 	})
 	if err == nil {
-		t.Fatal("dataToExpRec() error = nil, want missing continuation error")
+		t.Fatal("dataToExprRec() error = nil, want missing continuation error")
 	}
 }
 
-func TestDataToExpRecRejectsInvalidTreeStructure(t *testing.T) {
+func TestDataToExprRecRejectsInvalidTreeStructure(t *testing.T) {
 	tests := []struct {
 		name   string
 		states []ExprState
@@ -100,7 +100,7 @@ func TestDataToExpRecRejectsInvalidTreeStructure(t *testing.T) {
 		{
 			name: "root has parent",
 			states: []ExprState{
-				{ExprCK: 1, SupExpCK: 2, K: ReleaseKind, Spec: ExprStateSpec{CommChnlPH: "request"}},
+				{ExprCK: 1, SupExprCK: 2, K: ReleaseKind, Spec: ExprStateSpec{CommChnlPH: "request"}},
 			},
 		},
 		{
@@ -113,8 +113,8 @@ func TestDataToExpRecRejectsInvalidTreeStructure(t *testing.T) {
 		{
 			name: "child has unexpected parent",
 			states: []ExprState{
-				{ExprCK: 1, K: AcquireKind, Spec: ExprStateSpec{CommChnlPH: "request", ContExpCK: 2}},
-				{ExprCK: 2, SupExpCK: 3, K: ReleaseKind, Spec: ExprStateSpec{CommChnlPH: "worker"}},
+				{ExprCK: 1, K: AcquireKind, Spec: ExprStateSpec{CommChnlPH: "request", ContExprCK: 2}},
+				{ExprCK: 2, SupExprCK: 3, K: ReleaseKind, Spec: ExprStateSpec{CommChnlPH: "worker"}},
 			},
 		},
 		{
@@ -127,9 +127,9 @@ func TestDataToExpRecRejectsInvalidTreeStructure(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := dataToExpRec(ExprData{ExprCK: 1, States: tt.states})
+			_, err := dataToExprRec(ExprData{ExprCK: 1, States: tt.states})
 			if err == nil {
-				t.Fatal("dataToExpRec() error = nil, want invalid tree error")
+				t.Fatal("dataToExprRec() error = nil, want invalid tree error")
 			}
 		})
 	}

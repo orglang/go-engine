@@ -16,10 +16,10 @@ func TestDownRecRoundTrip(t *testing.T) {
 		ContExp: typedef.OneRec{ExprCK: contkey.One},
 	}
 
-	dto := dataFromExpRec(want)
-	got, err := dataToExpRec(dto)
+	dto := dataFromExprRec(want)
+	got, err := dataToExprRec(dto)
 	if err != nil {
-		t.Fatalf("dataToExpRec() error = %v", err)
+		t.Fatalf("dataToExprRec() error = %v", err)
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("round trip mismatch: got %#v, want %#v", got, want)

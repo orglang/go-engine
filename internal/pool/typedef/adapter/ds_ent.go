@@ -42,7 +42,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec)
 	_, err = dao.client.TypeDef.Create().
 		SetID(dto.TypeID).
 		SetProgID(dto.ProgID).
-		SetExpCk(dto.ExprCK).
+		SetExprCk(dto.ExprCK).
 		Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)

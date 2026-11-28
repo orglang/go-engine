@@ -38,7 +38,7 @@ type ExprStateSpec struct {
 	CommChnlPH  string   `json:"comm_chnl_ph,omitempty"`
 	ProcTermQN  string   `json:"proc_term_qn,omitempty"`
 	ProcCompQNs []string `json:"proc_comp_qns,omitempty"`
-	ContExpCK   int64    `json:"cont_expr_ck,omitempty"`
+	ContExprCK   int64    `json:"cont_expr_ck,omitempty"`
 }
 
 func dataFromExprRec(rec termdef.ExprRec) (ExprData, error) {
@@ -57,16 +57,16 @@ func statesFromExprRec(parent int64, rec termdef.ExprRec, dto *ExprData) int64 {
 	switch r := rec.(type) {
 	case termdef.ExprAcquireRec:
 		kind, data.CommChnlPH = AcquireKind, string(r.CommChnlPH)
-		data.ContExpCK = statesFromExprRec(key, r.ContExp, dto)
+		data.ContExprCK = statesFromExprRec(key, r.ContExp, dto)
 	case termdef.ExprAcceptRec:
 		kind, data.CommChnlPH = AcceptKind, string(r.CommChnlPH)
-		data.ContExpCK = statesFromExprRec(key, r.ContExp, dto)
+		data.ContExprCK = statesFromExprRec(key, r.ContExp, dto)
 	case termdef.ExprHireRec:
 		kind, data.CommChnlPH, data.ProcTermQN = HireKind, string(r.CommChnlPH), uniqsym.ConvertToString(r.ProcTermQN)
-		data.ContExpCK = statesFromExprRec(key, r.ContExp, dto)
+		data.ContExprCK = statesFromExprRec(key, r.ContExp, dto)
 	case termdef.ExprApplyRec:
 		kind, data.CommChnlPH, data.ProcTermQN = ApplyKind, string(r.CommChnlPH), uniqsym.ConvertToString(r.ProcTermQN)
-		data.ContExpCK = statesFromExprRec(key, r.ContExp, dto)
+		data.ContExprCK = statesFromExprRec(key, r.ContExp, dto)
 	case termdef.ExprReleaseRec:
 		kind, data.CommChnlPH = ReleaseKind, string(r.CommChnlPH)
 	case termdef.ExprDetachRec:
@@ -125,9 +125,9 @@ func statesToExprRec(states map[int64]ExprState, state ExprState, visiting, visi
 	}
 	spec := state.Spec
 	cont := func() (termdef.ExprRec, error) {
-		child, ok := states[spec.ContExpCK]
+		child, ok := states[spec.ContExprCK]
 		if !ok {
-			return nil, fmt.Errorf("pool Definition child %d is missing", spec.ContExpCK)
+			return nil, fmt.Errorf("pool Definition child %d is missing", spec.ContExprCK)
 		}
 		if child.SupExprCK != state.ExprCK {
 			return nil, fmt.Errorf("pool Definition child %d has unexpected parent", child.ExprCK)

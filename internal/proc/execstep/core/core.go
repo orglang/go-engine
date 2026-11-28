@@ -7,5 +7,5 @@ import (
 
 type StepSpec struct {
 	RootRef execroot.RootRef
-	ProcExp commact.ExpSpec
+	ProcExpr commact.ExpSpec
 }

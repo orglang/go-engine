@@ -40,8 +40,8 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec execeval.EvalRe
 	dto := DataFromEvalRec(rec)
 	refAttr := slog.Any("ref", rec.RootRef)
 	_, err := dao.client.ExecEval.Create().
-		SetID(dto.RootID).
-		SetRootRn(dto.RootRN).
+		SetID(dto.ExecID).
+		SetExecRn(dto.ExecRN).
 		SetLiabMode(dto.LiabMode).
 		Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
@@ -54,7 +54,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec execeval.EvalRe
 
 func (dao *daoEnt) GetSnapByRef(ctx context.Context, conn tx.Conn, ref execroot.RootRef) (execeval.EvalSnap, error) {
 	refAttr := slog.Any("ref", ref)
-	chnlRows, err := conn.Pgx.Query(ctx, selectChnls, ref.RootID.String())
+	chnlRows, err := conn.Pgx.Query(ctx, selectChnls, ref.ExecID.String())
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)
 		return execeval.EvalSnap{}, err
@@ -115,8 +115,8 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execeval.Eva
 	execReq := pgx.Batch{}
 	for _, dto := range dto.ExecRefs {
 		args := pgx.NamedArgs{
-			"exec_id": dto.RootID,
-			"exec_rn": dto.RootRN,
+			"exec_id": dto.ExecID,
+			"exec_rn": dto.ExecRN,
 		}
 		execReq.Queue(updateExec, args)
 	}
@@ -132,7 +132,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execeval.Eva
 		}
 		if ct.RowsAffected() == 0 {
 			dao.log.Error("update failed", slog.Any("dto", dto))
-			return errOptimisticUpdate(seqnum.ADT(dto.RootRN))
+			return errOptimisticUpdate(seqnum.ADT(dto.ExecRN))
 		}
 	}
 	dao.log.Debug("update succeed")

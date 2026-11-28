@@ -8,217 +8,217 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 )
 
-// ExpSpec is one node in a Term Definition tree.
-type ExpSpec interface{ expSpec() }
-type ExpAcquireSpec struct {
+// ExprSpec is one node in a Term Definition tree.
+type ExprSpec interface{ exprSpec() }
+type ExprAcquireSpec struct {
 	CommChnlPH symbol.ADT
-	ContExp    ExpSpec
+	ContExp    ExprSpec
 }
 
-func (ExpAcquireSpec) expSpec() {}
+func (ExprAcquireSpec) exprSpec() {}
 
-type ExpAcceptSpec struct {
+type ExprAcceptSpec struct {
 	CommChnlPH symbol.ADT
-	ContExp    ExpSpec
+	ContExp    ExprSpec
 }
 
-func (ExpAcceptSpec) expSpec() {}
+func (ExprAcceptSpec) exprSpec() {}
 
-type ExpHireSpec struct {
-	CommChnlPH symbol.ADT
-	ProcTermQN uniqsym.ADT
-	ContExp    ExpSpec
-}
-
-func (ExpHireSpec) expSpec() {}
-
-type ExpApplySpec struct {
+type ExprHireSpec struct {
 	CommChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
-	ContExp    ExpSpec
+	ContExp    ExprSpec
 }
 
-func (ExpApplySpec) expSpec() {}
+func (ExprHireSpec) exprSpec() {}
 
-type ExpReleaseSpec struct{ CommChnlPH symbol.ADT }
-
-func (ExpReleaseSpec) expSpec() {}
-
-type ExpDetachSpec struct{ CommChnlPH symbol.ADT }
-
-func (ExpDetachSpec) expSpec() {}
-
-type ExpFireSpec struct {
+type ExprApplySpec struct {
 	CommChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
+	ContExp    ExprSpec
 }
 
-func (ExpFireSpec) expSpec() {}
+func (ExprApplySpec) exprSpec() {}
 
-type ExpQuitSpec struct {
+type ExprReleaseSpec struct{ CommChnlPH symbol.ADT }
+
+func (ExprReleaseSpec) exprSpec() {}
+
+type ExprDetachSpec struct{ CommChnlPH symbol.ADT }
+
+func (ExprDetachSpec) exprSpec() {}
+
+type ExprFireSpec struct {
 	CommChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
 }
 
-func (ExpQuitSpec) expSpec() {}
+func (ExprFireSpec) exprSpec() {}
 
-type ExpSpawnSpec struct {
+type ExprQuitSpec struct {
+	CommChnlPH symbol.ADT
+	ProcTermQN uniqsym.ADT
+}
+
+func (ExprQuitSpec) exprSpec() {}
+
+type ExprSpawnSpec struct {
 	ProcTermQN  uniqsym.ADT
 	ProcCompQNs []uniqsym.ADT
 }
 
-func (ExpSpawnSpec) expSpec() {}
+func (ExprSpawnSpec) exprSpec() {}
 
-// ExpRec is the recursive, content-addressed domain representation of a Definition.
-type ExpRec interface {
-	expRec()
+// ExprRec is the recursive, content-addressed domain representation of a Definition.
+type ExprRec interface {
+	exprRec()
 	ContentKey() contkey.ADT
 }
-type ExpAcquireRec struct {
-	ExpCK      contkey.ADT
+type ExprAcquireRec struct {
+	ExprCK      contkey.ADT
 	CommChnlPH symbol.ADT
-	ContExp    ExpRec
+	ContExp    ExprRec
 }
 
-func (ExpAcquireRec) expRec()                   {}
-func (r ExpAcquireRec) ContentKey() contkey.ADT { return r.ExpCK }
+func (ExprAcquireRec) exprRec()                   {}
+func (r ExprAcquireRec) ContentKey() contkey.ADT { return r.ExprCK }
 
-type ExpAcceptRec struct {
-	ExpCK      contkey.ADT
+type ExprAcceptRec struct {
+	ExprCK      contkey.ADT
 	CommChnlPH symbol.ADT
-	ContExp    ExpRec
+	ContExp    ExprRec
 }
 
-func (ExpAcceptRec) expRec()                   {}
-func (r ExpAcceptRec) ContentKey() contkey.ADT { return r.ExpCK }
+func (ExprAcceptRec) exprRec()                   {}
+func (r ExprAcceptRec) ContentKey() contkey.ADT { return r.ExprCK }
 
-type ExpHireRec struct {
-	ExpCK      contkey.ADT
-	CommChnlPH symbol.ADT
-	ProcTermQN uniqsym.ADT
-	ContExp    ExpRec
-}
-
-func (ExpHireRec) expRec()                   {}
-func (r ExpHireRec) ContentKey() contkey.ADT { return r.ExpCK }
-
-type ExpApplyRec struct {
-	ExpCK      contkey.ADT
+type ExprHireRec struct {
+	ExprCK      contkey.ADT
 	CommChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
-	ContExp    ExpRec
+	ContExp    ExprRec
 }
 
-func (ExpApplyRec) expRec()                   {}
-func (r ExpApplyRec) ContentKey() contkey.ADT { return r.ExpCK }
+func (ExprHireRec) exprRec()                   {}
+func (r ExprHireRec) ContentKey() contkey.ADT { return r.ExprCK }
 
-type ExpReleaseRec struct {
-	ExpCK      contkey.ADT
-	CommChnlPH symbol.ADT
-}
-
-func (ExpReleaseRec) expRec()                   {}
-func (r ExpReleaseRec) ContentKey() contkey.ADT { return r.ExpCK }
-
-type ExpDetachRec struct {
-	ExpCK      contkey.ADT
-	CommChnlPH symbol.ADT
-}
-
-func (ExpDetachRec) expRec()                   {}
-func (r ExpDetachRec) ContentKey() contkey.ADT { return r.ExpCK }
-
-type ExpFireRec struct {
-	ExpCK      contkey.ADT
+type ExprApplyRec struct {
+	ExprCK      contkey.ADT
 	CommChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
+	ContExp    ExprRec
 }
 
-func (ExpFireRec) expRec()                   {}
-func (r ExpFireRec) ContentKey() contkey.ADT { return r.ExpCK }
+func (ExprApplyRec) exprRec()                   {}
+func (r ExprApplyRec) ContentKey() contkey.ADT { return r.ExprCK }
 
-type ExpQuitRec struct {
-	ExpCK      contkey.ADT
+type ExprReleaseRec struct {
+	ExprCK      contkey.ADT
+	CommChnlPH symbol.ADT
+}
+
+func (ExprReleaseRec) exprRec()                   {}
+func (r ExprReleaseRec) ContentKey() contkey.ADT { return r.ExprCK }
+
+type ExprDetachRec struct {
+	ExprCK      contkey.ADT
+	CommChnlPH symbol.ADT
+}
+
+func (ExprDetachRec) exprRec()                   {}
+func (r ExprDetachRec) ContentKey() contkey.ADT { return r.ExprCK }
+
+type ExprFireRec struct {
+	ExprCK      contkey.ADT
 	CommChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
 }
 
-func (ExpQuitRec) expRec()                   {}
-func (r ExpQuitRec) ContentKey() contkey.ADT { return r.ExpCK }
+func (ExprFireRec) exprRec()                   {}
+func (r ExprFireRec) ContentKey() contkey.ADT { return r.ExprCK }
 
-type ExpSpawnRec struct {
-	ExpCK       contkey.ADT
+type ExprQuitRec struct {
+	ExprCK      contkey.ADT
+	CommChnlPH symbol.ADT
+	ProcTermQN uniqsym.ADT
+}
+
+func (ExprQuitRec) exprRec()                   {}
+func (r ExprQuitRec) ContentKey() contkey.ADT { return r.ExprCK }
+
+type ExprSpawnRec struct {
+	ExprCK       contkey.ADT
 	ProcTermQN  uniqsym.ADT
 	ProcCompQNs []uniqsym.ADT
 }
 
-func (ExpSpawnRec) expRec()                   {}
-func (r ExpSpawnRec) ContentKey() contkey.ADT { return r.ExpCK }
+func (ExprSpawnRec) exprRec()                   {}
+func (r ExprSpawnRec) ContentKey() contkey.ADT { return r.ExprCK }
 
-func ConvertSpecToRec(spec ExpSpec) (ExpRec, error) {
-	key, _, err := ExpContentKey(spec)
+func ConvertSpecToRec(spec ExprSpec) (ExprRec, error) {
+	key, _, err := ExprContentKey(spec)
 	if err != nil {
 		return nil, err
 	}
 	switch s := spec.(type) {
-	case ExpAcquireSpec:
+	case ExprAcquireSpec:
 		c, e := ConvertSpecToRec(s.ContExp)
 		if e != nil {
 			return nil, e
 		}
-		return ExpAcquireRec{key, s.CommChnlPH, c}, nil
-	case ExpAcceptSpec:
+		return ExprAcquireRec{key, s.CommChnlPH, c}, nil
+	case ExprAcceptSpec:
 		c, e := ConvertSpecToRec(s.ContExp)
 		if e != nil {
 			return nil, e
 		}
-		return ExpAcceptRec{key, s.CommChnlPH, c}, nil
-	case ExpHireSpec:
+		return ExprAcceptRec{key, s.CommChnlPH, c}, nil
+	case ExprHireSpec:
 		c, e := ConvertSpecToRec(s.ContExp)
 		if e != nil {
 			return nil, e
 		}
-		return ExpHireRec{key, s.CommChnlPH, s.ProcTermQN, c}, nil
-	case ExpApplySpec:
+		return ExprHireRec{key, s.CommChnlPH, s.ProcTermQN, c}, nil
+	case ExprApplySpec:
 		c, e := ConvertSpecToRec(s.ContExp)
 		if e != nil {
 			return nil, e
 		}
-		return ExpApplyRec{key, s.CommChnlPH, s.ProcTermQN, c}, nil
-	case ExpReleaseSpec:
-		return ExpReleaseRec{key, s.CommChnlPH}, nil
-	case ExpDetachSpec:
-		return ExpDetachRec{key, s.CommChnlPH}, nil
-	case ExpFireSpec:
-		return ExpFireRec{key, s.CommChnlPH, s.ProcTermQN}, nil
-	case ExpQuitSpec:
-		return ExpQuitRec{key, s.CommChnlPH, s.ProcTermQN}, nil
-	case ExpSpawnSpec:
-		return ExpSpawnRec{key, s.ProcTermQN, s.ProcCompQNs}, nil
+		return ExprApplyRec{key, s.CommChnlPH, s.ProcTermQN, c}, nil
+	case ExprReleaseSpec:
+		return ExprReleaseRec{key, s.CommChnlPH}, nil
+	case ExprDetachSpec:
+		return ExprDetachRec{key, s.CommChnlPH}, nil
+	case ExprFireSpec:
+		return ExprFireRec{key, s.CommChnlPH, s.ProcTermQN}, nil
+	case ExprQuitSpec:
+		return ExprQuitRec{key, s.CommChnlPH, s.ProcTermQN}, nil
+	case ExprSpawnSpec:
+		return ExprSpawnRec{key, s.ProcTermQN, s.ProcCompQNs}, nil
 	default:
 		return nil, fmt.Errorf("unexpected pool Definition expression spec %T", spec)
 	}
 }
-func ConvertRecToSpec(rec ExpRec) ExpSpec {
+func ConvertRecToSpec(rec ExprRec) ExprSpec {
 	switch r := rec.(type) {
-	case ExpAcquireRec:
-		return ExpAcquireSpec{r.CommChnlPH, ConvertRecToSpec(r.ContExp)}
-	case ExpAcceptRec:
-		return ExpAcceptSpec{r.CommChnlPH, ConvertRecToSpec(r.ContExp)}
-	case ExpHireRec:
-		return ExpHireSpec{r.CommChnlPH, r.ProcTermQN, ConvertRecToSpec(r.ContExp)}
-	case ExpApplyRec:
-		return ExpApplySpec{r.CommChnlPH, r.ProcTermQN, ConvertRecToSpec(r.ContExp)}
-	case ExpReleaseRec:
-		return ExpReleaseSpec{r.CommChnlPH}
-	case ExpDetachRec:
-		return ExpDetachSpec{r.CommChnlPH}
-	case ExpFireRec:
-		return ExpFireSpec{r.CommChnlPH, r.ProcTermQN}
-	case ExpQuitRec:
-		return ExpQuitSpec{r.CommChnlPH, r.ProcTermQN}
-	case ExpSpawnRec:
-		return ExpSpawnSpec{r.ProcTermQN, r.ProcCompQNs}
+	case ExprAcquireRec:
+		return ExprAcquireSpec{r.CommChnlPH, ConvertRecToSpec(r.ContExp)}
+	case ExprAcceptRec:
+		return ExprAcceptSpec{r.CommChnlPH, ConvertRecToSpec(r.ContExp)}
+	case ExprHireRec:
+		return ExprHireSpec{r.CommChnlPH, r.ProcTermQN, ConvertRecToSpec(r.ContExp)}
+	case ExprApplyRec:
+		return ExprApplySpec{r.CommChnlPH, r.ProcTermQN, ConvertRecToSpec(r.ContExp)}
+	case ExprReleaseRec:
+		return ExprReleaseSpec{r.CommChnlPH}
+	case ExprDetachRec:
+		return ExprDetachSpec{r.CommChnlPH}
+	case ExprFireRec:
+		return ExprFireSpec{r.CommChnlPH, r.ProcTermQN}
+	case ExprQuitRec:
+		return ExprQuitSpec{r.CommChnlPH, r.ProcTermQN}
+	case ExprSpawnRec:
+		return ExprSpawnSpec{r.ProcTermQN, r.ProcCompQNs}
 	default:
 		panic(fmt.Sprintf("unexpected pool Definition expression rec %T", rec))
 	}

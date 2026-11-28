@@ -12,11 +12,11 @@ import (
 	commact "orglang/go-engine/internal/pool/commact/core"
 )
 
-// ExpKind identifies the kind of a persisted pool term expression.
-type ExpKind int
+// ExprKind identifies the kind of a persisted pool term expression.
+type ExprKind int
 
 const (
-	UnkKind ExpKind = iota
+	UnkKind ExprKind = iota
 	AcquireKind
 	AcceptKind
 	HireKind
@@ -28,14 +28,14 @@ const (
 	SpawnKind
 )
 
-type ExpSpec interface {
+type ExprSpec interface {
 	IsPoolExp()
 }
 
 // запрос доступа (подписка) со стороны клиента (спрос на доступ)
 type AcquireSpec struct {
 	CommChnlPH symbol.ADT
-	ContExp    ExpSpec
+	ContExp    ExprSpec
 }
 
 func (s AcquireSpec) spec()    {}
@@ -48,7 +48,7 @@ func (s AcquireSpec) LogValue() slog.Value {
 // предложение доступа (публикация) со стороны провайдера (предложение доступа)
 type AcceptSpec struct {
 	CommChnlPH symbol.ADT
-	ContExp    ExpSpec
+	ContExp    ExprSpec
 }
 
 func (s AcceptSpec) spec()    {}
@@ -63,7 +63,7 @@ type HireSpec struct {
 	CommChnlPH symbol.ADT
 	// запрашиваемая компетенция
 	ProcTermQN uniqsym.ADT
-	ContExp    ExpSpec
+	ContExp    ExprSpec
 }
 
 func (s HireSpec) spec()    {}
@@ -78,7 +78,7 @@ type ApplySpec struct {
 	CommChnlPH symbol.ADT
 	// предлагаемая компетенция
 	ProcTermQN uniqsym.ADT
-	ContExp    ExpSpec
+	ContExp    ExprSpec
 }
 
 func (s ApplySpec) spec()    {}
@@ -167,12 +167,12 @@ func (s SpawnSpec2) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
 }
 
-// ExpRec is the expression-record contract carried by a communication action.
-type ExpRec = commact.ExpRec
+// ExprRec is the expression-record contract carried by a communication action.
+type ExprRec = commact.ExprRec
 
 type AcquireRec struct {
 	ContChnlPH symbol.ADT
-	ContExp    ExpSpec
+	ContExp    ExprSpec
 }
 
 func (r AcquireRec) rec()    {}
@@ -180,7 +180,7 @@ func (AcquireRec) IsExpRec() {}
 
 type AcceptRec struct {
 	ContChnlPH symbol.ADT
-	ContExp    ExpSpec
+	ContExp    ExprSpec
 }
 
 func (r AcceptRec) rec()    {}
@@ -189,7 +189,7 @@ func (AcceptRec) IsExpRec() {}
 type HireRec struct {
 	ContChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
-	ContExp    ExpSpec
+	ContExp    ExprSpec
 }
 
 func (r HireRec) rec()    {}
@@ -198,7 +198,7 @@ func (HireRec) IsExpRec() {}
 type ApplyRec struct {
 	ContChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
-	ContExp    ExpSpec
+	ContExp    ExprSpec
 }
 
 func (r ApplyRec) rec()    {}
@@ -239,14 +239,14 @@ type SpawnRec struct {
 func (r SpawnRec) rec()    {}
 func (SpawnRec) IsExpRec() {}
 
-func ErrSpecTypeUnexpected(got ExpSpec) error {
+func ErrSpecTypeUnexpected(got ExprSpec) error {
 	return fmt.Errorf("expr spec unexpected: %T%+v", got, got)
 }
 
-func ErrRecTypeUnexpected(got ExpRec) error {
+func ErrRecTypeUnexpected(got ExprRec) error {
 	return fmt.Errorf("expr rec unexpected: %T%+v", got, got)
 }
 
-func ErrExpKindUnexpected(got ExpKind) error {
+func ErrExpKindUnexpected(got ExprKind) error {
 	return fmt.Errorf("expr kind unexpected: %v", got)
 }

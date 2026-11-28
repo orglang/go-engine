@@ -4,19 +4,19 @@ import (
 	"orglang/go-engine/internal/adt/contkey"
 )
 
-func ConvertSpecToRec(s ExpSpec) (ExpRec, error) {
+func ConvertSpecToRec(s ExprSpec) (ExprRec, error) {
 	if s == nil {
 		return nil, nil
 	}
 	switch spec := s.(type) {
 	case OneSpec:
-		return OneRec{ExpCK: contkey.One}, nil
+		return OneRec{ExprCK: contkey.One}, nil
 	case LinkSpec:
-		expCK, err := spec.TypeQN.Key()
+		exprCK, err := spec.TypeQN.Key()
 		if err != nil {
 			return nil, err
 		}
-		return LinkRec{ExpCK: expCK, TypeQN: spec.TypeQN}, nil
+		return LinkRec{ExprCK: exprCK, TypeQN: spec.TypeQN}, nil
 	case WithSpec:
 		contExp, err := ConvertSpecToRec(spec.ContExp)
 		if err != nil {
@@ -30,11 +30,11 @@ func ConvertSpecToRec(s ExpSpec) (ExpRec, error) {
 			}
 			cks = append(cks, ck)
 		}
-		expCK, err := contkey.Compose(append(cks, contExp.Key())...)
+		exprCK, err := contkey.Compose(append(cks, contExp.Key())...)
 		if err != nil {
 			return nil, err
 		}
-		return WithRec{ExpCK: expCK, ProcQNs: spec.ProcQNs, ContExp: contExp}, nil
+		return WithRec{ExprCK: exprCK, ProcQNs: spec.ProcQNs, ContExp: contExp}, nil
 	case PlusSpec:
 		contExp, err := ConvertSpecToRec(spec.ContExp)
 		if err != nil {
@@ -48,37 +48,37 @@ func ConvertSpecToRec(s ExpSpec) (ExpRec, error) {
 			}
 			cks = append(cks, ck)
 		}
-		expCK, err := contkey.Compose(append(cks, contExp.Key())...)
+		exprCK, err := contkey.Compose(append(cks, contExp.Key())...)
 		if err != nil {
 			return nil, err
 		}
-		return PlusRec{ExpCK: expCK, ProcQNs: spec.ProcQNs, ContExp: contExp}, nil
+		return PlusRec{ExprCK: exprCK, ProcQNs: spec.ProcQNs, ContExp: contExp}, nil
 	case UpSpec:
 		contExp, err := ConvertSpecToRec(spec.ContExp)
 		if err != nil {
 			return nil, err
 		}
-		expCK, err := contkey.Compose([]contkey.ADT{contkey.Two, contExp.Key()}...)
+		exprCK, err := contkey.Compose([]contkey.ADT{contkey.Two, contExp.Key()}...)
 		if err != nil {
 			return nil, err
 		}
-		return UpRec{ExpCK: expCK, ContExp: contExp}, nil
+		return UpRec{ExprCK: exprCK, ContExp: contExp}, nil
 	case DownSpec:
 		contExp, err := ConvertSpecToRec(spec.ContExp)
 		if err != nil {
 			return nil, err
 		}
-		expCK, err := contkey.Compose([]contkey.ADT{contkey.Three, contExp.Key()}...)
+		exprCK, err := contkey.Compose([]contkey.ADT{contkey.Three, contExp.Key()}...)
 		if err != nil {
 			return nil, err
 		}
-		return DownRec{ExpCK: expCK, ContExp: contExp}, nil
+		return DownRec{ExprCK: exprCK, ContExp: contExp}, nil
 	default:
 		panic(ErrSpecTypeUnexpected(spec))
 	}
 }
 
-func ConvertRecToSpec(r ExpRec) ExpSpec {
+func ConvertRecToSpec(r ExprRec) ExprSpec {
 	if r == nil {
 		return nil
 	}

@@ -18,12 +18,12 @@ type API interface {
 
 type DefSpec struct {
 	TermQN uniqsym.ADT
-	Exp    ExpSpec
+	Expr    ExprSpec
 }
 
 type DefRec struct {
 	TermID identity.ADT
-	ExpCK  contkey.ADT
+	ExprCK  contkey.ADT
 }
 
 type service struct {
@@ -48,18 +48,18 @@ func (s *service) RetrieveDefinition(ctx context.Context, termID identity.ADT) (
 		if err != nil {
 			return DefSpec{}, err
 		}
-		if rec.ExpCK == 0 {
+		if rec.ExprCK == 0 {
 			return DefSpec{}, DefinitionMissing(termID)
 		}
 		termQN, err := s.termDecRepo.GetQNByID(txCtx, conn, rec.TermID)
 		if err != nil {
 			return DefSpec{}, err
 		}
-		exp, err := s.termDefRepo.SelectSpecByCK(txCtx, conn, rec.ExpCK)
+		expr, err := s.termDefRepo.SelectSpecByCK(txCtx, conn, rec.ExprCK)
 		if err != nil {
 			return DefSpec{}, err
 		}
-		return DefSpec{TermQN: termQN, Exp: exp}, nil
+		return DefSpec{TermQN: termQN, Expr: expr}, nil
 	})
 }
 

@@ -9,7 +9,7 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 )
 
-type ExpSpec interface {
+type ExprSpec interface {
 	Via() symbol.ADT
 }
 
@@ -21,7 +21,7 @@ func (s CloseSpec) Via() symbol.ADT { return s.ContChnlPH }
 
 type WaitSpec struct {
 	ContChnlPH symbol.ADT
-	ContExp    ExpSpec
+	ContExp    ExprSpec
 }
 
 func (s WaitSpec) Via() symbol.ADT { return s.ContChnlPH }
@@ -36,7 +36,7 @@ func (s SendSpec) Via() symbol.ADT { return s.CommChnlPH }
 type RecvSpec struct {
 	CommChnlPH symbol.ADT
 	NewChnlPH  symbol.ADT
-	ContExp    ExpSpec
+	ContExp    ExprSpec
 }
 
 func (s RecvSpec) Via() symbol.ADT { return s.CommChnlPH }
@@ -44,19 +44,19 @@ func (s RecvSpec) Via() symbol.ADT { return s.CommChnlPH }
 type LabSpec struct {
 	CommChnlPH symbol.ADT
 	ValLabQN   uniqsym.ADT
-	ContExp    ExpSpec
+	ContExp    ExprSpec
 }
 
 func (s LabSpec) Via() symbol.ADT { return s.CommChnlPH }
 
 type CaseSpec struct {
 	CommChnlPH symbol.ADT
-	ContExprs  map[uniqsym.ADT]ExpSpec
+	ContExprs  map[uniqsym.ADT]ExprSpec
 }
 
 func (s CaseSpec) Via() symbol.ADT { return s.CommChnlPH }
 
-// aka ExpName
+// aka ExprName
 type LinkSpec struct {
 	ProcTermQN uniqsym.ADT
 	X          identity.ADT
@@ -77,7 +77,7 @@ type CallSpec struct {
 	NewChnlPH  symbol.ADT
 	ProcTermQN uniqsym.ADT
 	ValChnlPHs []symbol.ADT // channel bulk
-	ContExp    ExpSpec
+	ContExp    ExprSpec
 }
 
 func (s CallSpec) Via() symbol.ADT { return s.CommChnlPH }
@@ -86,21 +86,21 @@ type SpawnSpec struct {
 	CommChnlPH symbol.ADT
 	ProcTermQN uniqsym.ADT
 	NewChnlPHs []symbol.ADT
-	ContExp    ExpSpec
+	ContExp    ExprSpec
 }
 
 func (s SpawnSpec) Via() symbol.ADT { return s.CommChnlPH }
 
 type AcqureSpec struct {
 	CommChnlPH symbol.ADT
-	ContExp    ExpSpec
+	ContExp    ExprSpec
 }
 
 func (s AcqureSpec) Via() symbol.ADT { return s.CommChnlPH }
 
 type AcceptSpec struct {
 	CommChnlPH symbol.ADT
-	ContExp    ExpSpec
+	ContExp    ExprSpec
 }
 
 func (s AcceptSpec) Via() symbol.ADT { return s.CommChnlPH }
@@ -117,8 +117,8 @@ type ReleaseSpec struct {
 
 func (s ReleaseSpec) Via() symbol.ADT { return s.CommChnlPH }
 
-type ExpRec interface {
-	ExpSpec
+type ExprRec interface {
+	ExprSpec
 	IsExpRec()
 }
 
@@ -132,7 +132,7 @@ func (CloseRec) IsExpRec() {}
 
 type WaitRec struct {
 	ContChnlPH symbol.ADT
-	ContExp    ExpSpec
+	ContExp    ExprSpec
 }
 
 func (r WaitRec) Via() symbol.ADT { return r.ContChnlPH }
@@ -155,7 +155,7 @@ type RecvRec struct {
 	CommChnlPH symbol.ADT
 	ContChnlID identity.ADT
 	NewChnlPH  symbol.ADT
-	ContExp    ExpSpec
+	ContExp    ExprSpec
 }
 
 func (r RecvRec) Via() symbol.ADT { return r.CommChnlPH }
@@ -176,7 +176,7 @@ func (LabRec) IsExpRec() {}
 type CaseRec struct {
 	CommChnlPH symbol.ADT
 	ContChnlID identity.ADT
-	ContExprs  map[uniqsym.ADT]ExpSpec
+	ContExprs  map[uniqsym.ADT]ExprSpec
 }
 
 func (r CaseRec) Via() symbol.ADT { return r.CommChnlPH }
@@ -192,11 +192,11 @@ func (r FwdRec) Via() symbol.ADT { return r.CommChnlPH }
 
 func (FwdRec) IsExpRec() {}
 
-func CollectEnv(spec ExpSpec) []identity.ADT {
+func CollectEnv(spec ExprSpec) []identity.ADT {
 	return collectEnvRec(spec, []identity.ADT{})
 }
 
-func collectEnvRec(s ExpSpec, env []identity.ADT) []identity.ADT {
+func collectEnvRec(s ExprSpec, env []identity.ADT) []identity.ADT {
 	switch spec := s.(type) {
 	case RecvSpec:
 		return collectEnvRec(spec.ContExp, env)
@@ -210,7 +210,7 @@ func collectEnvRec(s ExpSpec, env []identity.ADT) []identity.ADT {
 	}
 }
 
-func ErrExpTypeUnexpected(got ExpSpec) error {
+func ErrExpTypeUnexpected(got ExprSpec) error {
 	return fmt.Errorf("expr spec unexpected: %T", got)
 }
 
@@ -218,7 +218,7 @@ func ErrRecTypeUnexpected(got any) error {
 	return fmt.Errorf("expr rec unexpected: %T", got)
 }
 
-func ErrExpTypeMismatch(got, want ExpSpec) error {
+func ErrExpTypeMismatch(got, want ExprSpec) error {
 	return fmt.Errorf("expr spec mismatch: want %T, got %T", want, got)
 }
 

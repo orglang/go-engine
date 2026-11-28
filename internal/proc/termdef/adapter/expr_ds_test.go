@@ -89,7 +89,7 @@ func TestDataToExprRecAllowsSharedCaseContinuation(t *testing.T) {
 	if !ok {
 		t.Fatalf("dataToExprRec() = %T, want ExprCaseRec", rec)
 	}
-	if len(caseRec.ContExps) != 2 {
-		t.Fatalf("case branches = %d, want 2", len(caseRec.ContExps))
+	if len(caseRec.ContExprs) != 2 {
+		t.Fatalf("case branches = %d, want 2", len(caseRec.ContExprs))
 	}
 }

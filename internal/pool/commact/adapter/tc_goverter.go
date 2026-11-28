@@ -16,9 +16,9 @@ var (
 	// goverter:map ExecRN ExecRN
 	DataToRootRef func(ActRec) (execroot.RootRef, error)
 	// goverter:map . RootRef
-	// goverter:map Expr ValExp
+	// goverter:map Expr ValExpr
 	DataToPubRec func(ActRec) (commact.PubRec, error)
 	// goverter:map . RootRef
-	// goverter:map Expr ContExp
+	// goverter:map Expr ContExpr
 	DataToSubRec func(ActRec) (commact.SubRec, error)
 )

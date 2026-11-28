@@ -41,7 +41,7 @@ func DataFromExprRec(r commact.ExpRec) (ExpRec, error) {
 				A:        identity.ConvertToString(rec.ContChnlID),
 				B:        identity.ConvertToString(rec.ValChnlID),
 				CommID:   commID,
-				ValExprCK: int64(rec.ValExprCK),
+				ValExpCK: int64(rec.ValExprCK),
 			},
 		}, nil
 	case commact.RecvRec:
@@ -65,7 +65,7 @@ func DataFromExprRec(r commact.ExpRec) (ExpRec, error) {
 				X:        symbol.ConvertToString(rec.CommChnlPH),
 				A:        identity.ConvertToString(rec.ContChnlID),
 				Label:    uniqsym.ConvertToString(rec.ValLabQN),
-				ValExprCK: int64(rec.ValExprCK),
+				ValExpCK: int64(rec.ValExprCK),
 			},
 		}, nil
 	case commact.CaseRec:

@@ -1,0 +1,144 @@
+package adapter
+
+import (
+	"context"
+	"errors"
+	"log/slog"
+	"reflect"
+
+	"github.com/jackc/pgx/v5"
+
+	"orglang/go-engine/internal/adt/contkey"
+	"orglang/go-engine/internal/lib/entpgx"
+	"orglang/go-engine/internal/lib/lf"
+	"orglang/go-engine/internal/lib/tx"
+	"orglang/go-engine/internal/proc/ent"
+	typeexprent "orglang/go-engine/internal/proc/ent/typeexpr"
+	typedef "orglang/go-engine/internal/proc/typedef/core"
+)
+
+// Adapter
+type exprDaoEnt struct {
+	client *ent.Client
+	log    *slog.Logger
+}
+
+func NewExprDaoEnt(client *ent.Client, log *slog.Logger) typedef.TypeExprRepo {
+	name := slog.String("name", reflect.TypeFor[exprDaoEnt]().Name())
+	return &exprDaoEnt{client: client, log: log.With(name)}
+}
+
+// for compilation purposes
+func newExprRepo() typedef.TypeExprRepo {
+	return new(exprDaoEnt)
+}
+
+func (dao *exprDaoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.ExprRec) error {
+	ckAttr := slog.Any("exprCK", rec.Key())
+	dto := dataFromExprRec(rec)
+	builders := make([]*ent.TypeExprCreate, 0, len(dto.States))
+	for _, st := range dto.States {
+		builders = append(builders, dao.client.TypeExpr.Create().
+			SetID(st.ExprCK).
+			SetSupExprCk(st.SupExprCK).
+			SetKind(int16(st.K)).
+			SetSpec(st.Spec))
+	}
+	txCtx := entpgx.WithConn(ctx, conn.Pgx)
+	err := dao.client.TypeExpr.CreateBulk(builders...).
+		OnConflictColumns(typeexprent.FieldID).
+		DoNothing().
+		Exec(txCtx)
+	if err != nil {
+		dao.log.Error("query execution failed", ckAttr)
+		return err
+	}
+	dao.log.Log(ctx, lf.LevelTrace, "insertion succeed", ckAttr)
+	return nil
+}
+
+func (dao *exprDaoEnt) SelectRecByCK(ctx context.Context, conn tx.Conn, exprCK contkey.ADT) (typedef.ExprRec, error) {
+	ckAttr := slog.Any("exprCK", exprCK)
+	rows, queryErr := conn.Pgx.Query(ctx, selectByID, contkey.ConvertToInt(exprCK))
+	if queryErr != nil {
+		dao.log.Error("query execution failed", ckAttr)
+		return nil, queryErr
+	}
+	defer rows.Close()
+	dtos, scanErr := pgx.CollectRows(rows, pgx.RowToStructByName[State])
+	if scanErr != nil {
+		dao.log.Error("row scanning failed", ckAttr)
+		return nil, scanErr
+	}
+	if len(dtos) == 0 {
+		dao.log.Error("entity selection failed", ckAttr)
+		return nil, typedef.ErrMissingInEnv(exprCK)
+	}
+	dao.log.Log(ctx, lf.LevelTrace, "entity selection succeed", slog.Any("dtos", dtos))
+	states := make(map[int64]State, len(dtos))
+	for _, dto := range dtos {
+		states[dto.ExprCK] = dto
+	}
+	return statesToExprRec(states, states[contkey.ConvertToInt(exprCK)])
+}
+
+func (dao *exprDaoEnt) SelectEnv(ctx context.Context, conn tx.Conn, exprCKs []contkey.ADT) (map[contkey.ADT]typedef.ExprRec, error) {
+	recs, err := dao.SelectRecsByCKs(ctx, conn, exprCKs)
+	if err != nil {
+		return nil, err
+	}
+	env := make(map[contkey.ADT]typedef.ExprRec, len(recs))
+	for _, rec := range recs {
+		env[rec.Key()] = rec
+	}
+	return env, nil
+}
+
+func (dao *exprDaoEnt) SelectRecsByCKs(ctx context.Context, conn tx.Conn, exprCKs []contkey.ADT) (_ []typedef.ExprRec, err error) {
+	batch := pgx.Batch{}
+	for _, exprCK := range exprCKs {
+		batch.Queue(selectByID, contkey.ConvertToInt(exprCK))
+	}
+	br := conn.Pgx.SendBatch(ctx, &batch)
+	defer func() {
+		err = errors.Join(err, br.Close())
+	}()
+	recs := make([]typedef.ExprRec, 0, len(exprCKs))
+	for _, exprCK := range exprCKs {
+		ckAttr := slog.Any("exprCK", exprCK)
+		rows, readErr := br.Query()
+		if readErr != nil {
+			dao.log.Error("query execution failed", ckAttr)
+			return nil, readErr
+		}
+		dtos, scanErr := pgx.CollectRows(rows, pgx.RowToStructByName[State])
+		if scanErr != nil {
+			dao.log.Error("rows scanning failed", ckAttr)
+			return nil, scanErr
+		}
+		if len(dtos) == 0 {
+			dao.log.Error("entity selection failed", ckAttr)
+			return nil, typedef.ErrMissingInEnv(exprCK)
+		}
+		rec, convErr := dataToExprRec(ExprRec{ExprCK: contkey.ConvertToInt(exprCK), States: dtos})
+		if convErr != nil {
+			dao.log.Error("model conversion failed", ckAttr)
+			return nil, convErr
+		}
+		recs = append(recs, rec)
+	}
+	dao.log.Log(ctx, lf.LevelTrace, "entities selection succeed", slog.Any("recs", recs))
+	return recs, err
+}
+
+const selectByID = `
+WITH RECURSIVE expr_tree AS (
+    SELECT top.*
+    FROM proc_type_exprs top
+    WHERE top.expr_ck = $1
+    UNION ALL
+    SELECT sub.*
+    FROM proc_type_exprs sub, expr_tree sup
+    WHERE sub.sup_expr_ck = sup.expr_ck
+)
+SELECT * FROM expr_tree`

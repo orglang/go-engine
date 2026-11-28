@@ -43,30 +43,30 @@ func (_u *TermDecUpdate) SetNillableProgID(v *string) *TermDecUpdate {
 	return _u
 }
 
-// SetExpCk sets the "exp_ck" field.
-func (_u *TermDecUpdate) SetExpCk(v int64) *TermDecUpdate {
-	_u.mutation.ResetExpCk()
-	_u.mutation.SetExpCk(v)
+// SetExprCk sets the "expr_ck" field.
+func (_u *TermDecUpdate) SetExprCk(v int64) *TermDecUpdate {
+	_u.mutation.ResetExprCk()
+	_u.mutation.SetExprCk(v)
 	return _u
 }
 
-// SetNillableExpCk sets the "exp_ck" field if the given value is not nil.
-func (_u *TermDecUpdate) SetNillableExpCk(v *int64) *TermDecUpdate {
+// SetNillableExprCk sets the "expr_ck" field if the given value is not nil.
+func (_u *TermDecUpdate) SetNillableExprCk(v *int64) *TermDecUpdate {
 	if v != nil {
-		_u.SetExpCk(*v)
+		_u.SetExprCk(*v)
 	}
 	return _u
 }
 
-// AddExpCk adds value to the "exp_ck" field.
-func (_u *TermDecUpdate) AddExpCk(v int64) *TermDecUpdate {
-	_u.mutation.AddExpCk(v)
+// AddExprCk adds value to the "expr_ck" field.
+func (_u *TermDecUpdate) AddExprCk(v int64) *TermDecUpdate {
+	_u.mutation.AddExprCk(v)
 	return _u
 }
 
-// ClearExpCk clears the value of the "exp_ck" field.
-func (_u *TermDecUpdate) ClearExpCk() *TermDecUpdate {
-	_u.mutation.ClearExpCk()
+// ClearExprCk clears the value of the "expr_ck" field.
+func (_u *TermDecUpdate) ClearExprCk() *TermDecUpdate {
+	_u.mutation.ClearExprCk()
 	return _u
 }
 
@@ -140,14 +140,14 @@ func (_u *TermDecUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.ProgID(); ok {
 		_spec.SetField(termdec.FieldProgID, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.ExpCk(); ok {
-		_spec.SetField(termdec.FieldExpCk, field.TypeInt64, value)
+	if value, ok := _u.mutation.ExprCk(); ok {
+		_spec.SetField(termdec.FieldExprCk, field.TypeInt64, value)
 	}
-	if value, ok := _u.mutation.AddedExpCk(); ok {
-		_spec.AddField(termdec.FieldExpCk, field.TypeInt64, value)
+	if value, ok := _u.mutation.AddedExprCk(); ok {
+		_spec.AddField(termdec.FieldExprCk, field.TypeInt64, value)
 	}
-	if _u.mutation.ExpCkCleared() {
-		_spec.ClearField(termdec.FieldExpCk, field.TypeInt64)
+	if _u.mutation.ExprCkCleared() {
+		_spec.ClearField(termdec.FieldExprCk, field.TypeInt64)
 	}
 	if value, ok := _u.mutation.LiabVar(); ok {
 		_spec.SetField(termdec.FieldLiabVar, field.TypeJSON, value)
@@ -194,30 +194,30 @@ func (_u *TermDecUpdateOne) SetNillableProgID(v *string) *TermDecUpdateOne {
 	return _u
 }
 
-// SetExpCk sets the "exp_ck" field.
-func (_u *TermDecUpdateOne) SetExpCk(v int64) *TermDecUpdateOne {
-	_u.mutation.ResetExpCk()
-	_u.mutation.SetExpCk(v)
+// SetExprCk sets the "expr_ck" field.
+func (_u *TermDecUpdateOne) SetExprCk(v int64) *TermDecUpdateOne {
+	_u.mutation.ResetExprCk()
+	_u.mutation.SetExprCk(v)
 	return _u
 }
 
-// SetNillableExpCk sets the "exp_ck" field if the given value is not nil.
-func (_u *TermDecUpdateOne) SetNillableExpCk(v *int64) *TermDecUpdateOne {
+// SetNillableExprCk sets the "expr_ck" field if the given value is not nil.
+func (_u *TermDecUpdateOne) SetNillableExprCk(v *int64) *TermDecUpdateOne {
 	if v != nil {
-		_u.SetExpCk(*v)
+		_u.SetExprCk(*v)
 	}
 	return _u
 }
 
-// AddExpCk adds value to the "exp_ck" field.
-func (_u *TermDecUpdateOne) AddExpCk(v int64) *TermDecUpdateOne {
-	_u.mutation.AddExpCk(v)
+// AddExprCk adds value to the "expr_ck" field.
+func (_u *TermDecUpdateOne) AddExprCk(v int64) *TermDecUpdateOne {
+	_u.mutation.AddExprCk(v)
 	return _u
 }
 
-// ClearExpCk clears the value of the "exp_ck" field.
-func (_u *TermDecUpdateOne) ClearExpCk() *TermDecUpdateOne {
-	_u.mutation.ClearExpCk()
+// ClearExprCk clears the value of the "expr_ck" field.
+func (_u *TermDecUpdateOne) ClearExprCk() *TermDecUpdateOne {
+	_u.mutation.ClearExprCk()
 	return _u
 }
 
@@ -321,14 +321,14 @@ func (_u *TermDecUpdateOne) sqlSave(ctx context.Context) (_node *TermDec, err er
 	if value, ok := _u.mutation.ProgID(); ok {
 		_spec.SetField(termdec.FieldProgID, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.ExpCk(); ok {
-		_spec.SetField(termdec.FieldExpCk, field.TypeInt64, value)
+	if value, ok := _u.mutation.ExprCk(); ok {
+		_spec.SetField(termdec.FieldExprCk, field.TypeInt64, value)
 	}
-	if value, ok := _u.mutation.AddedExpCk(); ok {
-		_spec.AddField(termdec.FieldExpCk, field.TypeInt64, value)
+	if value, ok := _u.mutation.AddedExprCk(); ok {
+		_spec.AddField(termdec.FieldExprCk, field.TypeInt64, value)
 	}
-	if _u.mutation.ExpCkCleared() {
-		_spec.ClearField(termdec.FieldExpCk, field.TypeInt64)
+	if _u.mutation.ExprCkCleared() {
+		_spec.ClearField(termdec.FieldExprCk, field.TypeInt64)
 	}
 	if value, ok := _u.mutation.LiabVar(); ok {
 		_spec.SetField(termdec.FieldLiabVar, field.TypeJSON, value)

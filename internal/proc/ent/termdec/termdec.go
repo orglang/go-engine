@@ -13,8 +13,8 @@ const (
 	FieldID = "term_id"
 	// FieldProgID holds the string denoting the prog_id field in the database.
 	FieldProgID = "prog_id"
-	// FieldExpCk holds the string denoting the exp_ck field in the database.
-	FieldExpCk = "exp_ck"
+	// FieldExprCk holds the string denoting the expr_ck field in the database.
+	FieldExprCk = "expr_ck"
 	// FieldLiabVar holds the string denoting the liab_var field in the database.
 	FieldLiabVar = "liab_var"
 	// FieldAssetVars holds the string denoting the asset_vars field in the database.
@@ -27,7 +27,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldProgID,
-	FieldExpCk,
+	FieldExprCk,
 	FieldLiabVar,
 	FieldAssetVars,
 }
@@ -55,7 +55,7 @@ func ByProgID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProgID, opts...).ToFunc()
 }
 
-// ByExpCk orders the results by the exp_ck field.
-func ByExpCk(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldExpCk, opts...).ToFunc()
+// ByExprCk orders the results by the expr_ck field.
+func ByExprCk(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldExprCk, opts...).ToFunc()
 }

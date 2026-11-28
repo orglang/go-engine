@@ -92,7 +92,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execeval.Eva
 			"impl_id":  dto.ExecID,
 			"chnl_ph":  dto.ChnlPH,
 			"chnl_id":  dto.ChnlID,
-			"state_id": dto.ExpCK,
+			"state_id": dto.ExprCK,
 		}
 		bindReq.Queue(insertBind, args)
 	}

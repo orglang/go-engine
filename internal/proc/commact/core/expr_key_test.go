@@ -1,0 +1,100 @@
+package core
+
+import (
+	"strings"
+	"testing"
+
+	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/symbol"
+	"orglang/go-engine/internal/adt/uniqsym"
+)
+
+func TestExprContentKeyIncludesLabContinuation(t *testing.T) {
+	label := uniqsym.New(symbol.New("accepted"))
+	base := LabSpec{
+		CommChnlPH: symbol.New("conn"),
+		ValLabQN:   label,
+		ContExpr:   CloseSpec{ContChnlPH: symbol.New("left")},
+	}
+	changed := LabSpec{
+		CommChnlPH: base.CommChnlPH,
+		ValLabQN:   label,
+		ContExpr:   CloseSpec{ContChnlPH: symbol.New("right")},
+	}
+
+	baseKey, _, err := ExprContentKey(base)
+	if err != nil {
+		t.Fatal(err)
+	}
+	changedKey, _, err := ExprContentKey(changed)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if baseKey == changedKey {
+		t.Fatal("different label continuations produced the same content key")
+	}
+}
+
+func TestExprContentKeyIsStableForCaseMapInsertionOrder(t *testing.T) {
+	leftLabel := uniqsym.New(symbol.New("left"))
+	rightLabel := uniqsym.New(symbol.New("right"))
+	left := CaseSpec{
+		CommChnlPH: symbol.New("conn"),
+		ContExprs: map[uniqsym.ADT]ExprSpec{
+			leftLabel:  CloseSpec{ContChnlPH: symbol.New("left")},
+			rightLabel: CloseSpec{ContChnlPH: symbol.New("right")},
+		},
+	}
+	right := CaseSpec{
+		CommChnlPH: symbol.New("conn"),
+		ContExprs: map[uniqsym.ADT]ExprSpec{
+			rightLabel: CloseSpec{ContChnlPH: symbol.New("right")},
+			leftLabel:  CloseSpec{ContChnlPH: symbol.New("left")},
+		},
+	}
+
+	leftKey, leftJSON, err := ExprContentKey(left)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rightKey, rightJSON, err := ExprContentKey(right)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if leftKey != rightKey || string(leftJSON) != string(rightJSON) {
+		t.Fatal("equivalent case maps produced different canonical content")
+	}
+}
+
+func TestExprContentKeySerializesEveryVariant(t *testing.T) {
+	cont := CloseSpec{ContChnlPH: symbol.New("next")}
+	procTermQN := uniqsym.New(symbol.New("process"))
+	specs := []struct {
+		spec ExprSpec
+		kind string
+	}{
+		{CloseSpec{ContChnlPH: symbol.New("end")}, "close"},
+		{WaitSpec{ContChnlPH: symbol.New("conn"), ContExpr: cont}, "wait"},
+		{SendSpec{CommChnlPH: symbol.New("conn"), ValChnlPH: symbol.New("value")}, "send"},
+		{RecvSpec{CommChnlPH: symbol.New("conn"), NewChnlPH: symbol.New("new"), ContExpr: cont}, "recv"},
+		{LabSpec{CommChnlPH: symbol.New("conn"), ValLabQN: uniqsym.New(symbol.New("label")), ContExpr: cont}, "lab"},
+		{CaseSpec{CommChnlPH: symbol.New("conn"), ContExprs: map[uniqsym.ADT]ExprSpec{uniqsym.New(symbol.New("label")): cont}}, "case"},
+		{LinkSpec{ProcTermQN: procTermQN, X: identity.New(), Ys: []identity.ADT{identity.New()}}, "link"},
+		{FwdSpec{CommChnlPH: symbol.New("conn"), ContChnlPH: symbol.New("next")}, "fwd"},
+		{CallSpec{CommChnlPH: symbol.New("conn"), NewChnlPH: symbol.New("new"), ProcTermQN: procTermQN, ValChnlPHs: []symbol.ADT{symbol.New("value")}, ContExpr: cont}, "call"},
+		{SpawnSpec{CommChnlPH: symbol.New("conn"), ProcTermQN: procTermQN, NewChnlPHs: []symbol.ADT{symbol.New("new")}, ContExpr: cont}, "spawn"},
+		{AcqureSpec{CommChnlPH: symbol.New("conn"), ContExpr: cont}, "acquire"},
+		{AcceptSpec{CommChnlPH: symbol.New("conn"), ContExpr: cont}, "accept"},
+		{DetachSpec{CommChnlPH: symbol.New("conn")}, "detach"},
+		{ReleaseSpec{CommChnlPH: symbol.New("conn")}, "release"},
+	}
+	for _, tc := range specs {
+		_, data, err := ExprContentKey(tc.spec)
+		if err != nil {
+			t.Fatalf("%s: %v", tc.kind, err)
+		}
+		if !strings.Contains(string(data), `"kind":"`+tc.kind+`"`) {
+			t.Fatalf("%s: missing discriminator in %s", tc.kind, data)
+		}
+	}
+}

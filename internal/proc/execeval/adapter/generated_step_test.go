@@ -32,16 +32,16 @@ func TestGeneratedStepToCoreMapsNestedProcessExpression(t *testing.T) {
 	if got := identity.ConvertToString(spec.RootRef.ExecID); got != testExecutionID {
 		t.Errorf("unexpected execution root id: got %q", got)
 	}
-	wait, ok := spec.ProcExp.(commact.WaitSpec)
+	wait, ok := spec.ProcExpr.(commact.WaitSpec)
 	if !ok {
-		t.Fatalf("expected core wait expression, got %T", spec.ProcExp)
+		t.Fatalf("expected core wait expression, got %T", spec.ProcExpr)
 	}
 	if got := symbol.ConvertToString(wait.ContChnlPH); got != "wait-channel" {
 		t.Errorf("unexpected wait channel: got %q", got)
 	}
-	closeSpec, ok := wait.ContExp.(commact.CloseSpec)
+	closeSpec, ok := wait.ContExpr.(commact.CloseSpec)
 	if !ok {
-		t.Fatalf("expected core close continuation, got %T", wait.ContExp)
+		t.Fatalf("expected core close continuation, got %T", wait.ContExpr)
 	}
 	if got := symbol.ConvertToString(closeSpec.ContChnlPH); got != "close-channel" {
 		t.Errorf("unexpected close channel: got %q", got)
@@ -63,9 +63,9 @@ func TestGeneratedStepToCoreMapsLinkExpression(t *testing.T) {
 	if err != nil {
 		t.Fatalf("convert generated link expression: %v", err)
 	}
-	link, ok := spec.ProcExp.(commact.LinkSpec)
+	link, ok := spec.ProcExpr.(commact.LinkSpec)
 	if !ok {
-		t.Fatalf("expected core link expression, got %T", spec.ProcExp)
+		t.Fatalf("expected core link expression, got %T", spec.ProcExpr)
 	}
 	if got := identity.ConvertToString(link.X); got != testExecutionID {
 		t.Errorf("unexpected linked identity: got %q", got)

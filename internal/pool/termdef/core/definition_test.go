@@ -54,7 +54,7 @@ func TestRetrieveDefinition(t *testing.T) {
 	}
 
 	t.Run("returns current definition", func(t *testing.T) {
-		repo := &definitionTestRepo{rec: DefRec{TermID: termID, Exp: ExpReleaseSpec{}}}
+		repo := &definitionTestRepo{rec: DefRec{TermID: termID, Expr: ExprReleaseSpec{}}}
 		service := NewService(definitionTestDecRepo{qn: wantQN}, repo, definitionTestTransactor{})
 
 		got, err := service.RetrieveDefinition(context.Background(), termID)
@@ -64,8 +64,8 @@ func TestRetrieveDefinition(t *testing.T) {
 		if got.TermQN != wantQN {
 			t.Fatalf("RetrieveDefinition().TermQN = %v, want %v", got.TermQN, wantQN)
 		}
-		if _, ok := got.Exp.(ExpReleaseSpec); !ok {
-			t.Fatalf("RetrieveDefinition().Exp = %T, want ExpReleaseSpec", got.Exp)
+		if _, ok := got.Expr.(ExprReleaseSpec); !ok {
+			t.Fatalf("RetrieveDefinition().Expr = %T, want ExprReleaseSpec", got.Expr)
 		}
 	})
 

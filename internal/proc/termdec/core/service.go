@@ -58,11 +58,11 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ DecSnap, err erro
 		return DecSnap{}, getErr
 	}
 	providerDef := typeDefs[spec.LiabVar.TypeQN]
-	newLiabVar := termvar.VarRec{TypeID: providerDef.TypeID, ChnlPH: spec.LiabVar.ChnlPH, ExpCK: providerDef.ExpCK}
+	newLiabVar := termvar.VarRec{TypeID: providerDef.TypeID, ChnlPH: spec.LiabVar.ChnlPH, ExprCK: providerDef.ExprCK}
 	newAssetVars := make([]termvar.VarRec, 0, len(spec.AssetVars))
 	for _, assetVar := range spec.AssetVars {
 		typeDef := typeDefs[assetVar.TypeQN]
-		newAssetVars = append(newAssetVars, termvar.VarRec{TypeID: typeDef.TypeID, ChnlPH: assetVar.ChnlPH, ExpCK: typeDef.ExpCK})
+		newAssetVars = append(newAssetVars, termvar.VarRec{TypeID: typeDef.TypeID, ChnlPH: assetVar.ChnlPH, ExprCK: typeDef.ExprCK})
 	}
 	expectedRoot := providerDef.ProgRef
 	newRoot := progroot.RootRef{ProgID: expectedRoot.ProgID, ProgRN: seqnum.Next(expectedRoot.ProgRN)}

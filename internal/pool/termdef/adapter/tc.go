@@ -11,46 +11,46 @@ import (
 
 // DefinitionToGenerated converts a persisted pool Definition to its public TypeSpec DTO.
 func DefinitionToGenerated(def termdef.DefSpec) (webapi.PoolTermDefinitionSpec, error) {
-	return expToGenerated(def.Exp)
+	return exprToGenerated(def.Expr)
 }
 
-func expToGenerated(spec termdef.ExpSpec) (webapi.PoolTermDefinitionSpec, error) {
+func exprToGenerated(spec termdef.ExprSpec) (webapi.PoolTermDefinitionSpec, error) {
 	var out webapi.PoolTermDefinitionSpec
 
 	switch s := spec.(type) {
-	case termdef.ExpAcquireSpec:
-		cont, err := expToGenerated(s.ContExp)
+	case termdef.ExprAcquireSpec:
+		cont, err := exprToGenerated(s.ContExpr)
 		if err != nil {
 			return out, err
 		}
 		return out, out.FromPoolTermDefAcquireSpec(webapi.PoolTermDefAcquireSpec{CommPh: symbol.ConvertToString(s.CommChnlPH), ContExpr: cont})
-	case termdef.ExpAcceptSpec:
-		cont, err := expToGenerated(s.ContExp)
+	case termdef.ExprAcceptSpec:
+		cont, err := exprToGenerated(s.ContExpr)
 		if err != nil {
 			return out, err
 		}
 		return out, out.FromPoolTermDefAcceptSpec(webapi.PoolTermDefAcceptSpec{CommPh: symbol.ConvertToString(s.CommChnlPH), ContExpr: cont})
-	case termdef.ExpHireSpec:
-		cont, err := expToGenerated(s.ContExp)
+	case termdef.ExprHireSpec:
+		cont, err := exprToGenerated(s.ContExpr)
 		if err != nil {
 			return out, err
 		}
 		return out, out.FromPoolTermDefHireSpec(webapi.PoolTermDefHireSpec{CommPh: symbol.ConvertToString(s.CommChnlPH), ProcQn: uniqsym.ConvertToString(s.ProcTermQN), ContExpr: cont})
-	case termdef.ExpApplySpec:
-		cont, err := expToGenerated(s.ContExp)
+	case termdef.ExprApplySpec:
+		cont, err := exprToGenerated(s.ContExpr)
 		if err != nil {
 			return out, err
 		}
 		return out, out.FromPoolTermDefApplySpec(webapi.PoolTermDefApplySpec{CommPh: symbol.ConvertToString(s.CommChnlPH), ProcQn: uniqsym.ConvertToString(s.ProcTermQN), ContExpr: cont})
-	case termdef.ExpReleaseSpec:
+	case termdef.ExprReleaseSpec:
 		return out, out.FromPoolTermDefReleaseSpec(webapi.PoolTermDefReleaseSpec{CommPh: symbol.ConvertToString(s.CommChnlPH)})
-	case termdef.ExpDetachSpec:
+	case termdef.ExprDetachSpec:
 		return out, out.FromPoolTermDefDetachSpec(webapi.PoolTermDefDetachSpec{CommPh: symbol.ConvertToString(s.CommChnlPH)})
-	case termdef.ExpFireSpec:
+	case termdef.ExprFireSpec:
 		return out, out.FromPoolTermDefFireSpec(webapi.PoolTermDefFireSpec{CommPh: symbol.ConvertToString(s.CommChnlPH), ProcQn: uniqsym.ConvertToString(s.ProcTermQN)})
-	case termdef.ExpQuitSpec:
+	case termdef.ExprQuitSpec:
 		return out, out.FromPoolTermDefQuitSpec(webapi.PoolTermDefQuitSpec{CommPh: symbol.ConvertToString(s.CommChnlPH), ProcQn: uniqsym.ConvertToString(s.ProcTermQN)})
-	case termdef.ExpSpawnSpec:
+	case termdef.ExprSpawnSpec:
 		qns := make([]string, len(s.ProcCompQNs))
 		for i, qn := range s.ProcCompQNs {
 			qns[i] = uniqsym.ConvertToString(qn)

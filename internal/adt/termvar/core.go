@@ -21,5 +21,5 @@ type VarSpec struct {
 type VarRec struct {
 	TypeID identity.ADT
 	ChnlPH symbol.ADT
-	ExpCK  contkey.ADT
+	ExprCK contkey.ADT
 }

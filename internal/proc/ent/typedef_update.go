@@ -41,24 +41,24 @@ func (_u *TypeDefUpdate) SetNillableProgID(v *string) *TypeDefUpdate {
 	return _u
 }
 
-// SetExpCk sets the "exp_ck" field.
-func (_u *TypeDefUpdate) SetExpCk(v int64) *TypeDefUpdate {
-	_u.mutation.ResetExpCk()
-	_u.mutation.SetExpCk(v)
+// SetExprCk sets the "expr_ck" field.
+func (_u *TypeDefUpdate) SetExprCk(v int64) *TypeDefUpdate {
+	_u.mutation.ResetExprCk()
+	_u.mutation.SetExprCk(v)
 	return _u
 }
 
-// SetNillableExpCk sets the "exp_ck" field if the given value is not nil.
-func (_u *TypeDefUpdate) SetNillableExpCk(v *int64) *TypeDefUpdate {
+// SetNillableExprCk sets the "expr_ck" field if the given value is not nil.
+func (_u *TypeDefUpdate) SetNillableExprCk(v *int64) *TypeDefUpdate {
 	if v != nil {
-		_u.SetExpCk(*v)
+		_u.SetExprCk(*v)
 	}
 	return _u
 }
 
-// AddExpCk adds value to the "exp_ck" field.
-func (_u *TypeDefUpdate) AddExpCk(v int64) *TypeDefUpdate {
-	_u.mutation.AddExpCk(v)
+// AddExprCk adds value to the "expr_ck" field.
+func (_u *TypeDefUpdate) AddExprCk(v int64) *TypeDefUpdate {
+	_u.mutation.AddExprCk(v)
 	return _u
 }
 
@@ -106,11 +106,11 @@ func (_u *TypeDefUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.ProgID(); ok {
 		_spec.SetField(typedef.FieldProgID, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.ExpCk(); ok {
-		_spec.SetField(typedef.FieldExpCk, field.TypeInt64, value)
+	if value, ok := _u.mutation.ExprCk(); ok {
+		_spec.SetField(typedef.FieldExprCk, field.TypeInt64, value)
 	}
-	if value, ok := _u.mutation.AddedExpCk(); ok {
-		_spec.AddField(typedef.FieldExpCk, field.TypeInt64, value)
+	if value, ok := _u.mutation.AddedExprCk(); ok {
+		_spec.AddField(typedef.FieldExprCk, field.TypeInt64, value)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -146,24 +146,24 @@ func (_u *TypeDefUpdateOne) SetNillableProgID(v *string) *TypeDefUpdateOne {
 	return _u
 }
 
-// SetExpCk sets the "exp_ck" field.
-func (_u *TypeDefUpdateOne) SetExpCk(v int64) *TypeDefUpdateOne {
-	_u.mutation.ResetExpCk()
-	_u.mutation.SetExpCk(v)
+// SetExprCk sets the "expr_ck" field.
+func (_u *TypeDefUpdateOne) SetExprCk(v int64) *TypeDefUpdateOne {
+	_u.mutation.ResetExprCk()
+	_u.mutation.SetExprCk(v)
 	return _u
 }
 
-// SetNillableExpCk sets the "exp_ck" field if the given value is not nil.
-func (_u *TypeDefUpdateOne) SetNillableExpCk(v *int64) *TypeDefUpdateOne {
+// SetNillableExprCk sets the "expr_ck" field if the given value is not nil.
+func (_u *TypeDefUpdateOne) SetNillableExprCk(v *int64) *TypeDefUpdateOne {
 	if v != nil {
-		_u.SetExpCk(*v)
+		_u.SetExprCk(*v)
 	}
 	return _u
 }
 
-// AddExpCk adds value to the "exp_ck" field.
-func (_u *TypeDefUpdateOne) AddExpCk(v int64) *TypeDefUpdateOne {
-	_u.mutation.AddExpCk(v)
+// AddExprCk adds value to the "expr_ck" field.
+func (_u *TypeDefUpdateOne) AddExprCk(v int64) *TypeDefUpdateOne {
+	_u.mutation.AddExprCk(v)
 	return _u
 }
 
@@ -241,11 +241,11 @@ func (_u *TypeDefUpdateOne) sqlSave(ctx context.Context) (_node *TypeDef, err er
 	if value, ok := _u.mutation.ProgID(); ok {
 		_spec.SetField(typedef.FieldProgID, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.ExpCk(); ok {
-		_spec.SetField(typedef.FieldExpCk, field.TypeInt64, value)
+	if value, ok := _u.mutation.ExprCk(); ok {
+		_spec.SetField(typedef.FieldExprCk, field.TypeInt64, value)
 	}
-	if value, ok := _u.mutation.AddedExpCk(); ok {
-		_spec.AddField(typedef.FieldExpCk, field.TypeInt64, value)
+	if value, ok := _u.mutation.AddedExprCk(); ok {
+		_spec.AddField(typedef.FieldExprCk, field.TypeInt64, value)
 	}
 	_node = &TypeDef{config: _u.config}
 	_spec.Assign = _node.assignValues

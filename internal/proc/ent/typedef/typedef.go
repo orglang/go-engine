@@ -13,8 +13,8 @@ const (
 	FieldID = "type_id"
 	// FieldProgID holds the string denoting the prog_id field in the database.
 	FieldProgID = "prog_id"
-	// FieldExpCk holds the string denoting the exp_ck field in the database.
-	FieldExpCk = "exp_ck"
+	// FieldExprCk holds the string denoting the expr_ck field in the database.
+	FieldExprCk = "expr_ck"
 	// Table holds the table name of the typedef in the database.
 	Table = "proc_type_defs"
 )
@@ -23,7 +23,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldProgID,
-	FieldExpCk,
+	FieldExprCk,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -49,7 +49,7 @@ func ByProgID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProgID, opts...).ToFunc()
 }
 
-// ByExpCk orders the results by the exp_ck field.
-func ByExpCk(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldExpCk, opts...).ToFunc()
+// ByExprCk orders the results by the expr_ck field.
+func ByExprCk(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldExprCk, opts...).ToFunc()
 }

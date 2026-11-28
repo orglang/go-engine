@@ -19,7 +19,7 @@ func init() {
 		adapterDefRec.TypeID = identity.ConvertToString(source.TypeID)
 		adapterDefRec.ProgID = identity.ConvertToString(source.ProgRef.ProgID)
 		adapterDefRec.ProgRN = seqnum.ConvertToInt(source.ProgRef.ProgRN)
-		adapterDefRec.ExpCK = contkey.ConvertToInt(source.ExpCK)
+		adapterDefRec.ExprCK = contkey.ConvertToInt(source.ExprCK)
 		return adapterDefRec, nil
 	}
 	DataFromDefRecs = func(source []core.DefRec) ([]DefRec, error) {
@@ -53,11 +53,11 @@ func init() {
 			return coreDefRec, err
 		}
 		coreDefRec.ProgRef = progrootRootRef
-		contkeyADT, err := contkey.ConvertFromInt(source.ExpCK)
+		contkeyADT, err := contkey.ConvertFromInt(source.ExprCK)
 		if err != nil {
 			return coreDefRec, err
 		}
-		coreDefRec.ExpCK = contkeyADT
+		coreDefRec.ExprCK = contkeyADT
 		return coreDefRec, nil
 	}
 	DataToDefRecMap = func(source map[uniqsym.ADT]DefRec) (map[uniqsym.ADT]core.DefRec, error) {

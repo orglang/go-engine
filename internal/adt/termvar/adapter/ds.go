@@ -3,5 +3,5 @@ package adapter
 type VarRec struct {
 	TypeID string `json:"id"`
 	ChnlPH string `json:"ph"`
-	ExpCK  int64  `json:"vk"`
+	ExprCK int64  `json:"vk"`
 }

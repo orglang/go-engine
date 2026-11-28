@@ -27,7 +27,7 @@ func NewDaoEnt(client *ent.Client, log *slog.Logger) typedef.Repo {
 }
 
 func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec) error {
-	if err := dao.addExpRec(ctx, conn, rec.TypeExp); err != nil {
+	if err := dao.addExprRec(ctx, conn, rec.TypeExpr); err != nil {
 		return err
 	}
 	refAttr := slog.Any("typeID", rec.TypeID)
@@ -42,7 +42,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec)
 	_, err = dao.client.TypeDef.Create().
 		SetID(dto.TypeID).
 		SetProgID(dto.ProgID).
-		SetExpCk(dto.ExpCK).
+		SetExprCk(dto.ExprCK).
 		Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
 		dao.log.Error("query execution failed", refAttr)
@@ -67,7 +67,7 @@ func (dao *daoEnt) GetRecsByQNs(ctx context.Context, conn tx.Conn, typeQNs []uni
 		return map[uniqsym.ADT]typedef.DefRec{}, nil
 	}
 	const query = `
-SELECT db.prog_qn AS type_qn, td.type_id, td.prog_id, dr.prog_rn AS prog_rn, td.exp_ck
+SELECT db.prog_qn AS type_qn, td.type_id, td.prog_id, dr.prog_rn AS prog_rn, td.expr_ck
 FROM pool_type_defs AS td
 JOIN pool_prog_roots AS dr
     ON dr.prog_id = td.prog_id
@@ -101,11 +101,11 @@ WHERE db.prog_qn = $1
 	}
 	for qn, rec := range recs {
 		rec.TypeQN = qn
-		exp, err := dao.getRecByCK(ctx, conn, rec.ExpCK)
+		expr, err := dao.getRecByCK(ctx, conn, rec.ExprCK)
 		if err != nil {
 			return nil, err
 		}
-		rec.TypeExp = exp
+		rec.TypeExpr = expr
 		recs[qn] = rec
 	}
 	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("recs", recs))

@@ -25,12 +25,12 @@ func generatedStepToCore(id string, dto webapi.ProcStepSpec) (execstepcore.StepS
 		return execstepcore.StepSpec{}, err
 	}
 	return execstepcore.StepSpec{
-		RootRef: execroot.RootRef{ExecID: rootID},
-		ProcExp: expr,
+		RootRef:  execroot.RootRef{ExecID: rootID},
+		ProcExpr: expr,
 	}, nil
 }
 
-func generatedProcessExpressionToCore(dto webapi.ProcTermExprSpec) (commact.ExpSpec, error) {
+func generatedProcessExpressionToCore(dto webapi.ProcTermExprSpec) (commact.ExprSpec, error) {
 	kind, err := dto.Discriminator()
 	if err != nil {
 		return nil, fmt.Errorf("read generated process expression kind: %w", err)
@@ -60,7 +60,7 @@ func generatedProcessExpressionToCore(dto webapi.ProcTermExprSpec) (commact.ExpS
 		if err != nil {
 			return nil, err
 		}
-		return commact.WaitSpec{ContChnlPH: channel, ContExp: cont}, nil
+		return commact.WaitSpec{ContChnlPH: channel, ContExpr: cont}, nil
 	case "send":
 		spec, err := dto.AsProcTermSendSpec()
 		if err != nil {
@@ -92,7 +92,7 @@ func generatedProcessExpressionToCore(dto webapi.ProcTermExprSpec) (commact.ExpS
 		if err != nil {
 			return nil, err
 		}
-		return commact.RecvSpec{CommChnlPH: conn, NewChnlPH: bind, ContExp: cont}, nil
+		return commact.RecvSpec{CommChnlPH: conn, NewChnlPH: bind, ContExpr: cont}, nil
 	case "lab":
 		spec, err := dto.AsProcTermLabSpec()
 		if err != nil {
@@ -116,7 +116,7 @@ func generatedProcessExpressionToCore(dto webapi.ProcTermExprSpec) (commact.ExpS
 		if err != nil {
 			return nil, err
 		}
-		branches := make(map[uniqsym.ADT]commact.ExpSpec, len(spec.ContBses))
+		branches := make(map[uniqsym.ADT]commact.ExprSpec, len(spec.ContBses))
 		for _, branch := range spec.ContBses {
 			label, err := uniqsym.ConvertFromString(branch.PatternQn)
 			if err != nil {
@@ -128,7 +128,7 @@ func generatedProcessExpressionToCore(dto webapi.ProcTermExprSpec) (commact.ExpS
 			}
 			branches[label] = cont
 		}
-		return commact.CaseSpec{CommChnlPH: conn, ContExps: branches}, nil
+		return commact.CaseSpec{CommChnlPH: conn, ContExprs: branches}, nil
 	case "link":
 		spec, err := dto.AsProcTermLinkSpec()
 		if err != nil {
@@ -188,7 +188,7 @@ func generatedProcessExpressionToCore(dto webapi.ProcTermExprSpec) (commact.ExpS
 		if err != nil {
 			return nil, err
 		}
-		return commact.CallSpec{NewChnlPH: bind, ProcTermQN: proc, ValChnlPHs: values, ContExp: cont}, nil
+		return commact.CallSpec{NewChnlPH: bind, ProcTermQN: proc, ValChnlPHs: values, ContExpr: cont}, nil
 	default:
 		return nil, fmt.Errorf("unsupported process expression kind %q", kind)
 	}

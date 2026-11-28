@@ -13,7 +13,7 @@ import (
 
 // Package registers process type-definition persistence, service, and HTTP adapters.
 var Package = do.Package(
-	do.Lazy[core.TypeExpRepo](func(i do.Injector) (core.TypeExpRepo, error) {
+	do.Lazy[core.TypeExprRepo](func(i do.Injector) (core.TypeExprRepo, error) {
 		client, err := do.Invoke[*ent.Client](i)
 		if err != nil {
 			return nil, err
@@ -22,7 +22,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return NewExpDaoEnt(client, logger), nil
+		return NewExprDaoEnt(client, logger), nil
 	}),
 	do.Lazy[core.Repo](func(i do.Injector) (core.Repo, error) {
 		logger, err := do.Invoke[*slog.Logger](i)
@@ -44,7 +44,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		typeExpRepo, err := do.Invoke[core.TypeExpRepo](i)
+		typeExprRepo, err := do.Invoke[core.TypeExprRepo](i)
 		if err != nil {
 			return nil, err
 		}
@@ -56,7 +56,7 @@ var Package = do.Package(
 		if err != nil {
 			return nil, err
 		}
-		return core.NewService(typeDefRepo, progRootRepo, typeExpRepo, transactor, logger), nil
+		return core.NewService(typeDefRepo, progRootRepo, typeExprRepo, transactor, logger), nil
 	}),
 	do.Lazy[GeneratedController](func(i do.Injector) (GeneratedController, error) {
 		api, err := do.Invoke[core.API](i)

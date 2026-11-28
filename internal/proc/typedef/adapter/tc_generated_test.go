@@ -70,7 +70,7 @@ func TestExpSpecFromGenerated(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := expSpecFromGenerated(tt.dto)
+			got, err := exprSpecFromGenerated(tt.dto)
 			if err != nil {
 				t.Fatalf("convert generated expression: %v", err)
 			}
@@ -113,7 +113,7 @@ func TestExpSpecFromGeneratedRejectsUnknownKind(t *testing.T) {
 	if err := dto.UnmarshalJSON([]byte(`{"kind":"unknown"}`)); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := expSpecFromGenerated(dto); err == nil {
+	if _, err := exprSpecFromGenerated(dto); err == nil {
 		t.Fatal("expected unsupported expression error")
 	}
 }

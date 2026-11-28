@@ -22,31 +22,31 @@ type programAST struct {
 }
 
 type poolDefAST struct {
-	TypeQN  string     `parser:"'pool' 'type' @Ident"`
-	TypeExp poolExpAST `parser:"'{' @@? '}'"`
+	TypeQN   string      `parser:"'pool' 'type' @Ident"`
+	TypeExpr poolExprAST `parser:"'{' @@? '}'"`
 }
 
 func (poolDefAST) programExpression() {}
 
 type procDefAST struct {
-	TypeQN  string     `parser:"'proc' 'type' @Ident"`
-	TypeExp procExpAST `parser:"'{' @@? '}'"`
+	TypeQN   string      `parser:"'proc' 'type' @Ident"`
+	TypeExpr procExprAST `parser:"'{' @@? '}'"`
 }
 
 func (procDefAST) programExpression() {}
 
-type expKind string
+type exprKind string
 
-func (k *expKind) Parse(lex *lexer.PeekingLexer) error {
-	value := expKind(lex.Peek().Value)
-	if slices.Contains([]expKind{"one", "link", "plus", "with", "tensor", "lolli", "up", "down"}, value) {
+func (k *exprKind) Parse(lex *lexer.PeekingLexer) error {
+	value := exprKind(lex.Peek().Value)
+	if slices.Contains([]exprKind{"one", "link", "plus", "with", "tensor", "lolli", "up", "down"}, value) {
 		*k = value
 	}
 	return nil
 }
 
-type poolExpAST struct {
-	Kind   expKind       `parser:"@@"`
+type poolExprAST struct {
+	Kind   exprKind      `parser:"@@"`
 	Link   *linkAST      `parser:"( 'link' @@"`
 	Plus   *poolLaborAST `parser:"| 'plus' @@"`
 	With   *poolLaborAST `parser:"| 'with' @@"`
@@ -57,8 +57,8 @@ type poolExpAST struct {
 	One    bool          `parser:"| 'one' )"`
 }
 
-type procExpAST struct {
-	Kind   expKind       `parser:"@@"`
+type procExprAST struct {
+	Kind   exprKind      `parser:"@@"`
 	Link   *linkAST      `parser:"( 'link' @@"`
 	Tensor *procProdAST  `parser:"| 'tensor' @@"`
 	Lolli  *procProdAST  `parser:"| 'lolli' @@"`
@@ -74,26 +74,26 @@ type linkAST struct {
 }
 
 type poolLaborAST struct {
-	ProcQNs []string   `parser:"'(' @Ident* ')'"`
-	ContExp poolExpAST `parser:"'{' @@? '}'"`
+	ProcQNs  []string    `parser:"'(' @Ident* ')'"`
+	ContExpr poolExprAST `parser:"'{' @@? '}'"`
 }
 
 type poolResAST struct {
-	ValExp  poolExpAST `parser:""`
-	ContExp poolExpAST `parser:"'{' @@? '}'"`
+	ValExpr  poolExprAST `parser:""`
+	ContExpr poolExprAST `parser:"'{' @@? '}'"`
 }
 
 type shiftAST struct {
-	Cont poolExpAST `parser:"'{' @@? '}'"`
+	Cont poolExprAST `parser:"'{' @@? '}'"`
 }
 
 type procShiftAST struct {
-	Cont procExpAST `parser:"'{' @@? '}'"`
+	Cont procExprAST `parser:"'{' @@? '}'"`
 }
 
 type procProdAST struct {
-	Val  procExpAST `parser:"'{' @@? '}'"`
-	Cont procExpAST `parser:"'{' @@? '}'"`
+	Val  procExprAST `parser:"'{' @@? '}'"`
+	Cont procExprAST `parser:"'{' @@? '}'"`
 }
 
 type procSumAST struct {
@@ -101,8 +101,8 @@ type procSumAST struct {
 }
 
 type procChoiceAST struct {
-	Label string     `parser:"'@' @Ident"`
-	Cont  procExpAST `parser:"'{' @@? '}'"`
+	Label string      `parser:"'@' @Ident"`
+	Cont  procExprAST `parser:"'{' @@? '}'"`
 }
 
 func parseProgram(text string) (programAST, error) {
@@ -126,21 +126,21 @@ func programASTToCore(ast programAST) (coreprog.Spec, error) {
 			if err != nil {
 				return coreprog.Spec{}, err
 			}
-			exp, err := poolExpToCore(expression.TypeExp)
+			expr, err := poolExprToCore(expression.TypeExpr)
 			if err != nil {
 				return coreprog.Spec{}, err
 			}
-			result.Pools = append(result.Pools, pooltypedef.DefSpec{TypeQN: qn, TypeExp: exp})
+			result.Pools = append(result.Pools, pooltypedef.DefSpec{TypeQN: qn, TypeExpr: expr})
 		case procDefAST:
 			qn, err := uniqsym.ConvertFromString(expression.TypeQN)
 			if err != nil {
 				return coreprog.Spec{}, err
 			}
-			exp, err := procExpToCore(expression.TypeExp)
+			expr, err := procExprToCore(expression.TypeExpr)
 			if err != nil {
 				return coreprog.Spec{}, err
 			}
-			result.Procs = append(result.Procs, proctypedef.DefSpec{TypeQN: qn, TypeExp: exp})
+			result.Procs = append(result.Procs, proctypedef.DefSpec{TypeQN: qn, TypeExpr: expr})
 		default:
 			return coreprog.Spec{}, fmt.Errorf("unsupported program expression: %T", expression)
 		}
@@ -148,7 +148,7 @@ func programASTToCore(ast programAST) (coreprog.Spec, error) {
 	return result, nil
 }
 
-func poolExpToCore(ast poolExpAST) (pooltypedef.ExpSpec, error) {
+func poolExprToCore(ast poolExprAST) (pooltypedef.ExprSpec, error) {
 	switch ast.Kind {
 	case "one":
 		return pooltypedef.OneSpec{}, nil
@@ -168,43 +168,43 @@ func poolExpToCore(ast poolExpAST) (pooltypedef.ExpSpec, error) {
 			}
 			qns[i] = qn
 		}
-		cont, err := poolExpToCore(labor.ContExp)
+		cont, err := poolExprToCore(labor.ContExpr)
 		if err != nil {
 			return nil, err
 		}
 		if ast.Kind == "plus" {
-			return pooltypedef.PlusSpec{ProcQNs: qns, ContExp: cont}, nil
+			return pooltypedef.PlusSpec{ProcQNs: qns, ContExpr: cont}, nil
 		}
-		return pooltypedef.WithSpec{ProcQNs: qns, ContExp: cont}, nil
+		return pooltypedef.WithSpec{ProcQNs: qns, ContExpr: cont}, nil
 	case "up", "down":
-		cont, err := poolExpToCore(ast.Shift().Cont)
+		cont, err := poolExprToCore(ast.Shift().Cont)
 		if err != nil {
 			return nil, err
 		}
 		if ast.Kind == "up" {
-			return pooltypedef.UpSpec{ContExp: cont}, nil
+			return pooltypedef.UpSpec{ContExpr: cont}, nil
 		}
-		return pooltypedef.DownSpec{ContExp: cont}, nil
+		return pooltypedef.DownSpec{ContExpr: cont}, nil
 	default:
 		return nil, fmt.Errorf("unsupported pool type expression kind %q", ast.Kind)
 	}
 }
 
-func (a poolExpAST) PlusOrWith() *poolLaborAST {
+func (a poolExprAST) PlusOrWith() *poolLaborAST {
 	if a.Kind == "plus" {
 		return a.Plus
 	}
 	return a.With
 }
 
-func (a poolExpAST) Shift() *shiftAST {
+func (a poolExprAST) Shift() *shiftAST {
 	if a.Kind == "up" {
 		return a.Up
 	}
 	return a.Down
 }
 
-func procExpToCore(ast procExpAST) (proctypedef.ExpSpec, error) {
+func procExprToCore(ast procExprAST) (proctypedef.ExprSpec, error) {
 	switch ast.Kind {
 	case "one":
 		return proctypedef.OneSpec{}, nil
@@ -216,11 +216,11 @@ func procExpToCore(ast procExpAST) (proctypedef.ExpSpec, error) {
 		return proctypedef.LinkSpec{TypeQN: qn}, nil
 	case "tensor", "lolli":
 		prod := ast.TensorOrLolli()
-		val, err := procExpToCore(prod.Val)
+		val, err := procExprToCore(prod.Val)
 		if err != nil {
 			return nil, err
 		}
-		cont, err := procExpToCore(prod.Cont)
+		cont, err := procExprToCore(prod.Cont)
 		if err != nil {
 			return nil, err
 		}
@@ -230,13 +230,13 @@ func procExpToCore(ast procExpAST) (proctypedef.ExpSpec, error) {
 		return proctypedef.LolliSpec{Val: val, Cont: cont}, nil
 	case "plus", "with":
 		sum := ast.Sum()
-		choices := make(map[uniqsym.ADT]proctypedef.ExpSpec, len(sum.Choices))
+		choices := make(map[uniqsym.ADT]proctypedef.ExprSpec, len(sum.Choices))
 		for _, choice := range sum.Choices {
 			label, err := uniqsym.ConvertFromString(choice.Label)
 			if err != nil {
 				return nil, err
 			}
-			cont, err := procExpToCore(choice.Cont)
+			cont, err := procExprToCore(choice.Cont)
 			if err != nil {
 				return nil, err
 			}
@@ -251,14 +251,14 @@ func procExpToCore(ast procExpAST) (proctypedef.ExpSpec, error) {
 	}
 }
 
-func (a procExpAST) TensorOrLolli() *procProdAST {
+func (a procExprAST) TensorOrLolli() *procProdAST {
 	if a.Kind == "tensor" {
 		return a.Tensor
 	}
 	return a.Lolli
 }
 
-func (a procExpAST) Sum() *procSumAST {
+func (a procExprAST) Sum() *procSumAST {
 	if a.Kind == "plus" {
 		return a.Plus
 	}

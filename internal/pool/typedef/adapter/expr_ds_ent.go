@@ -1,0 +1,113 @@
+package adapter
+
+import (
+	"context"
+	"errors"
+	"log/slog"
+
+	"github.com/jackc/pgx/v5"
+
+	"orglang/go-engine/internal/adt/contkey"
+	"orglang/go-engine/internal/adt/symbol"
+	"orglang/go-engine/internal/lib/entpgx"
+	"orglang/go-engine/internal/lib/lf"
+	"orglang/go-engine/internal/lib/tx"
+	typedef "orglang/go-engine/internal/pool/typedef/core"
+)
+
+func (dao *daoEnt) addExprRec(ctx context.Context, conn tx.Conn, rec typedef.ExprRec) error {
+	ckAttr := slog.Any("ck", rec.Key())
+	dao.log.Log(ctx, lf.LevelTrace, "insertion started", ckAttr)
+	dto := dataFromExprRec(rec)
+	txCtx := entpgx.WithConn(ctx, conn.Pgx)
+	for _, st := range dto.States {
+		_, err := dao.client.TypeExpr.Create().
+			SetID(st.ExprCK).
+			SetSupExprCk(st.SupExprCK).
+			SetKind(int16(st.K)).
+			SetSpec(st.Spec).
+			Save(txCtx)
+		if err != nil {
+			dao.log.Error("query execution failed", ckAttr, slog.Int64("expr_ck", st.ExprCK))
+			return err
+		}
+	}
+	dao.log.Log(ctx, lf.LevelTrace, "insertion succeed", ckAttr)
+	return nil
+}
+
+func (dao *daoEnt) getRecByCK(ctx context.Context, conn tx.Conn, exprCK contkey.ADT) (typedef.ExprRec, error) {
+	ckAttr := slog.Any("ck", exprCK)
+	sql := selectRecByCK
+	rows, err := conn.Pgx.Query(ctx, sql, contkey.ConvertToInt(exprCK))
+	if err != nil {
+		dao.log.Error("query execution failed", ckAttr, slog.String("sql", sql))
+		return nil, err
+	}
+	defer rows.Close()
+	dtos, err := pgx.CollectRows(rows, pgx.RowToStructByName[State])
+	if err != nil {
+		dao.log.Error("rows scanning failed", ckAttr)
+		return nil, err
+	}
+	if len(dtos) == 0 { // revive:disable-line
+		dao.log.Error("selection failed", ckAttr)
+		return nil, errors.New("no rows selected")
+	}
+	dao.log.Log(ctx, lf.LevelTrace, "selection succeed", slog.Any("dtos", dtos))
+	states := make(map[int64]State, len(dtos))
+	for _, dto := range dtos {
+		states[dto.ExprCK] = dto
+	}
+	return statesToExprRec(states, states[contkey.ConvertToInt(exprCK)])
+}
+
+func (dao *daoEnt) GetTypeMap(ctx context.Context, conn tx.Conn, exprCKs map[symbol.ADT]contkey.ADT) (_ map[symbol.ADT]typedef.ExprRec, err error) {
+	batch := pgx.Batch{}
+	sql := selectRecByCK
+	for _, exprCK := range exprCKs {
+		batch.Queue(sql, contkey.ConvertToInt(exprCK))
+	}
+	br := conn.Pgx.SendBatch(ctx, &batch)
+	defer func() { err = errors.Join(err, br.Close()) }()
+	recs := make(map[symbol.ADT]typedef.ExprRec, len(exprCKs))
+	for exprPH, exprCK := range exprCKs {
+		ckAttr := slog.Any("ck", exprCK)
+		rows, readErr := br.Query()
+		if readErr != nil {
+			dao.log.Error("query execution failed", ckAttr, slog.String("sql", sql))
+			return nil, readErr
+		}
+		dtos, scanErr := pgx.CollectRows(rows, pgx.RowToStructByName[State])
+		if scanErr != nil {
+			dao.log.Error("rows scanning failed", ckAttr)
+			return nil, scanErr
+		}
+		dao.log.Log(ctx, lf.LevelTrace, "selection succeed", slog.Any("dtos", dtos))
+		if len(dtos) == 0 {
+			dao.log.Error("selection failed", ckAttr)
+			return nil, typedef.ErrDoesNotExist(exprCK)
+		}
+		rec, convErr := dataToExprRec(ExprRec{ExprCK: contkey.ConvertToInt(exprCK), States: dtos})
+		if convErr != nil {
+			dao.log.Error("model conversion failed", ckAttr)
+			return nil, convErr
+		}
+		recs[exprPH] = rec
+	}
+	dao.log.Log(ctx, lf.LevelTrace, "getting succeed", slog.Any("recs", recs))
+	return recs, err
+}
+
+const selectRecByCK = `
+WITH RECURSIVE expr_tree AS (
+    SELECT top.*
+    FROM pool_type_exprs top
+    WHERE top.expr_ck = $1
+    UNION ALL
+    SELECT sub.*
+    FROM pool_type_exprs sub, expr_tree sup
+    WHERE sub.sup_expr_ck = sup.expr_ck
+)
+SELECT * FROM expr_tree
+`

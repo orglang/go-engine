@@ -30,7 +30,7 @@ func DataFromStructRec(rec execvar.StructRec) VarRec {
 		CommID: identityadapter.ConvertToNullString(rec.CommID),
 		ChnlID: identityadapter.ConvertToNullString(rec.ChnlID),
 		ChnlPH: symboladapter.ConvertToNullString(rec.ChnlPH),
-		ExpCK:  contkeyadapter.ConvertToNullInt(rec.ExpCK),
+		ExprCK: contkeyadapter.ConvertToNullInt(rec.ExprCK),
 		ChnlBS: ConvertSideToNullInt(rec.ChnlBS),
 	}
 }
@@ -42,7 +42,7 @@ func DataFromLinearRec(rec execvar.LinearRec) VarRec {
 		CommID: identityadapter.ConvertToNullString(rec.CommID),
 		ChnlID: identityadapter.ConvertToNullString(rec.ChnlID),
 		ChnlPH: symboladapter.ConvertToNullString(rec.ChnlPH),
-		ExpCK:  contkeyadapter.ConvertToNullInt(rec.ExpCK),
+		ExprCK: contkeyadapter.ConvertToNullInt(rec.ExprCK),
 		ChnlBS: ConvertSideToNullInt(rec.ChnlBS),
 	}
 }
@@ -110,7 +110,7 @@ func DataToStructRec(dto VarRec) (execvar.StructRec, error) {
 		ChnlID:  chnlID,
 		ChnlPH:  chnlPH,
 		ChnlBS:  ConvertSideFromNullInt(dto.ChnlBS),
-		ExpCK:   contkeyadapter.ConvertFromNullInt(dto.ExpCK),
+		ExprCK:  contkeyadapter.ConvertFromNullInt(dto.ExprCK),
 	}, nil
 }
 
@@ -137,7 +137,7 @@ func DataToLinearRec(dto VarRec) (execvar.LinearRec, error) {
 		ChnlID:  chnlID,
 		ChnlPH:  chnlPH,
 		ChnlBS:  ConvertSideFromNullInt(dto.ChnlBS),
-		ExpCK:   contkeyadapter.ConvertFromNullInt(dto.ExpCK),
+		ExprCK:  contkeyadapter.ConvertFromNullInt(dto.ExprCK),
 	}, nil
 }
 

@@ -31,7 +31,7 @@ func TestIntegrationEntPGXUsesCallbackTransaction(t *testing.T) {
 			}
 			t.Cleanup(conn.Release)
 
-			_, err = conn.Exec(ctx, "CREATE TEMP TABLE pool_type_defs (type_id varchar UNIQUE, prog_id varchar NOT NULL, exp_ck bigint) ON COMMIT PRESERVE ROWS")
+			_, err = conn.Exec(ctx, "CREATE TEMP TABLE pool_type_defs (type_id varchar UNIQUE, prog_id varchar NOT NULL, expr_ck bigint) ON COMMIT PRESERVE ROWS")
 			if err != nil {
 				t.Fatalf("create temporary table: %v", err)
 			}
@@ -62,7 +62,7 @@ func TestIntegrationEntPGXUsesCallbackTransaction(t *testing.T) {
 			created, err := client.TypeDef.Create().
 				SetID(id).
 				SetProgID(id).
-				SetExpCk(11).
+				SetExprCk(11).
 				Save(entCtx)
 			if err != nil {
 				t.Fatalf("create entity through Ent: %v", err)
@@ -75,8 +75,8 @@ func TestIntegrationEntPGXUsesCallbackTransaction(t *testing.T) {
 			if err != nil {
 				t.Fatalf("read entity through Ent in callback transaction: %v", err)
 			}
-			if loaded.ProgID != id || loaded.ExpCk != 11 {
-				t.Fatalf("loaded entity = %#v, want prog_id=%q exp_ck=11", loaded, id)
+			if loaded.ProgID != id || loaded.ExprCk != 11 {
+				t.Fatalf("loaded entity = %#v, want prog_id=%q expr_ck=11", loaded, id)
 			}
 
 			var visibleID string

@@ -12,8 +12,8 @@ func TestVarRecKeepsLegacyContentKeyJSONName(t *testing.T) {
 	if err := json.Unmarshal([]byte(payload), &rec); err != nil {
 		t.Fatalf("unmarshal VarRec: %v", err)
 	}
-	if rec.ExpCK != 42 {
-		t.Fatalf("ExpCK = %d, want 42", rec.ExpCK)
+	if rec.ExprCK != 42 {
+		t.Fatalf("ExprCK = %d, want 42", rec.ExprCK)
 	}
 
 	got, err := json.Marshal(rec)

@@ -87,7 +87,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execcomm.Com
 		dto := commactadapter.DataFromStepRec(act)
 		dto.ActNr = int64(mod.ProviderExecRN) + 1
 		_, err := conn.Pgx.Exec(ctx, insertActRec,
-			dto.CommID, dto.ActNr, dto.ExecID, dto.ExecRN, dto.ChnlID, dto.K, dto.Exp,
+			dto.CommID, dto.ActNr, dto.ExecID, dto.ExecRN, dto.ChnlID, dto.K, dto.Expr,
 		)
 		if err != nil {
 			dao.log.Error("Act insertion failed", refAttr)
@@ -139,13 +139,13 @@ func (dao *daoEnt) GetSnapByQry(ctx context.Context, conn tx.Conn, qry execcomm.
 const (
 	insertActRec = `
 INSERT INTO pool_comm_acts
-(comm_id, act_nr, exec_id, exec_rn, chnl_id, kind, exp)
+(comm_id, act_nr, exec_id, exec_rn, chnl_id, kind, expr)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
 `
 
 	selectSnap = `
 WITH acts AS (
-    SELECT act.comm_id, act.act_nr, act.exec_id, act.exec_rn, act.chnl_id, act.kind, act.exp
+    SELECT act.comm_id, act.act_nr, act.exec_id, act.exec_rn, act.chnl_id, act.kind, act.expr
     FROM pool_comm_acts act WHERE act.comm_id = $1
 )
 SELECT conn.comm_id, conn.provider_exec_id, exec.exec_rn AS provider_exec_rn,
@@ -158,7 +158,7 @@ WHERE conn.comm_id = $1
 
 	selectSnapByChannel = `
 WITH acts AS (
-    SELECT act.comm_id, act.act_nr, act.exec_id, act.exec_rn, act.chnl_id, act.kind, act.exp
+    SELECT act.comm_id, act.act_nr, act.exec_id, act.exec_rn, act.chnl_id, act.kind, act.expr
     FROM pool_comm_acts act WHERE act.comm_id = $1 AND act.chnl_id = $2
 )
 SELECT conn.comm_id, conn.provider_exec_id, exec.exec_rn AS provider_exec_rn,

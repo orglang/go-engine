@@ -68,9 +68,9 @@ func ProgID(v string) predicate.TermDec {
 	return predicate.TermDec(sql.FieldEQ(FieldProgID, v))
 }
 
-// ExpCk applies equality check predicate on the "exp_ck" field. It's identical to ExpCkEQ.
-func ExpCk(v int64) predicate.TermDec {
-	return predicate.TermDec(sql.FieldEQ(FieldExpCk, v))
+// ExprCk applies equality check predicate on the "expr_ck" field. It's identical to ExprCkEQ.
+func ExprCk(v int64) predicate.TermDec {
+	return predicate.TermDec(sql.FieldEQ(FieldExprCk, v))
 }
 
 // ProgIDEQ applies the EQ predicate on the "prog_id" field.
@@ -138,54 +138,54 @@ func ProgIDContainsFold(v string) predicate.TermDec {
 	return predicate.TermDec(sql.FieldContainsFold(FieldProgID, v))
 }
 
-// ExpCkEQ applies the EQ predicate on the "exp_ck" field.
-func ExpCkEQ(v int64) predicate.TermDec {
-	return predicate.TermDec(sql.FieldEQ(FieldExpCk, v))
+// ExprCkEQ applies the EQ predicate on the "expr_ck" field.
+func ExprCkEQ(v int64) predicate.TermDec {
+	return predicate.TermDec(sql.FieldEQ(FieldExprCk, v))
 }
 
-// ExpCkNEQ applies the NEQ predicate on the "exp_ck" field.
-func ExpCkNEQ(v int64) predicate.TermDec {
-	return predicate.TermDec(sql.FieldNEQ(FieldExpCk, v))
+// ExprCkNEQ applies the NEQ predicate on the "expr_ck" field.
+func ExprCkNEQ(v int64) predicate.TermDec {
+	return predicate.TermDec(sql.FieldNEQ(FieldExprCk, v))
 }
 
-// ExpCkIn applies the In predicate on the "exp_ck" field.
-func ExpCkIn(vs ...int64) predicate.TermDec {
-	return predicate.TermDec(sql.FieldIn(FieldExpCk, vs...))
+// ExprCkIn applies the In predicate on the "expr_ck" field.
+func ExprCkIn(vs ...int64) predicate.TermDec {
+	return predicate.TermDec(sql.FieldIn(FieldExprCk, vs...))
 }
 
-// ExpCkNotIn applies the NotIn predicate on the "exp_ck" field.
-func ExpCkNotIn(vs ...int64) predicate.TermDec {
-	return predicate.TermDec(sql.FieldNotIn(FieldExpCk, vs...))
+// ExprCkNotIn applies the NotIn predicate on the "expr_ck" field.
+func ExprCkNotIn(vs ...int64) predicate.TermDec {
+	return predicate.TermDec(sql.FieldNotIn(FieldExprCk, vs...))
 }
 
-// ExpCkGT applies the GT predicate on the "exp_ck" field.
-func ExpCkGT(v int64) predicate.TermDec {
-	return predicate.TermDec(sql.FieldGT(FieldExpCk, v))
+// ExprCkGT applies the GT predicate on the "expr_ck" field.
+func ExprCkGT(v int64) predicate.TermDec {
+	return predicate.TermDec(sql.FieldGT(FieldExprCk, v))
 }
 
-// ExpCkGTE applies the GTE predicate on the "exp_ck" field.
-func ExpCkGTE(v int64) predicate.TermDec {
-	return predicate.TermDec(sql.FieldGTE(FieldExpCk, v))
+// ExprCkGTE applies the GTE predicate on the "expr_ck" field.
+func ExprCkGTE(v int64) predicate.TermDec {
+	return predicate.TermDec(sql.FieldGTE(FieldExprCk, v))
 }
 
-// ExpCkLT applies the LT predicate on the "exp_ck" field.
-func ExpCkLT(v int64) predicate.TermDec {
-	return predicate.TermDec(sql.FieldLT(FieldExpCk, v))
+// ExprCkLT applies the LT predicate on the "expr_ck" field.
+func ExprCkLT(v int64) predicate.TermDec {
+	return predicate.TermDec(sql.FieldLT(FieldExprCk, v))
 }
 
-// ExpCkLTE applies the LTE predicate on the "exp_ck" field.
-func ExpCkLTE(v int64) predicate.TermDec {
-	return predicate.TermDec(sql.FieldLTE(FieldExpCk, v))
+// ExprCkLTE applies the LTE predicate on the "expr_ck" field.
+func ExprCkLTE(v int64) predicate.TermDec {
+	return predicate.TermDec(sql.FieldLTE(FieldExprCk, v))
 }
 
-// ExpCkIsNil applies the IsNil predicate on the "exp_ck" field.
-func ExpCkIsNil() predicate.TermDec {
-	return predicate.TermDec(sql.FieldIsNull(FieldExpCk))
+// ExprCkIsNil applies the IsNil predicate on the "expr_ck" field.
+func ExprCkIsNil() predicate.TermDec {
+	return predicate.TermDec(sql.FieldIsNull(FieldExprCk))
 }
 
-// ExpCkNotNil applies the NotNil predicate on the "exp_ck" field.
-func ExpCkNotNil() predicate.TermDec {
-	return predicate.TermDec(sql.FieldNotNull(FieldExpCk))
+// ExprCkNotNil applies the NotNil predicate on the "expr_ck" field.
+func ExprCkNotNil() predicate.TermDec {
+	return predicate.TermDec(sql.FieldNotNull(FieldExprCk))
 }
 
 // And groups predicates with the AND operator between them.

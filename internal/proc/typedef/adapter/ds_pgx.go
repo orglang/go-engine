@@ -39,7 +39,7 @@ func (dao *daoEnt) AddRec(ctx context.Context, conn tx.Conn, rec typedef.DefRec)
 		dao.log.Error("model conversion failed", idAttr)
 		return err
 	}
-	_, err = dao.client.TypeDef.Create().SetID(dto.TypeID).SetProgID(dto.ProgID).SetExpCk(dto.ExpCK).Save(entpgx.WithConn(ctx, conn.Pgx))
+	_, err = dao.client.TypeDef.Create().SetID(dto.TypeID).SetProgID(dto.ProgID).SetExprCk(dto.ExprCK).Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
 		dao.log.Error("query execution failed", idAttr)
 		return err
@@ -64,7 +64,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, rec typedef.DefR
 		dao.log.Error("model conversion failed", idAttr)
 		return err
 	}
-	affected, err := dao.client.TypeDef.Update().Where(typedefent.ID(dto.TypeID)).SetExpCk(dto.ExpCK).Save(entpgx.WithConn(ctx, conn.Pgx))
+	affected, err := dao.client.TypeDef.Update().Where(typedefent.ID(dto.TypeID)).SetExprCk(dto.ExprCK).Save(entpgx.WithConn(ctx, conn.Pgx))
 	if err != nil {
 		dao.log.Error("query execution failed", idAttr)
 		return err
@@ -206,14 +206,14 @@ func (dao *daoEnt) GetRecsByQNs(ctx context.Context, conn tx.Conn, qns []uniqsym
 
 const (
 	selectRecByQN = `
-SELECT db.prog_qn AS type_qn, td.type_id, td.prog_id, td.exp_ck, dr.prog_rn AS prog_rn
+SELECT db.prog_qn AS type_qn, td.type_id, td.prog_id, td.expr_ck, dr.prog_rn AS prog_rn
 FROM proc_type_defs AS td
 JOIN proc_prog_roots AS dr ON dr.prog_id = td.prog_id
 JOIN proc_prog_binds AS db ON db.prog_id = td.type_id
 WHERE db.prog_qn = $1
 `
 	selectRecByID = `
-SELECT db.prog_qn AS type_qn, td.type_id, td.prog_id, td.exp_ck, dr.prog_rn AS prog_rn
+SELECT db.prog_qn AS type_qn, td.type_id, td.prog_id, td.expr_ck, dr.prog_rn AS prog_rn
 FROM proc_type_defs AS td
 JOIN proc_prog_roots AS dr ON dr.prog_id = td.prog_id
 JOIN proc_prog_binds AS db ON db.prog_id = td.type_id

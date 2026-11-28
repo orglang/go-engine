@@ -11,7 +11,7 @@ The following repository ports are registered through `samber/do` v2:
 - `execcomm.Repo` backed by Ent and specialized pgx operations.
 - `execvar.Repo` with its current persistence adapter.
 - `execeval.Repo` backed by Ent and specialized pgx queries.
-- `typeexp.Repo` backed by Ent.
+- `typeexpr.Repo` backed by Ent.
 - `typedef.Repo` backed by Ent.
 - `termdef.Repo` backed by Ent.
 - Description-qualified names are stored by the existing `typedef.Repo` and `termdef.Repo` adapters.
@@ -38,5 +38,5 @@ is migrated in a later step. A focused adapter test verifies all three routes.
 The production entrypoint remains on Fx during this incremental migration.
 
 Runtime expression DTOs and their bidirectional mapping live in `execeval/adapter`;
-the former `termexp` application package has been removed. Translation/model-only
+the former `termexpr` application package has been removed. Translation/model-only
 packages do not receive DI modules.

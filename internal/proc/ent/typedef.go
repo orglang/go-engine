@@ -18,8 +18,8 @@ type TypeDef struct {
 	ID string `json:"id,omitempty"`
 	// ProgID holds the value of the "prog_id" field.
 	ProgID string `json:"prog_id,omitempty"`
-	// ExpCk holds the value of the "exp_ck" field.
-	ExpCk        int64 `json:"exp_ck,omitempty"`
+	// ExprCk holds the value of the "expr_ck" field.
+	ExprCk       int64 `json:"expr_ck,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -28,7 +28,7 @@ func (*TypeDef) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case typedef.FieldExpCk:
+		case typedef.FieldExprCk:
 			values[i] = new(sql.NullInt64)
 		case typedef.FieldID, typedef.FieldProgID:
 			values[i] = new(sql.NullString)
@@ -59,11 +59,11 @@ func (_m *TypeDef) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.ProgID = value.String
 			}
-		case typedef.FieldExpCk:
+		case typedef.FieldExprCk:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field exp_ck", values[i])
+				return fmt.Errorf("unexpected type %T for field expr_ck", values[i])
 			} else if value.Valid {
-				_m.ExpCk = value.Int64
+				_m.ExprCk = value.Int64
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -104,8 +104,8 @@ func (_m *TypeDef) String() string {
 	builder.WriteString("prog_id=")
 	builder.WriteString(_m.ProgID)
 	builder.WriteString(", ")
-	builder.WriteString("exp_ck=")
-	builder.WriteString(fmt.Sprintf("%v", _m.ExpCk))
+	builder.WriteString("expr_ck=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ExprCk))
 	builder.WriteByte(')')
 	return builder.String()
 }

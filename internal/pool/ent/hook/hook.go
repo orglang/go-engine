@@ -56,16 +56,16 @@ func (f TermDecFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TermDecMutation", m)
 }
 
-// The TermExpFunc type is an adapter to allow the use of ordinary
-// function as TermExp mutator.
-type TermExpFunc func(context.Context, *ent.TermExpMutation) (ent.Value, error)
+// The TermExprFunc type is an adapter to allow the use of ordinary
+// function as TermExpr mutator.
+type TermExprFunc func(context.Context, *ent.TermExprMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f TermExpFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.TermExpMutation); ok {
+func (f TermExprFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TermExprMutation); ok {
 		return f(ctx, mv)
 	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TermExpMutation", m)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TermExprMutation", m)
 }
 
 // The TypeDefFunc type is an adapter to allow the use of ordinary
@@ -80,16 +80,16 @@ func (f TypeDefFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TypeDefMutation", m)
 }
 
-// The TypeExpFunc type is an adapter to allow the use of ordinary
-// function as TypeExp mutator.
-type TypeExpFunc func(context.Context, *ent.TypeExpMutation) (ent.Value, error)
+// The TypeExprFunc type is an adapter to allow the use of ordinary
+// function as TypeExpr mutator.
+type TypeExprFunc func(context.Context, *ent.TypeExprMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f TypeExpFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.TypeExpMutation); ok {
+func (f TypeExprFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TypeExprMutation); ok {
 		return f(ctx, mv)
 	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TypeExpMutation", m)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TypeExprMutation", m)
 }
 
 // Condition is a hook condition function.

@@ -44,11 +44,11 @@ func (s *service) Create(ctx context.Context, spec DecSpec) (_ identity.ADT, _ p
 	}
 
 	liabTypeDef := typeDefs[spec.LiabVar.TypeQN]
-	newLiabVar := termvar.VarRec{TypeID: liabTypeDef.TypeID, ChnlPH: spec.LiabVar.ChnlPH, ExpCK: liabTypeDef.ExpCK}
+	newLiabVar := termvar.VarRec{TypeID: liabTypeDef.TypeID, ChnlPH: spec.LiabVar.ChnlPH, ExprCK: liabTypeDef.ExprCK}
 	newAssetVars := make([]termvar.VarRec, 0, len(spec.AssetVars))
 	for _, varSpec := range spec.AssetVars {
 		typeDef := typeDefs[varSpec.TypeQN]
-		newAssetVars = append(newAssetVars, termvar.VarRec{TypeID: typeDef.TypeID, ChnlPH: varSpec.ChnlPH, ExpCK: typeDef.ExpCK})
+		newAssetVars = append(newAssetVars, termvar.VarRec{TypeID: typeDef.TypeID, ChnlPH: varSpec.ChnlPH, ExprCK: typeDef.ExprCK})
 	}
 
 	expectedRoot := liabTypeDef.ProgRef

@@ -6,6 +6,6 @@ import (
 )
 
 type StepSpec struct {
-	RootRef execroot.RootRef
-	ProcExp commact.ExpSpec
+	RootRef  execroot.RootRef
+	ProcExpr commact.ExprSpec
 }

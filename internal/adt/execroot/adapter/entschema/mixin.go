@@ -16,6 +16,6 @@ type ExecRootMixin struct {
 func (ExecRootMixin) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("id").StorageKey("exec_id").Unique().Immutable(),
-		field.Int64("root_rn").StorageKey("exec_rn"),
+		field.Int64("exec_rn"),
 	}
 }

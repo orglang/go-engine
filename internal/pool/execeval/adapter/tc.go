@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	comprootadapter "orglang/go-engine/internal/adt/comproot/adapter"
+	execrootadapter "orglang/go-engine/internal/adt/execroot/adapter"
 	"orglang/go-engine/internal/adt/execvar"
 	execvaradapter "orglang/go-engine/internal/adt/execvar/adapter"
 
@@ -9,7 +9,7 @@ import (
 )
 
 func DataToEvalSnap1(dto EvalSnap1) (execeval.EvalSnap1, error) {
-	ref, err := comprootadapter.DataToRef(dto.CompRef)
+	ref, err := execrootadapter.DataToRef(dto.RootRef)
 	if err != nil {
 		return execeval.EvalSnap1{}, err
 	}
@@ -20,13 +20,13 @@ func DataToEvalSnap1(dto EvalSnap1) (execeval.EvalSnap1, error) {
 		if err != nil {
 			return execeval.EvalSnap1{}, err
 		}
-		return execeval.EvalSnap1{CompRef: ref, LiabVar: rec}, nil
+		return execeval.EvalSnap1{RootRef: ref, LiabVar: rec}, nil
 	case execvar.LinearMode:
 		rec, err := execvaradapter.DataToLinearRec(*dto.LinearVar)
 		if err != nil {
 			return execeval.EvalSnap1{}, err
 		}
-		return execeval.EvalSnap1{CompRef: ref, LiabVar: rec}, nil
+		return execeval.EvalSnap1{RootRef: ref, LiabVar: rec}, nil
 	default:
 		panic(execvar.ErrUnexpectedMode(mode))
 	}

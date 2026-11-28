@@ -57,8 +57,8 @@ func (*contextRepo) SelectEnv(context.Context, tx.Conn, []identity.ADT) (map[ide
 
 type contextDescRootRepo struct{}
 
-func (contextDescRootRepo) AddRef(context.Context, tx.Conn, descroot.SemRef) error   { return nil }
-func (contextDescRootRepo) TouchRef(context.Context, tx.Conn, descroot.SemRef) error { return nil }
+func (contextDescRootRepo) AddRef(context.Context, tx.Conn, descroot.RootRef) error   { return nil }
+func (contextDescRootRepo) TouchRef(context.Context, tx.Conn, descroot.RootRef) error { return nil }
 
 type contextTransactor struct{}
 

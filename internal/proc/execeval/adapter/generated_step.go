@@ -20,13 +20,13 @@ func generatedStepToCore(id string, dto webapi.ProcStepSpec) (execstepcore.StepS
 	if err != nil {
 		return execstepcore.StepSpec{}, fmt.Errorf("convert process execution id: %w", err)
 	}
-	expr, err := generatedProcessExpressionToCore(dto.ProcExpr)
+	expr, err := generatedProcessExpressionToCore(dto.ProcExprr)
 	if err != nil {
 		return execstepcore.StepSpec{}, err
 	}
 	return execstepcore.StepSpec{
 		RootRef: execroot.RootRef{ExecID: rootID},
-		ProcExp: expr,
+		ProcExpr: expr,
 	}, nil
 }
 

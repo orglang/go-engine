@@ -29,8 +29,8 @@ func TestGeneratedStepToCoreMapsNestedProcessExpression(t *testing.T) {
 	if err != nil {
 		t.Fatalf("convert generated step: %v", err)
 	}
-	if got := identity.ConvertToString(spec.CompRef.CompID); got != testExecutionID {
-		t.Errorf("unexpected computation id: got %q", got)
+	if got := identity.ConvertToString(spec.RootRef.ExecID); got != testExecutionID {
+		t.Errorf("unexpected execution root id: got %q", got)
 	}
 	wait, ok := spec.ProcExp.(connact.WaitSpec)
 	if !ok {

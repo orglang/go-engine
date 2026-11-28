@@ -3,11 +3,11 @@ import "./term/expr.tsp";
 
 namespace OrgLang.Pool;
 
-model CompSnap {
-  comp_ref: Any.CompRef;
+model ExecSnap {
+  root_ref: Any.RootRef;
 }
 
 model StepSpec {
-  comp_ref: Any.CompRef;
+  root_ref: Any.RootRef;
   pool_expr: Term.ExprSpec;
 }

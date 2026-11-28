@@ -66,7 +66,7 @@ func validateExprSpec(spec ExprSpec) error {
 	case AcceptSpec:
 		return validateExprSpec(s.ContExp)
 	default:
-		return ErrExpTypeUnexpected(spec)
+		return ErrExprTypeUnexpected(spec)
 	}
 }
 

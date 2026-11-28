@@ -20,19 +20,19 @@ type ExprSpec struct {
 
 // ExprProd describes a product expression in a type-expression payload.
 type ExprProd struct {
-	ValExpCK  int64 `json:"on"`
-	ContExpCK int64 `json:"to"`
+	ValExprCK  int64 `json:"on"`
+	ContExprCK int64 `json:"to"`
 }
 
 // ExprSum describes a sum expression in a type-expression payload.
 type ExprSum struct {
 	ProcQNs   []string `json:"on"`
-	ContExpCK int64    `json:"to"`
+	ContExprCK int64    `json:"to"`
 }
 
 // ExprShift describes a shift expression in a type-expression payload.
 type ExprShift struct {
-	ContExpCK int64 `json:"to"`
+	ContExprCK int64 `json:"to"`
 }
 
 // TypeExpr describes one persisted state in a pool type expression.

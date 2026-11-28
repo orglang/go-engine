@@ -86,7 +86,7 @@ func statesToExprRec(states map[int64]State, st State) (typedef.ExprRec, error) 
 		if err != nil {
 			return nil, err
 		}
-		contExpr, err := statesToExprRec(states, states[st.Spec.Plus.ContExpCK])
+		contExpr, err := statesToExprRec(states, states[st.Spec.Plus.ContExprCK])
 		if err != nil {
 			return nil, err
 		}
@@ -96,19 +96,19 @@ func statesToExprRec(states map[int64]State, st State) (typedef.ExprRec, error) 
 		if err != nil {
 			return nil, err
 		}
-		contExpr, err := statesToExprRec(states, states[st.Spec.With.ContExpCK])
+		contExpr, err := statesToExprRec(states, states[st.Spec.With.ContExprCK])
 		if err != nil {
 			return nil, err
 		}
 		return typedef.WithRec{ExprCK: exprCK, ProcQNs: procQNs, ContExp: contExpr}, nil
 	case UpKind:
-		contExpr, err := statesToExprRec(states, states[st.Spec.Up.ContExpCK])
+		contExpr, err := statesToExprRec(states, states[st.Spec.Up.ContExprCK])
 		if err != nil {
 			return nil, err
 		}
 		return typedef.UpRec{ExprCK: exprCK, ContExp: contExpr}, nil
 	case DownKind:
-		contExpr, err := statesToExprRec(states, states[st.Spec.Down.ContExpCK])
+		contExpr, err := statesToExprRec(states, states[st.Spec.Down.ContExprCK])
 		if err != nil {
 			return nil, err
 		}
@@ -143,7 +143,7 @@ func statesFromExprRec(supExprCK int64, r typedef.ExprRec, dto *ExprRec) int64 {
 			SupExprCK: supExprCK,
 			Spec: ExprSpec{Plus: &Sum{
 				ProcQNs:   uniqsym.ConvertToStrings(rec.ProcQNs),
-				ContExpCK: statesFromExprRec(exprCK, rec.ContExp, dto),
+				ContExprCK: statesFromExprRec(exprCK, rec.ContExp, dto),
 			}},
 		}
 		dto.States = append(dto.States, st)
@@ -155,7 +155,7 @@ func statesFromExprRec(supExprCK int64, r typedef.ExprRec, dto *ExprRec) int64 {
 			SupExprCK: supExprCK,
 			Spec: ExprSpec{With: &Sum{
 				ProcQNs:   uniqsym.ConvertToStrings(rec.ProcQNs),
-				ContExpCK: statesFromExprRec(exprCK, rec.ContExp, dto),
+				ContExprCK: statesFromExprRec(exprCK, rec.ContExp, dto),
 			}},
 		}
 		dto.States = append(dto.States, st)
@@ -166,7 +166,7 @@ func statesFromExprRec(supExprCK int64, r typedef.ExprRec, dto *ExprRec) int64 {
 			K:         UpKind,
 			SupExprCK: supExprCK,
 			Spec: ExprSpec{Up: &Shift{
-				ContExpCK: statesFromExprRec(exprCK, rec.ContExp, dto),
+				ContExprCK: statesFromExprRec(exprCK, rec.ContExp, dto),
 			}},
 		}
 		dto.States = append(dto.States, st)
@@ -177,7 +177,7 @@ func statesFromExprRec(supExprCK int64, r typedef.ExprRec, dto *ExprRec) int64 {
 			K:         DownKind,
 			SupExprCK: supExprCK,
 			Spec: ExprSpec{Down: &Shift{
-				ContExpCK: statesFromExprRec(exprCK, rec.ContExp, dto),
+				ContExprCK: statesFromExprRec(exprCK, rec.ContExp, dto),
 			}},
 		}
 		dto.States = append(dto.States, st)

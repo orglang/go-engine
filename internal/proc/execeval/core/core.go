@@ -71,7 +71,6 @@ type service struct {
 	commRepo     execcomm.Repo
 	termDecRepo  termdec.Repo
 	typeDefRepo  typedef.Repo
-	typeExprRepo typedef.TypeExprRepo
 	transactor   tx.Transactor
 	log          *slog.Logger
 }
@@ -86,14 +85,13 @@ func NewService(
 	commRepo execcomm.Repo,
 	termDecRepo termdec.Repo,
 	typeDefRepo typedef.Repo,
-	typeExprRepo typedef.TypeExprRepo,
 	transactor tx.Transactor,
 	log *slog.Logger,
 ) API {
 	name := slog.String("name", reflect.TypeFor[service]().Name())
 	return &service{
 		execEvalRepo, commRepo,
-		termDecRepo, typeDefRepo, typeExprRepo,
+		termDecRepo, typeDefRepo,
 		transactor, log.With(name),
 	}
 }
@@ -142,7 +140,7 @@ func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) 
 		envIDs := typedef.CollectEnv(maps.Values(typeDefs))
 		ctxIDs := CollectCtx(maps.Values(evalSnap.LinearVars))
 		typeExprs, getErr4 := tx.Implicit(ctx, s.transactor, func(txCtx context.Context, conn tx.Conn) (map[contkey.ADT]typedef.ExprRec, error) {
-			return s.typeExprRepo.SelectEnv(txCtx, conn, append(envIDs, ctxIDs...))
+			return s.typeDefRepo.SelectExprEnv(txCtx, conn, append(envIDs, ctxIDs...))
 		})
 		if getErr4 != nil {
 			s.log.Error("step taking failed", execAttr, slog.Any("env", envIDs), slog.Any("ctx", ctxIDs))

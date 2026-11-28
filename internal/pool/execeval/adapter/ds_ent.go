@@ -137,7 +137,7 @@ FROM pool_exec_evals exec WHERE exec.exec_id = $3
 `
 
 	selectSnapByQN = `
-SELECT sem.exec_id AS "sem.root_id", sem.exec_rn AS "sem.root_rn", exec.liab_mode,
+SELECT sem.exec_id AS "sem.exec_id", sem.exec_rn AS "sem.exec_rn", exec.liab_mode,
     struct_var.exec_id, struct_var.exec_rn, struct_var.conn_id, struct_var.chnl_id,
     struct_var.chnl_ph, struct_var.exp_ck, struct_var.side,
     linear_var.exec_id, linear_var.exec_rn, linear_var.conn_id, linear_var.chnl_id,

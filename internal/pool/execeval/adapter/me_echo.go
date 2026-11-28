@@ -306,14 +306,14 @@ func poolTermExprToCore(dto api.PoolTermExprSpec) (execeval.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		rootRefs := make([]execroot.RootRef, len(value.ProcIrs))
-		for i, item := range value.ProcIrs {
-			rootRefs[i], err = rootRefFromAPI(item)
+		procExecRefs := make([]execroot.RootRef, len(value.ProcExecRefs))
+		for i, item := range value.ProcExecRefs {
+			procExecRefs[i], err = rootRefFromAPI(item)
 			if err != nil {
-				return nil, fmt.Errorf("proc_irs[%d]: %w", i, err)
+				return nil, fmt.Errorf("proc_exec_refs[%d]: %w", i, err)
 			}
 		}
-		return execeval.SpawnSpec2{ProcTermID: termID, ProcTermRN: termRN, ProcRootRefs: rootRefs}, nil
+		return execeval.SpawnSpec2{ProcTermID: termID, ProcTermRN: termRN, ProcExecRefs: procExecRefs}, nil
 	default:
 		return nil, fmt.Errorf("pool_expr: unsupported kind %q", discriminator.Kind)
 	}

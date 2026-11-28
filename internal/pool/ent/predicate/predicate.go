@@ -6,14 +6,14 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// DescRoot is the predicate function for descroot builders.
-type DescRoot func(*sql.Selector)
-
 // ExecComm is the predicate function for execcomm builders.
 type ExecComm func(*sql.Selector)
 
 // ExecEval is the predicate function for execeval builders.
 type ExecEval func(*sql.Selector)
+
+// ProgRoot is the predicate function for progroot builders.
+type ProgRoot func(*sql.Selector)
 
 // TermDec is the predicate function for termdec builders.
 type TermDec func(*sql.Selector)

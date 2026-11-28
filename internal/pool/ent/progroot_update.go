@@ -6,60 +6,60 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"orglang/go-engine/internal/pool/ent/descroot"
 	"orglang/go-engine/internal/pool/ent/predicate"
+	"orglang/go-engine/internal/pool/ent/progroot"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 )
 
-// DescRootUpdate is the builder for updating DescRoot entities.
-type DescRootUpdate struct {
+// ProgRootUpdate is the builder for updating ProgRoot entities.
+type ProgRootUpdate struct {
 	config
 	hooks    []Hook
-	mutation *DescRootMutation
+	mutation *ProgRootMutation
 }
 
-// Where appends a list predicates to the DescRootUpdate builder.
-func (_u *DescRootUpdate) Where(ps ...predicate.DescRoot) *DescRootUpdate {
+// Where appends a list predicates to the ProgRootUpdate builder.
+func (_u *ProgRootUpdate) Where(ps ...predicate.ProgRoot) *ProgRootUpdate {
 	_u.mutation.Where(ps...)
 	return _u
 }
 
-// SetDescRn sets the "desc_rn" field.
-func (_u *DescRootUpdate) SetDescRn(v int64) *DescRootUpdate {
-	_u.mutation.ResetDescRn()
-	_u.mutation.SetDescRn(v)
+// SetProgRn sets the "prog_rn" field.
+func (_u *ProgRootUpdate) SetProgRn(v int64) *ProgRootUpdate {
+	_u.mutation.ResetProgRn()
+	_u.mutation.SetProgRn(v)
 	return _u
 }
 
-// SetNillableDescRn sets the "desc_rn" field if the given value is not nil.
-func (_u *DescRootUpdate) SetNillableDescRn(v *int64) *DescRootUpdate {
+// SetNillableProgRn sets the "prog_rn" field if the given value is not nil.
+func (_u *ProgRootUpdate) SetNillableProgRn(v *int64) *ProgRootUpdate {
 	if v != nil {
-		_u.SetDescRn(*v)
+		_u.SetProgRn(*v)
 	}
 	return _u
 }
 
-// AddDescRn adds value to the "desc_rn" field.
-func (_u *DescRootUpdate) AddDescRn(v int64) *DescRootUpdate {
-	_u.mutation.AddDescRn(v)
+// AddProgRn adds value to the "prog_rn" field.
+func (_u *ProgRootUpdate) AddProgRn(v int64) *ProgRootUpdate {
+	_u.mutation.AddProgRn(v)
 	return _u
 }
 
-// Mutation returns the DescRootMutation object of the builder.
-func (_u *DescRootUpdate) Mutation() *DescRootMutation {
+// Mutation returns the ProgRootMutation object of the builder.
+func (_u *ProgRootUpdate) Mutation() *ProgRootMutation {
 	return _u.mutation
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (_u *DescRootUpdate) Save(ctx context.Context) (int, error) {
+func (_u *ProgRootUpdate) Save(ctx context.Context) (int, error) {
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (_u *DescRootUpdate) SaveX(ctx context.Context) int {
+func (_u *ProgRootUpdate) SaveX(ctx context.Context) int {
 	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -68,20 +68,20 @@ func (_u *DescRootUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (_u *DescRootUpdate) Exec(ctx context.Context) error {
+func (_u *ProgRootUpdate) Exec(ctx context.Context) error {
 	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_u *DescRootUpdate) ExecX(ctx context.Context) {
+func (_u *ProgRootUpdate) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (_u *DescRootUpdate) sqlSave(ctx context.Context) (_node int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(descroot.Table, descroot.Columns, sqlgraph.NewFieldSpec(descroot.FieldID, field.TypeString))
+func (_u *ProgRootUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	_spec := sqlgraph.NewUpdateSpec(progroot.Table, progroot.Columns, sqlgraph.NewFieldSpec(progroot.FieldID, field.TypeString))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -89,15 +89,15 @@ func (_u *DescRootUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			}
 		}
 	}
-	if value, ok := _u.mutation.DescRn(); ok {
-		_spec.SetField(descroot.FieldDescRn, field.TypeInt64, value)
+	if value, ok := _u.mutation.ProgRn(); ok {
+		_spec.SetField(progroot.FieldProgRn, field.TypeInt64, value)
 	}
-	if value, ok := _u.mutation.AddedDescRn(); ok {
-		_spec.AddField(descroot.FieldDescRn, field.TypeInt64, value)
+	if value, ok := _u.mutation.AddedProgRn(); ok {
+		_spec.AddField(progroot.FieldProgRn, field.TypeInt64, value)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
-			err = &NotFoundError{descroot.Label}
+			err = &NotFoundError{progroot.Label}
 		} else if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -107,60 +107,60 @@ func (_u *DescRootUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	return _node, nil
 }
 
-// DescRootUpdateOne is the builder for updating a single DescRoot entity.
-type DescRootUpdateOne struct {
+// ProgRootUpdateOne is the builder for updating a single ProgRoot entity.
+type ProgRootUpdateOne struct {
 	config
 	fields   []string
 	hooks    []Hook
-	mutation *DescRootMutation
+	mutation *ProgRootMutation
 }
 
-// SetDescRn sets the "desc_rn" field.
-func (_u *DescRootUpdateOne) SetDescRn(v int64) *DescRootUpdateOne {
-	_u.mutation.ResetDescRn()
-	_u.mutation.SetDescRn(v)
+// SetProgRn sets the "prog_rn" field.
+func (_u *ProgRootUpdateOne) SetProgRn(v int64) *ProgRootUpdateOne {
+	_u.mutation.ResetProgRn()
+	_u.mutation.SetProgRn(v)
 	return _u
 }
 
-// SetNillableDescRn sets the "desc_rn" field if the given value is not nil.
-func (_u *DescRootUpdateOne) SetNillableDescRn(v *int64) *DescRootUpdateOne {
+// SetNillableProgRn sets the "prog_rn" field if the given value is not nil.
+func (_u *ProgRootUpdateOne) SetNillableProgRn(v *int64) *ProgRootUpdateOne {
 	if v != nil {
-		_u.SetDescRn(*v)
+		_u.SetProgRn(*v)
 	}
 	return _u
 }
 
-// AddDescRn adds value to the "desc_rn" field.
-func (_u *DescRootUpdateOne) AddDescRn(v int64) *DescRootUpdateOne {
-	_u.mutation.AddDescRn(v)
+// AddProgRn adds value to the "prog_rn" field.
+func (_u *ProgRootUpdateOne) AddProgRn(v int64) *ProgRootUpdateOne {
+	_u.mutation.AddProgRn(v)
 	return _u
 }
 
-// Mutation returns the DescRootMutation object of the builder.
-func (_u *DescRootUpdateOne) Mutation() *DescRootMutation {
+// Mutation returns the ProgRootMutation object of the builder.
+func (_u *ProgRootUpdateOne) Mutation() *ProgRootMutation {
 	return _u.mutation
 }
 
-// Where appends a list predicates to the DescRootUpdate builder.
-func (_u *DescRootUpdateOne) Where(ps ...predicate.DescRoot) *DescRootUpdateOne {
+// Where appends a list predicates to the ProgRootUpdate builder.
+func (_u *ProgRootUpdateOne) Where(ps ...predicate.ProgRoot) *ProgRootUpdateOne {
 	_u.mutation.Where(ps...)
 	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (_u *DescRootUpdateOne) Select(field string, fields ...string) *DescRootUpdateOne {
+func (_u *ProgRootUpdateOne) Select(field string, fields ...string) *ProgRootUpdateOne {
 	_u.fields = append([]string{field}, fields...)
 	return _u
 }
 
-// Save executes the query and returns the updated DescRoot entity.
-func (_u *DescRootUpdateOne) Save(ctx context.Context) (*DescRoot, error) {
+// Save executes the query and returns the updated ProgRoot entity.
+func (_u *ProgRootUpdateOne) Save(ctx context.Context) (*ProgRoot, error) {
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (_u *DescRootUpdateOne) SaveX(ctx context.Context) *DescRoot {
+func (_u *ProgRootUpdateOne) SaveX(ctx context.Context) *ProgRoot {
 	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -169,33 +169,33 @@ func (_u *DescRootUpdateOne) SaveX(ctx context.Context) *DescRoot {
 }
 
 // Exec executes the query on the entity.
-func (_u *DescRootUpdateOne) Exec(ctx context.Context) error {
+func (_u *ProgRootUpdateOne) Exec(ctx context.Context) error {
 	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_u *DescRootUpdateOne) ExecX(ctx context.Context) {
+func (_u *ProgRootUpdateOne) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (_u *DescRootUpdateOne) sqlSave(ctx context.Context) (_node *DescRoot, err error) {
-	_spec := sqlgraph.NewUpdateSpec(descroot.Table, descroot.Columns, sqlgraph.NewFieldSpec(descroot.FieldID, field.TypeString))
+func (_u *ProgRootUpdateOne) sqlSave(ctx context.Context) (_node *ProgRoot, err error) {
+	_spec := sqlgraph.NewUpdateSpec(progroot.Table, progroot.Columns, sqlgraph.NewFieldSpec(progroot.FieldID, field.TypeString))
 	id, ok := _u.mutation.ID()
 	if !ok {
-		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "DescRoot.id" for update`)}
+		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "ProgRoot.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
 	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, descroot.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, progroot.FieldID)
 		for _, f := range fields {
-			if !descroot.ValidColumn(f) {
+			if !progroot.ValidColumn(f) {
 				return nil, &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 			}
-			if f != descroot.FieldID {
+			if f != progroot.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, f)
 			}
 		}
@@ -207,18 +207,18 @@ func (_u *DescRootUpdateOne) sqlSave(ctx context.Context) (_node *DescRoot, err 
 			}
 		}
 	}
-	if value, ok := _u.mutation.DescRn(); ok {
-		_spec.SetField(descroot.FieldDescRn, field.TypeInt64, value)
+	if value, ok := _u.mutation.ProgRn(); ok {
+		_spec.SetField(progroot.FieldProgRn, field.TypeInt64, value)
 	}
-	if value, ok := _u.mutation.AddedDescRn(); ok {
-		_spec.AddField(descroot.FieldDescRn, field.TypeInt64, value)
+	if value, ok := _u.mutation.AddedProgRn(); ok {
+		_spec.AddField(progroot.FieldProgRn, field.TypeInt64, value)
 	}
-	_node = &DescRoot{config: _u.config}
+	_node = &ProgRoot{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
 	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
-			err = &NotFoundError{descroot.Label}
+			err = &NotFoundError{progroot.Label}
 		} else if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}

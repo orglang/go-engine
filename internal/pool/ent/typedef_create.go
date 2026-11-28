@@ -22,9 +22,9 @@ type TypeDefCreate struct {
 	conflict []sql.ConflictOption
 }
 
-// SetDescID sets the "desc_id" field.
-func (_c *TypeDefCreate) SetDescID(v string) *TypeDefCreate {
-	_c.mutation.SetDescID(v)
+// SetProgID sets the "prog_id" field.
+func (_c *TypeDefCreate) SetProgID(v string) *TypeDefCreate {
+	_c.mutation.SetProgID(v)
 	return _c
 }
 
@@ -74,8 +74,8 @@ func (_c *TypeDefCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *TypeDefCreate) check() error {
-	if _, ok := _c.mutation.DescID(); !ok {
-		return &ValidationError{Name: "desc_id", err: errors.New(`ent: missing required field "TypeDef.desc_id"`)}
+	if _, ok := _c.mutation.ProgID(); !ok {
+		return &ValidationError{Name: "prog_id", err: errors.New(`ent: missing required field "TypeDef.prog_id"`)}
 	}
 	if _, ok := _c.mutation.ExpCk(); !ok {
 		return &ValidationError{Name: "exp_ck", err: errors.New(`ent: missing required field "TypeDef.exp_ck"`)}
@@ -116,9 +116,9 @@ func (_c *TypeDefCreate) createSpec() (*TypeDef, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := _c.mutation.DescID(); ok {
-		_spec.SetField(typedef.FieldDescID, field.TypeString, value)
-		_node.DescID = value
+	if value, ok := _c.mutation.ProgID(); ok {
+		_spec.SetField(typedef.FieldProgID, field.TypeString, value)
+		_node.ProgID = value
 	}
 	if value, ok := _c.mutation.ExpCk(); ok {
 		_spec.SetField(typedef.FieldExpCk, field.TypeInt64, value)
@@ -131,7 +131,7 @@ func (_c *TypeDefCreate) createSpec() (*TypeDef, *sqlgraph.CreateSpec) {
 // of the `INSERT` statement. For example:
 //
 //	client.TypeDef.Create().
-//		SetDescID(v).
+//		SetProgID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -140,7 +140,7 @@ func (_c *TypeDefCreate) createSpec() (*TypeDef, *sqlgraph.CreateSpec) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.TypeDefUpsert) {
-//			SetDescID(v+v).
+//			SetProgID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *TypeDefCreate) OnConflict(opts ...sql.ConflictOption) *TypeDefUpsertOne {
@@ -176,15 +176,15 @@ type (
 	}
 )
 
-// SetDescID sets the "desc_id" field.
-func (u *TypeDefUpsert) SetDescID(v string) *TypeDefUpsert {
-	u.Set(typedef.FieldDescID, v)
+// SetProgID sets the "prog_id" field.
+func (u *TypeDefUpsert) SetProgID(v string) *TypeDefUpsert {
+	u.Set(typedef.FieldProgID, v)
 	return u
 }
 
-// UpdateDescID sets the "desc_id" field to the value that was provided on create.
-func (u *TypeDefUpsert) UpdateDescID() *TypeDefUpsert {
-	u.SetExcluded(typedef.FieldDescID)
+// UpdateProgID sets the "prog_id" field to the value that was provided on create.
+func (u *TypeDefUpsert) UpdateProgID() *TypeDefUpsert {
+	u.SetExcluded(typedef.FieldProgID)
 	return u
 }
 
@@ -254,17 +254,17 @@ func (u *TypeDefUpsertOne) Update(set func(*TypeDefUpsert)) *TypeDefUpsertOne {
 	return u
 }
 
-// SetDescID sets the "desc_id" field.
-func (u *TypeDefUpsertOne) SetDescID(v string) *TypeDefUpsertOne {
+// SetProgID sets the "prog_id" field.
+func (u *TypeDefUpsertOne) SetProgID(v string) *TypeDefUpsertOne {
 	return u.Update(func(s *TypeDefUpsert) {
-		s.SetDescID(v)
+		s.SetProgID(v)
 	})
 }
 
-// UpdateDescID sets the "desc_id" field to the value that was provided on create.
-func (u *TypeDefUpsertOne) UpdateDescID() *TypeDefUpsertOne {
+// UpdateProgID sets the "prog_id" field to the value that was provided on create.
+func (u *TypeDefUpsertOne) UpdateProgID() *TypeDefUpsertOne {
 	return u.Update(func(s *TypeDefUpsert) {
-		s.UpdateDescID()
+		s.UpdateProgID()
 	})
 }
 
@@ -424,7 +424,7 @@ func (_c *TypeDefCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.TypeDefUpsert) {
-//			SetDescID(v+v).
+//			SetProgID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *TypeDefCreateBulk) OnConflict(opts ...sql.ConflictOption) *TypeDefUpsertBulk {
@@ -503,17 +503,17 @@ func (u *TypeDefUpsertBulk) Update(set func(*TypeDefUpsert)) *TypeDefUpsertBulk 
 	return u
 }
 
-// SetDescID sets the "desc_id" field.
-func (u *TypeDefUpsertBulk) SetDescID(v string) *TypeDefUpsertBulk {
+// SetProgID sets the "prog_id" field.
+func (u *TypeDefUpsertBulk) SetProgID(v string) *TypeDefUpsertBulk {
 	return u.Update(func(s *TypeDefUpsert) {
-		s.SetDescID(v)
+		s.SetProgID(v)
 	})
 }
 
-// UpdateDescID sets the "desc_id" field to the value that was provided on create.
-func (u *TypeDefUpsertBulk) UpdateDescID() *TypeDefUpsertBulk {
+// UpdateProgID sets the "prog_id" field to the value that was provided on create.
+func (u *TypeDefUpsertBulk) UpdateProgID() *TypeDefUpsertBulk {
 	return u.Update(func(s *TypeDefUpsert) {
-		s.UpdateDescID()
+		s.UpdateProgID()
 	})
 }
 

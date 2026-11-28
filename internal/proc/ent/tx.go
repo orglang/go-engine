@@ -12,12 +12,12 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
-	// DescRoot is the client for interacting with the DescRoot builders.
-	DescRoot *DescRootClient
 	// ExecComm is the client for interacting with the ExecComm builders.
 	ExecComm *ExecCommClient
 	// ExecEval is the client for interacting with the ExecEval builders.
 	ExecEval *ExecEvalClient
+	// ProgRoot is the client for interacting with the ProgRoot builders.
+	ProgRoot *ProgRootClient
 	// TermDec is the client for interacting with the TermDec builders.
 	TermDec *TermDecClient
 	// TermExp is the client for interacting with the TermExp builders.
@@ -157,9 +157,9 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
-	tx.DescRoot = NewDescRootClient(tx.config)
 	tx.ExecComm = NewExecCommClient(tx.config)
 	tx.ExecEval = NewExecEvalClient(tx.config)
+	tx.ProgRoot = NewProgRootClient(tx.config)
 	tx.TermDec = NewTermDecClient(tx.config)
 	tx.TermExp = NewTermExpClient(tx.config)
 	tx.TypeDef = NewTypeDefClient(tx.config)
@@ -173,7 +173,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: DescRoot.QueryXXX(), the query will be executed
+// applies a query, for example: ExecComm.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

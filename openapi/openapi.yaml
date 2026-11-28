@@ -514,11 +514,11 @@ components:
       type: object
       required:
         - term_id
-        - desc_rn
+        - prog_rn
       properties:
         term_id:
           type: string
-        desc_rn:
+        prog_rn:
           type: integer
           format: int64
       description: Shared term identity.
@@ -533,11 +533,11 @@ components:
       type: object
       required:
         - type_id
-        - desc_rn
+        - prog_rn
       properties:
         type_id:
           type: string
-        desc_rn:
+        prog_rn:
           type: integer
           format: int64
       description: Shared type identity.
@@ -554,11 +554,11 @@ components:
     Pool.DecSpec:
       type: object
       required:
-        - desc_qn
+        - prog_qn
         - liab_var
         - asset_vars
       properties:
-        desc_qn:
+        prog_qn:
           type: string
         liab_var:
           $ref: '#/components/schemas/Any.Comm.VarSpec'

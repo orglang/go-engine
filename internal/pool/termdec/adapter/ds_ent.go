@@ -7,8 +7,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"orglang/go-engine/internal/adt/progroot"
 	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/progroot"
 	"orglang/go-engine/internal/adt/seqnum"
 	"orglang/go-engine/internal/adt/termvar"
 	termvaradapter "orglang/go-engine/internal/adt/termvar/adapter"

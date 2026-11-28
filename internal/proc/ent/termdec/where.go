@@ -63,9 +63,9 @@ func IDContainsFold(id string) predicate.TermDec {
 	return predicate.TermDec(sql.FieldContainsFold(FieldID, id))
 }
 
-// DescID applies equality check predicate on the "desc_id" field. It's identical to DescIDEQ.
-func DescID(v string) predicate.TermDec {
-	return predicate.TermDec(sql.FieldEQ(FieldDescID, v))
+// ProgID applies equality check predicate on the "prog_id" field. It's identical to ProgIDEQ.
+func ProgID(v string) predicate.TermDec {
+	return predicate.TermDec(sql.FieldEQ(FieldProgID, v))
 }
 
 // ExpCk applies equality check predicate on the "exp_ck" field. It's identical to ExpCkEQ.
@@ -73,69 +73,69 @@ func ExpCk(v int64) predicate.TermDec {
 	return predicate.TermDec(sql.FieldEQ(FieldExpCk, v))
 }
 
-// DescIDEQ applies the EQ predicate on the "desc_id" field.
-func DescIDEQ(v string) predicate.TermDec {
-	return predicate.TermDec(sql.FieldEQ(FieldDescID, v))
+// ProgIDEQ applies the EQ predicate on the "prog_id" field.
+func ProgIDEQ(v string) predicate.TermDec {
+	return predicate.TermDec(sql.FieldEQ(FieldProgID, v))
 }
 
-// DescIDNEQ applies the NEQ predicate on the "desc_id" field.
-func DescIDNEQ(v string) predicate.TermDec {
-	return predicate.TermDec(sql.FieldNEQ(FieldDescID, v))
+// ProgIDNEQ applies the NEQ predicate on the "prog_id" field.
+func ProgIDNEQ(v string) predicate.TermDec {
+	return predicate.TermDec(sql.FieldNEQ(FieldProgID, v))
 }
 
-// DescIDIn applies the In predicate on the "desc_id" field.
-func DescIDIn(vs ...string) predicate.TermDec {
-	return predicate.TermDec(sql.FieldIn(FieldDescID, vs...))
+// ProgIDIn applies the In predicate on the "prog_id" field.
+func ProgIDIn(vs ...string) predicate.TermDec {
+	return predicate.TermDec(sql.FieldIn(FieldProgID, vs...))
 }
 
-// DescIDNotIn applies the NotIn predicate on the "desc_id" field.
-func DescIDNotIn(vs ...string) predicate.TermDec {
-	return predicate.TermDec(sql.FieldNotIn(FieldDescID, vs...))
+// ProgIDNotIn applies the NotIn predicate on the "prog_id" field.
+func ProgIDNotIn(vs ...string) predicate.TermDec {
+	return predicate.TermDec(sql.FieldNotIn(FieldProgID, vs...))
 }
 
-// DescIDGT applies the GT predicate on the "desc_id" field.
-func DescIDGT(v string) predicate.TermDec {
-	return predicate.TermDec(sql.FieldGT(FieldDescID, v))
+// ProgIDGT applies the GT predicate on the "prog_id" field.
+func ProgIDGT(v string) predicate.TermDec {
+	return predicate.TermDec(sql.FieldGT(FieldProgID, v))
 }
 
-// DescIDGTE applies the GTE predicate on the "desc_id" field.
-func DescIDGTE(v string) predicate.TermDec {
-	return predicate.TermDec(sql.FieldGTE(FieldDescID, v))
+// ProgIDGTE applies the GTE predicate on the "prog_id" field.
+func ProgIDGTE(v string) predicate.TermDec {
+	return predicate.TermDec(sql.FieldGTE(FieldProgID, v))
 }
 
-// DescIDLT applies the LT predicate on the "desc_id" field.
-func DescIDLT(v string) predicate.TermDec {
-	return predicate.TermDec(sql.FieldLT(FieldDescID, v))
+// ProgIDLT applies the LT predicate on the "prog_id" field.
+func ProgIDLT(v string) predicate.TermDec {
+	return predicate.TermDec(sql.FieldLT(FieldProgID, v))
 }
 
-// DescIDLTE applies the LTE predicate on the "desc_id" field.
-func DescIDLTE(v string) predicate.TermDec {
-	return predicate.TermDec(sql.FieldLTE(FieldDescID, v))
+// ProgIDLTE applies the LTE predicate on the "prog_id" field.
+func ProgIDLTE(v string) predicate.TermDec {
+	return predicate.TermDec(sql.FieldLTE(FieldProgID, v))
 }
 
-// DescIDContains applies the Contains predicate on the "desc_id" field.
-func DescIDContains(v string) predicate.TermDec {
-	return predicate.TermDec(sql.FieldContains(FieldDescID, v))
+// ProgIDContains applies the Contains predicate on the "prog_id" field.
+func ProgIDContains(v string) predicate.TermDec {
+	return predicate.TermDec(sql.FieldContains(FieldProgID, v))
 }
 
-// DescIDHasPrefix applies the HasPrefix predicate on the "desc_id" field.
-func DescIDHasPrefix(v string) predicate.TermDec {
-	return predicate.TermDec(sql.FieldHasPrefix(FieldDescID, v))
+// ProgIDHasPrefix applies the HasPrefix predicate on the "prog_id" field.
+func ProgIDHasPrefix(v string) predicate.TermDec {
+	return predicate.TermDec(sql.FieldHasPrefix(FieldProgID, v))
 }
 
-// DescIDHasSuffix applies the HasSuffix predicate on the "desc_id" field.
-func DescIDHasSuffix(v string) predicate.TermDec {
-	return predicate.TermDec(sql.FieldHasSuffix(FieldDescID, v))
+// ProgIDHasSuffix applies the HasSuffix predicate on the "prog_id" field.
+func ProgIDHasSuffix(v string) predicate.TermDec {
+	return predicate.TermDec(sql.FieldHasSuffix(FieldProgID, v))
 }
 
-// DescIDEqualFold applies the EqualFold predicate on the "desc_id" field.
-func DescIDEqualFold(v string) predicate.TermDec {
-	return predicate.TermDec(sql.FieldEqualFold(FieldDescID, v))
+// ProgIDEqualFold applies the EqualFold predicate on the "prog_id" field.
+func ProgIDEqualFold(v string) predicate.TermDec {
+	return predicate.TermDec(sql.FieldEqualFold(FieldProgID, v))
 }
 
-// DescIDContainsFold applies the ContainsFold predicate on the "desc_id" field.
-func DescIDContainsFold(v string) predicate.TermDec {
-	return predicate.TermDec(sql.FieldContainsFold(FieldDescID, v))
+// ProgIDContainsFold applies the ContainsFold predicate on the "prog_id" field.
+func ProgIDContainsFold(v string) predicate.TermDec {
+	return predicate.TermDec(sql.FieldContainsFold(FieldProgID, v))
 }
 
 // ExpCkEQ applies the EQ predicate on the "exp_ck" field.

@@ -11,8 +11,8 @@ const (
 	Label = "term_dec"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "term_id"
-	// FieldDescID holds the string denoting the desc_id field in the database.
-	FieldDescID = "desc_id"
+	// FieldProgID holds the string denoting the prog_id field in the database.
+	FieldProgID = "prog_id"
 	// FieldExpCk holds the string denoting the exp_ck field in the database.
 	FieldExpCk = "exp_ck"
 	// FieldLiabVar holds the string denoting the liab_var field in the database.
@@ -26,7 +26,7 @@ const (
 // Columns holds all SQL columns for termdec fields.
 var Columns = []string{
 	FieldID,
-	FieldDescID,
+	FieldProgID,
 	FieldExpCk,
 	FieldLiabVar,
 	FieldAssetVars,
@@ -50,9 +50,9 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByDescID orders the results by the desc_id field.
-func ByDescID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDescID, opts...).ToFunc()
+// ByProgID orders the results by the prog_id field.
+func ByProgID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProgID, opts...).ToFunc()
 }
 
 // ByExpCk orders the results by the exp_ck field.

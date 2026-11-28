@@ -44,7 +44,7 @@ type AnyRootRef struct {
 
 // AnyTermRef Shared term identity.
 type AnyTermRef struct {
-	DescRn int64  `json:"desc_rn"`
+	ProgRn int64  `json:"prog_rn"`
 	TermId string `json:"term_id"`
 }
 
@@ -55,7 +55,7 @@ type AnyTypeLinkSpec struct {
 
 // AnyTypeRef Shared type identity.
 type AnyTypeRef struct {
-	DescRn int64  `json:"desc_rn"`
+	ProgRn int64  `json:"prog_rn"`
 	TypeId string `json:"type_id"`
 }
 
@@ -69,8 +69,8 @@ type PoolDecSnap struct {
 // PoolDecSpec defines model for Pool.DecSpec.
 type PoolDecSpec struct {
 	AssetVars []AnyCommVarSpec `json:"asset_vars"`
-	DescQn    string           `json:"desc_qn"`
 	LiabVar   AnyCommVarSpec   `json:"liab_var"`
+	ProgQn    string           `json:"prog_qn"`
 }
 
 // PoolStepSpec defines model for Pool.StepSpec.

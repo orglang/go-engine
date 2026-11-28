@@ -29,16 +29,16 @@ func (_u *TermDecUpdate) Where(ps ...predicate.TermDec) *TermDecUpdate {
 	return _u
 }
 
-// SetDescID sets the "desc_id" field.
-func (_u *TermDecUpdate) SetDescID(v string) *TermDecUpdate {
-	_u.mutation.SetDescID(v)
+// SetProgID sets the "prog_id" field.
+func (_u *TermDecUpdate) SetProgID(v string) *TermDecUpdate {
+	_u.mutation.SetProgID(v)
 	return _u
 }
 
-// SetNillableDescID sets the "desc_id" field if the given value is not nil.
-func (_u *TermDecUpdate) SetNillableDescID(v *string) *TermDecUpdate {
+// SetNillableProgID sets the "prog_id" field if the given value is not nil.
+func (_u *TermDecUpdate) SetNillableProgID(v *string) *TermDecUpdate {
 	if v != nil {
-		_u.SetDescID(*v)
+		_u.SetProgID(*v)
 	}
 	return _u
 }
@@ -137,8 +137,8 @@ func (_u *TermDecUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			}
 		}
 	}
-	if value, ok := _u.mutation.DescID(); ok {
-		_spec.SetField(termdec.FieldDescID, field.TypeString, value)
+	if value, ok := _u.mutation.ProgID(); ok {
+		_spec.SetField(termdec.FieldProgID, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.ExpCk(); ok {
 		_spec.SetField(termdec.FieldExpCk, field.TypeInt64, value)
@@ -180,16 +180,16 @@ type TermDecUpdateOne struct {
 	mutation *TermDecMutation
 }
 
-// SetDescID sets the "desc_id" field.
-func (_u *TermDecUpdateOne) SetDescID(v string) *TermDecUpdateOne {
-	_u.mutation.SetDescID(v)
+// SetProgID sets the "prog_id" field.
+func (_u *TermDecUpdateOne) SetProgID(v string) *TermDecUpdateOne {
+	_u.mutation.SetProgID(v)
 	return _u
 }
 
-// SetNillableDescID sets the "desc_id" field if the given value is not nil.
-func (_u *TermDecUpdateOne) SetNillableDescID(v *string) *TermDecUpdateOne {
+// SetNillableProgID sets the "prog_id" field if the given value is not nil.
+func (_u *TermDecUpdateOne) SetNillableProgID(v *string) *TermDecUpdateOne {
 	if v != nil {
-		_u.SetDescID(*v)
+		_u.SetProgID(*v)
 	}
 	return _u
 }
@@ -318,8 +318,8 @@ func (_u *TermDecUpdateOne) sqlSave(ctx context.Context) (_node *TermDec, err er
 			}
 		}
 	}
-	if value, ok := _u.mutation.DescID(); ok {
-		_spec.SetField(termdec.FieldDescID, field.TypeString, value)
+	if value, ok := _u.mutation.ProgID(); ok {
+		_spec.SetField(termdec.FieldProgID, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.ExpCk(); ok {
 		_spec.SetField(termdec.FieldExpCk, field.TypeInt64, value)

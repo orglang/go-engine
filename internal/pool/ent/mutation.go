@@ -8,10 +8,10 @@ import (
 	"errors"
 	"fmt"
 	"orglang/go-engine/internal/adt/termvar/adapter"
-	"orglang/go-engine/internal/pool/ent/descroot"
 	"orglang/go-engine/internal/pool/ent/execcomm"
 	"orglang/go-engine/internal/pool/ent/execeval"
 	"orglang/go-engine/internal/pool/ent/predicate"
+	"orglang/go-engine/internal/pool/ent/progroot"
 	"orglang/go-engine/internal/pool/ent/schema"
 	"orglang/go-engine/internal/pool/ent/termdec"
 	"orglang/go-engine/internal/pool/ent/termexp"
@@ -32,382 +32,14 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeDescRoot = "DescRoot"
 	TypeExecComm = "ExecComm"
 	TypeExecEval = "ExecEval"
+	TypeProgRoot = "ProgRoot"
 	TypeTermDec  = "TermDec"
 	TypeTermExp  = "TermExp"
 	TypeTypeDef  = "TypeDef"
 	TypeTypeExp  = "TypeExp"
 )
-
-// DescRootMutation represents an operation that mutates the DescRoot nodes in the graph.
-type DescRootMutation struct {
-	config
-	op            Op
-	typ           string
-	id            *string
-	desc_rn       *int64
-	adddesc_rn    *int64
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*DescRoot, error)
-	predicates    []predicate.DescRoot
-}
-
-var _ ent.Mutation = (*DescRootMutation)(nil)
-
-// descrootOption allows management of the mutation configuration using functional options.
-type descrootOption func(*DescRootMutation)
-
-// newDescRootMutation creates new mutation for the DescRoot entity.
-func newDescRootMutation(c config, op Op, opts ...descrootOption) *DescRootMutation {
-	m := &DescRootMutation{
-		config:        c,
-		op:            op,
-		typ:           TypeDescRoot,
-		clearedFields: make(map[string]struct{}),
-	}
-	for _, opt := range opts {
-		opt(m)
-	}
-	return m
-}
-
-// withDescRootID sets the ID field of the mutation.
-func withDescRootID(id string) descrootOption {
-	return func(m *DescRootMutation) {
-		var (
-			err   error
-			once  sync.Once
-			value *DescRoot
-		)
-		m.oldValue = func(ctx context.Context) (*DescRoot, error) {
-			once.Do(func() {
-				if m.done {
-					err = errors.New("querying old values post mutation is not allowed")
-				} else {
-					value, err = m.Client().DescRoot.Get(ctx, id)
-				}
-			})
-			return value, err
-		}
-		m.id = &id
-	}
-}
-
-// withDescRoot sets the old DescRoot of the mutation.
-func withDescRoot(node *DescRoot) descrootOption {
-	return func(m *DescRootMutation) {
-		m.oldValue = func(context.Context) (*DescRoot, error) {
-			return node, nil
-		}
-		m.id = &node.ID
-	}
-}
-
-// Client returns a new `ent.Client` from the mutation. If the mutation was
-// executed in a transaction (ent.Tx), a transactional client is returned.
-func (m DescRootMutation) Client() *Client {
-	client := &Client{config: m.config}
-	client.init()
-	return client
-}
-
-// Tx returns an `ent.Tx` for mutations that were executed in transactions;
-// it returns an error otherwise.
-func (m DescRootMutation) Tx() (*Tx, error) {
-	if _, ok := m.driver.(*txDriver); !ok {
-		return nil, errors.New("ent: mutation is not running in a transaction")
-	}
-	tx := &Tx{config: m.config}
-	tx.init()
-	return tx, nil
-}
-
-// SetID sets the value of the id field. Note that this
-// operation is only accepted on creation of DescRoot entities.
-func (m *DescRootMutation) SetID(id string) {
-	m.id = &id
-}
-
-// ID returns the ID value in the mutation. Note that the ID is only available
-// if it was provided to the builder or after it was returned from the database.
-func (m *DescRootMutation) ID() (id string, exists bool) {
-	if m.id == nil {
-		return
-	}
-	return *m.id, true
-}
-
-// IDs queries the database and returns the entity ids that match the mutation's predicate.
-// That means, if the mutation is applied within a transaction with an isolation level such
-// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
-// or updated by the mutation.
-func (m *DescRootMutation) IDs(ctx context.Context) ([]string, error) {
-	switch {
-	case m.op.Is(OpUpdateOne | OpDeleteOne):
-		id, exists := m.ID()
-		if exists {
-			return []string{id}, nil
-		}
-		fallthrough
-	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().DescRoot.Query().Where(m.predicates...).IDs(ctx)
-	default:
-		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
-	}
-}
-
-// SetDescRn sets the "desc_rn" field.
-func (m *DescRootMutation) SetDescRn(i int64) {
-	m.desc_rn = &i
-	m.adddesc_rn = nil
-}
-
-// DescRn returns the value of the "desc_rn" field in the mutation.
-func (m *DescRootMutation) DescRn() (r int64, exists bool) {
-	v := m.desc_rn
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDescRn returns the old "desc_rn" field's value of the DescRoot entity.
-// If the DescRoot object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *DescRootMutation) OldDescRn(ctx context.Context) (v int64, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDescRn is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDescRn requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDescRn: %w", err)
-	}
-	return oldValue.DescRn, nil
-}
-
-// AddDescRn adds i to the "desc_rn" field.
-func (m *DescRootMutation) AddDescRn(i int64) {
-	if m.adddesc_rn != nil {
-		*m.adddesc_rn += i
-	} else {
-		m.adddesc_rn = &i
-	}
-}
-
-// AddedDescRn returns the value that was added to the "desc_rn" field in this mutation.
-func (m *DescRootMutation) AddedDescRn() (r int64, exists bool) {
-	v := m.adddesc_rn
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetDescRn resets all changes to the "desc_rn" field.
-func (m *DescRootMutation) ResetDescRn() {
-	m.desc_rn = nil
-	m.adddesc_rn = nil
-}
-
-// Where appends a list predicates to the DescRootMutation builder.
-func (m *DescRootMutation) Where(ps ...predicate.DescRoot) {
-	m.predicates = append(m.predicates, ps...)
-}
-
-// WhereP appends storage-level predicates to the DescRootMutation builder. Using this method,
-// users can use type-assertion to append predicates that do not depend on any generated package.
-func (m *DescRootMutation) WhereP(ps ...func(*sql.Selector)) {
-	p := make([]predicate.DescRoot, len(ps))
-	for i := range ps {
-		p[i] = ps[i]
-	}
-	m.Where(p...)
-}
-
-// Op returns the operation name.
-func (m *DescRootMutation) Op() Op {
-	return m.op
-}
-
-// SetOp allows setting the mutation operation.
-func (m *DescRootMutation) SetOp(op Op) {
-	m.op = op
-}
-
-// Type returns the node type of this mutation (DescRoot).
-func (m *DescRootMutation) Type() string {
-	return m.typ
-}
-
-// Fields returns all fields that were changed during this mutation. Note that in
-// order to get all numeric fields that were incremented/decremented, call
-// AddedFields().
-func (m *DescRootMutation) Fields() []string {
-	fields := make([]string, 0, 1)
-	if m.desc_rn != nil {
-		fields = append(fields, descroot.FieldDescRn)
-	}
-	return fields
-}
-
-// Field returns the value of a field with the given name. The second boolean
-// return value indicates that this field was not set, or was not defined in the
-// schema.
-func (m *DescRootMutation) Field(name string) (ent.Value, bool) {
-	switch name {
-	case descroot.FieldDescRn:
-		return m.DescRn()
-	}
-	return nil, false
-}
-
-// OldField returns the old value of the field from the database. An error is
-// returned if the mutation operation is not UpdateOne, or the query to the
-// database failed.
-func (m *DescRootMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
-	switch name {
-	case descroot.FieldDescRn:
-		return m.OldDescRn(ctx)
-	}
-	return nil, fmt.Errorf("unknown DescRoot field %s", name)
-}
-
-// SetField sets the value of a field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *DescRootMutation) SetField(name string, value ent.Value) error {
-	switch name {
-	case descroot.FieldDescRn:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDescRn(v)
-		return nil
-	}
-	return fmt.Errorf("unknown DescRoot field %s", name)
-}
-
-// AddedFields returns all numeric fields that were incremented/decremented during
-// this mutation.
-func (m *DescRootMutation) AddedFields() []string {
-	var fields []string
-	if m.adddesc_rn != nil {
-		fields = append(fields, descroot.FieldDescRn)
-	}
-	return fields
-}
-
-// AddedField returns the numeric value that was incremented/decremented on a field
-// with the given name. The second boolean return value indicates that this field
-// was not set, or was not defined in the schema.
-func (m *DescRootMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	case descroot.FieldDescRn:
-		return m.AddedDescRn()
-	}
-	return nil, false
-}
-
-// AddField adds the value to the field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *DescRootMutation) AddField(name string, value ent.Value) error {
-	switch name {
-	case descroot.FieldDescRn:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddDescRn(v)
-		return nil
-	}
-	return fmt.Errorf("unknown DescRoot numeric field %s", name)
-}
-
-// ClearedFields returns all nullable fields that were cleared during this
-// mutation.
-func (m *DescRootMutation) ClearedFields() []string {
-	return nil
-}
-
-// FieldCleared returns a boolean indicating if a field with the given name was
-// cleared in this mutation.
-func (m *DescRootMutation) FieldCleared(name string) bool {
-	_, ok := m.clearedFields[name]
-	return ok
-}
-
-// ClearField clears the value of the field with the given name. It returns an
-// error if the field is not defined in the schema.
-func (m *DescRootMutation) ClearField(name string) error {
-	return fmt.Errorf("unknown DescRoot nullable field %s", name)
-}
-
-// ResetField resets all changes in the mutation for the field with the given name.
-// It returns an error if the field is not defined in the schema.
-func (m *DescRootMutation) ResetField(name string) error {
-	switch name {
-	case descroot.FieldDescRn:
-		m.ResetDescRn()
-		return nil
-	}
-	return fmt.Errorf("unknown DescRoot field %s", name)
-}
-
-// AddedEdges returns all edge names that were set/added in this mutation.
-func (m *DescRootMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
-	return edges
-}
-
-// AddedIDs returns all IDs (to other nodes) that were added for the given edge
-// name in this mutation.
-func (m *DescRootMutation) AddedIDs(name string) []ent.Value {
-	return nil
-}
-
-// RemovedEdges returns all edge names that were removed in this mutation.
-func (m *DescRootMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
-	return edges
-}
-
-// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
-// the given name in this mutation.
-func (m *DescRootMutation) RemovedIDs(name string) []ent.Value {
-	return nil
-}
-
-// ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *DescRootMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
-	return edges
-}
-
-// EdgeCleared returns a boolean which indicates if the edge with the given name
-// was cleared in this mutation.
-func (m *DescRootMutation) EdgeCleared(name string) bool {
-	return false
-}
-
-// ClearEdge clears the value of the edge with the given name. It returns an error
-// if that edge is not defined in the schema.
-func (m *DescRootMutation) ClearEdge(name string) error {
-	return fmt.Errorf("unknown DescRoot unique edge %s", name)
-}
-
-// ResetEdge resets all changes to the edge with the given name in this mutation.
-// It returns an error if the edge is not defined in the schema.
-func (m *DescRootMutation) ResetEdge(name string) error {
-	return fmt.Errorf("unknown DescRoot edge %s", name)
-}
 
 // ExecCommMutation represents an operation that mutates the ExecComm nodes in the graph.
 type ExecCommMutation struct {
@@ -1644,13 +1276,381 @@ func (m *ExecEvalMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown ExecEval edge %s", name)
 }
 
+// ProgRootMutation represents an operation that mutates the ProgRoot nodes in the graph.
+type ProgRootMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *string
+	prog_rn       *int64
+	addprog_rn    *int64
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*ProgRoot, error)
+	predicates    []predicate.ProgRoot
+}
+
+var _ ent.Mutation = (*ProgRootMutation)(nil)
+
+// progrootOption allows management of the mutation configuration using functional options.
+type progrootOption func(*ProgRootMutation)
+
+// newProgRootMutation creates new mutation for the ProgRoot entity.
+func newProgRootMutation(c config, op Op, opts ...progrootOption) *ProgRootMutation {
+	m := &ProgRootMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeProgRoot,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withProgRootID sets the ID field of the mutation.
+func withProgRootID(id string) progrootOption {
+	return func(m *ProgRootMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *ProgRoot
+		)
+		m.oldValue = func(ctx context.Context) (*ProgRoot, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().ProgRoot.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withProgRoot sets the old ProgRoot of the mutation.
+func withProgRoot(node *ProgRoot) progrootOption {
+	return func(m *ProgRootMutation) {
+		m.oldValue = func(context.Context) (*ProgRoot, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ProgRootMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ProgRootMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of ProgRoot entities.
+func (m *ProgRootMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *ProgRootMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *ProgRootMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().ProgRoot.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetProgRn sets the "prog_rn" field.
+func (m *ProgRootMutation) SetProgRn(i int64) {
+	m.prog_rn = &i
+	m.addprog_rn = nil
+}
+
+// ProgRn returns the value of the "prog_rn" field in the mutation.
+func (m *ProgRootMutation) ProgRn() (r int64, exists bool) {
+	v := m.prog_rn
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProgRn returns the old "prog_rn" field's value of the ProgRoot entity.
+// If the ProgRoot object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProgRootMutation) OldProgRn(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProgRn is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProgRn requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProgRn: %w", err)
+	}
+	return oldValue.ProgRn, nil
+}
+
+// AddProgRn adds i to the "prog_rn" field.
+func (m *ProgRootMutation) AddProgRn(i int64) {
+	if m.addprog_rn != nil {
+		*m.addprog_rn += i
+	} else {
+		m.addprog_rn = &i
+	}
+}
+
+// AddedProgRn returns the value that was added to the "prog_rn" field in this mutation.
+func (m *ProgRootMutation) AddedProgRn() (r int64, exists bool) {
+	v := m.addprog_rn
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetProgRn resets all changes to the "prog_rn" field.
+func (m *ProgRootMutation) ResetProgRn() {
+	m.prog_rn = nil
+	m.addprog_rn = nil
+}
+
+// Where appends a list predicates to the ProgRootMutation builder.
+func (m *ProgRootMutation) Where(ps ...predicate.ProgRoot) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the ProgRootMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *ProgRootMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.ProgRoot, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *ProgRootMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *ProgRootMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (ProgRoot).
+func (m *ProgRootMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ProgRootMutation) Fields() []string {
+	fields := make([]string, 0, 1)
+	if m.prog_rn != nil {
+		fields = append(fields, progroot.FieldProgRn)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ProgRootMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case progroot.FieldProgRn:
+		return m.ProgRn()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ProgRootMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case progroot.FieldProgRn:
+		return m.OldProgRn(ctx)
+	}
+	return nil, fmt.Errorf("unknown ProgRoot field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ProgRootMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case progroot.FieldProgRn:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProgRn(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ProgRoot field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ProgRootMutation) AddedFields() []string {
+	var fields []string
+	if m.addprog_rn != nil {
+		fields = append(fields, progroot.FieldProgRn)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ProgRootMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case progroot.FieldProgRn:
+		return m.AddedProgRn()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ProgRootMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case progroot.FieldProgRn:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddProgRn(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ProgRoot numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ProgRootMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ProgRootMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ProgRootMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown ProgRoot nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ProgRootMutation) ResetField(name string) error {
+	switch name {
+	case progroot.FieldProgRn:
+		m.ResetProgRn()
+		return nil
+	}
+	return fmt.Errorf("unknown ProgRoot field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ProgRootMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ProgRootMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ProgRootMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ProgRootMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ProgRootMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ProgRootMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ProgRootMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown ProgRoot unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ProgRootMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown ProgRoot edge %s", name)
+}
+
 // TermDecMutation represents an operation that mutates the TermDec nodes in the graph.
 type TermDecMutation struct {
 	config
 	op               Op
 	typ              string
 	id               *string
-	desc_id          *string
+	prog_id          *string
 	exp_ck           *int64
 	addexp_ck        *int64
 	liab_var         *adapter.VarRec
@@ -1766,40 +1766,40 @@ func (m *TermDecMutation) IDs(ctx context.Context) ([]string, error) {
 	}
 }
 
-// SetDescID sets the "desc_id" field.
-func (m *TermDecMutation) SetDescID(s string) {
-	m.desc_id = &s
+// SetProgID sets the "prog_id" field.
+func (m *TermDecMutation) SetProgID(s string) {
+	m.prog_id = &s
 }
 
-// DescID returns the value of the "desc_id" field in the mutation.
-func (m *TermDecMutation) DescID() (r string, exists bool) {
-	v := m.desc_id
+// ProgID returns the value of the "prog_id" field in the mutation.
+func (m *TermDecMutation) ProgID() (r string, exists bool) {
+	v := m.prog_id
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldDescID returns the old "desc_id" field's value of the TermDec entity.
+// OldProgID returns the old "prog_id" field's value of the TermDec entity.
 // If the TermDec object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TermDecMutation) OldDescID(ctx context.Context) (v string, err error) {
+func (m *TermDecMutation) OldProgID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDescID is only allowed on UpdateOne operations")
+		return v, errors.New("OldProgID is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDescID requires an ID field in the mutation")
+		return v, errors.New("OldProgID requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDescID: %w", err)
+		return v, fmt.Errorf("querying old value for OldProgID: %w", err)
 	}
-	return oldValue.DescID, nil
+	return oldValue.ProgID, nil
 }
 
-// ResetDescID resets all changes to the "desc_id" field.
-func (m *TermDecMutation) ResetDescID() {
-	m.desc_id = nil
+// ResetProgID resets all changes to the "prog_id" field.
+func (m *TermDecMutation) ResetProgID() {
+	m.prog_id = nil
 }
 
 // SetExpCk sets the "exp_ck" field.
@@ -1994,8 +1994,8 @@ func (m *TermDecMutation) Type() string {
 // AddedFields().
 func (m *TermDecMutation) Fields() []string {
 	fields := make([]string, 0, 4)
-	if m.desc_id != nil {
-		fields = append(fields, termdec.FieldDescID)
+	if m.prog_id != nil {
+		fields = append(fields, termdec.FieldProgID)
 	}
 	if m.exp_ck != nil {
 		fields = append(fields, termdec.FieldExpCk)
@@ -2014,8 +2014,8 @@ func (m *TermDecMutation) Fields() []string {
 // schema.
 func (m *TermDecMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case termdec.FieldDescID:
-		return m.DescID()
+	case termdec.FieldProgID:
+		return m.ProgID()
 	case termdec.FieldExpCk:
 		return m.ExpCk()
 	case termdec.FieldLiabVar:
@@ -2031,8 +2031,8 @@ func (m *TermDecMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *TermDecMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case termdec.FieldDescID:
-		return m.OldDescID(ctx)
+	case termdec.FieldProgID:
+		return m.OldProgID(ctx)
 	case termdec.FieldExpCk:
 		return m.OldExpCk(ctx)
 	case termdec.FieldLiabVar:
@@ -2048,12 +2048,12 @@ func (m *TermDecMutation) OldField(ctx context.Context, name string) (ent.Value,
 // type.
 func (m *TermDecMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case termdec.FieldDescID:
+	case termdec.FieldProgID:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetDescID(v)
+		m.SetProgID(v)
 		return nil
 	case termdec.FieldExpCk:
 		v, ok := value.(int64)
@@ -2149,8 +2149,8 @@ func (m *TermDecMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *TermDecMutation) ResetField(name string) error {
 	switch name {
-	case termdec.FieldDescID:
-		m.ResetDescID()
+	case termdec.FieldProgID:
+		m.ResetProgID()
 		return nil
 	case termdec.FieldExpCk:
 		m.ResetExpCk()
@@ -2767,7 +2767,7 @@ type TypeDefMutation struct {
 	op            Op
 	typ           string
 	id            *string
-	desc_id       *string
+	prog_id       *string
 	exp_ck        *int64
 	addexp_ck     *int64
 	clearedFields map[string]struct{}
@@ -2880,40 +2880,40 @@ func (m *TypeDefMutation) IDs(ctx context.Context) ([]string, error) {
 	}
 }
 
-// SetDescID sets the "desc_id" field.
-func (m *TypeDefMutation) SetDescID(s string) {
-	m.desc_id = &s
+// SetProgID sets the "prog_id" field.
+func (m *TypeDefMutation) SetProgID(s string) {
+	m.prog_id = &s
 }
 
-// DescID returns the value of the "desc_id" field in the mutation.
-func (m *TypeDefMutation) DescID() (r string, exists bool) {
-	v := m.desc_id
+// ProgID returns the value of the "prog_id" field in the mutation.
+func (m *TypeDefMutation) ProgID() (r string, exists bool) {
+	v := m.prog_id
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldDescID returns the old "desc_id" field's value of the TypeDef entity.
+// OldProgID returns the old "prog_id" field's value of the TypeDef entity.
 // If the TypeDef object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TypeDefMutation) OldDescID(ctx context.Context) (v string, err error) {
+func (m *TypeDefMutation) OldProgID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDescID is only allowed on UpdateOne operations")
+		return v, errors.New("OldProgID is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDescID requires an ID field in the mutation")
+		return v, errors.New("OldProgID requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDescID: %w", err)
+		return v, fmt.Errorf("querying old value for OldProgID: %w", err)
 	}
-	return oldValue.DescID, nil
+	return oldValue.ProgID, nil
 }
 
-// ResetDescID resets all changes to the "desc_id" field.
-func (m *TypeDefMutation) ResetDescID() {
-	m.desc_id = nil
+// ResetProgID resets all changes to the "prog_id" field.
+func (m *TypeDefMutation) ResetProgID() {
+	m.prog_id = nil
 }
 
 // SetExpCk sets the "exp_ck" field.
@@ -3007,8 +3007,8 @@ func (m *TypeDefMutation) Type() string {
 // AddedFields().
 func (m *TypeDefMutation) Fields() []string {
 	fields := make([]string, 0, 2)
-	if m.desc_id != nil {
-		fields = append(fields, typedef.FieldDescID)
+	if m.prog_id != nil {
+		fields = append(fields, typedef.FieldProgID)
 	}
 	if m.exp_ck != nil {
 		fields = append(fields, typedef.FieldExpCk)
@@ -3021,8 +3021,8 @@ func (m *TypeDefMutation) Fields() []string {
 // schema.
 func (m *TypeDefMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case typedef.FieldDescID:
-		return m.DescID()
+	case typedef.FieldProgID:
+		return m.ProgID()
 	case typedef.FieldExpCk:
 		return m.ExpCk()
 	}
@@ -3034,8 +3034,8 @@ func (m *TypeDefMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *TypeDefMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case typedef.FieldDescID:
-		return m.OldDescID(ctx)
+	case typedef.FieldProgID:
+		return m.OldProgID(ctx)
 	case typedef.FieldExpCk:
 		return m.OldExpCk(ctx)
 	}
@@ -3047,12 +3047,12 @@ func (m *TypeDefMutation) OldField(ctx context.Context, name string) (ent.Value,
 // type.
 func (m *TypeDefMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case typedef.FieldDescID:
+	case typedef.FieldProgID:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetDescID(v)
+		m.SetProgID(v)
 		return nil
 	case typedef.FieldExpCk:
 		v, ok := value.(int64)
@@ -3125,8 +3125,8 @@ func (m *TypeDefMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *TypeDefMutation) ResetField(name string) error {
 	switch name {
-	case typedef.FieldDescID:
-		m.ResetDescID()
+	case typedef.FieldProgID:
+		m.ResetProgID()
 		return nil
 	case typedef.FieldExpCk:
 		m.ResetExpCk()

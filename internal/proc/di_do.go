@@ -8,10 +8,10 @@ import (
 
 	"orglang/go-engine/internal/adt/progroot"
 	"orglang/go-engine/internal/lib/entpgx"
-	progrootadapter "orglang/go-engine/internal/proc/progroot/adapter"
 	"orglang/go-engine/internal/proc/ent"
 	execcomm "orglang/go-engine/internal/proc/execcomm/adapter"
 	execeval "orglang/go-engine/internal/proc/execeval/adapter"
+	progrootadapter "orglang/go-engine/internal/proc/progroot/adapter"
 	termdec "orglang/go-engine/internal/proc/termdec/adapter"
 	termdef "orglang/go-engine/internal/proc/termdef/adapter"
 	typedef "orglang/go-engine/internal/proc/typedef/adapter"

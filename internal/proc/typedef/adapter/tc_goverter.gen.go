@@ -5,8 +5,8 @@ package adapter
 
 import (
 	contkey "orglang/go-engine/internal/adt/contkey"
-	descroot "orglang/go-engine/internal/adt/descroot"
 	identity "orglang/go-engine/internal/adt/identity"
+	progroot "orglang/go-engine/internal/adt/progroot"
 	seqnum "orglang/go-engine/internal/adt/seqnum"
 	uniqsym "orglang/go-engine/internal/adt/uniqsym"
 	core "orglang/go-engine/internal/proc/typedef/core"
@@ -17,8 +17,8 @@ func init() {
 		var adapterDefRec DefRec
 		adapterDefRec.TypeQN = uniqsym.ConvertToString(source.TypeQN)
 		adapterDefRec.TypeID = identity.ConvertToString(source.TypeID)
-		adapterDefRec.DescID = identity.ConvertToString(source.DescRef.DescID)
-		adapterDefRec.DescRN = seqnum.ConvertToInt(source.DescRef.DescRN)
+		adapterDefRec.ProgID = identity.ConvertToString(source.ProgRef.ProgID)
+		adapterDefRec.ProgRN = seqnum.ConvertToInt(source.ProgRef.ProgRN)
 		adapterDefRec.ExpCK = contkey.ConvertToInt(source.ExpCK)
 		return adapterDefRec, nil
 	}
@@ -48,11 +48,11 @@ func init() {
 			return coreDefRec, err
 		}
 		coreDefRec.TypeID = identityADT
-		descrootRootRef, err := adapterDefRecToDescrootRootRef(source)
+		progrootRootRef, err := adapterDefRecToProgrootRootRef(source)
 		if err != nil {
 			return coreDefRec, err
 		}
-		coreDefRec.DescRef = descrootRootRef
+		coreDefRec.ProgRef = progrootRootRef
 		contkeyADT, err := contkey.ConvertFromInt(source.ExpCK)
 		if err != nil {
 			return coreDefRec, err
@@ -75,13 +75,13 @@ func init() {
 		return coreDefRecList, nil
 	}
 }
-func adapterDefRecToDescrootRootRef(source DefRec) (descroot.RootRef, error) {
-	var descrootRootRef descroot.RootRef
-	identityADT, err := identity.ConvertFromString(source.DescID)
+func adapterDefRecToProgrootRootRef(source DefRec) (progroot.RootRef, error) {
+	var progrootRootRef progroot.RootRef
+	identityADT, err := identity.ConvertFromString(source.ProgID)
 	if err != nil {
-		return descrootRootRef, err
+		return progrootRootRef, err
 	}
-	descrootRootRef.DescID = identityADT
-	descrootRootRef.DescRN = seqnum.ConvertFromInt(source.DescRN)
-	return descrootRootRef, nil
+	progrootRootRef.ProgID = identityADT
+	progrootRootRef.ProgRN = seqnum.ConvertFromInt(source.ProgRN)
+	return progrootRootRef, nil
 }

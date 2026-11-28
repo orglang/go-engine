@@ -8,18 +8,6 @@ import (
 	"orglang/go-engine/internal/pool/ent"
 )
 
-// The DescRootFunc type is an adapter to allow the use of ordinary
-// function as DescRoot mutator.
-type DescRootFunc func(context.Context, *ent.DescRootMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f DescRootFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.DescRootMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DescRootMutation", m)
-}
-
 // The ExecCommFunc type is an adapter to allow the use of ordinary
 // function as ExecComm mutator.
 type ExecCommFunc func(context.Context, *ent.ExecCommMutation) (ent.Value, error)
@@ -42,6 +30,18 @@ func (f ExecEvalFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ExecEvalMutation", m)
+}
+
+// The ProgRootFunc type is an adapter to allow the use of ordinary
+// function as ProgRoot mutator.
+type ProgRootFunc func(context.Context, *ent.ProgRootMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ProgRootFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ProgRootMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProgRootMutation", m)
 }
 
 // The TermDecFunc type is an adapter to allow the use of ordinary

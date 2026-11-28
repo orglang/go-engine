@@ -4,8 +4,8 @@ import (
 	"context"
 	"iter"
 
-	"orglang/go-engine/internal/adt/progroot"
 	"orglang/go-engine/internal/adt/identity"
+	"orglang/go-engine/internal/adt/progroot"
 	"orglang/go-engine/internal/adt/termvar"
 	"orglang/go-engine/internal/adt/uniqsym"
 	"orglang/go-engine/internal/lib/tx"

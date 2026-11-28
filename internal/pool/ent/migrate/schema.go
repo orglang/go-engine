@@ -9,17 +9,6 @@ import (
 )
 
 var (
-	// PoolDescRootsColumns holds the columns for the "pool_desc_roots" table.
-	PoolDescRootsColumns = []*schema.Column{
-		{Name: "desc_id", Type: field.TypeString, Unique: true},
-		{Name: "desc_rn", Type: field.TypeInt64},
-	}
-	// PoolDescRootsTable holds the schema information for the "pool_desc_roots" table.
-	PoolDescRootsTable = &schema.Table{
-		Name:       "pool_desc_roots",
-		Columns:    PoolDescRootsColumns,
-		PrimaryKey: []*schema.Column{PoolDescRootsColumns[0]},
-	}
 	// PoolExecCommsColumns holds the columns for the "pool_exec_comms" table.
 	PoolExecCommsColumns = []*schema.Column{
 		{Name: "comm_id", Type: field.TypeString, Unique: true},
@@ -48,10 +37,21 @@ var (
 		Columns:    PoolExecEvalsColumns,
 		PrimaryKey: []*schema.Column{PoolExecEvalsColumns[0]},
 	}
+	// PoolDescRootsColumns holds the columns for the "pool_desc_roots" table.
+	PoolDescRootsColumns = []*schema.Column{
+		{Name: "prog_id", Type: field.TypeString, Unique: true},
+		{Name: "prog_rn", Type: field.TypeInt64},
+	}
+	// PoolDescRootsTable holds the schema information for the "pool_desc_roots" table.
+	PoolDescRootsTable = &schema.Table{
+		Name:       "pool_desc_roots",
+		Columns:    PoolDescRootsColumns,
+		PrimaryKey: []*schema.Column{PoolDescRootsColumns[0]},
+	}
 	// PoolDescTermsColumns holds the columns for the "pool_desc_terms" table.
 	PoolDescTermsColumns = []*schema.Column{
 		{Name: "term_id", Type: field.TypeString},
-		{Name: "desc_id", Type: field.TypeString},
+		{Name: "prog_id", Type: field.TypeString},
 		{Name: "exp_ck", Type: field.TypeInt64, Nullable: true},
 		{Name: "liab_var", Type: field.TypeJSON},
 		{Name: "asset_vars", Type: field.TypeJSON},
@@ -78,7 +78,7 @@ var (
 	// PoolTypeDefsColumns holds the columns for the "pool_type_defs" table.
 	PoolTypeDefsColumns = []*schema.Column{
 		{Name: "type_id", Type: field.TypeString},
-		{Name: "desc_id", Type: field.TypeString},
+		{Name: "prog_id", Type: field.TypeString},
 		{Name: "exp_ck", Type: field.TypeInt64},
 	}
 	// PoolTypeDefsTable holds the schema information for the "pool_type_defs" table.
@@ -102,9 +102,9 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		PoolDescRootsTable,
 		PoolExecCommsTable,
 		PoolExecEvalsTable,
+		PoolDescRootsTable,
 		PoolDescTermsTable,
 		PoolTermExpsTable,
 		PoolTypeDefsTable,
@@ -113,14 +113,14 @@ var (
 )
 
 func init() {
-	PoolDescRootsTable.Annotation = &entsql.Annotation{
-		Table: "pool_desc_roots",
-	}
 	PoolExecCommsTable.Annotation = &entsql.Annotation{
 		Table: "pool_exec_comms",
 	}
 	PoolExecEvalsTable.Annotation = &entsql.Annotation{
 		Table: "pool_exec_evals",
+	}
+	PoolDescRootsTable.Annotation = &entsql.Annotation{
+		Table: "pool_desc_roots",
 	}
 	PoolDescTermsTable.Annotation = &entsql.Annotation{
 		Table: "pool_desc_terms",

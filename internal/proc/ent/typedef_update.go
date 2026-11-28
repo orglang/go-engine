@@ -27,16 +27,16 @@ func (_u *TypeDefUpdate) Where(ps ...predicate.TypeDef) *TypeDefUpdate {
 	return _u
 }
 
-// SetDescID sets the "desc_id" field.
-func (_u *TypeDefUpdate) SetDescID(v string) *TypeDefUpdate {
-	_u.mutation.SetDescID(v)
+// SetProgID sets the "prog_id" field.
+func (_u *TypeDefUpdate) SetProgID(v string) *TypeDefUpdate {
+	_u.mutation.SetProgID(v)
 	return _u
 }
 
-// SetNillableDescID sets the "desc_id" field if the given value is not nil.
-func (_u *TypeDefUpdate) SetNillableDescID(v *string) *TypeDefUpdate {
+// SetNillableProgID sets the "prog_id" field if the given value is not nil.
+func (_u *TypeDefUpdate) SetNillableProgID(v *string) *TypeDefUpdate {
 	if v != nil {
-		_u.SetDescID(*v)
+		_u.SetProgID(*v)
 	}
 	return _u
 }
@@ -103,8 +103,8 @@ func (_u *TypeDefUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			}
 		}
 	}
-	if value, ok := _u.mutation.DescID(); ok {
-		_spec.SetField(typedef.FieldDescID, field.TypeString, value)
+	if value, ok := _u.mutation.ProgID(); ok {
+		_spec.SetField(typedef.FieldProgID, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.ExpCk(); ok {
 		_spec.SetField(typedef.FieldExpCk, field.TypeInt64, value)
@@ -132,16 +132,16 @@ type TypeDefUpdateOne struct {
 	mutation *TypeDefMutation
 }
 
-// SetDescID sets the "desc_id" field.
-func (_u *TypeDefUpdateOne) SetDescID(v string) *TypeDefUpdateOne {
-	_u.mutation.SetDescID(v)
+// SetProgID sets the "prog_id" field.
+func (_u *TypeDefUpdateOne) SetProgID(v string) *TypeDefUpdateOne {
+	_u.mutation.SetProgID(v)
 	return _u
 }
 
-// SetNillableDescID sets the "desc_id" field if the given value is not nil.
-func (_u *TypeDefUpdateOne) SetNillableDescID(v *string) *TypeDefUpdateOne {
+// SetNillableProgID sets the "prog_id" field if the given value is not nil.
+func (_u *TypeDefUpdateOne) SetNillableProgID(v *string) *TypeDefUpdateOne {
 	if v != nil {
-		_u.SetDescID(*v)
+		_u.SetProgID(*v)
 	}
 	return _u
 }
@@ -238,8 +238,8 @@ func (_u *TypeDefUpdateOne) sqlSave(ctx context.Context) (_node *TypeDef, err er
 			}
 		}
 	}
-	if value, ok := _u.mutation.DescID(); ok {
-		_spec.SetField(typedef.FieldDescID, field.TypeString, value)
+	if value, ok := _u.mutation.ProgID(); ok {
+		_spec.SetField(typedef.FieldProgID, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.ExpCk(); ok {
 		_spec.SetField(typedef.FieldExpCk, field.TypeInt64, value)

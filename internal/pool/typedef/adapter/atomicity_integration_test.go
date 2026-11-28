@@ -9,8 +9,8 @@ import (
 	"orglang/go-engine/internal/adt/uniqsym"
 	dbadapter "orglang/go-engine/internal/lib/db/adapter"
 	"orglang/go-engine/internal/lib/entpgx"
-	progrootadapter "orglang/go-engine/internal/pool/progroot/adapter"
 	"orglang/go-engine/internal/pool/ent"
+	progrootadapter "orglang/go-engine/internal/pool/progroot/adapter"
 	typedef "orglang/go-engine/internal/pool/typedef/core"
 	"orglang/go-engine/internal/testutil/pgxtest"
 )

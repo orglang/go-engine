@@ -6,7 +6,7 @@ import (
 	compexp "orglang/go-engine/internal/pool/execeval/core"
 )
 
-func DataFromExpSpec(s compexp.ExpSpec) ExpSpec {
+func DataFromExprSpec(s compexp.ExpSpec) ExpSpec {
 	switch spec := s.(type) {
 	case compexp.AcquireSpec:
 		return ExpSpec{K: AcquireKind, Acquire: DataFromAcquireSpec(spec)}
@@ -25,7 +25,7 @@ func DataFromExpSpec(s compexp.ExpSpec) ExpSpec {
 	}
 }
 
-func DataToExpSpec(dto ExpSpec) (compexp.ExpSpec, error) {
+func DataToExprSpec(dto ExpSpec) (compexp.ExpSpec, error) {
 	switch dto.K {
 	case AcquireKind:
 		return DataToAcquireSpec(dto.Acquire)
@@ -44,7 +44,7 @@ func DataToExpSpec(dto ExpSpec) (compexp.ExpSpec, error) {
 	}
 }
 
-func DataFromExpRec(r compexp.ExpRec) ExpRec {
+func DataFromExprRec(r compexp.ExpRec) ExpRec {
 	switch rec := r.(type) {
 	case compexp.AcquireRec:
 		return ExpRec{K: AcquireKind, Acquire: DataFromAcquireRec(rec)}
@@ -63,7 +63,7 @@ func DataFromExpRec(r compexp.ExpRec) ExpRec {
 	}
 }
 
-func DataToExpRec(dto ExpRec) (compexp.ExpRec, error) {
+func DataToExprRec(dto ExpRec) (compexp.ExpRec, error) {
 	switch dto.K {
 	case AcquireKind:
 		return DataToAcquireRec(dto.Acquire)

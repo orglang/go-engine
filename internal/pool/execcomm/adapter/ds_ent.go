@@ -87,7 +87,7 @@ func (dao *daoEnt) ModifyRec(ctx context.Context, conn tx.Conn, mod execcomm.Com
 		dto := commactadapter.DataFromStepRec(act)
 		dto.ActNr = int64(mod.ProviderExecRN) + 1
 		_, err := conn.Pgx.Exec(ctx, insertActRec,
-			dto.CommID, dto.ActNr, dto.ExecID, dto.ExecRN, dto.ChnlID, dto.K, dto.Exp,
+			dto.CommID, dto.ActNr, dto.ExecID, dto.ExecRN, dto.ChnlID, dto.K, dto.Expr,
 		)
 		if err != nil {
 			dao.log.Error("Act insertion failed", refAttr)
@@ -139,7 +139,7 @@ func (dao *daoEnt) GetSnapByQry(ctx context.Context, conn tx.Conn, qry execcomm.
 const (
 	insertActRec = `
 INSERT INTO pool_comm_acts
-(comm_id, act_nr, exec_id, exec_rn, chnl_id, kind, exp)
+(comm_id, act_nr, exec_id, exec_rn, chnl_id, kind, expr)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
 `
 

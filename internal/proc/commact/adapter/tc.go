@@ -15,7 +15,7 @@ import (
 func DataFromStepRec(r commact.ActRec) (ActRec, error) {
 	switch rec := r.(type) {
 	case commact.PubRec:
-		exp, err := execeval.DataFromExpRec(rec.ValExp)
+		exp, err := execeval.DataFromExprRec(rec.ValExp)
 		if err != nil {
 			return ActRec{}, err
 		}
@@ -30,7 +30,7 @@ func DataFromStepRec(r commact.ActRec) (ActRec, error) {
 			Expr:    exp,
 		}, nil
 	case commact.SubRec:
-		exp, err := execeval.DataFromExpRec(rec.ContExp)
+		exp, err := execeval.DataFromExprRec(rec.ContExp)
 		if err != nil {
 			return ActRec{}, err
 		}
@@ -62,7 +62,7 @@ func DataToStepRec(dto ActRec) (commact.ActRec, error) {
 	if err != nil {
 		return nil, err
 	}
-	exp, err := execeval.DataToExpRec(dto.Expr)
+	exp, err := execeval.DataToExprRec(dto.Expr)
 	if err != nil {
 		return nil, err
 	}

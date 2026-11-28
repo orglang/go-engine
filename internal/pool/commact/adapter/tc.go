@@ -20,7 +20,7 @@ func DataFromStepRec(r commact.ActRec) ActRec {
 			ExecRN: rootRef.ExecRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
 			K:      PubKind,
-			Expr:    execeval.DataFromExpRec(rec.ValExp),
+			Expr:    execeval.DataFromExprRec(rec.ValExp),
 		}
 	case commact.SubRec:
 		rootRef := execrootadapter.DataFromRef(rec.RootRef)
@@ -31,7 +31,7 @@ func DataFromStepRec(r commact.ActRec) ActRec {
 			ExecRN: rootRef.ExecRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
 			K:      SubKind,
-			Expr:    execeval.DataFromExpRec(rec.ContExp),
+			Expr:    execeval.DataFromExprRec(rec.ContExp),
 		}
 	default:
 		panic(commact.ErrActRecTypeUnexpected(r))

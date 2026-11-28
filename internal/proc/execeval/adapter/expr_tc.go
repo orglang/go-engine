@@ -137,7 +137,7 @@ func DataToExprRec(dto ExpRec) (commact.ExpRec, error) {
 			CommChnlPH: x,
 			ContChnlID: a,
 			ValChnlID:  valID,
-			ValExprCK:   contkey.ADT(dto.Send.ValExpCK),
+			ValExprCK:  contkey.ADT(dto.Send.ValExpCK),
 			CommID:     commID,
 		}, nil
 	case RecvExp:

@@ -22,14 +22,14 @@ type programAST struct {
 }
 
 type poolDefAST struct {
-	TypeQN  string     `parser:"'pool' 'type' @Ident"`
+	TypeQN   string      `parser:"'pool' 'type' @Ident"`
 	TypeExpr poolExprAST `parser:"'{' @@? '}'"`
 }
 
 func (poolDefAST) programExpression() {}
 
 type procDefAST struct {
-	TypeQN  string     `parser:"'proc' 'type' @Ident"`
+	TypeQN   string      `parser:"'proc' 'type' @Ident"`
 	TypeExpr procExprAST `parser:"'{' @@? '}'"`
 }
 
@@ -46,7 +46,7 @@ func (k *exprKind) Parse(lex *lexer.PeekingLexer) error {
 }
 
 type poolExprAST struct {
-	Kind   exprKind       `parser:"@@"`
+	Kind   exprKind      `parser:"@@"`
 	Link   *linkAST      `parser:"( 'link' @@"`
 	Plus   *poolLaborAST `parser:"| 'plus' @@"`
 	With   *poolLaborAST `parser:"| 'with' @@"`
@@ -58,7 +58,7 @@ type poolExprAST struct {
 }
 
 type procExprAST struct {
-	Kind   exprKind       `parser:"@@"`
+	Kind   exprKind      `parser:"@@"`
 	Link   *linkAST      `parser:"( 'link' @@"`
 	Tensor *procProdAST  `parser:"| 'tensor' @@"`
 	Lolli  *procProdAST  `parser:"| 'lolli' @@"`
@@ -74,7 +74,7 @@ type linkAST struct {
 }
 
 type poolLaborAST struct {
-	ProcQNs []string   `parser:"'(' @Ident* ')'"`
+	ProcQNs  []string    `parser:"'(' @Ident* ')'"`
 	ContExpr poolExprAST `parser:"'{' @@? '}'"`
 }
 
@@ -101,7 +101,7 @@ type procSumAST struct {
 }
 
 type procChoiceAST struct {
-	Label string     `parser:"'@' @Ident"`
+	Label string      `parser:"'@' @Ident"`
 	Cont  procExprAST `parser:"'{' @@? '}'"`
 }
 

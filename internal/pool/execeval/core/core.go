@@ -393,7 +393,7 @@ func (s *service) takeStep(
 		if termExpr.ContExp != nil {
 			// шедулим продолжение доступодателя
 			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-				RootRef: evalSnap.RootRef,
+				RootRef:  evalSnap.RootRef,
 				PoolExpr: termExpr.ContExp,
 			})
 		}
@@ -412,7 +412,7 @@ func (s *service) takeStep(
 			if exprRec.ContExp != nil {
 				// шедулим продолжение доступополучателя
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					RootRef: acquisition.RootRef,
+					RootRef:  acquisition.RootRef,
 					PoolExpr: exprRec.ContExp,
 				})
 			}
@@ -486,7 +486,7 @@ func (s *service) takeStep(
 		if termExpr.ContExp != nil {
 			// шедулим продолжение доступополучателя
 			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-				RootRef: evalSnap.RootRef,
+				RootRef:  evalSnap.RootRef,
 				PoolExpr: termExpr.ContExp,
 			})
 		}
@@ -505,7 +505,7 @@ func (s *service) takeStep(
 			if exprRec.ContExp != nil {
 				// шедулим продолжение доступодателя
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					RootRef: acception.RootRef,
+					RootRef:  acception.RootRef,
 					PoolExpr: exprRec.ContExp,
 				})
 			}
@@ -580,7 +580,7 @@ func (s *service) takeStep(
 		if termExpr.ContExp != nil {
 			// шедулим продолжение соискателя
 			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-				RootRef: evalSnap.RootRef,
+				RootRef:  evalSnap.RootRef,
 				PoolExpr: termExpr.ContExp,
 			})
 		}
@@ -598,7 +598,7 @@ func (s *service) takeStep(
 			if exprRec.ContExp != nil {
 				// шедулим продолжение нанимателя
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					RootRef: hiring.RootRef,
+					RootRef:  hiring.RootRef,
 					PoolExpr: exprRec.ContExp,
 				})
 			}
@@ -673,7 +673,7 @@ func (s *service) takeStep(
 		if termExpr.ContExp != nil {
 			// шедулим продолжение нанимателя
 			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-				RootRef: evalSnap.RootRef,
+				RootRef:  evalSnap.RootRef,
 				PoolExpr: termExpr.ContExp,
 			})
 		}
@@ -691,7 +691,7 @@ func (s *service) takeStep(
 			if exprRec.ContExp != nil {
 				// запускаем продолжение соискателя
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					RootRef: application.RootRef,
+					RootRef:  application.RootRef,
 					PoolExpr: exprRec.ContExp,
 				})
 			}

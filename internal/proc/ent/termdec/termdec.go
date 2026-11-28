@@ -14,7 +14,7 @@ const (
 	// FieldProgID holds the string denoting the prog_id field in the database.
 	FieldProgID = "prog_id"
 	// FieldExpCk holds the string denoting the exp_ck field in the database.
-	FieldExpCk = "exp_ck"
+	FieldExpCk = "expr_ck"
 	// FieldLiabVar holds the string denoting the liab_var field in the database.
 	FieldLiabVar = "liab_var"
 	// FieldAssetVars holds the string denoting the asset_vars field in the database.

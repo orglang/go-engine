@@ -13,39 +13,39 @@ func init() {
 	DataFromAcceptRec = func(source core.AcceptRec) *GrantRec {
 		var adapterGrantRec GrantRec
 		adapterGrantRec.ContChnlPH = string(source.ContChnlPH)
-		adapterGrantRec.ContExp = DataFromExpSpec(source.ContExp)
+		adapterGrantRec.ContExp = DataFromExprSpec(source.ContExp)
 		return &adapterGrantRec
 	}
 	DataFromAcceptSpec = func(source core.AcceptSpec) *GrantSpec {
 		var adapterGrantSpec GrantSpec
 		adapterGrantSpec.CommChnlPH = string(source.CommChnlPH)
-		adapterGrantSpec.ContExp = DataFromExpSpec(source.ContExp)
+		adapterGrantSpec.ContExp = DataFromExprSpec(source.ContExp)
 		return &adapterGrantSpec
 	}
 	DataFromAcquireRec = func(source core.AcquireRec) *GrantRec {
 		var adapterGrantRec GrantRec
 		adapterGrantRec.ContChnlPH = string(source.ContChnlPH)
-		adapterGrantRec.ContExp = DataFromExpSpec(source.ContExp)
+		adapterGrantRec.ContExp = DataFromExprSpec(source.ContExp)
 		return &adapterGrantRec
 	}
 	DataFromAcquireSpec = func(source core.AcquireSpec) *GrantSpec {
 		var adapterGrantSpec GrantSpec
 		adapterGrantSpec.CommChnlPH = string(source.CommChnlPH)
-		adapterGrantSpec.ContExp = DataFromExpSpec(source.ContExp)
+		adapterGrantSpec.ContExp = DataFromExprSpec(source.ContExp)
 		return &adapterGrantSpec
 	}
 	DataFromApplyRec = func(source core.ApplyRec) *CoopRec {
 		var adapterCoopRec CoopRec
 		adapterCoopRec.ContChnlPH = string(source.ContChnlPH)
 		adapterCoopRec.ProcTermQN = uniqsym.ConvertToString(source.ProcTermQN)
-		adapterCoopRec.ContExp = DataFromExpSpec(source.ContExp)
+		adapterCoopRec.ContExp = DataFromExprSpec(source.ContExp)
 		return &adapterCoopRec
 	}
 	DataFromApplySpec = func(source core.ApplySpec) *CoopSpec {
 		var adapterCoopSpec CoopSpec
 		adapterCoopSpec.CommChnlPH = string(source.CommChnlPH)
 		adapterCoopSpec.ProcTermQN = uniqsym.ConvertToString(source.ProcTermQN)
-		adapterCoopSpec.ContExp = DataFromExpSpec(source.ContExp)
+		adapterCoopSpec.ContExp = DataFromExprSpec(source.ContExp)
 		return &adapterCoopSpec
 	}
 	DataFromDetachRec = func(source core.DetachRec) *RevokeRec {
@@ -62,14 +62,14 @@ func init() {
 		var adapterCoopRec CoopRec
 		adapterCoopRec.ContChnlPH = string(source.ContChnlPH)
 		adapterCoopRec.ProcTermQN = uniqsym.ConvertToString(source.ProcTermQN)
-		adapterCoopRec.ContExp = DataFromExpSpec(source.ContExp)
+		adapterCoopRec.ContExp = DataFromExprSpec(source.ContExp)
 		return &adapterCoopRec
 	}
 	DataFromHireSpec = func(source core.HireSpec) *CoopSpec {
 		var adapterCoopSpec CoopSpec
 		adapterCoopSpec.CommChnlPH = string(source.CommChnlPH)
 		adapterCoopSpec.ProcTermQN = uniqsym.ConvertToString(source.ProcTermQN)
-		adapterCoopSpec.ContExp = DataFromExpSpec(source.ContExp)
+		adapterCoopSpec.ContExp = DataFromExprSpec(source.ContExp)
 		return &adapterCoopSpec
 	}
 	DataFromReleaseRec = func(source core.ReleaseRec) *RevokeRec {
@@ -86,7 +86,7 @@ func init() {
 		var coreAcceptRec core.AcceptRec
 		if source != nil {
 			coreAcceptRec.ContChnlPH = symbol.ADT((*source).ContChnlPH)
-			coreExpSpec, err := DataToExpSpec((*source).ContExp)
+			coreExpSpec, err := DataToExprSpec((*source).ContExp)
 			if err != nil {
 				return coreAcceptRec, err
 			}
@@ -98,7 +98,7 @@ func init() {
 		var coreAcceptSpec core.AcceptSpec
 		if source != nil {
 			coreAcceptSpec.CommChnlPH = symbol.ADT((*source).CommChnlPH)
-			coreExpSpec, err := DataToExpSpec((*source).ContExp)
+			coreExpSpec, err := DataToExprSpec((*source).ContExp)
 			if err != nil {
 				return coreAcceptSpec, err
 			}
@@ -110,7 +110,7 @@ func init() {
 		var coreAcquireRec core.AcquireRec
 		if source != nil {
 			coreAcquireRec.ContChnlPH = symbol.ADT((*source).ContChnlPH)
-			coreExpSpec, err := DataToExpSpec((*source).ContExp)
+			coreExpSpec, err := DataToExprSpec((*source).ContExp)
 			if err != nil {
 				return coreAcquireRec, err
 			}
@@ -122,7 +122,7 @@ func init() {
 		var coreAcquireSpec core.AcquireSpec
 		if source != nil {
 			coreAcquireSpec.CommChnlPH = symbol.ADT((*source).CommChnlPH)
-			coreExpSpec, err := DataToExpSpec((*source).ContExp)
+			coreExpSpec, err := DataToExprSpec((*source).ContExp)
 			if err != nil {
 				return coreAcquireSpec, err
 			}
@@ -139,7 +139,7 @@ func init() {
 				return coreApplyRec, err
 			}
 			coreApplyRec.ProcTermQN = uniqsymADT
-			coreExpSpec, err := DataToExpSpec((*source).ContExp)
+			coreExpSpec, err := DataToExprSpec((*source).ContExp)
 			if err != nil {
 				return coreApplyRec, err
 			}
@@ -156,7 +156,7 @@ func init() {
 				return coreApplySpec, err
 			}
 			coreApplySpec.ProcTermQN = uniqsymADT
-			coreExpSpec, err := DataToExpSpec((*source).ContExp)
+			coreExpSpec, err := DataToExprSpec((*source).ContExp)
 			if err != nil {
 				return coreApplySpec, err
 			}
@@ -187,7 +187,7 @@ func init() {
 				return coreHireRec, err
 			}
 			coreHireRec.ProcTermQN = uniqsymADT
-			coreExpSpec, err := DataToExpSpec((*source).ContExp)
+			coreExpSpec, err := DataToExprSpec((*source).ContExp)
 			if err != nil {
 				return coreHireRec, err
 			}
@@ -204,7 +204,7 @@ func init() {
 				return coreHireSpec, err
 			}
 			coreHireSpec.ProcTermQN = uniqsymADT
-			coreExpSpec, err := DataToExpSpec((*source).ContExp)
+			coreExpSpec, err := DataToExprSpec((*source).ContExp)
 			if err != nil {
 				return coreHireSpec, err
 			}

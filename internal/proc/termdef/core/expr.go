@@ -50,7 +50,7 @@ func (ExpLabSpec) expSpec() {}
 
 type ExpCaseSpec struct {
 	CommChnlPH symbol.ADT
-	ContExprs   map[uniqsym.ADT]ExpSpec
+	ContExprs  map[uniqsym.ADT]ExpSpec
 }
 
 func (ExpCaseSpec) expSpec() {}
@@ -165,7 +165,7 @@ func (r ExpLabRec) ContentKey() contkey.ADT { return r.ExpCK }
 type ExpCaseRec struct {
 	ExpCK      contkey.ADT
 	CommChnlPH symbol.ADT
-	ContExprs   map[uniqsym.ADT]ExpRec
+	ContExprs  map[uniqsym.ADT]ExpRec
 }
 
 func (ExpCaseRec) expRec()                   {}

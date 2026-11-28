@@ -35,10 +35,10 @@ type ExpData struct {
 	States []ExpState `db:"states"`
 }
 type ExpState struct {
-	ExpCK    int64        `db:"expr_ck"`
+	ExpCK     int64        `db:"expr_ck"`
 	SupExprCK int64        `db:"sup_expr_ck"`
-	K        int16        `db:"kind"`
-	Spec     ExpStateSpec `db:"spec"`
+	K         int16        `db:"kind"`
+	Spec      ExpStateSpec `db:"spec"`
 }
 type ExpStateSpec struct {
 	ContChnlPH string           `json:"cont_chnl_ph,omitempty"`

@@ -27,10 +27,10 @@ type ExpRec struct {
 }
 
 type State struct {
-	ExpCK    int64   `db:"expr_ck"`
+	ExpCK     int64   `db:"expr_ck"`
 	SupExprCK int64   `db:"sup_expr_ck"`
-	K        ExpKind `db:"kind"`
-	Spec     ExpSpec `db:"spec" fieldopt:"noexpand"`
+	K         ExpKind `db:"kind"`
+	Spec      ExpSpec `db:"spec" fieldopt:"noexpand"`
 }
 
 // Keep the adapter DTO aligned with the JSON type used by the Ent schema.

@@ -59,9 +59,9 @@ type EvalSnap struct {
 }
 
 type Env struct {
-	TypeDefs map[uniqsym.ADT]typedef.DefRec
+	TypeDefs  map[uniqsym.ADT]typedef.DefRec
 	TypeExprs map[contkey.ADT]typedef.ExpRec
-	ProcDecs map[identity.ADT]termdec.DecRec
+	ProcDecs  map[identity.ADT]termdec.DecRec
 }
 
 func ChnlPH(rec execvar.LinearRec) symbol.ADT { return rec.ChnlPH }
@@ -71,7 +71,7 @@ type service struct {
 	commRepo     execcomm.Repo
 	termDecRepo  termdec.Repo
 	typeDefRepo  typedef.Repo
-	typeExprRepo  typedef.TypeExprRepo
+	typeExprRepo typedef.TypeExprRepo
 	transactor   tx.Transactor
 	log          *slog.Logger
 }
@@ -281,7 +281,7 @@ func (s *service) takeWith(
 			if exprRec.ContExp != nil {
 				// шедулим продолжение наблюдателя
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					RootRef: observation.RootRef,
+					RootRef:  observation.RootRef,
 					ProcExpr: exprRec.ContExp,
 				})
 			}
@@ -355,7 +355,7 @@ func (s *service) takeWith(
 			})
 			if termExpr.ContExp != nil {
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					RootRef: evalSnap.RootRef,
+					RootRef:  evalSnap.RootRef,
 					ProcExpr: termExpr.ContExp,
 				})
 			}
@@ -372,7 +372,7 @@ func (s *service) takeWith(
 				ExpCK:   commChnl.ExpCK,
 			})
 			evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-				RootRef: evalSnap.RootRef,
+				RootRef:  evalSnap.RootRef,
 				ProcExpr: termExpr,
 			})
 			s.log.Debug("step taking succeed", execAttr)
@@ -427,7 +427,7 @@ func (s *service) takeWith(
 				ContExp: commact.SendRec{
 					CommChnlPH: commChnl.ChnlPH,
 					ValChnlID:  valChnl.ChnlID,
-					ValExprCK:   valChnl.ExpCK,
+					ValExprCK:  valChnl.ExpCK,
 				},
 			})
 			s.log.Debug("taking half done", execAttr)
@@ -478,7 +478,7 @@ func (s *service) takeWith(
 			})
 			if exprRec.ContExp != nil {
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					RootRef: receival.RootRef,
+					RootRef:  receival.RootRef,
 					ProcExpr: exprRec.ContExp,
 				})
 			}
@@ -571,7 +571,7 @@ func (s *service) takeWith(
 			})
 			if termExpr.ContExp != nil {
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					RootRef: evalSnap.RootRef,
+					RootRef:  evalSnap.RootRef,
 					ProcExpr: termExpr.ContExp,
 				})
 			}
@@ -660,7 +660,7 @@ func (s *service) takeWith(
 			})
 			if contExpr.ContExprs[termExpr.ValLabQN] != nil {
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					RootRef: following.RootRef,
+					RootRef:  following.RootRef,
 					ProcExpr: contExpr.ContExprs[termExpr.ValLabQN],
 				})
 			}
@@ -706,7 +706,7 @@ func (s *service) takeWith(
 				ContExp: commact.CaseRec{
 					CommChnlPH: commChnl.ChnlPH,
 					ContChnlID: newChnlID,
-					ContExprs:   termExpr.ContExprs,
+					ContExprs:  termExpr.ContExprs,
 				},
 			})
 			s.log.Debug("taking half done", execAttr)
@@ -729,7 +729,7 @@ func (s *service) takeWith(
 			})
 			if termExpr.ContExprs[valExpr.ValLabQN] != nil {
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					RootRef: evalSnap.RootRef,
+					RootRef:  evalSnap.RootRef,
 					ProcExpr: termExpr.ContExprs[valExpr.ValLabQN],
 				})
 			}
@@ -789,7 +789,7 @@ func (s *service) takeWith(
 				})
 				if forwardable.ContExp != nil {
 					evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-						RootRef: forwardable.RootRef,
+						RootRef:  forwardable.RootRef,
 						ProcExpr: forwardable.ContExp,
 					})
 				}
@@ -806,7 +806,7 @@ func (s *service) takeWith(
 					ExpCK: contChnl.ExpCK,
 				})
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					RootRef: forwardable.RootRef,
+					RootRef:  forwardable.RootRef,
 					ProcExpr: forwardable.ValExp,
 				})
 				s.log.Debug("step taking succeed", execAttr)
@@ -857,7 +857,7 @@ func (s *service) takeWith(
 				})
 				if forwardable.ContExp != nil {
 					evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-						RootRef: forwardable.RootRef,
+						RootRef:  forwardable.RootRef,
 						ProcExpr: forwardable.ContExp,
 					})
 				}
@@ -874,7 +874,7 @@ func (s *service) takeWith(
 					ExpCK: commChnl.ExpCK,
 				})
 				evalEff.Steps = append(evalEff.Steps, execstep.StepSpec{
-					RootRef: forwardable.RootRef,
+					RootRef:  forwardable.RootRef,
 					ProcExpr: forwardable.ValExp, // TODO: несовпадение типов
 				})
 				s.log.Debug("step taking succeed", execAttr)

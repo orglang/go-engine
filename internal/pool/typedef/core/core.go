@@ -18,21 +18,21 @@ type API interface {
 }
 
 type DefSpec struct {
-	TypeQN  uniqsym.ADT
+	TypeQN   uniqsym.ADT
 	TypeExpr ExpSpec
 }
 
 type DefRec struct {
-	TypeQN  uniqsym.ADT
-	TypeID  identity.ADT
-	ProgRef progroot.RootRef
-	ExpCK   contkey.ADT
+	TypeQN   uniqsym.ADT
+	TypeID   identity.ADT
+	ProgRef  progroot.RootRef
+	ExpCK    contkey.ADT
 	TypeExpr ExpRec
 }
 
 type DefSnap struct {
-	TypeID  identity.ADT
-	ProgRef progroot.RootRef
+	TypeID   identity.ADT
+	ProgRef  progroot.RootRef
 	TypeExpr ExpSpec
 }
 

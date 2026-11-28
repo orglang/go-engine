@@ -25,10 +25,10 @@ type ExpRec struct {
 }
 
 type State struct {
-	ExpCK    int64   `db:"expr_ck"`
+	ExpCK     int64   `db:"expr_ck"`
 	SupExprCK int64   `db:"sup_expr_ck"`
-	K        ExpKind `db:"kind"`
-	Spec     ExpSpec `db:"spec"`
+	K         ExpKind `db:"kind"`
+	Spec      ExpSpec `db:"spec"`
 }
 
 type (

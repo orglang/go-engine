@@ -20,12 +20,12 @@ type Tx struct {
 	ProgRoot *ProgRootClient
 	// TermDec is the client for interacting with the TermDec builders.
 	TermDec *TermDecClient
-	// TermExp is the client for interacting with the TermExp builders.
-	TermExp *TermExpClient
+	// TermExpr is the client for interacting with the TermExpr builders.
+	TermExpr *TermExprClient
 	// TypeDef is the client for interacting with the TypeDef builders.
 	TypeDef *TypeDefClient
-	// TypeExp is the client for interacting with the TypeExp builders.
-	TypeExp *TypeExpClient
+	// TypeExpr is the client for interacting with the TypeExpr builders.
+	TypeExpr *TypeExprClient
 
 	// lazily loaded.
 	client     *Client
@@ -161,9 +161,9 @@ func (tx *Tx) init() {
 	tx.ExecEval = NewExecEvalClient(tx.config)
 	tx.ProgRoot = NewProgRootClient(tx.config)
 	tx.TermDec = NewTermDecClient(tx.config)
-	tx.TermExp = NewTermExpClient(tx.config)
+	tx.TermExpr = NewTermExprClient(tx.config)
 	tx.TypeDef = NewTypeDefClient(tx.config)
-	tx.TypeExp = NewTypeExpClient(tx.config)
+	tx.TypeExpr = NewTypeExprClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

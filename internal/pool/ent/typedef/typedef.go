@@ -14,7 +14,7 @@ const (
 	// FieldProgID holds the string denoting the prog_id field in the database.
 	FieldProgID = "prog_id"
 	// FieldExpCk holds the string denoting the exp_ck field in the database.
-	FieldExpCk = "exp_ck"
+	FieldExpCk = "expr_ck"
 	// Table holds the table name of the typedef in the database.
 	Table = "pool_type_defs"
 )

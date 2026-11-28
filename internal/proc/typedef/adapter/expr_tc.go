@@ -151,8 +151,8 @@ func statesFromExprRec(fromID int64, r typedef.ExpRec, dto *ExpRec) int64 {
 		return expCK
 	case typedef.LinkRec:
 		st := State{
-			ExpCK:    expCK,
-			K:        LinkKind,
+			ExpCK:     expCK,
+			K:         LinkKind,
 			SupExprCK: fromID,
 			Spec: ExpSpec{
 				Link: uniqsym.ConvertToString(rec.TypeQN),
@@ -164,8 +164,8 @@ func statesFromExprRec(fromID int64, r typedef.ExpRec, dto *ExpRec) int64 {
 		val := statesFromExprRec(expCK, rec.Val, dto)
 		cont := statesFromExprRec(expCK, rec.Cont, dto)
 		st := State{
-			ExpCK:    expCK,
-			K:        TensorKind,
+			ExpCK:     expCK,
+			K:         TensorKind,
 			SupExprCK: fromID,
 			Spec: ExpSpec{
 				Tensor: &Prod{ValExpCK: val, ContExpCK: cont},
@@ -177,8 +177,8 @@ func statesFromExprRec(fromID int64, r typedef.ExpRec, dto *ExpRec) int64 {
 		val := statesFromExprRec(expCK, rec.Val, dto)
 		cont := statesFromExprRec(expCK, rec.Cont, dto)
 		st := State{
-			ExpCK:    expCK,
-			K:        LolliKind,
+			ExpCK:     expCK,
+			K:         LolliKind,
 			SupExprCK: fromID,
 			Spec: ExpSpec{
 				Lolli: &Prod{ValExpCK: val, ContExpCK: cont},
@@ -193,10 +193,10 @@ func statesFromExprRec(fromID int64, r typedef.ExpRec, dto *ExpRec) int64 {
 			choices = append(choices, Sum{LabQN: uniqsym.ConvertToString(label), ContExpCK: cont})
 		}
 		st := State{
-			ExpCK:    expCK,
-			K:        PlusKind,
+			ExpCK:     expCK,
+			K:         PlusKind,
 			SupExprCK: fromID,
-			Spec:     ExpSpec{Plus: choices},
+			Spec:      ExpSpec{Plus: choices},
 		}
 		dto.States = append(dto.States, st)
 		return expCK
@@ -207,10 +207,10 @@ func statesFromExprRec(fromID int64, r typedef.ExpRec, dto *ExpRec) int64 {
 			choices = append(choices, Sum{LabQN: uniqsym.ConvertToString(label), ContExpCK: cont})
 		}
 		st := State{
-			ExpCK:    expCK,
-			K:        WithKind,
+			ExpCK:     expCK,
+			K:         WithKind,
 			SupExprCK: fromID,
-			Spec:     ExpSpec{With: choices},
+			Spec:      ExpSpec{With: choices},
 		}
 		dto.States = append(dto.States, st)
 		return expCK

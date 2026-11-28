@@ -52,7 +52,7 @@ var (
 	ProcProgTermsColumns = []*schema.Column{
 		{Name: "term_id", Type: field.TypeString},
 		{Name: "prog_id", Type: field.TypeString},
-		{Name: "exp_ck", Type: field.TypeInt64, Nullable: true},
+		{Name: "expr_ck", Type: field.TypeInt64, Nullable: true},
 		{Name: "liab_var", Type: field.TypeJSON},
 		{Name: "asset_vars", Type: field.TypeJSON},
 	}
@@ -62,24 +62,24 @@ var (
 		Columns:    ProcProgTermsColumns,
 		PrimaryKey: []*schema.Column{ProcProgTermsColumns[0]},
 	}
-	// ProcTermExpsColumns holds the columns for the "proc_term_exps" table.
-	ProcTermExpsColumns = []*schema.Column{
-		{Name: "exp_ck", Type: field.TypeInt64, Increment: true},
-		{Name: "sup_exp_ck", Type: field.TypeInt64},
+	// ProcTermExprsColumns holds the columns for the "proc_term_exprs" table.
+	ProcTermExprsColumns = []*schema.Column{
+		{Name: "expr_ck", Type: field.TypeInt64, Increment: true},
+		{Name: "sup_expr_ck", Type: field.TypeInt64},
 		{Name: "kind", Type: field.TypeInt16},
 		{Name: "spec", Type: field.TypeJSON, Nullable: true},
 	}
-	// ProcTermExpsTable holds the schema information for the "proc_term_exps" table.
-	ProcTermExpsTable = &schema.Table{
-		Name:       "proc_term_exps",
-		Columns:    ProcTermExpsColumns,
-		PrimaryKey: []*schema.Column{ProcTermExpsColumns[0]},
+	// ProcTermExprsTable holds the schema information for the "proc_term_exprs" table.
+	ProcTermExprsTable = &schema.Table{
+		Name:       "proc_term_exprs",
+		Columns:    ProcTermExprsColumns,
+		PrimaryKey: []*schema.Column{ProcTermExprsColumns[0]},
 	}
 	// ProcTypeDefsColumns holds the columns for the "proc_type_defs" table.
 	ProcTypeDefsColumns = []*schema.Column{
 		{Name: "type_id", Type: field.TypeString},
 		{Name: "prog_id", Type: field.TypeString},
-		{Name: "exp_ck", Type: field.TypeInt64},
+		{Name: "expr_ck", Type: field.TypeInt64},
 	}
 	// ProcTypeDefsTable holds the schema information for the "proc_type_defs" table.
 	ProcTypeDefsTable = &schema.Table{
@@ -87,18 +87,18 @@ var (
 		Columns:    ProcTypeDefsColumns,
 		PrimaryKey: []*schema.Column{ProcTypeDefsColumns[0]},
 	}
-	// ProcTypeExpsColumns holds the columns for the "proc_type_exps" table.
-	ProcTypeExpsColumns = []*schema.Column{
-		{Name: "exp_ck", Type: field.TypeInt64, Increment: true},
-		{Name: "sup_exp_ck", Type: field.TypeInt64},
+	// ProcTypeExprsColumns holds the columns for the "proc_type_exprs" table.
+	ProcTypeExprsColumns = []*schema.Column{
+		{Name: "expr_ck", Type: field.TypeInt64, Increment: true},
+		{Name: "sup_expr_ck", Type: field.TypeInt64},
 		{Name: "kind", Type: field.TypeInt16},
 		{Name: "spec", Type: field.TypeJSON, Nullable: true},
 	}
-	// ProcTypeExpsTable holds the schema information for the "proc_type_exps" table.
-	ProcTypeExpsTable = &schema.Table{
-		Name:       "proc_type_exps",
-		Columns:    ProcTypeExpsColumns,
-		PrimaryKey: []*schema.Column{ProcTypeExpsColumns[0]},
+	// ProcTypeExprsTable holds the schema information for the "proc_type_exprs" table.
+	ProcTypeExprsTable = &schema.Table{
+		Name:       "proc_type_exprs",
+		Columns:    ProcTypeExprsColumns,
+		PrimaryKey: []*schema.Column{ProcTypeExprsColumns[0]},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
@@ -106,9 +106,9 @@ var (
 		ProcExecEvalsTable,
 		ProcProgRootsTable,
 		ProcProgTermsTable,
-		ProcTermExpsTable,
+		ProcTermExprsTable,
 		ProcTypeDefsTable,
-		ProcTypeExpsTable,
+		ProcTypeExprsTable,
 	}
 )
 
@@ -125,13 +125,13 @@ func init() {
 	ProcProgTermsTable.Annotation = &entsql.Annotation{
 		Table: "proc_prog_terms",
 	}
-	ProcTermExpsTable.Annotation = &entsql.Annotation{
-		Table: "proc_term_exps",
+	ProcTermExprsTable.Annotation = &entsql.Annotation{
+		Table: "proc_term_exprs",
 	}
 	ProcTypeDefsTable.Annotation = &entsql.Annotation{
 		Table: "proc_type_defs",
 	}
-	ProcTypeExpsTable.Annotation = &entsql.Annotation{
-		Table: "proc_type_exps",
+	ProcTypeExprsTable.Annotation = &entsql.Annotation{
+		Table: "proc_type_exprs",
 	}
 }

@@ -10,9 +10,9 @@ import (
 	"orglang/go-engine/internal/pool/ent/execeval"
 	"orglang/go-engine/internal/pool/ent/progroot"
 	"orglang/go-engine/internal/pool/ent/termdec"
-	"orglang/go-engine/internal/pool/ent/termexp"
+	"orglang/go-engine/internal/pool/ent/termexpr"
 	"orglang/go-engine/internal/pool/ent/typedef"
-	"orglang/go-engine/internal/pool/ent/typeexp"
+	"orglang/go-engine/internal/pool/ent/typeexpr"
 	"reflect"
 	"sync"
 
@@ -83,9 +83,9 @@ func checkColumn(t, c string) error {
 			execeval.Table: execeval.ValidColumn,
 			progroot.Table: progroot.ValidColumn,
 			termdec.Table:  termdec.ValidColumn,
-			termexp.Table:  termexp.ValidColumn,
+			termexpr.Table: termexpr.ValidColumn,
 			typedef.Table:  typedef.ValidColumn,
-			typeexp.Table:  typeexp.ValidColumn,
+			typeexpr.Table: typeexpr.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

@@ -127,8 +127,8 @@ func statesFromExprRec(supExprCK int64, r typedef.ExpRec, dto *ExpRec) int64 {
 		return exprCK
 	case typedef.LinkRec:
 		st := State{
-			ExpCK:    exprCK,
-			K:        LinkKind,
+			ExpCK:     exprCK,
+			K:         LinkKind,
 			SupExprCK: supExprCK,
 			Spec: ExpSpec{
 				Link: uniqsym.ConvertToString(rec.TypeQN),
@@ -138,8 +138,8 @@ func statesFromExprRec(supExprCK int64, r typedef.ExpRec, dto *ExpRec) int64 {
 		return exprCK
 	case typedef.PlusRec:
 		st := State{
-			ExpCK:    exprCK,
-			K:        PlusKind,
+			ExpCK:     exprCK,
+			K:         PlusKind,
 			SupExprCK: supExprCK,
 			Spec: ExpSpec{Plus: &Sum{
 				ProcQNs:   uniqsym.ConvertToStrings(rec.ProcQNs),
@@ -150,8 +150,8 @@ func statesFromExprRec(supExprCK int64, r typedef.ExpRec, dto *ExpRec) int64 {
 		return exprCK
 	case typedef.WithRec:
 		st := State{
-			ExpCK:    exprCK,
-			K:        WithKind,
+			ExpCK:     exprCK,
+			K:         WithKind,
 			SupExprCK: supExprCK,
 			Spec: ExpSpec{With: &Sum{
 				ProcQNs:   uniqsym.ConvertToStrings(rec.ProcQNs),
@@ -162,8 +162,8 @@ func statesFromExprRec(supExprCK int64, r typedef.ExpRec, dto *ExpRec) int64 {
 		return exprCK
 	case typedef.UpRec:
 		st := State{
-			ExpCK:    exprCK,
-			K:        UpKind,
+			ExpCK:     exprCK,
+			K:         UpKind,
 			SupExprCK: supExprCK,
 			Spec: ExpSpec{Up: &Shift{
 				ContExpCK: statesFromExprRec(exprCK, rec.ContExp, dto),
@@ -173,8 +173,8 @@ func statesFromExprRec(supExprCK int64, r typedef.ExpRec, dto *ExpRec) int64 {
 		return exprCK
 	case typedef.DownRec:
 		st := State{
-			ExpCK:    exprCK,
-			K:        DownKind,
+			ExpCK:     exprCK,
+			K:         DownKind,
 			SupExprCK: supExprCK,
 			Spec: ExpSpec{Down: &Shift{
 				ContExpCK: statesFromExprRec(exprCK, rec.ContExp, dto),

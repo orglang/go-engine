@@ -27,7 +27,7 @@ func DataFromStepRec(r commact.ActRec) (ActRec, error) {
 			ExecRN: rootRef.ExecRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
 			K:      MsgStep,
-			Expr:    exp,
+			Expr:   exp,
 		}, nil
 	case commact.SubRec:
 		exp, err := execeval.DataFromExprRec(rec.ContExp)
@@ -42,7 +42,7 @@ func DataFromStepRec(r commact.ActRec) (ActRec, error) {
 			ExecRN: rootRef.ExecRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
 			K:      SvcStep,
-			Expr:    exp,
+			Expr:   exp,
 		}, nil
 	default:
 		panic(commact.ErrActRecTypeUnexpected(r))

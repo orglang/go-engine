@@ -8,6 +8,6 @@ type ExpSpec interface {
 }
 
 type StepSpec struct {
-	RootRef execroot.RootRef
+	RootRef  execroot.RootRef
 	PoolExpr ExpSpec
 }

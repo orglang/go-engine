@@ -30,7 +30,7 @@ func init() {
 			return corePubRec, err
 		}
 		corePubRec.ChnlID = identityADT2
-		coreExpRec, err := adapter.DataToExpRec(source.Exp)
+		coreExpRec, err := adapter.DataToExprRec(source.Expr)
 		if err != nil {
 			return corePubRec, err
 		}
@@ -65,7 +65,7 @@ func init() {
 			return coreSubRec, err
 		}
 		coreSubRec.ChnlID = identityADT2
-		coreExpRec, err := adapter.DataToExpRec(source.Exp)
+		coreExpRec, err := adapter.DataToExprRec(source.Expr)
 		if err != nil {
 			return coreSubRec, err
 		}

@@ -24,7 +24,7 @@ type API interface {
 }
 
 type DefSpec struct {
-	TypeQN  uniqsym.ADT
+	TypeQN   uniqsym.ADT
 	TypeExpr ExpSpec
 }
 
@@ -49,7 +49,7 @@ type Context struct {
 type service struct {
 	typeDefRepo  Repo
 	progRootRepo progroot.Repo
-	typeExprRepo  TypeExprRepo
+	typeExprRepo TypeExprRepo
 	transactor   tx.Transactor
 	log          *slog.Logger
 }

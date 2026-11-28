@@ -51,7 +51,7 @@ func (s LabSpec) Via() symbol.ADT { return s.CommChnlPH }
 
 type CaseSpec struct {
 	CommChnlPH symbol.ADT
-	ContExprs   map[uniqsym.ADT]ExpSpec
+	ContExprs  map[uniqsym.ADT]ExpSpec
 }
 
 func (s CaseSpec) Via() symbol.ADT { return s.CommChnlPH }
@@ -143,7 +143,7 @@ type SendRec struct {
 	CommChnlPH symbol.ADT
 	ContChnlID identity.ADT
 	ValChnlID  identity.ADT
-	ValExprCK   contkey.ADT
+	ValExprCK  contkey.ADT
 	CommID     identity.ADT
 }
 
@@ -165,7 +165,7 @@ func (RecvRec) IsExpRec() {}
 type LabRec struct {
 	CommChnlPH symbol.ADT
 	ContChnlID identity.ADT
-	ValExprCK   contkey.ADT
+	ValExprCK  contkey.ADT
 	ValLabQN   uniqsym.ADT // TODO выпилить
 }
 
@@ -176,7 +176,7 @@ func (LabRec) IsExpRec() {}
 type CaseRec struct {
 	CommChnlPH symbol.ADT
 	ContChnlID identity.ADT
-	ContExprs   map[uniqsym.ADT]ExpSpec
+	ContExprs  map[uniqsym.ADT]ExpSpec
 }
 
 func (r CaseRec) Via() symbol.ADT { return r.CommChnlPH }

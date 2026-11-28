@@ -74,7 +74,7 @@ func TestIntegrationTypedefCreateRollsBackAllRepositories(t *testing.T) {
 		t.Fatalf("create type qualified name: %v", err)
 	}
 	_, _, err = service.Create(ctx, typedef.DefSpec{
-		TypeQN:  typeQN,
+		TypeQN:   typeQN,
 		TypeExpr: typedef.OneSpec{},
 	})
 	if err == nil {
@@ -154,7 +154,7 @@ func TestIntegrationTypedefCreatePersistsAllRepositories(t *testing.T) {
 		t.Fatalf("create type qualified name: %v", err)
 	}
 	typeID, progRef, err := service.Create(ctx, typedef.DefSpec{
-		TypeQN:  typeQN,
+		TypeQN:   typeQN,
 		TypeExpr: typedef.OneSpec{},
 	})
 	if err != nil {

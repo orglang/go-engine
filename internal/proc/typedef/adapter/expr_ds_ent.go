@@ -12,7 +12,9 @@ import (
 	"orglang/go-engine/internal/lib/lf"
 	"orglang/go-engine/internal/lib/tx"
 	"orglang/go-engine/internal/proc/ent"
-	typeexprent "orglang/go-engine/internal/proc/ent/typeexpr")
+	typeexprent "orglang/go-engine/internal/proc/ent/typeexpr"
+	typedef "orglang/go-engine/internal/proc/typedef/core"
+)
 
 // Adapter
 type exprDaoEnt struct {

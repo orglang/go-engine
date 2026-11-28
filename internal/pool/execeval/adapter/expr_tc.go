@@ -6,26 +6,26 @@ import (
 	compexp "orglang/go-engine/internal/pool/execeval/core"
 )
 
-func DataFromExprSpec(s compexp.ExpSpec) ExpSpec {
+func DataFromExprSpec(s compexp.ExprSpec) ExprSpec {
 	switch spec := s.(type) {
 	case compexp.AcquireSpec:
-		return ExpSpec{K: AcquireKind, Acquire: DataFromAcquireSpec(spec)}
+		return ExprSpec{K: AcquireKind, Acquire: DataFromAcquireSpec(spec)}
 	case compexp.AcceptSpec:
-		return ExpSpec{K: AcceptKind, Accept: DataFromAcceptSpec(spec)}
+		return ExprSpec{K: AcceptKind, Accept: DataFromAcceptSpec(spec)}
 	case compexp.HireSpec:
-		return ExpSpec{K: HireKind, Hire: DataFromHireSpec(spec)}
+		return ExprSpec{K: HireKind, Hire: DataFromHireSpec(spec)}
 	case compexp.ApplySpec:
-		return ExpSpec{K: ApplyKind, Apply: DataFromApplySpec(spec)}
+		return ExprSpec{K: ApplyKind, Apply: DataFromApplySpec(spec)}
 	case compexp.ReleaseSpec:
-		return ExpSpec{K: ReleaseKind, Release: DataFromReleaseSpec(spec)}
+		return ExprSpec{K: ReleaseKind, Release: DataFromReleaseSpec(spec)}
 	case compexp.DetachSpec:
-		return ExpSpec{K: DetachKind, Detach: DataFromDetachSpec(spec)}
+		return ExprSpec{K: DetachKind, Detach: DataFromDetachSpec(spec)}
 	default:
 		panic(compexp.ErrSpecTypeUnexpected(s))
 	}
 }
 
-func DataToExprSpec(dto ExpSpec) (compexp.ExpSpec, error) {
+func DataToExprSpec(dto ExprSpec) (compexp.ExprSpec, error) {
 	switch dto.K {
 	case AcquireKind:
 		return DataToAcquireSpec(dto.Acquire)
@@ -40,30 +40,30 @@ func DataToExprSpec(dto ExpSpec) (compexp.ExpSpec, error) {
 	case DetachKind:
 		return DataToDetachSpec(dto.Detach)
 	default:
-		panic(fmt.Errorf("exp kind unexpected: %v", dto.K))
+		panic(fmt.Errorf("expr kind unexpected: %v", dto.K))
 	}
 }
 
-func DataFromExprRec(r compexp.ExpRec) ExpRec {
+func DataFromExprRec(r compexp.ExprRec) ExprRec {
 	switch rec := r.(type) {
 	case compexp.AcquireRec:
-		return ExpRec{K: AcquireKind, Acquire: DataFromAcquireRec(rec)}
+		return ExprRec{K: AcquireKind, Acquire: DataFromAcquireRec(rec)}
 	case compexp.AcceptRec:
-		return ExpRec{K: AcceptKind, Accept: DataFromAcceptRec(rec)}
+		return ExprRec{K: AcceptKind, Accept: DataFromAcceptRec(rec)}
 	case compexp.HireRec:
-		return ExpRec{K: HireKind, Hire: DataFromHireRec(rec)}
+		return ExprRec{K: HireKind, Hire: DataFromHireRec(rec)}
 	case compexp.ApplyRec:
-		return ExpRec{K: ApplyKind, Apply: DataFromApplyRec(rec)}
+		return ExprRec{K: ApplyKind, Apply: DataFromApplyRec(rec)}
 	case compexp.ReleaseRec:
-		return ExpRec{K: ReleaseKind, Release: DataFromReleaseRec(rec)}
+		return ExprRec{K: ReleaseKind, Release: DataFromReleaseRec(rec)}
 	case compexp.DetachRec:
-		return ExpRec{K: DetachKind, Detach: DataFromDetachRec(rec)}
+		return ExprRec{K: DetachKind, Detach: DataFromDetachRec(rec)}
 	default:
 		panic(compexp.ErrRecTypeUnexpected(r))
 	}
 }
 
-func DataToExprRec(dto ExpRec) (compexp.ExpRec, error) {
+func DataToExprRec(dto ExprRec) (compexp.ExprRec, error) {
 	switch dto.K {
 	case AcquireKind:
 		return DataToAcquireRec(dto.Acquire)
@@ -78,6 +78,6 @@ func DataToExprRec(dto ExpRec) (compexp.ExpRec, error) {
 	case DetachKind:
 		return DataToDetachRec(dto.Detach)
 	default:
-		panic(fmt.Errorf("exp kind unexpected: %v", dto.K))
+		panic(fmt.Errorf("expr kind unexpected: %v", dto.K))
 	}
 }

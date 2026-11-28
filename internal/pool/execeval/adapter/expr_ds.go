@@ -4,8 +4,8 @@ import (
 	compexp "orglang/go-engine/internal/pool/execeval/core"
 )
 
-type ExpSpec struct {
-	K       ExpKind     `json:"k"`
+type ExprSpec struct {
+	K       ExprKind     `json:"k"`
 	Acquire *GrantSpec  `json:"acquire,omitempty"`
 	Accept  *GrantSpec  `json:"accept,omitempty"`
 	Hire    *CoopSpec   `json:"hire,omitempty"`
@@ -16,21 +16,21 @@ type ExpSpec struct {
 
 type GrantSpec struct {
 	CommChnlPH string  `json:"ph"`
-	ContExp    ExpSpec `json:"expr"`
+	ContExp    ExprSpec `json:"expr"`
 }
 
 type CoopSpec struct {
 	CommChnlPH string  `json:"ph"`
 	ProcTermQN string  `json:"qn"`
-	ContExp    ExpSpec `json:"expr"`
+	ContExp    ExprSpec `json:"expr"`
 }
 
 type RevokeSpec struct {
 	CommChnlPH string `json:"ph"`
 }
 
-type ExpRec struct {
-	K       ExpKind    `json:"k"`
+type ExprRec struct {
+	K       ExprKind    `json:"k"`
 	Acquire *GrantRec  `json:"acquire,omitempty"`
 	Accept  *GrantRec  `json:"accept,omitempty"`
 	Hire    *CoopRec   `json:"hire,omitempty"`
@@ -39,7 +39,7 @@ type ExpRec struct {
 	Detach  *RevokeRec `json:"detach,omitempty"`
 }
 
-type ExpKind = compexp.ExpKind
+type ExprKind = compexp.ExprKind
 
 const (
 	UnkKind     = compexp.UnkKind
@@ -53,13 +53,13 @@ const (
 
 type GrantRec struct {
 	ContChnlPH string  `json:"ph"`
-	ContExp    ExpSpec `json:"expr"`
+	ContExp    ExprSpec `json:"expr"`
 }
 
 type CoopRec struct {
 	ContChnlPH string  `json:"ph"`
 	ProcTermQN string  `json:"qn"`
-	ContExp    ExpSpec `json:"expr"`
+	ContExp    ExprSpec `json:"expr"`
 }
 
 type RevokeRec struct {

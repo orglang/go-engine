@@ -13,19 +13,19 @@ import (
 	commact "orglang/go-engine/internal/proc/commact/core"
 )
 
-func DataFromExprRec(r commact.ExpRec) (ExpRec, error) {
+func DataFromExprRec(r commact.ExprRec) (ExprRec, error) {
 	switch rec := r.(type) {
 	case commact.CloseRec:
-		return ExpRec{
+		return ExprRec{
 			K:     CloseExp,
 			Close: &CloseRec{X: symbol.ConvertToString(rec.ContChnlPH)},
 		}, nil
 	case commact.WaitRec:
 		dto, err := dataFromExprSpec(rec.ContExp)
 		if err != nil {
-			return ExpRec{}, err
+			return ExprRec{}, err
 		}
-		return ExpRec{
+		return ExprRec{
 			K: WaitExp,
 			Wait: &WaitRec{
 				X:      symbol.ConvertToString(rec.ContChnlPH),
@@ -34,7 +34,7 @@ func DataFromExprRec(r commact.ExpRec) (ExpRec, error) {
 		}, nil
 	case commact.SendRec:
 		commID := identity.ConvertToString(rec.CommID)
-		return ExpRec{
+		return ExprRec{
 			K: SendExp,
 			Send: &SendRec{
 				X:        symbol.ConvertToString(rec.CommChnlPH),
@@ -47,9 +47,9 @@ func DataFromExprRec(r commact.ExpRec) (ExpRec, error) {
 	case commact.RecvRec:
 		dto, err := dataFromExprSpec(rec.ContExp)
 		if err != nil {
-			return ExpRec{}, err
+			return ExprRec{}, err
 		}
-		return ExpRec{
+		return ExprRec{
 			K: RecvExp,
 			Recv: &RecvRec{
 				X:      symbol.ConvertToString(rec.CommChnlPH),
@@ -59,7 +59,7 @@ func DataFromExprRec(r commact.ExpRec) (ExpRec, error) {
 			},
 		}, nil
 	case commact.LabRec:
-		return ExpRec{
+		return ExprRec{
 			K: LabExp,
 			Lab: &LabRec{
 				X:        symbol.ConvertToString(rec.CommChnlPH),
@@ -73,11 +73,11 @@ func DataFromExprRec(r commact.ExpRec) (ExpRec, error) {
 		for l, cont := range rec.ContExprs {
 			dto, err := dataFromExprSpec(cont)
 			if err != nil {
-				return ExpRec{}, err
+				return ExprRec{}, err
 			}
 			brs = append(brs, BranchRec{Label: uniqsym.ConvertToString(l), ContES: dto})
 		}
-		return ExpRec{
+		return ExprRec{
 			K: CaseExp,
 			Case: &CaseRec{
 				X:        symbol.ConvertToString(rec.CommChnlPH),
@@ -86,7 +86,7 @@ func DataFromExprRec(r commact.ExpRec) (ExpRec, error) {
 			},
 		}, nil
 	case commact.FwdRec:
-		return ExpRec{
+		return ExprRec{
 			K: FwdExp,
 			Fwd: &FwdRec{
 				X: symbol.ConvertToString(rec.CommChnlPH),
@@ -98,7 +98,7 @@ func DataFromExprRec(r commact.ExpRec) (ExpRec, error) {
 	}
 }
 
-func DataToExprRec(dto ExpRec) (commact.ExpRec, error) {
+func DataToExprRec(dto ExprRec) (commact.ExprRec, error) {
 	switch dto.K {
 	case CloseExp:
 		a, err := symbol.ConvertFromString(dto.Close.X)
@@ -181,7 +181,7 @@ func DataToExprRec(dto ExpRec) (commact.ExpRec, error) {
 		if err != nil {
 			return nil, err
 		}
-		conts := make(map[uniqsym.ADT]commact.ExpSpec, len(dto.Case.Branches))
+		conts := make(map[uniqsym.ADT]commact.ExprSpec, len(dto.Case.Branches))
 		for _, branch := range dto.Case.Branches {
 			cont, err := dataToExprSpec(branch.ContES)
 			if err != nil {
@@ -209,19 +209,19 @@ func DataToExprRec(dto ExpRec) (commact.ExpRec, error) {
 	}
 }
 
-func dataFromExprSpec(s commact.ExpSpec) (ExpSpec, error) {
+func dataFromExprSpec(s commact.ExprSpec) (ExprSpec, error) {
 	switch spec := s.(type) {
 	case commact.CloseSpec:
-		return ExpSpec{
+		return ExprSpec{
 			K:     CloseExp,
 			Close: &CloseSpec{X: symbol.ConvertToString(spec.ContChnlPH)},
 		}, nil
 	case commact.WaitSpec:
 		dto, err := dataFromExprSpec(spec.ContExp)
 		if err != nil {
-			return ExpSpec{}, err
+			return ExprSpec{}, err
 		}
-		return ExpSpec{
+		return ExprSpec{
 			K: WaitExp,
 			Wait: &WaitSpec{
 				X:      symbol.ConvertToString(spec.ContChnlPH),
@@ -229,7 +229,7 @@ func dataFromExprSpec(s commact.ExpSpec) (ExpSpec, error) {
 			},
 		}, nil
 	case commact.SendSpec:
-		return ExpSpec{
+		return ExprSpec{
 			K: SendExp,
 			Send: &SendSpec{
 				X: symbol.ConvertToString(spec.CommChnlPH),
@@ -239,9 +239,9 @@ func dataFromExprSpec(s commact.ExpSpec) (ExpSpec, error) {
 	case commact.RecvSpec:
 		dto, err := dataFromExprSpec(spec.ContExp)
 		if err != nil {
-			return ExpSpec{}, err
+			return ExprSpec{}, err
 		}
-		return ExpSpec{
+		return ExprSpec{
 			K: RecvExp,
 			Recv: &RecvSpec{
 				X:      symbol.ConvertToString(spec.CommChnlPH),
@@ -252,9 +252,9 @@ func dataFromExprSpec(s commact.ExpSpec) (ExpSpec, error) {
 	case commact.LabSpec:
 		cont, err := dataFromExprSpec(spec.ContExp)
 		if err != nil {
-			return ExpSpec{}, err
+			return ExprSpec{}, err
 		}
-		return ExpSpec{
+		return ExprSpec{
 			K: LabExp,
 			Lab: &LabSpec{
 				X:      symbol.ConvertToString(spec.CommChnlPH),
@@ -275,11 +275,11 @@ func dataFromExprSpec(s commact.ExpSpec) (ExpSpec, error) {
 			cont := spec.ContExprs[l]
 			dto, err := dataFromExprSpec(cont)
 			if err != nil {
-				return ExpSpec{}, err
+				return ExprSpec{}, err
 			}
 			brs = append(brs, BranchSpec{Label: uniqsym.ConvertToString(l), ContES: dto})
 		}
-		return ExpSpec{
+		return ExprSpec{
 			K: CaseExp,
 			Case: &CaseSpec{
 				X:        symbol.ConvertToString(spec.CommChnlPH),
@@ -287,7 +287,7 @@ func dataFromExprSpec(s commact.ExpSpec) (ExpSpec, error) {
 			},
 		}, nil
 	case commact.FwdSpec:
-		return ExpSpec{
+		return ExprSpec{
 			K: FwdExp,
 			Fwd: &FwdSpec{
 				X: symbol.ConvertToString(spec.CommChnlPH),
@@ -299,7 +299,7 @@ func dataFromExprSpec(s commact.ExpSpec) (ExpSpec, error) {
 	}
 }
 
-func dataToExprSpec(dto ExpSpec) (commact.ExpSpec, error) {
+func dataToExprSpec(dto ExprSpec) (commact.ExprSpec, error) {
 	switch dto.K {
 	case CloseExp:
 		a, err := symbol.ConvertFromString(dto.Close.X)
@@ -360,7 +360,7 @@ func dataToExprSpec(dto ExpSpec) (commact.ExpSpec, error) {
 		if err != nil {
 			return nil, err
 		}
-		conts := make(map[uniqsym.ADT]commact.ExpSpec, len(dto.Case.Branches))
+		conts := make(map[uniqsym.ADT]commact.ExprSpec, len(dto.Case.Branches))
 		for _, b := range dto.Case.Branches {
 			cont, err := dataToExprSpec(b.ContES)
 			if err != nil {
@@ -388,6 +388,6 @@ func dataToExprSpec(dto ExpSpec) (commact.ExpSpec, error) {
 	}
 }
 
-func errUnexpectedExprKind(k ExpKind) error {
+func errUnexpectedExprKind(k ExprKind) error {
 	return fmt.Errorf("unexpected term kind: %v", k)
 }

@@ -15,11 +15,11 @@ func DefSpecFromGenerated(dto webapi.ProcTypeDefSpec) (typedef.DefSpec, error) {
 	if err != nil {
 		return typedef.DefSpec{}, err
 	}
-	exp, err := exprSpecFromGenerated(dto.TypeExpr)
+	expr, err := exprSpecFromGenerated(dto.TypeExpr)
 	if err != nil {
 		return typedef.DefSpec{}, err
 	}
-	return typedef.DefSpec{TypeQN: qn, TypeExpr: exp}, nil
+	return typedef.DefSpec{TypeQN: qn, TypeExpr: expr}, nil
 }
 
 func DefSnapToGenerated(snap typedef.DefSnap) webapi.ProcTypeDefSnap {
@@ -35,7 +35,7 @@ func DefSnapToGenerated(snap typedef.DefSnap) webapi.ProcTypeDefSnap {
 	}
 }
 
-func exprSpecFromGenerated(dto webapi.ProcTypeExprSpec) (typedef.ExpSpec, error) {
+func exprSpecFromGenerated(dto webapi.ProcTypeExprSpec) (typedef.ExprSpec, error) {
 	kind, err := dto.Discriminator()
 	if err != nil {
 		return nil, err
@@ -86,7 +86,7 @@ func exprSpecFromGenerated(dto webapi.ProcTypeExprSpec) (typedef.ExpSpec, error)
 		if err != nil {
 			return nil, err
 		}
-		choices := make(map[uniqsym.ADT]typedef.ExpSpec, len(v.Choices))
+		choices := make(map[uniqsym.ADT]typedef.ExprSpec, len(v.Choices))
 		for _, choice := range v.Choices {
 			label, err := uniqsym.ConvertFromString(choice.LabQn)
 			if err != nil {
@@ -104,7 +104,7 @@ func exprSpecFromGenerated(dto webapi.ProcTypeExprSpec) (typedef.ExpSpec, error)
 		if err != nil {
 			return nil, err
 		}
-		choices := make(map[uniqsym.ADT]typedef.ExpSpec, len(v.Choices))
+		choices := make(map[uniqsym.ADT]typedef.ExprSpec, len(v.Choices))
 		for _, choice := range v.Choices {
 			label, err := uniqsym.ConvertFromString(choice.LabQn)
 			if err != nil {
@@ -142,7 +142,7 @@ func exprSpecFromGenerated(dto webapi.ProcTypeExprSpec) (typedef.ExpSpec, error)
 	}
 }
 
-func exprSpecToGenerated(spec typedef.ExpSpec) webapi.ProcTypeExprSpec {
+func exprSpecToGenerated(spec typedef.ExprSpec) webapi.ProcTypeExprSpec {
 	var dto webapi.ProcTypeExprSpec
 	switch spec := spec.(type) {
 	case typedef.OneSpec:

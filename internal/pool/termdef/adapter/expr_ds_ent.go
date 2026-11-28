@@ -18,7 +18,7 @@ import (
 	termdef "orglang/go-engine/internal/pool/termdef/core"
 )
 
-func (dao *daoEnt) insertSpec(ctx context.Context, conn tx.Conn, spec termdef.ExpSpec) error {
+func (dao *daoEnt) insertSpec(ctx context.Context, conn tx.Conn, spec termdef.ExprSpec) error {
 	rec, err := termdef.ConvertSpecToRec(spec)
 	if err != nil {
 		return err
@@ -35,7 +35,7 @@ func (dao *daoEnt) insertSpec(ctx context.Context, conn tx.Conn, spec termdef.Ex
 			return err
 		}
 		builders = append(builders, dao.client.TermExpr.Create().
-			SetID(state.ExpCK).
+			SetID(state.ExprCK).
 			SetSupExprCk(state.SupExprCK).
 			SetKind(state.K).
 			SetSpec(jsontext.Value(raw)))
@@ -54,21 +54,21 @@ func (dao *daoEnt) insertSpec(ctx context.Context, conn tx.Conn, spec termdef.Ex
 	return nil
 }
 
-func (dao *daoEnt) selectSpecByCK(ctx context.Context, conn tx.Conn, key contkey.ADT) (termdef.ExpSpec, error) {
+func (dao *daoEnt) selectSpecByCK(ctx context.Context, conn tx.Conn, key contkey.ADT) (termdef.ExprSpec, error) {
 	rows, err := conn.Pgx.Query(ctx, selectTermExprTree, int64(key))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	states, err := pgx.CollectRows(rows, pgx.RowToStructByName[ExpState])
+	states, err := pgx.CollectRows(rows, pgx.RowToStructByName[ExprState])
 	if err != nil {
 		return nil, err
 	}
 	if len(states) == 0 {
 		return nil, fmt.Errorf("pool term Definition %d does not exist", key)
 	}
-	rec, err := dataToExprRec(ExpData{ExpCK: int64(key), States: states})
+	rec, err := dataToExprRec(ExprData{ExprCK: int64(key), States: states})
 	if err != nil {
 		return nil, err
 	}

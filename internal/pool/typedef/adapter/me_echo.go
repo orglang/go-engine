@@ -54,7 +54,7 @@ func (h *controllerEcho) CreatePoolTypeDefinition(c *echo.Context) error {
 	})
 }
 
-func poolTypeExprToCore(dto webapi.PoolTypeExprSpec) (typedef.ExpSpec, error) {
+func poolTypeExprToCore(dto webapi.PoolTypeExprSpec) (typedef.ExprSpec, error) {
 	kind, err := dto.Discriminator()
 	if err != nil {
 		return nil, fmt.Errorf("read pool type expression kind: %w", err)

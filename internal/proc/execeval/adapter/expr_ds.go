@@ -1,9 +1,9 @@
 package adapter
 
-type ExpKind int
+type ExprKind int
 
 const (
-	NonExp ExpKind = iota
+	NonExp ExprKind = iota
 	CloseExp
 	WaitExp
 	SendExp
@@ -15,8 +15,8 @@ const (
 	FwdExp
 )
 
-type ExpSpec struct {
-	K     ExpKind    `json:"k"`
+type ExprSpec struct {
+	K     ExprKind    `json:"k"`
 	Close *CloseSpec `json:"close,omitempty"`
 	Wait  *WaitSpec  `json:"wait,omitempty"`
 	Send  *SendSpec  `json:"send,omitempty"`
@@ -26,8 +26,8 @@ type ExpSpec struct {
 	Fwd   *FwdSpec   `json:"fwd,omitempty"`
 }
 
-type ExpRec struct {
-	K     ExpKind   `json:"k"`
+type ExprRec struct {
+	K     ExprKind   `json:"k"`
 	Close *CloseRec `json:"close,omitempty"`
 	Wait  *WaitRec  `json:"wait,omitempty"`
 	Send  *SendRec  `json:"send,omitempty"`
@@ -46,11 +46,11 @@ type CloseRec struct {
 
 type WaitSpec struct {
 	X      string  `json:"x"`
-	ContES ExpSpec `json:"cont"`
+	ContES ExprSpec `json:"cont"`
 }
 type WaitRec struct {
 	X      string  `json:"x"`
-	ContES ExpSpec `json:"cont"`
+	ContES ExprSpec `json:"cont"`
 }
 
 type SendSpec struct {
@@ -68,19 +68,19 @@ type SendRec struct {
 type RecvSpec struct {
 	X      string  `json:"x"`
 	Y      string  `json:"y"`
-	ContES ExpSpec `json:"cont"`
+	ContES ExprSpec `json:"cont"`
 }
 type RecvRec struct {
 	X      string  `json:"x"`
 	A      string  `json:"a"`
 	Y      string  `json:"y"`
-	ContES ExpSpec `json:"cont"`
+	ContES ExprSpec `json:"cont"`
 }
 
 type LabSpec struct {
 	X      string  `json:"x"`
 	Label  string  `json:"lab"`
-	ContES ExpSpec `json:"cont"`
+	ContES ExprSpec `json:"cont"`
 }
 type LabRec struct {
 	X     string `json:"x"`
@@ -102,11 +102,11 @@ type CaseRec struct {
 
 type BranchSpec struct {
 	Label  string  `json:"lab"`
-	ContES ExpSpec `json:"cont"`
+	ContES ExprSpec `json:"cont"`
 }
 type BranchRec struct {
 	Label  string  `json:"lab"`
-	ContES ExpSpec `json:"cont"`
+	ContES ExprSpec `json:"cont"`
 }
 
 type FwdSpec struct {

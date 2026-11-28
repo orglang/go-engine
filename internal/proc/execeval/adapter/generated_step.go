@@ -30,7 +30,7 @@ func generatedStepToCore(id string, dto webapi.ProcStepSpec) (execstepcore.StepS
 	}, nil
 }
 
-func generatedProcessExpressionToCore(dto webapi.ProcTermExprSpec) (commact.ExpSpec, error) {
+func generatedProcessExpressionToCore(dto webapi.ProcTermExprSpec) (commact.ExprSpec, error) {
 	kind, err := dto.Discriminator()
 	if err != nil {
 		return nil, fmt.Errorf("read generated process expression kind: %w", err)
@@ -116,7 +116,7 @@ func generatedProcessExpressionToCore(dto webapi.ProcTermExprSpec) (commact.ExpS
 		if err != nil {
 			return nil, err
 		}
-		branches := make(map[uniqsym.ADT]commact.ExpSpec, len(spec.ContBses))
+		branches := make(map[uniqsym.ADT]commact.ExprSpec, len(spec.ContBses))
 		for _, branch := range spec.ContBses {
 			label, err := uniqsym.ConvertFromString(branch.PatternQn)
 			if err != nil {

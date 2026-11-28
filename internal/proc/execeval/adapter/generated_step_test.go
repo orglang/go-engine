@@ -25,7 +25,7 @@ func TestGeneratedStepToCoreMapsNestedProcessExpression(t *testing.T) {
 		t.Fatalf("build generated wait expression: %v", err)
 	}
 
-	spec, err := generatedStepToCore(testExecutionID, webapi.ProcStepSpec{ProcExprr: waitExpr})
+	spec, err := generatedStepToCore(testExecutionID, webapi.ProcStepSpec{ProcExpr: waitExpr})
 	if err != nil {
 		t.Fatalf("convert generated step: %v", err)
 	}
@@ -59,7 +59,7 @@ func TestGeneratedStepToCoreMapsLinkExpression(t *testing.T) {
 		t.Fatalf("build generated link expression: %v", err)
 	}
 
-	spec, err := generatedStepToCore(testExecutionID, webapi.ProcStepSpec{ProcExprr: linkExpr})
+	spec, err := generatedStepToCore(testExecutionID, webapi.ProcStepSpec{ProcExpr: linkExpr})
 	if err != nil {
 		t.Fatalf("convert generated link expression: %v", err)
 	}
@@ -80,7 +80,7 @@ func TestGeneratedStepToCoreRejectsInvalidExecutionID(t *testing.T) {
 	if err := closeExpr.FromProcTermCloseSpec(webapi.ProcTermCloseSpec{CommPh: "close-channel"}); err != nil {
 		t.Fatalf("build generated close expression: %v", err)
 	}
-	if _, err := generatedStepToCore("not-an-xid", webapi.ProcStepSpec{ProcExprr: closeExpr}); err == nil {
+	if _, err := generatedStepToCore("not-an-xid", webapi.ProcStepSpec{ProcExpr: closeExpr}); err == nil {
 		t.Fatal("expected invalid execution id to be rejected")
 	}
 }

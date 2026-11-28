@@ -32,12 +32,12 @@ func marshalTaggedSpec(enc *jsontext.Encoder, kind string, fields map[string]any
 	return jsonv2.MarshalEncode(enc, fields)
 }
 
-func childExpContentKey(spec ExpSpec) (int64, error) {
+func childExprContentKey(spec ExpSpec) (int64, error) {
 	key, _, err := ExpContentKey(spec)
 	return int64(key), err
 }
 
-func validateExpSpec(spec ExpSpec) error {
+func validateExprSpec(spec ExpSpec) error {
 	if spec == nil {
 		return errors.New("nil process term expression")
 	}
@@ -45,26 +45,26 @@ func validateExpSpec(spec ExpSpec) error {
 	case CloseSpec, SendSpec, LinkSpec, FwdSpec, DetachSpec, ReleaseSpec:
 		return nil
 	case WaitSpec:
-		return validateExpSpec(s.ContExp)
+		return validateExprSpec(s.ContExp)
 	case RecvSpec:
-		return validateExpSpec(s.ContExp)
+		return validateExprSpec(s.ContExp)
 	case LabSpec:
-		return validateExpSpec(s.ContExp)
+		return validateExprSpec(s.ContExp)
 	case CaseSpec:
 		for label, child := range s.ContExps {
-			if err := validateExpSpec(child); err != nil {
+			if err := validateExprSpec(child); err != nil {
 				return fmt.Errorf("case[%s]: %w", uniqsym.ConvertToString(label), err)
 			}
 		}
 		return nil
 	case CallSpec:
-		return validateExpSpec(s.ContExp)
+		return validateExprSpec(s.ContExp)
 	case SpawnSpec:
-		return validateExpSpec(s.ContExp)
+		return validateExprSpec(s.ContExp)
 	case AcqureSpec:
-		return validateExpSpec(s.ContExp)
+		return validateExprSpec(s.ContExp)
 	case AcceptSpec:
-		return validateExpSpec(s.ContExp)
+		return validateExprSpec(s.ContExp)
 	default:
 		return ErrExpTypeUnexpected(spec)
 	}
@@ -74,7 +74,7 @@ func (s CloseSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
 	return marshalTaggedSpec(enc, "close", map[string]any{"cont_chnl_ph": string(s.ContChnlPH)})
 }
 func (s WaitSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
-	ck, err := childExpContentKey(s.ContExp)
+	ck, err := childExprContentKey(s.ContExp)
 	if err != nil {
 		return err
 	}
@@ -84,14 +84,14 @@ func (s SendSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
 	return marshalTaggedSpec(enc, "send", map[string]any{"comm_chnl_ph": string(s.CommChnlPH), "val_chnl_ph": string(s.ValChnlPH)})
 }
 func (s RecvSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
-	ck, err := childExpContentKey(s.ContExp)
+	ck, err := childExprContentKey(s.ContExp)
 	if err != nil {
 		return err
 	}
 	return marshalTaggedSpec(enc, "recv", map[string]any{"comm_chnl_ph": string(s.CommChnlPH), "new_chnl_ph": string(s.NewChnlPH), "cont_expr_ck": ck})
 }
 func (s LabSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
-	ck, err := childExpContentKey(s.ContExp)
+	ck, err := childExprContentKey(s.ContExp)
 	if err != nil {
 		return err
 	}
@@ -104,7 +104,7 @@ func (s CaseSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
 		if _, exists := branches[name]; exists {
 			return fmt.Errorf("duplicate case label %q", name)
 		}
-		ck, err := childExpContentKey(child)
+		ck, err := childExprContentKey(child)
 		if err != nil {
 			return fmt.Errorf("case[%s]: %w", name, err)
 		}
@@ -123,7 +123,7 @@ func (s FwdSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
 	return marshalTaggedSpec(enc, "fwd", map[string]any{"comm_chnl_ph": string(s.CommChnlPH), "cont_chnl_ph": string(s.ContChnlPH)})
 }
 func (s CallSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
-	ck, err := childExpContentKey(s.ContExp)
+	ck, err := childExprContentKey(s.ContExp)
 	if err != nil {
 		return err
 	}
@@ -134,7 +134,7 @@ func (s CallSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
 	return marshalTaggedSpec(enc, "call", map[string]any{"comm_chnl_ph": string(s.CommChnlPH), "new_chnl_ph": string(s.NewChnlPH), "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN), "val_chnl_phs": chs, "cont_expr_ck": ck})
 }
 func (s SpawnSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
-	ck, err := childExpContentKey(s.ContExp)
+	ck, err := childExprContentKey(s.ContExp)
 	if err != nil {
 		return err
 	}
@@ -145,14 +145,14 @@ func (s SpawnSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
 	return marshalTaggedSpec(enc, "spawn", map[string]any{"comm_chnl_ph": string(s.CommChnlPH), "proc_term_qn": uniqsym.ConvertToString(s.ProcTermQN), "new_chnl_phs": chs, "cont_expr_ck": ck})
 }
 func (s AcqureSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
-	ck, err := childExpContentKey(s.ContExp)
+	ck, err := childExprContentKey(s.ContExp)
 	if err != nil {
 		return err
 	}
 	return marshalTaggedSpec(enc, "acquire", map[string]any{"comm_chnl_ph": string(s.CommChnlPH), "cont_expr_ck": ck})
 }
 func (s AcceptSpec) MarshalJSONTo(enc *jsontext.Encoder) error {
-	ck, err := childExpContentKey(s.ContExp)
+	ck, err := childExprContentKey(s.ContExp)
 	if err != nil {
 		return err
 	}

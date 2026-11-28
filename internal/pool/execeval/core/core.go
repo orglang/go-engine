@@ -259,10 +259,10 @@ func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) 
 	// Every changed Computation aggregate is guarded by its observed root revision.
 	// Connection changes always include the provider aggregate, regardless of
 	// which endpoint initiated the step.
-	compRefs := map[string]execroot.RootRef{}
+	rootRefs := map[string]execroot.RootRef{}
 	if connMod.ProviderExecID.IsEmpty() {
 		// Non-connection steps still mutate the executing Computation root.
-		compRefs[evalSnap.RootRef.RootID.String()] = evalSnap.RootRef
+		rootRefs[evalSnap.RootRef.RootID.String()] = evalSnap.RootRef
 	} else {
 		// A connection step always mutates the provider aggregate. The
 		// initiating client root is added only if its own variables change.
@@ -270,7 +270,7 @@ func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) 
 			RootID: connMod.ProviderExecID,
 			RootRN: connMod.ProviderExecRN,
 		}
-		compRefs[providerRef.RootID.String()] = providerRef
+		rootRefs[providerRef.RootID.String()] = providerRef
 	}
 	for _, variable := range evalMod.Vars {
 		ref := variable.GetRootRef()
@@ -281,11 +281,11 @@ func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) 
 			continue
 		}
 		if !ref.RootID.IsEmpty() {
-			compRefs[ref.RootID.String()] = ref
+			rootRefs[ref.RootID.String()] = ref
 		}
 	}
-	compKeys := make([]string, 0, len(compRefs))
-	for key := range compRefs {
+	compKeys := make([]string, 0, len(rootRefs))
+	for key := range rootRefs {
 		compKeys = append(compKeys, key)
 	}
 	slices.Sort(compKeys)
@@ -293,7 +293,7 @@ func (s *service) Take(ctx context.Context, spec execstep.StepSpec) (err error) 
 	transactErr := s.transactor.ExplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
 		// CAS all affected aggregate roots before writing any child state.
 		for _, key := range compKeys {
-			if touchErr := s.execRootRepo.TouchRef(txCtx, conn, compRefs[key]); touchErr != nil {
+			if touchErr := s.execRootRepo.TouchRef(txCtx, conn, rootRefs[key]); touchErr != nil {
 				return touchErr
 			}
 		}
@@ -326,18 +326,18 @@ func (s *service) takeStep(
 	connMod execconn.ConnMod,
 	err error,
 ) {
-	compAttr := slog.Any("compRef", evalSnap.RootRef)
+	rootAttr := slog.Any("rootRef", evalSnap.RootRef)
 	switch termExp := exp.(type) {
 	case AcceptSpec:
 		connChnl, ok := evalSnap.StructVars[termExp.ConnChnlPH]
 		if !ok {
-			s.log.Error("step taking failed", compAttr)
+			s.log.Error("step taking failed", rootAttr)
 			return evalMod, evalEff, connMod, proctermdef.ErrMissingInCfg(termExp.ConnChnlPH)
 		}
 		// вычисляем следующее состояние
 		typeExp, ok := evalSnap.StructExps[termExp.ConnChnlPH]
 		if !ok {
-			s.log.Error("step taking failed", compAttr)
+			s.log.Error("step taking failed", rootAttr)
 			return evalMod, evalEff, connMod, proctermdef.ErrMissingInCtx(termExp.ConnChnlPH)
 		}
 		nextExpCK := typeExp.(typedef.ProdRec).Next()
@@ -351,7 +351,7 @@ func (s *service) takeStep(
 			return err
 		})
 		if getErr != nil {
-			s.log.Error("step taking failed", compAttr)
+			s.log.Error("step taking failed", rootAttr)
 			return evalMod, evalEff, connMod, getErr
 		}
 		connMod.ConnID = connSnap.ConnID
@@ -373,7 +373,7 @@ func (s *service) takeStep(
 					ContExp:    termExp.ContExp,
 				},
 			})
-			s.log.Debug("taking half done", compAttr, connAttr)
+			s.log.Debug("taking half done", rootAttr, connAttr)
 			return evalMod, evalEff, connMod, nil
 		}
 		acquisition, ok := subscription.(connact.SubRec)
@@ -419,18 +419,18 @@ func (s *service) takeStep(
 		default:
 			panic(ErrRecTypeUnexpected(acquisition.ContExp))
 		}
-		s.log.Debug("step taking succeed", compAttr, connAttr)
+		s.log.Debug("step taking succeed", rootAttr, connAttr)
 		return evalMod, evalEff, connMod, nil
 	case AcquireSpec:
 		connChnl, ok := evalSnap.StructVars[termExp.ConnChnlPH]
 		if !ok {
-			s.log.Error("step taking failed", compAttr)
+			s.log.Error("step taking failed", rootAttr)
 			return evalMod, evalEff, connMod, proctermdef.ErrMissingInCfg(termExp.ConnChnlPH)
 		}
 		// вычисляем следующее состояние
 		typeExp, ok := evalSnap.StructExps[termExp.ConnChnlPH]
 		if !ok {
-			s.log.Error("step taking failed", compAttr)
+			s.log.Error("step taking failed", rootAttr)
 			return evalMod, evalEff, connMod, proctermdef.ErrMissingInCtx(termExp.ConnChnlPH)
 		}
 		nextExpCK := typeExp.(typedef.ProdRec).Next()
@@ -444,7 +444,7 @@ func (s *service) takeStep(
 			return err
 		})
 		if getErr != nil {
-			s.log.Error("step taking failed", compAttr)
+			s.log.Error("step taking failed", rootAttr)
 			return evalMod, evalEff, connMod, getErr
 		}
 		connMod.ConnID = connSnap.ConnID
@@ -466,7 +466,7 @@ func (s *service) takeStep(
 					ContExp:    termExp.ContExp,
 				},
 			})
-			s.log.Debug("taking half done", compAttr, connAttr)
+			s.log.Debug("taking half done", rootAttr, connAttr)
 			return evalMod, evalEff, connMod, nil
 		}
 		acception, ok := subscription.(connact.SubRec)
@@ -512,18 +512,18 @@ func (s *service) takeStep(
 		default:
 			panic(ErrRecTypeUnexpected(acception.ContExp))
 		}
-		s.log.Debug("step taking succeed", compAttr, connAttr)
+		s.log.Debug("step taking succeed", rootAttr, connAttr)
 		return evalMod, evalEff, connMod, nil
 	case ApplySpec:
 		connChnl, ok := evalSnap.LinearVars[termExp.ConnChnlPH]
 		if !ok {
-			s.log.Error("step taking failed", compAttr)
+			s.log.Error("step taking failed", rootAttr)
 			return evalMod, evalEff, connMod, proctermdef.ErrMissingInCfg(termExp.ConnChnlPH)
 		}
 		// вычисляем следующее состояние
 		typeExp, ok := evalSnap.LinearExps[termExp.ConnChnlPH]
 		if !ok {
-			s.log.Error("step taking failed", compAttr)
+			s.log.Error("step taking failed", rootAttr)
 			return evalMod, evalEff, connMod, proctermdef.ErrMissingInCtx(termExp.ConnChnlPH)
 		}
 		nextExpCK := typeExp.(typedef.ProdRec).Next()
@@ -537,7 +537,7 @@ func (s *service) takeStep(
 			return err
 		})
 		if getErr != nil {
-			s.log.Error("step taking failed", compAttr)
+			s.log.Error("step taking failed", rootAttr)
 			return evalMod, evalEff, connMod, getErr
 		}
 		connMod.ConnID = connSnap.ConnID
@@ -560,7 +560,7 @@ func (s *service) takeStep(
 					ContExp:    termExp.ContExp,
 				},
 			})
-			s.log.Debug("taking half done", compAttr, connAttr)
+			s.log.Debug("taking half done", rootAttr, connAttr)
 			return evalMod, evalEff, connMod, nil
 		}
 		hiring, ok := subscription.(connact.SubRec)
@@ -605,18 +605,18 @@ func (s *service) takeStep(
 		default:
 			panic(ErrRecTypeUnexpected(hiring.ContExp))
 		}
-		s.log.Debug("step taking succeed", compAttr, connAttr)
+		s.log.Debug("step taking succeed", rootAttr, connAttr)
 		return evalMod, evalEff, connMod, nil
 	case HireSpec:
 		connChnl, ok := evalSnap.LinearVars[termExp.ConnChnlPH]
 		if !ok {
-			s.log.Error("step taking failed", compAttr)
+			s.log.Error("step taking failed", rootAttr)
 			return evalMod, evalEff, connMod, proctermdef.ErrMissingInCfg(termExp.ConnChnlPH)
 		}
 		// вычисляем следующее состояние
 		typeExp, ok := evalSnap.LinearExps[termExp.ConnChnlPH]
 		if !ok {
-			s.log.Error("step taking failed", compAttr)
+			s.log.Error("step taking failed", rootAttr)
 			return evalMod, evalEff, connMod, proctermdef.ErrMissingInCtx(termExp.ConnChnlPH)
 		}
 		nextExpCK := typeExp.(typedef.ProdRec).Next()
@@ -630,7 +630,7 @@ func (s *service) takeStep(
 			return err
 		})
 		if getErr != nil {
-			s.log.Error("step taking failed", compAttr)
+			s.log.Error("step taking failed", rootAttr)
 			return evalMod, evalEff, connMod, getErr
 		}
 		connMod.ConnID = connSnap.ConnID
@@ -653,7 +653,7 @@ func (s *service) takeStep(
 					ContExp:    termExp.ContExp,
 				},
 			})
-			s.log.Debug("taking half done", compAttr, connAttr)
+			s.log.Debug("taking half done", rootAttr, connAttr)
 			return evalMod, evalEff, connMod, nil
 		}
 		application, ok := subscription.(connact.SubRec)
@@ -698,18 +698,18 @@ func (s *service) takeStep(
 		default:
 			panic(ErrRecTypeUnexpected(application.ContExp))
 		}
-		s.log.Debug("step taking succeed", compAttr, connAttr)
+		s.log.Debug("step taking succeed", rootAttr, connAttr)
 		return evalMod, evalEff, connMod, nil
 	case ReleaseSpec:
 		connChnl, ok := evalSnap.LinearVars[termExp.ConnChnlPH]
 		if !ok {
-			s.log.Error("step taking failed", compAttr)
+			s.log.Error("step taking failed", rootAttr)
 			return evalMod, evalEff, connMod, proctermdef.ErrMissingInCfg(termExp.ConnChnlPH)
 		}
 		// вычисляем следующее состояние
 		typeExp, ok := evalSnap.LinearExps[termExp.ConnChnlPH]
 		if !ok {
-			s.log.Error("step taking failed", compAttr)
+			s.log.Error("step taking failed", rootAttr)
 			return evalMod, evalEff, connMod, proctermdef.ErrMissingInCtx(termExp.ConnChnlPH)
 		}
 		nextExpCK := typeExp.(typedef.ProdRec).Next()
@@ -723,7 +723,7 @@ func (s *service) takeStep(
 			return err
 		})
 		if getErr != nil {
-			s.log.Error("step taking failed", compAttr)
+			s.log.Error("step taking failed", rootAttr)
 			return evalMod, evalEff, connMod, getErr
 		}
 		connMod.ConnID = connSnap.ConnID
@@ -744,7 +744,7 @@ func (s *service) takeStep(
 					ContChnlPH: connChnl.ChnlPH,
 				},
 			})
-			s.log.Debug("taking half done", compAttr, connAttr)
+			s.log.Debug("taking half done", rootAttr, connAttr)
 			return evalMod, evalEff, connMod, nil
 		}
 		detaching, ok := subscription.(connact.SubRec)
@@ -775,18 +775,18 @@ func (s *service) takeStep(
 		default:
 			panic(ErrRecTypeUnexpected(detaching.ContExp))
 		}
-		s.log.Debug("step taking succeed", compAttr, connAttr)
+		s.log.Debug("step taking succeed", rootAttr, connAttr)
 		return evalMod, evalEff, connMod, nil
 	case DetachSpec:
 		connChnl, ok := evalSnap.LinearVars[termExp.ConnChnlPH]
 		if !ok {
-			s.log.Error("step taking failed", compAttr)
+			s.log.Error("step taking failed", rootAttr)
 			return evalMod, evalEff, connMod, proctermdef.ErrMissingInCfg(termExp.ConnChnlPH)
 		}
 		// вычисляем следующее состояние
 		typeExp, ok := evalSnap.LinearExps[termExp.ConnChnlPH]
 		if !ok {
-			s.log.Error("step taking failed", compAttr)
+			s.log.Error("step taking failed", rootAttr)
 			return evalMod, evalEff, connMod, proctermdef.ErrMissingInCtx(termExp.ConnChnlPH)
 		}
 		nextExpCK := typeExp.(typedef.ProdRec).Next()
@@ -800,7 +800,7 @@ func (s *service) takeStep(
 			return err
 		})
 		if getErr != nil {
-			s.log.Error("step taking failed", compAttr)
+			s.log.Error("step taking failed", rootAttr)
 			return evalMod, evalEff, connMod, getErr
 		}
 		connMod.ConnID = connSnap.ConnID
@@ -821,7 +821,7 @@ func (s *service) takeStep(
 					ContChnlPH: connChnl.ChnlPH,
 				},
 			})
-			s.log.Debug("taking half done", compAttr, connAttr)
+			s.log.Debug("taking half done", rootAttr, connAttr)
 			return evalMod, evalEff, connMod, nil
 		}
 		releasing, ok := subscription.(connact.SubRec)
@@ -851,7 +851,7 @@ func (s *service) takeStep(
 		default:
 			panic(ErrRecTypeUnexpected(releasing.ContExp))
 		}
-		s.log.Debug("step taking succeed", compAttr, connAttr)
+		s.log.Debug("step taking succeed", rootAttr, connAttr)
 		return evalMod, evalEff, connMod, nil
 	default:
 		panic(ErrSpecTypeUnexpected(exp))

@@ -12,8 +12,8 @@ import (
 // goverter:extend orglang/go-engine/internal/adt/seqnum:Convert.*
 // goverter:extend orglang/go-engine/internal/pool/execeval/adapter:Data.*
 var (
-	// goverter:map ExecID RootID
-	// goverter:map ExecRN RootRN
+	// goverter:map ExecID ExecID
+	// goverter:map ExecRN ExecRN
 	DataToRootRef func(ActRec) (execroot.RootRef, error)
 	// goverter:map . RootRef
 	// goverter:map Exp ValExp

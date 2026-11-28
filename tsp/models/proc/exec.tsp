@@ -1,4 +1,4 @@
-import "../any/comp.tsp";
+import "../any/root.tsp";
 import "./term/expr.tsp";
 
 namespace OrgLang.Proc;

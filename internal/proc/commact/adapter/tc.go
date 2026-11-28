@@ -69,9 +69,9 @@ func DataToStepRec(dto ActRec) (commact.ActRec, error) {
 	rootRef := execroot.RootRef{ExecID: rootID, ExecRN: seqnum.ADT(dto.ExecRN)}
 	switch dto.K {
 	case MsgStep:
-		return commact.PubRec{CommID: commID, ActNr: seqnum.ADT(dto.ActNr), RootRef: rootRef, ChnlID: chnlID, ValExpr: exp}, nil
+		return commact.PubRec{CommID: commID, ActNr: seqnum.ADT(dto.ActNr), RootRef: rootRef, ChnlID: chnlID, ValExp: exp}, nil
 	case SvcStep:
-		return commact.SubRec{CommID: commID, ActNr: seqnum.ADT(dto.ActNr), RootRef: rootRef, ChnlID: chnlID, ContExpr: exp}, nil
+		return commact.SubRec{CommID: commID, ActNr: seqnum.ADT(dto.ActNr), RootRef: rootRef, ChnlID: chnlID, ContExp: exp}, nil
 	default:
 		return nil, fmt.Errorf("unexpected Act kind: %v", dto.K)
 	}

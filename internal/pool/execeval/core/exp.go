@@ -157,7 +157,7 @@ type SpawnSpec2 struct {
 	ProcTermID identity.ADT
 	ProcTermRN seqnum.ADT
 	// ссылки на воплощения потребляемых процессов
-	ProcRootRefs []comproot.RootRef
+	ProcRootRefs []execroot.RootRef
 }
 
 func (s SpawnSpec2) spec()    {}

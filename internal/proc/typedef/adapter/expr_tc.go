@@ -9,7 +9,7 @@ import (
 	typedef "orglang/go-engine/internal/proc/typedef/core"
 )
 
-func dataFromExpRef(ref typedef.ExpRef) ExpRef {
+func dataFromExprRef(ref typedef.ExpRef) ExpRef {
 	if ref == nil {
 		panic("can't be null")
 	}
@@ -32,7 +32,7 @@ func dataFromExpRef(ref typedef.ExpRef) ExpRef {
 	}
 }
 
-func dataToExpRef(dto ExpRef) (typedef.ExpRef, error) {
+func dataToExprRef(dto ExpRef) (typedef.ExpRef, error) {
 	expCK, err := contkey.ConvertFromInt(dto.ExpCK)
 	if err != nil {
 		return nil, err
@@ -55,15 +55,15 @@ func dataToExpRef(dto ExpRef) (typedef.ExpRef, error) {
 	}
 }
 
-func dataToExpRec(dto ExpRec) (typedef.ExpRec, error) {
+func dataToExprRec(dto ExpRec) (typedef.ExpRec, error) {
 	states := make(map[int64]State, len(dto.States))
 	for _, dto := range dto.States {
 		states[dto.ExpCK] = dto
 	}
-	return statesToExpRec(states, states[dto.ExpCK])
+	return statesToExprRec(states, states[dto.ExpCK])
 }
 
-func dataFromExpRec(rec typedef.ExpRec) ExpRec {
+func dataFromExprRec(rec typedef.ExpRec) ExpRec {
 	if rec == nil {
 		panic("can't be nil")
 	}
@@ -71,11 +71,11 @@ func dataFromExpRec(rec typedef.ExpRec) ExpRec {
 		ExpCK:  contkey.ConvertToInt(rec.Key()),
 		States: nil,
 	}
-	statesFromExpRec(0, rec, dto)
+	statesFromExprRec(0, rec, dto)
 	return *dto
 }
 
-func statesToExpRec(states map[int64]State, st State) (typedef.ExpRec, error) {
+func statesToExprRec(states map[int64]State, st State) (typedef.ExpRec, error) {
 	expCK, err := contkey.ConvertFromInt(st.ExpCK)
 	if err != nil {
 		return nil, err
@@ -90,21 +90,21 @@ func statesToExpRec(states map[int64]State, st State) (typedef.ExpRec, error) {
 		}
 		return typedef.LinkRec{ExpCK: expCK, TypeQN: typeQN}, nil
 	case TensorKind:
-		b, err := statesToExpRec(states, states[st.Spec.Tensor.ValExpCK])
+		b, err := statesToExprRec(states, states[st.Spec.Tensor.ValExpCK])
 		if err != nil {
 			return nil, err
 		}
-		c, err := statesToExpRec(states, states[st.Spec.Tensor.ContExpCK])
+		c, err := statesToExprRec(states, states[st.Spec.Tensor.ContExpCK])
 		if err != nil {
 			return nil, err
 		}
 		return typedef.TensorRec{ExpCK: expCK, Val: b, Cont: c}, nil
 	case LolliKind:
-		y, err := statesToExpRec(states, states[st.Spec.Lolli.ValExpCK])
+		y, err := statesToExprRec(states, states[st.Spec.Lolli.ValExpCK])
 		if err != nil {
 			return nil, err
 		}
-		z, err := statesToExpRec(states, states[st.Spec.Lolli.ContExpCK])
+		z, err := statesToExprRec(states, states[st.Spec.Lolli.ContExpCK])
 		if err != nil {
 			return nil, err
 		}
@@ -112,7 +112,7 @@ func statesToExpRec(states map[int64]State, st State) (typedef.ExpRec, error) {
 	case PlusKind:
 		choices := make(map[uniqsym.ADT]typedef.ExpRec, len(st.Spec.Plus))
 		for _, ch := range st.Spec.Plus {
-			choice, err := statesToExpRec(states, states[ch.ContExpCK])
+			choice, err := statesToExprRec(states, states[ch.ContExpCK])
 			if err != nil {
 				return nil, err
 			}
@@ -126,7 +126,7 @@ func statesToExpRec(states map[int64]State, st State) (typedef.ExpRec, error) {
 	case WithKind:
 		choices := make(map[uniqsym.ADT]typedef.ExpRec, len(st.Spec.With))
 		for _, ch := range st.Spec.With {
-			choice, err := statesToExpRec(states, states[ch.ContExpCK])
+			choice, err := statesToExprRec(states, states[ch.ContExpCK])
 			if err != nil {
 				return nil, err
 			}
@@ -142,18 +142,18 @@ func statesToExpRec(states map[int64]State, st State) (typedef.ExpRec, error) {
 	}
 }
 
-func statesFromExpRec(fromID int64, r typedef.ExpRec, dto *ExpRec) int64 {
+func statesFromExprRec(fromID int64, r typedef.ExpRec, dto *ExpRec) int64 {
 	expCK := contkey.ConvertToInt(r.Key())
 	switch rec := r.(type) {
 	case typedef.OneRec:
-		st := State{ExpCK: expCK, K: OneKind, SupExpCK: fromID}
+		st := State{ExpCK: expCK, K: OneKind, SupExprCK: fromID}
 		dto.States = append(dto.States, st)
 		return expCK
 	case typedef.LinkRec:
 		st := State{
 			ExpCK:    expCK,
 			K:        LinkKind,
-			SupExpCK: fromID,
+			SupExprCK: fromID,
 			Spec: ExpSpec{
 				Link: uniqsym.ConvertToString(rec.TypeQN),
 			},
@@ -161,12 +161,12 @@ func statesFromExpRec(fromID int64, r typedef.ExpRec, dto *ExpRec) int64 {
 		dto.States = append(dto.States, st)
 		return expCK
 	case typedef.TensorRec:
-		val := statesFromExpRec(expCK, rec.Val, dto)
-		cont := statesFromExpRec(expCK, rec.Cont, dto)
+		val := statesFromExprRec(expCK, rec.Val, dto)
+		cont := statesFromExprRec(expCK, rec.Cont, dto)
 		st := State{
 			ExpCK:    expCK,
 			K:        TensorKind,
-			SupExpCK: fromID,
+			SupExprCK: fromID,
 			Spec: ExpSpec{
 				Tensor: &Prod{ValExpCK: val, ContExpCK: cont},
 			},
@@ -174,12 +174,12 @@ func statesFromExpRec(fromID int64, r typedef.ExpRec, dto *ExpRec) int64 {
 		dto.States = append(dto.States, st)
 		return expCK
 	case typedef.LolliRec:
-		val := statesFromExpRec(expCK, rec.Val, dto)
-		cont := statesFromExpRec(expCK, rec.Cont, dto)
+		val := statesFromExprRec(expCK, rec.Val, dto)
+		cont := statesFromExprRec(expCK, rec.Cont, dto)
 		st := State{
 			ExpCK:    expCK,
 			K:        LolliKind,
-			SupExpCK: fromID,
+			SupExprCK: fromID,
 			Spec: ExpSpec{
 				Lolli: &Prod{ValExpCK: val, ContExpCK: cont},
 			},
@@ -189,13 +189,13 @@ func statesFromExpRec(fromID int64, r typedef.ExpRec, dto *ExpRec) int64 {
 	case typedef.PlusRec:
 		var choices []Sum
 		for label, choice := range rec.Choices {
-			cont := statesFromExpRec(expCK, choice, dto)
+			cont := statesFromExprRec(expCK, choice, dto)
 			choices = append(choices, Sum{LabQN: uniqsym.ConvertToString(label), ContExpCK: cont})
 		}
 		st := State{
 			ExpCK:    expCK,
 			K:        PlusKind,
-			SupExpCK: fromID,
+			SupExprCK: fromID,
 			Spec:     ExpSpec{Plus: choices},
 		}
 		dto.States = append(dto.States, st)
@@ -203,13 +203,13 @@ func statesFromExpRec(fromID int64, r typedef.ExpRec, dto *ExpRec) int64 {
 	case typedef.WithRec:
 		var choices []Sum
 		for label, choice := range rec.Choices {
-			cont := statesFromExpRec(expCK, choice, dto)
+			cont := statesFromExprRec(expCK, choice, dto)
 			choices = append(choices, Sum{LabQN: uniqsym.ConvertToString(label), ContExpCK: cont})
 		}
 		st := State{
 			ExpCK:    expCK,
 			K:        WithKind,
-			SupExpCK: fromID,
+			SupExprCK: fromID,
 			Spec:     ExpSpec{With: choices},
 		}
 		dto.States = append(dto.States, st)

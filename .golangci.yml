@@ -52,7 +52,7 @@ linters:
             - {pkg: orglang/go-engine/internal/pool/termdef/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/typedef/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/pool/typeexp/adapter, desc: *adapterBoundary}
-            - {pkg: orglang/go-engine/internal/adt/comproot/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/adt/execroot/adapter, desc: *adapterBoundary}
             - {pkg: github.com/jackc/pgx, desc: "Use lib/tx contracts; keep pgx in infrastructure adapters."}
         ProcCore:
           list-mode: lax
@@ -82,7 +82,7 @@ linters:
             - "**/adt/*/domain/**/*.go"
             - "!**/*_test.go"
           deny:
-            - {pkg: orglang/go-engine/internal/adt/comproot/adapter, desc: *adapterBoundary}
+            - {pkg: orglang/go-engine/internal/adt/execroot/adapter, desc: *adapterBoundary}
             - {pkg: orglang/go-engine/internal/proc, desc: "Part is the generic participant abstraction; it must not depend on the process aggregate."}
             - {pkg: orglang/go-engine/internal/pool, desc: "Part is the generic participant abstraction; it must not depend on the pool aggregate."}
             - {pkg: orglang/go-engine/internal/prog, desc: "Part is the generic participant abstraction; it must not depend on the application composition root."}

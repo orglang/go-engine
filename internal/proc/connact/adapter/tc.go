@@ -3,8 +3,8 @@ package adapter
 import (
 	"fmt"
 
-	"orglang/go-engine/internal/adt/comproot"
-	comprootadapter "orglang/go-engine/internal/adt/comproot/adapter"
+	"orglang/go-engine/internal/adt/execroot"
+	execrootadapter "orglang/go-engine/internal/adt/execroot/adapter"
 	"orglang/go-engine/internal/adt/identity"
 	"orglang/go-engine/internal/adt/seqnum"
 
@@ -19,12 +19,12 @@ func DataFromStepRec(r connact.ActRec) (ActRec, error) {
 		if err != nil {
 			return ActRec{}, err
 		}
-		compRef := comprootadapter.DataFromRef(rec.CompRef)
+		rootRef := execrootadapter.DataFromRef(rec.RootRef)
 		return ActRec{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
-			ExecID: compRef.CompID,
-			ExecRN: compRef.CompRN,
+			ExecID: rootRef.RootID,
+			ExecRN: rootRef.RootRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
 			K:      MsgStep,
 			Exp:    exp,
@@ -34,12 +34,12 @@ func DataFromStepRec(r connact.ActRec) (ActRec, error) {
 		if err != nil {
 			return ActRec{}, err
 		}
-		compRef := comprootadapter.DataFromRef(rec.CompRef)
+		rootRef := execrootadapter.DataFromRef(rec.RootRef)
 		return ActRec{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
-			ExecID: compRef.CompID,
-			ExecRN: compRef.CompRN,
+			ExecID: rootRef.RootID,
+			ExecRN: rootRef.RootRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
 			K:      SvcStep,
 			Exp:    exp,
@@ -66,12 +66,12 @@ func DataToStepRec(dto ActRec) (connact.ActRec, error) {
 	if err != nil {
 		return nil, err
 	}
-	compRef := comproot.RootRef{CompID: compID, CompRN: seqnum.ADT(dto.ExecRN)}
+	rootRef := execroot.RootRef{RootID: compID, RootRN: seqnum.ADT(dto.ExecRN)}
 	switch dto.K {
 	case MsgStep:
-		return connact.PubRec{ConnID: connID, ActNr: seqnum.ADT(dto.ActNr), CompRef: compRef, ChnlID: chnlID, ValExp: exp}, nil
+		return connact.PubRec{ConnID: connID, ActNr: seqnum.ADT(dto.ActNr), RootRef: rootRef, ChnlID: chnlID, ValExp: exp}, nil
 	case SvcStep:
-		return connact.SubRec{ConnID: connID, ActNr: seqnum.ADT(dto.ActNr), CompRef: compRef, ChnlID: chnlID, ContExp: exp}, nil
+		return connact.SubRec{ConnID: connID, ActNr: seqnum.ADT(dto.ActNr), RootRef: rootRef, ChnlID: chnlID, ContExp: exp}, nil
 	default:
 		return nil, fmt.Errorf("unexpected Act kind: %v", dto.K)
 	}

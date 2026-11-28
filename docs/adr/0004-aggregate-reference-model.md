@@ -128,7 +128,7 @@ Execution — отдельный aggregate root в каждом bounded context.
 
 ### Connection
 
-Connection — сущность первого уровня внутри Execution aggregate, а не отдельный aggregate root и не часть Execution.
+Connection — сущность первого уровня внутри Execution aggregate, а не отдельный aggregate root и не часть Evaluation.
 
 - Connection имеет собственный ID.
 - Connection связывает Provider Execution и Client Execution.

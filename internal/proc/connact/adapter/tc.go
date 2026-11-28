@@ -23,8 +23,8 @@ func DataFromStepRec(r connact.ActRec) (ActRec, error) {
 		return ActRec{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
-			ExecID: rootRef.RootID,
-			ExecRN: rootRef.RootRN,
+			ExecID: rootRef.ExecID,
+			ExecRN: rootRef.ExecRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
 			K:      MsgStep,
 			Exp:    exp,
@@ -38,8 +38,8 @@ func DataFromStepRec(r connact.ActRec) (ActRec, error) {
 		return ActRec{
 			ConnID: identity.ConvertToString(rec.ConnID),
 			ActNr:  int64(rec.ActNr),
-			ExecID: rootRef.RootID,
-			ExecRN: rootRef.RootRN,
+			ExecID: rootRef.ExecID,
+			ExecRN: rootRef.ExecRN,
 			ChnlID: identity.ConvertToString(rec.ChnlID),
 			K:      SvcStep,
 			Exp:    exp,
@@ -66,7 +66,7 @@ func DataToStepRec(dto ActRec) (connact.ActRec, error) {
 	if err != nil {
 		return nil, err
 	}
-	rootRef := execroot.RootRef{RootID: rootID, RootRN: seqnum.ADT(dto.ExecRN)}
+	rootRef := execroot.RootRef{ExecID: rootID, ExecRN: seqnum.ADT(dto.ExecRN)}
 	switch dto.K {
 	case MsgStep:
 		return connact.PubRec{ConnID: connID, ActNr: seqnum.ADT(dto.ActNr), RootRef: rootRef, ChnlID: chnlID, ValExp: exp}, nil

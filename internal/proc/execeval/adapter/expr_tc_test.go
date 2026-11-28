@@ -44,7 +44,7 @@ func TestExprRecRoundTripPreservesCommunicationIDs(t *testing.T) {
 		commact.CaseRec{
 			CommChnlPH: commChnl,
 			ContChnlID: contID,
-			ContExps: map[uniqsym.ADT]commact.ExprSpec{
+			ContExprs: map[uniqsym.ADT]commact.ExprSpec{
 				label: commact.CloseSpec{ContChnlPH: contChnl},
 			},
 		},

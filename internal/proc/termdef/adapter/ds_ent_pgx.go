@@ -32,7 +32,7 @@ func NewDaoEnt(client *ent.Client, log *slog.Logger) termdef.Repo {
 
 var _ termdef.Repo = (*daoEnt)(nil)
 
-func (dao *daoEnt) SetExpCK(ctx context.Context, conn tx.Conn, termID identity.ADT, exprCK contkey.ADT) error {
+func (dao *daoEnt) SetExprCK(ctx context.Context, conn tx.Conn, termID identity.ADT, exprCK contkey.ADT) error {
 	const query = `
 UPDATE proc_prog_terms
 SET expr_ck = $1

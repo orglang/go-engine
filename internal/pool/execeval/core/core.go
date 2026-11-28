@@ -79,9 +79,9 @@ type EvalSnap2 struct {
 type EvalSnap3 struct {
 	RootRef    execroot.RootRef
 	StructVars map[symbol.ADT]execvar.StructRec
-	StructExps map[symbol.ADT]typedef.ExprRec
+	StructExprs map[symbol.ADT]typedef.ExprRec
 	LinearVars map[symbol.ADT]execvar.LinearRec
-	LinearExps map[symbol.ADT]typedef.ExprRec
+	LinearExprs map[symbol.ADT]typedef.ExprRec
 }
 
 type service struct {
@@ -335,7 +335,7 @@ func (s *service) takeStep(
 			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExpr.CommChnlPH)
 		}
 		// вычисляем следующее состояние
-		typeExpr, ok := evalSnap.StructExps[termExpr.CommChnlPH]
+		typeExpr, ok := evalSnap.StructExprs[termExpr.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
 			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCtx(termExpr.CommChnlPH)
@@ -428,7 +428,7 @@ func (s *service) takeStep(
 			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExpr.CommChnlPH)
 		}
 		// вычисляем следующее состояние
-		typeExpr, ok := evalSnap.StructExps[termExpr.CommChnlPH]
+		typeExpr, ok := evalSnap.StructExprs[termExpr.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
 			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCtx(termExpr.CommChnlPH)
@@ -521,7 +521,7 @@ func (s *service) takeStep(
 			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExpr.CommChnlPH)
 		}
 		// вычисляем следующее состояние
-		typeExpr, ok := evalSnap.LinearExps[termExpr.CommChnlPH]
+		typeExpr, ok := evalSnap.LinearExprs[termExpr.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
 			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCtx(termExpr.CommChnlPH)
@@ -614,7 +614,7 @@ func (s *service) takeStep(
 			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExpr.CommChnlPH)
 		}
 		// вычисляем следующее состояние
-		typeExpr, ok := evalSnap.LinearExps[termExpr.CommChnlPH]
+		typeExpr, ok := evalSnap.LinearExprs[termExpr.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
 			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCtx(termExpr.CommChnlPH)
@@ -707,7 +707,7 @@ func (s *service) takeStep(
 			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExpr.CommChnlPH)
 		}
 		// вычисляем следующее состояние
-		typeExpr, ok := evalSnap.LinearExps[termExpr.CommChnlPH]
+		typeExpr, ok := evalSnap.LinearExprs[termExpr.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
 			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCtx(termExpr.CommChnlPH)
@@ -784,7 +784,7 @@ func (s *service) takeStep(
 			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCfg(termExpr.CommChnlPH)
 		}
 		// вычисляем следующее состояние
-		typeExpr, ok := evalSnap.LinearExps[termExpr.CommChnlPH]
+		typeExpr, ok := evalSnap.LinearExprs[termExpr.CommChnlPH]
 		if !ok {
 			s.log.Error("step taking failed", execAttr)
 			return evalMod, evalEff, commMod, proctermdef.ErrMissingInCtx(termExpr.CommChnlPH)
@@ -867,14 +867,14 @@ func (s *service) retrieveSnap(ctx context.Context, ref execroot.RootRef) (_ Eva
 	if getErr1 != nil {
 		return EvalSnap3{}, getErr1
 	}
-	var structExps map[symbol.ADT]typedef.ExprRec
-	var linearExps map[symbol.ADT]typedef.ExprRec
+	var structExprs map[symbol.ADT]typedef.ExprRec
+	var linearExprs map[symbol.ADT]typedef.ExprRec
 	getErr2 := s.transactor.ImplicitTx(ctx, func(txCtx context.Context, conn tx.Conn) error {
-		structExps, err = s.typeDefRepo.GetTypeMap(txCtx, conn, ExtractExprCKs(evalSnap.StructVars))
+		structExprs, err = s.typeDefRepo.GetTypeMap(txCtx, conn, ExtractExprCKs(evalSnap.StructVars))
 		if err != nil {
 			return err
 		}
-		linearExps, err = s.typeDefRepo.GetTypeMap(txCtx, conn, ExtractExprCKs(evalSnap.LinearVars))
+		linearExprs, err = s.typeDefRepo.GetTypeMap(txCtx, conn, ExtractExprCKs(evalSnap.LinearVars))
 		return err
 	})
 	if getErr2 != nil {
@@ -883,8 +883,8 @@ func (s *service) retrieveSnap(ctx context.Context, ref execroot.RootRef) (_ Eva
 	return EvalSnap3{
 		RootRef:    evalSnap.RootRef,
 		StructVars: execvar.ConvertRecsToRecMap(evalSnap.StructVars),
-		StructExps: structExps,
+		StructExprs: structExprs,
 		LinearVars: execvar.ConvertRecsToRecMap(evalSnap.LinearVars),
-		LinearExps: linearExps,
+		LinearExprs: linearExprs,
 	}, nil
 }

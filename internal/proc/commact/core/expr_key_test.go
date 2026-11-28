@@ -40,14 +40,14 @@ func TestExprContentKeyIsStableForCaseMapInsertionOrder(t *testing.T) {
 	rightLabel := uniqsym.New(symbol.New("right"))
 	left := CaseSpec{
 		CommChnlPH: symbol.New("conn"),
-		ContExps: map[uniqsym.ADT]ExprSpec{
+		ContExprs: map[uniqsym.ADT]ExprSpec{
 			leftLabel:  CloseSpec{ContChnlPH: symbol.New("left")},
 			rightLabel: CloseSpec{ContChnlPH: symbol.New("right")},
 		},
 	}
 	right := CaseSpec{
 		CommChnlPH: symbol.New("conn"),
-		ContExps: map[uniqsym.ADT]ExprSpec{
+		ContExprs: map[uniqsym.ADT]ExprSpec{
 			rightLabel: CloseSpec{ContChnlPH: symbol.New("right")},
 			leftLabel:  CloseSpec{ContChnlPH: symbol.New("left")},
 		},
@@ -78,7 +78,7 @@ func TestExprContentKeySerializesEveryVariant(t *testing.T) {
 		{SendSpec{CommChnlPH: symbol.New("conn"), ValChnlPH: symbol.New("value")}, "send"},
 		{RecvSpec{CommChnlPH: symbol.New("conn"), NewChnlPH: symbol.New("new"), ContExpr: cont}, "recv"},
 		{LabSpec{CommChnlPH: symbol.New("conn"), ValLabQN: uniqsym.New(symbol.New("label")), ContExpr: cont}, "lab"},
-		{CaseSpec{CommChnlPH: symbol.New("conn"), ContExps: map[uniqsym.ADT]ExprSpec{uniqsym.New(symbol.New("label")): cont}}, "case"},
+		{CaseSpec{CommChnlPH: symbol.New("conn"), ContExprs: map[uniqsym.ADT]ExprSpec{uniqsym.New(symbol.New("label")): cont}}, "case"},
 		{LinkSpec{ProcTermQN: procTermQN, X: identity.New(), Ys: []identity.ADT{identity.New()}}, "link"},
 		{FwdSpec{CommChnlPH: symbol.New("conn"), ContChnlPH: symbol.New("next")}, "fwd"},
 		{CallSpec{CommChnlPH: symbol.New("conn"), NewChnlPH: symbol.New("new"), ProcTermQN: procTermQN, ValChnlPHs: []symbol.ADT{symbol.New("value")}, ContExpr: cont}, "call"},

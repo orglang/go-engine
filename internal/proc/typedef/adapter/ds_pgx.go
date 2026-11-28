@@ -206,14 +206,14 @@ func (dao *daoEnt) GetRecsByQNs(ctx context.Context, conn tx.Conn, qns []uniqsym
 
 const (
 	selectRecByQN = `
-SELECT db.prog_qn AS type_qn, td.type_id, td.prog_id, td.exp_ck, dr.prog_rn AS prog_rn
+SELECT db.prog_qn AS type_qn, td.type_id, td.prog_id, td.expr_ck, dr.prog_rn AS prog_rn
 FROM proc_type_defs AS td
 JOIN proc_prog_roots AS dr ON dr.prog_id = td.prog_id
 JOIN proc_prog_binds AS db ON db.prog_id = td.type_id
 WHERE db.prog_qn = $1
 `
 	selectRecByID = `
-SELECT db.prog_qn AS type_qn, td.type_id, td.prog_id, td.exp_ck, dr.prog_rn AS prog_rn
+SELECT db.prog_qn AS type_qn, td.type_id, td.prog_id, td.expr_ck, dr.prog_rn AS prog_rn
 FROM proc_type_defs AS td
 JOIN proc_prog_roots AS dr ON dr.prog_id = td.prog_id
 JOIN proc_prog_binds AS db ON db.prog_id = td.type_id

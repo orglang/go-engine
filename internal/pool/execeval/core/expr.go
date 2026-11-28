@@ -29,7 +29,7 @@ const (
 )
 
 type ExpSpec interface {
-	IsPoolExpr()
+	IsPoolExp()
 }
 
 // запрос доступа (подписка) со стороны клиента (спрос на доступ)
@@ -39,7 +39,7 @@ type AcquireSpec struct {
 }
 
 func (s AcquireSpec) spec()    {}
-func (AcquireSpec) IsPoolExpr() {}
+func (AcquireSpec) IsPoolExp() {}
 
 func (s AcquireSpec) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
@@ -52,7 +52,7 @@ type AcceptSpec struct {
 }
 
 func (s AcceptSpec) spec()    {}
-func (AcceptSpec) IsPoolExpr() {}
+func (AcceptSpec) IsPoolExp() {}
 
 func (s AcceptSpec) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
@@ -67,7 +67,7 @@ type HireSpec struct {
 }
 
 func (s HireSpec) spec()    {}
-func (HireSpec) IsPoolExpr() {}
+func (HireSpec) IsPoolExp() {}
 
 func (s HireSpec) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
@@ -82,7 +82,7 @@ type ApplySpec struct {
 }
 
 func (s ApplySpec) spec()    {}
-func (ApplySpec) IsPoolExpr() {}
+func (ApplySpec) IsPoolExp() {}
 
 func (s ApplySpec) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
@@ -94,7 +94,7 @@ type ReleaseSpec struct {
 }
 
 func (s ReleaseSpec) spec()    {}
-func (ReleaseSpec) IsPoolExpr() {}
+func (ReleaseSpec) IsPoolExp() {}
 
 func (s ReleaseSpec) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
@@ -106,7 +106,7 @@ type DetachSpec struct {
 }
 
 func (s DetachSpec) spec()    {}
-func (DetachSpec) IsPoolExpr() {}
+func (DetachSpec) IsPoolExp() {}
 
 func (s DetachSpec) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
@@ -119,7 +119,7 @@ type FireSpec struct {
 }
 
 func (s FireSpec) spec()    {}
-func (FireSpec) IsPoolExpr() {}
+func (FireSpec) IsPoolExp() {}
 
 func (s FireSpec) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
@@ -132,7 +132,7 @@ type QuitSpec struct {
 }
 
 func (s QuitSpec) spec()    {}
-func (QuitSpec) IsPoolExpr() {}
+func (QuitSpec) IsPoolExp() {}
 
 func (s QuitSpec) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
@@ -146,7 +146,7 @@ type SpawnSpec struct {
 }
 
 func (s SpawnSpec) spec()    {}
-func (SpawnSpec) IsPoolExpr() {}
+func (SpawnSpec) IsPoolExp() {}
 
 func (s SpawnSpec) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
@@ -161,7 +161,7 @@ type SpawnSpec2 struct {
 }
 
 func (s SpawnSpec2) spec()    {}
-func (SpawnSpec2) IsPoolExpr() {}
+func (SpawnSpec2) IsPoolExp() {}
 
 func (s SpawnSpec2) LogValue() slog.Value {
 	return slog.StringValue(fmt.Sprintf("%T%+v", s, s))
@@ -247,6 +247,6 @@ func ErrRecTypeUnexpected(got ExpRec) error {
 	return fmt.Errorf("expr rec unexpected: %T%+v", got, got)
 }
 
-func ErrExprKindUnexpected(got ExpKind) error {
+func ErrExpKindUnexpected(got ExpKind) error {
 	return fmt.Errorf("expr kind unexpected: %v", got)
 }

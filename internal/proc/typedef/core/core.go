@@ -49,14 +49,14 @@ type Context struct {
 type service struct {
 	typeDefRepo  Repo
 	progRootRepo progroot.Repo
-	typeExprrRepo  TypeExprrRepo
+	typeExprrRepo  TypeExprRepo
 	transactor   tx.Transactor
 	log          *slog.Logger
 }
 
 func newAPI() API { return new(service) }
 
-func NewService(typeDefRepo Repo, progRootRepo progroot.Repo, typeExprrRepo TypeExprrRepo, transactor tx.Transactor, log *slog.Logger) API {
+func NewService(typeDefRepo Repo, progRootRepo progroot.Repo, typeExprrRepo TypeExprRepo, transactor tx.Transactor, log *slog.Logger) API {
 	return &service{typeDefRepo: typeDefRepo, progRootRepo: progRootRepo, typeExprrRepo: typeExprrRepo, transactor: transactor, log: log}
 }
 

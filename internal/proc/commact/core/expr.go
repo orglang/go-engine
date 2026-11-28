@@ -210,7 +210,7 @@ func collectEnvRec(s ExpSpec, env []identity.ADT) []identity.ADT {
 	}
 }
 
-func ErrExprTypeUnexpected(got ExpSpec) error {
+func ErrExpTypeUnexpected(got ExpSpec) error {
 	return fmt.Errorf("expr spec unexpected: %T", got)
 }
 
@@ -218,7 +218,7 @@ func ErrRecTypeUnexpected(got any) error {
 	return fmt.Errorf("expr rec unexpected: %T", got)
 }
 
-func ErrExprTypeMismatch(got, want ExpSpec) error {
+func ErrExpTypeMismatch(got, want ExpSpec) error {
 	return fmt.Errorf("expr spec mismatch: want %T, got %T", want, got)
 }
 
